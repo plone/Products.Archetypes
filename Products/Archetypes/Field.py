@@ -587,6 +587,17 @@ class ReferenceField(ObjectField):
         'destination': None,
         })
 
+    def containsValueAsString(self,value,attrval):
+        '''
+        checks wether the attribute contains a value
+           if the field is a scalar -> comparison
+           if it is multiValued     -> check for 'in'
+        '''
+        if self.multiValued:
+            return str(value) in [str(a) for a in attrval]
+        else:
+            return str(value) == str(attrval)
+        
     def Vocabulary(self, content_instance=None):
         #If we have a method providing the list of types go with it,
         #it can always pull allowed_types if it needs to (not that we

@@ -11,11 +11,24 @@
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
-          <a href="#"
-             tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor())"
+        
+        <a href="#"
+             tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor());"
              tal:attributes="href obj/absolute_url"
              tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-             tal:condition="python:obj is not None"></a>
+             tal:condition="python:not field.multiValued and obj is not None">
+        </a>
+
+        <tal:block tal:condition="python:field.multiValued"
+                   tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in accessor()];">
+            
+              <a href="#"
+                 
+                 tal:attributes="href obj/absolute_url"
+                 tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+                 tal:condition="python:obj is not None"></a>
+        </tal:block>
+
 	</div>
       </div>
     </div>
@@ -25,6 +38,7 @@
 	<div metal:fill-slot="widget_body"
 	  tal:define="
 	  vocab python:field.Vocabulary(here);
+      fieldName python:test(field.multiValued,fieldName+':list',fieldName);
 	  vlen  python: len(vocab);
 	  ">
 	  <div tal:condition="python: vlen < 4">
@@ -35,9 +49,11 @@
 		     tabindex=""
 		     type="radio"
 		     tal:attributes="name fieldName;
-		checked python: str(value) == str(item);
+		checked python: field.containsValueAsString(item,value);
 		value item;
-		tabindex tabindex/next;"
+		tabindex tabindex/next;
+        type python:test(field.multiValued,'checkbox','radio');
+        "
 		/><span tal:content="python: vocab.getValue(item)"/>
 		&nbsp;
 	     </span>
@@ -56,11 +72,12 @@
 	  <!-- Pulldown when longer -->
 	  <div tal:condition="python: vlen >= 4">
 	    <select tal:attributes="name fieldName; id fieldName;
+          multiple python:test(field.multiValued,'multiple','');
 	      tabindex tabindex/next;">
 	      <option
 		      selected=""
 		      tal:repeat="item vocab"
-		tal:attributes="selected python:test(str(value) == str(item), 'selected', None); value item;"
+		tal:attributes="selected python:test(field.containsValueAsString(item,value), 'selected', None); value item;"
 		tal:content="python: vocab.getValue(item)"
 		/>
 	    </select>
