@@ -49,6 +49,19 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
         BaseObject.manage_beforeDelete(self, item, container)
         SkinnedFolder.manage_beforeDelete(self, item, container)
 
+    def setDescription(self, value, **kwargs):
+        """we have to override setDescription here to handle arbitrary 
+        arguments since PortalFolder defines it.
+        """ 
+        self.getField('description').set(self, value, **kwargs)
+
+
+    def Description(self, **kwargs):
+        """we have to override Description here to handle arbitrary 
+        arguments since PortalFolder defines it.
+        """ 
+        self.getField('description').get(self, **kwargs)
+
 InitializeClass(BaseFolder)
 
 class I18NBaseFolder(I18NMixin, BaseFolder):
