@@ -6,6 +6,8 @@
     <div metal:fill-slot="main">
       <div metal:define-macro="main"
            tal:omit-tag="">
+      <h1 tal:content="here/title_or_id" />
+
       <div tal:repeat="field python: here.Schema().filterFields(isMetadata=0)">
 	<span metal:use-macro="python: here.widget(field.name, mode='view')"/>
       </div>
