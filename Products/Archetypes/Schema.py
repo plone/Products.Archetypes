@@ -68,6 +68,10 @@ class Schemata(UserDict):
             c.addField(field)
         for field in other.fields():
             c.addField(field)
+
+        #XXX This should also merge properties (last write wins)
+        c._layers = self._layers.copy()
+        c._layers.update(other._layers)
         return c
 
 
@@ -207,17 +211,17 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 #if not hasattr(aq_base(instance), field.name) and \
                 #   getattr(instance, field.name, None):
                 default = field.default
-                #See if the instance has a method named the default
-                ##default = getattr(instance, default, default)
-                #if it does call it
-                ##if callable(default):
-                ##    default = default()
+                if self.default_method:
+                    method = getattr(instance, self.default_method, None)
+                    if method:
+                        default = method()
 
                 field.set(instance, default)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
         keys = kwargs.keys()
+
         for field in self.values():
             if field.name not in keys:
                 continue
@@ -291,10 +295,11 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         accessor = getattr(instance, field.accessor)
                         unit = accessor()
                         if IBaseUnit.isImplementedBy(unit):
-                            if unit.filename != '':
-                                value = unit.filename #doesn't matter what it is
-                        elif hasattr(aq_base(unit), 'getSize') and \
-                             unit.getSize():
+                            if unit.filename != '' or unit.get_size():
+                                value = 1 #value doesn't matter
+                                
+                        elif hasattr(aq_base(unit), 'get_size') and \
+                                 unit.get_size():
                             value = unit
                     except:
                         pass
@@ -408,6 +413,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 object.cleanupInstance(instance, item, container)
 
         #Now do the same for objects registered at this level
+
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
                 if not queued((layer, object)) and ILayer.isImplementedBy(object):

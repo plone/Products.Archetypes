@@ -11,7 +11,7 @@ from utils import capitalize, DisplayList
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
-from types import StringType
+from types import StringType, UnicodeType
 from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
      ReadOnlyStorage
 from DateTime import DateTime
@@ -29,6 +29,8 @@ from OFS.Image import File
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
+STRING_TYPES = [StringType, UnicodeType]
+
 class Field(DefaultLayerContainer):
     __implements__ = (IField, ILayerContainer)
 
@@ -39,6 +41,7 @@ class Field(DefaultLayerContainer):
     _properties = {
         'required' : 0,
         'default' : None,
+        'default_method' : None,
         'vocabulary' : (),
         'enforceVocabulary' : 0,
         'multiValued' : 0,
@@ -110,7 +113,7 @@ class Field(DefaultLayerContainer):
     def Vocabulary(self, content_instance=None):
         value = self.vocabulary
         if not isinstance(value, DisplayList):
-            if content_instance is not None and type(value) is StringType:
+            if content_instance is not None and type(value) in STRING_TYPES:
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     value = method()
@@ -283,8 +286,6 @@ class FileField(StringField):
         if not kwargs.has_key('mime_type'):
             kwargs['mime_type'] = None
 
-        import pdb
-        pdb.set_trace()
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)

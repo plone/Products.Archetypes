@@ -1,3 +1,11 @@
+2003-05-08  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Schema.py (Schema.setDefaults): ok, we really do need callable
+	default methods but we not have the normal Field.default and the
+	Field.default_method that is a name of a method on the instance,
+	called with no args and returning the value to be used as the
+	default.
+
 2003-05-07  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
 
 	* skins/archetypes/widgets/textarea.pt: Value is not a valid
