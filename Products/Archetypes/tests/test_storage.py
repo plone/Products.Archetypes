@@ -4,7 +4,6 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -31,14 +30,9 @@ class ChangeStorageTest( ArchetypesTestCase ):
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        if ZOPE_LINES_IS_TUPLE_TYPE:
-            out = ('bla','bla','bla')
-        else:
-            out = ['bla','bla','bla']
-
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
         self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
-        self.failUnlessEqual(dummy.getAlinesfield(), out)
+        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
         self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
         for field in dummy.schema.fields():
@@ -51,7 +45,7 @@ class ChangeStorageTest( ArchetypesTestCase ):
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
         self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
-        self.failUnlessEqual(dummy.getAlinesfield(), out)
+        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
         self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
     def test_unset(self):

@@ -3,9 +3,6 @@ title = Edit
 
 [validators]
 validators = validate_base
-validators..form_add =
 
 [actions]
 action.success = traverse_to:string:content_edit
-action.success..form_add = traverse_to:string:add_reference
-action.failure = traverse_to_action:string:edit

@@ -1,10 +1,9 @@
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Field import StringField
-from Products.Archetypes.Widget import SelectionWidget
-from Products.Archetypes.config import TOOL_NAME
-
+from Schema import Schema
+from Field import StringField
+from Widget import SelectionWidget
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
+from config import TOOL_NAME
 
 schema = Schema((
     StringField('layout',

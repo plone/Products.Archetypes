@@ -1,21 +1,30 @@
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import DisplayList, mapply, fixSchema
-from Products.Archetypes.Field import StringField, TextField
-from Products.Archetypes.Renderer import renderer
-from Products.Archetypes.Schema import Schema, Schemata
-from Products.Archetypes.Widget import IdWidget, StringWidget
-from Products.Archetypes.Marshall import RFC822Marshaller
-
+import sys
+from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
 from Globals import InitializeClass
+from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
+from ZPublisher.HTTPRequest import FileUpload
+from Globals import PersistentMapping
 from ZODB.POSException import ConflictError
+from debug import log, log_exc
+from types import FileType
+from DateTime import DateTime
+import operator
 
+from Schema import Schema, Schemata
+from Field import StringField, TextField
+from Widget import IdWidget, StringWidget
+from utils import DisplayList, mapply
+from interfaces.base import IBaseObject, IBaseUnit
+from interfaces.referenceable import IReferenceable
+
+from Renderer import renderer
+
+from Products.Archetypes.Marshall import RFC822Marshaller
 from ZPublisher import xmlrpc
 
 _marker = []
@@ -29,14 +38,10 @@ content_type = Schema((
                 accessor="getId",
                 mutator="setId",
                 default=None,
-                widget=IdWidget(
-    label="Short Name",
-    label_msgid="label_short_name",
-    description="Should not contain spaces, underscores or mixed case. "\
-    "Short Name is part of the item's web address.",
-    description_msgid="help_shortname",
-    visible={'view' : 'invisible'},
-    i18n_domain="plone"),
+                widget=IdWidget(label_msgid="label_name",
+                                description_msgid="help_name",
+                                visible={'view' : 'invisible'},
+                                i18n_domain="plone"),
                 ),
 
     StringField('title',
@@ -44,12 +49,10 @@ content_type = Schema((
                 searchable=1,
                 default='',
                 accessor='Title',
-                widget=StringWidget(
-    label_msgid="label_title",
-    description=None,
-    i18n_domain="plone"),
+                widget=StringWidget(label_msgid="label_title",
+                                    description_msgid="help_title",
+                                    i18n_domain="plone"),
                 )),
-
     marshall = RFC822Marshaller()
                       )
 
@@ -176,7 +179,7 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
         if field is None:
-            field = self.Schema()[field_name]
+            field =self.Schema()[field_name]
         widget = field.widget
         return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
@@ -243,14 +246,13 @@ class BaseObject(Implicit):
             return getattr(self, key, None) or \
                    getattr(aq_parent(aq_inner(self)), key, None)
 
-        field = schema[key]
-        accessor = field.getEditAccessor(self)
+        accessor = schema[key].getEditAccessor(self)
         if not accessor:
-            accessor = field.getAccessor(self)
+            accessor = schema[key].getAccessor(self)
 
-        # This is the access mode used by external editor. We need the
-        # handling provided by BaseUnit when its available
-        kw = {'raw':1, 'field': field.__name__}
+        #This is the access mode used by external editor. We need the
+        #handling provided by BaseUnit when its available
+        kw = {'raw':1}
         value = mapply(accessor, **kw)
 
         return value
@@ -267,8 +269,8 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'update')
     def update(self, **kwargs):
-        self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
+        self.Schema().updateAll(self, **kwargs)
         self.reindexObject()
 
     security.declareProtected(CMFCorePermissions.View,
@@ -285,38 +287,35 @@ class BaseObject(Implicit):
 
         methodName = "validate_%s" % name
 
-        res = 1
         if hasattr(aq_base(self), methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
                 errors[name] = result
-                res = 0
-        return res
 
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
-    def pre_validate(self, REQUEST=None, errors=None):
+    def pre_validate(self, REQUEST, errors):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'post_validate')
-    def post_validate(self, REQUEST=None, errors=None):
+    def post_validate(self, REQUEST, errors):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
+        if REQUEST is None:
+            REQUEST = self.REQUEST
         if errors is None:
             errors = {}
-
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
 
-        self.Schema().validate(instance=self, REQUEST=REQUEST,
-                               errors=errors, data=data, metadata=metadata)
-
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors,
+                               data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
         return errors
@@ -330,7 +329,7 @@ class BaseObject(Implicit):
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
-            method = field.getAccessor(self)
+            method = getattr(self, field.accessor)
             try:
                 datum =  method(mimetype="text/plain")
             except TypeError:
@@ -340,18 +339,10 @@ class BaseObject(Implicit):
                     datum =  method()
                 except:
                     continue
-
             if datum:
                 type_datum = type(datum)
-                vocab = field.Vocabulary(self)
                 if type_datum is type([]) or type_datum is type(()):
-                    # Unmangle vocabulary: we index key AND value
-                    vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
-                    datum.extend(vocab_values)
                     datum = ' '.join(datum)
-                elif type_datum in (type(''), type(u''), ):
-                    datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
-
                 # FIXME: we really need an unicode policy !
                 if type_datum is type(u''):
                     datum = datum.encode(charset)
@@ -377,7 +368,6 @@ class BaseObject(Implicit):
 
         return encoding
 
-
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
@@ -392,6 +382,7 @@ class BaseObject(Implicit):
                         size += len(value)
                     except (TypeError, AttributeError):
                         size += len(str(value))
+
         return size
 
     security.declarePrivate('_processForm')
@@ -434,7 +425,7 @@ class BaseObject(Implicit):
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             __traceback_info__ = (self, field, mutator)
-            result[1]['field'] = field.__name__
+            result[1]['field'] = field.getName()
             mapply(mutator, result[0], **result[1])
 
         self.reindexObject()
@@ -475,11 +466,11 @@ class BaseObject(Implicit):
         a schema update).
         """
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
-        import sys
 
         if out:
             print >> out, 'Updating %s' % (self.getId())
 
+        old_schema = self.Schema()
         package = _guessPackage(self.__module__)
         new_schema = getType(self.meta_type, package)['schema']
 
@@ -513,7 +504,8 @@ class BaseObject(Implicit):
 
 
         # replace the schema
-        self.schema = new_schema.copy()
+        from copy import deepcopy
+        self.schema = deepcopy(new_schema)
         self.initializeArchetype()
 
         for f in new_schema.fields():
@@ -540,9 +532,6 @@ class BaseObject(Implicit):
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
-
-        # Migrate pre-AT 1.3 schemas.
-        schema = fixSchema(schema)
 
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
@@ -617,10 +606,6 @@ class BaseObject(Implicit):
     def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
-
-        # Migrate pre-AT 1.3 schemas.
-        schema = fixSchema(schema)
-
         field = schema.get(name, None)
         # try using the field's mutator
         if field:
@@ -690,8 +675,8 @@ class BaseObject(Implicit):
         if target is not None:
             return target
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
+        if not method in ('GET', 'POST', 'HEAD') and not isinstance(RESPONSE,
+                                                                    xmlrpc.Response):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
         if RESPONSE is not None:

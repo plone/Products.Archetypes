@@ -1,15 +1,16 @@
 <html xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
   <head><title></title></head>
   <body>
     <div metal:define-macro="referenceBox"
-         tal:on-error="nothing"
 	 tal:define="
-	 ct nocall:here/reference_catalog;
-	 refs python: ct.getReferences(here);
-	 brefs python: ct.getBReferences(here);
+	 ct here/archetype_tool;
+	 refs python: ct.getRefs(here);
+	 brefs python: ct.getBRefs(here);
 	 "
 	 >
       <!-- Reference Box-->

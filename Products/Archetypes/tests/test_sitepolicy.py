@@ -14,6 +14,11 @@ from Acquisition import aq_base
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
+def makeContent(site, portal_type, id='document', **kw ):
+    site.invokeFactory( type_name=portal_type, id=id )
+    content = getattr( site, id )
+    return content
+
 class SitePolicyTests(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
@@ -84,8 +89,8 @@ class SitePolicyTests(ArcheSiteTestCase):
         self.assertEqual(new_size, content.get_size())
 
     def test_addComplexTypeCtor(self):
-        from Products.Archetypes.examples import ComplexType
-        from Products.Archetypes.ClassGen import generateCtor
+        from Archetypes.examples import ComplexType
+        from Archetypes.ClassGen import generateCtor
         addComplexType = generateCtor('ComplexType', ComplexType)
         site = self.getPortal()
         id = addComplexType(site, id='complex_type',

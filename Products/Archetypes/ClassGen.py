@@ -1,13 +1,10 @@
-from __future__ import nested_scopes
-import os, os.path
-import re
-
-from Products.Archetypes.debug import log
-from Products.Archetypes.utils import pathFor, unique, capitalize
-
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from debug import log
+from utils import pathFor, unique, capitalize
+import os, os.path
+import re
 
 
 _modes = {
@@ -40,46 +37,26 @@ class Generator:
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
-        name = field.getName()
-        method = None
         if mode == "r":
-            def generatedAccessor(self, **kw):
-                """Default Accessor."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].get(self, **kw)
-            method = generatedAccessor
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].get(self, **kw)
         elif mode == "m":
-            def generatedEditAccessor(self, **kw):
-                """Default Edit Accessor."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].getRaw(self, **kw)
-            method = generatedEditAccessor
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].getRaw(self, **kw)
         elif mode == "w":
-            def generatedMutator(self, value, **kw):
-                """Default Mutator."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].set(self, value, **kw)
-            method = generatedMutator
+            method = lambda self, value, field=field.getName(), **kw: \
+                     self.Schema()[field].set(self, value, **kw)
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
-                                name,
+                                field.getName(),
                                 methodName,
                                 mode))
 
         setattr(klass, methodName, method)
+
+        # Allow the method to be published (for XML-RPC)
+        method.__doc__ = "%s %s" % (mode, field.getName())
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
@@ -106,11 +83,8 @@ class ClassGenerator:
                           stacklevel = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
-            def Schema(self):
-                """Return a (wrapped) schema instance for
-                this object instance."""
-                return ImplicitAcquisitionWrapper(self.schema, self)
-            klass.Schema = Schema
+            klass.Schema = lambda self: \
+                ImplicitAcquisitionWrapper(self.schema, self)
 
     def generateClass(self, klass):
         #We are going to assert a few things about the class here
@@ -122,10 +96,8 @@ class ClassGenerator:
                                        self.generateName(klass))
 
         self.checkSchema(klass)
-        fields = klass.schema.fields()
-        self.generateMethods(klass, fields)
 
-    def generateMethods(self, klass, fields):
+        fields = klass.schema.fields()
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
@@ -183,4 +155,3 @@ def add%s(self, id, **kwargs):
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass
-generateMethods = _cg.generateMethods

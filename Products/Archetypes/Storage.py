@@ -1,13 +1,13 @@
-from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.debug import log
-from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.utils import className
-
-from Acquisition import aq_base
+import ZODB
 from Globals import PersistentMapping
+from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
+from interfaces.storage import IStorage
+from interfaces.field import IObjectField
+from interfaces.layer import ILayer
+from debug import log
+from config import TOOL_NAME
+from utils import className
 
 type_map = {'text':'string',
             'datetime':'date',
@@ -171,7 +171,7 @@ class MetadataStorage(StorageLayer):
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
 
-from Products.Archetypes.Registry import registerStorage
+from Registry import registerStorage
 
 for name in __all__:
     storage = locals()[name]

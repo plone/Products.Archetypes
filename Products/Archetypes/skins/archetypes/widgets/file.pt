@@ -47,6 +47,7 @@
          />
         <span i18n:translate="delete_file">delete file</span>
       </div>
+      <div>
       <input type="file"
 	     size="30"
 	     tabindex=""
