@@ -1,12 +1,11 @@
 import sys
 import os, os.path
-import types
 import socket
 from random import random, randint
 from time import time
 from inspect import getargs
 from md5 import md5
-from types import TupleType, ListType, StringType
+from types import TupleType, ListType, StringType, ClassType, IntType, NoneType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -87,7 +86,7 @@ def mapply(method, *args, **kw):
 
 
 def className(klass):
-    if type(klass) not in [types.ClassType, ExtensionClass]:
+    if type(klass) not in [ClassType, ExtensionClass]:
         klass = klass.__class__
     return "%s.%s" % (klass.__module__, klass.__name__)
 
@@ -246,8 +245,10 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if type(key) is not StringType:
+        if type(key) not in (StringType, IntType):
             raise TypeError('DisplayList keys must be strings')
+        if type(msgid) not in (StringType, NoneType):
+            raise TypeError('DisplayList msg ids must be strings')
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -269,7 +270,7 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if type(key) is not StringType:
+        if type(key) not in (StringType, IntType):
             raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         if v: return v[1]
@@ -281,7 +282,7 @@ class DisplayList:
     def getMsgId(self, key):
         "get i18n msgid"
         if type(key) is not StringType:
-            raise TypeError('DisplayList keys must be strings')
+            raise TypeError('DisplayList msg ids must be strings')
         if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
         else:
@@ -364,7 +365,7 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if type(key) is not StringType:
+        if type(key) not in (StringType, IntType):
             raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         value = default
