@@ -1,4 +1,21 @@
+2003-11-09  Geoff Davis <geoff@geoffdavis.net>
+
+    * updateSchemaForm.pt: Let user choose which classes should be updated
+      since automatic schema change detection loses change info when Archetypes 
+      is reinstalled.  Also let the user choose to update all classes or only
+      classes with an old schema.
+
+    * ArchetypeTool.py: getChangedSchema now returns a tuple consisting of 
+      type, changed_flag rather than just a list of changed types.  
+      If called from a REQUEST, manage_updateSchema checks to see which 
+      classes need to be updated.  Fixed catalog search for objects that need
+      updating (was using incorrect metatype and searching the UID catalog).
+
+    * BaseObject.py: Made automated migrations slightly more robust by handling
+      AttributeErrors gracefully.
+
 2003-11-07  Sylvain Thénault  <syt@logilab.fr>
+
     * BaseFolder.py: added the Description method to not fallback to
     the PortalFolder's one
 

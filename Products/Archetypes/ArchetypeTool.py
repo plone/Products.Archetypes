@@ -762,36 +762,57 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
-        """Get a list of schema that have changed"""
+        """Returns a list of tuples indicating which schema have changed.  
+           Tuples have the form (schema, changed)"""
         list = []
         for t in self._types.keys():
-            if self._types[t]['update']:
-                list.append(t)
+            list.append((t, self._types[t]['update']))
         return list
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self):
+    def manage_updateSchema(self, REQUEST=None):
         """Make sure all objects' schema are up to date"""
+        
         out = StringIO()
         print >> out, 'Updating schema...'
 
-        for t in self._types.keys():
-            if not self._types[t]['update']:
-                continue
-            catalog = getToolByName(self, UID_CATALOG)
-            result = catalog._catalog.searchResults({'meta_type' : t})
+        update_types = []
+        if REQUEST is None:
+            for t in self._types.keys():
+                if self._types[t]['update']:
+                    update_types.append(t)
+            update_all = 0
+        else:
+            for t in self._types.keys():
+                if REQUEST.form.get(t, 0):
+                    update_types.append(t)
+            update_all = REQUEST.form.get('update_all', 0)
 
-            classes = {}
-            for r in result:
-                try:
-                    o = r.getObject()
-                    if hasattr(o, '_updateSchema'):
-                        if not o._isSchemaCurrent():
+        for t in self._types.keys():
+            if not t in update_types:
+                continue
+            print >> out, 'Updating %s' % (t)
+
+            meta_type = _types[t]['name']
+            catalogs = self.getCatalogsByType(meta_type)
+            for catalog in catalogs:
+                result = catalog._catalog.searchResults({'meta_type' : meta_type})
+
+                classes = {}
+                for r in result:
+                    try:
+                        o = r.getObject()
+                        if update_all:
+                            print '   Updating %s' % o.getId()
                             o._updateSchema(out=out)
-                except KeyError:
-                    pass
+                        elif hasattr(o, '_updateSchema'):
+                            if not o._isSchemaCurrent():
+                                print '   Updating %s' % o.getId()
+                                o._updateSchema(out=out)
+                    except KeyError:
+                        pass
             self._types[t]['update'] = 0
             self._p_changed = 1
         return out.getvalue()
@@ -901,8 +922,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         res.sort()
 
         return res
-
-
 
 
 InitializeClass(ArchetypeTool)

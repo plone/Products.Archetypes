@@ -477,6 +477,8 @@ class BaseObject(Implicit):
                 return self[field.getName()]
             except KeyError:
                 pass
+            except AttributeError:
+                pass
 
         # Nope -- see if the new accessor method is present
         # in the current object.
@@ -485,6 +487,8 @@ class BaseObject(Implicit):
             try:
                 return self[new_field.getName()]
             except KeyError:
+                pass
+            except AttributeError:
                 pass
 
         # Nope -- now see if the current object has an attribute
