@@ -74,7 +74,7 @@ class Referenceable(Base):
 
     #aliases
     getReferences=getRefs
-    getBReferences=getBRefs
+    getBackReferences=getBRefs
     
     def getReferenceImpl(self, relationship=None):
         """get all the reference objects for this object    """
@@ -84,7 +84,7 @@ class Referenceable(Base):
             return refs
         return []
 
-    def getBReferenceImpl(self, relationship=None):
+    def getBackReferenceImpl(self, relationship=None):
         """get all the back reference objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship)

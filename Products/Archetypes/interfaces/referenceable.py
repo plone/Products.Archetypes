@@ -11,13 +11,13 @@ class IReferenceable(Interface):
     def getReferences(relationship=None):
         """ alias for getRefs """
 
-    def getBReferences(relationship=None):
+    def getBackReferences(relationship=None):
         """ alias for getBRefs """
 
     def getReferenceImpl(relationship=None):
         """ returns the references as objects for this object """
 
-    def getBReferenceImpl(relationship=None):
+    def getBackReferenceImpl(relationship=None):
         """ returns the back references as objects for this object """
 
     def UID():
