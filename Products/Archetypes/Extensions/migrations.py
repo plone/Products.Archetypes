@@ -72,7 +72,8 @@ def migrate(self):
     """migrate an AT site"""
     out = StringIO()
     portal = self
-    print >>out, "Being Migration"
+
+    print >>out, "Begin Migration"
 
     fixArchetypesTool(portal, out)
     toReferenceCatalog(portal, out)
