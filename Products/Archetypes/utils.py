@@ -63,6 +63,54 @@ def fixSchema(schema):
 _marker = []
 
 def mapply(method, *args, **kw):
+    """ Inspect function and apply positional and keyword arguments as possible.
+
+    XXX Add more examples.
+
+    >>> def f(a, b, c=2, d=3):
+    ...     print a, b, c, d
+
+    >>> mapply(f, *(1, 2), **{'d':4})
+    1 2 2 4
+
+    >>> mapply(f, *(1, 2), **{'c':3})
+    1 2 3 3
+
+    >>> mapply(f, *(1, 2), **{'j':3})
+    1 2 2 3
+
+    >>> def f(a, b):
+    ...     print a, b
+
+    >>> mapply(f, *(1, 2), **{'j':3})
+    1 2
+
+    >>> def f(a, b=2):
+    ...     print a, b
+
+    >>> mapply(f, *(1,), **{'j':3})
+    1 2
+
+    >>> mapply(f, *(1,), **{'j':3})
+    1 2
+
+    XXX Should raise an exception 'Multiple values for argument' here.
+
+    >>> mapply(f, *(1,), **{'a':3})
+    1 2
+
+    >>> mapply(f, *(1,), **{'b':3})
+    1 3
+
+    >>> def f(a=1, b=2):
+    ...     print a, b
+
+    >>> mapply(f, *(), **{'b':3})
+    1 3
+
+    >>> mapply(f, *(), **{'a':3})
+    3 2
+    """
     m = method
     if hasattr(m, 'im_func'):
         m = m.im_func
@@ -74,8 +122,16 @@ def mapply(method, *args, **kw):
     if fn_args[1] is None:
         if len(call_args) > len(fn_args[0]):
             call_args = call_args[:len(fn_args[0])]
+    nkw = {}
     if len(call_args) < len(fn_args[0]):
         for arg in fn_args[0][len(call_args):]:
+            value = kw.get(arg, _marker)
+            if value is not _marker:
+                nkw[arg] = value
+                del kw[arg]
+    largs = len(call_args) + len(nkw.keys())
+    if largs < len(fn_args[0]):
+        for arg in fn_args[0][largs:]:
             value = kw.get(arg, _marker)
             if value is not _marker:
                 call_args.append(value)
@@ -83,9 +139,8 @@ def mapply(method, *args, **kw):
     if fn_args[2] is not None:
         return method(*call_args, **kw)
     if fn_args[0]:
-        return method(*call_args)
+        return method(*call_args, **nkw)
     return method()
-
 
 def className(klass):
     if type(klass) not in [ClassType, ExtensionClass]:
@@ -197,17 +252,17 @@ def unique(s):
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
-    
+
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-    
+
     >>> dl = DisplayList()
-    
+
     Add some keys
     >>> dl.add('foo', 'bar')
     >>> dl.add('egg', 'spam')
-    
+
     Assert some values
     >>> dl.index
     2
@@ -217,35 +272,35 @@ class DisplayList:
     ['bar', 'spam']
     >>> dl.items()
     (('foo', 'bar'), ('egg', 'spam'))
-    
+
     You can't use e.g. objects as keys or values
     >>> dl.add(object(), 'error')
     Traceback (most recent call last):
     TypeError: DisplayList keys must be strings or ints, got <type 'object'>
-    
+
     >>> dl.add('error', object())
     Traceback (most recent call last):
     TypeError: DisplayList values must be strings or ints, got <type 'object'>
-    
+
     GOTCHA
     Adding a value a second time does overwrite the key, too!
     >>> dl.add('fobar' ,'spam')
     >>> dl.keys()
     ['foo', 'fobar']
-    
+
     >>> dl.items()
     (('foo', 'bar'), ('fobar', 'spam'))
-    
+
     Using ints as DisplayList keys works but will raise an deprecation warning
     You should use IntDisplayList for int keys
     >>> idl = DisplayList()
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
-    
+
     >>> idl.items()
     ((1, 'number one'), (2, 'just the second'))
-    
-    
+
+
     """
 
     security = ClassSecurityInfo()
@@ -412,22 +467,22 @@ InitializeClass(DisplayList)
 class IntDisplayList(DisplayList):
     """Static display lists for integer keys, can look up on
     either side of the dict, and get them in sorted order
-    
+
     The IntDisplayList can be used with integer values only. You should use it
     in favor of a DisplayList if you want to use ints as keys. The support for
     ints as keys for the ordinary DisplayList will be dropped in the next
     release.
-    
+
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-    
+
     >>> idl = IntDisplayList()
-    
+
     Add some keys
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
-    
+
     Assert some values
     >>> idl.index
     2
@@ -437,24 +492,24 @@ class IntDisplayList(DisplayList):
     ['number one', 'just the second']
     >>> idl.items()
     ((1, 'number one'), (2, 'just the second'))
-    
+
     You can use only ints as keys
     >>> idl.add(object(), 'error')
     Traceback (most recent call last):
     TypeError: DisplayList keys must be ints, got <type 'object'>
-    
+
     >>> idl.add(42, object())
     Traceback (most recent call last):
     TypeError: DisplayList values must be strings or ints, got <type 'object'>
-    
+
     >>> idl.add('stringkey', 'error')
     Traceback (most recent call last):
     TypeError: DisplayList keys must be ints, got <type 'str'>
-    
+
     >>> idl.add(u'unicodekey', 'error')
     Traceback (most recent call last):
     TypeError: DisplayList keys must be ints, got <type 'unicode'>
-    
+
     GOTCHA
     Adding a value a second time does overwrite the key, too!
     >>> idl.add(3 , 'just the second')
@@ -462,7 +517,7 @@ class IntDisplayList(DisplayList):
     [1, 3]
     >>> idl.items()
     ((1, 'number one'), (3, 'just the second'))
-    
+
     It is possible to get the value also by a stringified int
     >>> idl.getValue("1")
     'number one'
@@ -506,7 +561,7 @@ class Vocabulary(DisplayList):
     """
     Wrap DisplayList class and add internationalisation
     """
-    
+
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
@@ -603,7 +658,7 @@ class OrderedDict(BaseDict):
             return c
         import copy
         c = copy.copy(self)
-        return c        
+        return c
 
     def setdefault(self, key, failobj=None):
         if not self.data.has_key(key):
@@ -720,7 +775,7 @@ def unwrap_method(klass, name):
 
 
 def _get_position_after(label, options):
-    position = 0 
+    position = 0
     for item in options:
         if item['label'] != label:
             continue
