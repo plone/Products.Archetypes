@@ -243,7 +243,10 @@ class ObjectField(Field):
             return self.default
 
     def getRaw(self, instance, **kwargs):
-        accessor = self.getAccessor(instance)
+        if self.accessor is not None:
+            accessor = self.getAccessor(instance)
+        else:
+            accessor = None
         if accessor is None:
             return self.get(instance, **kwargs)
         return accessor(**kwargs)
