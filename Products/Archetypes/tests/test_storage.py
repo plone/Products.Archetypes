@@ -34,10 +34,10 @@ class ChangeStorageTest( unittest.TestCase ):
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        self.failUnless(str(dummy.Atextfield()) == 'sometext')
-        self.failUnless(dummy.Adatefield() == DateTime('2003-01-01'))
-        self.failUnless(dummy.Alinesfield() == ['bla','bla','bla'])
-        self.failUnless(dummy.Anobjectfield() == 'someothertext')
+        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
+        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
+        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
+        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
         
         for field in dummy.type.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
@@ -47,10 +47,10 @@ class ChangeStorageTest( unittest.TestCase ):
                 field.setStorage(dummy, MetadataStorage())
                 self.failUnless(field.getStorage().getName() == 'MetadataStorage')
 
-        self.failUnless(str(dummy.Atextfield()) == 'sometext')
-        self.failUnless(dummy.Adatefield() == DateTime('2003-01-01'))
-        self.failUnless(dummy.Alinesfield() == ['bla','bla','bla'])
-        self.failUnless(dummy.Anobjectfield() == 'someothertext')
+        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
+        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
+        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
+        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
 
     def test_unset(self):
         dummy = self._dummy

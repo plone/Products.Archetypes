@@ -25,14 +25,15 @@ content_type = Schema((
                 accessor="getId",
                 mutator="setId",
                 default=None,
-                widget=IdWidget,
+                widget=IdWidget(),
                 ),
     
     ObjectField('title',
                 required=1,
                 searchable=1,
                 default='',
-                widget=StringWidget,
+                accessor='Title',
+                widget=StringWidget(),
                 ),
     ))
 
@@ -80,11 +81,10 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
     def setId(self, value):
         if value != self.getId():
-            try:
-                context.manage_renameObjects((self.id,), (value,), self.REQUEST)
-            except:
-                if hasattr(self, 'aq_parent'):
-                    self.aq_parent.manage_renameObjects((self.id,), (value,), self.REQUEST)
+            if hasattr(self, 'aq_parent'):
+                parent = self.aq_parent
+                parent.manage_renameObjects((self.id,), (value,),\
+                                            getattr(self, 'REQUEST', None))
         self.id = value
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'getField')
@@ -148,10 +148,10 @@ class BaseObject(Implicit):
             if field.isMetadata:
                 vocab, enforce = self.get_portal_metadata(field)
 
-            if vocab == None:
+            if vocab is None:
                 vocab, enforce = field.Vocabulary(self), field.enforceVocabulary
 
-        if vocab == None:
+        if vocab is None:
             vocab = DisplayList()
 
         return vocab, enforce

@@ -9,6 +9,8 @@ def test_suite():
     return build_test_suite('Products.Archetypes.tests',[
         'test_storage',
         'test_classgen',
+        'test_baseschema',
+        'test_utils'
         ])
 
 if __name__ == '__main__':

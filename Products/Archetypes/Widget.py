@@ -39,6 +39,20 @@ class StringWidget(TypesWidget):
         'macro' : "here/widgets/string"
         })
 
+class FloatWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "here/widgets/float",
+        'size' : '5',
+        })
+
+class IntegerWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "here/widgets/integer",
+        'size' : '5',
+        })
+
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

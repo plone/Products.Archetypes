@@ -312,7 +312,6 @@ class MetadataSchema(Schema):
         field.storage = MDS
         if 'm' not in field.generateMode:
             field.generateMode = 'mVc'
-
         
         FieldList.addField(self, field)
 

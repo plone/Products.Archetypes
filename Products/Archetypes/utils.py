@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
+from types import TupleType
 from debug import log
 import sys
 import os.path
@@ -105,10 +106,6 @@ def unique(s):
             u.append(x)
     return u
 
-
-
-
-
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
@@ -125,6 +122,15 @@ class DisplayList:
         if data:
             self.fromList(data)
             
+    def __repr__(self):
+        return '<DisplayList %s at %s>' % (self[:], id(self))
+
+    def __str__(self):
+        return str(self[:])
+
+    def __call__(self):
+        return self
+
     def fromList(self, lst):
         for k,v in lst:
             self.add(k,v)
@@ -191,6 +197,20 @@ class DisplayList:
         values.sort(_cmp)
         return DisplayList(values)
     
+    def sortedByKey(self):
+        """return a new display list sorted by value"""
+        def _cmp(a, b):
+            return cmp(a[0], b[0])
+        values = self.items()
+        values.sort(_cmp)
+        return DisplayList(values)
+
+    def __cmp__(self, dest):
+        if not isinstance(dest, DisplayList):
+            raise TypeError, 'Cant compare DisplayList to %s' % (type(dest))
+
+        return cmp(self.sortedByKey()[:], dest.sortedByKey()[:])
+
     def __getitem__(self, key):
         #Ok, this is going to pass a number
         #which is index but not easy to get at

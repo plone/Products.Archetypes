@@ -8,13 +8,12 @@ from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
+from types import StringType
 
-from debug import log
+from debug import log, log_exc
 import Persistence
 
 from utils import DisplayList
-
-
 
 ## MIXIN
 class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
@@ -27,9 +26,10 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                       accessor="isDiscussable",
                       mutator="allowDiscussion",
                       default=0,
+                      enforceVocabulary=1,
                       vocabulary=DisplayList(((0, 'off'), (1, 'on'),
                                               (None, 'default'))),
-                      widget=BooleanWidget,
+                      widget=BooleanWidget(label="Allow Discussion?"),
                       ),
               
         LinesField('subject',
@@ -39,6 +39,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                    ),
         
         MetadataField('description',
+                      default='',
                       searchable=1,
                       accessor="Description",
                       widget=TextAreaWidget(description="An administrative summary of the content"), 
@@ -46,18 +47,20 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
 
         LinesField('contributors',
                    accessor="Contributors",
-                   widget=LinesWidget,
+                   widget=LinesWidget(),
                    ),
         
         DateTimeField('effectiveDate',
                       accessor="EffectiveDate",
-                      widget=CalendarWidget(description="""Date when the
+                      widget=CalendarWidget(label="Effective Date",
+                                            description="""Date when the
                       content should become availble on the public
                       site""", )),
         
         DateTimeField('expirationDate',
                       accessor="ExpirationDate",
-                      widget=CalendarWidget(description="""Date when the
+                      widget=CalendarWidget(label="Expiration Date",
+                                            description="""Date when the
                       content should no longer be visible on the
                       public site""", )),
         
@@ -65,12 +68,12 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                       accessor="Language",
                       default="en",
                       vocabulary='languages',
-                      widget=SelectionWidget,
+                      widget=SelectionWidget(),
                       ),
         
         MetadataField('rights',
                       accessor="Rights",
-                      widget=StringWidget(description="A list of copyright info for this content")),
+                      widget=TextAreaWidget(description="A list of copyright info for this content")),
         
      ))
 
@@ -83,13 +86,13 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
         return result
     
     def allowDiscussion(self, allowDiscussion=None):
-        if allowDiscussion:
-            allowDiscussion = allowDiscussion.lower().strip()
-
+        if allowDiscussion is not None:
             try:
                 allowDiscussion = int(allowDiscussion)
             except:
-                allowDiscussion = {'on' : 1, 'off': 0}.get(allowDiscussion, 0)
+                if type(allowDiscussion) == StringType:
+                    allowDiscussion = allowDiscussion.lower().strip()
+                    allowDiscussion = {'on' : 1, 'off': 0}.get(allowDiscussion, 0)
 
             try:
                 getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)
@@ -106,8 +109,13 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
     
     ##Vocab Methods
     def languages(self):
-        return DisplayList(self.availableLanguages())
-    
+        available_langs = getattr(self, 'availableLanguages', None)
+        if available_langs is None:
+            return DisplayList((('en','English'), ('fr','French'), ('es','Spanish'), \
+                                ('pt','Portuguese'), ('ru','Russian')))
+        if callable(available_langs):
+            available_langs = available_langs()
+        return DisplayList(available_langs)
 
 
 InitializeClass(ExtensibleMetadata)

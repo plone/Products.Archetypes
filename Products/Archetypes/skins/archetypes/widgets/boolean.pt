@@ -21,7 +21,8 @@
 	<div metal:fill-slot="widget_body">
 	  <input type="hidden"
 		 tal:attributes="name fieldName; 
-	    id string: ${fieldName}_hidden;"
+	         id string:${fieldName}_hidden;
+                 value value;"
 	    />
 	    
 	    <script>
@@ -43,10 +44,10 @@
 		   value="on" 
 		   tabindex=""
                        tal:attributes="tabindex tabindex;
-	      name fieldName;
-	      onClick string: toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');
-	      id string: ${fieldName}_checkbox;
-	      checked python: value == '1'"
+	      name string:${fieldName}_visible;
+	      onClick string:toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');
+	      id string:${fieldName}_checkbox;
+	      checked python:str(value) == '1'"
 	      />
 
 	</div>
