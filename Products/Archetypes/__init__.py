@@ -94,7 +94,10 @@ def initialize(context):
             fti = ftis,
             ).initialize(context)
 
-    from Products.CMFCore.FSFile import FSFile
-    from Products.CMFCore.DirectoryView import registerFileExtension
-    registerFileExtension('xsl', FSFile)
-    registerFileExtension('xul', FSFile)
+    try:
+        from Products.CMFCore.FSFile import FSFile
+        from Products.CMFCore.DirectoryView import registerFileExtension
+        registerFileExtension('xsl', FSFile)
+        registerFileExtension('xul', FSFile)
+    except ImportError:
+        pass

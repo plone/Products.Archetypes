@@ -18,8 +18,18 @@ from Products.CMFCore.DiscussionTool import DiscussionTool
 from DateTime import DateTime
 from copy import deepcopy
 
+default_text = """
+Title
+=====
+
+Subtitle
+--------
+"""
+
 schema = BaseSchema + Schema((
     TextField('atextfield',
+              default_content_type='text/x-rst',
+              default=default_text,
               widget=RichWidget(description="Just a text field for the testing",
                                   label="A Text Field",
                                   )),

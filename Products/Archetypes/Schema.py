@@ -279,7 +279,11 @@ class Schema(Schemata, DefaultLayerContainer):
                     method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
-                mutator(default)
+                args = (default,)
+                kw = {}
+                if hasattr(field, 'default_content_type'):
+                    kw['mimetype'] = field.default_content_type
+                mutator(*args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')
