@@ -22,11 +22,11 @@
       <div tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
-            <b>[<span tal:content="set" />]</b>
+            <b>[<span tal:content="set" i18n:translate="" />]</b>
           </tal:current>
           <tal:others condition="python:set != fieldset">
             <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
-            [<span tal:content="set" />]</a>
+            [<span tal:content="set" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
       </div>
@@ -51,8 +51,7 @@
 
           <legend
             i18n:translate=""
-            tal:content="python:(len(fieldsets) &gt; 1 and fieldset != 'default')
-                                and fieldset or here.archetype_name"
+            tal:content="python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset or here.archetype_name"
             />
 
           <!--
@@ -102,9 +101,7 @@
                    />
 
             <tal:env define="env request/controller_state/kwargs">
-              <tal:loop repeat="varname python:('reference_source_url',
-                                                'reference_source_field',
-                                                'reference_source_fieldset')">
+              <tal:loop repeat="varname python:('reference_source_url', 'reference_source_field', 'reference_source_fieldset')">
                 <tal:reference define="items python:env.get(varname, request.get(varname))"
                                condition="items">
                   <input tal:repeat="item items"
