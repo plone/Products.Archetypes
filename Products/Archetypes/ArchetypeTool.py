@@ -227,10 +227,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_debugForm',
           },
         
-        { 'label'  : 'Generate',
-          'action' : 'manage_generateForm',
-          },
-
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
            },        
@@ -240,7 +236,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     manage_uids = PageTemplateFile('viewContents', _www)
     manage_addSchemaForm = PageTemplateFile('addSchema', _www)
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
-    manage_generateForm = PageTemplateFile('generateView', _www)
     manage_debugForm = PageTemplateFile('generateDebug', _www)
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
 

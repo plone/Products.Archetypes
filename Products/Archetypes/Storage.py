@@ -6,7 +6,6 @@ from interfaces.field import IObjectField
 from interfaces.layer import ILayer
 from debug import log
 from config import TOOL_NAME
-from AccessControl import ClassSecurityInfo
 
 type_map = {'text':'string',
             'datetime':'date',
