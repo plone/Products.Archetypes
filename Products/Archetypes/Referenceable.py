@@ -264,8 +264,6 @@ class Referenceable(Base):
         self._uncatalogUID(container)
         self._uncatalogRefs(container)
 
-        #and reset the flag
-        self._v_cp_refs = None
 
 
     ## Catalog Helper methods

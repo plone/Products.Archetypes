@@ -83,7 +83,7 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = IBaseObject
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
 
     def __init__(self, oid, **kwargs):
         self.id = oid
