@@ -376,7 +376,7 @@ class BaseObject(Implicit):
     def _datify( self, attrib ):
         """FIXME: overriden from DublinCore to deal with blank value..."""
         if attrib == 'None' or not attrib:
-            attrib = ''
+            attrib = None 
         elif not isinstance( attrib, DateTime ):
             attrib = DateTime( attrib )
         return attrib
