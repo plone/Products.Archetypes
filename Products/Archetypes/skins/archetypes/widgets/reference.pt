@@ -40,7 +40,6 @@
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
-                         value python:request.form.get(fieldName, value);
                          fieldName python:multiVal and fieldName+':list' or fieldName;
                          vlen python:len(vocab);">
 
