@@ -1,26 +1,12 @@
-1.3.1.rc3 - 2004-11-05
-======================
-
- * there where lots of discussions about the behaviour of references while 
-   copying. it ends up in 1.3.0-final with the default behaviour to do not
-   copy references if a object is copied. now this is for several use-cases
-   a great problem, and it's also difficult to copy them afterwards. 
-   finally we decided to make it configureable per reference in 1.4.x. A
-   solution for 1.3 is provided by the patch from duncan booth we applied 
-   here. its transparent to the 1.3.0-final behaviour. you now can set
-   in archetypes tool the copying behaviour. it defaults to not copy 
-   references.
-   [duncanb, yenzenz]
+1.3.1-POST rc1 - 2004-10-23
+===========================
 
  * Changed boolean widget so that the checkbox is displayed before
-   the label and not below the help text. Makes more sense UI wise.
-   [_ender_]
+    the label and not below the help text. Makes more sense UI wise.
+    [_ender_]
 
  * fix manage_delObjects of BaseFolderMixin that did not return anything
    [gotcha]
-
-1.3.1-rc1 - 2004-10-23
-======================
 
  * allow comma as dezimal delimiter in FixedPointField and convert it
    immediatly to a point-delimited-value. The whole process needs a rewrite 

@@ -2,7 +2,7 @@ from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import shasattr, make_uuid
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
@@ -146,7 +146,7 @@ class Referenceable(CopySource):
     def UID(self):
         return getattr(self, config.UUID_ATTR, None)
 
-    def _setUID(self, uid, notify=True):
+    def _setUID(self, uid):
         old_uid = self.UID()
         if old_uid is None:
             # Nothing to be done.
@@ -174,10 +174,9 @@ class Referenceable(CopySource):
         setattr(self, config.UUID_ATTR, uid)
         item = self
         container = aq_parent(aq_inner(item))
-        if notify:
-            # We call manage_afterAdd to inform the
-            # reference catalog about changes.
-            self.manage_afterAdd(item, container)
+        # We call manage_afterAdd to inform the
+        # reference catalog about changes.
+        self.manage_afterAdd(item, container)
 
     def _updateCatalog(self, container):
         """Update catalog after copy, rename ...
@@ -209,13 +208,8 @@ class Referenceable(CopySource):
             # If the object is a copy of a existing object we
             # want to renew the UID, and drop all existing references
             # on the newly-created copy.
-            tool = getToolByName(container, config.TOOL_NAME)
-            if tool.getKeepReferencesOnCopy():
-                uuid = make_uuid(self.id)
-                self._setUID(uuid, notify=False)
-            else:
-                setattr(self, config.UUID_ATTR, None)
-                self._delReferenceAnnotations()
+            setattr(self, config.UUID_ATTR, None)
+            self._delReferenceAnnotations()
 
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
