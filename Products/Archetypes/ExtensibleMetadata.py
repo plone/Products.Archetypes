@@ -49,8 +49,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator="allowDiscussion",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList(((0,'Disabled'),(1,'Enabled'),
-                                   (None,'Default'))),
+            vocabulary=DisplayList(((None,'Default'),
+                                    (1,'Enabled'),
+                                    (0,'Disabled'),
+                                   )),
             widget=SelectionWidget(
                 label="Allow Discussion?",
                 label_msgid="label_allow_discussion",
@@ -164,8 +166,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(CMFCorePermissions.View,
                               'isDiscussable')
     def isDiscussable(self, encoding=None):
-        dtool = getToolByName(self, 'portal_discussion')
-        return dtool.isDiscussionAllowedFor(self)
+         return getattr(self, 'allow_discussion', None)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'allowDiscussion')

@@ -395,12 +395,12 @@ class BaseObject(Referenceable):
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
-
+        
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
-
+        
         self.post_validate(REQUEST, errors)
-
+        
         return errors
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
@@ -515,7 +515,7 @@ class BaseObject(Referenceable):
             result = widget.process_form(self, field, form,
                                          empty_marker=_marker)
             if result is _marker or result is None: continue
-
+            
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             # required for ComputedField et al

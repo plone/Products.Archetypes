@@ -111,11 +111,12 @@ class VocabularyWidget(TypesWidget):
         """Vocabulary impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
         value = field.Vocabulary(instance).getKeysFromIndexes(value)
-        
+            
         if value is empty_marker:
             return empty_marker
         if emptyReturnsMarker and value == '':
             return empty_marker
+        
         return value, {}
 
 class StringWidget(TypesWidget):
