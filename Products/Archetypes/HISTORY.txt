@@ -1,5 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
+ 
+ * Applied ApeSupport changes needed for APE 1.0. Thx to Roché Compaan.
+   Changed comment to doc-string.
+   [yenzenz]
 
  * Added Italian translation. Thanks to Mirto Silvio Busico.
    [dtremea]
