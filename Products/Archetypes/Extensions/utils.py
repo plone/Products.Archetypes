@@ -359,24 +359,32 @@ def setupEnvironment(self, out, types,
 ## The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1):
+                 require_dependencies=1,
+                 refresh_references=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies)
+    if refresh_references:
+        refreshReferenceCatalog(self, out, package_name=package_name, 
+                                ftypes=ftypes)
 
-
-def refreshReferenceCatalog(self, out, types, package_name):
+def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
     AT based product.
     
     This may take a very long time but it seems to be required under some
     circumstances.
     """
+    assert package_name
+    assert types or ftypes
+
+    if not ftypes:
+        ftypes = filterTypes(self, out, types, package_name)
+
     rc = getToolByName(self, REFERENCE_CATALOG)
-    ftypes = filterTypes(self, out, types, package_name)
     mt = tuple([t.meta_type for t in ftypes])
     
     # because manage_catalogFoundItems sucks we have to do it on our own ...
