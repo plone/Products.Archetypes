@@ -23,19 +23,19 @@
 	      value value;
 	      cols widget/cols;
 	      rows widget/rows;
-            
+
               tabindex tabindex/next;
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);
-	      " 
-	      tal:define="base python: hasattr(value, 'isUnit'); 
+	      "
+	      tal:define="base python: hasattr(value, 'isUnit');
 	      binary python: base and value.isBinary() or 0;
 	      content python: (base == 1) and value.getRaw() or value ;
 	      content python: (binary == 0) and content or '';
-	      " 
+	      "
 	      tal:content="content"/>
     </metal:define>
-    
+
     <metal:define define-macro="area_format">
     <tal:define define="contentType python:request.get('%s_text_format' % fieldName, here.getContentType(fieldName));
 	        mimetypes python: getattr(field, 'allowable_content_types', ());"
@@ -55,14 +55,14 @@
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
-    <metal:fill fill-slot="widget_body" 
+    <metal:fill fill-slot="widget_body"
             tal:define="editor python:here.portal_membership.getAuthenticatedMember().wysiwyg_editor;
                         wysiwyg python:test(editor and (editor!='None'), editor, 'None');
                         use_wysiwyg widget/use_wysiwyg | python:0"
     >
 
       <div class="field" >
-          <div tal:define="inputname  fieldName; 
+          <div tal:define="inputname  fieldName;
               formname   string:edit_form;
               inputvalue value;
               onfocus string:formtooltip('body_help',1);
@@ -78,7 +78,7 @@
 
       <tal:block >
           <div metal:use-macro="here/wysiwyg_support/macros/textFormatSelector">
-              Format box, if needed    
+              Format box, if needed
           </div>
       </tal:block>
 
@@ -91,6 +91,6 @@
     </div>
 
   </body>
-  
+
 </html>
 
