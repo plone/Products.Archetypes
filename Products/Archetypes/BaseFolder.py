@@ -7,10 +7,12 @@ from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
 from debug import log, log_exc
 from interfaces.base import IBaseFolder
+from interfaces.referenceable import IReferenceable
 
 class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
-
-    __implements__ = IBaseFolder
+    """ A not-so-basic Folder implementation """
+    
+    __implements__ = (IBaseFolder, IReferenceable)
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"

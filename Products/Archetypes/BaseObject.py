@@ -15,6 +15,7 @@ from Field import StringField
 from Widget import IdWidget, StringWidget
 from utils import DisplayList
 from interfaces.base import IBaseObject
+from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
 
@@ -47,7 +48,7 @@ class BaseObject(Implicit):
     schema = type = content_type
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
 
-    __implements__ = IBaseObject
+    __implements__ = (IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
         self.id = oid

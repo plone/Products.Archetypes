@@ -7,10 +7,14 @@ from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
 from interfaces.base import IBaseContent
+from interfaces.referenceable import IReferenceable
 
 class BaseContent(BaseObject, Referenceable, PortalContent, \
                   ExtensibleMetadata):
-    __implements__ = IBaseContent
+    """ A not-so-basic CMF Content implementation """
+
+    __implements__ = (IBaseContent, IReferenceable, PortalContent.__implements__)
+    
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options
 
