@@ -321,7 +321,11 @@
    'error' class.
    [tiran]
 
-1.3.0-beta5 - 2004-08-06
+ * Fixed two bugs in ttw template registration. 1st the registration-tab was 
+   broken, and 2cd it can't deal with migrated ATCT.
+   [jensens]
+
+1.30beta5 - 2004-08-06
 ========================
 
  * Fixed forbidden access to schema methods when the schema was
