@@ -35,7 +35,7 @@
         tabindex tabindex/next;
         onfocus string:formtooltip('${fieldName}_help',1);
         onblur string:formtooltip('${fieldName}_help',0);"
-        /><span tal:replace="python: vocab.getValue(item)"/><br />
+        /><span i18n:translate="" tal:content="python: vocab.getValue(item)"/><br />
 		</tal:radios>
     </tal:shortVocab>
 
@@ -51,6 +51,7 @@
 		      tal:repeat="item vocab"
 		tal:attributes="selected python:test(str(value) == str(item), 'selected', None); value item;"
 		tal:content="python: vocab.getValue(item)"
+                i18n:translate=""
 		/> 
 	    </select>
 	</tal:longVocab>

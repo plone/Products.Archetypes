@@ -21,7 +21,7 @@
     <metal:fill fill-slot="widget_body" 
 	        tal:define="binary python: here.isBinary(fieldName);">
         <div class="group">
-	        <div class="row">Enter text and choose a format for the <span tal:content="widget/label"/></div>
+	        <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
             <div class="row">
                 <metal:use use-macro="here/widgets/textarea/macros/area_edit"/>
             </div>

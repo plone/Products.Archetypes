@@ -25,7 +25,9 @@ content_type = Schema((
                 accessor="getId",
                 mutator="setId",
                 default=None,
-                widget=IdWidget(),
+                widget=IdWidget(label_msgid="label_name",
+                                description_msgid="help_name",
+                                i18n_domain="plone"),
                 ),
     
     StringField('title',
@@ -33,7 +35,9 @@ content_type = Schema((
                 searchable=1,
                 default='',
                 accessor='Title',
-                widget=StringWidget(),
+                widget=StringWidget(label_msgid="label_title",
+                                    description_msgid="help_title",
+                                    i18n_domain="plone"),
                 ),
     ))
 

@@ -23,9 +23,9 @@
         <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
 	<div tal:attributes="class python:test(field.required, 'required
 	  label', 'label')">
-	     <span i18n:translate="" tal:content="widget/label"></span>
+	     <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
              <div id="title_help" class="help" style="visibility: hidden;"
-                  tal:content="string:${widget/description}"
+                  tal:content="python:widget.Description(here)"
                   tal:attributes="id string:${fieldName}_help">Help tooltip</div>
         </div>
 	<div class="field"
