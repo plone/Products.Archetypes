@@ -26,12 +26,12 @@
 	      <input class="noborder"
 		     tabindex=""
 		     type="radio"
-		     tal:define="tabindex tabindex/next"
+		     tal:define="mytabindex tabindex/next"
 		     tal:attributes="name fieldName;
-		     id string:${fieldName}_${tabindex};
+		     id string:${fieldName}_${mytabindex};
 		     checked python:here.checkSelected(item, value);
 		     value item;
-		     tabindex tabindex/next;"
+		     tabindex mytabindex;"
 		     />
 	      <label i18n:translate=""
 		     tal:content="python: vocab.getValue(item)"
