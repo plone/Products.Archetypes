@@ -227,7 +227,7 @@ class GadflyMagic:
     gadfly_dir = os.path.join(PACKAGE_HOME, 'gadfly')
     demo_dir = os.path.join(gadfly_dir, 'demo')
 
-    def setupLocalEnvironment(self):
+    def afterSetUp(self):
         # Patch Gadfly to work off the temp dir
         from Products.ZGadflyDA import db
         self._data_dir = db.data_dir
@@ -254,7 +254,7 @@ class SQLStorageTestBase(GadflyMagic, ArcheSiteTestCase):
     cleanup = cleanup
 
     def afterSetUp(self):
-        GadflyMagic.setupLocalEnvironment(self)
+        GadflyMagic.afterSetUp(self)
         commonAfterSetUp(self)
 
     def beforeTearDown(self):
