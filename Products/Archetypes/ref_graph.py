@@ -56,6 +56,8 @@ class Edge:
                                                     self.dest,
                                                     self.relationship,
                                                     self.src.url)
+    def __hash__(self):
+        return hash((self.src.uid,  self.dest.uid, self.relationship))
 
     __repr__ = __str__
 
@@ -98,14 +100,13 @@ def build_graph(graphs, inst):
     print >>fp, 'digraph G {'
     uid = inst.UID()
     seen = {}
+    shown = {}
+    for direction, graph in graphs.iteritems(): #forw/back
+        for relationship, edges in graph.iteritems():
+            print >>fp, 'subgraph cluster_%s {' % str2id(relationship)
 
-    for relationship, graph in graphs.iteritems(): #forw/back
-        for relationship, graph in graph.iteritems():
-            print >>fp, 'subgraph relationship_%s {' % str2id(relationship)
-            print >>fp, '\tlabel="%s"' % relationship
 
-
-            for e in iter(graph):
+            for e in iter(edges):
                 for n in e.src, e.dest:
                     if n not in seen:
                         seen[n] = 1
@@ -116,8 +117,21 @@ def build_graph(graphs, inst):
                             print >>fp, '\tstyle=filled, fillcolor=blue',
                         print >>fp, ']'
 
-            for e in iter(graph):
-                print >>fp, "\t", e
+            for e in iter(edges):
+                if e in shown: continue
+                if direction == "backward":
+                    print >>fp, '\t%s -> %s [label="%s", href="%s/reference_graph"]' % (
+                    e.src,
+                    e.dest,
+                    e.relationship,
+                    e.dest.url)
+                else:
+                    print >>fp, '\t%s -> %s [label="%s", href="%s/reference_graph"]' % (
+                    e.src,
+                    e.dest,
+                    e.relationship,
+                    e.src.url)
+                shown[e] = e
 
             print >>fp, '\t}\n'
 
@@ -131,6 +145,10 @@ if HAS_GRAPHVIZ:
     def get_image(inst, fmt):
         g = local_refernece_graph(inst)
         data = build_graph(g, inst)
+
+        fp = open("/tmp/ref.dot", "w")
+        fp.write(data)
+        fp.close()
 
         stdout, stdin = popen2('%s -Gpack -T%s' % (GRAPHVIZ_BINARY, fmt))
         stdin.write(data)
