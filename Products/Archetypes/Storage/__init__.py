@@ -131,7 +131,7 @@ class MetadataStorage(StorageLayer):
         # copy or rename operation
         base = aq_base (instance)
         if not base._md.has_key(field.getName()):
-            self.set(field.getName(), instance, field.default)
+            self.set(field.getName(), instance, field.getDefault(instance))
 
     def get(self, name, instance, **kwargs):
         base = aq_base(instance)
