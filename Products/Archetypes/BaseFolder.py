@@ -14,6 +14,8 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
     
     manage_options = SkinnedFolder.manage_options       
     content_icon = "folder_icon.gif"
+
+    security = ClassSecurityInfo()
     
     def __init__(self, oid, **kwargs):
         #call skinned first cause baseobject will set new defaults on
@@ -22,14 +24,17 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
         ExtensibleMetadata.__init__(self, **kwargs)
         BaseObject.__init__(self, oid, **kwargs)
 
+    security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
 
+    security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
 
+    security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)

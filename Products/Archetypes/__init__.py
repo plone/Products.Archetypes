@@ -4,6 +4,12 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 from config import *
 from debug import log
+try:
+    import Products.BTreeFolder2
+except ImportError:
+    from Products.Archetypes.debug import log, log_exc
+    log_exc()
+    log("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
 
 registerDirectory('skins', globals())
 
