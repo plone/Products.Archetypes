@@ -30,7 +30,7 @@ def make_uuid(*args):
     return uid
 
 # linux kernel uid generator. It's a little bit slower but a little bit better
-KERNEL_UUID = '/proc/sys/kernel/random/uuids'
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
 
 if os.path.isfile(KERNEL_UUID):
     HAS_KERNEL_UUID = True
@@ -285,8 +285,8 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) not in (StringType, UnicodeType, IntType):
-            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+        if type(key) not in (StringType, UnicodeType):
+            raise TypeError('DisplayList msgids must be strings, got %s' %
                             type(key))
         if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
