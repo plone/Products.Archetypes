@@ -33,6 +33,7 @@ from Products.ZCatalog.IZCatalog import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
+from ZODB.POSException import ConflictError
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -607,7 +608,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
-        except:
+        except ConflictError:
+            raise
+        except: # XXX bare exception
             pass
         if uninstall is not None:
             if REQUEST:
@@ -926,6 +929,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
+            except ConflictError:
+                raise
             except Exception, E:
                 log("No tool", name, E)
                 pass

@@ -13,6 +13,7 @@ from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from OFS.PropertyManager import PropertyManager
+from ZODB.POSException import ConflictError
 
 class BaseContentMixin(CatalogMultiplex,
                        BaseObject,
@@ -68,6 +69,8 @@ class BaseContentMixin(CatalogMultiplex,
         file.seek(0)
         try:
             filename = REQUEST._steps[-2] #XXX fixme, use a real name
+        except ConflictError:
+            raise
         except:
             filename = (getattr(file, 'filename', None) or
                         getattr(file, 'name', None))

@@ -107,9 +107,10 @@ class ProcessingTest(ArcheSiteTestCase):
         portal = self.getPortal()
         dummy = Dummy(oid='dummy')
         dummy.initializeArchetype()
-        portal.dummy = dummy.__of__(portal)
+        dummy = dummy.__of__(portal)
+        portal.dummy = dummy
         self._dummy = dummy
-        return self._dummy
+        return dummy
 
     def test_processing(self):
         dummy = self.makeDummy()

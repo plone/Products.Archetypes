@@ -32,6 +32,7 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
+from ZODB.POSException import ConflictError
 
 import zLOG
 import sys
@@ -232,7 +233,9 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
-            except: #NotFound
+            except ConflictError:
+                raise
+            except: #NotFound # XXX bare exception
                 pass
 
             if not obj:
@@ -241,6 +244,8 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
             return obj
+        except ConflictError:
+            raise
         except:
             #import traceback
             #traceback.print_exc()

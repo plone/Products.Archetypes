@@ -86,6 +86,8 @@ class BaseObject(Referenceable):
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
             self.markCreationFlag()
+        except ConflictError:
+            raise
         except:
             import traceback
             print "Error on initAT", traceback.print_exc()
@@ -283,6 +285,8 @@ class BaseObject(Referenceable):
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
+        except ConflictError:
+            raise
         except:
             log_exc()
             return None, 0
@@ -421,6 +425,8 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
+                except ConflictError:
+                    raise
                 except:
                     continue
 

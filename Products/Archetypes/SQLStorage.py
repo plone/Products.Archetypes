@@ -7,6 +7,7 @@ from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
+from ZODB.POSException import ConflictError
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """

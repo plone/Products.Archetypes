@@ -40,6 +40,7 @@ from ComputedAttribute import ComputedAttribute
 from ZPublisher.HTTPRequest import FileUpload
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
+from ZODB.POSException import ConflictError
 
 from cStringIO import StringIO
 
@@ -1000,7 +1001,7 @@ class DateTimeField(ObjectField):
         elif not isinstance(value, DateTime):
             try:
                 value = DateTime(value)
-            except:
+            except: #XXX bare exception
                 value = None
 
         ObjectField.set(self, instance, value, **kwargs)
@@ -1449,7 +1450,7 @@ from OFS.Image import Image as BaseImage
 try:
     import PIL.Image
     has_pil=1
-except:
+except ImportError:
     # no PIL, no scaled versions!
     log("Warning: no Python Imaging Libraries (PIL) found."+\
         "Archetypes based ImageField's don't scale if neccessary.")
@@ -2012,6 +2013,8 @@ class ScalableImage(BaseImage):
 
                 image.seek(0)
 
+        except ConflictError:
+            raise
         except Exception, e:
             LOG('Archetypes.ScallableField', ERROR,
                 'Error while resizing image', e)
