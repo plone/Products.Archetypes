@@ -1,5 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
+
+ * The subobject Wrapper class is now based on Acquisition.Explicit. And
+   BaseObject's subobject works now.
+   [panjunyong]
  
  * Applied ApeSupport changes needed for APE 1.0. Thx to Roché Compaan.
    Changed comment to doc-string.
