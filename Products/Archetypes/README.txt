@@ -31,7 +31,10 @@ Requires
   CMFFormController (from collective CVS)
 
   You have to install the "PortalTransforms", "generator" and
-  "validation" Products available on SF Archetypes CVS.
+  "validation" Products available on SF Archetypes CVS to your Zope Products
+  directory. Installing generator and validation as Python package is not longer
+  supported by Archetypes. If you have installed them as Python package they are
+  silently ignored.
 
 Quickstart
 
