@@ -251,6 +251,9 @@ class ExtensibleMetadata(Persistence.Persistent):
         """cmf/backward compat: ignore setFormat"""
         if hasattr(aq_base(self), 'setContentType'):
             self.setContentType(value)
+        if (hasattr(aq_base(self), 'hasProperty') and
+          self.hasProperty('content_type')):
+            self.manage_changeProperties(content_type=format)
 
     def Identifer(self):
         """ dublin core getId method"""
