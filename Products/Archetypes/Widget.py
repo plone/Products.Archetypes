@@ -1,3 +1,4 @@
+from copy import deepcopy
 from types import DictType, FileType, ListType
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, createExprContext
@@ -102,24 +103,34 @@ class TypesWidget(macrowidget, Base):
             return empty_marker
         return value, {}
 
+    security.declarePublic('copy')
+    def copy(self):
+        """
+        Return a copy of widget instance, consisting of field name and
+        properties dictionary.
+        """
+        cdict = dict(vars(self))
+        properties = deepcopy(cdict)
+        return self.__class__(**properties)
+
 InitializeClass(TypesWidget)
 
 ##class VocabularyWidget(TypesWidget):
 ##
 ##    security = ClassSecurityInfo()
-##    
+##
 ##    security.declarePublic('process_form')
 ##    def process_form(self, instance, field, form, empty_marker=None,
 ##                     emptyReturnsMarker=False):
 ##        """Vocabulary impl for form processing in a widget"""
 ##        value = form.get(field.getName(), empty_marker)
 ##        value = field.Vocabulary(instance).getKeysFromIndexes(value)
-##            
+##
 ##        if value is empty_marker:
 ##            return empty_marker
 ##        if emptyReturnsMarker and value == '':
 ##            return empty_marker
-##        
+##
 ##        return value, {}
 ##
 ##InitializeClass(VocabularyWidget)
@@ -166,7 +177,7 @@ class ReferenceWidget(TypesWidget):
         'addable' : 0, # create createObject link for every addable type
         'destination' : None, # may be:
                               # - ".", context object;
-                              # - None, any place where 
+                              # - None, any place where
                               #   Field.allowed_types can be added;
                               # - string path;
                               # - name of method on instance
@@ -240,7 +251,7 @@ class ReferenceWidget(TypesWidget):
             value['id'] = typeid
             value['name'] = info.Title()
             value['destinations'] = []
-                
+
             for option in options.get(typeid):
                 if option == None:
                     value['destinations'] = value['destinations'] + \
@@ -319,7 +330,7 @@ class TextAreaWidget(TypesWidget):
                 # using default_output_type caused a recursive transformation
                 # that sucked, thus mimetype= here to keep it in line
                 value = value + field.widget.divider + field.get(instance, mimetype="text/plain")
-            
+
         return value, kwargs
 
 class LinesWidget(TypesWidget):
@@ -447,7 +458,7 @@ class RichWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 1,
-        'allow_file_upload':1, 
+        'allow_file_upload':1,
         })
 
     security = ClassSecurityInfo()
@@ -532,7 +543,7 @@ class RequiredIdWidget(IdWidget):
 
     # XXX
     security.declarePublic('process_form')
-    
+
     def process_form(self, instance, field, form, empty_marker=None):
         """Override IdWidget.process_form to require id."""
         return TypesWidget.process_form(self, instance, field, form, empty_marker)

@@ -89,8 +89,7 @@ class Dummy(BaseContent):
 BaseUnit.portal_properties = PortalProperties()
 
 def gen_class(klass):
-    klass.schema = deepcopy(schema)
-    klass.schema = schema
+    klass.schema = schema.copy()
     registerType(klass)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 

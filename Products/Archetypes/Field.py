@@ -153,7 +153,12 @@ class Field(DefaultLayerContainer):
         Return a copy of field instance, consisting of field name and
         properties dictionary.
         """
-        properties = deepcopy(self.__dict__)
+        cdict = dict(vars(self))
+        # Widget must be copied separatedly
+        widget = cdict['widget']
+        del cdict['widget']
+        properties = deepcopy(cdict)
+        properties['widget'] = widget.copy()
         return self.__class__(self.getName(), **properties)
 
     def __repr__(self):
