@@ -32,8 +32,9 @@
 	    >
 	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
 	      <img src="" tal:attributes="src
-	      string:${here/portal_url}/${icon}"/>Download <span tal:replace="fieldName"/>
-	    </a> (<span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
+	      string:${here/portal_url}/${icon}"/>Download <span
+	      tal:replace="fieldName"/>
+	    </a> (<span tal:content="value/filename"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
 	    
 	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
 	      tal:define="edit here/edit.gif">

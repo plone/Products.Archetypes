@@ -38,7 +38,7 @@
 	tal:define="contentType python:here.getContentType(fieldName);
 	mimetypes python: getattr(field, 'allowable_content_types', ());"
 	tal:condition="python: len(mimetypes) > 1">
-	<div class="label">Format</div>
+	<div class="label">Text Format</div>
 	<select
 		tal:attributes="
 	  id string:${fieldName}_text_format;

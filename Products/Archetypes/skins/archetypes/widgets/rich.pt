@@ -22,14 +22,19 @@
 	  tal:define="binary python: here.isBinary(fieldName);">
 	  <div class="group">
 	    <span tal:condition="error" tal:replace="error" />
-	      <div class="label">Enter new text</div>
-	      <metal:block
-		metal:use-macro="here/widgets/textarea/macros/area_edit"/>
-		
+	      <div>Choose a format and enter text for
+	      the <span tal:content="widget/label"/></div>
 		<br/>
 		  <metal:block
 		    metal:use-macro="here/widgets/textarea/macros/area_format"/>
-		<div class="label">or Upload a File</div>
+	      <metal:block
+		metal:use-macro="here/widgets/textarea/macros/area_edit"/>
+		
+
+		<br/>
+		  <strong>OR</strong><br/><br/>
+
+		<div class="label">Upload a File</div>
 		<metal:block
 		  metal:use-macro="here/widgets/file/macros/file_edit"/>
 		  <br/>
