@@ -48,13 +48,15 @@ class IOrderedContainer(Interface):
         the bottom. If delta is lower than the possible minimum, objects will
         be moved to the top.
 
+        If subset_ids is not None, delta will be interpreted relative to the
+        subset specified by a sequence of ids. The position of objects that
+        are not part of this subset will not be changed.
+
         The order of the objects specified by ids will always be preserved. So
         if you don't want to change their original order, make sure the order
         of ids corresponds to their original order.
 
         If an object with id doesn't exist an error will be raised.
-        
-        XXX subset_ids
 
         Permission -- Manage properties
 
