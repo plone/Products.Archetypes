@@ -290,7 +290,10 @@ class OrderedDict(BaseDict):
 
     def copy(self):
         if self.__class__ is OrderedDict:
-            return OrderedDict(self.data)
+            c = OrderedDict()
+            for k, v in self.items():
+                c[k] = v
+            return c
         import copy
         c = copy.copy(self)
         return c        
