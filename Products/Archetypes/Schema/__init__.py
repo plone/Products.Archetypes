@@ -336,8 +336,8 @@ class BasicSchema(Schemata):
         """
         Initialize a Schema.
 
-        The first positional argument may be a sequence of
-        Fields. (All further positional arguments are ignored.)
+        The first positional argument may be a sequence of Fields. Otherwise,
+        args is taken to be a list of Fields.
 
         Keyword arguments are added to my properties.
         """
@@ -351,7 +351,8 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                self.addField(args[0])
+                for field in args:
+                    self.addField(args[0])
 
     def __add__(self, other):
         c = BasicSchema()
