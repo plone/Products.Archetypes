@@ -242,7 +242,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     security.declarePublic('validate')
     def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
         """Validate the state of the entire object"""
-        fieldset = REQUEST.form.get('fieldset', None)
+        if REQUEST:
+            fieldset = REQUEST.form.get('fieldset', None)
+        else:
+            fieldset = None
         fields = []
 
         if fieldset is not None:
@@ -272,6 +275,11 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                             pass
 
                     if value is not None and value != '': break
+
+            # if no REQUEST, validate existing value
+            else:
+                accessor = getattr(instance, field.accessor)
+                value = accessor()
 
             #REQUIRED CHECK
             if field.required == 1:
