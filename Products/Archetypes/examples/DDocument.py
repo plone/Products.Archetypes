@@ -35,7 +35,7 @@ schema = BaseSchema + Schema((
                widget=ImageWidget()),
 
     ),
-      marshaller = PrimaryFieldMarshaller()) + TemplateMixin.schema
+      marshall=PrimaryFieldMarshaller()) + TemplateMixin.schema
 
 class DDocument(TemplateMixin, BaseContent):
     """An extensible Document (test) type"""
