@@ -203,12 +203,7 @@ class Referenceable(CopySource):
         Get a UID
         (Called when the object is created or moved.)
         """
-        if shasattr(item, '_at_is_cp'):
-            isCopy = getattr(item, '_at_is_cp', False)
-            # XXX test_rename fails when we delete it
-            del self._at_is_cp
-        else:
-            isCopy = False
+        isCopy = getattr(item, '_at_is_cp', None)
         if isCopy:
             # If the object is a copy of a existing object we
             # want to renew the UID, and drop all existing references
@@ -228,12 +223,7 @@ class Referenceable(CopySource):
         """
         uc = getToolByName(self, config.UID_CATALOG)
 
-        if shasattr(item, '_at_is_cp'):
-            isCopy = getattr(item, '_at_is_cp', False)
-            # XXX test_rename fails when we delete it
-            del self._at_is_cp
-        else:
-            isCopy = False
+        isCopy = getattr(item, '_at_is_cp', None)
         # if isCopy is True, manage_afterAdd should have assigned a
         # UID already.  Don't mess with UID anymore.
         if not isCopy:
@@ -255,8 +245,8 @@ class Referenceable(CopySource):
 
         # Change this to be "item", this is the root of this recursive
         # chain and it will be flagged in the correct mode
-        storeRefs = getattr(aq_base(item), '_at_cp_refs', False)
-        if storeRefs:
+        storeRefs = getattr(item, '_at_cp_refs', None)
+        if storeRefs is None:
             # The object is really going away, we want to remove
             # its references
             rc = getToolByName(self, config.REFERENCE_CATALOG)
@@ -330,7 +320,7 @@ class Referenceable(CopySource):
         # gets to manage_afterAdd, the UID is renewed and references
         # are not moved over to the new object.
         ob = CopySource._getCopy(self, container)
-        ob._at_is_cp = True
+        ob._at_is_cp = 1
         return ob
 
     def _notifyOfCopyTo(self, container, op=0):

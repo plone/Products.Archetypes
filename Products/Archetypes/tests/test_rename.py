@@ -199,7 +199,7 @@ class RenameTests(ATSiteTestCase):
         # or to manage_beforeDelete for the source object.
         expected = (d_count[0], d_count[1], d_count[2])
         got = self.getCounts(d)
-        #self.assertEquals(got, expected)
+        self.assertEquals(got, expected)
 
         new_d = self.folder.copy_of_new_folder2.folder22.new_folder221.doc2211
         got = self.getCounts(new_d)
