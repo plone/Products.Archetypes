@@ -1024,11 +1024,12 @@ class ImageField(ObjectField):
         ###
 
         # test for scaling it.
+        imgdata = value
         if has_pil:
             if self.original_size or self.max_size:
                 mimetype = kwargs.get('mimetype', 'image/png')
                 image = Image(self.getName(), self.getName(), value, mimetype)
-                data=str(image.data)
+                data = str(image.data)
                 if self.max_size:
                     if image.width > self.max_size[0] or image.height > self.max_size[1]:
                         factor = min(float(self.max_size[0])/float(image.width),
@@ -1036,11 +1037,10 @@ class ImageField(ObjectField):
                         w = int(factor*image.width)
                         h = int(factor*image.height)
                 elif self.original_size:
-                    w,h=self.original_size
-                imgdata=self.scale(data,w,h)
+                    w,h = self.original_size
+                imgdata = self.scale(data,w,h)
         else:
             mimetype = kwargs.get('mimetype', 'image/png')
-            imgdata=value
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
@@ -1050,7 +1050,7 @@ class ImageField(ObjectField):
         if not has_pil or not self.sizes:
             return
 
-        data= str(image.data)
+        data = str(image.data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
@@ -1066,10 +1066,10 @@ class ImageField(ObjectField):
         keys = {'height':int(w or h), 'width':int(h or w)}
 
         original_file=StringIO(data)
-        image=PIL.Image.open(original_file)
-        image=image.convert('RGB')
+        image = PIL.Image.open(original_file)
+        image = image.convert('RGB')
         image.thumbnail((keys['width'],keys['height']))
-        thumbnail_file=StringIO()
+        thumbnail_file = StringIO()
         image.save(thumbnail_file, "JPEG")
         thumbnail_file.seek(0)
         return thumbnail_file.read()

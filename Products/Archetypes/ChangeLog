@@ -1,5 +1,8 @@
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* Field.py (ImageField.set): Trying to fix 'imgdata referenced
+	before assignment' for Lewellyn.
+
 	* tests/test_all.py (test_suite): Added test_fields to the
 	suite. Added test_widgets, but commented out. It should be run
 	standalone, and with caution! It may harm your database.
