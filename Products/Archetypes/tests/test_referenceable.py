@@ -108,7 +108,6 @@ class ReferenceableTests(ArcheSiteTestCase):
         assert "Owns" in rels
 
         a.deleteReference(c, "Owns")
-
         assert a.getRefs() == [b]
         assert c.getBRefs() == []
 
@@ -233,10 +232,27 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         #Now Kill the folder and make sure it all went away
         site._delObject("reftest")
+        self.verifyBrains()
+
         uids = uc.uniqueValuesFor('UID')
         #assert len(uids) == 0
         assert len(rc()) == 0
 
+
+    def verifyBrains(self):
+        site = self.getPortal()
+        uc = getattr(site, UID_CATALOG)
+        rc = getattr(site, REFERENCE_CATALOG)
+
+        #Verify all UIDs resolve
+        brains = uc()
+        objects = [b.getObject() for b in brains]
+        self.failIf(None in objects, """bad uid resolution""")
+
+        #Verify all references resolve
+        brains = rc()
+        objects = [b.getObject() for b in brains]
+        self.failIf(None in objects, """bad ref catalog resolution""")
 
 
 

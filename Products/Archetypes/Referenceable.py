@@ -9,7 +9,7 @@ from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
-from ZODB.PersistentMapping import PersistentMapping
+from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 ####
 ## In the case of a copy we want to lose refs
@@ -89,9 +89,10 @@ class Referenceable(Base):
     def _getReferenceAnnotations(self):
         """given an object extract the bag of references for which it
         is the source"""
-        if not hasattr(self, config.REFERENCE_ANNOTATION):
-            setattr(self, config.REFERENCE_ANNOTATION, PersistentMapping())
-        return getattr(self, config.REFERENCE_ANNOTATION)
+        if not hasattr(aq_base(self), config.REFERENCE_ANNOTATION):
+            setattr(self, config.REFERENCE_ANNOTATION, Folder(config.REFERENCE_ANNOTATION))
+
+        return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
 
 
     def UID(self):
@@ -173,8 +174,7 @@ class Referenceable(Base):
         if annotations:
             uc = getToolByName(aq, config.UID_CATALOG)
             rc = getToolByName(aq, config.REFERENCE_CATALOG)
-            for ref in annotations.values():
-                ref = aq_base(ref).__of__(self)
+            for ref in annotations.objectValues():
                 url = '/'.join(ref.getPhysicalPath())
                 uc.catalog_object(ref, url)
                 rc.catalog_object(ref, url)
@@ -184,7 +184,7 @@ class Referenceable(Base):
         if annotations:
             uc = getToolByName(aq, config.UID_CATALOG)
             rc = getToolByName(aq, config.REFERENCE_CATALOG)
-            for ref in annotations.values():
+            for ref in annotations.objectValues():
                 url = ref.getURL()
                 uc.uncatalog_object(url)
                 rc.uncatalog_object(url)

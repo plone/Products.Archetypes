@@ -139,16 +139,16 @@ class Reference(Referenceable, SimpleItem):
         uc.catalog_object(self, url)
         rc.catalog_object(self, url)
 
-    def getPhysicalPath(self):
-        """return the munged physical path"""
-        segments = list( SimpleItem.getPhysicalPath(self) )
-        segments.pop(-1)
-        segments.append( "%s%s"%( REF_PREFIX, self.UID() ) )
-        return getRelPath(self, segments)
+    def manage_beforeDelete(self, item, container):
+        Referenceable.manage_beforeDelete(self, item, container)
+        # Make sure to uncatalog self as well
+        rc = getToolByName(container, REFERENCE_CATALOG)
+        url=  self.getURL()
+        rc.uncatalog_object(url)
 
     def getURL(self):
         """the url used as the relative path based uid in the catalogs"""
-        return '/'.join(self.getPhysicalPath())
+        return getRelURL(self, self.getPhysicalPath())
 
 # The brains we want to use
 class UIDCatalogBrains(AbstractCatalogBrain):
@@ -181,15 +181,6 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                     REQUEST = self.REQUEST
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
-            # wrong object type
-            if not hasattr( obj, 'UID'):
-                return
-
-            if obj.UID() != self.UID:
-                # We have the parent that contains an object with
-                # this UID as an annotation.
-                annotations = obj._getReferenceAnnotations()
-                obj = annotations[self.UID].__of__(obj)
             return obj
         except:
             #import traceback
@@ -243,7 +234,9 @@ class ReferenceResolver( Base ):
             path = '/'.join(parts[:-1])
 
         portal_object = self.portal_url.getPortalObject()
+
         return portal_object.unrestrictedTraverse(path)
+
 
 
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
@@ -285,7 +278,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
                 # We can't del off self, we now need to remove it
                 # from the source objects annotation, which we have
                 annotation = sobj._getReferenceAnnotations()
-                del annotation[existing.id]
+                annotation._delObject(existing.id)
 
 
         rID = self._makeName(sID, tID)
@@ -301,9 +294,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             pass
         else:
             annotation = sobj._getReferenceAnnotations()
-            annotation[rID] = referenceObject
-            # Manually invoke the OFS like hook
-            referenceObject.manage_afterAdd(referenceObject, sobj)
+            annotation._setObject(rID, referenceObject)
             return referenceObject
 
     def deleteReference(self, source, target, relationship=None):
@@ -463,10 +454,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             pass
         else:
             annotation = sobj._getReferenceAnnotations()
-            url = '/'.join(referenceObject.getPhysicalPath())
-            self.uid_catalog.uncatalog_object(url)
-            self.uncatalog_object(url)
-            del annotation[referenceObject.UID()]
+            annotation._delObject(referenceObject.UID())
 
     def _resolveBrains(self, brains):
         objects = []
