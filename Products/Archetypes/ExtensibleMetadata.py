@@ -29,7 +29,9 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                       enforceVocabulary=1,
                       vocabulary=DisplayList(((0, 'off'), (1, 'on'),
                                               (None, 'default'))),
-                      widget=SelectionWidget(label="Allow Discussion?"),
+                      widget=SelectionWidget(label="Allow Discussion?",
+                                             label_msgid="label_allow_discussion",
+                                             i18n_domain="plone"),
                       ),
               
         LinesField('subject',
