@@ -2,7 +2,7 @@ from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory, \
      createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
-from CMFCore.ActionInformation import ActionInformation
+from Products.CMFCore.ActionInformation import ActionInformation
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
