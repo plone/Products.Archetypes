@@ -1,5 +1,5 @@
 from copy import deepcopy
-from types import DictType, FileType, ListType
+from types import DictType, FileType, ListType, StringTypes
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
@@ -431,7 +431,12 @@ class MultiSelectionWidget(TypesWidget):
             return empty_marker
         if emptyReturnsMarker and value == '':
             return empty_marker
-        values = [v.strip() for v in value.split('\n')]
+        if isinstance(value, StringTypes):
+            values = [v.strip() for v in value.split('\n')]
+        elif isinstance(value, ListType):
+            values = value
+        else:
+            values = []
         return values, {}
 
 class KeywordWidget(TypesWidget):

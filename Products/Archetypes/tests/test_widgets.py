@@ -97,6 +97,20 @@ class WidgetTests(ATSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
+    def test_subject_keyword_widget(self):
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field = doc.Schema()['selectionlinesfield3']
+        widget = field.widget
+        form = {'selectionlinesfield3':['bla','ble']}
+        expected = ['bla', 'ble']
+        result = widget.process_form(doc, field, form)
+        result[0].sort()
+        self.assertEqual(expected, result[0])
+        form = {'selectionlinesfield3':'bla\nble'}
+        result = widget.process_form(doc, field, form)
+        result[0].sort()
+        self.assertEqual(expected, result[0])
+
     def _test_widgets(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
 
