@@ -116,6 +116,7 @@ class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
+        'checkbox_bound': 5,
 
         'addable' : 0, # create createObject link for every addable type
         'destination' : None, # may be:

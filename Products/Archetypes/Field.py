@@ -1039,7 +1039,9 @@ class ReferenceField(ObjectField):
 
         'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
                                             # display path as well
-
+        'vocabulary_custom_label': None, # e.g. "b.getObject().title_or_id()".
+                                         # if given, this will
+                                         # override display_path_bound
         'referenceClass' : Reference,
         'referenceReferences' : False,
         })
@@ -1109,7 +1111,9 @@ class ReferenceField(ObjectField):
         skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
         brains = uc.searchResults(**skw)
 
-        if len(brains) > self.vocabulary_display_path_bound:
+        if self.vocabulary_custom_label is not None:
+            label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
+        elif len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
             label = lambda b:'%s %s %s' % (b.Title or b.id, at,
