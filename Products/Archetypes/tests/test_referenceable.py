@@ -1,7 +1,7 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.8.2.2 2003/07/10 00:03:01 dreamcatcher Exp $
+$Id: test_referenceable.py,v 1.8.2.3 2003/07/10 19:26:22 dreamcatcher Exp $
 """
 
 import unittest
@@ -17,6 +17,7 @@ from Products.CMFCore.tests.base.testcase import SecurityRequestTest, newSecurit
 from Products.CMFCore.tests.base.security import AnonymousUser
 from Products.CMFCore.MemberDataTool import MemberData
 from Products.Archetypes.tests.test_sitepolicy import makeContent
+from Products.CMFPlone.Portal import manage_addSite
 
 site = None
 
@@ -35,7 +36,6 @@ class ReferenceableTests( SecurityRequestTest ):
         user.aq_inner.aq_parent.aq_inner.aq_parent.id = 1
         newSecurityManager( None, user )
         #newSecurityManager(None, MemberData(None, 'Anonymous').__of__(self.root).__of__(AnonymousUser()) )
-        from Products.CMFPlone.Portal import manage_addSite
         manage_addSite(self.root, 'testsite', custom_policy='Archetypes Site')
 
     def test_hasUID( self ):

@@ -91,7 +91,7 @@ class test_update_schema1(SecurityRequestTest):
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(DisplayListTest),
+        unittest.makeSuite(test_update_schema1),
         ))
 
 if __name__ == '__main__':
