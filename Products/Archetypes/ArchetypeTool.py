@@ -287,17 +287,16 @@ def registerType(klass, package=None):
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
     """Helper method to fix some vars after renaming a type in portal_types
+    
+    It will raise an IndexError if called with a nonexisting old_portal_type. 
+    If you like to swallow the error please use a try/except block in your own
+    code and do NOT 'fix' this method.
     """
     at_tool = getToolByName(context, TOOL_NAME)
     __traceback_info__ = (context, old_portal_type, new_portal_type)
-    # will fail if oldId wasn't registered
+    # will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
     old_type = [t for t in _types.values()
-                if t['portal_type'] == old_portal_type]
-
-    if not old_type:
-        return
-
-    old_type = old_type[0]
+                if t['portal_type'] == old_portal_type][0]
 
     # rename portal type
     old_type['portal_type'] = new_portal_type
