@@ -62,6 +62,9 @@ class BaseObject(Implicit):
     _signature = None
 
     installMode = ['type', 'actions', 'indexes']
+    
+    typeDescMsgId = ''
+    typeDescription = ''
 
     __implements__ = IBaseObject
 

@@ -10,6 +10,7 @@
                    edit_template python:'%s_edit' % portal_type;
                    edit_macros python:path('here/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;
+                   typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
                    lockable python:hasattr(here, 'wl_isLocked');
@@ -62,6 +63,7 @@
     <metal:fill fill-slot="main">
       <metal:main define-macro="main">
         <metal:use_header use-macro="header_macro" />
+        <metal:use_typedescription use-macro="typedescription_macro" />
         <metal:use_body use-macro="body_macro" />
         <metal:use_footer use-macro="footer_macro" />
       </metal:main>

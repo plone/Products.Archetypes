@@ -5,6 +5,9 @@ class IBaseObject(Interface):
     #XXX windows is strange
     #schema = Attribute('schema', 'Schema of the object')
     #installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
+    
+    #typeDescription = Attribute('Type description used for base_edit')
+    #typeDescMsgId = Attribute('I18N message id for type description')
 
     def initializeLayers(item=None, container=None):
         """ Layer initialization. Performed on __init__ """
