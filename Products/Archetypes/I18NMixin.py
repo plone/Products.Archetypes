@@ -70,10 +70,10 @@ class I18NMixin:
             descr_field.set(self, text, mimetype=mimetype, encoding=encoding, lang=lang)
         
     security.declarePublic('Description')
-    def Description(self):
+    def Description(self, lang=None):
         "Dublin Core element - resource summary"
         descr_field = self.Schema()['description']
-        return descr_field.get(self)
+        return descr_field.get(self, lang)
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
     def setTitle(self, text, encoding=None, lang=None):
@@ -85,10 +85,10 @@ class I18NMixin:
             title_field.set(self, text, encoding=encoding, lang=lang)
         
     security.declarePublic('Title')
-    def Title(self):
+    def Title(self, lang=None):
         "Dublin Core element - resource name"
         title_field = self.Schema()['title']
-        return title_field.get(self)
+        return title_field.get(self, lang)
 
     def Language(self):
         "Dublin Core element - resource language"
@@ -210,6 +210,8 @@ class I18NMixin:
             return self
         except:
             # this is not a valid language id
-            #if hasattr(REQUEST, 'RESPONSE'):
-            REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
+            if hasattr(REQUEST, 'RESPONSE'):
+                REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
+            else:
+                raise AttributeError(name)
 
