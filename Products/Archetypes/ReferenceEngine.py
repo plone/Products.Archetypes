@@ -10,6 +10,7 @@ from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
+from ExtensionClass import Base 
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -42,6 +43,7 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
     security = ClassSecurityInfo()
+    portal_type = 'Reference'
 
     manage_options = (
         (
@@ -226,14 +228,7 @@ class UIDBaseCatalog(PluggableCatalog):
 class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
 
-
-class UIDCatalog(UniqueObject, ZCatalog):
-    id = UID_CATALOG
-
-    def __init__(self, id, title='', vocab_id=None, container=None):
-        """We hook up the brains now"""
-        ZCatalog.__init__(self, id, title, vocab_id, container)
-        self._catalog = UIDBaseCatalog()
+class ReferenceResolver( Base ):
 
     def resolve_url(self, path, REQUEST):
         """Strip path prefix during resolution, This interacts with
@@ -248,7 +243,16 @@ class UIDCatalog(UniqueObject, ZCatalog):
         return portal_object.unrestrictedTraverse(path)
 
 
-class ReferenceCatalog(UniqueObject, ZCatalog):
+class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
+    id = UID_CATALOG
+
+    def __init__(self, id, title='', vocab_id=None, container=None):
+        """We hook up the brains now"""
+        ZCatalog.__init__(self, id, title, vocab_id, container)
+        self._catalog = UIDBaseCatalog()
+
+
+class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
     protect = security.declareProtected
@@ -465,21 +469,6 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             url = '/'.join(referenceObject.getPhysicalPath())
             self.uid_catalog.uncatalog_object(url)
             self.uncatalog_object(url)
-
-    def resolve_url(self, path, REQUEST):
-        """Strip path prefix during resolution, This interacts with
-        the default brains.getObject model and allows and fakes the
-        ZCatalog protocol for traversal
-        """
-        # Resolve to the real object by removing the
-        # ref annotation prefix, the brains do the rest
-        parts = path.split('/')
-        if parts[-1].find(REF_PREFIX) == 0:
-            path = '/'.join(parts[:-1])
-
-        portal_object = self.portal_url.getPortalObject()
-        return portal_object.unrestrictedTraverse(path)
-
     
     def _resolveBrains(self, brains):
         objects = []
