@@ -589,7 +589,7 @@ class Schema(Schemata, DefaultLayerContainer):
     security.declareProtected(CMFCorePermissions.View, 'getSchemataNames')
     def getSchemataNames(self):
         """ return list of schemata names in order of appearing """
-        lst = list()
+        lst = []
         for f in self.fields():
             if not f.schemata in lst:
                 lst.append(f.schemata)
