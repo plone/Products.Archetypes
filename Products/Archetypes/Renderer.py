@@ -4,6 +4,7 @@ from Products.Archetypes.interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+from Acquisition import ImplicitAcquisitionWrapper
 
 _marker = []
 
@@ -25,6 +26,8 @@ class ArchetypesRenderer(base):
         if context is _marker:
             raise RuntimeError, 'Context not found'
 
+        widget = ImplicitAcquisitionWrapper(widget, instance)
+        field = ImplicitAcquisitionWrapper(field, instance)
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
         context.setLocal('accessor', accessor)

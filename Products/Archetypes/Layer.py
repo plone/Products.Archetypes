@@ -1,16 +1,17 @@
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+from ExtensionClass import Base
 
-class DefaultLayerContainer:
+class DefaultLayerContainer(Base):
     __implements__ = ILayerContainer
-    
+
     security = ClassSecurityInfo()
 
     def __init__(self):
         self._layers = {}
 
-    security.declarePrivate('registerLayer')   
+    security.declarePrivate('registerLayer')
     def registerLayer(self, name, object):
         self._layers[name] = object
 

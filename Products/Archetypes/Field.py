@@ -37,6 +37,7 @@ from OFS.content_types import guess_content_type
 from OFS.Image import File
 from Globals import InitializeClass
 from ComputedAttribute import ComputedAttribute
+from ExtensionClass import Base
 from ZPublisher.HTTPRequest import FileUpload
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
@@ -97,7 +98,7 @@ class Field(DefaultLayerContainer):
 
     __implements__ = IField, ILayerContainer
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     _properties = {
         'required' : 0,
@@ -167,7 +168,7 @@ class Field(DefaultLayerContainer):
         widget.populateProps
         """
         if hasattr(self, 'widget'):
-            if type(self.widget) == ClassType:
+            if type(self.widget) in (ClassType, type(Base)):
                 self.widget = self.widget()
             self.widget.populateProps(self)
 
@@ -392,12 +393,12 @@ class Field(DefaultLayerContainer):
             else:
                 log("Unhandled type in Vocab")
                 log(value)
-        
+
         if content_instance:
             # Translate vocabulary
-            i18n_domain = (getattr(self, 'i18n_domain', None) or 
+            i18n_domain = (getattr(self, 'i18n_domain', None) or
                           getattr(self.widget, 'i18n_domain', None))
-                      
+
             return Vocabulary(value, content_instance, i18n_domain)
 
         return value
@@ -519,7 +520,7 @@ class Field(DefaultLayerContainer):
     def getI18nDomain(self):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance """
-        
+
 #InitializeClass(Field)
 setSecurity(Field)
 
@@ -851,7 +852,7 @@ class FileField(ObjectField):
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
-    __allow_access_to_unprotected_subobjects__ = 0
+
     __implements__ = FileField.__implements__
 
     _properties = FileField._properties.copy()
@@ -1263,7 +1264,7 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
-        
+
         allowed_types=self.allowed_types
         allowed_types_method=getattr(self,'allowed_types_method',None)
         if allowed_types_method:
@@ -1526,7 +1527,7 @@ class ImageField(FileField):
         object/image_normal
         object/image_big
         object/image_maxi
-        
+
         sizes may be the name of a method in the instance or a callable which
         returns a dict.
 
@@ -1535,7 +1536,7 @@ class ImageField(FileField):
         If 'DELETE_IMAGE' will be given as value, then all the images
         will be deleted (None is understood as no-op)
         """
-    __allow_access_to_unprotected_subobjects__ = 0
+
     # XXX__implements__ = FileField.__implements__ , IImageField
 
     _properties = FileField._properties.copy()
@@ -1638,7 +1639,7 @@ class ImageField(FileField):
     security.declareProtected(CMFCorePermissions.View, 'getAvailableSizes')
     def getAvailableSizes(self, instance):
         """Get sizes
-        
+
         Supports:
             self.sizes as dict
             A method in instance called like sizes that returns dict

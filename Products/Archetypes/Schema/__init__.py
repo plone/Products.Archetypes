@@ -12,9 +12,8 @@ from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
 from Products.Archetypes.utils import OrderedDict, mapply
 from Products.Archetypes.debug import log
 
-from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
+from Acquisition import aq_base, Explicit
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
 
@@ -22,9 +21,7 @@ __docformat__ = 'reStructuredText'
 
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""
-
     return [f.getName() for f in schema.fields()]
-
 
 def getSchemata(obj):
     """Returns an ordered dictionary, which maps all Schemata names to fields
@@ -33,12 +30,11 @@ def getSchemata(obj):
     schema = obj.Schema()
     schemata = OrderedDict()
     for f in schema.fields():
-        sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+        sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
         sub.addField(f)
-        schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+        schemata[f.schemata] = sub.__of__(obj)
 
     return schemata
-
 
 class Schemata:
     """Manage a list of fields by grouping them together.
@@ -167,6 +163,7 @@ class Schemata:
                               'addField')
     def addField(self, field):
         """Adds a given field to my dictionary of fields."""
+        field = aq_base(field)
         if IField.isImplementedBy(field):
             name = field.getName()
             if name not in self._names:
@@ -214,6 +211,7 @@ class Schemata:
 
         return [f.getName() for f in self.fields() if f.searchable]
 
+class WrappedSchemata(Schemata, Explicit): pass
 
 class SchemaLayerContainer(DefaultLayerContainer):
     """Some layer management for schemas"""

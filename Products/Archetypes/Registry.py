@@ -1,4 +1,5 @@
 import types
+import inspect
 
 from Products.Archetypes.utils import className
 from Products.Archetypes.ArchetypeTool import listTypes
@@ -165,19 +166,66 @@ class TypeDescription:
     def basetypes(self):
         return findBaseTypes(self.klass)
 
+def _getSecurity(klass, create=True):
+    # a Zope 2 class can contain some attribute that is an instance
+    # of ClassSecurityInfo. Zope 2 scans through things looking for
+    # an attribute that has the name __security_info__ first
+    info = vars(klass)
+    security = None
+    for k, v in info.items():
+        if hasattr(v, '__security_info__'):
+            security = v
+            break
+    # Didn't found a ClassSecurityInfo object
+    if security is None:
+        if not create:
+            return None
+        # we stuff the name ourselves as __security__, not security, as this
+        # could theoretically lead to name clashes, and doesn't matter for
+        # zope 2 anyway.
+        security = ClassSecurityInfo()
+        setattr(klass, '__security__', security)
+        if DEBUG_SECURITY:
+            print '%s has no ClassSecurityObject' % klass.__name__
+    return security
+
+def mergeSecurity(klass):
+    # This method looks into all the base classes and tries to
+    # merge the security declarations into the current class.
+    # Not needed in normal circumstances, but useful for debugging.
+    bases = list(inspect.getmro(klass))
+    bases.reverse()
+    security = _getSecurity(klass)
+    for base in bases[:-1]:
+        s = _getSecurity(base, create=False)
+        if s is not None:
+            if DEBUG_SECURITY:
+                print base, s.names, s.roles
+            # Apply security from the base classes to this one
+            s.apply(klass)
+            continue
+        cdict = vars(base)
+        b_perms = cdict.get('__ac_permissions__', ())
+        if b_perms and DEBUG_SECURITY:
+            print base, b_perms
+        for item in b_perms:
+            permission_name = item[0]
+            security._setaccess(item[1], permission_name)
+            if len(item) > 2:
+                security.setPermissionDefault(permission_name, item[2])
+        roles = [(k, v) for k, v in cdict.items() if k.endswith('__roles__')]
+        for k, v in roles:
+            name = k[:-9]
+            security.names[name] = v
+
 def setSecurity(klass, defaultAccess=None, objectPermission=None):
     """Set security of classes
-    
+
     * Adds ClassSecurityInfo if necessary
     * Sets default access ('deny' or 'allow')
     * Sets permission of objects
     """
-    if not klass.__dict__.has_key('security'):
-        if DEBUG_SECURITY:
-            raise AssertionError('%s has no ClassSecurityObject' % klass.__name__)
-        security = klass.security = ClassSecurityInfo()
-    else:
-        security = klass.security
+    security = _getSecurity(klass)
     if defaultAccess:
         security.setDefaultAccess(defaultAccess)
     if objectPermission:
@@ -202,7 +250,7 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
                 print '%s.%s has no security' % (klass.__name__, name)
             elif security.names.get(name) is ACCESS_PUBLIC:
                 print '%s.%s is public' % (klass.__name__, name)
-            
+
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
@@ -221,6 +269,7 @@ def registerWidget(klass, **kw):
     # XXX check me high > low security order.
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
     #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
+
     setSecurity(klass, defaultAccess='allow', objectPermission=None)
     #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
     #setSecurity(klass, defaultAccess='allow', objectPermission='public')
