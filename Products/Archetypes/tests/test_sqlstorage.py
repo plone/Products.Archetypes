@@ -176,7 +176,7 @@ class SQLStorageTest(unittest.TestCase):
         self._dummy = dummy = Dummy(oid='dummy')
         dummy_tool = DummyTool(self.db_name)
         dummy_tool.setup(dummy)
-        dummy.initalizeArchetype()
+        dummy.initializeArchetype()
 
     def tearDown(self):
         db = getattr(self._dummy, connection_id)()
@@ -284,7 +284,7 @@ for db_name in connectors.keys():
             new_id = 'new_demodoc'
             site._setObject(obj_id, self._nwdummy)
             doc = getattr(site, obj_id)
-            doc.initalizeArchetype()
+            doc.initializeArchetype()
             content = 'The book is on the table!'
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
@@ -306,7 +306,7 @@ for db_name in connectors.keys():
             obj_id = 'dummy'
             folder1._setObject(obj_id, self._nwdummy)
             doc = getattr(folder1, obj_id)
-            doc.initalizeArchetype()
+            doc.initializeArchetype()
             PUID1 = folder1.UID()
             f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
@@ -329,7 +329,7 @@ for db_name in connectors.keys():
             obj_id = 'dummy'
             site._setObject(obj_id, self._nwdummy)
             doc = getattr(site, obj_id)
-            doc.initalizeArchetype()
+            doc.initializeArchetype()
             f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             self.failUnless(PUID is None)
@@ -341,7 +341,7 @@ for db_name in connectors.keys():
             obj_id = 'dummy'
             folder1._setObject(obj_id, self._nwdummy)
             doc = getattr(folder1, obj_id)
-            doc.initalizeArchetype()
+            doc.initializeArchetype()
             PUID1 = folder1.UID()
             f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)

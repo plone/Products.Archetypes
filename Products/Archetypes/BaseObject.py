@@ -52,15 +52,15 @@ class BaseObject(Implicit):
     def __init__(self, oid, **kwargs):
         self.id = oid
     
-    def initalizeArchetype(self, **kwargs):
+    def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
-        self.initalizeLayers()
+        self.initializeLayers()
         self.setDefaults()
         if kwargs:
             self.update(**kwargs)
 
     def manage_afterAdd(self, item, container):
-        self.initalizeLayers(item, container)
+        self.initializeLayers(item, container)
         
     def manage_afterClone(self, item):
         pass
@@ -71,8 +71,8 @@ class BaseObject(Implicit):
         # SQLStorage for a field.
         self.cleanupLayers(item, container)
 
-    def initalizeLayers(self, item=None, container=None):
-        self.Schema().initalizeLayers(self, item, container)
+    def initializeLayers(self, item=None, container=None):
+        self.Schema().initializeLayers(self, item, container)
 
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)

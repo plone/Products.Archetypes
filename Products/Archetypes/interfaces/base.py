@@ -5,7 +5,7 @@ class IBaseObject(Interface):
     schema = Attribute('schema', 'Schema of the object')
     installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
     
-    def initalizeLayers():
+    def initializeLayers():
         """ Layer initialization. Performed on __init__ """
 
     def getId():

@@ -69,7 +69,7 @@ class BaseSQLStorage(StorageLayer):
         query, result = method(test__=1, **args)
         return result
     
-    def initalizeInstance(self, instance, item=None, container=None):
+    def initializeInstance(self, instance, item=None, container=None):
         if self.is_initialized(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be initialized twice
             return
@@ -207,7 +207,7 @@ class BaseSQLStorage(StorageLayer):
         except (AttributeError, KeyError):
             pass
 
-    def initalizeField(self, instance, field):
+    def initializeField(self, instance, field):
         pass
 
     def cleanupField(self, instance, field):

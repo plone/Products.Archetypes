@@ -35,14 +35,14 @@ class ReadOnlyStorage(Storage):
 class StorageLayer(Storage):
     __implements__ = (IStorage, ILayer)
 
-    def initalizeInstance(self, instance, item=None, container=None):
-        raise NotImplementedError('%s: initalizeInstance' % self.getName())
+    def initializeInstance(self, instance, item=None, container=None):
+        raise NotImplementedError('%s: initializeInstance' % self.getName())
 
     def cleanupInstance(self, instance, item=None, container=None):
         raise NotImplementedError('%s: cleanupInstance' % self.getName())
 
-    def initalizeField(self, instance, field):
-        raise NotImplementedError('%s: initalizeField' % self.getName())
+    def initializeField(self, instance, field):
+        raise NotImplementedError('%s: initializeField' % self.getName())
 
     def cleanupField(self, instance, field):
         raise NotImplementedError('%s: cleanupField' % self.getName())
@@ -88,12 +88,12 @@ class ObjectManagedStorage(Storage):
 class MetadataStorage(StorageLayer):
     __implements__ = (IStorage, ILayer)
     
-    def initalizeInstance(self, instance, item=None, container=None):
+    def initializeInstance(self, instance, item=None, container=None):
         if not hasattr(aq_base(instance), "_md"):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
-    def initalizeField(self, instance, field):
+    def initializeField(self, instance, field):
         self.set(field.name, instance, field.default)
 
     def get(self, name, instance, **kwargs):

@@ -21,7 +21,7 @@ class ChangeStorageTest( unittest.TestCase ):
     def setUp(self):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        self._dummy.initalizeArchetype()
+        self._dummy.initializeArchetype()
         self._old_storages = {}
 
     def test_changestorage(self):
@@ -68,7 +68,7 @@ class MetadataStorageTest( ClassGenTest ):
     def setUp(self):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        self._dummy.initalizeArchetype()
+        self._dummy.initializeArchetype()
         for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
@@ -79,7 +79,7 @@ class AttributeStorageTest( ClassGenTest ):
     def setUp( self ):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        self._dummy.initalizeArchetype()
+        self._dummy.initializeArchetype()
         for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())

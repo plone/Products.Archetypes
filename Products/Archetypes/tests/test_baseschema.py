@@ -31,7 +31,7 @@ class BaseSchemaTest( unittest.TestCase ):
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
-        self._dummy.initalizeArchetype()
+        self._dummy.initializeArchetype()
 
     def test_id(self):
         dummy = self._dummy

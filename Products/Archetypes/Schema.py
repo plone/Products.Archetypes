@@ -186,7 +186,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             instance[name] = value
 
     def setDefaults(self, instance):
-        """Only call during object initalization. Sets fields to
+        """Only call during object initialization. Sets fields to
         schema defaults
         """
         ## XXX think about layout/vs dyn defaults
@@ -338,12 +338,12 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     errors[name] = E
 
     #ILayerRuntime
-    def initalizeLayers(self, instance, item=None, container=None):
+    def initializeLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
-        # optionally call its initalizeInstance method and
-        # then the initalizeField method
-        initalizedLayers = []
-        called = lambda x: x in initalizedLayers
+        # optionally call its initializeInstance method and
+        # then the initializeField method
+        initializedLayers = []
+        called = lambda x: x in initializedLayers
 
         for field in self.fields():
             if ILayerContainer.isImplementedBy(field):
@@ -351,19 +351,19 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 for layer, object in layers:
                     if ILayer.isImplementedBy(object):
                         if not called((layer, object)):
-                            object.initalizeInstance(instance, item, container)
+                            object.initializeInstance(instance, item, container)
                             # Some layers may have the same name, but different classes,
                             # so, they may still need to be initialized
-                            initalizedLayers.append((layer, object))
-                        object.initalizeField(instance, field)
+                            initializedLayers.append((layer, object))
+                        object.initializeField(instance, field)
                         
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
                 if not called((layer, object)) \
                    and ILayer.isImplementedBy(object):
-                    object.initalizeInstance(instance, item, container)
-                    initalizedLayers.append((layer, object))
+                    object.initializeInstance(instance, item, container)
+                    initializedLayers.append((layer, object))
 
     def cleanupLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers

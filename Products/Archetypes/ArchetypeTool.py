@@ -87,7 +87,7 @@ def add%s(self, id, **kwargs):
     o = %s(id)
     self._setObject(id, o)
     o = getattr(self, id)
-    o.initalizeArchetype(**kwargs)
+    o.initializeArchetype(**kwargs)
 """ % (name, type)
 
     exec ctor in module.__dict__

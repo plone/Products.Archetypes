@@ -2,11 +2,11 @@ from interface import Interface
 
 class ILayer(Interface):
 
-    def initalizeInstance(instance):
-        """optionally called to initalize a layer for an entire
+    def initializeInstance(instance):
+        """optionally called to initialize a layer for an entire
         instance"""
 
-    def initalizeField(instance, field):
+    def initializeField(instance, field):
         """optionally called to cleanup a layer for a given field"""
 
     def cleanupField(instance, field):
@@ -35,9 +35,9 @@ class ILayerContainer(Interface):
 
 class ILayerRuntime(Interface):
 
-    def initalizeLayers(instance):
-        """optional Process all layers attempting their initalizeInstance and
-        initalizeField methods if they exist.
+    def initializeLayers(instance):
+        """optional Process all layers attempting their initializeInstance and
+        initializeField methods if they exist.
         """
 
     def cleanupLayers(instance):

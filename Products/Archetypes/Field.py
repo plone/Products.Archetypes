@@ -187,8 +187,8 @@ class ObjectField(Field):
         value = self.get(instance)
         self.unset(instance)
         self.storage = storage
-        if hasattr(self.storage, 'initalizeInstance'):
-            self.storage.initalizeInstance(instance)
+        if hasattr(self.storage, 'initializeInstance'):
+            self.storage.initializeInstance(instance)
         self.set(instance, value)
 
     def getStorage(self):
