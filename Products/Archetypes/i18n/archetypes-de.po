@@ -15,7 +15,7 @@ msgstr ""
 "Language-Name: Deutsch\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: archetypes\n"
-"X-Is-Fallback-For: de-at de-li de-lu de-ch\n"
+"X-Is-Fallback-For: de-at de-li de-lu de-ch de-de\n"
 
 #: skins/zmi/base_add.pt
 #. <input i18n:attributes="value" value="Add" type="submit" />
