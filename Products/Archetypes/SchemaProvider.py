@@ -110,7 +110,7 @@ class AcquisitionCollector(Collector):
         return providers
 
 class ContainerCollector(Collector):
-    name = "container""
+    name = "container"
     def getProviders(self, instance, providers=None):
         providers = self._defaultSchema(instance, providers)
         provider = aq_parent(aq_inner(instance))
