@@ -954,17 +954,25 @@ class ReferenceField(ObjectField):
         uc = getToolByName(content_instance, config.UID_CATALOG)
         brains = pc.searchResults(portal_type=self.allowed_types)
 
-        if len(brains) > self.vocabulary_display_path_bound:
-            label = lambda b:'%s at %s' % (b.Title or b.id, b.getPath())
+        if self.vocabulary_display_path_bound and \
+           len(brains) > self.vocabulary_display_path_bound:
+            at = i18n.translate(domain='archetypes', msgid='label_at',
+                                context=content_instance, default='at')
+            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
+                                           b.getPath())
         else:
             label = lambda b:b.Title or b.id
-        
+
         for b in brains:
             uid = uc.getMetadataForUID(b.getPath())['UID']
             pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
-            pairs.insert(0, ('', '<no reference>'))
+            no_reference = i18n.translate(domain='archetypes',
+                                          msgid='label_no_reference',
+                                          context=content_instance,
+                                          default='<no reference>')
+            pairs.insert(0, ('', no_reference))
 
         return DisplayList(pairs)
 
@@ -1202,10 +1210,10 @@ class ImageField(ObjectField):
                 for n, size in self.sizes.items():
                     id = self.getName() + "_" + n
                     try:
-                        # the following line may throw exceptions on types, if the 
+                        # the following line may throw exceptions on types, if the
                         # type-developer add sizes to a field in an existing
-                        # instance and a user try to remove an image uploaded before 
-                        # that changed. The problem is, that the behavior for non 
+                        # instance and a user try to remove an image uploaded before
+                        # that changed. The problem is, that the behavior for non
                         # existent keys isnt defined. I assume a keyerror will be
                         # thrown. Ignore that.
                         self.storage.unset(id, instance, **kwargs)
