@@ -2,7 +2,10 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.3.24.1 2004/04/25 22:07:12 tiran Exp $
+# $Id: common.py,v 1.3.24.2 2004/05/08 18:45:52 shh42 Exp $
+
+from Testing import ZopeTestCase
+from ArchetypesTestCase import ArchetypesTestCase
 
 # enable nice names for True and False from newer python versions
 try:
@@ -34,9 +37,6 @@ def Xprint(s):
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
-
-from Testing import ZopeTestCase
-from ArchetypesTestCase import ArchetypesTestCase
 
 try:
     from ArcheSiteTestCase import ArcheSiteTestCase
