@@ -6,6 +6,8 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import mapply
+from Products.CMFCore.utils import getToolByName
 
 from Acquisition import aq_base
 from Acquisition import aq_get
@@ -59,7 +61,9 @@ class BaseContentMixin(CatalogMultiplex,
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
-        """ HTTP PUT handler with marshalling support """
+        """ HTTP PUT handler with marshalling support
+        """
+
         if not REQUEST:
             REQUEST = self.REQUEST
         if not RESPONSE:
@@ -77,11 +81,9 @@ class BaseContentMixin(CatalogMultiplex,
             if data is _marker:
                 raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
         else:
-            data = file.read()
+            data = ''
             file.seek(0)
-        
-        # XXX should we maybe not accept PUT requests without a
-        # content type?
+
         mimetype = REQUEST.get_header('content-type', None)
 
         try:
@@ -93,28 +95,30 @@ class BaseContentMixin(CatalogMultiplex,
                         getattr(file, 'name', None))
 
         # XXX remove after we are using global services
-        # use the request to find an object in the traversal hirachie that is
+        # use the request to find an object in the traversal hirachy that is
         # able to acquire a mimetypes_registry instance
         # This is a hack to avoid the acquisition problem on FTP/WebDAV object
         # creation
-        parents = REQUEST.get('PARENTS', None)
+        parents = [self] + REQUEST.get('PARENTS', [])
         context = None
-        if parents is not None:
-            for parent in parents:
-                if aq_get(parent, 'mimetypes_registry', None, 1) is not None:
-                    context = parent
-                    break
+        for parent in parents:
+            if getToolByName(parent, 'mimetypes_registry', None) is not None:
+                context = parent
+                break
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data,
-                                      mimetype=mimetype,
-                                      filename=filename,
-                                      REQUEST=REQUEST,
-                                      RESPONSE=RESPONSE,
-                                      context=context)
-        if shasattr(self, 'demarshall_hook') \
-           and self.demarshall_hook:
+
+        args = [self, data]
+        kwargs = {'file':file,
+                  'context':context,
+                  'mimetype':mimetype,
+                  'filename':filename,
+                  'REQUEST':REQUEST,
+                  'RESPONSE':RESPONSE}
+        ddata = mapply(marshaller.demarshall, *args, **kwargs)
+
+        if (shasattr(self, 'demarshall_hook') and self.demarshall_hook):
             self.demarshall_hook(ddata)
 
         self.reindexObject()
@@ -124,7 +128,8 @@ class BaseContentMixin(CatalogMultiplex,
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST=None, RESPONSE=None):
-        "Get the raw content for this object (also used for the WebDAV SRC)"
+        """Get the raw content for this object
+        """
 
         if REQUEST is None:
             REQUEST = self.REQUEST
@@ -138,8 +143,7 @@ class BaseContentMixin(CatalogMultiplex,
 
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.marshall(self, REQUEST=REQUEST, RESPONSE=RESPONSE)
-        if shasattr(self, 'marshall_hook') \
-           and self.marshall_hook:
+        if shasattr(self, 'marshall_hook') and self.marshall_hook:
             ddata = self.marshall_hook(ddata)
 
         content_type, length, data = ddata
@@ -151,7 +155,7 @@ class BaseContentMixin(CatalogMultiplex,
 
         while data is not None:
             RESPONSE.write(data.data)
-            data=data.next
+            data = data.next
 
 InitializeClass(BaseContentMixin)
 

@@ -4,10 +4,11 @@ from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
+from Products.Archetypes.Field import FileField
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
-
+from OFS.Image import File
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 
@@ -60,10 +61,16 @@ class PrimaryFieldMarshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
+        file = kwargs.get('file')
+        if isinstance(p, FileField) and file:
+            data = file
+            del kwargs['file']
         p.set(instance, data, **kwargs)
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
+        if not p:
+            raise TypeError, 'Primary Field could not be found.'
         data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
@@ -71,8 +78,14 @@ class PrimaryFieldMarshaller(Marshaller):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
+        elif isinstance(data, File):
+            content_type = data.content_type
+            length = data.get_size()
+            data = data.data
         else:
-            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
+            log('WARNING: PrimaryFieldMarshaller(%r): '
+                'field %r does not return a IBaseUnit '
+                'instance.' % (instance, p.getName()))
             if hasattr(p, 'getContentType'):
                 content_type = p.getContentType(instance) or 'text/plain'
             else:
@@ -96,6 +109,10 @@ class RFC822Marshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
         from Products.CMFDefault.utils import parseHeadersBody
+        file = kwargs.get('file')
+        if file and not data:
+            del kwargs['file']
+            data = file.read()
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
             if v.strip() == 'None':

@@ -840,10 +840,10 @@ class FileField(ObjectField):
         if not isinstance(file, factory):
             # Convert to same type as factory
             # This is here mostly for backwards compatibility
-            value, mimetype, filename = self._migrate_old(file, **kwargs)
-            kwargs['mimetype'] = mimetype
-            kwargs['filename'] = filename
-            obj = self._wrapValue(instance, value, **kwargs)
+            v, m, f = self._migrate_old(file, **kwargs)
+            kwargs['mimetype'] = m
+            kwargs['filename'] = f
+            obj = self._wrapValue(instance, v, **kwargs)
             # Store so the object gets a _p_jar,
             # if we are using a persistent storage, that is.
             ObjectField.set(self, instance, obj, **kwargs)
