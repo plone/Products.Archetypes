@@ -460,6 +460,8 @@ class IntegerField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        if value=='':
+            value=None
         try:
             value = int(value)
         except TypeError:
@@ -474,6 +476,8 @@ class FloatField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        if value=='':
+            value=None
         try:
             value = float(value)
         except TypeError:
