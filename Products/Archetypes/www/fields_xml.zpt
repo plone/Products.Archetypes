@@ -23,10 +23,11 @@
    </allowedwidgetelements>
    <properties>
         <tal:block repeat="property field/properties">
-        <property>
+        <property tal:condition="python:property['type'] != 'not-registered'">
             <name tal:content="property/name">required</name>
             <type tal:content="property/type">boolean</type>
-            <default tal:content="property/default">boolean</default>
+            <default tal:content="nocall:property/default"
+                     tal:condition="nocall:property/default">boolean</default>
         </property>
         </tal:block>
     </properties>

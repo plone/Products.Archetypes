@@ -335,3 +335,17 @@ registerWidget(EpozWidget,
                description='Renders a HTML Epoz widget',
                used_for=('Products.Archetypes.Field.StringField',)
                )
+
+from Registry import registerPropertyType
+
+registerPropertyType('maxlength', 'integer', StringWidget)
+registerPropertyType('populate', 'boolean')
+registerPropertyType('postback', 'boolean')
+registerPropertyType('rows', 'integer', RichWidget)
+registerPropertyType('cols', 'integer', RichWidget)
+registerPropertyType('rows', 'integer', TextAreaWidget)
+registerPropertyType('cols', 'integer', TextAreaWidget)
+registerPropertyType('rows', 'integer', LinesWidget)
+registerPropertyType('cols', 'integer', LinesWidget)
+registerPropertyType('rows', 'integer', VisualWidget)
+registerPropertyType('cols', 'integer', VisualWidget)

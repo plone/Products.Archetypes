@@ -16,10 +16,11 @@
        <description tal:content="widget/description">HTML input box</description>
        <properties>
            <tal:block repeat="property widget/properties">
-           <property>
+           <property tal:condition="python:property['type'] != 'not-registered'">
                <name tal:content="property/name">label</name>
                <type tal:content="property/type">i18ntext</type>
-               <default tal:content="property/default">i18ntext</default>
+               <default tal:content="nocall:property/default"
+                        tal:condition="nocall:property/default">i18ntext</default>
            </property>
            </tal:block>
        </properties>

@@ -64,12 +64,13 @@ class FieldDescription:
         return widgets
 
     def properties(self):
+        from Products.Archetypes.Registry import getPropertyType
         props = []
         for k, v in self.klass._properties.items():
             prop = {}
             prop['name'] = k
-            prop['type'] = 'string'
-            prop['default'] = str(v)
+            prop['type'] = getPropertyType(k, self.klass)
+            prop['default'] = v
             props.append(prop)
 
         return props
@@ -86,11 +87,12 @@ class WidgetDescription:
         self.used_for = used_for
 
     def properties(self):
+        from Products.Archetypes.Registry import getPropertyType
         props = []
         for k, v in self.klass._properties.items():
             prop = {}
             prop['name'] = k
-            prop['type'] = 'string'
+            prop['type'] = getPropertyType(k, self.klass)
             prop['default'] = str(v)
             props.append(prop)
 
@@ -209,3 +211,28 @@ def registerValidator(item, name=''):
 
 typeDescriptionRegistry = TypeRegistry()
 availableTypes = typeDescriptionRegistry.items
+
+class PropertyMapping:
+
+    def __init__(self):
+        self._default = {}
+        self._mapping = {}
+
+    def register(self, property, type, klass=None):
+        if not klass:
+            map = self._default
+        else:
+            if not self._mapping.has_key(klass):
+                self._mapping[klass] = {}
+            map = self._mapping[klass]
+        map[property] = type
+
+    def getType(self, property, klass):
+        value = None
+        if self._mapping.has_key(klass):
+            value = self._mapping[klass].get(property, None)
+        return value or self._default.get(property, 'not-registered')
+
+propertyMapping = PropertyMapping()
+registerPropertyType = propertyMapping.register
+getPropertyType = propertyMapping.getType

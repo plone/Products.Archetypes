@@ -1604,3 +1604,25 @@ registerField(CMFObjectField,
 registerField(ImageField,
               title='Image',
               description='Used for storing images. Images can then be retrieved in different thumbnail sizes')
+
+from Registry import registerPropertyType
+
+registerPropertyType('required', 'boolean')
+registerPropertyType('default', 'string')
+registerPropertyType('default', 'integer', IntegerField)
+registerPropertyType('default', 'boolean', BooleanField)
+registerPropertyType('default', 'datetime', DateTimeField)
+registerPropertyType('vocabulary', 'string')
+registerPropertyType('enforceVocabulary', 'boolean')
+registerPropertyType('multiValued', 'boolean', LinesField)
+registerPropertyType('searchable', 'boolean')
+registerPropertyType('isMetadata', 'boolean')
+registerPropertyType('accessor', 'string')
+registerPropertyType('edit_accessor', 'string')
+registerPropertyType('mutator', 'string')
+registerPropertyType('mode', 'string')
+registerPropertyType('read_permission', 'string')
+registerPropertyType('write_permission', 'string')
+registerPropertyType('widget', 'widget')
+registerPropertyType('validators', 'validators')
+registerPropertyType('index', 'string')

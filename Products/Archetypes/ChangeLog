@@ -1,3 +1,7 @@
+2003-09-14  Sidnei da Silva  <sidnei@plone.org>
+
+	* Registry.py (availableTypes): Created a property type registry.
+
 2003-09-13  Sidnei da Silva  <sidnei@plone.org>
 
 	* ArchTTWTool.py: Added TTW Tool, which will be responsible for

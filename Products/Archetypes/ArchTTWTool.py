@@ -4,6 +4,7 @@ from OFS.Folder import Folder
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from AccessControl import ClassSecurityInfo
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Globals import InitializeClass
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
@@ -39,6 +40,7 @@ class ArchTTWTool(UniqueObject, Folder):
         fields = [v for k, v in availableFields()]
         return fields
 
+    security.declarePublic('fields_xml')
     def fields_xml(self):
         """ Return XML representation of the field registry """
         fields = self.fields()
@@ -49,6 +51,7 @@ class ArchTTWTool(UniqueObject, Folder):
         widgets = [v for k, v in availableWidgets()]
         return widgets
 
+    security.declarePublic('widgets_xml')
     def widgets_xml(self):
         """ Return XML representation of the widget registry """
         widgets = self.widgets()
@@ -59,6 +62,7 @@ class ArchTTWTool(UniqueObject, Folder):
         validators = [v for k, v in availableValidators()]
         return validators
 
+    security.declarePublic('validators_xml')
     def validators_xml(self):
         """ Return XML representation of the validators registry """
         validators = self.validators()
@@ -69,11 +73,13 @@ class ArchTTWTool(UniqueObject, Folder):
         types = [v for k, v in availableTypes()]
         return types
 
+    security.declarePublic('types_xml')
     def types_xml(self):
         """ Return XML representation of the types registry """
         types = self.types()
         return self.types_template(types=types)
 
+    security.declarePublic('registry_xml')
     def registry_xml(self):
         """ Return XML representation of the wholeregistry """
         options = {}
@@ -83,6 +89,7 @@ class ArchTTWTool(UniqueObject, Folder):
         options['types'] = self.types()
         return self.registry_template(**options)
 
+    security.declarePublic('type_xml')
     def type_xml(self):
         """ Return XML representation of one type from the registry """
         type = self.REQUEST.get('type', '')
@@ -92,3 +99,5 @@ class ArchTTWTool(UniqueObject, Folder):
         type = typeDescriptionRegistry[type]
         return self.type_template(type=type)
 
+
+InitializeClass(ArchTTWTool)
