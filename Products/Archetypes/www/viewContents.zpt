@@ -18,13 +18,21 @@
 	/>
 			
     <table width="50%">
+	<tr align="left">
+	<th>UID</th>
+	<th>Title</th>
+	<th>Inspector</th>
+	</tr>
 	<tr tal:repeat="object here/Content">
+	<tal:condition condition="object/UID">	
 	  <td tal:define="uid object/UID; url object/getURL;">
 	    <a href="#" tal:attributes="href url" tal:content="uid"/>
 	  </td>
+	<td tal:content="python: object.getObject().title_or_id()"/>
 	<td>	
 	    <a href="#" tal:attributes="href string:${here/absolute_url}/manage_inspect	?UID=${object/UID}">Inspect</a>
 	</td>	
+	</tal:condition>
 	</tr>
     </table>
 	
