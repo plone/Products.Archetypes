@@ -5,11 +5,12 @@ AggregatedStorage for Archetypes
 
 Released as open-source under the current Archetypes license
 
-$Id: AggregatedStorage.py,v 1.1.2.2 2004/02/19 16:35:24 ajung Exp $
+$Id: AggregatedStorage.py,v 1.1.2.3 2004/02/23 18:59:13 ajung Exp $
 """
 
 from time import time
 from types import StringType, DictType
+from threading import Lock
 
 from Storage import Storage
 from Registry import Registry
@@ -24,17 +25,18 @@ class AggregatedStorage(Storage):
         self._reg_dag = Registry(StringType) # registry for disaggregators
         self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
         self._caching = caching
+        self._lock = Lock()
 
     def registerAggregator(self, fieldname, methodname):
-		if self._reg_ag.get(fieldname):
-			raise KeyError('Aggregator for field "%s" already registered' % fieldname)
-		self._reg_ag.register(fieldname, methodname)
+        if self._reg_ag.get(fieldname):
+            raise KeyError('Aggregator for field "%s" already registered' % fieldname)
+        self._reg_ag.register(fieldname, methodname)
 
 
     def registerDisaggregator(self, fieldname, methodname):
-		if self._reg_dag.get(fieldname):
-			raise KeyError('Disaggregator for field "%s" already registered' % fieldname)
-		self._reg_dag.register(fieldname, methodname)
+        if self._reg_dag.get(fieldname):
+            raise KeyError('Disaggregator for field "%s" already registered' % fieldname)
+        self._reg_dag.register(fieldname, methodname)
 
     def get(self, name, instance, **kwargs):
         methodname = self._reg_ag.get(name)
@@ -71,7 +73,7 @@ class AggregatedStorage(Storage):
             return result[name]
         else:
             return cache_entry[name]
-		
+        
     def set(self, name, instance, value, **kwargs):
         methodname = self._reg_dag.get(name)
         if not methodname:
@@ -80,6 +82,8 @@ class AggregatedStorage(Storage):
         method = getattr(instance, methodname)
         if not method:
             raise KeyError('Disaggregator "%s" for field "%s" not found' % (methodname, name))
+        if self._caching:
+            self._cache_remove(instance.getId(), methodname)
         method(name, instance, value, **kwargs)
 
     ######################################################################
@@ -87,19 +91,34 @@ class AggregatedStorage(Storage):
     # returned by the aggregators
     ######################################################################
 
-	def _cache_get(self, objId, methodname):
-		""" retrieve the result dictionary for (objId, methodname) """
-		entry = self.cache.get((objId, methodname))
-		if entry is None: return None
-		if time.time() - entry[0] > CACHE_TIMEOUT: 
-			del self.cache[(objId, methodname)]
-			return None
-		return entry[1]
+    def _cache_get(self, objId, methodname):
+        """ retrieve the result dictionary for (objId, methodname) """
+        self._lock.acquire()
+        entry = self.cache.get((objId, methodname))
+        if entry is None: 
+            self._lock.release()
+            return None
+        if time.time() - entry[0] > CACHE_TIMEOUT: 
+            del self.cache[(objId, methodname)]
+            self._lock.release()
+            return None
+        self._lock.release()
+        return entry[1]
 
-	def _cache_put(self, objId, methodname, result):
-		""" store (objId, methodname) : (current_time, result) in cache """
-		self.cache[(objId, methodname)] = (time.time(), result)
+    def _cache_put(self, objId, methodname, result):
+        """ store (objId, methodname) : (current_time, result) in cache """
+        self._lock.acquire()
+        self.cache[(objId, methodname)] = (time.time(), result)
+        self._lock.release()
 
+    def _cache_remove(self, objId, methodname):
+        """ remove (objId, methodname) from cache """
+        
+        self._lock.acquire()
+        key = (objId, methodname)
+        if self.cache.has_key(key):
+            del self.cache[key] 
+        self._lock.release()
 
 from Registry import registerStorage
 registerStorage(AggregatedStorage)

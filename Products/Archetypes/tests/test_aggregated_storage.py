@@ -34,13 +34,14 @@ registerType(Dummy)
 
 tests = []
 
-class AggregatedStorageTest(unittest.TestCase):
+class AggregatedStorageTestsNoCache(unittest.TestCase):
+
+    caching = 0
 
     def setUp(self):
-        self._storage = AggregatedStorage()
+        self._storage = AggregatedStorage(caching=self.caching)
         self._storage.registerAggregator('whole_name', 'get_name')
         self._storage.registerDisaggregator('whole_name', 'set_name')
-
         
         schema = Schema( (StringField('whole_name', storage=self._storage),
                          )) 
@@ -66,10 +67,12 @@ class AggregatedStorageTest(unittest.TestCase):
         self.assertEqual(self._instance.firstname, 'Bingo')
         self.assertEqual(self._instance.lastname, 'Gringo')
 
+tests.append(AggregatedStorageTestsNoCache)
 
+class AggregatedStorageTestWithCache(AggregatedStorageTestsNoCache):
+    caching = 1
 
-
-tests.append(AggregatedStorageTest)
+tests.append(AggregatedStorageTestWithCache)
 
 if __name__ == '__main__':
     framework()
