@@ -4,7 +4,7 @@ from StringIO import StringIO
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog
-from Products.Archetypes.utils import make_uuid
+from Products.Archetypes.lib.utils import make_uuid
 from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
 

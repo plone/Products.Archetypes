@@ -11,10 +11,10 @@ from ExtensionClass import Base
 from Products.CMFCore.Expression import Expression
 from Products.CMFCore.Expression import createExprContext
 
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
-from Products.Archetypes.utils import className
-from Products.Archetypes.utils import capitalize
+from Products.Archetypes.lib.logging import log
+from Products.Archetypes.lib.logging import log_exc
+from Products.Archetypes.lib.utils import className
+from Products.Archetypes.lib.utils import capitalize
 from Products.Archetypes.translate import translate
 from Products.Archetypes.interfaces.widget import IWidget
 

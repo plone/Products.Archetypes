@@ -4,7 +4,7 @@ from types import StringType, UnicodeType
 import time
 import urllib
 
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.lib.logging import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import IReference
 from Products.Archetypes.interfaces.referenceengine import IContentReference
@@ -18,11 +18,11 @@ from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.refengine.referenceable import Referenceable
-from Products.Archetypes.utils import unique
-from Products.Archetypes.utils import make_uuid
-from Products.Archetypes.utils import getRelURL
-from Products.Archetypes.utils import getRelPath
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.lib.utils import unique
+from Products.Archetypes.lib.utils import make_uuid
+from Products.Archetypes.lib.utils import getRelURL
+from Products.Archetypes.lib.utils import getRelPath
+from Products.Archetypes.lib.utils import shasattr
 
 from Acquisition import aq_base
 from Acquisition import aq_parent

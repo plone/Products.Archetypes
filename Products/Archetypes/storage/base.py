@@ -1,6 +1,6 @@
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.debug import log
+from Products.Archetypes.lib.logging import log
 
 from Acquisition import aq_base
 from Globals import PersistentMapping

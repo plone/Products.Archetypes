@@ -3,10 +3,10 @@ from types import DictType, FileType, ListType
 
 from Products.CMFCore.utils import getToolByName
 
-from Products.Archetypes.utils import unique
+from Products.Archetypes.lib.utils import unique
 
 from Products.Archetypes.widget.base import TypesWidget
-from Products.Archetypes.debug import log
+from Products.Archetypes.lib.logging import log
 from Products.Archetypes.registry import registerPropertyType
 from Products.Archetypes.registry import registerWidget
 from Products.Archetypes.widget.base import TypesWidget

@@ -1,5 +1,5 @@
 from Products.Archetypes.annotations import ATAnnotatableMixin
-from Products.Archetypes.debug import log_exc, log
+from Products.Archetypes.lib.logging import log_exc, log
 from Products.Archetypes.field import StringField
 from Products.Archetypes.field import TextField
 from Products.Archetypes.field import STRING_TYPES
@@ -15,9 +15,9 @@ from Products.Archetypes.schema import getSchemata
 from Products.Archetypes.marshall import RFC822Marshaller
 from Products.Archetypes.widget import IdWidget
 from Products.Archetypes.widget import StringWidget
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.utils import fixSchema
-from Products.Archetypes.utils import mapply
+from Products.Archetypes.lib.utils import shasattr
+from Products.Archetypes.lib.utils import fixSchema
+from Products.Archetypes.lib.utils import mapply
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized

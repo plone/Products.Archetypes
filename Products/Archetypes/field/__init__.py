@@ -56,11 +56,11 @@ from Products.Archetypes.baseunit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import Vocabulary
-from Products.Archetypes.utils import className
-from Products.Archetypes.utils import mapply
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
+from Products.Archetypes.lib.utils import className
+from Products.Archetypes.lib.utils import mapply
+from Products.Archetypes.lib.utils import shasattr
+from Products.Archetypes.lib.logging import log
+from Products.Archetypes.lib.logging import log_exc
 from Products.Archetypes import config
 from Products.Archetypes.storage import AttributeStorage
 from Products.Archetypes.storage import ObjectManagedStorage

@@ -4,7 +4,7 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.catalogmultiplex import CatalogMultiplex
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.lib.utils import shasattr
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass

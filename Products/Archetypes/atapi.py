@@ -1,8 +1,8 @@
 # registering and type processing
-from Products.Archetypes.ArchetypeTool import registerType
-from Products.Archetypes.ArchetypeTool import process_types
-from Products.Archetypes.ArchetypeTool import listTypes
-from Products.Archetypes.ArchetypeTool import registerClasses
+from Products.Archetypes.lib.register import registerType
+from Products.Archetypes.lib.register import process_types
+from Products.Archetypes.lib.register import listTypes
+from Products.Archetypes.lib.register import registerClasses
 # base classes
 from Products.Archetypes.base.baseobject import BaseObject
 from Products.Archetypes.base.basecontent import BaseContent
@@ -45,8 +45,8 @@ from Products.Archetypes.storage import *
 #from Products.Archetypes.storage.SQLStorage import PostgreSQLStorage
 #from Products.Archetypes.storage.SQLStorage import SQLServerStorage
 # misc
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.classgen import AT_GENERATE_METHOD
+from Products.Archetypes.lib.vobabulary import DisplayList
+from Products.Archetypes.lib.classgen import AT_GENERATE_METHOD
 
 
 # dynamicly calculate which modules should be exported

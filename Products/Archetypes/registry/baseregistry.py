@@ -5,7 +5,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Globals import InitializeClass
 
-from Products.Archetypes.utils import className
+from Products.Archetypes.lib.utils import className
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.Archetypes.interfaces.base import IBaseObject
 

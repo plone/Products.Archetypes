@@ -1,4 +1,4 @@
-from Products.Archetypes.debug import log_exc
+from Products.Archetypes.lib.logging import log_exc
 
 from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results

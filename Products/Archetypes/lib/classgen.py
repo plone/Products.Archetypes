@@ -2,7 +2,7 @@ from __future__ import nested_scopes
 import re
 from types import FunctionType as function
 
-from Products.Archetypes.utils import capitalize
+from Products.Archetypes.lib.utils import capitalize
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo

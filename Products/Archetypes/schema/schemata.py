@@ -13,9 +13,9 @@ from Products.Archetypes.interfaces.schema import ISchema
 from Products.Archetypes.interfaces.schema import ISchemata
 from Products.Archetypes.interfaces.schema import IManagedSchema
 from Products.Archetypes.utils import OrderedDict
-from Products.Archetypes.utils import mapply
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log
+from Products.Archetypes.lib.utils import mapply
+from Products.Archetypes.lib.utils import shasattr
+from Products.Archetypes.lib.logging import log
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
 

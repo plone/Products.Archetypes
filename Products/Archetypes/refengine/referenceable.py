@@ -1,10 +1,10 @@
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.lib.logging import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.utils import getRelPath
-from Products.Archetypes.utils import getRelURL
+from Products.Archetypes.lib.utils import shasattr
+from Products.Archetypes.lib.utils import getRelPath
+from Products.Archetypes.lib.utils import getRelURL
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized

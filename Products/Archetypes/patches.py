@@ -39,6 +39,15 @@ from Products.Archetypes.tool import archetypetool
 from Products.Archetypes.tool import ttwtool
 from Products.Archetypes.refengine import engine
 from Products.Archetypes.refengine import references
+from Products.Archetypes.lib import baseunit
+from Products.Archetypes.examples import complextype
+from Products.Archetypes.examples import dynamicdocument
+from Products.Archetypes.examples import fact
+from Products.Archetypes.examples import refnode
+from Products.Archetypes.examples import simplebtreefolder
+from Products.Archetypes.examples import simplefile
+from Products.Archetypes.examples import simplefolder
+from Products.Archetypes.examples import simpletype
 
 # alias mapping
 mapping = {
@@ -46,6 +55,15 @@ mapping = {
     'Products.Archetypes.ArchTTWTool'     : ttwtool,
     'Products.Archetypes.ReferenceEngine' : engine,
     'Products.Archetypes.references'      : references,
+    'Products.Archetypes.BaseUnit'        : baseunit,
+    'Products.Archetypes.examples.ComplexType'  : complextype,
+    'Products.Archetypes.examples.DDocument'    : dynamicdocument,
+    'Products.Archetypes.examples.Fact'         : fact,
+    'Products.Archetypes.examples.RefNode'      : refnode,
+    'Products.Archetypes.examples.SimpleBTreeFolder' : simplebtreefolder,
+    'Products.Archetypes.examples.SimpleFile'   : simplefile,
+    'Products.Archetypes.examples.SimpleFolder' : simplefolder,
+    'Products.Archetypes.examples.SimpleType'   : simpletype,
     }
 
 # create aliases from dottedpath to module

@@ -3,7 +3,7 @@ from AccessControl import ClassSecurityInfo
 
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.debug import log
+from Products.Archetypes.lib.logging import log
 from Products.Archetypes.storage.base import Storage
 from Products.Archetypes.storage.base import StorageLayer
 from Products.Archetypes.storage.base import _marker

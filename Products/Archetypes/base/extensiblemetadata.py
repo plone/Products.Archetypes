@@ -6,9 +6,9 @@ from Products.Archetypes.schema import Schema
 from Products.Archetypes.schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import ERROR
+from Products.Archetypes.lib.logging import log
+from Products.Archetypes.lib.logging import log_exc
+from Products.Archetypes.lib.logging import ERROR
 
 import Persistence
 from Acquisition import aq_base

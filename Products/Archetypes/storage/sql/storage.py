@@ -8,7 +8,7 @@ from Products.Archetypes.storage.sql.method import SQLMethod
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.debug import log
+from Products.Archetypes.lib.logging import log
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.storage.base import StorageLayer

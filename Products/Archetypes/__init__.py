@@ -1,8 +1,10 @@
 import sys
 
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.public
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes.lib.utils import getPkgInfo
+from Products.Archetypes.lib.plonecompat import IndexIterator
+import Products.Archetypes.atapi
 import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
@@ -16,12 +18,12 @@ from zLOG import LOG, PROBLEM
 ## security
 ###
 # make log and log_exc public
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
+#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
+#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
-from Products.Archetypes.plonecompat import IndexIterator
+
 allow_class(IndexIterator)
 
 # make DisplayList accessible from python scripts and others objects executed
@@ -34,10 +36,8 @@ allow_class(DisplayList)
 ###
 registerDirectory('skins', globals())
 
-from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     process_types, listTypes, fixAfterRenameType
-ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
-from Products.Archetypes.ArchTTWTool import ArchTTWTool
+from Products.Archetypes.tool.archetypetool import ArchetypeTool
+from Products.Archetypes.tool.ttwtool import ArchTTWTool
 
 
 ###
