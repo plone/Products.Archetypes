@@ -841,25 +841,27 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
 
-        # Use the catalog's ZopeFindAndApply method to walk through
-        # all objects in the portal.  This works much better than
-        # relying on the catalog to find objects, because an object
-        # may be uncatalogable because of its schema, and then you
-        # can't update it if you require that it be in the catalog.
-        catalog = getToolByName(self, 'portal_catalog')
-        portal = getToolByName(self, 'portal_url').getPortalObject()
-        meta_types = [_types[t]['meta_type'] for t in update_types]
-        if update_all:
-            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                search_sub=1, apply_func=self._updateObject)
-        else:
-            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                search_sub=1, apply_func=self._updateChangedObject)
-        for t in update_types:
-            # DM (avoid persistency bug): set to current signature
-##            self._types[t]['update'] = 0
-            self._types[t] = _types[t]['signature']
-        self._p_changed = 1
+        # XXX: Enter this block only when there are types to update!
+        if update_types:
+            # Use the catalog's ZopeFindAndApply method to walk through
+            # all objects in the portal.  This works much better than
+            # relying on the catalog to find objects, because an object
+            # may be uncatalogable because of its schema, and then you
+            # can't update it if you require that it be in the catalog.
+            catalog = getToolByName(self, 'portal_catalog')
+            portal = getToolByName(self, 'portal_url').getPortalObject()
+            meta_types = [_types[t]['meta_type'] for t in update_types]
+            if update_all:
+                catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                    search_sub=1, apply_func=self._updateObject)
+            else:
+                catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                    search_sub=1, apply_func=self._updateChangedObject)
+            for t in update_types:
+                # DM (avoid persistency bug): set to current signature
+##                self._types[t]['update'] = 0
+                self._types[t] = _types[t]['signature']
+            self._p_changed = 1
         return out.getvalue()
 
     def _updateObject(self, o, path):
