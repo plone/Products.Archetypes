@@ -1,5 +1,5 @@
 from Acquisition import aq_base, aq_chain
-from AccessControl import getSecurityManager
+from AccessControl import getSecurityManager,Unauthorized
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
