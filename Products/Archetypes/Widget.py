@@ -1,19 +1,22 @@
-from types import FileType
-from types import DictType # needed for ugly hack in class TypesWidget
-                           # def isVisible
-from Products.Archetypes.debug import log
-from Products.Archetypes.utils import className, unique, capitalize
-from Products.generator.widget import macrowidget
+from Acquisition import aq_base
 
-from Acquisition import aq_base, aq_parent
+from debug import log
+from utils import className, unique, capitalize
+from types import FileType
+from types import DictType # needed for ugly hack in class TypesWidget def isVisible
+
+try:
+    from generator.widget import macrowidget
+except:
+    from Products.generator.widget import macrowidget
+
 
 class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
         'populate' : 1,  # should this field be populated in edit and view?
-        'postback' : 1,  # should this field be repopulated with POSTed
-                         # value when an error occurs?
+        'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
         'show_content_type' : 0,
         })
 
@@ -25,16 +28,23 @@ class TypesWidget(macrowidget):
         return className(self)
 
     def bootstrap(self, instance):
-        """Override if your widget needs data from the instance."""
-        return
+        if not self.description or not self.label:
+            field = self.findField(instance)
+            name = field.getName()
+            if not self.label:
+                self.label = capitalize(name)
+            if self.description == '': # description == None, don't use default
+                self.description = "Enter a value for %s" % self.label
 
-    def populateProps(self, field):
-        """This is called when the field is created."""
-        name = field.getName()
-        if not self.label:
-            self.label = capitalize(name)
-        if self.description == '': # description = None means don't use default
-            self.description = 'Enter a value for %s.' % self.label
+    def findField(self, instance):
+        # This is a sad hack, I don't want widgets to have to take a
+        # reference to a field or its own name
+        for field in instance.Schema().fields():
+            if not hasattr(field, 'widget'):
+                continue
+            if field.widget is self:
+                return field
+        return None
 
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
@@ -86,39 +96,7 @@ class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
-        
-        'addable' : 0, # create createObject link for every addable type
-        'destination' : None, # may be name of method on instance or string.
-                              # destination is where createObject is invoked
         })
-
-    def addableTypes(self, instance, field):
-        """Returns a dictionary which maps portal_type to its human readable
-        form."""
-        tool = instance.portal_types
-        value = {}
-
-        for typeid in field.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                raise ValueError, 'No such portal type: %s' % typeid
-
-            value[typeid] = info.Title()
-
-        return value
-
-    def getDestination(self, instance):
-        if not self.destination:
-            return aq_parent(instance).absolute_url()
-        else:
-            portal_url = instance.portal_url()
-            value = getattr(aq_base(instance), self.destination,
-                            self.destination)
-            if callable(value):
-                value = value()
-
-            return portal_url + value
-
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -248,6 +226,7 @@ class FileWidget(TypesWidget):
         if not value: return None
 
         return value, {}
+
 
 
 class RichWidget(TypesWidget):
@@ -399,29 +378,25 @@ from Registry import registerWidget
 
 registerWidget(StringWidget,
                title='String',
-               description=('Renders a HTML text input box which '
-                            'accepts a single line of text'),
+               description='Renders a HTML text input box which accepts a single line of text',
                used_for=('Products.Archetypes.Field.StringField',)
                )
 
 registerWidget(DecimalWidget,
                title='Decimal',
-               description=('Renders a HTML text input box which '
-                            'accepts a fixed point value'),
+               description='Renders a HTML text input box which accepts a fixed point value',
                used_for=('Products.Archetypes.Field.FixedPointField',)
                )
 
 registerWidget(IntegerWidget,
                title='Integer',
-               description=('Renders a HTML text input box which '
-                            'accepts a integer value'),
+               description='Renders a HTML text input box which accepts a integer value',
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
 registerWidget(ReferenceWidget,
                title='Reference',
-               description=('Renders a HTML text input box which '
-                            'accepts a reference value'),
+               description='Renders a HTML text input box which accepts a reference value',
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
@@ -433,16 +408,14 @@ registerWidget(ComputedWidget,
 
 registerWidget(TextAreaWidget,
                title='Text Area',
-               description=('Renders a HTML Text Area for typing '
-                            'a few lines of text'),
+               description='Renders a HTML Text Area for typing a few lines of text',
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.TextField')
                )
 
 registerWidget(LinesWidget,
                title='Lines',
-               description=('Renders a HTML textarea for a list '
-                            'of values, one per line'),
+               description='Renders a HTML textarea for a list of values, one per line',
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -454,24 +427,20 @@ registerWidget(BooleanWidget,
 
 registerWidget(CalendarWidget,
                title='Calendar',
-               description=('Renders a HTML input box with a helper '
-                            'popup box for choosing dates'),
+               description='Renders a HTML input box with a helper popup box for choosing dates',
                used_for=('Products.Archetypes.Field.DateTimeField',)
                )
 
 registerWidget(SelectionWidget,
                title='Selection',
-               description=('Renders a HTML selection widget, which '
-                            'can be represented as a dropdown, or as '
-                            'a group of radio buttons'),
+               description='Renders a HTML selection widget, which can be represented as a dropdown, or as a group of radio buttons',
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',
-               description=('Renders a HTML selection widget, where '
-                            'you can be choose more than one value'),
+               description='Renders a HTML selection widget, where you can be choose more than one value',
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -483,9 +452,7 @@ registerWidget(KeywordWidget,
 
 registerWidget(RichWidget,
                title='Rich Widget',
-               description=('Renders a HTML widget that allows you to '
-                            'type some content, choose formatting '
-                            'and/or upload a file'),
+               description='Renders a HTML widget that allows you to type some content, choose formatting and/or upload a file',
                used_for=('Products.Archetypes.Field.TextField',)
                )
 
@@ -503,15 +470,13 @@ registerWidget(IdWidget,
 
 registerWidget(ImageWidget,
                title='Image',
-               description=('Renders a HTML widget for '
-                            'uploading/displaying an image'),
+               description='Renders a HTML widget for uploading/displaying an image',
                used_for=('Products.Archetypes.Field.ImageField',)
                )
 
 registerWidget(LabelWidget,
                title='Label',
-               description=('Renders a HTML widget that only '
-                            'displays the label'),
+               description='Renders a HTML widget that only displays the label',
                used_for=None
                )
 
