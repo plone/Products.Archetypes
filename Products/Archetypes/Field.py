@@ -23,7 +23,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, \
      FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT
+from config import TOOL_NAME, USE_NEW_BASEUNIT, REFERENCE_CATALOG
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
@@ -177,6 +177,7 @@ class Field(DefaultLayerContainer):
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
+
         for v in self.validators:
             res = validation.validate(v, value, **kwargs)
             if res != 1:
@@ -771,7 +772,7 @@ class ReferenceField(ObjectField):
         __traceback_info__ = (instance, self.getName(), value)
 
         # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance,TOOL_NAME)
+        tool=getToolByName(instance, REFERENCE_CATALOG)
         refname=self.relationship
 
         # XXX: thats too cheap, but I need the proof of concept before
@@ -782,7 +783,7 @@ class ReferenceField(ObjectField):
             if type(value) in (type(()),type([])):
                 for uid in value:
                     if uid:
-                        target=tool.lookupObject(uid=uid)
+                        target=tool.lookupObject(uuid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
                         instance.addReference(target,refname)
@@ -1432,7 +1433,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField',
+           'CMFObjectField', 'ImageField', 'PhotoField',
            )
 
 from Registry import registerField

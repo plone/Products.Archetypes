@@ -30,7 +30,6 @@ from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
 from ClassGen import generateClass, generateCtor
-from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from debug import log, log_exc
@@ -301,7 +300,7 @@ last_load = DateTime()
 
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
-                    SQLStorageConfig, Folder, ReferenceEngine):
+                    SQLStorageConfig, Folder):
     """ Archetypes tool, manage aspects of Archetype instances """
     id        = TOOL_NAME
     meta_type = TOOL_NAME.title().replace('_', ' ')
@@ -358,7 +357,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     def __init__(self):
-        ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
@@ -589,37 +587,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         widgets.sort()
         return [widget for name, widget in widgets]
 
-    ## Reference Engine Support
-    security.declarePublic('lookupObject')
-    def lookupObject(self, uid):
-        if not uid:
-            return None
-        object = None
-        catalog = getToolByName(self, UID_CATALOG)
-        result  = catalog({'UID' : uid})
-        if result:
-            #This is an awful workaround for the UID under containment
-            #problem. NonRefs will aq there parents UID which is so
-            #awful I am having trouble putting it into words.
-            for object in result:
-                o = object.getObject()
-                if o is not None:
-                    if IReferenceable.isImplementedBy(o):
-                        return o
-        return None
-
-    security.declarePublic('getObject')
-    def getObject(self, uid):
-        return self.lookupObject(uid)
-
-
-    security.declarePublic('reference_url')
-    def reference_url(self, object):
-        """Return a link to the object by reference"""
-        uid = object.UID()
-        return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
-
-
     security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'"""
@@ -646,57 +613,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log("no object for %s" % uid)
 
-    security.declarePrivate('_genId')
-    def _genId(self, object):
-        catalog = getToolByName(self, UID_CATALOG)
-        keys = catalog.uniqueValuesFor('UID')
-
-        cid = object.getId()
-        i = 0
-        counter = 0
-        postfix = ''
-        while cid in keys:
-            if counter > 0:
-                g = random.Random(time.time())
-                postfix = g.random() * 10000
-            cid = "%s-%s%s" % (object.getId(),
-                               i, postfix)
-            i = int((time.time() % 1.0) * 10000)
-            counter += 1
-
-        return cid
-
-    security.declarePrivate('registerContent')
-    def registerContent(self, object):
-        """register a content object and set its unique id"""
-        cid = self.getUidFrom(object)
-        if cid is None:
-            cid = self._genId(object)
-            self.setUidOn(object, cid)
-
-        return cid
-
-    security.declarePrivate('unregisterContent')
-    def unregisterContent(self, object):
-        """remove all refs/backrefs from an object"""
-        cid = self.getUidFrom(object)
-        self._delReferences(cid)
-        return cid
-
-    security.declarePublic('getUidFrom')
-    def getUidFrom(self, object):
-        """return the UID for an object or None"""
-        value = None
-
-        if hasattr(object, "_getUID"):
-            value = object._getUID()
-
-        return value
-
-    security.declarePrivate('setUidOn')
-    def setUidOn(self, object, cid):
-        if hasattr(object, "_setUID"):
-            object._setUID(cid)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Content')

@@ -11,3 +11,8 @@ DEBUG = 1  ## See debug messages
 
 #XXX activate experimental baseunit
 USE_NEW_BASEUNIT = 1
+
+
+##Reference Engine bits
+REFERENCE_CATALOG = "reference_catalog"
+UUID_ATTR = "_at_uid"

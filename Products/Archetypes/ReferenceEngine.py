@@ -1,202 +1,254 @@
-import ZODB
-from ZODB.PersistentMapping import PersistentMapping
+from AccessControl import ClassSecurityInfo
+from Products.ZCatalog.ZCatalog import ZCatalog
+
+from OFS.SimpleItem import SimpleItem
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import UniqueObject
+#from Products.BTree2Folder.BTree2Folder import BTree2Folder
+
 from debug import log, log_exc
-from ExtensionClass import Base
 
 from interfaces.referenceable import IReferenceable
-from utils import unique
-from types import StringType
-from config import UID_CATALOG
+from utils import unique, make_uuid
+from types import StringType, UnicodeType
+from config import UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR
+from exceptions import ReferenceException
 
-class ReferenceEngine(Base):
-    def __init__(self):
-        self.refs = PersistentMapping()
-        self.bref = PersistentMapping()
+from Globals import InitializeClass
 
 
-    def hasRelationshipTo(self, object, target, relationship=None):
-        if type(target) != StringType:
-            target = target.UID()
-        refs = self.getRefs(object, relationship)
-        return target in refs
+STRING_TYPES = (StringType, UnicodeType)
 
-    def getRefs(self, object, relationship=None):
-        refs = []
+class Reference(SimpleItem):
+    def __init__(self, id, sid, tid, relationship, **kwargs):
+        self.id = id
+        self.sourceUID = sid
+        self.targetUID = tid
+        self.relationship = relationship
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
+    
+        
+    ###
+    # Convience methods
+    def getSourceObject(self):
+        tool = getToolByName(self, UID_CATALOG)
+        brains = tool(UID=self.sourceUID)
+        return brains[0].getObject()
+
+    def getTargetObject(self):
+        tool = getToolByName(self, UID_CATALOG)
+        brains = tool(UID=self.targetUID)
+        return brains[0].getObject()
+
+    ###
+    # Catalog support
+    def targetId(self):
+        target = self.getTargetObject()
+        return target.getId()
+    
+    def targetTitle(self):
+        target = self.getTargetObject()
+        return target.Title()
+    
+    ###
+    # Policy hooks, subclass away
+    def addHook(self, tool, sourceObject=None, targetObject=None):
+        #to reject the reference being added raise a ReferenceException
+        pass
+    
+    def delHook(self, tool, sourceObject=None, targetObject=None):
+        #to reject the delete raise a ReferenceException
+        pass
+
+        
+        
+
+##class ReferenceCatalog(UniqueObject, BTree2Folder, ZCatalog):
+class ReferenceCatalog(UniqueObject, ZCatalog):
+    id = REFERENCE_CATALOG
+    security = ClassSecurityInfo()
+    
+    ###
+    ## Public API
+    def addReference(self, source, target, relationship=None, referenceObject=None, **kwargs):        
+        sID, sobj = self._uidFor(source)
+        tID, tobj = self._uidFor(target)
+
+        brains = self._queryFor(sID, tID, relationship)
+        if brains:
+            #we want to update the existing reference
+            #XXX we might need to being a subtransaction here to
+            #    do this properly, and close it later
+            existingId = brains[0].getObject().id
+            self._delObject(existingId)
+
+        rID = make_uuid(sID, tID)
+        rID = "ref_%s" % rID
+        if not referenceObject:
+            referenceObject = Reference(rID, sID, tID, relationship, **kwargs)
+
         try:
-            if type(object) != StringType:
-                object = object.UID()
-            refs = self.refs.get(object, [])
-        except AttributeError:
+            referenceObject.addHook(self, sobj, tobj)
+        except ReferenceException:
             pass
-
-        refs = [r for r,grp in refs if not relationship or (relationship and (grp == relationship))]
-        return refs
-
-    def getBRefs(self, object, relationship=None):
-        brefs = []
-        try:
-            if type(object) != StringType:
-                object = object.UID()
-            brefs = self.bref.get(object, [])
-        except AttributeError:
-            pass
-
-        brefs = [r for r,grp in brefs if not relationship or (relationship and (grp == relationship))]
-        return brefs
-
-    def addReference(self, object, target, relationship=None):
-        """The beforeAddReference hook will be called on the target with
-        the object attempting to add the reference. An exception will
-        prevent the references from being added.
-        """
-
-        if type(object) != StringType:
-            oid = object.UID()
         else:
-            oid = object
+            self._setObject(rID, referenceObject)
+            referenceObject = getattr(self, rID)
+            # XXX should second arg be rID or a pretty name, lets try a name
+            self.catalog_object(referenceObject, rID)
 
-        if type(target) != StringType:
-            tid = target.UID()
-        else:
-            tid = target
+    def deleteReference(self, source, target, relationship=None):
+        sID, sobj = self._uidFor(source)
+        tID, tobj = self._uidFor(target)
 
-        refs = self.refs.get(oid, [])
-
-
-        add_hook = getattr(target, 'beforeAddReference', None)
-        if add_hook and callable(add_hook):
-            try:
-                add_hook(object, relationship)
-            except:
-                return
-
-        if tid not in refs:
-            self._addRef(oid, tid, refs=refs, relationship=relationship)
-            self._addBref(oid, tid, relationship=relationship)
-
-    def assertId(self, uid):
-        catalog = getToolByName(self, UID_CATALOG)
-        result  = catalog({'UID' : uid})
-        if result:
-            return 1
-        return 0
-
-    def _addRef(self, object, target, refs=None, relationship=None):
-        if not refs:
-            refs = self.refs.get(object, [])
-
-        key = (target, relationship)
-        if key in refs:
-            return
-
-        if self.assertId(target):
-            refs.insert(0, key)
-            self.refs[object] = refs
-
-
-    def _addBref(self, object, target, relationship):
-        key = (object, relationship)
-        brefs = self.bref.get(target, [])
-        if key in brefs:
-            return
-        brefs.insert(0, key)
-        self.bref[target] = brefs
-
-    def _delRef(self, object, target, relationship=None):
-        refs = self.refs.get(object, [])
-
-        #Scan for the target in the list and remove it
-        if not relationship:
-            for k, r in refs:
-                if k == target:
-                    refs.remove((k,r))
-        else:
-            refs.remove((target, relationship))
-
-        self.refs[object] = refs
-
-
-    def _delBref(self, object, target, relationship=None):
-        brefs = list(self.bref.get(object, []))
-
-        if not relationship:
-            for k, r in brefs:
-                if k == target:
-                    brefs.remove((k,r))
-        else:
-            brefs.remove((target, relationship))
-
-        self.bref[object] = brefs
-
-    def _delReferences(self, object, relationship=None):
-        #Delete all back refs and all refs
-        if type(object) != StringType:
-            oid = object.UID()
-        else:
-            oid = object
-
-        #Everything that points at 'object'
-        brefs = list(self.bref.get(oid, []))
-        for b, rel in brefs:
-            # For each backref delete this object from its
-            # ref list and then remove it from the back ref list
-            if not relationship or rel == relationship:
-                self._delRef(b, oid)
-                self._delBref(oid, b)
-
-        #Every thing that 'object' points at
-        refs = list(self.refs.get(oid, []))
-        for r, rel in refs:
-            if not relationship or rel == relationship:
-                self._delRef(oid, r)
-                self._delBref(r, oid)
-
+        brains = self._queryFor(sID, tID, relationship)
+        if brains:
+            self._deleteReference(brains[0])
 
     def deleteReferences(self, object, relationship=None):
-        """remove all reference to and from object"""
-        self._delReferences(object, relationship=relationship)
+        """delete all the references held by an object"""
+        sID, sobj = self._uidFor(object)
+        brains = self._queryFor(sid=sID, relationship=relationship)
+        if brains:
+            [self._deleteReference(b) for b in brains]
+            
+    def getReferences(self, object, relationship=None):
+        """return a collection of reference objects"""
+        sID, sobj = self._uidFor(object)
+        brains = self._queryFor(sid=sID, relationship=relationship)
+        return self._resolveBrains(brains)
 
+    def getBackReferences(self, object, relationship=None):
+        """return a collection of reference objects"""
+        # Back refs would be anything that target this object
+        sID, sobj = self._uidFor(object)
+        brains = self._queryFor(tid=sID, relationship=relationship)
+        return self._resolveBrains(brains)
 
-    def deleteReference(self, object, target, relationship=None):
-        """Remove a single ref/backref pair from an object, the
-        beforeDeleteReference hook will be called on the target, an
-        exception will prevent the reference from being deleted
-        """
+    def hasRelationshipTo(self, source, target, relationship):
+        sID, sobj = self._uidFor(source)
+        tID, tobj = self._uidFor(target)
 
-        if type(object) != StringType:
-            oid = object.UID()
-        else:
-            oid = object
+        brains = self._queryFor(sID, tID, relationship)
+        result = False
+        if brains:
+            referenceObject = brains[0].getObject()
+            result = True
 
-        if type(target) != StringType:
-            tid = target.UID()
-        else:
-            tid = target
+        return result
 
-        del_hook = getattr(target, 'beforeDeleteReference', None)
-        if del_hook and callable(del_hook):
-            try:
-                del_hook(object, relationship)
-            except:
-                return
+    def getRelationships(self, object):
+        """Get all relationship types this object has to other objects"""
+        sID, sobj = self._uidFor(object)
+        brains = self._queryFor(sid=sID)
+        res = {}
+        for b in brains:
+            res[b.relationship]=1
 
-
-        self._delRef(oid, tid, relationship)
-        self._delBref(tid, oid, relationship)
+        return res.keys()
+        
 
     def isReferenceable(self, object):
         return IReferenceable.isImplementedBy(object) or hasattr(object, 'isReferenceable')
 
+    def reference_url(self, object):
+        """return a url to an object that will resolve by reference"""
+        sID, sobj = self._uidFor(object)
+        return "%s/lookupObject?uuid=%s" % (self.absolute_url(), sID)
+    
+    def lookupObject(self, uuid):
+        """Lookup an object by its uuid"""
+        return self._objectByUUID(uuid)
 
-    def getRelationships(self, object):
-        refs = []
+
+    #####
+    ## Protected
+    ## XXX: do security
+    def registerObject(self, object):
+        self._uidFor(object)
+
+    def unregisterObject(self, object):
+        self.deleteReferences(object)
+        
+        
+    ######
+    ## Private/Internal
+    def _objectByUUID(self, uuid):
+        tool = getToolByName(self, UID_CATALOG)
+        brains = tool(UID=uuid)
+        return brains[0].getObject()
+        
+    def _queryFor(self, sid=None, tid=None, relationship=None, merge=1):
+        """query reference catalog for object matching the info we are
+        given, returns brains"""
+
+        q = {}
+        if sid: q['sourceUID'] = sid
+        if tid: q['targetUID'] = tid
+        if relationship: q['relationship'] = relationship
+        brains = self.search(q, merge=merge) 
+        return brains
+             
+            
+    def _uidFor(self, object):
+        # We should really check for the interface but I have an idea
+        # about simple annotated objects I want to play out
+        if type(object) not in STRING_TYPES:
+            object = object.aq_base
+            if not self.isReferenceable(object):
+                raise ReferenceException
+            
+            if not hasattr(object, UUID_ATTR):
+                uuid = self._getUUIDFor(object)
+            else:
+                uuid = getattr(object, UUID_ATTR)
+        else:
+            uuid = object
+            #and we look up the object
+            uid_catalog = getToolByName(self, UID_CATALOG)
+            brains = uid_catalog(UUID=uuid)
+            object = brains[0].getObject()
+
+        return uuid, object
+    
+    def _getUUIDFor(self, object):
+        """generate and attach a new uid to the object returning it"""
+        uuid = make_uuid(object.title_and_id())
+        setattr(object, UUID_ATTR, uuid)
+        #uid_catalog = getToolByName(self, UID_CATALOG)
+        #uid_catalog.catalog_object(object, uuid)
+        return uuid
+    
+    def _deleteReference(self, brain):
+        referenceObject = brain.getObject()
         try:
-            if type(object) != StringType:
-                object = object.UID()
-            refs = self.refs.get(object, [])
-        except AttributeError:
+            referenceObject.delHook(self, referenceObject.getSourceObject(), referenceObject.getTargetObject())
+        except ReferenceException:
             pass
+        else:
+            self._delObject(referenceObject.getId())
 
-        refs = [grp for r,grp in refs]
-        return unique(refs)
+    def _resolveBrains(self, brains):
+        objects = None
+        if brains:
+            objects = [b.getObject() for b in brains]
+            objects = [b for b in objects if b]
+        return objects
+
+def manage_addReferenceCatalog(self, id, title,
+                               vocab_id=None, # Deprecated
+                               REQUEST=None):
+    """Add a ReferenceCatalog object
+    """
+    id=str(id)
+    title=str(title)
+    c=ReferenceCatalog(id, title, vocab_id, self)
+    self._setObject(id, c)
+    if REQUEST is not None:
+        return self.manage_main(self, REQUEST,update_menu=1)
+
+        
+InitializeClass(ReferenceCatalog)

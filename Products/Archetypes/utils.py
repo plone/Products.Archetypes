@@ -9,6 +9,21 @@ import sys
 import os.path
 import types
 from ExtensionClass import ExtensionClass
+import time, random, md5, socket
+
+try:
+    _v_network = socket.gethostbyname(socket.gethostbyname())
+except:
+    _v_network = random.random() * 100000000000000000L
+
+def make_uuid(*args):
+    t = long(time.time() * 1000)
+    r = long(random.random()*100000000000000000L)
+    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
+    data = md5.md5(data).hexdigest()
+    return data
+
+
 
 def className(klass):
     if type(klass) not in [types.ClassType, ExtensionClass]:
