@@ -105,6 +105,21 @@ class DisplayListTest( unittest.TestCase ):
         self.failUnless(wahaaa.getMsgId('b') == 'bb')
         self.failUnless(wahaaa.getMsgId('a') == 'aa')
 
+    def test_sort(self):
+        a = (('a','a',), ('b','b'), ('c', 'c'))
+        b = (('z','Z',), ('y','Y'), ('x', 'X'))
+        c = (('a','Z',), ('c','Y'), ('b', 'X'))
+        dla = DisplayList(a)
+        dlb = DisplayList(b)
+        dlc = DisplayList(c)
+
+        assert dla.values() == ['a', 'b', 'c']
+        dlb_s = dlb.sortedByValue()
+        assert dlb_s.values() == ['X', 'Y', 'Z']
+        dlc_s = dlc.sortedByKey()
+        assert dlc_s.values() == ['Z', 'X', 'Y']
+        
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(DisplayListTest),
