@@ -114,59 +114,60 @@ class ObjectManagedStorage(Storage):
         instance._delObject(name)
         instance._p_changed = 1
 
-class MetadataStorage(StorageLayer):
-    """Storage used for ExtensibleMetadata. Attributes are stored on
-    a persistent mapping named ``_md`` on the instance."""
+MetadataStorage = AttributeStorage
+##class MetadataStorage(StorageLayer):
+##    """Storage used for ExtensibleMetadata. Attributes are stored on
+##    a persistent mapping named ``_md`` on the instance."""
 
-    __implements__ = (IStorage, ILayer)
+##    __implements__ = (IStorage, ILayer)
 
-    def initializeInstance(self, instance, item=None, container=None):
-        base = aq_base(instance)
-        if not hasattr(base, "_md"):
-            instance._md = PersistentMapping()
-            instance._p_changed = 1
+##    def initializeInstance(self, instance, item=None, container=None):
+##        base = aq_base(instance)
+##        if not hasattr(base, "_md"):
+##            instance._md = PersistentMapping()
+##            instance._p_changed = 1
 
-    def initializeField(self, instance, field):
-        # Check for already existing field to avoid  the reinitialization
-        # (which means overwriting) of an already existing field after a
-        # copy or rename operation
-        base = aq_base (instance)
-        if not base._md.has_key(field.getName()):
-            self.set(field.getName(), instance, field.default)
+##    def initializeField(self, instance, field):
+##        # Check for already existing field to avoid  the reinitialization
+##        # (which means overwriting) of an already existing field after a
+##        # copy or rename operation
+##        base = aq_base (instance)
+##        if not base._md.has_key(field.getName()):
+##            self.set(field.getName(), instance, field.default)
 
-    def get(self, name, instance, **kwargs):
-        base = aq_base(instance)
-        try:
-            value = base._md[name]
-        except KeyError, msg:
-            # We are acting like an attribute, so
-            # raise AttributeError instead of KeyError
-            raise AttributeError(name, msg)
-        return value
+##    def get(self, name, instance, **kwargs):
+##        base = aq_base(instance)
+##        try:
+##            value = base._md[name]
+##        except KeyError, msg:
+##            # We are acting like an attribute, so
+##            # raise AttributeError instead of KeyError
+##            raise AttributeError(name, msg)
+##        return value
 
-    def set(self, name, instance, value, **kwargs):
-        base = aq_base(instance)
-        # Remove acquisition wrappers
-        base._md[name] = aq_base(value)
-        base._p_changed = 1
+##    def set(self, name, instance, value, **kwargs):
+##        base = aq_base(instance)
+##        # Remove acquisition wrappers
+##        base._md[name] = aq_base(value)
+##        base._p_changed = 1
 
-    def unset(self, name, instance, **kwargs):
-        base = aq_base(instance)
-        if not hasattr(base, "_md"):
-            log("Broken instance %s, no _md" % instance)
-        else:
-            del base._md[name]
-            base._p_changed = 1
+##    def unset(self, name, instance, **kwargs):
+##        base = aq_base(instance)
+##        if not hasattr(base, "_md"):
+##            log("Broken instance %s, no _md" % instance)
+##        else:
+##            del base._md[name]
+##            base._p_changed = 1
 
-    def cleanupField(self, instance, field, **kwargs):
-        # Don't clean up the field self to avoid problems with copy/rename. The
-        # python garbarage system will clean up if needed.
-        pass
+##    def cleanupField(self, instance, field, **kwargs):
+##        # Don't clean up the field self to avoid problems with copy/rename. The
+##        # python garbarage system will clean up if needed.
+##        pass
 
-    def cleanupInstance(self, instance, item=None, container=None):
-        # Don't clean up the instance self to avoid problems with copy/rename. The
-        # python garbarage system will clean up if needed.
-        pass
+##    def cleanupInstance(self, instance, item=None, container=None):
+##        # Don't clean up the instance self to avoid problems with copy/rename. The
+##        # python garbarage system will clean up if needed.
+##        pass
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)

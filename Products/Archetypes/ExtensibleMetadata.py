@@ -40,6 +40,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'allowDiscussion',
             accessor="isDiscussable",
             mutator="allowDiscussion",
+            schemata='metadata',
             default=None,
             enforceVocabulary=1,
             vocabulary=DisplayList(((0,'Disabled'),(1,'Enabled'),
@@ -54,6 +55,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'subject',
             multiValued=1,
             accessor="Subject",
+            schemata='metadata',
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
@@ -65,6 +67,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             default='',
             searchable=1,
             accessor="Description",
+            schemata='metadata',
             widget=TextAreaWidget(
                 label='Description',
                 description="An administrative summary of the content",
@@ -75,6 +78,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         LinesField(
             'contributors',
             accessor="Contributors",
+            schemata='metadata',
             widget=LinesWidget(
                 label='Contributors',
                 label_msgid="label_contributors",
@@ -84,6 +88,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         LinesField(
             'creators',
             accessor="Creators",
+            schemata='metadata',
             widget=LinesWidget(
                 label='Creators',
                 label_msgid="label_creators",
@@ -94,6 +99,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'effectiveDate',
             mutator = 'setEffectiveDate',
+            schemata='metadata',
             widget=CalendarWidget(
                 label="Effective Date",
                 description=("Date when the content should become available "
@@ -105,6 +111,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'expirationDate',
             mutator = 'setExpirationDate',
+            schemata='metadata',
             widget=CalendarWidget(
                 label="Expiration Date",
                 description=("Date when the content should no longer be "
@@ -118,6 +125,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'language',
             accessor="Language",
             default="en",
+            schemata='metadata',
             vocabulary='languages',
             widget=SelectionWidget(
                 label='Language',
@@ -128,6 +136,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'rights',
             accessor="Rights",
+            schemata='metadata',
             widget=TextAreaWidget(
                 label='Copyright',
                 description="A list of copyright info for this content",

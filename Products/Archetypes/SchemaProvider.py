@@ -10,12 +10,14 @@ HIGH_PRIORITY = 1
 LOW_PRIORITY  = 10
 
 class SchemaResult(object):
-        __slots__ = ('priority', 'schema', 'checksum')
+        __slots__ = ('priority', 'schema', 'checksum', 'provider')
 
-        def __init__(self, priority=None, schema=None, checksum=None):
+        def __init__(self, priority=None, schema=None, checksum=None, provider=None):
             self.priority = priority
             self.schema = schema
             self.checksum = checksum
+            self.provider = provider
+            
 
 class Collector(Implicit):
     """Collect relevent schema providers and trigger them as needed
@@ -60,7 +62,8 @@ class Collector(Implicit):
         if providers is None:
             sr = SchemaResult(instance.getSchemaPriority(),
                               instance.schema,
-                              self._checksum(instance.schema))
+                              self._checksum(instance.schema),
+                              instance)
             providers = [sr]
         return providers
     
@@ -70,6 +73,21 @@ class SelfCollector(Collector):
         providers = self._defaultSchema(instance, providers)
         return providers
 
+class TypeCollector(Collector):
+    name = "type"
+    def getProviders(self, instance, providers=None):
+        providers = self._defaultSchema(instance, providers)
+        at = getToolByName(instance, TOOL_NAME)
+        schema = at.getProvidedSchema(instance.meta_type)
+        if schema:
+            sr = SchemaResult(LOW_PRIORITY,
+                              schema,
+                              self._checksum(instance.schema),
+                              at)
+            providers.insert(0, sr)
+            
+        return providers
+    
 
 class AcquisitionCollector(Collector):
     name = "acquisition"
@@ -80,7 +98,8 @@ class AcquisitionCollector(Collector):
         if schema:
             providers.insert(0, SchemaResult(provider.getSchemaPriority(),
                                              schema,
-                                             self._checksum(schema)))
+                                             self._checksum(schema),
+                                             provider))
             # and recurse
             collector = provider.getSchemaCollector()
             collector.getProviders(provider, providers)
@@ -98,7 +117,8 @@ class ReferenceCollector(Collector):
             if schema:
                 providers.insert(0, SchemaResult(provider.getSchemaPriority(),
                                                  schema,
-                                                 self._checksum(schema)))
+                                                 self._checksum(schema),
+                                                 provider))
                 # and recurse
                 collector = provider.getSchemaCollector()
                 collector.getProviders(provider, providers)
@@ -137,7 +157,13 @@ class SchemaProvider(Implicit):
 
     def setSchemaPriority(self, priority):
         self._priority = int(priority)
-        
+
+
+    def getSchemaProviders(self):
+        """all the schema providers used by this object"""
+        collector = self.getSchemaCollector()
+        providers = collector.getProviders(self)
+        return [p.provider for p in providers]
     
     # XXX This might be a call back to classgen, but I want to get
     # rid of that anyway

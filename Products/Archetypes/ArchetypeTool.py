@@ -20,6 +20,7 @@ from Products.Archetypes.utils import capitalize, findDict, DisplayList, unique
 from Products.Archetypes.Renderer import renderer
 
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from Globals import InitializeClass, PersistentMapping
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
@@ -87,6 +88,14 @@ base_factory_type_information = (
                        'action': 'string:${object_url}/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        'visible' : 0,
+                       },
+
+                     { 'id' : 'ttw_schema',
+                       'name' : 'Schema Management',
+                       'action' : 'string:${object_url}/schema_editor',
+                       'permissions' : (CMFCorePermissions.ManagePortal,),
+                       'visible': 1,
+                       'condition' : 'python: here.archetype_tool.getProvidedSchema() is not None',
                        },
                      )
       }, )
@@ -862,8 +871,17 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # Even here we don't allow for both policies which could be the case
         # Ex: All my folders add x,y,z to content and this one adds a,b as well
         # Easy enough to composite, but who knows... sometimes is just an override
+        schema = schema.copy()
+        try:
+            uid = provider.UID()
+        except AttributeError:
+            uid = "ttw"
+            
+        for field in schema.fields():
+            field.provider = uid
+            
         if type(provider) in StringTypes:
-            #Register for the type
+            #Register for the type (should be a meta_type, but whatever)
             self._managedSchema[provider] = schema
         else:
             # Register for an instance UUID
@@ -875,9 +893,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         own schema, but rather a managed schema, back to the object.
         This provider may be providing this schema by its type or by its UUID
         """
-        schema = self._managedSchema.get(object.UID())
+        try:
+            uid = object.UID()
+        except AttributeError:
+            uid = object
+        schema = self._managedSchema.get(uid)
         if not schema:
-            schema = self._managedSchema.get(object.meta_type)
+            mt = getattr(aq_base(object), 'meta_type')
+            if mt:
+                schema = self._managedSchema.get(mt)
 
         # XXX this is highly questionable
         if not schema:

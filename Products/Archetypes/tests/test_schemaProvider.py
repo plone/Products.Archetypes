@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.2 2004/03/30 23:54:08 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.3 2004/03/31 04:16:04 bcsaller Exp $
 """
 
 import os, sys
@@ -28,6 +28,7 @@ class SchemaProviderTests(ArcheSiteTestCase):
         site = self.getPortal()
         at = site.archetype_tool
         at.registerSchemaCollector(SelfCollector())
+        at.registerSchemaCollector(TypeCollector())
         at.registerSchemaCollector(AcquisitionCollector())
         at.registerSchemaCollector(ReferenceCollector())
         
@@ -63,7 +64,7 @@ class SchemaProviderTests(ArcheSiteTestCase):
         folder.setSchemaPriority(11) # low low pri
         g = objb.Schema()['newField']
         assert g.type == "text"
-        assert g is f
+        assert g.getName() == f.getName()
         assert g is objb.Schema().fields()[-1]
 
     def testReferenceCollector(self):
@@ -93,8 +94,8 @@ class SchemaProviderTests(ArcheSiteTestCase):
         at.provideSchema(obja, testSchemaB)
 
         schema = objb.Schema()
-        assert schema.fields()[-2] is a
-        assert schema.fields()[-1] is b
+        assert schema.fields()[-2].getName() ==  a.getName()
+        assert schema.fields()[-1].getName() ==  b.getName()
         
 
     def testChainedProviders(self):
@@ -143,6 +144,28 @@ class SchemaProviderTests(ArcheSiteTestCase):
         schema = i.Schema()
         expected = DDocumentSchema + SchemaZ + SchemaY + SchemaS + SchemaT
         assert schema == expected
+
+        # assert that we can still tell where these fields come from
+        assert schema['FieldY'].provider == y.UID()
+        assert schema['FieldZ'].provider == z.UID()
+
+        providers = i.getSchemaProviders()
+        assert y in providers
+        assert z in providers
+
+    def test_TypeCollector(self):
+        site = self.getPortal()
+        at = site.archetype_tool
+        x = makeContent(site, "SimpleFolder", 'x')
+        y = makeContent(site, "DDocument", 'y')
+        z = makeContent(site, "SimpleType", 'z')
+
+        SchemaA = Schema((TextField('FieldA'),))
+        at.provideSchema(z.meta_type, SchemaA)
+        z.setSchemaCollector('type')
+        
+        assert y.Schema() == DDocumentSchema
+        assert z.Schema()['FieldA']
         
         
 
