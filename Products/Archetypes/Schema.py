@@ -262,6 +262,11 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
 
         for name, field in fields:
+            if name == 'id':
+                member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
+                if not getattr(member, 'visible_ids', None) and \
+                   not REQUEST.form.get('id', None):
+                    continue
             if errors and errors.has_key(name): continue
             error = 0
             value = None

@@ -1,3 +1,8 @@
+2003-05-15  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Schema.py (Schema.validate): Dont fail if visible_ids is False
+	and no id was sent in the request.
+
 2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* interfaces/interface.py: Trying to normalize the way interfaces
