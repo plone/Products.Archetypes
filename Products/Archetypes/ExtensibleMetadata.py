@@ -107,6 +107,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'effectiveDate',
             mutator = 'setEffectiveDate',
             languageIndependent = True,
+            #default=FLOOR_DATE,
             widget=CalendarWidget(
                 label="Effective Date",
                 description=("Date when the content should become available "
@@ -119,6 +120,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'expirationDate',
             mutator = 'setExpirationDate',
             languageIndependent = True,
+            #default=CEILING_DATE,
             widget=CalendarWidget(
                 label="Expiration Date",
                 description=("Date when the content should no longer be "
