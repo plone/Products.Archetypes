@@ -44,7 +44,7 @@ class IReference(Interface):
         """the url used as the relative path based uid in the catalogs"""
 
 
-class IContentReference(Interface):
+class IContentReference(IReference):
     '''Subclass of Reference to support contentish objects inside references '''
     
     def getContentObject():
