@@ -1,3 +1,5 @@
+import os.path
+
 from types import StringType
 
 from Products.Archetypes.interfaces.base import IBaseUnit
@@ -45,11 +47,9 @@ class BaseUnit(File):
 
         adapter = getToolByName(context, 'mimetypes_registry')
         if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError, ('%s(%s) is not a valid mimetype '
-                                 'registry: %s(%s)' %
-                                 (repr(adapter), adapter.__class__,
-                                  repr(instance), aq_parent(instance)))
-
+            raise RuntimeError, \
+                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
+                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -130,7 +130,8 @@ class BaseUnit(File):
         return self.get_size()
 
     def isBinary(self):
-        """return true if this contains a binary value, else false"""
+        """Return true if this contains a binary value, else false.
+        """
         try:
             return self.binary
         except AttributeError:
@@ -145,10 +146,13 @@ class BaseUnit(File):
 
     # File handling
     def get_size(self):
+        """Return the file size.
+        """
         return self.size
 
     def getRaw(self, encoding=None, instance=None):
-        """return encoded raw value"""
+        """Return the file encoded raw value.
+        """
         if self.isBinary():
             return self.raw
         # FIXME: backward compat, non binary data
@@ -164,8 +168,9 @@ class BaseUnit(File):
         return self.raw.encode(encoding)
 
     def portalEncoding(self, instance):
-        """return the default portal encoding, using an external python script
-        (look the archetypes skin directory for the default implementation)
+        """Return the default portal encoding, using an external python script.
+
+        Look the archetypes skin directory for the default implementation.
         """
         try:
             return instance.getCharset()
@@ -175,11 +180,15 @@ class BaseUnit(File):
             return 'UTF8'
 
     def getContentType(self):
-        """return the mimetype string for this BU"""
+        """Return the file mimetype string.
+        """
         return self.mimetype
 
+    # Backward compatibility
+    content_type = getContentType
+
     def setContentType(self, instance, value):
-        """
+        """Set the file mimetype string.
         """
         mtr = getToolByName(instance, 'mimetypes_registry')
         if not IMimetypesRegistry.isImplementedBy(mtr):
@@ -192,16 +201,16 @@ class BaseUnit(File):
         self.mimetype = str(mimetype)
         self.binary = mimetype.binary
 
-    def content_type(self):
-        return self.getContentType()
-
     def getFilename(self):
+        """Return the file name.
+        """
         return self.filename
 
     def setFilename(self, filename):
-        """
+        """Set the file name.
         """
         if type(filename) is StringType:
+            filename = os.path.basename(filename)
             self.filename = filename.split("\\")[-1]
         else:
             self.filename = filename
@@ -210,11 +219,10 @@ class BaseUnit(File):
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
-        filename = self.filename
-        if self.filename:
-            #print self.filename
+        filename = self.getFilename()
+        if filename:
             RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename=%s' % self.getFilename())
+                               'attachment; filename=%s' % filename)
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
@@ -222,7 +230,7 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT' )
+    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
@@ -245,12 +253,15 @@ class BaseUnit(File):
         return RESPONSE
 
     def manage_FTPget(self, REQUEST, RESPONSE):
-        "Get the raw content for this unit(also used for the WebDAV SRC)"
+        """Get the raw content for this unit.
+
+        Also used for the WebDAV SRC.
+        """
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
 
-# Backward-compatibility. Should eventually go away after 1.3-final.
+# XXX Should go away after 1.3-final
 newBaseUnit = BaseUnit
