@@ -86,7 +86,6 @@ def decode(value, instance, **kwargs):
         value = unicode(value, encoding)
     return value
 
-_field_count = 0
 
 class Field(DefaultLayerContainer):
     """
@@ -131,17 +130,12 @@ class Field(DefaultLayerContainer):
         'languageIndependent' : False,
         }
 
-    def __init__(self, name=None, **kwargs):
+    def __init__(self, name, **kwargs):
         """
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
-
-        if name is None:
-            global _field_count
-            _field_count += 1
-            name = 'field.%s' % _field_count
 
         self.__name__ = name
 
@@ -1070,8 +1064,7 @@ class LinesField(ObjectField):
         if type(value) in STRING_TYPES:
             value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
-                 for v in value if v.strip()]
-        value = filter(None, value)
+                 for v in value if v and v.strip()]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
             value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
