@@ -753,6 +753,7 @@ class ReferenceField(ObjectField):
         'default': None,
         'widget' : ReferenceWidget,
         'allowed_types' : (),
+        'allowed_type_column' : 'Type',
         'addable': 0,
         'destination': None,
         'relationship':None
@@ -832,7 +833,8 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            results = catalog(portal_type=self.allowed_types)
+            kw = {self.allowed_type_column:self.allowed_types}
+            results = catalog(**kw)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
