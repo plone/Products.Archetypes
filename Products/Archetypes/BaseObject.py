@@ -95,7 +95,6 @@ content_type = Schema((
     description_msgid="help_shortname",
     visible={'view' : 'invisible'},
     i18n_domain="plone"),
-#    validators="isValidId",
                 ),
 
     StringField('title',
@@ -263,6 +262,31 @@ class BaseObject(Referenceable):
         XXX Maybe we should subclass field from Acquisition.Explicit?
         """
         return ExplicitAcquisitionWrapper(self.getField(key), self)
+
+    security.declarePublic('unicodeEncode')
+    def unicodeEncode(self, value, site_charset=None):
+        if site_charset is None:
+            site_charset = self.getCharset()
+
+        if not type(value)==type('') or type(value)==type(u''):
+            value = str(value)
+
+        if type(value)==type(''):
+            for charset in [site_charset, 'latin-1', 'utf-8']:
+                try:
+                    value = unicode(value, charset)
+                    break
+                except UnicodeError:
+                    pass
+                # that should help debugging unicode problem
+                # remove it if you feel not
+        else:
+            raise UnicodeError('Unable to decode %s' % value)
+
+        # don't try to catch unicode error here
+        # if one occurs, that means the site charset must be changed !
+        return value.encode(site_charset)
+
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
@@ -455,6 +479,7 @@ class BaseObject(Referenceable):
     def setDefaults(self):
         """Set field values to the default values
         """
+
         self.Schema().setDefaults(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
