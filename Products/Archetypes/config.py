@@ -35,7 +35,7 @@ TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
 UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True ##Initialize the demo types
-INSTALL_DEMO_TYPES = False ##Install the demo types
+INSTALL_DEMO_TYPES = True ##Install the demo types
 DEBUG = True  ## See debug messages
 
 ##Reference Engine bits
