@@ -13,12 +13,13 @@
 	  }	    
 	  
 	  .content_type {
-	  border: 1px solid black;
 	  margin: 4px;
 	  }
 	  
-	  th.title {
-	    background-color: #ccf;
+	  td.title {
+	//	    background-color: #ccf;
+	    border-bottom: 1px solid #ccf;
+	    text-align: left;
 	    }
 
 	  .detail {
@@ -35,22 +36,22 @@
 	  
 	    <table class="content_type" width="80%" tal:repeat="type types">
 	      <tr>
-		<th class="title" 
+		<td class="title" 
 			tal:define="typ python: here.portal_types.getTypeInfo(type['name']);
                                     package type/package;
                                     type_name type/name;
 				    inst_val python: typ != None;
 				    installed python: test(typ != None, 'installed', 'not installed');
                                     spec python:here.getTypeSpec(package, type_name)">
-                <a href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
+                <a tal:condition="nothing" href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
 		[dump schema]
                 </a>
                 <span tal:replace="string: ${package}::${type_name}"/> 
 		<a tal:condition="not: inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&package=${package}">Install</a>
 		<a tal:condition="inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&uninstall=1">Uninstall</a>
-	       </th>
+	       </td>
 	      </tr>
-	      <tr>
+	      <tr tal:condition="nothing">
 		<td>
 		  <table class="detail">
 		    <tr style="background-color:#696969;color: white;">
