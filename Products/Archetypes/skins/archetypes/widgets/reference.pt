@@ -55,7 +55,8 @@
 		     checked python: field.containsValueAsString(item,value);
 		     value item; tabindex tabindex/next;
 		     type python:test(field.multiValued,'checkbox','radio');" />
-	      <span tal:content="python: vocab.getValue(item)"></span>&#160;
+	      <span tal:content="python: vocab.getValue(item)"></span>
+              <br />
 	    </span>
 	  </div><!-- Pulldown when longer -->
 	  <div tal:condition="python: vlen &gt;= 4">
