@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+	   xmlns:tal="http://xml.zope.org/namespaces/tal"
+	   xmlns:metal="http://xml.zope.org/namespaces/metal"
+	   tal:define="types options/types"
+	   metal:define-macro="body">
+
+  <types>
+    <tal:block repeat="type types">
+      <tal:block define="schemata type/schemata">
+	<metal:block use-macro="here/type_template/macros/body" />
+      </tal:block>
+  </tal:block>
+</types>
+</tal:block>

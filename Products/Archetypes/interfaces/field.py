@@ -27,16 +27,13 @@ class IField(Interface):
 
     def Vocabulary(content_instance):
         """ Vocabulary of allowed values for this field """
-        
-    def hasI18NContent(self):
-        """return true it the schema fields has I18N content"""
 
 class IObjectField(IField):
     """ Interface for fields that support a storage layer """
 
     def get(instance, **kwargs):
         """ Get the value for this field using the underlying storage """
-        
+
     def set(instance, value, **kwargs):
         """ Set the value for this field using the underlying storage """
 
@@ -53,3 +50,6 @@ class IObjectField(IField):
 
         The underlying storage must take care of cleaning up of removing
         references to the value stored using the unset method."""
+
+class IImageField(IObjectField):
+    """ Marker interface for detecting an image field """

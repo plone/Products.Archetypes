@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        tal:define="widgets options/widgets"
+        metal:define-macro="body">
+
+
+<widgetelements>
+
+   <tal:block repeat="widget widgets">
+   <widgetelement id="Products.Archetypes.Widgets.IntegerWidget"
+                  tal:attributes="id widget/id">
+       <title tal:content="widget/title">Integer</title>
+       <description tal:content="widget/description">HTML input box</description>
+       <properties>
+           <tal:block repeat="property widget/properties">
+           <property tal:condition="python:property['type'] != 'not-registered'">
+               <name tal:content="property/name">label</name>
+               <type tal:content="property/type">i18ntext</type>
+               <default tal:content="nocall:property/default"
+                        tal:condition="nocall:property/default">i18ntext</default>
+           </property>
+           </tal:block>
+       </properties>
+   </widgetelement>
+   </tal:block>
+</widgetelements>
+
+</tal:block>

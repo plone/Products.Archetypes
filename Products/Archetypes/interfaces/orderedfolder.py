@@ -26,4 +26,3 @@ class IOrderedFolder( Interface ):
     def move_object_to_bottom( id ):
         """Move object to bottom.
         """
-

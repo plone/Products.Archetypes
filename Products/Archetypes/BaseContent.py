@@ -2,38 +2,32 @@ from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from debug import log, log_exc
 from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
-
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
+from CatalogMultiplex import CatalogMultiplex
 
-class BaseContent(BaseObject, Referenceable,
-                  PortalContent,
-                  Historical,
-                  ExtensibleMetadata):
-    """ A not-so-basic CMF Content implementation """
+class BaseContentMixin(BaseObject,
+                       Referenceable,
+                       CatalogMultiplex,
+                       PortalContent,
+                       Historical):
+    """A not-so-basic CMF Content implementation that doesn't
+    include Dublin Core Metadata"""
 
-    __implements__ = (IBaseContent, IReferenceable, \
-                      PortalContent.__implements__, \
-                      IExtensibleMetadata)
-
-    schema = BaseObject.schema + ExtensibleMetadata.schema
+    __implements__ = ((IBaseContent, IReferenceable) +
+                      PortalContent.__implements__)
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
 
-
     security = ClassSecurityInfo()
-
-    def __init__(self, oid, **kwargs):
-        BaseObject.__init__(self, oid, **kwargs)
-        ExtensibleMetadata.__init__(self)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -63,19 +57,19 @@ class BaseContent(BaseObject, Referenceable,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mimetype=REQUEST.get_header('Content-Type', None)
 
-        file=REQUEST['BODYFILE']
+        file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)
-        filename = REQUEST._steps[0] #XXX fixme, use a real name
+        try:
+            filename = REQUEST._steps[-2] #XXX fixme, use a real name
+        except:
+            filename = file.filename
 
-        #transformer = getToolByName(self, 'transform_tool')
-        #mimetype   = transformer.classify(data, mimetype=type)
-
-        #Marshall the data
+        # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype)
+        ddata = marshaller.demarshall(self, data, mimetype=None,
+                                      filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
@@ -86,8 +80,14 @@ class BaseContent(BaseObject, Referenceable,
 
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
-    def manage_FTPget(self, REQUEST, RESPONSE):
+    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         "Get the raw content for this object (also used for the WebDAV SRC)"
+
+        if REQUEST is None:
+            REQUEST = self.REQUEST
+
+        if RESPONSE is None:
+            RESPONSE = REQUEST.RESPONSE
 
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
@@ -110,5 +110,20 @@ class BaseContent(BaseObject, Referenceable,
             RESPONSE.write(data.data)
             data=data.next
 
-InitializeClass(BaseContent)
+InitializeClass(BaseContentMixin)
 
+class BaseContent(BaseContentMixin,
+                  ExtensibleMetadata):
+    """A not-so-basic CMF Content implementation with Dublin Core
+    Metadata included"""
+
+    __implements__ = (BaseContentMixin.__implements__ +
+                      (IExtensibleMetadata,))
+
+    schema = BaseContentMixin.schema + ExtensibleMetadata.schema
+
+    def __init__(self, oid, **kwargs):
+        BaseContentMixin.__init__(self, oid, **kwargs)
+        ExtensibleMetadata.__init__(self)
+
+InitializeClass(BaseContent)

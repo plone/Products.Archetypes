@@ -20,4 +20,3 @@ def install(self, include_demo=None):
     print >> out, 'Successfully installed %s' % PKG_NAME
 
     return out.getvalue()
-

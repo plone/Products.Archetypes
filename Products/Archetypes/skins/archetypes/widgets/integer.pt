@@ -1,15 +1,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
+
+  <head><title></title></head>
 
   <body>
 
     <!-- Integer Widgets -->
     <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
+      <metal:block define-slot="widget_label">
+      </metal:block>
       <metal:block use-macro="here/widgets/field/macros/view">
 	<metal:block fill-slot="widget_view">
 	  <span tal:replace="structure accessor"/>
@@ -17,25 +21,22 @@
       </metal:block>
     </div>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-	  <input type="text" 
-		 name="" 
-		 value="" 
-		 size="30" 
-		 tabindex="#"
-		 tal:attributes="name string:${fieldName};
-	    value value;
-	    size widget/size;
-	    tabindex tabindex/next;
-            onfocus string:formtooltip('${fieldName}_help',1);
-            onblur string:formtooltip('${fieldName}_help',0);
-	    "
-	    />
-	</div>
-      </div>
-    </div>
+    <metal:define metal:define-macro="edit">
+      <metal:use metal:use-macro="here/widgets/field/macros/edit">
+	<input metal:fill-slot="widget_body"
+	       type="text"
+	       name=""
+	       value=""
+	       size="30"
+	       tabindex="#"
+	       tal:attributes="name fieldName;
+	       value value;
+	       size widget/size;
+	       maxlength widget/maxlength|nothing;
+	       tabindex tabindex/next;"
+	       />
+      </metal:use>
+    </metal:define>
 
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/integer/macros/edit">
@@ -43,6 +44,6 @@
     </div>
 
   </body>
-  
+
 </html>
 

@@ -66,4 +66,3 @@ class Converter(ContentDriver):
         instance.html = "%s\n%s" % (style, body)
 
         doc.cleandir()
-

@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2003/08/09 19:12:59 $
-:Version: $Revision: 1.6.4.4 $
+:Date: $Date: 2003/09/12 03:37:10 $
+:Version: $Revision: 1.10 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -41,6 +41,14 @@ using the following combination:
 - CMFPlone 1.0.4
 
 - CMF 1.3.1
+
+It is also known to work smoothly with Zope 2.5.
+
+You should install the *validation* and *generator* packages available 
+on the archetypes'sourceforge page before installing Archetypes itself. 
+WARNING: those packages was used to be installed as Zope products, this 
+not the case anymore. They should be installed as regular python package 
+(look at the packages'README file for more info).
 
 Using the tarball
 *****************

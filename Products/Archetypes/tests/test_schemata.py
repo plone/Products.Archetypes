@@ -1,11 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -15,14 +13,15 @@ from Products.Archetypes import listTypes
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema 
+schema = BaseSchema
 
 class Dummy(BaseContent):
     schema = schema
-   
-class SchemataTest( unittest.TestCase ):
 
-    def setUp(self):
+class SchemataTest( ArchetypesTestCase ):
+
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -33,7 +32,7 @@ class SchemataTest( unittest.TestCase ):
         keys = schemata.keys()
         keys.sort()
         self.assertEqual(keys, ['default', 'metadata'])
-        
+
     def test_nameschemata(self):
         dummy = self._dummy
         schemata = dummy.Schemata()
@@ -50,17 +49,22 @@ class SchemataTest( unittest.TestCase ):
         dummy = self._dummy
         schemata = dummy.Schemata()
         meta_names = getNames(schemata['metadata'])
-        self.assertEqual(meta_names, ['allowDiscussion', 'subject', 'description', \
-                                      'contributors', 'effectiveDate', 'expirationDate', \
+        self.assertEqual(meta_names, ['allowDiscussion', 'subject',
+                                      'description', 'contributors',
+                                      'effectiveDate', 'expirationDate',
                                       'language', 'rights'])
 
-    def tearDown( self ):
+    def beforeTearDown(self):
         del self._dummy
-        
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(SchemataTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(SchemataTest))
+        return suite

@@ -1,0 +1,8 @@
+[default]
+title = Properties
+
+[validators]
+validators = validate_base
+
+[actions]
+action.success = traverse_to:string:content_edit
