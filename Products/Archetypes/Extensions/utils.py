@@ -28,8 +28,15 @@ from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 class Extra:
     """indexes extra properties holder"""
 
-def install_dependencies(self, out):
-    qi=getToolByName(self, 'portal_quickinstaller')
+def install_dependencies(self, out, required=1):
+    qi=getToolByName(self, 'portal_quickinstaller', None)
+    if qi is None:
+        if required:
+            raise RuntimeError, (
+                'portal_quickinstaller tool could not be found, and it is '
+                'required to install Archetypes dependencies')
+        else:
+            return
     qi.installProduct('CMFFormController',locked=1)
     qi.installProduct('PortalTransforms',)
 
@@ -297,9 +304,10 @@ def filterTypes(self, out, types, package_name):
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
-                     product_skins_dir='skins'):
+                     product_skins_dir='skins',
+                     require_dependencies=1):
 
-    install_dependencies(self, out)
+    install_dependencies(self, out, require_dependencies)
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
@@ -320,10 +328,11 @@ def setupEnvironment(self, out, types,
 
 ## The master installer
 def installTypes(self, out, types, package_name,
-                 globals=types_globals, product_skins_dir='skins'):
+                 globals=types_globals, product_skins_dir='skins',
+                 require_dependencies=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir)
+                     globals, product_skins_dir, require_dependencies)
