@@ -96,17 +96,23 @@ class Reference(Referenceable, SimpleItem):
         tool = getToolByName(self, UID_CATALOG)
         if not tool: return ''
         brains = tool(UID=self.sourceUID)
-        if brains:
-            return brains[0].getObject()
-        raise AttributeError('sourceObject')
+        for brain in brains:
+            obj = brain.getObject()
+            if obj is not None:
+                return obj
+        else:
+            raise AttributeError('sourceObject')
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG, None)
         if not tool: return ''
         brains = tool(UID=self.targetUID)
-        if brains:
-            return brains[0].getObject()
-        raise AttributeError('targetObject')
+        for brain in brains:
+            obj = brain.getObject()
+            if obj is not None:
+                return obj
+        else:
+            raise AttributeError('targetObject')
 
     ###
     # Catalog support
@@ -415,12 +421,11 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         tID, tobj = self._uidFor(target)
 
         brains = self._queryFor(sID, tID, relationship)
-        result = False
-        if brains:
-            referenceObject = brains[0].getObject()
-            result = True
-
-        return result
+        for brain in brains:
+            obj = brain.getObject()
+            if obj is not None:
+                return True
+        return False
 
     def getRelationships(self, object):
         """
@@ -429,7 +434,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         sID, sobj = self._uidFor(object)
         brains = self._queryFor(sid=sID)
         res = {}
-        for b in brains:
+        for brain in brains:
             res[b.relationship]=1
 
         return res.keys()
@@ -482,9 +487,12 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     def _objectByUUID(self, uuid):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=uuid)
-        if not brains:
+        for brain in brains:
+            obj = brain.getObject()
+            if obj is not None:
+                return obj
+        else:
             return None
-        return brains[0].getObject()
 
     def _queryFor(self, sid=None, tid=None, relationship=None,
                   targetId=None, merge=1):
@@ -518,14 +526,14 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                 uuid = getattr(uobject, UUID_ATTR)
         else:
             uuid = obj
+            obj = None
             #and we look up the object
             uid_catalog = getToolByName(self, UID_CATALOG)
             brains = uid_catalog(UID=uuid)
-            if brains:
-                obj = brains[0].getObject()
-            else:
-                obj = None
-
+            for brain in brains:
+                res = brain.getObject()
+                if res is not None:
+                    obj = res
         return uuid, obj
 
     def _getUUIDFor(self, object):
