@@ -104,10 +104,13 @@ class SkinManager(object):
 
         skinsTool = self._skinsTool
         if skinName:
-            result = tuple(_getPathList(skinsTool, skinName))
+            if skinName in self.getSkinNames():
+                result = tuple(_getPathList(skinsTool, skinName))
+            else:
+                result = None
         else:
             result = {}
-            for skinName in skinsTool.getSkinSelections():
+            for skinName in self.getSkinNames():
                 result[skinName] = tuple(_getPathList(skinsTool, skinName))
                 
         return result
@@ -143,7 +146,7 @@ class SkinManager(object):
         if skinName:
             skinNames = (skinName,)
         else:
-            skinNames = skinsTool.getSkinSelections()
+            skinNames = self.getSkinNames()
             
         for skinName in skinNames:
             if isinstance(paths, list) or isinstance(paths, tuple):
@@ -203,7 +206,7 @@ class SkinManager(object):
         if skinName:
             skinNames = (skinName,)
         else:
-            skinNames = skinsTool.getSkinSelections()
+            skinNames = self.getSkinNames()
             
         pathsToAdd = _getTuple(paths)
         for skinName in skinNames:
@@ -266,7 +269,7 @@ class SkinManager(object):
         if skinName:
             skinNames = (skinName,)
         else:
-            skinNames = skinsTool.getSkinSelections()
+            skinNames = self.getSkinNames()
             
         pathsToRemove = _getTuple(paths)
         for skinName in skinNames:
@@ -361,4 +364,73 @@ class SkinManager(object):
         except zExceptions.BadRequest:
             # this will happen often in a reloaded environment, safe to ignore
             pass
+
+    def getSkinNames(self):
+        """Returns a tuple containing the names of all configured skins.
+        """
+
+        return tuple(self._skinsTool.getSkinSelections())
+
+
+    def createSkin(self, skinName, paths=None):
+        """Creates a new skin.  The paths type should be one of list, tuple,
+        or string.  If the paths type is string, all elements should be
+        separated by a comma (ie "abc, def, ghi").  If no paths parameter is
+        specified, then a path will be generated from the path of the very
+        first skin in the current configuration.
+
+
+        Make sure our testing skin hasn't been installed yet.
+        >>> sm = SkinManager(portal)
+        >>> 'skinA' in sm.getSkinNames()
+        False
+
+        Install a new test skin with a default skin path.
+        >>> sm.createSkin('skinA')
+        >>> 'skinA' in sm.getSkinNames()
+        True
+
+        Install a new test skin with a specific path.
+        >>> sm.createSkin('skinB', 'a,b,c')
+        >>> 'skinB' in sm.getSkinNames()
+        True
+        >>> sm.getSkinPaths('skinB')
+        ('a', 'b', 'c')
+        
+        """
+
+        skinsTool = self._skinsTool
+
+        pathsToAdd = paths
+        if not paths:
+            allPaths = self.getSkinPaths()
+            # just get the first paths of the first available skin
+            pathsToAdd = allPaths[allPaths.keys()[0]]
+
+        skinsTool.addSkinSelection(skinname=skinName,
+                                    skinpath=pathsToAdd)
+
+
+    def removeSkin(self, skinName, paths=None):
+        """Removed the specified skin.
+
+
+        >>> sm = SkinManager(portal)
+        >>> 'skinA' in sm.getSkinNames()
+        False
+
+        >>> sm.createSkin('skinA')
+        >>> 'skinA' in sm.getSkinNames()
+        True
+        
+        >>> sm.removeSkin('skinA')
+        >>> 'skinA' in sm.getSkinNames()
+        False
+
+        """
+
+        skinsTool = self._skinsTool
+        skinsTool.manage_skinLayers(chosen=(skinName,), del_skin=1)
+    
+
 
