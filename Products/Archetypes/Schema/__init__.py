@@ -63,8 +63,7 @@ class Schemata(Base):
             for field in fields:
                 self.addField(field)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getName')
+    security.declareProtected(CMFCorePermissions.View, 'getName')
     def getName(self):
         """Returns the Schemata's name."""
         return self.__name__
@@ -102,13 +101,13 @@ class Schemata(Base):
 
     security.declareProtected(CMFCorePermissions.View, 'values')
     values = fields
-    
+
     security.declareProtected(CMFCorePermissions.View, 'editableFields')
     def editableFields(self, instance):
         """Returns a list of editable fields for the given instance
         """
         return [field for field in self.fields()
-                if field.checkPermission('edit', instance)]
+                if field.writeable(instance, debug=False)]
 
     security.declareProtected(CMFCorePermissions.View, 'viewableFields')
     def viewableFields(self, instance):
@@ -126,7 +125,6 @@ class Schemata(Base):
         for f in self.fields():
             widgets[f.getName()] = f.widget
         return widgets
-
 
     security.declareProtected(CMFCorePermissions.View,
                               'filterFields')
@@ -208,7 +206,6 @@ class Schemata(Base):
                       )
 
 
-
     def __delitem__(self, name):
         if not self._fields.has_key(name):
             raise KeyError("Schemata has no field '%s'" % name)
@@ -218,18 +215,15 @@ class Schemata(Base):
     def __getitem__(self, name):
         return self._fields[name]
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'get')
+    security.declareProtected(CMFCorePermissions.View, 'get')
     def get(self, name, default=None):
         return self._fields.get(name, default)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'has_key')
+    security.declareProtected(CMFCorePermissions.View, 'has_key')
     def has_key(self, name):
         return self._fields.has_key(name)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'keys')
+    security.declareProtected(CMFCorePermissions.View, 'keys')
     def keys(self):
         return self._names
 
@@ -241,8 +235,7 @@ class Schemata(Base):
                               'updateField')
     updateField = addField
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'searchable')
+    security.declareProtected(CMFCorePermissions.View, 'searchable')
     def searchable(self):
         """Returns a list containing names of all searchable fields."""
 
@@ -485,26 +478,19 @@ class BasicSchema(Schemata):
             if field.getName() not in keys:
                 continue
 
-            if 'w' not in field.mode:
-                log("tried to update %s:%s which is not writeable" % \
-                    (instance.portal_type, field.getName()))
+            if not field.writeable(instance):
                 continue
 
+            # If passed the test above, mutator is guaranteed to
+            # exist.
             method = field.getMutator(instance)
-            if not method:
-                log("No method %s on %s" % (field.mutator, instance))
-                continue
-
             method(kwargs[field.getName()])
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'allow')
-
+    security.declareProtected(CMFCorePermissions.View, 'allow')
     def allow(self, name):
         return self.has_key(name)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'validate')
+    security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, instance=None, REQUEST=None,
                  errors=None, data=None, metadata=None):
         """Validate the state of the entire object.
@@ -563,12 +549,6 @@ class BasicSchema(Schemata):
                                  errors=errors,
                                  REQUEST=REQUEST)
             if res:
-                ## tuple needed to allow list of messages to work
-                ## with CMFFormController
-                if type(res) is ListType:
-                    res = (res, [])
-                else:
-                    res = ([res], [])
                 errors[field.getName()] = res
         return errors
 

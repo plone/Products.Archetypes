@@ -11,7 +11,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.Storage import AttributeStorage
-from Products.Archetypes.examples.SimpleType import TestView
+from Products.Archetypes.examples.SimpleType import TestView, TestWrite
 
 class AttributeProtectionTest(ATSiteTestCase):
 
@@ -87,6 +87,42 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.setRoles([])
         self.logout()
         self.checkUnauthorized(self.check_methods)
+
+    def test_field_write_no_perm(self):
+        # Check that if the user doesn't have the
+        # field.write_permission then the value will not be updated in
+        # edit() or update().
+        self.setRoles(['Manager'])
+        p = self.inst
+        p.manage_permission(TestWrite, roles=['Manager'], acquire=0)
+        self.setRoles([])
+
+        title = p.Title()
+        p.update(title='Bla')
+        self.failUnlessEqual(title, p.Title())
+
+        title = p.Title()
+        p.edit(title='Bla')
+        self.failUnlessEqual(title, p.Title())
+
+        title = p.Title()
+        p.processForm(data=True, values={'title':'Bla'})
+        self.failUnlessEqual(title, p.Title())
+
+    def test_field_write_has_perm(self):
+        # Check that if the user does have the field.write_permission
+        # then the value will be updated in edit() or update().
+        p = self.inst
+        p.update(title='Bla1')
+        self.failUnlessEqual(p.Title(), 'Bla1')
+
+        title = p.Title()
+        p.edit(title='Bla2')
+        self.failUnlessEqual(p.Title(), 'Bla2')
+
+        title = p.Title()
+        p.processForm(data=True, values={'title':'Bla3'})
+        self.failUnlessEqual(p.Title(), 'Bla3')
 
 def test_suite():
     import unittest

@@ -29,6 +29,7 @@ from ZPublisher.HTTPRequest import FileUpload
 from ZODB.POSException import ConflictError
 
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
@@ -276,10 +277,8 @@ class Field(DefaultLayerContainer):
         result returned by validator
         """
         name = self.getName()
-        ## Can someone explain what this is for ? __gotcha 
         if errors and errors.has_key(name):
             return True
-        ##
 
         if self.required:
             res = self.validate_required(instance, value, errors)
@@ -327,9 +326,7 @@ class Field(DefaultLayerContainer):
                 default = "%s is required, please correct."
                 % label,
                 )
-            ## Can someone explain what this is for ? __gotcha 
             errors[name] = error
-            ##
             return error
         return None
 
@@ -474,6 +471,30 @@ class Field(DefaultLayerContainer):
         else:
             return None
         return getSecurityManager().checkPermission( perm, instance )
+
+
+    security.declarePublic('writeable')
+    def writeable(self, instance, debug=True):
+        if 'w' not in self.mode:
+            if debug:
+                log("Tried to update %s:%s but field is not writeable." % \
+                    (instance.portal_type, self.getName()))
+            return False
+
+        method = self.getMutator(instance)
+        if not method:
+            if debug:
+                log("No method %s on %s." % (self.mutator, instance))
+            return False
+
+        if not self.checkPermission('edit', instance):
+            if debug:
+                log("User %s tried to update %s:%s but "
+                    "doesn't have enough permissions." %
+                    (_getAuthenticatedUser(instance).getId(),
+                     instance.portal_type, self.getName()))
+            return False
+        return True
 
     security.declarePublic('checkExternalEditor')
     def checkExternalEditor(self, instance):

@@ -590,7 +590,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def isTemplateEnabled(self, type):
         """Checks if an type uses ITemplateMixin.
         """
-        return ITemplateMixin.isImplementedBy(type)
+        return ITemplateMixin.isImplementedByInstancesOf(type)
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'bindTemplate')
     def bindTemplate(self, portal_type, templateList):

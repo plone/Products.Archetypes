@@ -19,7 +19,7 @@
     <table class="main">
 	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
    
-	  <tal:condition condition="python:at.isTemplateEnabled(meta_type)">
+	  <tal:condition condition="python:at.isTemplateEnabled(meta_type['klass'])">
 	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
 	  <td>
 	    <select multiple="multiple"

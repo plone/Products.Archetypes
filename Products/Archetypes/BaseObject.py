@@ -263,31 +263,6 @@ class BaseObject(Referenceable):
         """
         return ExplicitAcquisitionWrapper(self.getField(key), self)
 
-    security.declarePublic('unicodeEncode')
-    def unicodeEncode(self, value, site_charset=None):
-        if site_charset is None:
-            site_charset = self.getCharset()
-
-        if not type(value)==type('') or type(value)==type(u''):
-            value = str(value)
-
-        if type(value)==type(''):
-            for charset in [site_charset, 'latin-1', 'utf-8']:
-                try:
-                    value = unicode(value, charset)
-                    break
-                except UnicodeError:
-                    pass
-                # that should help debugging unicode problem
-                # remove it if you feel not
-        else:
-            raise UnicodeError('Unable to decode %s' % value)
-
-        # don't try to catch unicode error here
-        # if one occurs, that means the site charset must be changed !
-        return value.encode(site_charset)
-
-
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
         """Return the default value of a field
@@ -479,7 +454,6 @@ class BaseObject(Referenceable):
     def setDefaults(self):
         """Set field values to the default values
         """
-
         self.Schema().setDefaults(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
@@ -650,6 +624,13 @@ class BaseObject(Referenceable):
             ## The product of the widgets processing should be:
             ##   (value, **kwargs) which will be passed to the mutator
             ##   or None which will simply pass
+
+            if not field.writeable(self):
+                # If the field has no 'w' in mode, or the user doesn't
+                # have the required permission, or the mutator doesn't
+                # exist just bail out.
+                continue
+
             widget = field.widget
             result = widget.process_form(self, field, form,
                                          empty_marker=_marker)
@@ -657,9 +638,6 @@ class BaseObject(Referenceable):
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)
-            # required for ComputedField et al
-            if mutator is None:
-                continue
             __traceback_info__ = (self, field, mutator)
             result[1]['field'] = field.__name__
             mapply(mutator, result[0], **result[1])

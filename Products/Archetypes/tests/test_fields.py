@@ -147,9 +147,10 @@ class FakeRequest:
 class ProcessingTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        self.setRoles(['Manager'])
         ATSiteTestCase.afterSetUp(self)
-        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
-                                      schema=schema)
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
+                                       schema=schema)
         txt_file.seek(0)
         img_file.seek(0)
 

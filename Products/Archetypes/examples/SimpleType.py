@@ -26,6 +26,9 @@ registerType(SimpleType, PKG_NAME)
 TestView = 'Archetypes Tests: Protected Type View'
 setDefaultRoles(TestView, ('Anonymous', 'Manager',))
 
+TestWrite = 'Archetypes Tests: Protected Type Write'
+setDefaultRoles(TestWrite, ('Anonymous', 'Manager',))
+
 class SimpleProtectedType(SimpleType):
 
     security = ClassSecurityInfo()
@@ -39,6 +42,7 @@ class SimpleProtectedType(SimpleType):
     schema = schema.copy()
     for f in schema.fields():
         f.read_permission = TestView
+        f.write_permission = TestWrite
 
     security.declareProtected(TestView, 'foo')
     def foo(self):
