@@ -1,3 +1,13 @@
+2003-07-09  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* tests/test_fields.py: Simple tests for 'processForm'.
+
+	* tests/test_widgets.py (WidgetTests.test_widgets): Kids, don't do
+	that at home :) I know I warned you guys against using commit() on
+	unittests, but theres *really* no easy way out of this. I have to
+	get the site commited to be able to reach it through HTTP, and
+	hence use ClientForm to test the forms.
+
 2003-07-08  Sylvain Thénault  <syt@logilab.fr>
 
     * make subobjects working :))) You can access to subobjects

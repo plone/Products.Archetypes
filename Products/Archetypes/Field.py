@@ -632,6 +632,7 @@ class LinesField(ObjectField):
         remove leading and trailing white space before storing in object
         with rest of properties.
         """
+        __traceback_info__ = value, type(value)
         if type(value) == type(''):
             value =  value.split('\n')
         value = [v.strip() for v in value if v.strip()]
@@ -652,10 +653,8 @@ class IntegerField(ObjectField):
     def set(self, instance, value, **kwargs):
         if value=='':
             value=None
-        try:
-            value = int(value)
-        except TypeError:
-            value = self.default
+        # should really blow if value is not valid
+        value = int(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -663,7 +662,8 @@ class FloatField(ObjectField):
     """A field that stores floats"""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'float'
+        'type' : 'float',
+        'default': '0.0'
         })
 
     def set(self, instance, value, **kwargs):
@@ -671,10 +671,9 @@ class FloatField(ObjectField):
         None."""
         if value=='':
             value=None
-        try:
-            value = float(value)
-        except TypeError:
-            value = None
+
+        # should really blow if value is not valid
+        value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 

@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.6 2003/06/03 22:54:31 dreamcatcher Exp $
+$Id: test_rename.py,v 1.6.2.1 2003/07/10 00:03:01 dreamcatcher Exp $
 """
 
 import unittest
@@ -15,13 +15,14 @@ except: # Zope > 2.6
 from Acquisition import aq_base
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
+from Products.CMFPlone.Portal import manage_addSite
 
 class RenameTests( SecurityRequestTest ):
 
     def setUp(self):
         SecurityRequestTest.setUp(self)
-        self.root.manage_addProduct[ 'CMFPlone' ].manage_addSite( 'testsite', \
-                                                                  custom_policy='Archetypes Site' )
+        manage_addSite( self.root, 'testsite', \
+                        custom_policy='Archetypes Site' )
 
     def test_rename(self):
         site = self.root.testsite

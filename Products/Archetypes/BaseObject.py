@@ -57,7 +57,7 @@ class BaseObject(Implicit):
         self.id = oid
         self._master_language = None
         self._translations_states = PersistentMapping()
-            
+
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -325,7 +325,7 @@ class BaseObject(Implicit):
             if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
-                
+
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
                 text_format = None
@@ -353,7 +353,7 @@ class BaseObject(Implicit):
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
                 kwargs = {}
-                    
+
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)
                 else:
@@ -521,13 +521,13 @@ class BaseObject(Implicit):
             return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
-    
+
     # I18N content management #################################################
- 
+
     security.declarePublic("hasI18NContent")
     def hasI18NContent(self):
         """return true it the schema contains at least one I18N field
-        
+
         not implemented in this release but we should keep the hasI18NContent
         methods !
         """
@@ -540,7 +540,7 @@ class BaseObject(Implicit):
     # images that may result from the transformation of a pdf field to html)
     #
     # those objects are specific to a session
-    
+
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
@@ -566,7 +566,7 @@ class BaseObject(Implicit):
         return Wrapper(data, name, mt or 'application/octet')
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
-        """ transparent access to session subobjects 
+        """ transparent access to session subobjects
         """
         # is it a registered sub object
         data = self.getSubObject(name, REQUEST, RESPONSE)
@@ -578,7 +578,7 @@ class BaseObject(Implicit):
             return target
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
-        
+
 
 class Wrapper:
     """wrapper object for access to sub objects """
@@ -586,7 +586,7 @@ class Wrapper:
         self._data = data
         self._filename = filename
         self._mimetype = mimetype
-        
+
     def __call__(self, REQUEST=None, RESPONSE=None):
         if RESPONSE is None:
             RESPONSE = REQUEST.RESPONSE

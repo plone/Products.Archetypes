@@ -3,8 +3,8 @@
 #
 # Author: Andreas Jung
 # Contact: andreas@andreas-jung.com
-# Revision: $Revision: 1.2 $
-# Date: $Date: 2003/04/20 15:31:46 $
+# Revision: $Revision: 1.2.4.1 $
+# Date: $Date: 2003/07/10 00:02:59 $
 # Copyright: This module has been placed in the public domain.
 
 """
@@ -18,7 +18,8 @@ http://cvs.zope.org/Zope/lib/python/docutils/writers/Attic/html4zope.py?rev=1.1.
 __docformat__ = 'reStructuredText'
 
 from docutils import nodes
-from docutils.writers.html4css1 import Writer as CSS1Writer, HTMLTranslator as CSS1HTMLTranslator
+from docutils.writers.html4css1 import Writer as CSS1Writer, \
+     HTMLTranslator as CSS1HTMLTranslator
 import os
 
 default_level = int(os.environ.get('STX_DEFAULT_LEVEL', 3))

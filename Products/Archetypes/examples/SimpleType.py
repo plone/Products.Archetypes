@@ -17,7 +17,7 @@ schema = BaseSchema + Schema((
 class SimpleType(BaseContent):
     """A simple archetype"""
     schema = schema
-    
-                  
+
+
 registerType(SimpleType)
 
