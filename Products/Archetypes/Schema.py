@@ -211,8 +211,8 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 #if not hasattr(aq_base(instance), field.name) and \
                 #   getattr(instance, field.name, None):
                 default = field.default
-                if self.default_method:
-                    method = getattr(instance, self.default_method, None)
+                if field.default_method:
+                    method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
 
