@@ -425,6 +425,10 @@ class TextField(ObjectField):
         
         if mimetype is None:
             mimetype = 'text/html' # XXX: default_output_type ?
+        
+        if not hasattr(value,'transform'): # oldBaseUnits have no transform
+            return str(value)
+        
         data = value.transform(instance, mimetype, cache=1)
         if not data:
             data = value.transform(instance, 'text/plain', cache=1)
