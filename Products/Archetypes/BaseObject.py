@@ -436,6 +436,7 @@ class BaseObject(Referenceable):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
+                type_datum = type(datum)
                 if type_datum is UnicodeType:
                     datum = datum.encode(charset)
                 data.append(str(datum))
