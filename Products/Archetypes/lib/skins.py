@@ -32,6 +32,8 @@ __all__ = ('getSkinPaths', 'setSkinPaths', 'addSkinPaths',
 
 import os.path
 
+import zExceptions
+
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.Archetypes import types_globals
 from Globals import package_home
@@ -42,6 +44,34 @@ from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
 
 # file entries that should get ignored by default (ie not added to skin paths)
 DEFAULT_FILE_OMISSIONS = ('.svn', 'CVS')
+
+class SkinException(Exception):
+    pass
+
+class MalformedPathException(SkinException):
+    pass
+
+
+def _getTuple(items):
+    tuple_ = None
+
+    if isinstance(items, list):
+        tuple_ = tuple(items)
+    elif isinstance(items, str):
+        tuple_ = [x.strip() for x in items.split(',')]
+    elif isintance(items, tuple):
+        tuple_ = items
+    else:
+        raise MalformedPathException("Could not convert ["+str(type(items))
+                                     +"] to a tuple", items)
+
+    return tuple_
+   
+
+def _getPathList(skinsTool, skinName):
+    path = skinsTool.getSkinPath(skinName)
+    return [i.strip() for i in path.split(',')]
+
 
 class _SkinManager:
     """Functionality for manipulating skins and skin paths mostly consisting
@@ -63,11 +93,11 @@ class _SkinManager:
 
         skinsTool = getToolByName(context, 'portal_skins')
         if skinName:
-            result = tuple(self._getPathList(skinsTool, skinName))
+            result = tuple(_getPathList(skinsTool, skinName))
         else:
             result = {}
             for skinName in skinsTool.getSkinSelections():
-                result[skinName] = tuple(self._getPathList(skinsTool, skinName))
+                result[skinName] = tuple(_getPathList(skinsTool, skinName))
                 
         return result
 
@@ -162,13 +192,9 @@ class _SkinManager:
         else:
             skinNames = skinsTool.getSkinSelections()
             
+        pathsToAdd = _getTuple(paths)
         for skinName in skinNames:
-            if isinstance(paths, list) or isinstance(paths, tuple):
-                pathsToAdd = paths
-            else:
-                pathsToAdd = [i.strip() for i in paths.split(',')]
-        
-            newPaths = self._getPathList(skinsTool, skinName)
+            newPaths = _getPathList(skinsTool, skinName)
             pos = None
             if position == None:
                 newPaths.extend(pathsToAdd)
@@ -228,12 +254,8 @@ class _SkinManager:
         else:
             skinNames = skinsTool.getSkinSelections()
             
+        pathsToRemove = _getTuple(paths)
         for skinName in skinNames:
-            if isinstance(paths, list) or isinstance(paths, tuple):
-                pathsToRemove = paths
-            else:
-                pathsToRemove = [i.strip() for i in paths.split(',')]
-
             currentPaths = self.getSkinPaths(context, skinName)
             newPaths = list(currentPaths)
             for x in pathsToRemove:
@@ -299,10 +321,7 @@ class _SkinManager:
         absPath = os.path.join(package_home(globals), dirPath)
         pathList = None
         if paths:
-            if isinstance(paths, list) or isinstance(paths, tuple):
-                pathList = paths
-            else:
-                pathList = [i.strip() for i in paths.split(',')]
+            pathList = _getTuple(paths)
         else:
             pathList = os.listdir(absPath)
             if omissions:
@@ -323,14 +342,14 @@ class _SkinManager:
         if relDirPath not in registered_directories:
             registerDirectory(dirPath, globals)
         
-        addDirectoryViews(skinsTool, dirPath, globals)
+        try:
+            addDirectoryViews(skinsTool, dirPath, globals)
+        except zExceptions.BadRequest:
+            # this will happen often in a reloaded environment, safe to ignore
+            pass
 
-    
 
-    def _getPathList(self, skinsTool, skinName):
-        path = skinsTool.getSkinPath(skinName)
-        return [i.strip() for i in path.split(',')]
-
+        
 _skinManager = _SkinManager()
 
 getSkinPaths = _skinManager.getSkinPaths

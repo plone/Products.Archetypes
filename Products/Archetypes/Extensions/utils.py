@@ -39,6 +39,8 @@ from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import minimalpath
 from Products.Archetypes.lib.register import fixActionsForType
+from Products.Archetypes.lib.skins import installPathsFromDir
+from Products.Archetypes.lib.logging import deprecated
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
@@ -210,39 +212,12 @@ def install_additional_templates(self, out, types):
             at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
-    skinstool=getToolByName(self, 'portal_skins')
+    """Deprecated.  Please use Archetypes.skins.
+    """
+    
+    deprecated("Please use Archetypes.skins")
+    installPathsFromDir(self, product_skins_dir, globals=globals)
 
-    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
-    productSkinsPath = minimalpath(fullProductSkinsPath)
-    registered_directories = manage_listAvailableDirectories()
-    if productSkinsPath not in registered_directories:
-        try:
-            registerDirectory(product_skins_dir, globals)
-        except OSError, ex:
-            if ex.errno == 2: # No such file or directory
-                return
-            raise
-    try:
-        addDirectoryViews(skinstool, product_skins_dir, globals)
-    except BadRequestException, e:
-        pass  # directory view has already been added
-
-    files = os.listdir(fullProductSkinsPath)
-    for productSkinName in files:
-        if (isdir(join(fullProductSkinsPath, productSkinName))
-            and productSkinName != 'CVS'
-            and productSkinName != '.svn'):
-            for skinName in skinstool.getSkinSelections():
-                path = skinstool.getSkinPath(skinName)
-                path = [i.strip() for i in  path.split(',')]
-                try:
-                    if productSkinName not in path:
-                        path.insert(path.index('custom') +1, productSkinName)
-                except ValueError:
-                    if productSkinName not in path:
-                        path.append(productSkinName)
-                path = ','.join(path)
-                skinstool.addSkinSelection(skinName, path)
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
