@@ -251,6 +251,9 @@ InitializeClass(Schemata)
 
 
 class WrappedSchemata(Schemata, Explicit):
+    """
+    Wrapped Schemata
+    """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -670,6 +673,10 @@ InitializeClass(Schema)
 
 
 class WrappedSchema(Schema, Explicit):
+    """
+    Wrapped Schema
+    """
+
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
@@ -677,6 +684,9 @@ InitializeClass(WrappedSchema)
 
 
 class ManagedSchema(Schema):
+    """
+    Managed Schema
+    """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
