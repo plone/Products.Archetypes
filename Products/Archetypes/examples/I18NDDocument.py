@@ -43,5 +43,5 @@ class I18NDDocument(TemplateMixin, I18NBaseContent):
     actions = I18NBaseContent + TemplateMixin.actions
     
                   
-registerType(DDocument)
+registerType(I18NDDocument)
 
