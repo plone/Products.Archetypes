@@ -67,6 +67,13 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','e','y','c','f'])
 
+    def testDelSchemata(self):
+        self.schema.delSchemata('nasbaer')
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'edgar'])
+        self.schema.addField(StringField('hello_world', schemata='helloworld'))
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'edgar', 'helloworld'])
+        
+
 if __name__ == '__main__':
     framework()
 else:

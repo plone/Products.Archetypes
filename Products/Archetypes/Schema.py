@@ -9,7 +9,7 @@ from utils import capitalize, DisplayList, OrderedDict
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
-from types import StringType
+from types import StringType, StringTypes
 from Storage import AttributeStorage, MetadataStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
@@ -191,6 +191,8 @@ class Schemata(UserDict):
                               'delField')
     def delField(self, name):
         """Remove a field given by its name """
+
+        assert isinstance(name, StringTypes)
 
         if not self.has_key(name): 
             raise KeyError("Schema has no field '%s'" % name)
@@ -589,6 +591,12 @@ class Schema(Schemata, DefaultLayerContainer):
             of appearing 
         """
         return [f for f in self.fields()  if f.schemata == name]
+
+    def delSchemata(self, name):
+        """ remove all fields belong to schemata 'name' """
+        for f in self.fields():
+            if f.schemata == name:
+                self.delField(f.getName())
 
 
 # Reusable instance for MetadataFieldList
