@@ -1,3 +1,6 @@
+import os.path
+__version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+
 import sys
 
 from Products.Archetypes.config import *
@@ -56,13 +59,13 @@ import Products.MimetypesRegistry
 import Products.PortalTransforms
 import Products.generator
 import Products.validation
-at_info = getPkgInfo(this_module)
+
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
 gen_info = getPkgInfo(Products.generator)
 val_info = getPkgInfo(Products.validation)
 
-at_version = at_info.version
+at_version = __version__
 for info in (mtr_info, pt_info, gen_info, val_info, ):
     if not hasattr(info, 'at_versions'):
         raise RuntimeError('The product %s has no at_versions assigend. ' \
@@ -91,7 +94,7 @@ def initialize(context):
                    product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
-                   
+
     from Products.Archetypes.customizationpolicy import registerPolicy
     registerPolicy(context)
 
@@ -115,4 +118,3 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
-
