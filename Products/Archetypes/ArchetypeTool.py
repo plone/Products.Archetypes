@@ -714,7 +714,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([('', '<any>')]) + \
+                        field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
                                            field.vocabulary
                     widget.populate = 0
                     field_name = field.accessor
