@@ -15,7 +15,7 @@ CMFCatalogAware._at_orig_manage_beforeDelete = CMFCatalogAware.manage_beforeDele
 CMFCatalogAware.manage_beforeDelete = manage_beforeDelete
 
 def _notifyOfCopyTo(self, container, op=0):
-    self._at_orig_notifyOfCopyTo(self, container, op=op)
+    self._at_orig_notifyOfCopyTo(container, op=op)
     # keep reference info internally when op == 1 (move)
     # because in those cases we need to keep refs
     if op==1: self._v_cp_refs = 1
