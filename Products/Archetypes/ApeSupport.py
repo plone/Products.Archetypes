@@ -7,10 +7,12 @@
 
 #  Whats working so far:
 #  The following types are handled so far:
-#     - string,int
-#  References,images are not yet supported
-#  there are also problems with PortalTransforms
-#  (this lies somewhere in APE)
+#  - string,int
+
+#  Whats not working so far:
+
+#  - References,images are not yet supported
+#  - Renaming of objects generates errors
 
 #  ArchGenXML has support for APE:
 #  when you invoke ArchGenXML with the option --ape-support
@@ -52,7 +54,7 @@ def AtType2ApeType(f):
     if t=='reference':
         #print 'REF:',f.getName(),f.multiValued
         if f.multiValued:
-            return 'string:list'
+            return 'string'
         else:
             return 'string'
     if t=='computed':
