@@ -8,7 +8,7 @@ from debug import log, log_exc
 from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
-
+from I18NMixin import I18NMixin
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
@@ -121,3 +121,14 @@ class BaseContent(BaseObject, Referenceable,
 
 InitializeClass(BaseContent)
 
+
+class I18NBaseContent(I18NMixin, BaseContent):
+    """ override BaseContent to have I18N title and description,
+    plus I18N related actions
+    """
+    
+    schema = BaseContent.schema + I18NMixin.schema
+
+
+InitializeClass(I18NBaseContent)
+    
