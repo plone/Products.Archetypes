@@ -16,6 +16,8 @@ class TypesWidget(macrowidget):
         'postback' : 1,  # should this field be repopulated with POSTed
                          # value when an error occurs?
         'show_content_type' : 0,
+        'helper_js': (),
+        'helper_css': (),
         })
 
     def getName(self):
@@ -211,6 +213,9 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
+        'helper_js': ('jscalendar/calendar_stripped.js',
+                      'jscalendar/calendar-en.js'),
+        'helper_css': ('jscalendar/calendar-system.css',),
         })
 
 class SelectionWidget(TypesWidget):
