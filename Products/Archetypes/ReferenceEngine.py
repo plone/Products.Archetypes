@@ -1,9 +1,8 @@
 import os
+import sys
 from types import StringType, UnicodeType
 import time
 import urllib
-
-from Acquisition import aq_base
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -12,12 +11,11 @@ from Products.Archetypes.interfaces.referenceengine import \
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
 from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
+     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
@@ -33,9 +31,7 @@ from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from ZODB.POSException import ConflictError
-
 import zLOG
-import sys
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -302,6 +298,25 @@ class UIDBaseCatalog(PluggableCatalog):
 class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
 
+_marker=[]
+
+##class CatalogObjectWrapper:
+##    """
+##    """
+##
+##    def __init__(self, context, obj):
+##        self._context = context
+##        self._obj = obj
+##        self._clean_obj = aq_base(obj)
+##        
+##    def __getattr__(self, key, default=None):
+##        if key == 'getPhysicalPath':
+##            return getRelPath(self._context, self._obj.getPhysicalPath())
+##        if getattr(self._clean_obj, key, _marker) is not _marker:
+##            return getattr(self._obj, key)
+##        else:
+##            return default
+
 class ReferenceResolver(Base):
 
     security = ClassSecurityInfo()
@@ -321,16 +336,87 @@ class ReferenceResolver(Base):
 
         return portal_object.unrestrictedTraverse(path)
 
+    def catalog_object(self, obj, uid=None, **kwargs):
+        """Use the relative path from the portal root as uid
+        
+        Ordinary the catalog is using the path from root towards object but we
+        want only a relative path from the portal root
+        
+        Note: This method could be optimized by improving the calculation of the
+              relative path like storing the portal root physical path in a
+              _v_ var.
+        """
+        portal_path_len = getattr(aq_base(self), '_v_portal_path_len', None)
+
+        if not portal_path_len:
+            # cache the lenght of the portal path in a _v_ var
+            urlTool = getToolByName(self, 'portal_url')
+            portal_path = urlTool.getPortalObject().getPhysicalPath()
+            portal_path_len = len(portal_path)
+            self._v_portal_path_len = portal_path_len
+
+        relpath = obj.getPhysicalPath()[portal_path_len:]
+        uid = '/'.join(relpath)
+        ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
+        ZCatalog.catalog_object(self, obj, uid, **kwargs)
+
 InitializeClass(ReferenceResolver)
 
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
+    security = ClassSecurityInfo()
     id = UID_CATALOG
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
+    
+    manage_options = ZCatalog.manage_options + \
+        ({'label': 'Rebuild catalog',
+         'action': 'manage_rebuildCatalog',}, )
+         
     
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = UIDBaseCatalog()
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
+    def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
+        """
+        """
+        elapse = time.time()
+        c_elapse = time.clock()
+
+        atool   = getToolByName(self, TOOL_NAME)
+        func    = self.catalog_object
+        obj     = aq_parent(self)
+        path    = '/'.join(obj.getPhysicalPath())
+        if not REQUEST:
+            REQUEST = self.REQUEST
+        
+        # build a list of archetype meta types
+        mt = tuple([typ['meta_type'] for typ in atool.listRegisteredTypes()])
+        
+        # clear the catalog
+        self.manage_catalogClear()
+
+        # find and catalog objects
+        self.ZopeFindAndApply(obj,
+                              obj_metatypes=mt,
+                              search_sub=1,
+                              REQUEST=REQUEST,
+                              apply_func=func,
+                              apply_path=path)
+
+        elapse = time.time() - elapse
+        c_elapse = time.clock() - c_elapse
+
+        if RESPONSE:
+            RESPONSE.redirect(
+            REQUEST.URL1 +
+            '/manage_catalogView?manage_tabs_message=' +
+            urllib.quote('Catalog Rebuilded\n'
+                         'Total time: %s\n'
+                         'Total CPU time: %s'
+                         % (`elapse`, `c_elapse`))
+            )
 
 
 class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
@@ -340,6 +426,10 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     manage_options = ZCatalog.manage_options
 
     # XXX FIXME more security
+
+    manage_options = ZCatalog.manage_options + \
+        ({'label': 'Rebuild catalog',
+         'action': 'manage_rebuildCatalog',}, )
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
@@ -620,6 +710,43 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
+    def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
+        """
+        """
+        elapse = time.time()
+        c_elapse = time.clock()
+
+        atool   = getToolByName(self, TOOL_NAME)
+        func    = self.catalog_object
+        obj     = aq_parent(self)
+        path    = '/'.join(obj.getPhysicalPath())
+        if not REQUEST:
+            REQUEST = self.REQUEST
+        
+        # build a list of archetype meta types
+        mt = tuple([typ['meta_type'] for typ in atool.listRegisteredTypes()])
+        
+        # clear the catalog
+        self.manage_catalogClear()
+
+        # find and catalog objects
+        self._catalogReferences(obj,
+                                obj_metatypes=mt,
+                                REQUEST=REQUEST)
+
+        elapse = time.time() - elapse
+        c_elapse = time.clock() - c_elapse
+
+        if RESPONSE:
+            RESPONSE.redirect(
+            REQUEST.URL1 +
+            '/manage_catalogView?manage_tabs_message=' +
+            urllib.quote('Catalog Rebuilded\n'
+                         'Total time: %s\n'
+                         'Total CPU time: %s'
+                         % (`elapse`, `c_elapse`))
+            )
 
 InitializeClass(ReferenceCatalog)
 
