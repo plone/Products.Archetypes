@@ -8,6 +8,8 @@ from AccessControl import allow_class
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
+from zLOG import LOG, PROBLEM
+
 ###
 ## security
 ###
@@ -101,5 +103,8 @@ def initialize(context):
     except ImportError:
         pass
 
-    context.registerHelpTitle('Archetypes Help')
-    context.registerHelp(directory='interfaces')
+    try:
+        context.registerHelpTitle('Archetypes Help')
+        context.registerHelp(directory='interfaces')
+    except IndexError:
+        LOG('Archetypes', PROBLEM, 'Can\'t register api help')
