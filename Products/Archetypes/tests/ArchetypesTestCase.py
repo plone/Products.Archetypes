@@ -94,7 +94,7 @@ else:
             noSecurityManager()
             get_transaction().commit()
             if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
-        elif not hasattr(aq_base(portal.portal_types), 'DDocument'):
+        elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
             _start = time.time()
             if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
             # Login as portal owner

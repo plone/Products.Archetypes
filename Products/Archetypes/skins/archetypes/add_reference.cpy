@@ -67,9 +67,9 @@ else:
 # reference source object is saved (i.e. current behaviour remains).
 if add_reference['field'] in req_get('associate_ref', []):
     if field.multiValued:
-        field.set(context, field.get(context) + [reference_object])
+        field.getMutator(context)(field.getAccessor(context)() + [reference_object])
     else:
-        field.set(context, reference_object) 
+        field.getMutator(context)(reference_object) 
 
 info = {'reference_source_field':add_reference['field'],
         'reference_source_url':portal.portal_url.getRelativeUrl(context),

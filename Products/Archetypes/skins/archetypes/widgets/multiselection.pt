@@ -37,6 +37,7 @@
 	       value nocall:item;"
 	       />
           <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
+                 i18n:translate=""
                  tal:attributes="for string:${fieldName}_${tabindex}" />
 	      <br />
 	    </tal:block>

@@ -60,6 +60,7 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -93,7 +94,7 @@ __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
-    if type(value) is type(u''):
+    if type(value) is UnicodeType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -107,7 +108,7 @@ def encode(value, instance, **kwargs):
 
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
-    if type(value) is type(''):
+    if type(value) is StringType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -161,7 +162,7 @@ class Field(DefaultLayerContainer):
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'index_method' : '_at_accessor', # method used for the index
-                                         # _at_accessor an _at_edit_accessor 
+                                         # _at_accessor an _at_edit_accessor
                                          # are the accessor and edit accessor
         'schemata' : 'default',
         'languageIndependent' : False,
@@ -257,8 +258,9 @@ class Field(DefaultLayerContainer):
             if len(validators):
                 # insert isEmpty validator at position 0 if first validator
                 # is not isEmpty
-                if not validators[0][0].name == 'isEmpty':
-                    validators.insertSufficient('isEmpty')
+                if not validators[0][0].name.startswith('isEmpty'):
+                    validators.insertSufficient('isEmptyNoError')
+                    #validators.insertSufficient('isEmpty')
             else:
                 validators.insertSufficient('isEmpty')
 
@@ -346,7 +348,7 @@ class Field(DefaultLayerContainer):
             for v in vocab:
                 if type(v) in (TupleType, ListType):
                     v = v[0]
-                if not type(v) in [type(''), type(u'')]:
+                if not type(v) in STRING_TYPES:
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -428,14 +430,14 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
-            elif type(sample) in [TupleType, ListType]:
+            elif type(sample) in (TupleType, ListType):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if sample and len(sample[0]) != 2:
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
-            elif len(sample) and type(sample[0]) == type(''):
+            elif len(sample) and type(sample[0]) is StringType:
                 value = DisplayList(zip(value, value))
             else:
                 log("Unhandled type in Vocab")
@@ -688,7 +690,7 @@ class ObjectField(Field):
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
-        
+
         Should be overwritte by special fields like FileField. It's safe for
         fields which are storing strings, ints and BaseUnits but it won't return
         the right results for fields containing OFS.Image.File instances or
@@ -868,7 +870,7 @@ class FileField(ObjectField):
         setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         delattr(obj, 'title')
-        
+
         return obj
 
     security.declarePrivate('getBaseUnit')
@@ -1049,7 +1051,7 @@ class TextField(FileField):
 
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
-        if type(value) is type(u'') and encoding is None:
+        if type(value) is UnicodeType and encoding is None:
             encoding = 'UTF-8'
 
         # fix for external editor support
@@ -1228,6 +1230,9 @@ class FixedPointField(ObjectField):
         else:
             fra = value[1][:self.precision]
             fra += '0' * (self.precision - len(fra))
+            #handle leading comma e.g. .36
+            if value[0]=='':
+                value[0]='0'
             value = (int(value[0]), int(fra))
         return value
 
@@ -1242,7 +1247,7 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.getDefault(instance)
-        if type(value) in [StringType]: value = self._to_tuple(instance, value)
+        if type(value) in (StringType,): value = self._to_tuple(instance, value)
         return template % value
 
     security.declarePrivate('validate_required')
@@ -1285,20 +1290,21 @@ class ReferenceField(ObjectField):
 
     security  = ClassSecurityInfo()
 
+
     security.declarePrivate('get')
     def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
         """
-        res=instance.getRefs(relationship=self.relationship)
+        res = instance.getRefs(relationship=self.relationship)
 
-        #singlevalued ref fields return only the object, not a list,
-        #unless explicitely specified by the aslist option
+        # singlevalued ref fields return only the object, not a list,
+        # unless explicitely specified by the aslist option
         if not self.multiValued and not aslist:
             if res:
                 assert len(res) == 1
-                res=res[0]
+                res = res[0]
             else:
-                res=None
+                res = None
 
         return res
 
@@ -1316,7 +1322,8 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if not self.multiValued and value and type(value) not in (type(()),type([])):
+        if (not self.multiValued and value and
+            type(value) not in (ListType, TupleType)):
             value = (value,)
 
         if not value:
@@ -1325,7 +1332,7 @@ class ReferenceField(ObjectField):
         #convertobjects to uids if necessary
         uids=[]
         for v in value:
-            if type(v) in (type(''),type(u'')):
+            if type(v) in STRING_TYPES:
                 uids.append(v)
             else:
                 uids.append(v.UID())
@@ -1380,12 +1387,13 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
+        purl = getToolByName(content_instance, 'portal_url')
 
-        allowed_types=self.allowed_types
-        allowed_types_method=getattr(self,'allowed_types_method',None)
+        allowed_types = self.allowed_types
+        allowed_types_method = getattr(self, 'allowed_types_method', None)
         if allowed_types_method:
-            meth=getattr(content_instance,allowed_types_method)
-            allowed_types=meth(self)
+            meth = getattr(content_instance,allowed_types_method)
+            allowed_types = meth(self)
 
         skw = allowed_types and {'portal_type':allowed_types} or {}
         brains = uc.searchResults(**skw)
@@ -1404,18 +1412,20 @@ class ReferenceField(ObjectField):
         # information from, however the workflow and perms are not accounted
         # for there. We thus check each object in the portal catalog
         # to ensure it validity for this user.
-        portal_base = getToolByName(content_instance,'portal_url').getPortalPath()
-        path_offset = len(getToolByName(content_instance,'portal_url').getPortalPath())+1
+        portal_base = purl.getPortalPath()
+        path_offset = len(portal_base) + 1
+
         abs_paths = {}
-        def assign(x, y): abs_paths[x]=y
-        [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
-        #[assign("%s" %(b.getPath()), b) for b in brains]
+        abs_path = lambda b, p=portal_base: '%s/%s' % (p, b.getPath())
+        [abs_paths.update({abs_path(b):b}) for b in brains]
 
         pc_brains = pc(path=abs_paths.keys(), **skw)
 
         for b in pc_brains:
-            #translate abs path to rel path since uid_cat stores paths relative now
-            path=b.getPath()[path_offset:]
+            b_path = b.getPath()
+            # translate abs path to rel path since uid_cat stores
+            # paths relative now
+            path = b_path[path_offset:]
             # The reference field will not expose Refrerences by
             # default, this is a complex use-case and makes things too hard to
             # understand for normal users. Because of reference class
@@ -1428,16 +1438,16 @@ class ReferenceField(ObjectField):
             # now check if the results from the pc is the same as in uc.
             # so we verify that b is a result that was also returned by uc,
             # hence the check in abs_paths.
-            if abs_paths.has_key(b.getPath()):
-                uid = abs_paths[b.getPath()].UID
+            if abs_paths.has_key(b_path):
+                uid = abs_paths[b_path].UID
                 if uid is None:
                     # the brain doesn't have an uid because the catalog has a
                     # staled object. THAT IS BAD!
-                    raise ReferenceExeption("Brain for the object at %s "\
+                    raise ReferenceException("Brain for the object at %s "\
                         "doesn't have an UID assigned with. Please update your"\
-                        " reference catalog!" % b.getPath())
+                        " reference catalog!" % b_path)
                 pairs.append((uid, label(b)))
-         
+
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
                                           msgid='label_no_reference',
@@ -1534,7 +1544,7 @@ class CMFObjectField(ObjectField):
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
-        if type(value) != StringType:
+        if type(value) is not StringType:
             if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
@@ -1685,6 +1695,7 @@ class ImageField(FileField):
         'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
+        'swallowResizeExceptions' : False,
         'default_content_type' : 'image/png',
         'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
@@ -1720,7 +1731,16 @@ class ImageField(FileField):
         kwargs['filename'] = filename
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
-        imgdata = self.rescaleOriginal(value, **kwargs)
+        try:
+            imgdata = self.rescaleOriginal(value, **kwargs)
+        except ConflictError:
+            raise
+        except:
+            if not self.swallowResizeExceptions:
+                raise
+            else:
+                imgdata = value
+                log_exc()
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
         self.createScales(instance)
@@ -1840,7 +1860,17 @@ class ImageField(FileField):
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
-            imgdata, format = self.scale(data, w, h)
+            try:
+                imgdata, format = self.scale(data, w, h)
+            except ConflictError:
+                raise
+            except:
+                if not self.swallowResizeExceptions:
+                    raise
+                else:
+                    log_exc()
+                    # scaling failed, don't create a scaled version
+                    continue
             image = self.content_class(id, self.getName(),
                                      imgdata,
                                      'image/%s' % format
@@ -1886,7 +1916,7 @@ class ImageField(FileField):
         image.save(thumbnail_file, format, quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
-    
+
     security.declareProtected(CMFCorePermissions.View, 'getSize')
     def getSize(self, instance, scale=None):
         """get size of scale or original
@@ -1895,7 +1925,7 @@ class ImageField(FileField):
         if not img:
             return 0, 0
         return img.width, img.height
-        
+
     security.declareProtected(CMFCorePermissions.View, 'getScale')
     def getScale(self, instance, scale=None, **kwargs):
         """Get scale by name or original
@@ -1932,10 +1962,10 @@ class ImageField(FileField):
         sizes = self.getAvailableSizes(instance)
         size=0
         size+=len(str(self.get(instance)))
-        
+
         if sizes:
             for name in sizes.keys():
-                id = self.getScaleName(scale=name)        
+                id = self.getScaleName(scale=name)
                 try:
                     data = self.getStorage(instance).get(id, instance)
                 except AttributeError:
@@ -1965,14 +1995,14 @@ class ImageField(FileField):
         url = instance.absolute_url()
         if scale:
             url+='/' + self.getScaleName(scale)
-            
+
         values = {'src' : url,
                   'alt' : alt and alt or instance.Title(),
                   'title' : title and title or instance.Title(),
                   'height' : height,
                   'width' : width,
-                 } 
-        
+                 }
+
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
                  'width="%(width)s" height="%(height)s"' % values
 

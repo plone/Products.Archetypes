@@ -50,6 +50,7 @@ def UID(obj):
     return uid
 
 def manage_afterAdd(self, item, container):
+    res = self.__test_manage_afterAdd__(item, container)
     uid = UID(self)
     ADD_COUNTER.add(uid)
     if DEBUG_CALL:
@@ -57,7 +58,7 @@ def manage_afterAdd(self, item, container):
                       (uid, ADD_COUNTER.get(uid)),
                       UserWarning,
                       WARNING_LEVEL)
-    return self.__test_manage_afterAdd__(item, container)
+    return res
 
 def manage_beforeDelete(self, item, container):
     uid = UID(self)
@@ -105,9 +106,8 @@ class RenameTests(ArcheSiteTestCase):
         doc = makeContent(self.folder, portal_type='Fact', id=obj_id)
         content = 'The book is on the table!'
         doc.setQuote(content, mimetype="text/plain")
-        orig_url = doc.absolute_url()
         self.failUnless(str(doc.getQuote()) == str(content))
-        #make sure we have _p_jar
+        # make sure we have _p_jar
         get_transaction().commit(1)
         self.folder.manage_renameObject(obj_id, new_id)
         doc = getattr(self.folder, new_id)
@@ -115,13 +115,10 @@ class RenameTests(ArcheSiteTestCase):
         uid = UID(doc)
         # Should call afterAdd twice, one for the object
         # creation and another for the rename
-        self.assertEquals(ADD_COUNTER.get(orig_url), 1)
-        self.assertEquals(ADD_COUNTER.get(uid), 1)
+        self.assertEquals(ADD_COUNTER.get(uid), 2)
         # Should call beforeDelete once, when renaming the object
-        self.assertEquals(DELETE_COUNTER.get(orig_url), 0)
         self.assertEquals(DELETE_COUNTER.get(uid), 1)
         # Should never call afterClone
-        self.assertEquals(CLONE_COUNTER.get(orig_url), 0)
         self.assertEquals(CLONE_COUNTER.get(uid), 0)
 
     def getCounts(self, obj):
@@ -135,11 +132,9 @@ class RenameTests(ArcheSiteTestCase):
         # and manage_beforeDelete. (bug #905677)
         populateFolder(self.folder, 'SimpleFolder', 'DDocument')
         d = self.folder.folder2.folder22.folder221.doc2211
-        orig_url = d.absolute_url()
         uid = UID(d)
-        # Called afterAdd once, when the object didn't had a UID
-        self.assertEquals(ADD_COUNTER.get(orig_url), 1)
-        self.assertEquals(ADD_COUNTER.get(uid), 0)
+        # Called afterAdd once
+        self.assertEquals(ADD_COUNTER.get(uid), 1)
         # Never called beforeDelete or afterClone
         self.assertEquals(DELETE_COUNTER.get(uid), 0)
         self.assertEquals(CLONE_COUNTER.get(uid), 0)
@@ -173,15 +168,17 @@ class RenameTests(ArcheSiteTestCase):
         cb = self.folder.manage_copyObjects(['new_folder2'])
         self.folder.manage_pasteObjects(cb)
 
-        # Should call manage_afterAdd and manage_afterClone,
-        # no call to manage_beforeDelete
-        expected = (d_count[0]+1, d_count[1]+0, d_count[2]+1)
+        # Should *not* call manage_afterAdd or manage_afterClone,
+        # or to manage_beforeDelete for the source object.
+        expected = (d_count[0], d_count[1], d_count[2])
         got = self.getCounts(d)
         self.assertEquals(got, expected)
 
         new_d = self.folder.copy_of_new_folder2.folder22.new_folder221.doc2211
         got = self.getCounts(new_d)
-        self.assertEquals(got, (0, 0, 0))
+        # Should have called manage_afterAdd and manage_afterClone for
+        # the *new* object.
+        self.assertEquals(got, (1, 0, 1))
 
 def test_suite():
     from unittest import TestSuite, makeSuite

@@ -12,7 +12,9 @@ from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList
 
-class ReferenceableTests(ArcheSiteTestCase):
+class BaseReferenceableTests(ArcheSiteTestCase):
+
+    FOLDER_TYPE = None
 
     def verifyBrains(self):
         uc = getattr(self.portal, UID_CATALOG)
@@ -58,12 +60,12 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
-        self.failUnless(doc.UID() == UID)
+        self.assertEquals(doc.UID(), UID)
 
 
     def test_renameKeepsReferences(self):
         container = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='container')
 
@@ -100,7 +102,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         # test for #956677: renaming the container causes contained objects
         #                   to lose their refs
         container = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='container')
         obj1 = makeContent(self.folder.container,
@@ -130,7 +132,7 @@ class ReferenceableTests(ArcheSiteTestCase):
     def test_renamecontainerKeepsReferences2( self ):
         # test for [ 1013363 ] References break on folder rename
         folderA = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderA')
         objA = makeContent(self.folder.folderA,
@@ -139,24 +141,23 @@ class ReferenceableTests(ArcheSiteTestCase):
                            id='objA')
 
         folderB = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderB')
         objB = makeContent(self.folder.folderB,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='objB')
-                                                                                 
+
         objA.addReference(objB)
 
-        a,b = self.verifyBrains()
+        a, b = self.verifyBrains()
         get_transaction().commit(1)
 
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
 
         # now rename folder B and see if objA still points to objB
-
         self.folder.manage_renameObject(id='folderB',
                                         new_id='folderC')
         c, d = self.verifyBrains()
@@ -164,7 +165,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         # check references
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
-        
+
     def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
 
@@ -189,8 +190,8 @@ class ReferenceableTests(ArcheSiteTestCase):
         UID2 = doc2.UID()
         self.failIf(UID == UID2)
         uniq = catalog.uniqueValuesFor('UID')
-        self.failUnless(UID in uniq)
-        self.failUnless(UID2 in uniq)
+        self.failUnless(UID in uniq, (UID, uniq))
+        self.failUnless(UID2 in uniq, (UID, uniq))
 
     def test_setUID_keeps_relationships(self):
         obj_id   = 'demodoc'
@@ -210,12 +211,12 @@ class ReferenceableTests(ArcheSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('KnowsAbout') == [b]
-        assert b.getRefs('KnowsAbout') == [a]
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('KnowsAbout'), [b])
+        self.assertEquals(b.getRefs('KnowsAbout'), [a])
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
 
         old_uid = a.UID()
 
@@ -256,12 +257,12 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.assertEquals(new_refs[0], new_uid)
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('KnowsAbout') == [b]
-        assert b.getRefs('KnowsAbout') == [a]
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('KnowsAbout'), [b])
+        self.assertEquals(b.getRefs('KnowsAbout'), [a])
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
 
         self.verifyBrains()
 
@@ -283,17 +284,17 @@ class ReferenceableTests(ArcheSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
         rels = a.getRelationships()
-        assert "KnowsAbout" in rels
-        assert "Owns" in rels
+        self.failUnless("KnowsAbout" in rels, ("KnowsAbout", rels))
+        self.failUnless("Owns" in rels, ("Owns", rels))
 
         a.deleteReference(c, "Owns")
-        assert a.getRefs() == [b]
-        assert c.getBRefs() == []
+        self.assertEquals(a.getRefs(), [b])
+        self.assertEquals(c.getBRefs(), [])
 
     def test_back_relationships(self):
 
@@ -322,24 +323,24 @@ class ReferenceableTests(ArcheSiteTestCase):
         payment2.addReference(account, "From")
 
         brels = account.getBRelationships()
-        assert brels == ['From']
+        self.assertEquals(brels, ['From'])
         brefs = account.getBRefs('From')
-        assert brefs == [payment, payment2]
+        self.assertEquals(brefs, [payment, payment2])
 
         brels = payment.getBRelationships()
-        assert brels == ['Owns']
+        self.assertEquals(brels, ['Owns'])
         brefs = payment.getBRefs('Owns')
-        assert brefs == [invoice]
+        self.assertEquals(brefs, [invoice])
 
         brels = payment2.getBRelationships()
-        assert brels == ['Owns']
+        self.assertEquals(brels, ['Owns'])
         brefs = payment2.getBRefs('Owns')
-        assert brefs == [future_payment]
+        self.assertEquals(brefs, [future_payment])
 
         invoice.deleteReference(payment, "Owns")
 
-        assert invoice.getRefs() == [future_payment]
-        assert payment.getBRefs() == []
+        self.assertEquals(invoice.getRefs(), [future_payment])
+        self.assertEquals(payment.getBRefs(), [])
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
@@ -352,58 +353,61 @@ class ReferenceableTests(ArcheSiteTestCase):
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
 
-        assert len(a.getRefs('KnowsAbout')) == 1
+        self.assertEquals(len(a.getRefs('KnowsAbout')),  1)
 
         #In this case its a different relationship
         a.addReference(b, 'Flogs')
-        assert len(a.getRefs('KnowsAbout')) == 1
-        assert len(a.getRefs()) == 2
+        self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
+        self.assertEquals(len(a.getRefs()), 2)
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
         at = self.portal.archetype_tool
 
-        folder = makeContent( self.folder, portal_type='SimpleFolder',
+        folder = makeContent( self.folder, portal_type=self.FOLDER_TYPE,
                               title='Foo', id='folder')
         nonRef = makeContent( folder, portal_type='Document',
                               title='Foo', id='nonRef')
 
         fuid = folder.UID()
         nuid = nonRef.UID()
-        #We expect this to break, an aq_explicit would fix it but
-        #we can't change the calling convention
+        # We expect this to break, an aq_explicit would fix it but
+        # we can't change the calling convention
         # XXX: but proxy index could
-        #XXX: assert fuid != nuid
+        # XXX: assert fuid != nuid
 
     def test_hasRelationship(self):
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument',title='Foo', id='c')
+
+        # Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+
+        self.assertEquals(a.hasRelationshipTo(b), 1)
+        self.assertEquals(a.hasRelationshipTo(b, "KnowsAbout"), 1)
+        self.assertEquals(a.hasRelationshipTo(b, "Foo"), 0)
+        self.assertEquals(a.hasRelationshipTo(c), 0)
+        self.assertEquals(a.hasRelationshipTo(c, "KnowsAbout"), 0)
+
+        # XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
+
+    def test_graph(self):
+        if not HAS_GRAPHVIZ:
+            return
+
+        # This just asserts that nothing went wrong
+        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
         c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
 
-        #Two made up kinda refs
+        # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
-
-        assert a.hasRelationshipTo(b) == 1
-        assert a.hasRelationshipTo(b, "KnowsAbout") == 1
-        assert a.hasRelationshipTo(b, "Foo") == 0
-        assert a.hasRelationshipTo(c) == 0
-        assert a.hasRelationshipTo(c, "KnowsAbout") == 0
-
-        #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
-
-
-    def test_graph(self):
-        if HAS_GRAPHVIZ:
-            # This just asserts that nothing went wrong
-            a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
-            b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
-            c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
-
-            #Two made up kinda refs
-            a.addReference(b, "KnowsAbout")
-            c.addReference(a, "Owns")
-            assert a.getReferenceMap()
-            assert a.getReferencePng()
+        c.addReference(a, "Owns")
+        refmap = a.getReferenceMap()
+        self.failUnless(refmap, refmap)
+        png = a.getReferencePng()
+        self.failUnless(png, png)
 
 
     def test_folderishDeleteCleanup(self):
@@ -414,27 +418,26 @@ class ReferenceableTests(ArcheSiteTestCase):
         b = makeContent(folder, portal_type='DDocument',title='Bar', id='b')
         a.addReference(b, "KnowsAbout")
 
-        #again, lets assert the sanity of the UID and Ref Catalogs
+        # Again, lets assert the sanity of the UID and Ref Catalogs
         uc = self.portal.uid_catalog
         rc = self.portal.reference_catalog
 
         uids = uc.uniqueValuesFor('UID')
-        assert a.UID() in uids
-        assert b.UID() in uids
+        self.failUnless(a.UID() in uids, (a.UID(), uids))
+        self.failUnless(b.UID() in uids, (b.UID(), uids))
 
         refs = rc()
-        assert len(refs) == 1
+        self.assertEquals(len(refs), 1)
         ref = refs[0].getObject()
-        assert ref.targetUID == b.UID()
-        assert ref.sourceUID == a.UID()
+        self.assertEquals(ref.targetUID, b.UID())
+        self.assertEquals(ref.sourceUID, a.UID())
 
-        #Now Kill the folder and make sure it all went away
+        # Now Kill the folder and make sure it all went away
         self.folder._delObject("reftest")
         self.verifyBrains()
 
         uids = uc.uniqueValuesFor('UID')
-        #assert len(uids) == 0
-        assert len(rc()) == 0
+        self.assertEquals(len(rc()), 0)
 
     def test_reindexUIDCatalog(self):
         catalog = self.portal.uid_catalog
@@ -470,17 +473,20 @@ class ReferenceableTests(ArcheSiteTestCase):
         test125 = makeContent(self.folder, portal_type="Refnode",
                               id="Test125")
 
+        field = dummy.Schema()['adds']
+
         expected = DisplayList([
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+        self.assertEquals(field.Vocabulary(dummy), expected)
 
         # We should have the option of nothing
-        dummy.Schema()['adds'].required = 0
-        dummy.Schema()['adds'].multiValued = 0
+        field = field.copy()
+        field.required = 0
+        field.multiValued = 0
 
         expected = DisplayList([
             ('', '<no reference>'),
@@ -489,7 +495,7 @@ class ReferenceableTests(ArcheSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+        self.assertEquals(field.Vocabulary(dummy), expected)
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference
@@ -516,11 +522,11 @@ class ReferenceableTests(ArcheSiteTestCase):
         # in another folder, pasted object should lose all references
         # added by GL (for bug #985393)
         org_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Origin folder',
                                  id='org_folder')
         dst_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Destination folder',
                                  id='dst_folder')
         a = makeContent(org_folder, portal_type='DDocument', id='a')
@@ -534,9 +540,15 @@ class ReferenceableTests(ArcheSiteTestCase):
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
 
-        # The copy should'nt have references
+        # The copy should get a new UID
+        a_uid = a.UID()
+        ca_uid = copy_a.UID()
+        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+
+        # The copy shouldn't have references
         self.failUnlessEqual(copy_a.getRefs(), [])
         self.failIf(copy_a in b.getBRefs())
+
 
         # Original object should keep references
         self.failUnlessEqual(a.getRefs(), [b])
@@ -547,11 +559,11 @@ class ReferenceableTests(ArcheSiteTestCase):
         # in another folder, pasted object should keep the references
         # added by GL (for bug #985393)
         org_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Origin folder',
                                  id='org_folder')
         dst_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Destination folder',
                                  id='dst_folder')
         a = makeContent(org_folder, portal_type='DDocument', id='a')
@@ -565,11 +577,17 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnlessEqual(copy_a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [copy_a])
 
+class SimpleFolderReferenceableTests(BaseReferenceableTests):
+    FOLDER_TYPE = 'SimpleFolder'
+
+class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
+    FOLDER_TYPE = 'SimpleBTreeFolder'
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(ReferenceableTests))
+    suite.addTest(makeSuite(SimpleFolderReferenceableTests))
+    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
 
 if __name__ == '__main__':

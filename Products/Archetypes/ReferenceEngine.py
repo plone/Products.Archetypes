@@ -171,28 +171,50 @@ InitializeClass(Reference)
 
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
-class ContentReference(Reference, ObjectManager):
+class ContentReference(ObjectManager, Reference):
     '''Subclass of Reference to support contentish objects inside references '''
 
     __implements__ = Reference.__implements__ + (IContentReference,)
+
+    def __init__(self, *args, **kw):
+        Reference.__init__(self, *args, **kw)
+
 
     security = ClassSecurityInfo()
     # XXX FIXME more security
 
     def addHook(self, *args, **kw):
-        #creates the content instance
+        # creates the content instance
         if type(self.contentType) in (type(''),type(u'')):
-            #type given as string
+            # type given as string
             tt=getToolByName(self,'portal_types')
-            tt.constructContent(self.contentType,self,REFERENCE_CONTENT_INSTANCE_NAME)
+            tt.constructContent(self.contentType, self,
+                                REFERENCE_CONTENT_INSTANCE_NAME)
         else:
-            #type given as class
+            # type given as class
             setattr(self, REFERENCE_CONTENT_INSTANCE_NAME,
                     self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
             getattr(self, REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
 
+    def delHook(self, *args, **kw):
+        # remove the content instance
+        if type(self.contentType) in (type(''),type(u'')):
+            # type given as string
+            self._delObject(REFERENCE_CONTENT_INSTANCE_NAME)
+        else:
+            # type given as class
+            delattr(self, REFERENCE_CONTENT_INSTANCE_NAME)
+
     def getContentObject(self):
         return getattr(self.aq_inner.aq_explicit, REFERENCE_CONTENT_INSTANCE_NAME)
+
+    def manage_afterAdd(self, item, container):
+        Reference.manage_afterAdd(self, item, container)
+        ObjectManager.manage_afterAdd(self, item, container)
+
+    def manage_beforeDelete(self, item, container):
+        ObjectManager.manage_beforeDelete(self, item, container)
+        Reference.manage_beforeDelete(self, item, container)
 
 InitializeClass(ContentReference)
 
@@ -478,15 +500,18 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         if not referenceClass:
             referenceClass = Reference
 
+        annotation = sobj._getReferenceAnnotations()
+
         referenceObject = referenceClass(rID, sID, tID, relationship,
                                          **kwargs)
-        referenceObject = referenceObject.__of__(sobj)
+        # Must be wrapped into annotation context, or else
+        # it will get indexed *twice*, one time with the wrong path.
+        referenceObject = referenceObject.__of__(annotation)
         try:
             referenceObject.addHook(self, sobj, tobj)
         except ReferenceException:
             pass
         else:
-            annotation = sobj._getReferenceAnnotations()
             # This should call manage_afterAdd
             annotation._setObject(rID, referenceObject)
             return referenceObject

@@ -9,29 +9,30 @@
 ##title=Go Back
 ##
 from Products.CMFCore.utils import getToolByName
-SESSION = context.REQUEST.SESSION
-old_id = context.getId()
-cflag = SESSION.get('__creation_flag__', {})
+##SESSION = context.REQUEST.SESSION
+##old_id = context.getId()
+##cflag = SESSION.get('__creation_flag__', {})
 
-utool = getToolByName(context, 'portal_url')
-portal_object = utool.getPortalObject()
+#utool = getToolByName(context, 'portal_url')
+#portal_object = utool.getPortalObject()
 
 if context.isTemporary():
     # object was created using portal factory and it's just a temporary object
-    context.remove_creation_mark()
+    # XXX disabled mark creation flag
+    ##context.remove_creation_mark()
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
     portal_status_message=context.translate(
         msgid='message_add_new_item_cancelled',
         domain='archetypes',
         default='Add New Item operation was cancelled.')
-elif old_id in cflag.keys():
-    redirect_to = last_referer
-    context.remove_creation_mark()
-    context.aq_parent.manage_delObjects([old_id])
-    portal_status_message=context.translate(
-        msgid='message_edit_item_cancelled',
-        domain='archetypes',
-        default='Add new item operation was cancelled, object was removed.')
+##elif old_id in cflag.keys():
+##    redirect_to = last_referer
+##    context.remove_creation_mark()
+##    context.aq_parent.manage_delObjects([old_id])
+##    portal_status_message=context.translate(
+##        msgid='message_edit_item_cancelled',
+##        domain='archetypes',
+##        default='Add new item operation was cancelled, object was removed.')
 else:
     redirect_to = last_referer
     portal_status_message=context.translate(

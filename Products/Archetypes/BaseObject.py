@@ -97,9 +97,11 @@ class BaseObject(Referenceable):
             self.initializeLayers()
             self.setDefaults()
             if kwargs:
-                self.update(**kwargs)
+                self.edit(**kwargs)
             self._signature = self.Schema().signature()
-            self.markCreationFlag()
+            ## XXX mark creation flag makes lot's of noise and problems
+            ## and all functionality is available when using the portal factory
+            ## self.markCreationFlag()
         except ConflictError:
             raise
         except:

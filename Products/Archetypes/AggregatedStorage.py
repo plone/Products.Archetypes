@@ -27,6 +27,23 @@ class AggregatedStorage(Storage):
         self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
         self._caching = caching
         self._lock = Lock()
+        
+    def __getstate__(self):
+        """Override __getstate__ used for copy operations
+        
+        Required to fix the copy problem with the lock
+        """
+        state = self.__dict__
+        state['_lock'] = None
+        return state
+
+    def __setstate__(self, state):
+        """Override __setstate__ used for copy operations
+        
+        Required to fix the copy problem with the lock
+        """
+        state['_lock'] = Lock()
+        self.__dict__.update(state)
 
     def registerAggregator(self, fieldname, methodname):
         if self._reg_ag.get(fieldname):
