@@ -4,17 +4,17 @@ import Zope # Sigh, make product initialization happen
 
 try:
     Zope.startup()
-except: # Zope > 2.6
+except AttributeError: # Zope > 2.6
     pass
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
+from Products.Archetypes.BaseUnit import BaseUnit
 from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
 
 from DateTime import DateTime
-import unittest
 from copy import deepcopy
 
 schema = BaseSchema + Schema((
@@ -62,14 +62,13 @@ class Dummy(BaseContent):
     portal_properties = PortalProperties()
     mimetypes_registry = MimeTypesTool()
     
-    def __init__(self, oid, init_transforms=0, **kwargs):
+    def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
         if init_transforms:
             from Products.PortalTransforms import transforms
             transforms.initialize(self.portal_transforms)
 
-from Products.Archetypes.BaseUnit import BaseUnit
 BaseUnit.portal_properties = PortalProperties()
 
 def gen_dummy():

@@ -1,32 +1,13 @@
 import unittest
 
-import Zope # Sigh, make product initialization happen
+# that trigger zope import
+from test_classgen import Dummy
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
 
 from Products.Archetypes.Field import *
 from Products.PortalTransforms.MimeTypesRegistry import MimeTypesRegistry
 from Products.Archetypes.BaseUnit import BaseUnit
 
-class SiteProperties:
-    default_charset = 'UTF-8'
-    def getProperty(self, name, default=None):
-        return getattr(self, name, default)
-    
-class PortalProperties:
-    site_properties = SiteProperties()
-
-registry = MimeTypesRegistry()
-registry.portal_properties = PortalProperties()
-BaseUnit.portal_properties = PortalProperties()
-
-class Dummy:
-    portal_properties = PortalProperties()
-    mimetypes_registry = registry
-    
 instance = Dummy()
 
 class UnicodeStringFieldTest( unittest.TestCase ):

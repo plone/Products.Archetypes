@@ -26,13 +26,13 @@ class ContentTypeTest( unittest.TestCase ):
     def test_textfieldwithmime(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/x-rst')
-        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/x-rst')
+        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
 
     def test_textfieldwithmime2(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/structured')
-        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
+        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/structured')
 
     def test_textfieldwithoutmime(self):

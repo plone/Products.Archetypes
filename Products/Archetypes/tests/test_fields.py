@@ -73,7 +73,7 @@ class ProcessingTest( unittest.TestCase ):
             got = dummy.Schema()[k].get(dummy)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v)
+            self.assertEquals(got, v, '[%r] != [%r]'%(got, v))
 
     def test_processing_fieldset(self):
         dummy = self._dummy
@@ -84,10 +84,9 @@ class ProcessingTest( unittest.TestCase ):
         dummy.processForm()
         for k, v in expected_values.items():
             got = dummy.Schema()[k].get(dummy)
-            print File, type(File)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v)
+            self.assertEquals(got, v, '[%r] != [%r]'%(got, v))
 
     def tearDown(self):
         del self._dummy
