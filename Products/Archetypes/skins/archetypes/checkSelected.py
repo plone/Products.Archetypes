@@ -6,6 +6,34 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=item, value, contenttypes=0
+from Products.CMFCore.utils import getToolByName
+
+# get site encoding
+proptool = getToolByName(context, 'portal_properties')
+enc = proptool.site_properties.default_charset
+##if enc.lower() == 'utf8':
+##    enc = 'utf-8'
+
+if same_type(item, 0): item = str(item)
+if same_type(value, 0): value = str(value)
+
+if same_type(item, ''): 
+    try:
+        item = unicode(item, enc)
+    except UnicodeDecodeError:
+        try:
+            item = unicode(item, 'latin1')
+        except UnicodeDecodeError:
+            pass
+
+if same_type(value , ''): 
+    try:
+        value = unicode(value, enc)
+    except UnicodeDecodeError:
+        try:
+            value = unicode(value, 'latin1')
+        except UnicodeDecodeError:
+            pass
 
 # map from mimetypes used in allowable_content_types to mimetypes that are stored
 # in the base unit
