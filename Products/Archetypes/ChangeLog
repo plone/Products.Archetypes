@@ -1,3 +1,13 @@
+2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* skins/archetypes/widgets/multiselection.pt: Reverting Xiru's
+	changes and fixing accordingly. Include the default hidden field
+	if not required.
+
+	* Validators.py: Zope-dependent validators goes here.
+
+	* skins/archetypes/widgets/field.pt: Display content type if available.
+
 2003-07-15  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* BaseObject.py: Missing import.

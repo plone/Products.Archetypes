@@ -26,8 +26,12 @@
                    format python:test(field.widget.format,field.widget.format,'select');
                    vlen  python: len(vocab);">
 
-      <span tal:repeat="item vocab" tal:omit-tag=""
-            tal:condition="python:format=='checkbox'">
+        <input type="hidden"
+               value=""
+               tal:condition="not:field/required|nothing"
+               tal:attributes="name string:$fieldName:default:list;" />
+        <span tal:repeat="item vocab" tal:omit-tag=""
+              tal:condition="python:format=='checkbox'">
         <input
            tal:attributes="type string:checkbox;
                            name string:$fieldName:list;
