@@ -213,7 +213,7 @@ class Referenceable(Base):
         url = getRelURL(aq, self.getPhysicalPath())
         uc.uncatalog_object(url)
 
-    def _catalogRefs(self, aq, uc=None, rc=None):
+    def _catalogRefs(self, aq, uc=None, rc=None, ignoreExceptions=1):
         annotations = self._getReferenceAnnotations()
         if annotations:
             if not uc:
@@ -223,7 +223,16 @@ class Referenceable(Base):
             for ref in annotations.objectValues():
                 url = '/'.join(ref.getPhysicalPath())
                 uc.catalog_object(ref, url)
-                rc.catalog_object(ref, url)
+                try:
+                    rc.catalog_object(ref, url)
+                except AttributeError:
+                    #the AttributeError occurs after importing from a .zexp
+                    #file when at the moment of this call the target object has 
+                    #not yet been imported
+                    #for this case the restoring of references will happen in
+                    #a seperate run in the manage_afterAdd of BaseObject
+                    if not ignoreExceptions:
+                        raise
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()

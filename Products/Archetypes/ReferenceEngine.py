@@ -521,6 +521,28 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
         return 1
 
 
+    protect(CMFCorePermissions.ModifyPortalContent, 'catalogReferences')
+    def catalogReferences(self, ob=None):
+        '''
+        catalogs references for an object and all its 
+        subobjects. it uses portal_catalog to query all
+        objects within the specified object
+        '''
+        if not ob:
+            ob=getToolByName(self,'portal_url').getPortalObject()
+            
+        cat=getToolByName(self,'portal_catalog')
+        path='/'.join(ob.getPhysicalPath())
+        
+        rs=cat(path=path)
+        
+        for r in rs:
+            o=r.getObject()
+            if IReferenceable.isImplementedBy(o):
+                o._catalogRefs(self, ignoreExceptions=0)
+                
+                
+
 
 
 def manage_addReferenceCatalog(self, id, title,
