@@ -3,9 +3,8 @@ from Acquisition import Explicit
 from Globals import InitializeClass
 from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
-from OFS.content_types import find_binary
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
+from Products.PortalTransforms.utils import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
 from Products.PortalTransforms.mime_types import text_plain, \
      application_octet_stream
@@ -20,9 +19,6 @@ from webdav.WriteLockInterface import WriteLockInterface
 import os.path
 import re
 import urllib
-
-INITIAL_MIMETYPE = text_plain()
-BINARY_MIMETYPE = application_octet_stream()
 
 from config import *
 
@@ -52,17 +48,8 @@ class newBaseUnit(File):
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
 
-        try:
-            adapter = getToolByName(instance, 'mimetypes_registry')
-        except AttributeError, e:
-            # this occurs on object creation
-            if find_binary(data) is None:
-                data = data and unicode(data) or u''
-                mimetype = INITIAL_MIMETYPE
-            else:
-                mimetype = BINARY_MIMETYPE
-        else:
-            data, filename, mimetype = adapter(data, **kw)
+        adapter = getToolByName(instance, 'mimetypes_registry')
+        data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
         self.mimetype = mimetype

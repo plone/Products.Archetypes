@@ -2,6 +2,8 @@
 
 	* BaseUnit.py (newBaseUnit.update): Go with defaults, as we may
 	get a string on mimetype here, which is not what we want.
+	(newBaseUnit.update): Simplified a bit by using hacked
+	getToolByName from PortalTransforms.
 
 2003-09-22  Sidnei da Silva  <sidnei@plone.org>
 
