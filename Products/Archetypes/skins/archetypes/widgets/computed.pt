@@ -11,7 +11,8 @@
     <!-- Computed Widgets -->
 
     <metal:view_macro define-macro="view"
-                      tal:define="voc field/Vocabulary; key accessor;
+                      tal:define="voc python:field.Vocabulary(here);
+                                  key accessor;
                                   value python:voc and voc.getValue(key) or key"
 		      tal:replace="structure value" />
 

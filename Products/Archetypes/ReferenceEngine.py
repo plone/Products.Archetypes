@@ -193,9 +193,23 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         return result
 
     def getRelationships(self, object):
-        """Get all relationship types this object has to other objects"""
+        """
+        Get all relationship types this object has TO other objects
+        """
         sID, sobj = self._uidFor(object)
         brains = self._queryFor(sid=sID)
+        res = {}
+        for b in brains:
+            res[b.relationship]=1
+
+        return res.keys()
+
+    def getBackRelationships(self, object):
+        """
+        Get all relationship types this object has FROM other objects
+        """
+        sID, sobj = self._uidFor(object)
+        brains = self._queryFor(tid=sID)
         res = {}
         for b in brains:
             res[b.relationship]=1

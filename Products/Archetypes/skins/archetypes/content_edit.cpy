@@ -66,13 +66,27 @@ if reference_source_url is not None:
         msgid='message_reference_added',
         domain='archetypes',
         default='Reference Added.')
+
+    # update session saved data
+    SESSION = context.REQUEST.SESSION
+    saved_dic = SESSION.get(reference_obj.getId(), None)
+    if saved_dic:
+        saved_value = saved_dic.get(reference_source_field, None)
+        if same_type(saved_value, []):
+            # reference_source_field is a multiValued field, right!?
+            saved_value.append(new_context.UID())
+        else:
+            saved_value = new_context.UID()
+        saved_dic[reference_source_field] = saved_value
+        SESSION.set(reference_obj.getId(), saved_dic)
+    
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
         'portal_status_message':portal_status_message,
         'fieldset':reference_source_fieldset,
         'field':reference_source_field,
-        reference_source_field:new_context.UID(),
+        #reference_source_field:new_context.UID(),
         }
     return state.set(**kwargs)
 

@@ -46,6 +46,13 @@ class Referenceable(Base):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getRelationships(self)
 
+    def getBRelationships(self):
+        """
+        What kinds of relationships does this object have from others
+        """
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        return tool.getBackRelationships(self)
+
     def getRefs(self, relationship=None):
         """get all the referenced objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)

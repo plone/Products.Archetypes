@@ -24,7 +24,7 @@
         <ul tal:condition="field/multiValued">
           <li tal:repeat="obj targets">
             <a href="#"
-               tal:attributes="href obj/absolute_url"
+               tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
                tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
               Target Title
             </a>
@@ -40,6 +40,7 @@
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
+                         value python:request.form.get(fieldName, value);
                          fieldName python:multiVal and fieldName+':list' or fieldName;
                          vlen python:len(vocab);">
 
@@ -95,17 +96,16 @@
           <div tal:condition="widget/addable"
                tal:define="types python:widget.addableTypes(here, field)">
 
-            <a tal:attributes="id string:${field/getName}_link;
-                onclick string:${field/getName}_show()"
-                style="cursor:pointer"
-                tal:content="string:Add New ${widget/label}">add new</a>
+            <input type="button" class="context"
+                tal:attributes="id string:${field/getName}_link;
+                onclick string:${field/getName}_show();;return false;
+                value string:Add New ${widget/label};
+                tabindex tabindex/next" />
 
             <div tal:attributes="id string:${field/getName}_fieldset"
                  i18n:domain="archetypes"
                  style="display:none">
-              <a tal:attributes="onclick string:${field/getName}_hide()"
-                 style="cursor:pointer"
-                 i18n:translate="label_hide_add_form">hide add form</a>
+
               <fieldset>
                 <legend i18n:translate="legend_add_new">add new</legend>
                 <div class="field">
