@@ -3,14 +3,11 @@ from types import StringType, UnicodeType
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
-from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
+from Products.Archetypes.utils import unique, make_uuid
+from Products.Archetypes.config import UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR
 from Products.Archetypes.exceptions import ReferenceException
 
-from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
-from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -19,31 +16,13 @@ from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
-from Products.ZCatalog.Catalog import Catalog
-from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
-
-import zLOG
-import sys
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
 STRING_TYPES = (StringType, UnicodeType)
 
-REF_PREFIX = "__ref__"
-PATH_REF_PREFIX = "/%s" % REF_PREFIX
-
-from Referenceable import Referenceable
-
-
-class Reference(Referenceable, SimpleItem):
-    ## Added base level support for referencing References
-    ## They respond to the UUID protocols, but are not
-    ## catalog aware. This means that you can't move/rename
-    ## reference objects and expect them to work, but you can't
-    ## do this anyway. However they should fine the correct
-    ## events when they are added/deleted, etc
+class Reference(SimpleItem):
     security = ClassSecurityInfo()
-    portal_type = 'Reference'
 
     manage_options = (
         (
@@ -59,12 +38,9 @@ class Reference(Referenceable, SimpleItem):
 
     def __init__(self, id, sid, tid, relationship, **kwargs):
         self.id = id
-        setattr(self, UUID_ATTR,  id)
-
         self.sourceUID = sid
         self.targetUID = tid
         self.relationship = relationship
-
         self.__dict__.update(kwargs)
 
     def __repr__(self):
@@ -77,17 +53,18 @@ class Reference(Referenceable, SimpleItem):
         brains = tool(UID=self.sourceUID)
         if brains:
             return brains[0].getObject()
-
-        raise AttributeError('sourceObject')
+        else:
+            self.aq_parent._deleteReferenceId(self.getId())
+            return None
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=self.targetUID)
         if brains:
             return brains[0].getObject()
-
-        raise AttributeError('targetObject')
-
+        else:
+            self.aq_parent._deleteReferenceId(self.getId())
+            return None
 
     ###
     # Catalog support
@@ -102,9 +79,6 @@ class Reference(Referenceable, SimpleItem):
         if target:
             return target.Title()
         return ''
-
-    def Type(self):
-        return self.__class__.__name__
 
     ###
     # Policy hooks, subclass away
@@ -129,142 +103,20 @@ class Reference(Referenceable, SimpleItem):
         about to be deleted"""
         pass
 
-    def manage_afterAdd(self, item, container):
-        #Referenceable.manage_afterAdd(self, item, container)
-        uc = getToolByName(container, UID_CATALOG)
-        rc = getToolByName(container, REFERENCE_CATALOG)
-        url = self.getURL()
-        uc.catalog_object(self, url)
-        rc.catalog_object(self, url)
 
-    def getPhysicalPath(self):
-        """return the munged physical path"""
-        segments = list( SimpleItem.getPhysicalPath(self) )
-        segments.pop(-1)
-        segments.append( "%s%s"%( REF_PREFIX, self.UID() ) )
-        return getRelPath(self, segments)
-
-    def getURL(self):
-        """the url used as the relative path based uid in the catalogs"""
-        return '/'.join(self.getPhysicalPath())
-
-# The brains we want to use
-class UIDCatalogBrains(AbstractCatalogBrain):
-    """fried my little brains"""
-
-    def getObject(self, REQUEST=None):
-        """
-        Used to resolve UIDs into real objects. This also must be
-        annotation aware. The protocol is:
-        We have the path to an object. We get this object. If its
-        UID is not the UID in the brains then we need to pull it
-        from the reference annotation and return that object
-
-        Thus annotation objects store the path to the source object
-        """
-        obj = None
-        try:
-            path = self.getPath()
-            is_ref_path  = path.find('REF_PREFIX')
-
-            if not is_ref_path:
-                try:
-                    obj = self.aq_parent.unrestrictedTraverse(self.getPath())
-                    obj = aq_inner( obj )
-                except: #NotFound
-                    pass
-
-            if not obj:
-                if REQUEST is None:
-                    REQUEST = self.REQUEST
-                obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
-
-            # wrong object type
-            if not hasattr( obj, 'UID'):
-                return
-
-            if obj.UID() != self.UID:
-                # We have the parent that contains an object with
-                # this UID as an annotation.
-                annotations = obj._getReferenceAnnotations()
-                obj = annotations[self.UID].__of__(obj)
-            return obj
-        except:
-            #import traceback
-            #traceback.print_exc()
-            zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
-                     error=sys.exc_info())
-            pass
-
-class ReferenceCatalogBrains(UIDCatalogBrains):
-    pass
-
-
-class PluggableCatalog(Catalog):
-    # Catalog overrides
-    # smarter brains, squirrely traversal
-
-    def useBrains(self, brains):
-        """Tricky brains overrides, we need to use our own class here
-        with annotation support
-        """
-        class plugbrains(self.BASE_CLASS, brains):
-            pass
-
-        schema = self.schema
-        scopy = schema.copy()
-
-        scopy['data_record_id_']=len(schema.keys())
-        scopy['data_record_score_']=len(schema.keys())+1
-        scopy['data_record_normalized_score_']=len(schema.keys())+2
-
-        plugbrains.__record_schema__ = scopy
-
-        self._v_brains = brains
-        self._v_result_class = plugbrains
-
-class UIDBaseCatalog(PluggableCatalog):
-    BASE_CLASS = UIDCatalogBrains
-
-class ReferenceBaseCatalog(PluggableCatalog):
-    BASE_CLASS = ReferenceCatalogBrains
-
-class ReferenceResolver( Base ):
-
-    def resolve_url(self, path, REQUEST):
-        """Strip path prefix during resolution, This interacts with
-        the default brains.getObject model and allows and fakes the
-        ZCatalog protocol for traversal
-        """
-        parts = path.split('/')
-        if parts[-1].find(REF_PREFIX) == 0:
-            path = '/'.join(parts[:-1])
-
-        portal_object = self.portal_url.getPortalObject()
-        return portal_object.unrestrictedTraverse(path)
-
-
-class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
-    id = UID_CATALOG
-
-    def __init__(self, id, title='', vocab_id=None, container=None):
-        """We hook up the brains now"""
-        ZCatalog.__init__(self, id, title, vocab_id, container)
-        self._catalog = UIDBaseCatalog()
-
-
-class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
+class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    protect = security.declareProtected
 
-    manage_options = ZCatalog.manage_options
+    manage_options = (
+        (BTreeFolder2.manage_options[0],) +
+        (ZCatalog.manage_options[1:])
+        )
 
-    def __init__(self, id, title='', vocab_id=None, container=None):
-        """We hook up the brains now"""
+    def __init__(self, id, title, vocab_id, extra):
         BTreeFolder2.__init__(self, id)
-        ZCatalog.__init__(self, id, title, vocab_id, container)
-        self._catalog = ReferenceBaseCatalog()
+        ZCatalog.__init__(self, id, title, vocab_id, extra)
+
 
     ###
     ## Public API
@@ -280,28 +132,23 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             #    do this properly, and close it later
             existing = objects[0]
             if existing:
-                # We can't del off self, we now need to remove it
-                # from the source objects annotation, which we have
-                annotation = sobj._getReferenceAnnotations()
-                del annotation[existing.id]
-
+                self._delObject(existing.id)
 
         rID = self._makeName(sID, tID)
         if not referenceClass:
             referenceClass = Reference
 
-        referenceObject = referenceClass(rID, sID, tID, relationship,
-                                         **kwargs)
-        referenceObject = referenceObject.__of__(sobj)
+        referenceObject = referenceClass(rID, sID, tID, relationship, **kwargs)
+
         try:
             referenceObject.addHook(self, sobj, tobj)
         except ReferenceException:
             pass
         else:
-            annotation = sobj._getReferenceAnnotations()
-            annotation[rID] = referenceObject
-            # Manually invoke the OFS like hook
-            referenceObject.manage_afterAdd(referenceObject, sobj)
+            self._setObject(rID, referenceObject)
+            referenceObject = getattr(self, rID)
+            # XXX should second arg be rID or a pretty name, lets try a name
+            self.catalog_object(referenceObject, rID)
             return referenceObject
 
     def deleteReference(self, source, target, relationship=None):
@@ -385,16 +232,13 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
 
     #####
-    ## UID register/unregister
-    protect('registerObject', CMFCorePermissions.ModifyPortalContent)
+    ## Protected
+    ## XXX: do security
     def registerObject(self, object):
         self._uidFor(object)
 
-    protect('unregisterObject', CMFCorePermissions.ModifyPortalContent)
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        uc = getToolByName(self, UID_CATALOG)
-        uc.uncatalog_object(getRelURL(self, object.getPhysicalPath()))
 
 
     ######
@@ -428,9 +272,9 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
         if type(obj) not in STRING_TYPES:
-            uobject = aq_base(obj)
+            uobject = obj.aq_base
             if not self.isReferenceable(uobject):
-                raise ReferenceException
+                raise ReferenceException, "%r not referenceable" % uobject
 
             if not getattr(uobject, UUID_ATTR, None):
                 uuid = self._getUUIDFor(uobject)
@@ -443,7 +287,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             brains = uid_catalog(UUID=uuid)
             obj = brains[0].getObject()
 
-        return uuid, obj
+        return uuid, object
 
     def _getUUIDFor(self, object):
         """generate and attach a new uid to the object returning it"""
@@ -452,19 +296,23 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
         return uuid
 
-    def _deleteReference(self, referenceObject):
+    def _deleteReferenceId(self, id):
+        self.uncatalog_object(id)
         try:
-            sobj = referenceObject.getSourceObject()
-            referenceObject.delHook(self, sobj,
+            self._delObject(id)
+        except KeyError:
+            pass
+
+    def _deleteReference(self, referenceObject):
+
+        try:
+            referenceObject.delHook(self, referenceObject.getSourceObject(),
                                     referenceObject.getTargetObject())
         except ReferenceException:
             pass
         else:
-            annotation = sobj._getReferenceAnnotations()
-            url = '/'.join(referenceObject.getPhysicalPath())
-            self.uid_catalog.uncatalog_object(url)
-            self.uncatalog_object(url)
-            del annotation[referenceObject.UID()]
+            self._deleteReferenceId(referenceObject.getId())
+
 
     def _resolveBrains(self, brains):
         objects = []
@@ -474,15 +322,12 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
         return objects
 
     def _makeName(self, *args):
-        """get a uuid"""
         name = make_uuid(*args)
+        name = "ref_%s" % name
         return name
 
     def __nonzero__(self):
         return 1
-
-
-
 
 def manage_addReferenceCatalog(self, id, title,
                                vocab_id=None, # Deprecated
@@ -497,17 +342,3 @@ def manage_addReferenceCatalog(self, id, title,
         return self.manage_main(self, REQUEST,update_menu=1)
 
 InitializeClass(ReferenceCatalog)
-
-
-def manage_addUIDCatalog(self, id, title,
-                         vocab_id=None, # Deprecated
-                         REQUEST=None):
-    """Add the UID Catalog
-    """
-    id = str(id)
-    title = str(title)
-    c = UIDCatalog(id, title, vocab_id, self)
-    self._setObject(id, c)
-
-    if REQUEST is not None:
-        return self.manage_main(self, REQUEST,update_menu=1)
