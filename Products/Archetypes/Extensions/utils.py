@@ -136,8 +136,10 @@ def install_navigation(self, out, types):
     #Generic Edit
     script = "content_edit"
     nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
-    nav_tool.addTransitionFor('default', "content_edit", 'success', 'action:view')
+    nav_tool.addTransitionFor('default', "content_edit", 'success', 'script:change_lang')
     nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
+    
+    nav_tool.addTransitionFor('default', "change_lang", 'success', 'action:view')
 
     nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
     nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
