@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.4 2004/04/01 01:47:09 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.5 2004/04/01 02:24:47 bcsaller Exp $
 """
 
 import os, sys
@@ -16,6 +16,20 @@ import Products.Archetypes.config as config
 from Products.Archetypes.public import *
 from Products.Archetypes.examples.DDocument import schema as DDocumentSchema
 from Products.Archetypes.SchemaProvider import *
+
+
+class MementoTool:
+    def __init__(self):
+        self.storage = {}
+        
+    def setMemento(self, instance, memento):
+        uid = instance.UID()
+        self.storage[uid] = memento
+
+    def getMemento(self, instance):
+        uid = instance.UID()
+        return self.storage.get(uid)
+    
 
 class SchemaProviderTests(ArcheSiteTestCase):
     def afterSetUp(self):
@@ -98,14 +112,12 @@ class SchemaProviderTests(ArcheSiteTestCase):
         folder.setSchemaPriority(11) # low low pri
         obja.setSchemaPriority(12) # and lower still pri
 
-
-        
-        objb.addReference(folder, relationship='schema_provider')
-        objb.addReference(obja, relationship='schema_provider')
-        
         at.provideSchema(folder, testSchemaA)
         at.provideSchema(obja, testSchemaB)
 
+        objb.addReference(folder, relationship='schema_provider')
+        objb.addReference(obja, relationship='schema_provider')
+        
         schema = objb.Schema()
         assert schema.fields()[-2].getName() ==  a.getName()
         assert schema.fields()[-1].getName() ==  b.getName()
@@ -197,7 +209,19 @@ class SchemaProviderTests(ArcheSiteTestCase):
         se = z.getSchemaEditor()
         sse = se.getSchemaEditorForSubSchema('FieldA')
         assert sse.schema == SchemaA
-        
+
+        # This is a sub test of the memento storage up top...
+        # and the ability to reassign the storage on the
+        # subschema and have it work
+        mt = MementoTool()
+        ms = MementoStorage(mt)
+        sse.assignStorage(ms)
+        field = z.Schema()['FieldA']
+        accessor = field.getAccessor(z)
+        mutator = field.getMutator(z)
+        mutator('monkeybutter')
+        assert accessor() == 'monkeybutter'
+        assert str(mt.storage[z.UID()]['FieldA']) == 'monkeybutter'
         
 
 if __name__ == '__main__':

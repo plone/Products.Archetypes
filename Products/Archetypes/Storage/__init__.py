@@ -9,6 +9,8 @@ from Acquisition import aq_base
 from Globals import PersistentMapping
 from Products.CMFCore.utils import getToolByName
 
+from types import StringTypes
+
 type_map = {'text':'string',
             'datetime':'date',
             'lines':'lines',
@@ -173,7 +175,7 @@ class MementoStorage(Storage):
     """Stores the data in a memento which we expect to find in self._target
     where instance is converted into a key into the storage
     
-    target.storeMemento(instance, memento)
+    target.setMemento(instance, memento)
     target.getMemento(instance)
     
     where typically this will store
@@ -183,16 +185,25 @@ class MementoStorage(Storage):
 
     __implements__ = IStorage
 
+    def __init__(self, target):
+        self._target = target
+        
     def _memento(self, instance):
         # XXX How racey is this really?, sorta last write wins
         mementoName ='_v_%s' % self._target
         inst = aq_base(instance)
         memento = getattr(inst, mementoName, None)
         if memento is None:
-            rc = getName(instance, REFERENCE_CATALOG)
-            dataContainer = rc.lookupObject(self._target)
+            # Currently this is only ever a string during testing,
+            # but I will leave it open
+            if type(self._target) in StringTypes:
+                rc = getName(instance, REFERENCE_CATALOG)
+                dataContainer = rc.lookupObject(self._target)
+            else:
+                dataContainer = self._target
+                
             assert dataContainer
-            memento = datacContainer.getMemento(instance)
+            memento = dataContainer.getMemento(instance)
             if not memento:
                 memento = PersistentMapping()
                 dataContainer.setMemento(instance, memento)
@@ -215,7 +226,8 @@ class MementoStorage(Storage):
 
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
-           'MetadataStorage', 'AttributeStorage',)
+           'MetadataStorage', 'AttributeStorage',
+           'MementoStorage',)
 
 from Products.Archetypes.Registry import registerStorage
 

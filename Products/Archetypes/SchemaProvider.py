@@ -211,7 +211,6 @@ class SchemaProvider(Implicit):
 	se = SchemaEditor(schema, self)
 	se.regen(self)
                 
-
         # PHASE: Cache
         self._schema = schema
         self._checksum = checksum
