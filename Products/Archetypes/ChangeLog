@@ -1,3 +1,8 @@
+2003-07-23  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Field.py (Field.copy): Do a deepcopy, so we don't get references
+	for stuff we don't want to change.
+
 2003-07-18  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* BaseObject.py (BaseObject.__getitem__): Backport slightly

@@ -1,5 +1,5 @@
 from __future__ import nested_scopes
-from copy import copy
+from copy import deepcopy
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
@@ -109,8 +109,8 @@ class Field(DefaultLayerContainer):
         Return a copy of field instance, consisting of field name and
         properties dictionary.
         """
-
-        return self.__class__(self.getName(), **self.__dict__)
+        properties = deepcopy(self.__dict__)
+        return self.__class__(self.getName(), **properties)
 
     def __repr__(self):
         """
