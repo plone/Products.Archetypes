@@ -13,7 +13,7 @@ from interfaces.metadata import IExtensibleMetadata
 
 class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
     """ A not-so-basic Folder implementation """
-    
+
     __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata)
 
     manage_options = SkinnedFolder.manage_options

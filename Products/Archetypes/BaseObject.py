@@ -1,3 +1,4 @@
+import sys
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
@@ -6,6 +7,7 @@ from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
+from ZODB.PersistentMapping import PersistentMapping
 from debug import log, log_exc
 from types import FileType
 import operator
@@ -46,19 +48,28 @@ class BaseObject(Implicit):
     security = ClassSecurityInfo()
 
     schema = type = content_type
+    _signature = None
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
 
     __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid
-
+        self._master_language = None
+        self._translations_states = PersistentMapping()
+            
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
-        self.initializeLayers()
-        self.setDefaults()
-        if kwargs:
-            self.update(**kwargs)
+        try:
+            self.initializeLayers()
+            self.setDefaults()
+            if kwargs:
+                self.update(**kwargs)
+            self._signature = self.Schema().signature()
+        except:
+            import traceback
+            import sys
+            sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
 
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
@@ -95,11 +106,13 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
     def setId(self, value):
         if value != self.getId():
-            if hasattr(self, 'aq_parent'):
-                parent = self.aq_parent
-                parent.manage_renameObjects((self.id,), (value,),\
-                                            getattr(self, 'REQUEST', None))
-        self.id = value
+            parent = aq_parent(aq_inner(self))
+            if parent is not None:
+                parent.manage_renameObject(
+                    self.id, value,
+                    getattr(self, 'REQUEST', None)
+                    )
+            self._setId(value)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
@@ -117,8 +130,10 @@ class BaseObject(Implicit):
         element = getattr(self, key, None)
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
-        mime_type = self.getContentType(key)
-        if mime_type and mime_type.find('text') >= 0:
+        mimetype = self.getContentType(key)
+        if mimetype and hasattr(aq_base(mimetype), 'binary'):
+            return mimetype.binary
+        elif mimetype and mimetype.find('text') >= 0:
             return 0
         return 1
 
@@ -241,7 +256,7 @@ class BaseObject(Implicit):
         if errors:
             return errors
 
-        self.Schema().validate(self, REQUEST=REQUEST, errors=errors, 
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors,
                                data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
@@ -252,16 +267,18 @@ class BaseObject(Implicit):
         """full indexable text"""
         data = []
         for field in self.Schema().fields():
-            if field.searchable != 1: continue
-            try:
-                method = getattr(self, field.accessor)
-                datum = method()
-                #if hasattr(dataum, 'isUnit'):
-                #    data.append(datum.transform('text/plain').getData()
-                #else:
-                data.append(datum)
-            except:
-                pass
+            if field.searchable != 1:
+                continue
+            method = getattr(self, field.accessor)
+            if field.hasI18NContent():
+                for lang_id in field.getDefinedLanguages(self):
+                    datum = text_data(method, lang_id)
+                    if datum:
+                        data.append(datum)
+            else:
+                datum = text_data(method)
+                if datum:
+                    data.append(datum)
 
         data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
@@ -284,7 +301,6 @@ class BaseObject(Implicit):
 
         return size
 
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               '_processForm')
     def _processForm(self, data=1, metadata=None):
@@ -302,8 +318,31 @@ class BaseObject(Implicit):
             if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
+        base_lang = self.getLanguage()
+        if self.hasI18NContent():
+            # FIXME : update existant objects
+            if not hasattr(self, '_translations_states'):
+                self._translations_states = PersistentMapping()
+            # do we need to update the current language ?
+            lang = form.get('new_lang', form.get('lang', base_lang))
+            if lang != base_lang:
+                # FIXME: check this is a valid language id
+                self.languageDescription(lang)
+                # set language cookie
+                self.setI18NCookie(lang)            
+            # set other translations as outdated if we are currently processing
+            # the main translation
+            m_lang = self.getMasterLanguage()
+            if lang == m_lang:
+                for lang_desc in self.getFilteredLanguages():
+                    if lang_desc[0] != m_lang:
+                        self._translations_states[lang_desc[0]] += ' (outdated)'
+            # else try to get and set the translation state
+            elif form.has_key('_translation_state'):
+                self._translations_states[lang] = form['_translation_state']
+                
         for field in fields:
-            if field.name in form_keys or "%s_file" % field.name in form_keys:
+            if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
                 text_format = None
                 isFile = 0
                 value = None
@@ -311,10 +350,10 @@ class BaseObject(Implicit):
                 # text field with formatting
                 if hasattr(field, 'allowable_content_types') and \
                    field.allowable_content_types:
-                    #was a mime_type specified
-                    text_format = form.get("%s_text_format" % field.name)
+                    #was a mimetype specified
+                    text_format = form.get("%s_text_format" % field.getName())
                 # or a file?
-                fileobj = form.get('%s_file' % field.name)
+                fileobj = form.get('%s_file' % field.getName())
                 if fileobj:
                     filename = getattr(fileobj, 'filename', '')
                     if filename != '':
@@ -322,16 +361,20 @@ class BaseObject(Implicit):
                         isFile = 1
 
                 if not value:
-                    value = form.get(field.name)
+                    value = form.get(field.getName())
 
                 #Set things by calling the mutator
-                if not value: continue
+                if value is None: continue
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
+                kwargs = {}
+                if field.hasI18NContent():
+                    kwargs['lang'] = lang
+                    
                 if text_format and not isFile:
-                    mutator(value, mime_type=text_format)
+                    mutator(value, mimetype=text_format, **kwargs)
                 else:
-                    mutator(value)
+                    mutator(value, **kwargs)
 
         self.reindexObject()
 
@@ -345,5 +388,241 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
-InitializeClass(BaseObject)
 
+    # I18N content management #################################################
+
+    security.declarePublic("hasI18NContent")
+    def hasI18NContent(self):
+        """return true it the schema contains at least one I18N field"""
+        for field in self.Schema().values():
+            if field.hasI18NContent():
+                return 1
+        return 0
+
+    security.declarePublic("getFilteredLanguages")
+    def getFilteredLanguages(self, REQUEST=None):
+        """return a list of all existant languages for this instance
+        each language is a tupe (id, label)
+        """
+        langs = {}
+        for field in self.Schema().values():
+            if field.hasI18NContent():
+                for lang in field.getDefinedLanguages(self):
+                    langs[lang] = 1
+        result = []
+        for lang_id in langs.keys():
+            try:
+                result.append((lang_id, self.languageDescription(lang_id)))
+            except KeyError:
+                continue
+        return result
+
+    security.declarePublic("getLanguage")
+    def getLanguage(self, lang=None):
+        """return the id for the current language"""
+        if lang:
+            return lang
+        REQUEST = self.REQUEST
+        if REQUEST is not None and hasattr(REQUEST, 'form'):
+            language = REQUEST.form.get('lang')
+            if language is None and hasattr(REQUEST, 'cookies'):
+                language = REQUEST.cookies.get('I18N_CONTENT_LANGUAGE', 'en')
+        else:
+            try:
+                sp = self.portal_properties.site_properties
+                language = sp.getProperty('default_language', 'en')
+            except AttributeError:
+                language = None
+        return language or "en"
+
+    security.declarePublic("getMasterLanguage")
+    def getMasterLanguage(self):
+        """return the id for the master language"""
+        if getattr(self, '_master_language', None) is not None:
+            return self._master_language
+        try:
+            sp = self.portal_properties.site_properties
+            return sp.getProperty('default_language', 'en')
+        except AttributeError:
+            return 'en'
+
+    security.declarePublic("getTranslationState")
+    def getTranslationState(self, lang=None):
+        """return the string describing the translation state"""
+        lang = self.getLanguage(lang)
+        try:
+            return self._translations_states[lang]
+        except:
+            if lang == self.getMasterLanguage():
+                return "master translation"
+            return ''
+
+    def manage_translations(self, REQUEST=None, **kwargs):
+        """delete given translations or set the master translation"""
+        if not kwargs:
+            kwargs = REQUEST.form
+        try:
+            del kwargs["form_submitted"]
+        except:
+            pass
+        if kwargs.has_key("setmaster"):
+            del kwargs["setmaster"]
+            if len(kwargs) != 1:
+                raise Exception('You must select one language to set it as the master translation')
+            self._master_language = kwargs.keys()[0]
+        else:
+            if kwargs.has_key(self.getMasterLanguage()):
+                raise Exception('You can not delete the master translation')
+            for lang_id in kwargs.keys():
+                for field in self.Schema().values():
+                    if field.hasI18NContent():
+                        field.unset(self, lang=lang_id)
+
+
+    # Handle schema updates ####################################################
+
+#    def _compareDicts(self, d1, d2):
+#        values = {}
+#        for k,v in d1.items():
+#            values[k] = (v,'N/A')
+#        for k,v in d2.items():
+#            if values.has_key(k):
+#                values[k] = (values[k][0],v)
+#            else:
+#                values[k] = ('N/A', v)
+#        keys = values.keys()
+#        keys.sort()
+#        import sys
+#        for k in keys:
+#            sys.stdout.write('%s: %s, %s\n' % (k, str(values[k][0]), str(values[k][1])))
+
+    def _isSchemaCurrent(self):
+        """Determine whether the current object's schema is up to date."""
+        from Products.Archetypes.ArchetypeTool import getType
+        return getType(self.meta_type)['signature'] == self._signature
+
+
+    def _updateSchema(self, excluded_fields=[], out=None):
+        """Update an object's schema when the class schema changes.
+        For each field we use the existing accessor to get its value, then we
+        re-initialize the class, then use the new schema mutator for each field
+        to set the values again.  We also copy over any class methods to handle
+        product refreshes gracefully (when a product refreshes, you end up with
+        both the old version of the class and the new in memory at the same
+        time -- you really should restart zope after doing a schema update)."""
+        from Products.Archetypes.ArchetypeTool import getType
+
+        print >> out, 'Updating %s' % (self.getId())
+
+        old_schema = self.Schema()
+        new_schema = getType(self.meta_type)['schema']
+
+        obj_class = self.__class__
+        current_class = getattr(sys.modules[self.__module__], self.__class__.__name__)
+        if obj_class.schema != current_class.schema:
+            # XXX This is kind of brutish.  We do this to make sure that old
+            # class instances have the proper methods after a refresh.  The
+            # best thing to do is to restart Zope after doing an update, and
+            # the old versions of the class will disappear.
+            # print >> out, 'Copying schema from %s to %s' % (current_class, obj_class)
+            for k in current_class.__dict__.keys():
+                obj_class.__dict__[k] = current_class.__dict__[k]
+#            from Products.Archetypes.ArchetypeTool import generateClass
+#            generateClass(obj_class)
+
+
+        # read all the old values into a dict
+        values = {}
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields:
+                try:
+                    values[name] = self._migrateGetValue(name, new_schema)
+                except ValueError:
+                    if out != None:
+                        print >> out, 'Unable to get %s.%s' % (str(self.getId()), name)
+
+        # replace the schema
+        # print >> out, 'Updating schema'
+        from copy import deepcopy
+        self.schema = deepcopy(new_schema)
+        # print >> out, 'Reinitializing'
+        self.initializeArchetype()
+
+        # print >> out, 'Writing field values'
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields and values.has_key(name):
+                try:
+                    self._migrateSetValue(name, values[name])
+                except ValueError:
+                    if out != None:
+                        print >> out, 'Unable to set %s.%s to %s' % (str(self.getId()), name, str(values[name]))
+        if out:
+            return out
+
+
+    def _migrateGetValue(self, name, new_schema=None):
+        """Try to get a value from an object using a variety of methods."""
+        schema = self.Schema()
+
+        # First see if the new field name is managed by the current schema
+        field = schema.get(name, None)
+        if field:
+            accessor = field.getAccessor(self)
+            if accessor is not None:
+                # yes -- return the value
+                return accessor()
+
+        # Nope -- see if the new accessor method is present in the current object.
+        if new_schema:
+            new_field = new_schema.get(name)
+            accessor = new_field.getAccessor(self)
+            if callable(accessor):
+                try:
+                    return accessor()
+                except:
+                    pass
+
+        # Nope -- now see if the current object has an attribute with the same name
+        # as the new field
+        if hasattr(self, name):
+            return getattr(self, name)
+
+        raise ValueError, 'name = %s' % (name)
+
+
+    def _migrateSetValue(self, name, value, old_schema=None):
+        """Try to set an object value using a variety of methods."""
+        schema = self.Schema()
+        field = schema.get(name, None)
+        # try using the field's mutator
+        if field:
+            mutator = field.getMutator(self)
+            if mutator:
+                mutator(value)
+                return
+        # try setting an existing attribute
+        if hasattr(self, name):
+            setattr(self, name, value)
+            return
+        raise ValueError, 'name = %s, value = %s' % (name, value)
+
+
+def text_data(accessor, lang_id=None):
+    """return plain text data from an accessor"""
+    if lang_id is not None:
+        try:
+            return accessor(lang=lang_id, mimetype="text/plain")
+        except TypeError:
+            # retry in case typeerror was raised because accessor doesn't
+            # handle the mimetype argument
+            try:
+                return method(lang=lang_id)
+            except:
+                return ''
+        except:
+            return ''
+
+
+InitializeClass(BaseObject)

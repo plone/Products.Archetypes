@@ -27,7 +27,7 @@ else:
 
 
 class Converter(ContentDriver):
-    mime_type = 'application/msword' 
+    mime_type = 'application/msword'
 
 
     def convertData(self, instance, data):
@@ -39,7 +39,7 @@ class Converter(ContentDriver):
             if EXTRACT_STYLE:
                 style =  stylefinder(instance.html)
             else:
-                style = '' 
+                style = ''
             body  = bodyfinder(instance.html)
             body  = stripMSTags(body)
 

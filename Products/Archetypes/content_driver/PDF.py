@@ -14,7 +14,7 @@ class PDFDocument:
         filedest = open("%s/%s.pdf" % (self.tmpdir, self.name), "w")
         filedest.write(self.data)
         filedest.close()
-    
+
     def Convert(self):
         "Convert the document"
         os.system('cd "%s" && %s/bin/pdftotext "%s.pdf" "%s.txt"' % (self.tmpdir, self.prefix, self.name, self.name))
@@ -43,13 +43,13 @@ class PDFDocument:
     #         for f in os.listdir(self.tmpdir):
     #             result = re.match("^.+\.(?P<ext>.+)$", f)
     #             if result is not None:
-    #                 ext = result.group('ext') 
+    #                 ext = result.group('ext')
     #                 if ext in ('png', 'jpg', 'gif', 'wmz', 'wmf'): imgs.append(f)
     #         path = "%s/" % self.tmpdir
     #         return path, imgs
 
 class Converter(ContentDriver):
-    mime_type = 'application/pdf' 
+    mime_type = 'application/pdf'
 
 
     def convertData(self, instance, data):

@@ -1,7 +1,7 @@
-""" 
+"""
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.5 2003/04/07 20:07:23 dreamcatcher Exp $
+$Id: test_rename.py,v 1.6 2003/06/03 22:54:31 dreamcatcher Exp $
 """
 
 import unittest
@@ -39,7 +39,7 @@ class RenameTests( SecurityRequestTest ):
         site.manage_renameObject(obj_id, new_id)
         doc = getattr(site, new_id)
         self.failUnless(str(doc.getQuote()) == str(content))
-        
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest( unittest.makeSuite( RenameTests ) )

@@ -1,4 +1,5 @@
 from __future__ import nested_scopes
+from copy import copy
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
@@ -25,9 +26,12 @@ from Products.validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
+from ZODB.PersistentMapping import PersistentMapping
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
+
+from transform.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
 
@@ -49,6 +53,7 @@ class Field(DefaultLayerContainer):
         'isMetadata' : 0,
 
         'accessor' : None,
+        'edit_accessor' : None,
         'mutator' : None,
         'mode' : 'rw',
 
@@ -69,7 +74,7 @@ class Field(DefaultLayerContainer):
     def __init__(self, name, **kwargs):
         DefaultLayerContainer.__init__(self)
 
-        self.name = name
+        self.__name__ = name
 
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
@@ -80,10 +85,10 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     def copy(self):
-        return self.__class__(**self.__dict__)
+        return self.__class__(self.getName(), **self.__dict__)
 
     def __repr__(self):
-        return "<Field %s(%s:%s)>" %(self.name, self.type, self.mode)
+        return "<Field %s(%s:%s)>" %(self.getName(), self.type, self.mode)
 
     def _widgetLayer(self):
         if hasattr(self, 'widget') and type(self.widget) == ClassType:
@@ -101,7 +106,7 @@ class Field(DefaultLayerContainer):
         for v in self.validators:
             if not validation.validatorFor(v):
                 log("WARNING: no validator %s for %s" % (v,
-                self.name))
+                self.getName()))
 
     def validate(self, value):
         for v in self.validators:
@@ -168,7 +173,7 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getName')
     def getName(self):
-        return self.name
+        return self.__name__
 
     security.declarePublic('getDefault')
     def getDefault(self):
@@ -176,11 +181,34 @@ class Field(DefaultLayerContainer):
 
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
+#        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
         return getattr(instance, self.accessor, None)
+
+    security.declarePrivate('getEditAccessor')
+    def getEditAccessor(self, instance):
+        return getattr(instance, self.edit_accessor, None)
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
         return getattr(instance, self.mutator, None)
+
+    def hasI18NContent(self):
+        """return true it the field has I18N content"""
+        return 0
+
+    # Utility method for converting a Field to a string for the purpose of
+    # comparing fields.  This comparison is used for determining whether a
+    # schema has changed in the auto update function.  Right now it's pretty
+    # crude.  XXX fixme
+    def toString(self):
+        s = '%s: {' % self.__class__.__name__
+        sorted_keys = self._properties.keys()
+        sorted_keys.sort()
+        for k in sorted_keys:
+            s = s + '%s:%s,' % (k, self._properties[k])
+        s = s + '}'
+        return s
+
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -199,22 +227,25 @@ class ObjectField(Field):
     def get(self, instance, **kwargs):
         try:
             kwargs['field'] = self
-            return self.storage.get(self.name, instance, **kwargs)
+            return self.storage.get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance,self.default,_initializing_=1,**kwargs)
+                self.set(instance, self.default,_initializing_=1,**kwargs)
             return self.default
+
+    def getRaw(self, instance, **kwargs):
+        return self.get(instance, **kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
-        self.storage.set(self.name, instance, value, **kwargs)
+        self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
-        self.storage.unset(self.name, instance, **kwargs)
+        self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
         if not IStorage.isImplementedBy(storage):
@@ -228,6 +259,7 @@ class ObjectField(Field):
 
     def getStorage(self):
         return self.storage
+
 
 class StringField(ObjectField):
     """A string field"""
@@ -268,17 +300,17 @@ class FileField(StringField):
         })
 
     def _process_input(self, value, default=None,
-                       mime_type=None, **kwargs):
+                       mimetype=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
-            if mime_type is None:
-                mime_type, enc = guess_content_type('', value, mime_type)
+            if mimetype is None:
+                mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
             f_name = ''
@@ -287,14 +319,14 @@ class FileField(StringField):
             if isinstance(value, FileType):
                 f_name = value.name
             value = value.read()
-            if mime_type is None:
-                mime_type, enc = guess_content_type(f_name, value, mime_type)
+            if mimetype is None:
+                mimetype, enc = guess_content_type(f_name, value, mimetype)
             size = len(value)
             if size == 0:
                 # This new file has no length, so we keep
                 # the orig
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
@@ -303,13 +335,13 @@ class FileField(StringField):
         return None
 
     def set(self, instance, value, **kwargs):
-        if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = None
+        if not kwargs.has_key('mimetype'):
+            kwargs['mimetype'] = None
 
-        value, mime_type = self._process_input(value,
+        value, mimetype = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
-        kwargs['mime_type'] = mime_type
+        kwargs['mimetype'] = mimetype
 
         # FIXME: ugly hack
         try:
@@ -317,8 +349,8 @@ class FileField(StringField):
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
-        types_d[self.name] = mime_type
-        value = File(self.name, '', value, mime_type)
+        types_d[self.getName()] = mimetype
+        value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
 
 class TextField(ObjectField):
@@ -339,18 +371,22 @@ class TextField(ObjectField):
     def defaultView(self):
         return self.default_output_type
 
-    def _process_input(self, value, default=None, \
-                       mime_type=None, **kwargs):
+    def _process_input(self, value, default=None,
+                       mimetype=None, encoding=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
-            if mime_type is None:
-                mime_type, enc = guess_content_type('', str(value), mime_type)
+            if encoding is not None and type(value) == type(u''):
+                value = value.encode(encoding)
+            else:
+                value = str(value)
+            if mimetype is None:
+                mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         else:
             if ((isinstance(value, FileUpload) and value.filename != '') or
                 (isinstance(value, FileType) and value.name != '')):
@@ -361,45 +397,96 @@ class TextField(ObjectField):
                 if isinstance(value, FileType):
                     f_name = value.name
                 value = value.read()
-                if mime_type is None:
-                    mime_type, enc = guess_content_type(f_name, value, mime_type)
+                if mimetype is None:
+                    mimetype, enc = guess_content_type(f_name, value, mimetype)
                 size = len(value)
                 if size == 0:
                     # This new file has no length, so we keep
                     # the orig
-                    return default, mime_type
-                return value, mime_type
+                    return default, mimetype
+                return value, mimetype
 
             elif IBaseUnit.isImplementedBy(value):
-                if mime_type is None:
-                    mime_type, enc = guess_content_type('', str(value), mime_type)
-                return value, getattr(aq_base(value), 'mimetype', mime_type)
+                if mimetype is None:
+                    mimetype, enc = guess_content_type('', str(value), mimetype)
+                return value, getattr(aq_base(value), 'mimetype', mimetype)
 
-        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.name, type(value)))
+        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
 
     def getContentType(self, instance):
         value = ''
-        accessor = self.getAccessor(instance)
+        accessor = self.getEditAccessor(instance)
         if accessor is not None:
-            value = accessor()
-        mime_type = getattr(aq_base(value), 'mimetype', None)
-        if mime_type is None:
-            mime_type, enc = guess_content_type('', str(value), None)
-        return mime_type
+            value = accessor(maybe_baseunit=1)
+        mimetype = getattr(aq_base(value), 'mimetype', None)
+        if mimetype is None:
+            mimetype, enc = guess_content_type('', str(value), None)
+        return mimetype
+
+
+    def getRaw(self, instance, **kwargs):
+        kwargs['raw'] = 1
+        value = self.get(instance, **kwargs)
+        if not kwargs.get('maybe_baseunit', 0) and IBaseUnit.isImplementedBy(value):
+            return value.getRaw()
+        return value
+
+    def get(self, instance, mimetype=None, raw=0, **kwargs):
+        try:
+            kwargs['field'] = self
+            value = self.storage.get(self.getName(), instance, **kwargs)
+            if not IBaseUnit.isImplementedBy(value):
+                return value
+        except AttributeError:
+            # happens if new Atts are added and not yet stored in the instance
+            if not kwargs.get('_initializing_', 0):
+                self.set(instance, self.default, _initializing_=1, **kwargs)
+            return self.default
+
+        if raw:
+            return value
+
+        if mimetype is None:
+            mimetype =  self.default_output_type or 'text/plain'
+
+        if not hasattr(value,'transform'): # oldBaseUnits have no transform
+            return str(value)
+
+        data = value.transform(instance, mimetype, cache=1)
+        if not data:
+            data = value.transform(instance, 'text/plain', cache=1)
+        if not data:
+            return ''
+
+        if idatastream.isImplementedBy(data):
+            data = data.getData()
+        if type(data) == type({}) and data.has_key('html'):
+            return data['html']
+        return data
+
 
     def set(self, instance, value, **kwargs):
-        if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = None
+        if not kwargs.has_key('mimetype'):
+            kwargs['mimetype'] = None
+        try:
+            encoding = kwargs.get('encoding') or \
+                       instance.portal_properties.site_properties.getProperty('default_charset')
+        except AttributeError:
+            import site
+            encoding = site.encoding
 
-        value, mime_type = self._process_input(value,
-                                               default=self.default, \
-                                               **kwargs)
-        kwargs['mime_type'] = mime_type
+        value, mimetype = self._process_input(value,
+                                              default=self.default,
+                                              **kwargs)
+        kwargs['mimetype'] = mimetype
 
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.name, value, mime_type=mime_type)
+            bu = BaseUnit(self.getName(), value,
+                          mimetype=mimetype,
+                          encoding=encoding,
+                          instance=instance)
 
         ObjectField.set(self, instance, bu, **kwargs)
 
@@ -460,6 +547,8 @@ class IntegerField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        if value=='':
+            value=None
         try:
             value = int(value)
         except TypeError:
@@ -474,6 +563,8 @@ class FloatField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        if value=='':
+            value=None
         try:
             value = float(value)
         except TypeError:
@@ -526,7 +617,50 @@ class ReferenceField(ObjectField):
         'allowed_types' : (),
         'addable': 0,
         'destination': None,
+        'relationship':None
         })
+
+    def containsValueAsString(self,value,attrval):
+        '''
+        checks wether the attribute contains a value
+           if the field is a scalar -> comparison
+           if it is multiValued     -> check for 'in'
+        '''
+        if self.multiValued:
+            return str(value) in [str(a) for a in attrval]
+        else:
+            return str(value) == str(attrval)
+
+    def set(self, instance, value, **kwargs):
+        ''' before setting the value the reference gets also be established
+            in the reference tool
+        '''
+
+        if not value:
+            value=None
+
+        #establish the relation through the ReferenceEngine
+        tool=getToolByName(instance,TOOL_NAME)
+        refname=self.relationship
+
+        #XXX: thats too cheap, but I need the proof of concept before going on
+        instance.deleteReferences(refname)
+
+        if self.multiValued:
+            if type(value) in (type(()),type([])):
+                for uid in value:
+                    if uid:
+                        target=tool.lookupObject(uid=uid)
+                        instance.addReference(target,refname)
+        else:
+            if value:
+                target=tool.lookupObject(uid=value)
+                instance.addReference(target,refname)
+
+            pass
+
+        #and now do the normal assignment
+        ObjectField.set(self, instance, value, **kwargs)
 
     def Vocabulary(self, content_instance=None):
         #If we have a method providing the list of types go with it,
@@ -537,12 +671,12 @@ class ReferenceField(ObjectField):
             return value
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, str(obj.Title).strip() or \
+            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
                       str(obj.getId).strip()) \
                      for obj in catalog(Type=self.allowed_types)]
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, str(obj.Title).strip() or \
+            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
                       str(obj.getId).strip()) \
                      for obj in archetype_tool.Content()]
         if not self.required:
@@ -623,7 +757,7 @@ class CMFObjectField(ObjectField):
 
     def get(self, instance, **kwargs):
         try:
-            return self.storage.get(self.name, instance, **kwargs)
+            return self.storage.get(self.getName(), instance, **kwargs)
         except AttributeError:
             # object doesnt exists
             tt = getToolByName(instance, 'portal_types', None)
@@ -637,7 +771,7 @@ class CMFObjectField(ObjectField):
             if not hasattr(aq_base(info), 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
-            return info.constructInstance(instance, self.name, **kwargs)
+            return info.constructInstance(instance, self.getName(), **kwargs)
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
@@ -652,290 +786,312 @@ class CMFObjectField(ObjectField):
         # but just change instead.
         # ObjectField.set(self, instance, obj, **kwargs)
 
-InitializeClass(Field)
 
-# new image field implementation, derived from CMFPhoto by Magnus Heino
-
-from cgi import escape
-from cStringIO import StringIO
-import sys
-from zLOG import LOG, ERROR
-from BTrees.OOBTree import OOBTree
-from ExtensionClass import Base
-from Acquisition import Implicit, aq_parent
-from OFS.Traversable import Traversable
+# ImageField.py
+# Written in 2003 by Christian Scholz (cs@comlounge.net)
+# version: 1.0 (26/02/2002)
 from OFS.Image import Image as BaseImage
-
-try: 
+from cStringIO import StringIO
+try:
     import PIL.Image
-    isPilAvailable = 1
-except ImportError: 
-    isPilAvailable = 0
+    has_pil=1
+except:
+    # no PIL, no scaled versions!
+    has_pil=None
 
-class DynVariantWrapper(Base):
-    """
-        Provide a transparent wrapper from image to dynvariant
-        call it with url ${image_url}/variant/${variant}
-    """
-
-    def __of__(self, parent):
-        return parent.Variants()
-
-class DynVariant(Implicit, Traversable):
-    """
-        Provide access to the variants.
-    """
-
-    def __init__(self):
-        pass
-
-    def __getitem__(self, name):
-        if self.checkForVariant(name):
-            return self.getPhoto(name).__of__(aq_parent(self))
-        else:
-            return aq_parent(self)
-
-class ScalableImage(BaseImage):
-    """
-        A scalable image class.
-    """
-
-    __implements__ = BaseImage.__implements__
-
-    meta_type = 'Scalable Image'
-
-    isBinary = lambda self: 1
-
-    def __init__(self, id, title='', file='', displays={}):
-        BaseImage.__init__(self, id, title, file)
-        self._photos = OOBTree()
-        self.displays = displays
-
-    security = ClassSecurityInfo()
-
-    # make image variants accesable via url
-    variant=DynVariantWrapper()
-
-    security.declareProtected(CMFCorePermissions.View, 'Variants')
-    def Variants(self):
-        # Returns a variants wrapper instance
-        return DynVariant().__of__(self) 
-
-    security.declareProtected(CMFCorePermissions.View, 'getPhoto')
-    def getPhoto(self,size):
-        '''returns the Photo of the specified size'''
-        return self._photos[size]
-
-    security.declareProtected(CMFCorePermissions.View, 'getDisplays')
-    def getDisplays(self):
-        result = []
-        for name, size in self.displays.items():
-            result.append({'name':name, 'label':'%s (%dx%d)' % (
-                name, size[0], size[1]),'size':size}
-                )
-
-        #sort ascending by size
-        result.sort(lambda d1,d2: cmp(
-            d1['size'][0]*d1['size'][0],
-            d2['size'][1]*d2['size'][1])
-            )
-        return result
-
-    security.declarePrivate('checkForVariant')
-    def checkForVariant(self, size):
-	"""Create variant if not there."""
-        if size in self.displays.keys():
-	    # Create resized copy, if it doesnt already exist
-            if not self._photos.has_key(size):
-                self._photos[size] = BaseImage(
-                    size, size, self._resize(self.displays.get(size, (0,0)))
-                    )
-            # a copy with a content type other than image/* exists, this
-            # probably means that the last resize process failed. retry
-            elif not self._photos[size].getContentType().startswith('image'):
-                self._photos[size] = BaseImage(
-                    size, size, self._resize(self.displays.get(size, (0,0)))
-                    )
-            return 1
-        else: 
-            return 0
-
-    security.declareProtected(CMFCorePermissions.View, 'index_html')
-    def index_html(self, REQUEST, RESPONSE, size=None):
-        """Return the image data."""
-        if self.checkForVariant(size):
-            return self.getPhoto(size).index_html(REQUEST, RESPONSE)
-        return BaseImage.index_html(self, REQUEST, RESPONSE)
-
-    security.declareProtected(CMFCorePermissions.View, 'tag')
-    def tag(self, height=None, width=None, alt=None,
-            scale=0, xscale=0, yscale=0, css_class=None, 
-            title=None, size='original', **args):
-        """ Return an HTML img tag (See OFS.Image)"""
-
-        # Default values
-        w=self.width
-        h=self.height
-
-        if height is None or width is None:
-
-            if size in self.displays.keys():
-                if not self._photos.has_key(size):
-                    # This resized image isn't created yet.
-                    # Calculate a size for it
-                    x,y = self.displays.get(size)
-                    try:
-                        if self.width > self.height:
-                            w=x
-                            h=int(round(1.0/(float(self.width)/w/self.height)))
-                        else:
-                            h=y
-                            w=int(round(1.0/(float(self.height)/x/self.width)))
-                    except ValueError:
-                        # OFS.Image only knows about png, jpeg and gif.
-                        # Other images like bmp will not have height and
-                        # width set, and will generate a ValueError here.
-                        # Everything will work, but the image-tag will render 
-                        # with height and width attributes.
-                        w=None
-                        h=None
-                else:
-                    # The resized image exist, get it's size
-                    photo = self._photos.get(size)
-                    w=photo.width
-                    h=photo.height
-
-        if height is None: height=h
-        if width is None:  width=w
-
-        # Auto-scaling support
-        xdelta = xscale or scale
-        ydelta = yscale or scale
-
-        if xdelta and width:
-            width =  str(int(round(int(width) * xdelta)))
-        if ydelta and height:
-            height = str(int(round(int(height) * ydelta)))
-
-        result='<img src="%s/variant/%s"' % (self.absolute_url(), escape(size))
-
-        if alt is None:
-            alt=getattr(self, 'title', '')
-        result = '%s alt="%s"' % (result, escape(alt, 1))
-
-        if title is None:
-            title=getattr(self, 'title', '')
-        result = '%s title="%s"' % (result, escape(title, 1))
-
-        if height:
-            result = '%s height="%s"' % (result, height)
-
-        if width:
-            result = '%s width="%s"' % (result, width)
-
-        if not 'border' in [ x.lower() for x in args.keys()]:
-            result = '%s border="0"' % result
-
-        if css_class is not None:
-            result = '%s class="%s"' % (result, css_class)
-
-        for key in args.keys():
-            value = args.get(key)
-            result = '%s %s="%s"' % (result, key, value)
-
-        return '%s />' % result
-
-    security.declarePrivate('update_data')
-    def update_data(self, data, content_type=None, size=None):
-        """
-            Update/upload image -> remove all copies
-        """
-        BaseImage.update_data(self, data, content_type, size)
-        self._photos = OOBTree()
-        
-    def _resize(self, size, quality=100):
-        """Resize and resample photo."""
-        image = StringIO()
-
-        width, height = size
-
-        try:
-            if isPilAvailable:
-                img = PIL.Image.open(StringIO(str(self.data)))
-                fmt = img.format
-                # Resize photo
-                img.thumbnail((width, height))
-                # Store copy in image buffer
-                img.save(image, fmt, quality=quality)
-            else:
-                if sys.platform == 'win32':
-                    from win32pipe import popen2
-                    imgin, imgout = popen2('convert -quality %s -geometry %sx%s - -'
-                                           % (quality, width, height), 'b')
-                else:
-                    from popen2 import Popen3
-                    convert=Popen3('convert -quality %s -geometry %sx%s - -'
-                                           % (quality, width, height))
-                    imgout=convert.fromchild
-                    imgin=convert.tochild
-
-                imgin.write(str(self.data))
-                imgin.close()
-                image.write(imgout.read())
-                imgout.close()
-
-                #Wait for process to close if unix. Should check returnvalue for wait
-                if sys.platform !='win32':
-                    convert.wait()
-
-                image.seek(0)
-                
-        except Exception, e:
-            LOG('Archetypes.ScallableField', ERROR, 'Error while resizing image', e)
-                
-        return image
-
-InitializeClass(ScalableImage)
+class Image(BaseImage):
+    def isBinary(self):
+        return 1
 
 class ImageField(ObjectField):
-    """
-        An image field class.
-    """
+    """ implements an image attribute. it stores
+        it's data in an image sub-object
+
+        sizes is an dictionary containing the sizes to
+        scale the image to. PIL is required for that.
+
+        Format:
+        sizes={'mini': (50,50),
+               'normal' : (100,100), ... }
+        syntax: {'name': (width,height), ... }
+
+        the scaled versions can then be accessed as
+        object/<imagename>_<scalename>
+
+        e.g. object/image_mini
+
+        where <imagename> is the fieldname and <scalename>
+        is the name from the dictionary
+
+        original_size -- this parameter gives the size in (w,h)
+        to which the original image will be scaled. If it's None,
+        then no scaling will take place.
+        This is important if you don't want to store megabytes of
+        imagedata if you only need a max. of 100x100 ;-)
+
+        example:
+
+        ImageField('image',
+            original_size=(600,600),
+            sizes={ 'mini' : (80,80),
+                    'normal' : (200,200),
+                    'big' : (300,300),
+                    'maxi' : (500,500)})
+
+        will create an attribute called "image"
+        with the sizes mini, normal, big, maxi as given
+        and a original sized image of max 600x600.
+        This will be accessible as
+        object/image
+
+        and the sizes as
+
+        object/image_mini
+        object/image_normal
+        object/image_big
+        object/image_maxi
+
+        Scaling will only be available if PIL is installed!
+
+        If 'DELETE_IMAGE' will be given as value, then all the images
+        will be deleted (None is understood as no-op)
+        """
 
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'image',
         'default' : '',
+        'original_size': (600,600),
+        'max_size': None,
+        'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
-        'displays': {
-            'thumbnail': (128,128),
-            'xsmall': (200,200),
-            'small': (320,320),
-            'medium': (480,480),
-            'large': (768,768),
-            'xlarge': (1024,1024)
-            },
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         })
 
     default_view = "view"
 
-    def set(self, instance, value, **kw):
-        if isinstance(value, StringType):
-            value = StringIO(value)
-        image = ScalableImage(self.name, file=value, displays=self.displays)
-        ObjectField.set(self, instance, image, **kw)
+    def set(self, instance, value, **kwargs):
+        # do we have to delete the image?
+        if value=="DELETE_IMAGE":
+            ObjectField.set(self, instance, None, **kwargs)
+            return
 
-InitializeClass(ImageField)
+        if value == '' or type(value) != StringType:
+            image = None
+            try:
+                image = ObjectField.get(self, instance, **kwargs)
+            except AttributeError:
+                pass
 
-__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
-           'FileField', 'TextField', 'DateTimeField', 'LinesField', \
-           'IntegerField', 'FloatField', 'FixedPointField', \
-           'ReferenceField', 'ComputedField', 'BooleanField', \
-           'CMFObjectField', 'ImageField', \
+            # just keep stuff if nothing was uploaded
+            if not value: return
+
+            # check for file
+            if not ((isinstance(value, FileUpload) and value.filename != '') or
+                    (isinstance(value, FileType) and value.name != '')):
+                return
+
+            if image:
+                #OK, its a file, is it empty?
+                value.seek(-1, 2)
+                size = value.tell()
+                value.seek(0)
+                if size == 0:
+                 # This new file has no length, so we keep
+                 # the orig
+                 return
+
+        ###
+        ### store the original
+        ###
+
+        # test for scaling it.
+        if has_pil:
+            if self.original_size or self.max_size:
+                mimetype = kwargs.get('mimetype', 'image/png')
+                image = Image(self.getName(), self.getName(), value, mimetype)
+                data=str(image.data)
+                if self.max_size:
+                    if image.width > self.max_size[0] or image.height > self.max_size[1]:
+                        factor = min(float(self.max_size[0])/float(image.width),
+                                     float(self.max_size[1])/float(image.height))
+                        w = int(factor*image.width)
+                        h = int(factor*image.height)
+                elif self.original_size:
+                    w,h=self.original_size
+                imgdata=self.scale(data,w,h)
+        else:
+            mimetype = kwargs.get('mimetype', 'image/png')
+            imgdata=value
+
+        image = Image(self.getName(), self.getName(), imgdata, mimetype)
+        image.filename = hasattr(value, 'filename') and value.filename or ''
+        ObjectField.set(self, instance, image, **kwargs)
+
+        # now create the scaled versions
+        if not has_pil or not self.sizes:
+            return
+
+        data= str(image.data)
+        for n, size in self.sizes.items():
+            w, h = size
+            id = self.getName() + "_" + n
+            imgdata = self.scale(data, w, h)
+            image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
+            # manually use storage
+            self.storage.set(id, instance, image2)
+
+
+    def scale(self,data,w,h):
+        """ scale image (with material from ImageTag_Hotfix)"""
+        #make sure we have valid int's
+        keys = {'height':int(w or h), 'width':int(h or w)}
+
+        original_file=StringIO(data)
+        image=PIL.Image.open(original_file)
+        image=image.convert('RGB')
+        image.thumbnail((keys['width'],keys['height']))
+        thumbnail_file=StringIO()
+        image.save(thumbnail_file, "JPEG")
+        thumbnail_file.seek(0)
+        return thumbnail_file.read()
+
+
+class I18NMixIn(ObjectField):
+    """ I18N MixIn to allow internationalized content
+
+    this mix in is a litle bit tricky to allow it's use with any other fields.
+    You should use it with care !
+    class inheriting from this mixin should not be subclassed.
+
+
+    XXXFIXME for i18n content fields:
+       _ Catalog indexation
+       _ vocabulary
+       _ default value
+    """
+    def __init__(self, name, **kwargs):
+        ObjectField.__init__(self, name, **kwargs)
+        assert len(self.__class__.__bases__) == 2
+        # wrapped field class
+        self._wrapped_class = self.__class__.__bases__[-1]
+        # this is to avoid the definition of the __init__ method in the
+        # subclass just to call the __init__ of the two bases classes. So we
+        # call the mixed class __init__ here
+        # I know i'm lazy ;)
+        self._wrapped_class.__init__(self, name, **kwargs)
+        # always store language mapping using the attribute storage
+        self._i18n_storage = self.storage
+        self.storage = AttributeStorage()
+        self._i18n_default = self.default or self._wrapped_class._properties['default']
+        self.default = None
+
+    def getI18NFieldId(self, lang):
+        return '%s__%s'  % (self.__name__, lang)
+
+    def hasI18NContent(self):
+        """return true it the field has I18N content"""
+        return 1
+
+    def getDefinedLanguages(self, instance):
+        """return a list of defined language ids for the given instance"""
+        return self._get_mapping(instance).keys()
+
+
+    def get(self, instance, lang=None, **kwargs):
+        lang = instance.getLanguage(lang)
+        mapping = self._get_mapping(instance)
+        #log('I18Nget %s with %s %s %s from %r at %s' % (self.__name__, instance,
+        #                                                lang, kwargs, mapping,
+        #                                                id(mapping)))
+        try:
+            return mapping[lang].get(instance, **kwargs)
+        except KeyError:
+            master_lang = instance.getMasterLanguage()
+            if mapping.has_key(master_lang):
+                return mapping[master_lang].get(instance, **kwargs)
+            langs = mapping.keys()
+            if langs:
+                return mapping[langs[0]].get(instance, **kwargs)
+
+            return self._i18n_default
+
+    def getRaw(self, instance, lang=None, **kwargs):
+        lang = instance.getLanguage(lang)
+        mapping = self._get_mapping(instance)
+        try:
+            return mapping[lang].getRaw(instance, **kwargs)
+        except KeyError:
+            return self._i18n_default
+
+    def set(self, instance, value, lang=None, **kwargs):
+        value = value or self._i18n_default
+        lang = instance.getLanguage(lang)
+        #log('I18Nset %s with %s %s %s %s' % (self.__name__, instance, lang, value, kwargs))
+        mapping = self._get_mapping(instance)
+        field = self._build_lang_field(instance, lang)
+        field.set(instance, value, **kwargs)
+        mapping[lang] = field
+        self.storage.set(self.getName(), instance, mapping)
+
+    def unset(self, instance, lang=None, **kwargs):
+        mapping = self._get_mapping(instance)
+        field = mapping.get(lang, None)
+        if field:
+            field.unset(instance, **kwargs)
+        try:
+            del mapping[lang]
+        except:
+            pass
+
+
+    def _get_mapping(self, instance):
+        try:
+            mapping = self.storage.get(self.getName(), instance)
+        except AttributeError:
+            mapping = None
+        if not mapping:
+            mapping = PersistentMapping()
+            self.storage.set(self.getName(), instance, mapping)
+        return mapping
+
+    def _build_lang_field(self, instance, lang):
+        dict = copy(self.__dict__)
+        dict["storage"] = self._i18n_storage
+        dict["default"] = self._i18n_default
+        del dict['__name__']
+        del dict['_i18n_storage']
+        del dict['_i18n_default']
+        del dict['storage']
+        del dict['_wrapped_class']
+        del dict['accessor']
+        del dict['edit_accessor']
+        del dict['mutator']
+        return self._wrapped_class(self.getI18NFieldId(lang), **dict)
+
+
+class I18NStringField(I18NMixIn, StringField): pass
+class I18NMetadataField(I18NMixIn, MetadataField): pass
+class I18NFileField(I18NMixIn, FileField): pass
+class I18NTextField(I18NMixIn, TextField): pass
+class I18NLinesField(I18NMixIn, LinesField): pass
+class I18NImageField(I18NMixIn, ImageField): pass
+
+
+InitializeClass(Field)
+
+__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField',
+           'FileField', 'TextField', 'DateTimeField', 'LinesField',
+           'IntegerField', 'FloatField', 'FixedPointField',
+           'ReferenceField', 'ComputedField', 'BooleanField',
+           'CMFObjectField', 'ImageField',
+
+           'I18NStringField', 'I18NMetadataField',
+           'I18NFileField', 'I18NTextField', 'I18NLinesField',
+           'I18NImageField',
+
            'FieldList', 'MetadataFieldList', # Those two should go
                                              # away after 1.0
            )
-

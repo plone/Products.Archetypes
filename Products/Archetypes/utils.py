@@ -1,5 +1,6 @@
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from UserDict import UserDict as BaseDict
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
 from types import TupleType, ListType
@@ -185,7 +186,7 @@ class DisplayList:
         try:
             return self._i18n_msgids[key]
         except (KeyError, AttributeError):
-            return self._keys[key]
+            return self._keys[key][1]
 
     def keys(self):
         "keys"
@@ -243,3 +244,61 @@ class DisplayList:
     slice=__getslice__
 
 InitializeClass(DisplayList)
+
+
+class OrderedDict(BaseDict):
+    """A wrapper around dictionary objects that provides an ordering for
+       keys() and items()."""
+
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+
+    def __init__(self, dict=None):
+        BaseDict.__init__(self, dict)
+        if dict is not None:
+            self._keys = self.data.keys()
+        else:
+            self._keys = []
+            
+    def __setitem__(self, key, item):
+        if not self.data.has_key(key):
+            self._keys.append(key)
+        return BaseDict.__setitem__(self, key, item)
+        
+    def __delitem__(self, key):
+        BaseDict.__delitem__(self, key)
+        self._keys.remove(key)
+        
+    def clear(self): 
+        BaseDict.clear(self)
+        self._keys = []
+        
+    def keys(self): 
+        return self._keys
+    
+    def items(self): 
+        return [(k, self.get(k)) for k in self._keys]
+
+    def values(self):
+        return [self.get(k) for k in self._keys]
+
+    def update(self, dict):
+        for k in dict.keys():
+            if not self.data.has_key(k):
+                self._keys.append(k)
+        return BaseDict.update(self, dict)
+
+    def setdefault(self, key, failobj=None):
+        if not self.data.has_key(key):
+            self._keys.append(key)
+        return BaseDict.setdefault(self, key, failobj)
+
+    def popitem(self):
+        if not self.data:
+            raise KeyError, 'dictionary is empty'
+        k = self._keys.pop()
+        v = self.data.get(k)
+        del self.data[k]
+        return (k, v)
+    
+InitializeClass(OrderedDict)

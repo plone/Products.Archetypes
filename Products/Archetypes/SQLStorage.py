@@ -36,6 +36,8 @@ class BaseSQLStorage(StorageLayer):
 
     def unmap_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
+        if value is None: # maybe not initialized
+            return (0, 0)
         split = 10 ** field.precision
         return (value / split), (value % split)
 
@@ -80,7 +82,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         for field in fields:
             type = self.db_type_map.get(field.type, field.type)
-            name = field.name
+            name = field.getName()
             columns.append('%s %s' % (name, type))
         parent = container or aq_parent(aq_inner(instance))
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
@@ -182,7 +184,7 @@ class BaseSQLStorage(StorageLayer):
                   and f.getStorage().__class__ is self.__class__]
         temps = {}
         for f in fields:
-            temps[f.name] = f.get(instance)
+            temps[f.getName()] = f.get(instance)
         setattr(instance, '_v_%s_temps' % self.getName(), temps)
         # now, remove data from sql
         c_tool = getToolByName(instance, TOOL_NAME)

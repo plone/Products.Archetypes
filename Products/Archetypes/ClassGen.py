@@ -11,6 +11,10 @@ _modes = {
             'attr'     : 'accessor',
             'security' : 'read_permission',
             },
+    'm' : { 'prefix'   : 'get_raw',
+            'attr'     : 'edit_accessor',
+            'security' : 'write_permission',
+            },
     'w' : { 'prefix'   : 'set',
             'attr'     : 'mutator',
             'security' : 'write_permission',
@@ -25,23 +29,26 @@ class Generator:
     def computeMethodName(self, field, mode):
         if mode not in _modes.keys():
             raise TypeError("Unsupported Mode %s in field: %s (%s)" % \
-                            (field.name, mode))
+                            (field.getName(), mode))
 
         prefix = _modes[mode]['prefix']
-        name   = capitalize(field.name)
+        name   = capitalize(field.getName())
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
         if mode == "r":
-            method = lambda self, field=field.name: \
-                     self.Schema()[field].get(self)
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].get(self, **kw)
+        elif mode == "m":
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].getRaw(self, **kw)
         elif mode == "w":
-            method = lambda self, value, field=field.name, **kw: \
+            method = lambda self, value, field=field.getName(), **kw: \
                      self.Schema()[field].set(self, value, **kw)
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
-                                field.name,
+                                field.getName(),
                                 methodName,
                                 mode))
 
@@ -88,39 +95,44 @@ class ClassGenerator:
         fields = klass.schema.fields()
         generator = Generator()
         for field in fields:
+            assert not 'm' in field.mode, 'm is an implicit mode'
+            
             #Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'type')
-
             for mode in field.mode: #(r, w)
-                attr = _modes[mode]['attr']
-
-                # Did the field request a specific method name?
-                methodName = getattr(field, attr, None)
-                if not methodName:
-                    methodName = generator.computeMethodName(field, mode)
-
-                # Avoid name space conflicts
-                if not hasattr(klass, methodName):
-                    if type.has_key(methodName):
-                        raise GeneratorError("There is a conflict"
-                        "between the Field(%s) and the attempt"
-                        "to generate a method of the same name on"
-                        "class %s" % (
-                            methodName,
-                            klass.__name__))
-
-
-                    #Make a method for this klass/field/mode
-                    generator.makeMethod(klass, field, mode, methodName)
-                    self.updateSecurity(klass, field, mode, methodName)
-
-
-                #Note on the class what we did (even if the method existed)
-                attr = _modes[mode]['attr']
-                setattr(field, attr, methodName)
-
+                self.handle_mode(klass, generator, type, field, mode)
+                if mode == 'w':
+                    self.handle_mode(klass, generator, type, field, 'm')                
+                
         InitializeClass(klass)
 
+    def handle_mode(self, klass, generator, type, field, mode):
+        attr = _modes[mode]['attr']
+        # Did the field request a specific method name?
+        methodName = getattr(field, attr, None)
+        if not methodName:
+            methodName = generator.computeMethodName(field, mode)
+
+        # Avoid name space conflicts
+        if not hasattr(klass, methodName):
+            if type.has_key(methodName):
+                raise GeneratorError("There is a conflict"
+                                     "between the Field(%s) and the attempt"
+                                     "to generate a method of the same name on"
+                                     "class %s" % (
+                    methodName,
+                    klass.__name__))
+
+            
+            #Make a method for this klass/field/mode
+            generator.makeMethod(klass, field, mode, methodName)
+            self.updateSecurity(klass, field, mode, methodName)
+
+        #Note on the class what we did (even if the method existed)
+        attr = _modes[mode]['attr']
+        setattr(field, attr, methodName)
+
+        
 _cg = ClassGenerator()
 generateClass = _cg.generateClass

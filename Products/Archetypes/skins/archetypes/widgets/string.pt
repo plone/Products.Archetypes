@@ -25,10 +25,11 @@
 	       tabindex="#"
 	       tal:attributes="name fieldName;
 	                       value value;
-	       tabindex tabindex/next;
-               onfocus string:formtooltip('${fieldName}_help',1);
-               onblur string:formtooltip('${fieldName}_help',0);
-	"/>
+												 size widget/size;
+												 maxlength widget/maxlength;
+												 tabindex tabindex/next;
+               					 onfocus string:formtooltip('${fieldName}_help',1);
+               					 onblur string:formtooltip('${fieldName}_help',0);"/>
     </metal:use>
     </metal:define>
 

@@ -12,7 +12,11 @@ from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__, etc
 def pretty_exc(self, exc):
     t, e, tb = exc
-    return ''.join(format_exception(t, e, tb, format_src=1))
+    try:
+        return ''.join(format_exception(t, e, tb, format_src=1))
+    except:
+        return ''.join(format_exception(t, e, tb))
+
 unittest.TestResult._exc_info_to_string = pretty_exc
 
 from Products.Archetypes.public import *
@@ -95,6 +99,9 @@ class Dummy(BaseContent):
     """ A dummy content object for testing """
     _uid = 'Dummy.2002-01-01.2302'
 
+
+default_time = DateTime()
+
 def gen_dummy(storage_class):
     Dummy.schema = Schema((
         ObjectField('aobjectfield',
@@ -108,7 +115,7 @@ def gen_dummy(storage_class):
                                         description = 'Just a text field for the testing')),
 
         DateTimeField('adatetimefield',
-                      default = DateTime(),
+                      default = default_time,
                       storage = storage_class(),
                       widget = CalendarWidget(label = 'adatetimefield',
                                               description = 'Just a datetime field for the testing')),
@@ -124,13 +131,12 @@ def gen_dummy(storage_class):
                                             description = 'Just a integer field for the testing')),
 
         FixedPointField('afixedpointfield',
-                        default = '0',
+                        default = '0.0',
                         storage = storage_class(),
                         widget = DecimalWidget(label = 'afixedwidthfield',
                                                description = 'Just a fixed-width field for the testing')),
 
         ReferenceField('areferencefield',
-                       default = 0,
                        storage = storage_class(),
                        widget = ReferenceWidget(label = 'areferencefield',
                                                 description = 'Just a reference field for the testing')),
@@ -150,7 +156,7 @@ def gen_dummy(storage_class):
     ))
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-   
+
 class DummyTool:
     def __init__(self, db_name):
         self.sql_connection = connectors[db_name]
@@ -184,6 +190,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_objectfield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAobjectfield() == None)
         dummy.setAobjectfield('Bla')
         value = dummy.getAobjectfield()
         __traceback_info__ = repr(value)
@@ -191,6 +198,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_textfield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAtextfield() == '')
         dummy.setAtextfield('Bla')
         value = dummy.getAtextfield()
         __traceback_info__ = repr(value)
@@ -198,6 +206,8 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_datetimefield(self):
         dummy = self._dummy
+        default = dummy.getAdatetimefield()
+        self.failUnless(default.Time() == default_time.Time())
         now = DateTime()
         dummy.setAdatetimefield(now)
         value = dummy.getAdatetimefield()
@@ -208,6 +218,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_integerfield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAintegerfield() == 0)
         dummy.setAintegerfield(23)
         value = dummy.getAintegerfield()
         __traceback_info__ = repr(value)
@@ -215,6 +226,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_fixedpointfield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAfixedpointfield() == '0.00')
         dummy.setAfixedpointfield('2.3')
         value = dummy.getAfixedpointfield()
         __traceback_info__ = repr(value)
@@ -222,6 +234,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_referencefield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAreferencefield() is None)
         dummy.setAreferencefield('Bla')
         value = dummy.getAreferencefield()
         __traceback_info__ = repr(value)
@@ -229,6 +242,7 @@ class SQLStorageTest(unittest.TestCase):
 
     def test_booleanfield(self):
         dummy = self._dummy
+        self.failUnless(dummy.getAbooleanfield() is None)
         dummy.setAbooleanfield(1)
         value = dummy.getAbooleanfield()
         __traceback_info__ = repr(value)
@@ -277,7 +291,7 @@ for db_name in connectors.keys():
                                                 id='Dummy',
                                                 typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
-            
+
         def test_rename(self):
             site = self.root.testsite
             obj_id = 'dummy'
@@ -371,7 +385,7 @@ for db_name in connectors.keys():
 
 #################################################################
 # run tests
-        
+
 def test_suite():
     return unittest.TestSuite([unittest.makeSuite(test) for test in tests])
 

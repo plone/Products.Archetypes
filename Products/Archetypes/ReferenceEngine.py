@@ -8,11 +8,19 @@ from interfaces.referenceable import IReferenceable
 from utils import unique
 from types import StringType
 
+
 class ReferenceEngine(Base):
     def __init__(self):
         self.refs = PersistentMapping()
         self.bref = PersistentMapping()
 
+
+    def hasRelationshipTo(self, object, target, relationship=None):
+        if type(target) != StringType:
+            target = target.UID()
+        refs = self.getRefs(object, relationship)
+        return target in refs
+        
     def getRefs(self, object, relationship=None):
         refs = []
         try:

@@ -35,8 +35,8 @@ class ChangeStorageTest( unittest.TestCase ):
         self.failUnless(dummy.getAnobjectfield() == 'someothertext')
 
         for field in dummy.schema.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                self._old_storages[field.name] = field.getStorage()
+            if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
+                self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
                 self.failUnless(field.getStorage().getName() == 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
@@ -67,7 +67,7 @@ class MetadataStorageTest( ClassGenTest ):
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         for field in dummy.schema.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
+            if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
 
@@ -78,7 +78,7 @@ class AttributeStorageTest( ClassGenTest ):
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         for field in dummy.schema.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
+            if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 
 

@@ -5,7 +5,7 @@ from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from utils import capitalize, DisplayList
+from utils import capitalize, DisplayList, OrderedDict
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -25,11 +25,11 @@ from Products.CMFCore.utils import getToolByName
 def index_sort(a, b): return  a._index - b._index
 
 def getNames(schema):
-    return [f.name for f in schema.fields()]
+    return [f.getName() for f in schema.fields()]
 
 def getSchemata(klass):
     schema = klass.schema
-    schemata = {}
+    schemata = OrderedDict()
     for f in schema.fields():
         sub = schemata.get(f.schemata, Schemata(name=f.schemata))
         sub.addField(f)
@@ -48,7 +48,7 @@ class Schemata(UserDict):
     index = 0
 
     def __init__(self, name='default', fields=None):
-        self.name = name
+        self.__name__ = name
         UserDict.__init__(self)
 
         if fields is not None:
@@ -60,7 +60,7 @@ class Schemata(UserDict):
 
     security.declarePublic('getName')
     def getName(self):
-        return self.name
+        return self.__name__
 
     def __add__(self, other):
         c = Schemata()
@@ -98,7 +98,7 @@ class Schemata(UserDict):
         """list all the widgets in order, keyed by field name"""
         widgets = {}
         for f in self.fields():
-            widgets[f.name] = f.widget
+            widgets[f.getName()] = f.widget
         return widgets
 
     def filterFields(self, *args, **kwargs):
@@ -135,7 +135,7 @@ class Schemata(UserDict):
     security.declarePrivate('addField')
     def addField(self, field):
         if IField.isImplementedBy(field):
-            self[field.name] = field
+            self[field.getName()] = field
             field._index = self.index
             self.index +=1
         else:
@@ -144,7 +144,7 @@ class Schemata(UserDict):
     security.declarePublic('searchable')
     def searchable(self):
         """return the names of all the searchable fields"""
-        return [f.name for f in self.values() if f.searchable]
+        return [f.getName() for f in self.values() if f.searchable]
 
 class Schema(Schemata, UserDict, DefaultLayerContainer):
     """Manage a list of fields and run methods over them"""
@@ -207,10 +207,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         """
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
-            if field.name.lower() != 'id':
+            if field.getName().lower() != 'id':
                 # always set defaults
-                #if not hasattr(aq_base(instance), field.name) and \
-                #   getattr(instance, field.name, None):
+                #if not hasattr(aq_base(instance), field.getName()) and \
+                #   getattr(instance, field.getName(), None):
                 default = field.default
                 if field.default_method:
                     method = getattr(instance, field.default_method, None)
@@ -224,12 +224,12 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         keys = kwargs.keys()
 
         for field in self.values():
-            if field.name not in keys:
+            if field.getName() not in keys:
                 continue
 
             if 'w' not in field.mode:
                 log("tried to update %s:%s which is not writeable" % \
-                    (instance.portal_type, field.name))
+                    (instance.portal_type, field.getName()))
                 continue
 
             method = getattr(instance, field.mutator, None)
@@ -237,7 +237,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
 
-            method(kwargs[field.name])
+            method(kwargs[field.getName()])
 
     security.declarePublic("allow")
     def allow(self, key):
@@ -255,18 +255,18 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
         if fieldset is not None:
             schemata = instance.Schemata()
-            fields = [(field.name, field) for field in schemata[fieldset].fields()]
+            fields = [(field.getName(), field) for field in schemata[fieldset].fields()]
         else:
             if data:
-                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
+                fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=0)])
             if metadata:
-                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
+                fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=1)])
 
         for name, field in fields:
             if name == 'id':
                 member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
-                if not getattr(member, 'visible_ids', None) and \
-                   not REQUEST.form.get('id', None):
+                if not member.getProperty('visible_ids', None) and \
+                   not (REQUEST and REQUEST.form.get('id', None)):
                     continue
             if errors and errors.has_key(name): continue
             error = 0
@@ -288,8 +288,12 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
             # if no REQUEST, validate existing value
             else:
-                accessor = getattr(instance, field.accessor)
-                value = accessor()
+                accessor = field.getAccessor(instance)
+                if accessor is not None:
+                    value = accessor()
+                else:
+                    # can't get value to validate -- bail
+                    break
 
             #REQUIRED CHECK
             if field.required == 1:
@@ -425,6 +429,22 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 if not queued((layer, object)) and ILayer.isImplementedBy(object):
                     object.cleanupInstance(instance, item, container)
                     queuedLayers.append((layer, object))
+
+    # Utility method for converting a Schema to a string for the purpose of
+    # comparing schema.  This comparison is used for determining whether a
+    # schema has changed in the auto update function.  Right now it's pretty
+    # crude.  XXX fixme
+    def toString(self):
+        s = '%s: {' % self.__class__.__name__
+        for f in self.fields():
+            s = s + '%s,' % (f.toString())
+        s = s + '}'
+        return s
+    
+    def signature(self):
+        from md5 import md5
+        return md5(self.toString()).digest()
+
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

@@ -17,7 +17,7 @@ class TypesWidget(macrowidget):
     def bootstrap(self, instance):
         if not self.description or not self.label:
             field = self.findField(instance)
-            name = field.name
+            name = field.getName()
             if not self.label:
                 self.label = capitalize(name)
             if not self.description:
@@ -38,7 +38,9 @@ class TypesWidget(macrowidget):
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/string"
+        'macro' : "widgets/string",
+        'size' : '30',
+        'maxlength' : '255',
         })
 
 class DecimalWidget(TypesWidget):
@@ -148,6 +150,14 @@ class ImageWidget(TypesWidget):
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
+# LabelWidgets are used to display instructions on a form.  The widget only
+# displays the label for a value -- no values and no form elements.
+class LabelWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/label",
+        })
+
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -173,4 +183,4 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
-           'PasswordWidget', 'VisualWidget')
+           'LabelWidget', 'PasswordWidget', 'VisualWidget')

@@ -3,15 +3,12 @@
     tal:replace="structure here/manage_tabs">Tabs</h2>
   
 
-  <form method="POST">
+  <form method="POST" action="manage_addTransform"
+        tal:attributes="action string:${here/absolute_url}/manage_addTransform;">
     <div class="form-title">
-      Add a new schema
+      Add a new transform
     </div>
     
-    <div class="form-help">
-      This is a CMFTypes Schema
-    </div>
-		
     <div tal:define="status python:request.get('portal_status', '')"
       tal:condition="status"
 	     class="error"	
@@ -19,16 +16,17 @@
 	/>
       
       <table width="50%">
-      <tr>
+        <tr>
 	  <td> ID</td>
-	<td> 
+	  <td> 
 	    <input name="id" tal:attributes="value python:request.get('id', '');"/>
 	  </td>
-	<td>	
-	    Schema
+        </tr><tr>
+	  <td>	
+	    Module
 	  </td>
 	  <td>
-	  <texarea cols="40" rows="20" name="schema" tal:content="python:request.get('schema', '')"/>
+	    <input name="module" tal:attributes="value python:request.get('module', '');"/>
 	  </td>	
 	</tr>
       </table>

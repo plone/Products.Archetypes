@@ -29,7 +29,7 @@ class BaseUnitTest( unittest.TestCase ):
 
     def testSame(self):
         input = open(self.input)
-        bu = BaseUnit(name='test', file=input, mime_type='text/restructured')
+        bu = BaseUnit(name='test', file=input, mimetype='text/restructured')
         input.close()
 
         got = normalize_html(bu())

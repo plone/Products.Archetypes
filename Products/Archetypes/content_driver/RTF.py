@@ -8,7 +8,7 @@ EXTRACT_STYLE = 0
 
 # XXX This is really a quick hack in more ways than one .. The converter
 # used, rtf2html, is 14Kb of C code from 1993 with no canonical homepage
-# AFAIK. 
+# AFAIK.
 #
 # From its README:
 #
@@ -30,7 +30,7 @@ class RTFDocument:
         filedest = open("%s/%s.rtf" % (self.tmpdir, self.name), "w")
         filedest.write(self.data)
         filedest.close()
-    
+
     def Convert(self):
         "Convert the document"
         os.system('cd "%s" && %s/bin/rtf2html "%s.rtf" > "%s.html"' % (self.tmpdir, self.prefix, self.name, self.name))
@@ -39,7 +39,7 @@ class RTFDocument:
         for f in os.listdir("%s" % self.tmpdir):
             os.remove("%s/%s" % (self.tmpdir, f))
         os.rmdir("%s" % self.tmpdir)
-    
+
     def getHTML(self):
         htmlfile = open("%s/%s.html" % (self.tmpdir, self.name), 'r')
         html = htmlfile.read()
@@ -48,7 +48,7 @@ class RTFDocument:
 
 
 class Converter(ContentDriver):
-    mime_type = 'application/rtf' 
+    mime_type = 'application/rtf'
 
 
     def convertData(self, instance, data):
@@ -60,7 +60,7 @@ class Converter(ContentDriver):
             if EXTRACT_STYLE:
                 style =  stylefinder(instance.html)
             else:
-                style = '' 
+                style = ''
             body  = bodyfinder(instance.html)
 
         instance.html = "%s\n%s" % (style, body)
