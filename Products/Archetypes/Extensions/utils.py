@@ -4,7 +4,7 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-
+from Products.PortalTransforms.Extensions.Install import install as install_portal_transforms
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -37,15 +37,6 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
-        
-    if not hasattr(self, "mimetypes_registry"):
-        addTool = self.manage_addProduct['Archetypes'].manage_addTool
-        addTool('MimeTypes Registry')
-
-    if not hasattr(self, "portal_transforms"):
-        addTool = self.manage_addProduct['Archetypes'].manage_addTool
-        addTool('Portal Transforms')
-
 
     #and the tool uses an index
     catalog = getToolByName(self, 'portal_catalog')
@@ -295,6 +286,7 @@ def setupEnvironment(self, out, types,
     install_indexes(self, out, types)
     install_actions(self, out, types)
 
+    install_portal_transforms(self)
     if isPloneSite(self):
         install_validation(self, out, types)
         install_navigation(self, out, types)
