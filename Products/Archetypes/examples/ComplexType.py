@@ -2,11 +2,11 @@ from Products.Archetypes.public import *
 from Products.Archetypes import Field
 from SimpleType import SimpleType
 
-fields = ['ObjectField', 'StringField',
+fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
-          'BooleanField',
-          # 'ReferenceField', 'ComputedField', 'CMFObjectField', 'ImageField'
+          'BooleanField', 'ReferenceField', 'ImageField'
+          # 'ComputedField', 'CMFObjectField'
           ]
 
 field_instances = []
@@ -40,12 +40,20 @@ schema = Schema(tuple(field_instances) + (
                                        'application/msword'),
               widget=RichWidget(label='rich'),
               ),
+    #ReferenceField('reffield1',
+    #               relationship='myref1',
+    #               widget=InAndOutWidget(label='Ref1')
+    #              ),
+    #ReferenceField('reffield2',
+    #               relationship='myref2',
+    #               widget=PicklistWidget(label='Ref1'),
+    #              ),
     )) + ExtensibleMetadata.schema
 
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
-    archetypes_name = portal_type = meta_type = "Complex Type"
+    archetype_name = portal_type = meta_type = "Complex Type"
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'), ))
