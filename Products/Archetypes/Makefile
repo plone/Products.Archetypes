@@ -11,7 +11,7 @@ CURDIR=~/src/archetypes/head/Archetypes
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=~/src/zope/2_7/lib/python
 INSTANCE_HOME=~/src/instance/head
-PACKAGES=Archetypes validation generator ArchExample ArchGenXML
+PACKAGES=Archetypes validation generator ArchExample ArchGenXML I18NArchetypes
 
 
 RM=rm -f
