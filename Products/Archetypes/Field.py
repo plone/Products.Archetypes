@@ -197,6 +197,8 @@ class ObjectField(Field):
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
+        # Remove acquisition wrappers
+        value = aq_base(value)
         self.storage.set(self.name, instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):

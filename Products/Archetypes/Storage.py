@@ -14,6 +14,8 @@ type_map = {'text':'string',
             'integer':'int'
             }
 
+_marker = []
+
 class Storage:
     __implements__ = IStorage
 
@@ -57,15 +59,23 @@ class AttributeStorage(Storage):
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
-        return getattr(instance, name)
+        value = getattr(aq_base(instance), name, _marker)
+        if value is _marker:
+            raise AttributeError(name)
+        try:
+            # Try to wrap the value with some context
+            return value.__of__(instance)
+        except (AttributeError, KeyError):
+            # Return unwrapped
+            return value
 
     def set(self, name, instance, value, **kwargs):
-        setattr(instance, name, value)
+        setattr(aq_base(instance), name, value)
         instance._p_changed = 1
 
     def unset(self, name, instance, **kwargs):
         try:
-            delattr(instance, name)
+            delattr(aq_base(instance), name)
         except AttributeError:
             pass
         instance._p_changed = 1
@@ -82,7 +92,7 @@ class ObjectManagedStorage(Storage):
     def set(self, name, instance, value, **kwargs):
         try:
             instance._delObject(name)
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
         instance._setObject(name, value)
         instance._p_changed = 1
