@@ -7,8 +7,11 @@
 ##bind subpath=traverse_subpath
 ##parameters=vocab, value
 
+
 try:
-    return u', '.join([vocab.getValue(unicode(str(v))) for v in value])
+    return ', '.join([vocab.getValue(context.unicodeEncode(str(v)),
+                                     context.unicodeEncode(str(v))) for v in value])
+
 except TypeError:
-    return vocab.getValue(unicode(str(value)))
+    return vocab.getValue(context.unicodeEncode(str(value), context.unicodeEncode(str(value))))
 

@@ -37,7 +37,7 @@
                            name string:$fieldName:list;
                            id fieldName;
                            tabindex tabindex/next;
-                           checked python:test(unicode(item) in [unicode(val) for val in value], 'checked', None);
+                           checked python:test(here.unicodeTestIn(item, value), 'checked', None);
                            value python:vocab.getValue(item);" />
 	      <br>
 	  </span>
@@ -53,7 +53,7 @@
 	  <option selected=""
 	    tal:repeat="item vocab"
 	    tal:attributes="value item;
-	    selected python:test(unicode(item) in [unicode(val) for val in value], 'selected', None);"
+	    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
 	    tal:content="python: vocab.getValue(item)"/>
 	</select>
       </metal:fill>
