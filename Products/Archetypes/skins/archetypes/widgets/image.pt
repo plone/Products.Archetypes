@@ -6,15 +6,17 @@
 
   <body>
 
-    <metal:block define-macro="image_display">
-	  <tal:def define="img accessor; inline python: img and
+    <div class="field" metal:define-macro="image_display">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <tal:def define="img accessor; inline python: img and
 	                         (img.getSize() <= widget.display_threshold) and
 				 (request.get('HTTP_ACCEPT', '').find(img.getContentType()) >= 0)">
 	    <img tal:replace="structure img/tag" tal:condition="inline" src="foo.png" />
 	    <tal:if condition="not:inline">
 	    </tal:if>
-	  </tal:def>
-    </metal:block>
+     </tal:def>
+   </div>
 
 
     <!-- Image Widgets -->

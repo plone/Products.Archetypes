@@ -7,8 +7,10 @@
   <body>
 
     <!-- Label Widgets -->
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view" />
+    <div class="field" metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+      <metal:block use-macro="here/widgets/field/macros/view" />
     </div>
 
     <div metal:define-macro="edit">

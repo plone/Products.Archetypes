@@ -29,6 +29,7 @@ def test_suite():
         # 'test_update_schema2', # Can't run both together.
         'test_utils',
         'test_utils2',
+        'test_vocabulary',
         # 'test_widgets', # Run this one with care. It may harm your database.
         ])
 

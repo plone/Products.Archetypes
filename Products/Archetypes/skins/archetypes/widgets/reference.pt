@@ -6,31 +6,30 @@
 
 <body>
 
-<!-- Reference Widgets -->
+    <!-- Reference Widgets -->
 
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-        
+    <div class="field" metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <metal:block use-macro="here/widgets/field/macros/view">
+	<metal:block fill-slot="widget_view">
         <a href="#"
              tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor());"
              tal:attributes="href obj/absolute_url"
              tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
              tal:condition="python:not field.multiValued and obj is not None">
         </a>
-
         <tal:block tal:condition="python:field.multiValued"
                    tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in (accessor() or [])]">
-            
+
               <a href="#"
-                 
                  tal:attributes="href obj/absolute_url"
                  tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
                  tal:condition="python:obj is not None"></a>
         </tal:block>
 
-	</div>
-      </div>
+	</metal:block>
+     </metal:block>
     </div>
 
     <div metal:define-macro="edit">

@@ -8,9 +8,11 @@
 
 <!-- File Widgets -->
 
-    <metal:define define-macro="file_view">
-    <tal:define define="unit accessor">
-    <div tal:define="size unit/get_size | python: len(unit) or 0;
+    <div class="field" metal:define-macro="file_view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <tal:define define="unit accessor">
+     <tal:block define="size unit/get_size | python: len(unit) or 0;
 	            icon unit/getIcon | nothing;
 		    filename value/filename|nothing"
 	 tal:condition="python:size>0">
@@ -28,9 +30,9 @@
 	    <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
         <span i18n:translate="" tal:omit-tag="">Edit</span>
 	</a>
-    </div>
+    </tal:block>
     </tal:define>
-    </metal:define>
+    </div>
 
     <metal:define define-macro="file_edit">
     <input type="file" 
@@ -39,8 +41,7 @@
 	   tal:attributes=" name string:${fieldName}_file;
 	   tabindex tabindex/next; 
            onfocus string:formtooltip('${fieldName}_help',1);
-           onblur string:formtooltip('${fieldName}_help',0);
-    "/>
+           onblur string:formtooltip('${fieldName}_help',0)" />
 	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
     </metal:define>
 

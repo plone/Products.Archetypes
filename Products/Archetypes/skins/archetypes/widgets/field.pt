@@ -7,9 +7,11 @@
 <body>
 
     <!-- Base Field Widgets -->
-    <div metal:define-macro="view">
-      <div tal:condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
-        <span class="label" tal:condition="use_label|nothing" tal:content="python:widget.Label(here) + ':'">Field</span>
+    <metal:block define-macro="view">
+      <tal:block condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)" tal:omit-tag="">
+        <tal:block condition="use_label|nothing">
+        <span class="label"
+              tal:content="python:widget.Label(here) + ':'">Field</span>
         <span tal:condition="field/workflowable|nothing"
               tal:omit-tag="">
         (<a href="#"
@@ -23,16 +25,11 @@
         review_state
         </a>)
         </span>
-	<!-- Users don't care about content types
-        <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
-	tal:omit-tag="">
-	(<span tal:replace="python:field.getContentType(here)" />)
-        </span>
-	-->
-	      <div metal:define-slot="widget_view"/>
-	      <br/>
-      </div>
-    </div>
+        <br />
+	</tal:block>
+	<metal:block define-slot="widget_view" />
+      </tal:block>
+    </metal:block>
 
     <metal:define define-macro="edit">
     <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">

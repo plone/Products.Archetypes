@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2003/07/28 01:29:06 $
-:Version: $Revision: 1.6.4.3 $
+:Date: $Date: 2003/08/09 19:12:59 $
+:Version: $Revision: 1.6.4.4 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -36,13 +36,11 @@ Requirements
 Archetypes is currently being tested and run in various environments
 using the following combination:
 
-- Zope 2.6
+- Zope 2.6.2+
 
-- CMFPlone 1.0.2
+- CMFPlone 1.0.4
 
 - CMF 1.3.1
-
-It is also known to work smoothly with Zope 2.5.
 
 Using the tarball
 *****************
@@ -55,16 +53,20 @@ Using the tarball
 
      Archetypes
      ArchExample
-     transform
-     validation
-     generator
 
-3. Restart your Zope.
+3. You should install the *validation* and *generator* packages available
+   on the `Archetypes Project`_ page before installing Archetypes itself.
 
-4. Check in the ``Control Panel`` of your Zope if everything imported
+   **WARNING**: those packages used to be installed as Zope products, this
+   not the case anymore. They should be installed as regular python package
+   (look at the packages README file for more info).
+
+4. Restart your Zope.
+
+5. Check in the ``Control Panel`` of your Zope if everything imported
    just fine.
 
-5. Good luck!
+6. Good luck!
 
 Checking out from CVS
 *********************
@@ -93,7 +95,6 @@ Quick and dirty::
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co ArchExample
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co validation
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co generator
-  cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co transform
 
 
 Schema
@@ -142,7 +143,7 @@ vocabulary
   The contents of the vocabulary are used as the values which can be
   choosen from to fill this field.
 
-  An example for a ``DisplayList`` usage can be found in the 
+  An example for a ``DisplayList`` usage can be found in the
   ``ArchExample`` directory in ``config.py``.
 
 enforceVocabulary
@@ -165,9 +166,9 @@ edit_accessor
   Name of the method that will be used for getting data out
   of the field just before edition. Unlike the standard accessor
   method which could apply some transformation to the accessed data,
-  this method should return the raw data without any transformation. 
+  this method should return the raw data without any transformation.
   If the method already exists, nothing is done. If the method
-  doesn't exist, Archetypes will generate a basic method for you. 
+  doesn't exist, Archetypes will generate a basic method for you.
 
 mutator
   Name of the method that will be used for changing the value
@@ -312,7 +313,7 @@ Writing a custom validator
 
 If you need custom validation, you can write a new validator in your product.::
 
-    from Products.validation.interfaces import ivalidator
+    from validation.interfaces import ivalidator
     class FooValidator:
         __implements__ = (ivalidator,)
         def __init__(self, name):
@@ -324,7 +325,7 @@ If you need custom validation, you can write a new validator in your product.::
 
 Then you need to register it in FooProduct/__init__.py method initialize::
 
-    from Products.validation import validation
+    from validation import validation
     from validator import FooValidator
     validation.register(FooValidator('isFoo'))
 
