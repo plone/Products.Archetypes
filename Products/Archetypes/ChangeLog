@@ -1,3 +1,13 @@
+2004-06-07   Spanky: SpankyFromBRC in #plone IRC
+	
+   * A while back I added a feature for textarea widgets called 'append_only'.
+     This allows you to make a "permanent record"-type text area, where your
+     entries are added to the top of a uneditable region.  I had to make a
+     fix where if you were using default_output_type, it would continually
+     apply the transformation.  Let me know if there are any problems with
+     this code.
+	
+
 2004-05-28   Philipp Auersperg <phil _at_ bluedynamics.com>
 
    * created interface definitions for IReference and IContentReference
