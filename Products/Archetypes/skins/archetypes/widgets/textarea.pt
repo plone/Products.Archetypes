@@ -39,7 +39,7 @@
               </legend>
               <span i18n:translate=""
                     tal:condition="python:(content_length &lt; 333)"
-                    tal:content="content">content</span>
+                    tal:content="structure accessor">content</span>
                     <textarea readonly i18n:translate=""
                               tal:condition="python:(content_length &gt;= 333)"
                               tal:content="content"
