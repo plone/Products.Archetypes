@@ -21,7 +21,7 @@
       <div metal:define-macro="main"
 	   tal:define="rejection here/rejectAnonymous;
 	   errors options/state/getErrors|nothing;
-	   Iterator python:modules['Products.CMFPlone'].IndexIterator;
+	   Iterator python:modules['Products.Archetypes'].IndexIterator;
 	   tabindex python:Iterator();
 	   fieldset request/fieldset|options/fieldset|string:metadata;
 	   schematas here/Schemata;

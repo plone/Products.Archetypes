@@ -1,4 +1,5 @@
 from AccessControl import ModuleSecurityInfo
+from AccessControl import allow_class
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
@@ -20,6 +21,13 @@ except ImportError:
 
 # Bootstrap Zope-dependent validators
 import Validators
+
+# Plone compatibility with raw CMF
+try:
+    from Products.CMFPlone.PloneUtilities import IndexIterator
+except:
+    from PloneCompat import IndexIterator
+allow_class(IndexIterator)
 
 try:
     import Products.BTreeFolder2

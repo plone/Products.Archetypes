@@ -20,7 +20,7 @@
    <div metal:fill-slot="main">
       <div metal:define-macro="main"
 	   tal:define="errors options/state/getErrors|nothing;
-	   Iterator python:modules['Products.CMFPlone'].IndexIterator;
+	   Iterator python:modules['Products.Archetypes'].IndexIterator;
 	   tabindex python:Iterator();
 	   schematas here/Schemata;
 	   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
