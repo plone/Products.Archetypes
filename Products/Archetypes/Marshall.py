@@ -43,6 +43,7 @@ class Marshaller:
         pass
 
 class PrimaryFieldMarshaller(Marshaller):
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)

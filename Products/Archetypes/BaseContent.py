@@ -66,7 +66,7 @@ class BaseContentMixin(BaseObject,
         except:
             filename = file.filename
 
-        #Marshall the data
+        # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.demarshall(self, data, mimetype=None,
                                       filename=filename)
