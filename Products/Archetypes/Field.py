@@ -1808,6 +1808,8 @@ class ImageField(FileField):
             return data
         elif callable(sizes):
             return sizes()
+        elif sizes is None:
+            return {}
         else:
             raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
 
