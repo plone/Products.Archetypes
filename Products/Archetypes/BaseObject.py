@@ -62,7 +62,7 @@ class BaseObject(Implicit):
     schema = type = content_type
     _signature = None
 
-    installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
+    installMode = ['type', 'actions', 'indexes']
 
     __implements__ = IBaseObject
 
@@ -129,7 +129,6 @@ class BaseObject(Implicit):
             if parent is not None:
                 parent.manage_renameObject(
                     self.id, value,
-                    getattr(self, 'REQUEST', None)
                     )
             self._setId(value)
 
@@ -223,17 +222,23 @@ class BaseObject(Implicit):
 
     def __getitem__(self, key):
         """play nice with externaleditor again"""
-        if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
+        schema = self.Schema()
+        keys = schema.keys()
+        if key not in keys and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or \
                    getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getEditAccessor(self)
+
+        accessor = schema[key].getEditAccessor(self)
         if not accessor:
-            accessor = self.Schema()[key].getAccessor(self)
+            accessor = schema[key].getAccessor(self)
+
+        #This is the access mode used by external editor. We need the
+        #handling provided by BaseUnit when its available
         try:
-            value = accessor(maybe_baseunit=1)
+            value = accessor(raw=1)
         except TypeError:
-            # Fallback to no params call
             value = accessor()
+
         return value
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -255,7 +260,6 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.View,
                               'validate_field')
     def validate_field(self, name, value, errors):
-
         """
         write a method: validate_foo(new_value) -> "error" or None
         If there is a validate method defined for a given field invoke
@@ -302,11 +306,12 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
-        """full indexable text"""
+        """All fields marked as 'searchable' are concatenated together
+        here for indexing purpose"""
         data = []
-        charset = self.portal_properties.site_properties.default_charset
+        charset = self.getCharset()
         for field in self.Schema().fields():
-            if field.searchable != 1:
+            if not field.searchable:
                 continue
             method = getattr(self, field.accessor)
             try:
@@ -317,16 +322,16 @@ class BaseObject(Implicit):
                 try:
                     datum =  method()
                 except:
-                    datum =  ''
+                    continue
             if datum:
-                if type(datum) is type([]) or type(datum) is type(()):
+                type_datum = type(datum)
+                if type_datum is type([]) or type_datum is type(()):
                     datum = ' '.join(datum)
                 # FIXME: we really need an unicode policy !
-                if type(datum) is type(u''):
+                if type_datum is type(u''):
                     datum = datum.encode(charset)
-                data.append(datum)
+                data.append(str(datum))
 
-        data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
         return data
 
@@ -394,7 +399,8 @@ class BaseObject(Implicit):
                               'processForm')
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST, values=values)
+        self._processForm(data=data, metadata=metadata,
+                          REQUEST=REQUEST, values=values)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
@@ -413,12 +419,13 @@ class BaseObject(Implicit):
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
-        For each field we use the existing accessor to get its value, then we
-        re-initialize the class, then use the new schema mutator for each field
-        to set the values again.  We also copy over any class methods to handle
-        product refreshes gracefully (when a product refreshes, you end up with
-        both the old version of the class and the new in memory at the same
-        time -- you really should restart zope after doing a schema update)."""
+        For each field we use the existing accessor to get its value,
+        then we re-initialize the class, then use the new schema
+        mutator for each field to set the values again.  We also copy
+        over any class methods to handle product refreshes gracefully
+        (when a product refreshes, you end up with both the old
+        version of the class and the new in memory at the same time --
+        you really should restart zope after doing a schema update)."""
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
 
         if out:
@@ -491,7 +498,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
             # no luck -- now try the accessor
             try:
@@ -501,7 +507,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
             # still no luck -- try to get the value directly
             try:
@@ -509,7 +514,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
 
         # Nope -- see if the new accessor method is present
@@ -524,7 +528,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
 
             # nope -- now try the accessor
@@ -535,7 +538,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
             # still no luck -- try to get the value directly using the new name
             try:
@@ -543,7 +545,6 @@ class BaseObject(Implicit):
             except ConflictError:
                 raise
             except:
-#                log_exc()
                 pass
 
         # Nope -- now see if the current object has an attribute

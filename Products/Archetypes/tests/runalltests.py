@@ -30,4 +30,4 @@ for test in tests:
         Xprint('Can\'t run the unit tests in %s: \n %s' % (test, err))
 
 if __name__ == '__main__':
-    TestRunner(verbosity=2).run(suite)
+    TestRunner(verbosity=1).run(suite)

@@ -23,7 +23,7 @@ class Marshaller:
             m_hook = getattr(instance, self.marshall_hook, None)
         instance.demarshall_hook = dm_hook
         instance.marshall_hook = m_hook
-
+        
     def cleanupInstance(self, instance, item=None, container=None):
         if hasattr(aq_base(instance), 'demarshall_hook'):
             delattr(instance, 'demarshall_hook')
@@ -43,7 +43,6 @@ class Marshaller:
         pass
 
 class PrimaryFieldMarshaller(Marshaller):
-
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
