@@ -15,7 +15,7 @@ from Products.MimetypesRegistry.mime_types.mtr_mimetypes import text_plain, \
 from webdav.WriteLockInterface import WriteLockInterface
 
 class BaseUnit(File):
-    __implements__ = (WriteLockInterface, IBaseUnit)
+    __implements__ = WriteLockInterface, IBaseUnit
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -67,7 +67,7 @@ class BaseUnit(File):
         orig = self.getRaw(encoding)
         if not orig:
             return None
-
+        
         #on ZODB Transaction commit there is by specification
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
@@ -153,7 +153,10 @@ class BaseUnit(File):
 
     def content_type(self):
         return self.getContentType()
-
+    
+    def getFilename(self):
+        return self.filename
+    
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):

@@ -1,7 +1,7 @@
 from Products.Archetypes.interfaces.layer import ILayerContainer
 
 class DefaultLayerContainer:
-    __implements__ = (ILayerContainer, )
+    __implements__ = ILayerContainer
 
     def __init__(self):
         self._layers = {}

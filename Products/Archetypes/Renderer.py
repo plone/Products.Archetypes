@@ -7,7 +7,7 @@ from Products.Archetypes.debug import log, log_exc
 _marker = []
 
 class ArchetypesRenderer(base):
-    __implements__ = (ILayer,)
+    __implements__ = ILayer
 
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):

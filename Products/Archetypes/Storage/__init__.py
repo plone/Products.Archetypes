@@ -1,5 +1,4 @@
 from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
 from Products.Archetypes.config import TOOL_NAME
@@ -50,7 +49,7 @@ class StorageLayer(Storage):
     how they are initialized per instance and/or per field must
     subclass and implement those methods"""
 
-    __implements__ = (IStorage, ILayer)
+    __implements__ = IStorage, ILayer
 
     def initializeInstance(self, instance, item=None, container=None):
         raise NotImplementedError('%s: initializeInstance' % self.getName())
@@ -118,7 +117,7 @@ class MetadataStorage(StorageLayer):
     """Storage used for ExtensibleMetadata. Attributes are stored on
     a persistent mapping named ``_md`` on the instance."""
 
-    __implements__ = (IStorage, ILayer)
+    __implements__ = IStorage, ILayer
 
     def initializeInstance(self, instance, item=None, container=None):
         base = aq_base(instance)

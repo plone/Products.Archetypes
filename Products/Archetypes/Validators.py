@@ -5,7 +5,7 @@ from DateTime import DateTime
 
 class DateValidator:
 
-    __implements__ = (ivalidator,)
+    __implements__ = ivalidator
 
     def __init__(self, name, title='', description=''):
         self.name = name

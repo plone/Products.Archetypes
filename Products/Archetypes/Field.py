@@ -6,13 +6,15 @@ from UserDict import UserDict
 
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
+
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField, IObjectField, \
-     IImageField
+     IFileField, IImageField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
+
 from Products.Archetypes.exceptions import ObjectFieldException, \
      TextFieldException, FileFieldException
 from Products.Archetypes.Widget import *
@@ -95,7 +97,7 @@ class Field(DefaultLayerContainer):
     field's property values.
     """
 
-    __implements__ = (IField, ILayerContainer)
+    __implements__ = IField, ILayerContainer
 
     security  = ClassSecurityInfo()
     security.declareObjectPublic()
@@ -495,7 +497,8 @@ class ObjectField(Field):
     Field Types should subclass this to delegate through the storage
     layer.
     """
-    __implements__ = (IObjectField, ILayerContainer)
+    __implements__ = IObjectField, ILayerContainer
+    #XXX __implements__ = IField.__implements__, IObjectField
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -522,7 +525,9 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
-        kwargs.update({'field': self.__name__})
+        kwargs.update({'field': self.getName(),
+                       'encoding':kwargs.get('encoding', None),
+                     })
         if accessor is None:
             args = [instance,]
             return mapply(self.get, *args, **kwargs)
@@ -566,25 +571,23 @@ class ObjectField(Field):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
 
-    def getContentType(self, instance):
+    def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
         value = ''
-        # ask the BaseUnit for the content type
-        value = self.getRaw(instance, raw=1)
-        if IBaseUnit.isImplementedBy(value):
-            mimetype = str(value.getContentType())
-        else:
-            mimetype = getattr(aq_base(value), 'mimetype', None)
+        if fromBaseUnit and hasattr(self, 'getBaseUnit'):
+            bu = self.getBaseUnit(instance)
+            return str(bu.getContentType())
+        raw = self.getRaw(instance)
+        mimetype = getattr(aq_base(value), 'mimetype', None)
         # some instances like OFS.Image have a getContentType method
         if mimetype is None:
-            raw = self.getRaw(instance)
             getCT = getattr(raw, 'getContentType', None)
             if callable(getCT):
                 mimetype = getCT()
         # try to guess
         if mimetype is None:
-            mimetype, enc = guess_content_type('', str(value), None)
+            mimetype, enc = guess_content_type('', str(raw), None)
         else:
             # mimetype may be an imimetype object
             mimetype = str(mimetype)
@@ -592,7 +595,6 @@ class ObjectField(Field):
         if mimetype is None:
             mimetype = getattr(self, 'default_content_type', 'application/octet')
         return mimetype
-
 
 class StringField(ObjectField):
     """A field that stores strings"""
@@ -613,18 +615,21 @@ class StringField(ObjectField):
         value = decode(aq_base(value), instance, **kwargs)
         self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
-class FileField(StringField):
+class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
 
-    __implements__ = ObjectField.__implements__
+    __implements__ = IFileField, ILayerContainer
+    #XXX __implements__ = IFileField, IObjectField.__implements__
 
-    _properties = StringField._properties.copy()
+    _properties = ObjectField._properties.copy()
     _properties.update({
         'type' : 'file',
-        'default' : None,
+        'default' : '',
         'primary' : 0,
         'widget' : FileWidget,
+        'content_class' : File,
+        'default_content_type' : 'application/octet',
         })
 
     def _process_input(self, value, default=None,
@@ -639,24 +644,33 @@ class FileField(StringField):
             if not value:
                 return default, mimetype, ''
             return value, mimetype, ''
+        elif IBaseUnit.isImplementedBy(value):
+            return value.getRaw(), value.getContentType(), value.getFilename()
         elif ((isinstance(value, FileUpload) and value.filename != '') or
-              (isinstance(value, FileType) and value.name != '')):
-            f_name = ''
+              (type(value) is FileType and value.name != '')):
+            filename = ''
             if isinstance(value, FileUpload) or hasattr(value, 'filename'):
-                f_name = value.filename
+                filename = value.filename
             if isinstance(value, FileType) or hasattr(value, 'name'):
-                f_name = value.name
+                filename = value.name
             # Get only last part from a 'c:\\folder\\file.ext'
-            f_name = f_name.split('\\')[-1]
+            filename = filename.split('\\')[-1]
             value = value.read()
             if mimetype is None:
-                mimetype, enc = guess_content_type(f_name, value, mimetype)
+                mimetype, enc = guess_content_type(filename, value, mimetype)
             size = len(value)
             if size == 0:
                 # This new file has no length, so we keep the orig
-                return default, mimetype, f_name
-            return value, mimetype, f_name
+                return default, mimetype, filename
+            return value, mimetype, filename
         raise FileFieldException('Value is not File or String')
+
+    def get(self, instance, **kwargs):
+        value = ObjectField.get(self, instance, **kwargs)
+        if hasattr(value, '__of__') and not kwargs.get('unwrapped', False):
+            return value.__of__(instance)
+        else:
+            return value
 
     def set(self, instance, value, **kwargs):
         """
@@ -671,11 +685,11 @@ class FileField(StringField):
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
-        value, mimetype, f_name = self._process_input(value,
+        value, mimetype, filename = self._process_input(value,
                                                       default=self.default,
                                                       **kwargs)
         kwargs['mimetype'] = mimetype
-        kwargs['filename'] = f_name
+        kwargs['filename'] = filename
 
         if value=="DELETE_FILE":
             if hasattr(aq_base(instance), '_FileField_types'):
@@ -693,23 +707,36 @@ class FileField(StringField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
-        value = File(self.getName(), '', value, mimetype)
-        setattr(value, 'filename', f_name or self.getName())
-        setattr(value, 'content_type', mimetype)
-        ObjectField.set(self, instance, value, **kwargs)
+        obj = self.content_class(self.getName(), '', value, mimetype) 
+        setattr(obj, 'filename', filename or self.getName())
+        setattr(obj, 'content_type', mimetype)
+        ObjectField.set(self, instance, obj, **kwargs)
 
-    def getFilename(self, instance):
+    def getBaseUnit(self, instance):
+        """Return the value of the field wrapped in a base unit object
+        """
+        filename = self.getFilename(instance, fromBaseUnit=False)
+        if not filename:
+            filename = self.getName()
+        mimetype = self.getContentType(instance, fromBaseUnit=False)
+        value = self.getRaw(instance) or self.default
+        if isinstance(aq_base(value), File):
+            value = str(aq_base(value).data)
+        bu = BaseUnit(filename, aq_base(value), instance,
+                      filename=filename, mimetype=mimetype)
+        return bu
+        
+    def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
         """
         filename = None
-        value = self.getRaw(instance, raw=1)
-        if IBaseUnit.isImplementedBy(value):
-            filename = value.filename
-        else:
-            filename = getattr(aq_base(value), 'filename', None)
+        if fromBaseUnit:
+            bu = self.getBaseUnit(instance)
+            return bu.getFilename()
+        raw = self.getRaw(instance)
+        filename = getattr(aq_base(raw), 'filename', None)
         # for OFS.Image.*
         if filename is None:
-            raw = self.getRaw(instance)
             filename = getattr(raw, 'filename', None)
         # might still be None
         if filename:
@@ -722,15 +749,16 @@ class FileField(StringField):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
-class TextField(ObjectField):
+class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = FileField.__implements__
 
-    _properties = Field._properties.copy()
+    _properties = FileField._properties.copy()
     _properties.update({
         'type' : 'text',
         'default' : '',
+        'widget': StringWidget, 
         'default_content_type' : 'text/plain',
         'default_output_type'  : 'text/plain',
         'allowable_content_types' : ('text/plain',),
@@ -800,7 +828,7 @@ class TextField(ObjectField):
             return value
 
         if mimetype is None:
-            mimetype =  self.default_output_type or 'text/plain'
+            mimetype = self.default_output_type or 'text/plain'
 
         if not hasattr(value, 'transform'): # oldBaseUnits have no transform
             return str(value)
@@ -809,6 +837,10 @@ class TextField(ObjectField):
             data = value.transform(instance, 'text/plain')
         return data or ''
 
+    def getBaseUnit(self, instance):
+        """Return the value of the field wrapped in a base unit object
+        """
+        return self.get(instance, raw=1)
 
     def set(self, instance, value, **kwargs):
         """ Assign input value to object. If mimetype is not specified,
@@ -1258,7 +1290,7 @@ class Image(BaseImage):
     def isBinary(self):
         return 1
 
-class ImageField(ObjectField):
+class ImageField(FileField):
     """ implements an image attribute. it stores
         it's data in an image sub-object
 
@@ -1318,9 +1350,9 @@ class ImageField(ObjectField):
         will be deleted (None is understood as no-op)
         """
 
-    __implements__ = ObjectField.__implements__ #, IImageField)
+    # XXX__implements__ = FileField.__implements__ , IImageField
 
-    _properties = Field._properties.copy()
+    _properties = FileField._properties.copy()
     _properties.update({
         'type' : 'image',
         'default' : '',
@@ -1331,16 +1363,10 @@ class ImageField(ObjectField):
         'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
-        'image_class': Image,
+        'content_class': Image,
         })
 
     default_view = "view"
-
-    def get(self, instance, **kwargs):
-        image = ObjectField.get(self, instance, **kwargs)
-        if hasattr(image, '__of__') and not kwargs.get('unwrapped', 0):
-            return image.__of__(instance)
-        return image
 
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
@@ -1413,7 +1439,7 @@ class ImageField(ObjectField):
         mimetype = kwargs.get('mimetype', 'image/png')
         if has_pil:
             if self.original_size or self.max_size:
-                image = self.image_class(self.getName(), self.getName(),
+                image = self.content_class(self.getName(), self.getName(),
                                          value, mimetype)
                 data = str(image.data)
                 w=h=0
@@ -1435,7 +1461,7 @@ class ImageField(ObjectField):
         """
         mimetype = kwargs.get('mimetype', 'image/png')
         filename = kwargs.get('filename', '')
-        image = self.image_class(self.getName(), self.getName(),
+        image = self.content_class(self.getName(), self.getName(),
                                  value, mimetype)
         image.filename = filename
         delattr(image, 'title')
@@ -1471,7 +1497,7 @@ class ImageField(ObjectField):
             w, h = size
             id = self.getName() + "_" + n
             imgdata, format = self.scale(data, w, h)
-            image = self.image_class(id, self.getName(),
+            image = self.content_class(id, self.getName(),
                                      imgdata,
                                      'image/%s' % format
                                      )
@@ -1516,25 +1542,6 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
 
-    def getFilename(self, instance):
-        """Get file name of underlaying file object
-        """
-        filename = None
-        value = self.getRaw(instance, raw=1)
-        if IBaseUnit.isImplementedBy(value):
-            filename = value.filename
-        else:
-            filename = getattr(aq_base(value), 'filename', None)
-        # for OFS.Image.*
-        if filename is None:
-            raw = self.getRaw(instance)
-            filename = getattr(raw, 'filename', None)
-        # might still be None
-        return filename
-
-    def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
-        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(Field)
 

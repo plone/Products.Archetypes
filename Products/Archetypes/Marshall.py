@@ -9,7 +9,7 @@ from Acquisition import aq_base
 from OFS.content_types import guess_content_type
 
 class Marshaller:
-    __implements__ = (IMarshall, ILayer)
+    __implements__ = IMarshall, ILayer
 
     def __init__(self, demarshall_hook=None, marshall_hook=None):
         self.demarshall_hook = demarshall_hook

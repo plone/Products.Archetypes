@@ -57,7 +57,7 @@ class Schemata:
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = (ISchemata,)
+    __implements__ = ISchemata
 
     def __init__(self, name='default', fields=None):
         """Initialize Schemata and add optional fields."""
@@ -325,7 +325,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
 class BasicSchema(Schemata):
     """Manage a list of fields and run methods over them."""
 
-    __implements__ = (ISchema)
+    __implements__ = ISchema
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -571,7 +571,7 @@ class BasicSchema(Schemata):
 
 class Schema(BasicSchema, SchemaLayerContainer):
 
-    __implements__ = (ILayerRuntime, ILayerContainer, ISchema)
+    __implements__ = ILayerRuntime, ILayerContainer, ISchema
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -619,7 +619,7 @@ class ManagedSchema(Schema):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = (IManagedSchema, ) + Schema.__implements__
+    __implements__ = IManagedSchema, Schema.__implements__
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'delSchemata')

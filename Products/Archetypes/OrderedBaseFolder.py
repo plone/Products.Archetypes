@@ -112,9 +112,9 @@ class OrderedContainer:
     if hasZopeOrderedSupport:
         # got the IOrderedContainer interface from zope 2.7, too
         # make shure this implementation fullfilles both interfaces
-        __implements__  = (IOrderedContainer, IZopeOrderedContainer)
+        __implements__  = IOrderedContainer, IZopeOrderedContainer
     else:
-        __implements__  = (IOrderedContainer,)
+        __implements__  = IOrderedContainer
 
     security = ClassSecurityInfo()
 
@@ -260,8 +260,8 @@ InitializeClass(OrderedContainer)
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
-    __implements__ = OrderedContainer.__implements__ + \
-                     BaseFolder.__implements__ + (DynamicType,)
+    __implements__ = OrderedContainer.__implements__,\
+                     BaseFolder.__implements__, DynamicType
 
     security = ClassSecurityInfo()
 
@@ -288,9 +288,8 @@ class old_OrderedBaseFolder(BaseObject,
     """ An ordered base Folder implementation
         DEPRECATED, may be removed in next releaeses """
 
-    __implements__ = (IBaseFolder, IReferenceable,
-                      IExtensibleMetadata,
-                      IOrderedFolder)
+    __implements__ = IBaseFolder, IReferenceable, IExtensibleMetadata,\
+                     IOrderedFolder
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"

@@ -15,8 +15,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security = ClassSecurityInfo()
 
-    __implements__ = (CMFBTreeFolder.__implements__, ) + \
-                     (BaseFolder.__implements__, )
+    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
 
     def __init__(self, oid, **kwargs):
         CMFBTreeFolder.__init__(self, id)

@@ -12,7 +12,7 @@ from Products.CMFCore.utils import getToolByName
 class BaseSQLStorage(StorageLayer):
     # SQLStorage that is more or less ISO SQL, should be
     # usable as a base
-    __implements__ = (ISQLStorage, ILayer)
+    __implements__ = ISQLStorage, ILayer
 
     query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '

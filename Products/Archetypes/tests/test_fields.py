@@ -37,8 +37,8 @@ fields = ['ObjectField', 'StringField',
           ]
 
 field_instances = []
-for f in fields:
-    field_instances.append(getattr(Field, f)(f.lower()))
+for name in fields:
+    field_instances.append(getattr(Field, name)(name.lower()))
 
 txt_file = open(join(_prefix, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
@@ -125,7 +125,7 @@ class ProcessingTest(ArchetypesTestCase):
         dummy.REQUEST = request
         dummy.processForm(data=1)
         for k, v in expected_values.items():
-            got = dummy.Schema()[k].get(dummy)
+            got = dummy.getField(k).get(dummy)
             if isinstance(got, File):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
@@ -160,7 +160,7 @@ class ProcessingTest(ArchetypesTestCase):
         dummy.REQUEST = request
         dummy.processForm()
         for k, v in expected_values.items():
-            got = dummy.Schema()[k].get(dummy)
+            got = dummy.getField(k).get(dummy)
             if isinstance(got, (File, ScalableImage, Image)):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %

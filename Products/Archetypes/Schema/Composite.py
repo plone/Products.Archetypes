@@ -18,7 +18,7 @@ class CompositeSchema(Implicit):
     Note that if field names overlap, they last schema wins.
     """
 
-    __implements__ = (ICompositeSchema, ILayerRuntime, ILayerContainer)
+    __implements__ = ICompositeSchema, ILayerRuntime, ILayerContainer
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

@@ -23,8 +23,7 @@ class BaseContentMixin(BaseObject,
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
-    __implements__ = ((IBaseContent, IReferenceable) +
-                      PortalContent.__implements__)
+    __implements__ = IBaseContent, IReferenceable, PortalContent.__implements__
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
@@ -128,8 +127,7 @@ class BaseContent(BaseContentMixin,
     """A not-so-basic CMF Content implementation with Dublin Core
     Metadata included"""
 
-    __implements__ = (BaseContentMixin.__implements__ +
-                      (IExtensibleMetadata,))
+    __implements__ = BaseContentMixin.__implements__, IExtensibleMetadata
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
 

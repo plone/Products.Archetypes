@@ -98,7 +98,7 @@ class FacadeMetadataSchema(BasicSchema):
     to groups of Archetypes fields
     """
 
-    __implements__ = (IBindableSchema,)
+    __implements__ = IBindableSchema
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

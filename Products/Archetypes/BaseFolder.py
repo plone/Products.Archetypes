@@ -23,8 +23,7 @@ class BaseFolderMixin(BaseObject,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable) + \
-                     PortalContent.__implements__
+    __implements__ = IBaseFolder, IReferenceable, PortalContent.__implements__
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
@@ -104,8 +103,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
 
-    __implements__ = (BaseFolderMixin.__implements__ +
-                      (IExtensibleMetadata,))
+    __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 

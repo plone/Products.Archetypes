@@ -11,6 +11,7 @@ from Products.Archetypes import listTypes
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
+from Products.Archetypes.interfaces.base import IBaseUnit
 
 from Products.CMFCore.DiscussionTool import DiscussionTool
 
@@ -168,6 +169,15 @@ class ClassGenTest( ArchetypesTestCase ):
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
 
+    def test_getbaseunit(self):
+        obj = self._dummy
+        for field in obj.Schema().fields():
+            if not hasattr(field,'getBaseUnit'):
+                continue
+            bu = field.getBaseUnit(obj)
+            self.failUnless(IBaseUnit.isImplementedBy(bu),
+               'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
+            
 
 def test_suite():
     from unittest import TestSuite, makeSuite
