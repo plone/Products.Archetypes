@@ -95,11 +95,13 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
     def setId(self, value):
         if value != self.getId():
-            if hasattr(self, 'aq_parent'):
-                parent = self.aq_parent
-                parent.manage_renameObjects((self.id,), (value,),\
-                                            getattr(self, 'REQUEST', None))
-        self.id = value
+            parent = aq_parent(aq_inner(self))
+            if parent is not None:
+                parent.manage_renameObject(
+                    self.id, value,
+                    getattr(self, 'REQUEST', None)
+                    )
+            self._setId(value)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
