@@ -21,6 +21,20 @@ from debug import log, log_exc
 
 class Referenceable(CMFCatalogAware, Base):
     isReferenceable = 1
+
+    def getRefs(self):
+        """get all the references for this object"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.getRefs(self)
+
+    def getBrefs(self):
+        """get all the back references for this object"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.getBrefs(self)
+    
+    
+
+    
     def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
         if hasattr(aq_base(self), '_uid') and self._uid is not None:
