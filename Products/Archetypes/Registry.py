@@ -3,11 +3,8 @@ import types
 from utils import className
 
 from Products.Archetypes.ArchetypeTool import listTypes
+from Products.Archetypes.Schema import getSchemata
 from Products.Archetypes.interfaces.base import IBaseObject
-
-def getDoc(klass):
-    doc = klass.__doc__ or ''
-    return doc
 
 class Registry:
 
@@ -54,8 +51,8 @@ class FieldDescription:
         if type(default_widget) not in [types.StringType, types.UnicodeType]:
             default_widget = className(default_widget)
         self.default_widget = default_widget
-        self.title = title or klass.__name__
-        self.description = description or getDoc(klass)
+        self.title = title
+        self.description = description
 
     def allowed_widgets(self):
         from Products.Archetypes.Registry import availableWidgets
@@ -85,8 +82,8 @@ class WidgetDescription:
     def __init__(self, klass, title='', description='', used_for=()):
         self.id = className(klass)
         self.klass = klass
-        self.title = title or klass.__name__
-        self.description = description or getDoc(klass)
+        self.title = title
+        self.description = description
         self.used_for = used_for
 
     def properties(self):
@@ -108,18 +105,8 @@ class ValidatorDescription:
     def __init__(self, klass, title='', description=''):
         self.id = className(klass)
         self.klass = klass
-        self.title = title or klass.__name__
-        self.description = description or getDoc(klass)
-
-class StorageDescription:
-
-    __allow_access_to_unprotected_subobjects__ = 1
-
-    def __init__(self, klass, title='', description=''):
-        self.id = className(klass)
-        self.klass = klass
-        self.title = title or klass.__name__
-        self.description = description or getDoc(klass)
+        self.title = title
+        self.description = description
 
 def findBaseTypes(klass):
     bases = []
@@ -133,21 +120,14 @@ class TypeDescription:
 
     __allow_access_to_unprotected_subobjects__ = 1
 
-    def __init__(self, klass, title='', description='',
-                 package='', module=''):
+    def __init__(self, klass, title='', description=''):
         self.id = className(klass)
         self.klass = klass
-        self.title = title or klass.__name__
-        self.description = description or getDoc(klass)
-        self.package = package
-        self.module = module
+        self.title = title
+        self.description = description
 
     def schemata(self):
-        from Products.Archetypes.Schema import getSchemata
         return getSchemata(self.klass)
-
-    def signature(self):
-        return self.klass.getSchema().signature()
 
     def portal_type(self):
         return self.klass.portal_type
@@ -169,47 +149,6 @@ availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
-
-storageDescriptionRegistry = Registry(StorageDescription)
-availableStorages = storageDescriptionRegistry.items
-def registerStorage(klass, **kw):
-    storage = StorageDescription(klass, **kw)
-    storageDescriptionRegistry.register(storage.id, storage)
-
-class TypeRegistry:
-
-    def __init__(self):
-        pass
-
-    def items(self):
-        return [(className(t['klass']),
-                 TypeDescription(t['klass'],
-                                 title=t['name'],
-                                 package=t['package'],
-                                 module=t['module'],
-                                 )
-                 )
-                 for t in listTypes()]
-
-    def keys(self):
-        return [k for k, v in self.items()]
-
-    def values(self):
-        return [v for k, v in self.items()]
-
-    def __getitem__(self, name):
-        items = self.items()
-        for k, v in items:
-            if k == name:
-                return v
-        raise KeyError, name
-
-    def get(self, name, default=None):
-        items = self.items()
-        for k, v in items:
-            if k == name:
-                return v
-        return default
 
 class ValidatorRegistry:
 
@@ -234,6 +173,38 @@ class ValidatorRegistry:
 
     def values(self):
         return [v for k, v in self.items()]
+
+class TypeRegistry:
+
+    def __init__(self):
+        pass
+
+    def items(self):
+        return [(className(t['klass']),
+                 TypeDescription(t['klass'],
+                                  title=t['name'],
+                                  description=getattr(t['klass'], '__doc__')))
+                 for t in listTypes()]
+
+    def keys(self):
+        return [k for k, v in self.items()]
+
+    def values(self):
+        return [v for k, v in self.items()]
+
+    def __getitem__(self, name):
+        items = self.items()
+        for k, v in items:
+            if k == name:
+                return v
+        raise KeyError, name
+
+    def get(self, name, default=None):
+        items = self.items()
+        for k, v in items:
+            if k == name:
+                return v
+        return default
 
 validatorDescriptionRegistry = ValidatorRegistry()
 availableValidators = validatorDescriptionRegistry.items

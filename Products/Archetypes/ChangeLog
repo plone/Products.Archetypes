@@ -1,89 +1,60 @@
-2003-11-20  Sidnei da Silva  <sidnei@awkly.org>
+2003-11-21  Daniel Nouri <daniel.nouri@con-fuse.org>
 
-	* BaseFolder.py (BaseFolderMixin.manage_beforeDelete): Bummer!
-	PortalFolder also inherits from CMFCatalogAware. That's so stupid!
-	Use Folder then, which is what we should have done from the start.
+	* Field.py (ReferenceField): The Vocabulary method of ReferenceField
+	searches by meta_type now, which I added to be an index of
+	uuid_catalog.
 
-	* examples/ComplexType.py (schema): Fix for #843871
+	This means that the allowed_types property of ReferenceField is now a
+	tuple of strings in the form of meta_type and not
+	TypeInformation.Title() (i.e. human readable) as it used to be.
 
-	* BaseFolder.py (BaseFolderMixin.manage_afterAdd):
-	CatalogMultiplex inherits from CMFCatalogAware, which
-	SkinnedFolder does as well. So, instead of calling
-	SkinnedFolder.manage_after*/manage_before*, we just inherit from
-	PortalFolder as well (stupid ExtensionClass) and call
-	PortalFolder.manage_after*/manage_before* and let CatalogMultiplex
-	call the methods from CMFCatalogAware.
+	(ReferenceField.allowedTypesReadable): Added this method that allows
+	reference.pt to conveniently iterate over meta_types and their
+	readable forms.
 
-	* BaseBTreeFolder.py (manage_afterAdd): CMFBTreeFolder seems to
-	inherit from PortalFolder, which BaseFolder does as well (via
-	SkinnedFolder), so we don't need to call
-	manage_after*/manage_before* twice, because they are mostly the
-	same method.
+	* Extensions/utils.py: Added 'meta_type' as a FieldIndex of
+	uid_catalog.
 
-2003-11-18  Sidnei da Silva  <sidnei@awkly.org>
+	* skins/archetypes/widgets/reference.pt: Fixed 'addable' feature.
 
-	* ExtensibleMetadata.py (ExtensibleMetadata.allowDiscussion): Take
-	keyword arguments, even if we ignore them *wink*.
+2003-11-17  Jens Klein <jens.klein@jensquadrat.de>
+        * OrderderBaseFolder.py and interfaces/orderdfolder.py  adapted 
+	  to Zope 2.7 style interface and implementation. This is needed
+	  to run with Plone 2.0. There's a backward compatibility mode: 
+	  In config.py you can set USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
+	  to 1 for using the old style implementaion instead.
+	  
+2003-11-13  Sylvain Thénault  <syt@logilab.fr>
 
-	* ArchTTWTool.py (ArchTTWTool.storages_xml): Added storages xml page.
+	* BaseObject.py (BaseObject): added the Type method, copied from
+	ExtensibleMetadata, to interact cleanly with the uid_catalog with
+	or without metadata implementation
+	
+2003-11-12  Sylvain Thénault  <syt@logilab.fr>
 
-	* Registry.py: Added storage registry.
+	* BaseContent.py: BaseContentMixin without Extensible metadata
+	
+	* BaseFolder.py: BaseFolderMixin without Extensible metadata. Fix
+	the Description method and add Title / setTitle
 
-	* Storage.py: Register storages.
+	* BaseObject.py (BaseObject.SearchableText): now use the
+	getCharset script to be consistent
 
-	* BaseContent.py (BaseContentMixin.manage_FTPget): This may be
-	called with no arguments (for example, by manage_DAVget). Fall
-	back to self.REQUEST in this case.
+2003-11-11  Sylvain Thénault  <syt@logilab.fr>
 
-2003-11-14  Sidnei da Silva  <sidnei@plone.org>
-
-	* Field.py (ImageField.scale): Mini-patch by Gabriel Wicke.
-	- scaling is done with the ANTIALIAS filter instead of
-	NEAREST. Disadvantage: slower.
-	- jpg compression is 88 instead of the 75 default (maybe 85 would
-	be enough, makes some difference for file size). Less Artifacts.
-	(ImageField.scale): ANTIALIAS is only available on PIL 1.1.3
-
-2003-11-10  Sidnei da Silva  <sidnei@plone.org>
-
-	* BaseObject.py (BaseObject.get_size): Better get_size
-	implementation. DateTime's raise an AttributeError when using
-	len().
-
-
-2003-11-10  Geoff Davis <geoff@geoffdavis.net>
-
-    * BaseObject.py: Added optional values argument to processForm to allow one
-      to massage incoming form values in a script before passing them along to
-      processForm.  If values is set (should be a dict), processForm takes its
-      values from the dict; otherwise it gets them from REQUEST.form.
-
-2003-11-09  Geoff Davis <geoff@geoffdavis.net>
-
-    * updateSchemaForm.pt: Let user choose which classes should be updated
-      since automatic schema change detection loses change info when Archetypes
-      is reinstalled.  Also let the user choose to update all classes or only
-      classes with an old schema.
-
-    * ArchetypeTool.py: getChangedSchema now returns a tuple consisting of
-      type, changed_flag rather than just a list of changed types.
-      If called from a REQUEST, manage_updateSchema checks to see which
-      classes need to be updated.  Fixed catalog search for objects that need
-      updating (was using incorrect metatype and searching the UID catalog).
-
-    * BaseObject.py: Made automated migrations slightly more robust by handling
-      AttributeErrors gracefully.
+	* BaseUnit.py (NewBaseUnit.portalEncoding): now use the getCharset
+	script to be consistent
 
 2003-11-07  Sylvain Thénault  <syt@logilab.fr>
 
-    * BaseFolder.py: added the Description method to not fallback to
-    the PortalFolder's one
+	* BaseFolder.py: added the Description method to not fallback to
+	the PortalFolder's one
 
-    * __init__.py: make DisplayList public
+	* __init__.py: make DisplayList public
 
-    * Extensions/utils.py: don't try to add an index when we only want
-    to add the field to metadata
-
+	* Extensions/utils.py: don't try to add an index when we only want
+	to add the field to metadata
+	
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.get_size): Fix for when the value is
@@ -103,11 +74,11 @@
 	charset. This is usefull for non plone site without
 	site_properties.
 
-	* skins/archetypes/unicodeEncode.py: use the new getCharset
-	script to get the site charset.
+	* skins/archetypes/unicodeEncode.py: use the new getCharset 
+	script to get the site charset. 
 
 	* Archetypes should now working as well with plain CMF site :)
-
+	
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
         * skins/archetypes/widgets/*: Removed cruft (onfocus/onblur from
@@ -244,6 +215,7 @@
 	* Registry.py: Added a registry, for registering widgets, fields,
 	validators, types...
 
+
 2003-09-06  Sidnei da Silva  <sidnei@plone.org>
 
 	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
@@ -277,101 +249,6 @@
 		widget=Foo(visible={'edit' : 'hidden'}, missing states default to visible
 		states can be visible, hidden, invisible
 
-
-2003-08-08  Sylvain Thénault  <syt@logilab.fr>
-	* BaseObject.py: fix addSubObjects, remove _datify and Date
-
-	* ExtensibleMetada.py: remove inheritance of DefaultDublinCoreImpl:)
-	not more use of the ObjectField.
-
-        * I18NMixin.py: stop trying to del the title property. Need to
-	find a clean way to do this
-
-	* examples/ComplexType.py: remove the MetaDataField, use of
-	BaseSchema to avoid buggy metadata. I think we should not make
-	PortalContent and PortalFolder using ExtensibleMetaData
-
-	* tests/: make tests working (fix some ones according to new
-	implementation, code cleaning)
-
-2003-08-07  Sylvain Thénault  <syt@logilab.fr>
-	* config.py: make new base unit the default unit :)
-
-	* Field.py: remove MetadataField, works on unicode for
-	String, Lines and Text fields. Override setStorage in TextField
-	and I18NMixin.
-
-	* BaseUnit.py: works on unicode, more reliance on the mime types
-	registry
-
-	* tests/test_unicode.py: new unit tests testing unicode behaviour
-
-2003-08-04  Sylvain Thénault  <syt@logilab.fr>
-
-	* use generator and validation as Python package instead of zope
-	products
-
-2003-07-30  Sylvain Thénault  <syt@logilab.fr>
-
-	* Extensions/utils.py: only run install_subskins if
-	product_skins_dir is not None
-
-	* TemplateMixin.py: use StringField instead of Objectfield
-
-2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* skins/archetypes/content_edit.py (previous): Clearer schemata
-	handling. Should fix #770953.
-
-	* BaseObject.py (content_type): Make the RFC822Marshaller the
-	default one. Pending tests.
-	(BaseObject.SearchableText): Misplaced piece of code, for handling
-	LinesField and SearchableText.
-
-	* Marshall.py (RFC822Marshaller.marshall): Small fixes to deal
-	with objects without PrimaryField set.
-
-2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* skins/archetypes/unicodeTestIn.py: Trying to fix current unicode
-	state on archetypes. Needs a unicode guru.
-
-	* Schema.py (Schema.validate): Filter empty values on vocabulary lookup.
-
-	* skins/archetypes/widgets/string.pt: Whitespace.
-
-	* skins/archetypes/widgets/keyword.pt: Fill from request if available.
-
-	* skins/archetypes/widgets/multiselection.pt: Reverting Xiru's
-	changes and fixing accordingly. Include the default hidden field
-	if not required.
-
-	* Validators.py: Zope-dependent validators goes here.
-
-	* skins/archetypes/widgets/field.pt: Display content type if available.
-
-2003-07-15  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* BaseObject.py: Missing import.
-
-2003-07-11  Sidnei da Silva  <sidnei@x3ng.com>
-
-	* skins/archetypes/base_edit.pt: Show 'default' schemata when
-	there is more than one.
-	Ops. That wasn't quite it. Fixed accordingly now.
-
-	* skins/archetypes/widgets/multiselection.pt: <input> can't have
-	tal:content. I guess it should be value, so changed it to that. It
-	is a 'singleton' (or something like that).
-
-	* ArchetypeTool.py (process_types): I was missing this feature for
-	a loooong time. Lookup modify_fti on the base classes's modules.
-
-=======
-2003-09-06  Sidnei da Silva  <sidnei@plone.org>
-
-	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
-	some cases.
 
 2003-09-04  Sidnei da Silva  <sidnei@plone.org>
 
@@ -421,10 +298,50 @@
 	* utils.py (DisplayList.keys): Lookup keys/values as their string
 	representation as well.
 
+2003-08-08  Sylvain Thénault  <syt@logilab.fr>
+	* BaseObject.py: fix addSubObjects, remove _datify and Date
+
+	* ExtensibleMetada.py: remove inheritance of DefaultDublinCoreImpl:)
+	not more use of the ObjectField.
+
+        * I18NMixin.py: stop trying to del the title property. Need to
+	find a clean way to do this
+
+	* examples/ComplexType.py: remove the MetaDataField, use of
+	BaseSchema to avoid buggy metadata. I think we should not make
+	PortalContent and PortalFolder using ExtensibleMetaData
+
+	* tests/: make tests working (fix some ones according to new
+	implementation, code cleaning)
+
+2003-08-07  Sylvain Thénault  <syt@logilab.fr>
+	* config.py: make new base unit the default unit :)
+
+	* Field.py: remove MetadataField, works on unicode for
+	String, Lines and Text fields. Override setStorage in TextField
+	and I18NMixin.
+
+	* BaseUnit.py: works on unicode, more reliance on the mime types
+	registry
+
+	* tests/test_unicode.py: new unit tests testing unicode behaviour
+
+2003-08-04  Sylvain Thénault  <syt@logilab.fr>
+
+	* use generator and validation as Python package instead of zope
+	products
+
 2003-07-31  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* Field.py (ReferenceField.Vocabulary): Log a warning instead of
 	failing when the object cannot be found on the catalog.
+
+2003-07-30  Sylvain Thénault  <syt@logilab.fr>
+
+	* Extensions/utils.py: only run install_subskins if
+	product_skins_dir is not None
+
+	* TemplateMixin.py: use StringField instead of Objectfield
 
 2003-07-30  Sidnei da Silva  <sidnei@redesul.com.br>
 
@@ -434,6 +351,7 @@
 
 	* skins/archetypes/widgets/multiselection.pt: Fix the
 	multiselection widget. It was broken with Zope 2.7.
+
 
 2003-07-29  Sidnei da Silva  <sidnei@redesul.com.br>
 
@@ -541,6 +459,7 @@
 
 	* ArchetypeTool.py (process_types): I was missing this feature for
 	a loooong time. Lookup modify_fti on the base classes's modules.
+
 
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 

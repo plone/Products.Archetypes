@@ -21,6 +21,7 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
+from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 
 class Extra:
     """indexes extra properties holder"""
@@ -53,6 +54,7 @@ def install_catalog(self, out):
         for indexName, indexType in ( ('UID', 'FieldIndex'),
                                       ('Type', 'FieldIndex'),
                                       ('Title', 'FieldIndex'),
+                                      ('meta_type', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
@@ -72,6 +74,31 @@ def install_templates(self, out):
     at.registerTemplate('base_view')
 
 
+def install_referenceCatalog(self, out):
+    if not hasattr(self, REFERENCE_CATALOG):
+        #Add a zcatalog for uids
+        addCatalog = manage_addReferenceCatalog
+        addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
+        catalog = getToolByName(self, REFERENCE_CATALOG)
+        schema = catalog.schema()
+        for indexName, indexType in ( ('sourceUID', 'FieldIndex'),
+                                      ('targetUID', 'FieldIndex'),
+                                      ('relationship', 'FieldIndex'),
+                                      ('targetId', 'FieldIndex'),
+                                      ('targetTitle', 'FieldIndex'),
+                                      ):
+            try:
+                catalog.addIndex(indexName, indexType, extra=None)
+            except:
+                pass
+            try:
+                if not indexName in schema:
+                    catalog.addColumn(indexName)
+            except:
+                pass
+
+        #catalog.manage_reindexIndex()
+        
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
@@ -151,8 +178,9 @@ def install_indexes(self, out, types):
                             if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
                         except:
-                            pass
-
+                            import traceback
+                            traceback.print_exc(file=out)
+                            
                     # we may want to add a field to metadata without indexing it
                     if not schema[0]:
                         continue
@@ -250,7 +278,8 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-
+    install_referenceCatalog(self, out)
+    
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 

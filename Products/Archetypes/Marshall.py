@@ -43,7 +43,6 @@ class Marshaller:
         pass
 
 class PrimaryFieldMarshaller(Marshaller):
-
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
@@ -64,11 +63,7 @@ class PrimaryFieldMarshaller(Marshaller):
             else:
                 content_type = data and guess_content_type(data) or 'text/plain'
             length = len(data)
-            # ObjectField without IBaseUnit?
-            if hasattr(data, 'data'):
-                data = data.data
-            else:
-                data = str(data)
+            data = str(data)
 
         return (content_type, length, data)
 

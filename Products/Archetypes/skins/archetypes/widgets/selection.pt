@@ -36,7 +36,7 @@
 			   type="radio"
 			   tal:attributes="name fieldName;
 			   checked python:here.checkSelected(item, value);
-			   value item;
+			   value python:unicode(str(item));
 			   tabindex tabindex/next;"
 			   />&nbsp;<span i18n:translate="" tal:content="python: vocab.getValue(item)"/>
                 <br />

@@ -2,7 +2,7 @@
 # ArchetypesTestCase
 #
 
-# $Id: ArchetypesTestCase.py,v 1.3.2.2 2003/11/20 13:14:30 dreamcatcher Exp $
+# $Id: ArchetypesTestCase.py,v 1.4 2003/11/12 15:46:31 bcsaller Exp $
 
 from Testing import ZopeTestCase
 
@@ -23,7 +23,6 @@ ZopeTestCase.installProduct('PythonScripts', quiet=1)
 ZopeTestCase.installProduct('ExternalMethod', quiet=1)
 ZopeTestCase.installProduct('ZCatalog', 1)
 ZopeTestCase.installProduct('Archetypes', 1)
-ZopeTestCase.installProduct('ArchExample', 1)
 ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
 ZopeTestCase.installProduct('PortalTransforms', 1)
 

@@ -47,17 +47,3 @@ class CatalogMultiplex(CMFCatalogAware):
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, self.__url(), idxs=lst)
-
-    security.declarePrivate('manage_afterAdd')
-    def manage_afterAdd(self, item, container):
-        CMFCatalogAware.manage_afterAdd(self, item, container)
-        self.indexObject()
-    
-    security.declarePrivate('manage_afterClone')
-    def manage_afterClone(self, item):
-        CMFCatalogAware.manage_afterClone(self, item)
-        self.reindexObject()
-    
-    security.declarePrivate('manage_beforeDelete')
-    def manage_beforeDelete(self, item, container):
-        self.unindexObject()

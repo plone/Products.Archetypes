@@ -24,8 +24,6 @@
 	   content python: (base == 1) and value.getRaw() or value ;
 	   inputvalue python: (binary == 0) and content or '';
 	   tabindex tabindex/next;
-           rows widget/rows;
-           cols widget/cols;
 	">
 	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>

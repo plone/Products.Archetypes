@@ -18,11 +18,7 @@ class BaseContentMixin(BaseObject,
                        CatalogMultiplex,
                        PortalContent,
                        Historical):
-    """A not-so-basic CMF Content implementation that doesn't
-    include Dublin Core Metadata"""
-
-    __implements__ = ((IBaseContent, IReferenceable) +
-                      PortalContent.__implements__)
+    __implements__ = (IBaseContent, IReferenceable) + PortalContent.__implements__
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
@@ -66,7 +62,7 @@ class BaseContentMixin(BaseObject,
         except:
             filename = file.filename
 
-        # Marshall the data
+        #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.demarshall(self, data, mimetype=None,
                                       filename=filename)
@@ -80,14 +76,8 @@ class BaseContentMixin(BaseObject,
 
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
-    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
+    def manage_FTPget(self, REQUEST, RESPONSE):
         "Get the raw content for this object (also used for the WebDAV SRC)"
-
-        if REQUEST is None:
-            REQUEST = self.REQUEST
-
-        if RESPONSE is None:
-            RESPONSE = REQUEST.RESPONSE
 
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
@@ -111,19 +101,18 @@ class BaseContentMixin(BaseObject,
             data=data.next
 
 InitializeClass(BaseContentMixin)
-
+    
 class BaseContent(BaseContentMixin,
                   ExtensibleMetadata):
-    """A not-so-basic CMF Content implementation with Dublin Core
-    Metadata included"""
+    """ A not-so-basic CMF Content implementation """
 
-    __implements__ = (BaseContentMixin.__implements__ +
-                      (IExtensibleMetadata,))
+    __implements__ = BaseContentMixin.__implements__ + (IExtensibleMetadata,)
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
 
     def __init__(self, oid, **kwargs):
         BaseContentMixin.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
+
 
 InitializeClass(BaseContent)

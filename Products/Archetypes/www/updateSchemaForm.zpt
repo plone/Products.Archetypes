@@ -9,27 +9,12 @@ existing field accessors, updates the schema, re-initializes the object, and
 finally resets the values using the new field mutators.  It should be fairly
 smart about detecting schema changes in your objects.  Use at your own risk.
 </p>
+  
+<ul>
+   <li tal:repeat="klass python:here.getChangedSchema()" tal:content="klass"/>
+</ul>
 
 <form method="PUT" action="manage_updateSchema">
-
-  <b>Update the following classes:</b>
-  <table border="0">
-    <tr tal:repeat="klass python:here.getChangedSchema()">
-      <td>
-        <input type="checkbox" 
-               tal:attributes="name python:klass[0];
-                               checked python:klass[1];" />
-        <span tal:replace="python:klass[0]" />
-      </td>
-    </tr>
-  </table>
-
-  <p>Update 
-  <select name="update_all:int">
-    <option value="0">Objects with old schemas</option>
-    <option value="1">All objects</option>
-  </select></p>
-
    <input type="submit" name="submit" value="Update schema"/>
 </form>
     

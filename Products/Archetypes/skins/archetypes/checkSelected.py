@@ -8,7 +8,7 @@
 ##parameters=item, value
 
 if value is not None and \
-   unicode(repr(value)) == unicode(repr(item)):
+   unicode(str(value)) == unicode(str(item)):
     return 1
 
 try:
@@ -18,9 +18,9 @@ except AttributeError:
     # Maybe list?
     try:
         for v in value:
-            if unicode(repr(item)) == unicode(repr(v)):
+            if unicode(str(item)) == unicode(str(v)):
                 return 1
     except TypeError:
         pass
 
-return not not unicode(repr(value)) == unicode(repr(item))
+return not not unicode(str(value)) == unicode(str(item))
