@@ -60,6 +60,12 @@
  * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient
    [runyan]
 
+ * Temporary fix for [ 1012408 ] __getitem__ doesn't play nice which is backward
+   compatible except of three broken behaviors:
+   BaseObject.__getitem__ now throws an Unauthorized exception when trying to
+   get an item starting with _ and it throws a KeyError when trying to access
+   a nonexisting object. Also it's using explicit acquisition.
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

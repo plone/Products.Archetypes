@@ -18,6 +18,7 @@ from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
+from AccessControl import Unauthorized
 from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
@@ -343,11 +344,21 @@ class BaseObject(Referenceable):
     def __getitem__(self, key):
         """Play nice with externaleditor again
         """
+        # don't allow key access to hidden attributes
+        if key.startswith('_'):
+            raise Unauthorized, key
+
         schema = self.Schema()
         keys = schema.keys()
+
         if key not in keys and not key.startswith('_'):
-            return getattr(self, key, None) or \
-                   getattr(aq_parent(aq_inner(self)), key, None)
+            # XXX fix this in AT 1.4
+            value= getattr(aq_inner(self).aq_explicit, key, _marker) or \
+                   getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
+            if value is _marker:
+                raise KeyError, key
+            else:
+                return value
 
         field = schema[key]
         accessor = field.getEditAccessor(self)
