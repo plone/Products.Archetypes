@@ -271,7 +271,7 @@ class BaseObject(Implicit):
                 continue
             method = getattr(self, field.accessor)
             try:
-                datum =  accessor(mimetype="text/plain")
+                datum =  method(mimetype="text/plain")
             except TypeError:
                 # retry in case typeerror was raised because accessor doesn't
                 # handle the mimetype argument
