@@ -1,9 +1,8 @@
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
-from ExtensionClass import Base
 
-class DefaultLayerContainer(Base):
+class DefaultLayerContainer:
     __implements__ = ILayerContainer
 
     security = ClassSecurityInfo()

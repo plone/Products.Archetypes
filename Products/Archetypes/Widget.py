@@ -5,7 +5,6 @@ from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
 from Products.Archetypes.debug import log
-from ExtensionClass import Base
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -18,7 +17,7 @@ except NameError:
     True=1
     False=0
 
-class TypesWidget(macrowidget, Base):
+class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
