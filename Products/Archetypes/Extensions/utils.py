@@ -308,7 +308,7 @@ def setupEnvironment(self, out, types,
     install_indexes(self, out, types)
     install_actions(self, out, types)
 
-    install_portal_transforms()
+    install_portal_transforms(self)
     if isPloneSite(self):
         install_validation(self, out, types)
         install_navigation(self, out, types)
