@@ -45,7 +45,7 @@ def migrateReferences(portal, out):
     # Old 1.2 style references are stored inside archetype_tool on the 'ref'
     # attribute
     refs = getattr(at, 'refs', None)
-    if refs:
+    if refs is not None:
         print >>out, 'migrating reference from Archetypes 1.2'
         count=0
         print >>out, "Old references are stored in %s, so migrating them to new style reference annotations." % (TOOL_NAME)
@@ -53,7 +53,7 @@ def migrateReferences(portal, out):
         for brain in allbrains:
             sourceObj = brain.getObject()
             sourceUID = getattr(aq_base(sourceObj), olduididx, None)
-            if not sourceUID: continue
+            if sourceUID is None: continue
             # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
@@ -87,7 +87,7 @@ def migrateReferences(portal, out):
         rc.manage_catalogClear()
         for brain in refs:
             sourceObject = rc.lookupObject(brain.sourceUID)
-            if not sourceObject: continue
+            if sourceObject is None: continue
             targetObject=rc.lookupObject(brain.targetUID)
             if not targetObject:
                 print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
@@ -129,7 +129,7 @@ def migrateUIDs(portal, out):
             continue #its no Archetype instance, so leave it
         
         objUID = getattr(aq_base(obj), '_uid', None)        
-        if objUID: #continue    # not an old style AT?
+        if objUID is not None: #continue    # not an old style AT?
             setattr(obj, olduididx, objUID) # this one can be part of the catalog
             delattr(obj, '_uid')
             setattr(obj, UUID_ATTR, None)
@@ -155,7 +155,7 @@ def removeOldUIDs(portal, out):
         #Get a uid for each thingie
         obj = brain.getObject()
         objUID = getattr(aq_base(obj), olduididx, None)        
-        if not objUID: continue # not an old style AT
+        if objUID is None: continue # not an old style AT
         delattr(obj, olduididx)
         obj._updateCatalog(portal) 
         count+=1
