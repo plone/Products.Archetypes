@@ -204,6 +204,7 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
         self.failUnlessEqual(dummy.content_type, 'text/plain')
         self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
         self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
         
         dummy.setFormat('image/gif')
         self.failUnlessEqual(dummy.Format(), 'image/gif')
@@ -211,6 +212,7 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
         self.failUnlessEqual(dummy.content_type, 'image/gif')
         self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
         self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
 
     def testSetContentType(self):
         dummy = self._parent.dummy
@@ -222,6 +224,7 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
         self.failUnlessEqual(dummy.content_type, 'text/plain')
         self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
         self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
         
         dummy.setContentType('image/gif')
         self.failUnlessEqual(dummy.Format(), 'image/gif')
@@ -229,6 +232,8 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
         self.failUnlessEqual(dummy.content_type, 'image/gif')
         self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
         self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
+
 
     def testMultipleChanges(self):
         dummy = self._parent.dummy
@@ -248,8 +253,20 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
         
-        self.fail('Test is not implemented and Tiran thinks it will fail')
+        data = pfield.get(dummy)
+        self.failUnlessEqual(data.content_type, 'text/plain')
         
+        data.content_type = 'image/jpeg'
+        
+        self.failUnlessEqual(data.content_type, 'image/jpeg')
+        
+        pfield.set(dummy, data)
+        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
+        self.failUnlessEqual(dummy.getContentType(), 'image/jpeg')
+        self.failUnlessEqual(dummy.content_type, 'image/jpeg')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/jpeg')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
+       
 
 def test_suite():
     from unittest import TestSuite, makeSuite

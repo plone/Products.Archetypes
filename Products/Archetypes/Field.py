@@ -698,7 +698,10 @@ class FileField(ObjectField):
             return value, mimetype, filename
         elif IBaseUnit.isImplementedBy(value):
             return value.getRaw(), value.getContentType(), value.getFilename()
-        elif ((isinstance(value, FileUpload) and value.filename != '') or
+        
+        value = aq_base(value)
+        
+        if ((isinstance(value, FileUpload) and value.filename != '') or
               (type(value) is FileType and value.name != '')):
             filename = ''
             if isinstance(value, FileUpload) or hasattr(value, 'filename'):
@@ -714,7 +717,19 @@ class FileField(ObjectField):
             if size == 0:
                 # This new file has no length, so we keep the orig
                 return default, mimetype, filename
-            return value, mimetype, filename
+            else:
+                return value, mimetype, filename
+        
+        if isinstance(value, File):
+            # OFS.Image.File based
+            filename = value.filename
+            mimetype = value.content_type
+            data = value.data
+            if len(data) == 0:
+                return default, mimetype, filename
+            else:
+                return data, mimetype, filename
+        
         klass = getattr(value, '__class__', None)
         raise FileFieldException('Value is not File or String (%s - %s)' %
                                  (type(value), klass))
