@@ -52,7 +52,7 @@ def migrateReferences(portal, out):
         allbrains = uc()
         for brain in allbrains:
             sourceObj = brain.getObject()
-            sourceUID = getattr(sourceObj.aq_base, olduididx, None)
+            sourceUID = getattr(aq_base(sourceObj), olduididx, None)
             if not sourceUID: continue
             # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
@@ -128,7 +128,7 @@ def migrateUIDs(portal, out):
         if not IBaseObject.isImplementedBy(obj): 
             continue #its no Archetype instance, so leave it
         
-        objUID = getattr(obj.aq_base, '_uid', None)        
+        objUID = getattr(aq_base(obj), '_uid', None)        
         if objUID: #continue    # not an old style AT?
             setattr(obj, olduididx, objUID) # this one can be part of the catalog
             delattr(obj, '_uid')
@@ -154,7 +154,7 @@ def removeOldUIDs(portal, out):
     for brain in allbrains:
         #Get a uid for each thingie
         obj = brain.getObject()
-        objUID = getattr(obj.aq_base, olduididx, None)        
+        objUID = getattr(aq_base(obj), olduididx, None)        
         if not objUID: continue # not an old style AT
         delattr(obj, olduididx)
         obj._updateCatalog(portal) 
