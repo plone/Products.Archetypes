@@ -23,8 +23,9 @@ Requires
 	CMF 1.3+
 	Zope 2.5.1+ (Recommending 2.6.0+)
 
-        Zope products "generator", "transform", "validation" (also available on SF Archetypes CVS)
-        should also be installed.
+        Zope products "PortalTransforms", "generator", "validation"
+        should also be installed. All that products are also available 
+        on SF Archetypes CVS.
 
 
 Quickstart
