@@ -1,6 +1,13 @@
 1.4-devel
 =========
 
+ * Sepearted the long fields-module file into several files grouped by function.
+   Seperated Marshallers-module into a file per marshaller.
+   Made the default marshaller configureable. It defaults now to the 
+   ControlledMarshaller from Sidnei's Marshall product. If this is not available
+   it uses the RFC822Marshaller as default, like it was in AT 1.3.
+   [yenzenz|
+
  * The generator product was sacrified in favor or a new renderer subpackage
    [tiran]
 

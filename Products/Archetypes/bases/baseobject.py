@@ -3,16 +3,15 @@ from Products.Archetypes.lib.logging import log_exc, log
 from Products.Archetypes.fields import StringField
 from Products.Archetypes.fields import TextField
 from Products.Archetypes.config import STRING_TYPES
+from Products.Archetypes.config import DEFAULT_MARSHALLER
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
-from Products.Archetypes.marshallers import RFC822Marshaller
 from Products.Archetypes.marshallers import RFC822Marshaller
 from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.renderer import renderService
 from Products.Archetypes.schemata import Schema
 from Products.Archetypes.schemata import getSchemata
-from Products.Archetypes.marshallers import RFC822Marshaller
 from Products.Archetypes.widgets import IdWidget
 from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.lib.utils import shasattr
@@ -69,7 +68,7 @@ content_type = Schema((
     i18n_domain="plone"),
                 )),
 
-    marshall = RFC822Marshaller()
+    marshall = DEFAULT_MARSHALLER()
                       )
 
 class BaseObject(Referenceable, ATAnnotatableMixin):
@@ -275,16 +274,16 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         """Returns the content type from a field.
         """
         value = 'text/plain'
- 
+
         if key is None:
             field = self.getPrimaryField()
         else:
             field = self.getField(key) or getattr(self, key, None)
- 
+
         if field and shasattr(field, 'getContentType'):
             return field.getContentType(self)
         return value
- 
+
     # Backward compatibility
     security.declareProtected(CMFCorePermissions.View, 'content_type')
     content_type = ComputedAttribute(getContentType, 1)
@@ -882,8 +881,8 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
             not (method in ('GET', 'POST') and not
                  isinstance(RESPONSE, xmlrpc.Response))):
-                if shasattr(self, name):
-                    target = getattr(self, name)
+            if shasattr(self, name):
+                target = getattr(self, name)
         else:
             # we are allowed to acquire
             target = getattr(self, name, None)
