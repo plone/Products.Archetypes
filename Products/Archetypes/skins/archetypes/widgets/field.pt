@@ -66,13 +66,12 @@
                     value python:getMethod and getMethod();
                     value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
                     visCondition python:field.widget.testCondition(here, portal, template);
-                    error_messages python:errors.get(fieldName)">
-                    <!--p class="error" tal:content="python:repr(errors)" /-->
+                    error_id python:errors.get(fieldName)">
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
              tal:condition="python:'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)"
-             tal:attributes="class python: test(error_messages, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
@@ -107,8 +106,11 @@
             </a>
           </span>
 
-          <div tal:repeat="error_msg error_messages" tal:content="error_msg" i18n:translate="" i18n:domain="validation">Validation Error</div>
-          <div metal:define-slot="widget_body"></div>
+          <span tal:omit-tag=""
+                tal:define="error python:errors.get(fieldName)">
+            <div tal:content="error_id" i18n:translate="">Validation Error</div>
+            <div metal:define-slot="widget_body"></div>
+          </span>
         </div>
       </tal:condition>
 
