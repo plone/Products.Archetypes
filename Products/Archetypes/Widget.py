@@ -1,5 +1,8 @@
 from debug import log
-from Products.generator.widget import macrowidget
+try:
+    from generator.widget import macrowidget
+except:
+    from Products.generator.widget import macrowidget
 
 from utils import capitalize
 
