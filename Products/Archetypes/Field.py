@@ -257,8 +257,9 @@ class Field(DefaultLayerContainer):
             if len(validators):
                 # insert isEmpty validator at position 0 if first validator
                 # is not isEmpty
-                if not validators[0][0].name == 'isEmpty':
-                    validators.insertSufficient('isEmpty')
+                if not validators[0][0].name.startswith('isEmpty'):
+                    validators.insertSufficient('isEmptyNoError')
+                    #validators.insertSufficient('isEmpty')
             else:
                 validators.insertSufficient('isEmpty')
 
