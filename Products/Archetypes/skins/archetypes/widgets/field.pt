@@ -7,7 +7,7 @@
 <body>
     
     <!-- Base Field Widgets -->
-    <div metal:define-macro="view" tal:define="visState widget.isVisible(here, mode)">
+    <div metal:define-macro="view" tal:define="visState python: widget.isVisible(here, mode)">
      <tal:condition condition="python: visState == 'visible'">
       <div tal:condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
         <span class="label" tal:condition="use_label|nothing" tal:content="python:widget.Label(here) + ':'">Field</span>
@@ -41,7 +41,7 @@
 	<input type="hidden" tal:attributes="name fieldName; value value"/>
       </metal:define>
 
-    <metal:define define-macro="edit" tal:define="visState widget.isVisible(here, mode)">
+    <metal:define define-macro="edit" tal:define="visState python: widget.isVisible(here, mode)">
       <tal:condition condition="python: visState == 'visible'">
 
     <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">
@@ -80,7 +80,7 @@
         </div>
     </div>
       </tal:condition>
-      <tal:condition condition="python: visState == 'hidden'>
+      <tal:condition condition="python: visState == 'hidden'">
 	<metal:use use-macro="here/widgets/field/macros/hidden"/>
       </tal:condition>
     </metal:define>
