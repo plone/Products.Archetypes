@@ -76,37 +76,26 @@ class macrowidget(widget):
         })
 
     def bootstrap(self, instance):
-        if not hasattr(instance, '_v_context'):
-            instance._v_context = engine.getContext(here=instance)
-
-        
-        context = instance._v_context
-        path    = PathExpr("nocall", self.macro, engine)
-        try:
-            pt = context.evaluate(path)
-            ptc  = pt.pt_getContext()
-            macros = pt.pt_macros()
-        except:
-            ### XXX report
-            log_exc(pt.pt_errors())
-            pass
-
-        return macros
-
-    def getContext(self, instance):
-        self.bootstrap(instance)
-        return instance._v_context
+        # do initialization-like thingies that need the instance
+        pass
 
     def __call__(self, mode, instance, context=None):
-        macros = self.bootstrap(instance)
-        output = StringIO()
+        self.bootstrap(instance)
+        pt = instance.restrictedTraverse(self.macro)
+        macros = pt.macros
+        transformer = getattr(context, 'tr_engine', None)
+        if transformer is None:
+            # ZPT
+            output = StringIO()
         
-        ti = TALInterpreter(macros[mode], {}, context, output,
+            ti = TALInterpreter(macros[mode], {}, context, output,
                             tal=1, metal=1, strictinsert=0)
-        #ti.debug = 1
-        ti()
-
+            #ti.debug = 1
+            ti()
         
-        return output.getvalue()
+            return output.getvalue()
+        else:
+            # OpenPT with paxtransform
+            return transformer.transform(macros[mode], context).text
     
 InitializeClass(widget)
