@@ -22,7 +22,9 @@
         <metal:fill fill-slot="widget_body"
                     tal:define="binary python: here.isBinary(fieldName)">
           <tal:area_format tal:condition="widget/allow_format_edit | python:1">
-                   <div metal:use-macro="here/widgets/visual/macros/area_format" />
+            <div style="text-align: right; margin-right: 0.75em;">
+              <metal:block use-macro="here/widgets/visual/macros/area_format" />
+            </div>
           </tal:area_format>
           <metal:use use-macro="here/widgets/epoz/macros/edit_area">
             <metal:fill fill-slot="text_format"/>
