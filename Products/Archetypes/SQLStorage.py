@@ -64,7 +64,7 @@ class BaseSQLStorage(StorageLayer):
         except Exception, msg:
             # usually, table already exists
             # raise SQLInitException(msg)
-            if not str(msg).endswith('exists'):
+            if not str(msg).find('exists') > 0:
                 raise
 
         method = SQLMethod(instance)
@@ -186,7 +186,12 @@ class MySQLStorage(BaseSQLStorage):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer':'int'}
-    db_type_map = {}
+    db_type_map = {
+        'object': 'text',
+        'fixedpoint': 'float',
+        'reference': 'varchar',
+        'datetime': 'datetime',
+        }
 
 
 class OracleSQLStorage(BaseSQLStorage):
