@@ -51,9 +51,9 @@ else:
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
     to work with the new fixed order schema."""
-    from Products.Archetypes.Schema import Schemata
     if not hasattr(aq_base(schema), '_fields'):
         fields = schema.data.values()
+        from Products.Archetypes.schema import Schemata
         Schemata.__init__(schema, fields)
         del schema.data
     return schema

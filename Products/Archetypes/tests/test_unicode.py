@@ -9,7 +9,7 @@ from utils import *
 from test_classgen import Dummy
 
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-from Products.Archetypes.Field import *
+from Products.Archetypes.field import *
 from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.PortalTransforms.data import datastream

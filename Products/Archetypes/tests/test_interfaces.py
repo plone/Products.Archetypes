@@ -20,14 +20,14 @@ from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes import Field # use __all__ field
-from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
+from Products.Archetypes import field # use __all__ field
+from Products.Archetypes.marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
 from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
+from Products.Archetypes.schema import Schema
+from Products.Archetypes.storage.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
-from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
+from Products.Archetypes.storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.public import registerType
@@ -138,12 +138,12 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
 
-    klass = Field.Field # not used but set to class Field
+    klass = field.Field # not used but set to class Field
     forcedImpl = ()
 
     def testFieldInterface(self):
-        for fieldname in Field.__all__:
-            klass = getattr(Field, fieldname)
+        for fieldname in field.__all__:
+            klass = getattr(field, fieldname)
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
             for iface in self.getImplementsOfInstanceOf(klass):
                 self.interfaceImplementedByInstanceOf(klass, iface)

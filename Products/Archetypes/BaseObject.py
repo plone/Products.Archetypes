@@ -12,6 +12,7 @@ from Products.Archetypes.field import TextField
 from Products.Archetypes.field import STRING_TYPES
 from Products.Archetypes.renderer import renderService
 from Products.Archetypes.schema import Schema
+from Products.Archetypes.schema import getSchemata
 from Products.Archetypes.widget import IdWidget
 from Products.Archetypes.widget import StringWidget
 from Products.Archetypes.marshall import RFC822Marshaller
@@ -577,7 +578,6 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
     def Schemata(self):
         """Returns the Schemata for the Object
         """
-        from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
     security.declarePrivate('_isSchemaCurrent')

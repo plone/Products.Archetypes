@@ -7,7 +7,7 @@ from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.Schema import Schemata, getNames
+from Products.Archetypes.schema import Schemata, getNames
 from Products.Archetypes import listTypes
 
 from DateTime import DateTime

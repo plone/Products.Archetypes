@@ -11,12 +11,12 @@ from test_classgen import Dummy
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
-from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from Products.Archetypes.storage import AttributeStorage, MetadataStorage
 from Products.Archetypes import listTypes
-from Products.Archetypes.Widget import IdWidget, StringWidget, BooleanWidget, \
+from Products.Archetypes.widget import IdWidget, StringWidget, BooleanWidget, \
      KeywordWidget, TextAreaWidget, CalendarWidget, SelectionWidget
 from Products.Archetypes.utils import DisplayList
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE,CEILING_DATE
 
 from DateTime import DateTime

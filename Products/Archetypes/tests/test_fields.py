@@ -13,8 +13,8 @@ from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes import Field
-from Products.Archetypes.Field import ScalableImage, Image
+from Products.Archetypes import field
+from Products.Archetypes.field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
@@ -27,7 +27,7 @@ fields = ['ObjectField', 'StringField',
 
 field_instances = []
 for name in fields:
-    field_instances.append(getattr(Field, name)(name.lower()))
+    field_instances.append(getattr(field, name)(name.lower()))
 
 txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
