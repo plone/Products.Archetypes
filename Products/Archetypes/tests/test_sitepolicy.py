@@ -79,7 +79,7 @@ class SitePolicyTests(ATSiteTestCase):
         new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(100)
-        new_size = new_size + 2
+        new_size = new_size -1
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(1)
         new_size = new_size - 2

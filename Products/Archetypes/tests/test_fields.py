@@ -230,9 +230,19 @@ class ProcessingTest(ATSiteTestCase):
         self.failIf(errors, errors)
 
     def test_required(self):
-        dummy = self.makeDummy()
         request = FakeRequest()
+        request.form.update(empty_values)
         request.form['fieldset'] = 'default'
+        self._test_required(request)
+        
+    def test_required_empty_request(self):
+        request = FakeRequest()
+        request.form = {}
+        request.form['fieldset'] = 'default'
+        self._test_required(request)
+
+    def _test_required(self, request):
+        dummy = self.makeDummy()
         f_names = []
 
         schema = dummy.Schema()

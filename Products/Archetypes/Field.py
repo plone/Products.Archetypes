@@ -1177,10 +1177,20 @@ class IntegerField(ObjectField):
         'type' : 'integer',
         'size' : '10',
         'widget' : IntegerWidget,
-        'default' : 0,
+        'default' : None,
         })
 
     security  = ClassSecurityInfo()
+    
+    security.declarePrivate('validate_required')
+    def validate_required(self, instance, value, errors):
+        try:
+            int(value)
+        except (ValueError, TypeError):
+            result = False
+        else:
+            result = True            
+        return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1198,10 +1208,21 @@ class FloatField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'float',
-        'default': '0.0'
+        'default': None
         })
 
     security  = ClassSecurityInfo()
+
+    security.declarePrivate('validate_required')
+    def validate_required(self, instance, value, errors):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            result = False
+        else:
+            result = True            
+        return ObjectField.validate_required(self, instance, result, errors)
+
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1228,6 +1249,18 @@ class FixedPointField(ObjectField):
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
+
+#    XXX TODO
+#    security.declarePrivate('validate_required')
+#    def validate_required(self, instance, value, errors):
+#        try:
+#            int(value)
+#        except ValueError:
+#            result = False
+#        else:
+#            result = True            
+#        return ObjectField.validate_required(self, instance, result, errors)
+
 
     security  = ClassSecurityInfo()
 
