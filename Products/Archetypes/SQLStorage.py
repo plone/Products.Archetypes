@@ -253,6 +253,7 @@ class PostgreSQLStorage(BaseSQLStorage):
     sqlm_type_map = {'integer': 'int'}
     db_type_map = {
         'object': 'bytea',
+        'file': 'bytea',
         'fixedpoint': 'integer',
         'reference': 'text',
         'datetime': 'timestamp',

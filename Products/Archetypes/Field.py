@@ -20,7 +20,7 @@ from interfaces.field import IField, IObjectField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException
+from exceptions import ObjectFieldException, TextFieldException, FileFieldException
 from Products.validation import validation
 from config import TOOL_NAME
 
@@ -158,7 +158,8 @@ class ObjectField(Field):
         try:
             return self.storage.get(self.name, instance, **kwargs)
         except AttributeError: # happens if new Atts are added and not yet stored in the instance
-            self.storage.set(self.name,instance,self.default,**kwargs)
+            if not kwargs.get('_initializing_', 0):
+                self.set(instance,self.default,_initializing_=1,**kwargs)
             return self.default
         
     def set(self, instance, value, **kwargs):
@@ -205,6 +206,55 @@ class MetadataField(ObjectField):
         })
 
 
+class FileField(StringField):
+    """Something that may be a file, but is not an image and doesn't want text format conversion"""
+    __implements__ = ObjectField.__implements__
+
+    _properties = StringField._properties.copy()
+    _properties.update({
+        'type' : 'file',
+        'default' : '',
+        'primary' : 0,
+        })
+                       
+    def _process_input(self, value, default=None, mime_type='text/plain', **kwargs):
+        # We also need to handle the case where there is a baseUnit
+        # for this field containing a valid set of data that would
+        # not be reuploaded in a subsequent edit, this is basically
+        # migrated from the old BaseObject.set method
+        if type(value) is StringType:
+            return value, mime_type
+        elif ((isinstance(value, FileUpload) and value.filename != '') or
+              (isinstance(value, FileType) and value.name != '')):
+            return value.read(), mime_type
+        raise TextFieldException('Value is not File or String')
+
+    def set(self, instance, value, **kwargs):
+        if not kwargs.has_key('mime_type'):
+            kwargs['mime_type'] = self.default_content_type
+            
+        value, mime_type = self._process_input(value,
+                                               default=self.default, \
+                                               **kwargs)
+        # FIXME: ugly hack
+        try:
+            types_d = instance._FileField_types
+            instance._p_changed
+        except AttributeError:
+            types_d = {}
+            instance._FileField_types = types_d
+        types_d[self.name] = mime_type
+        ObjectField.set(self, instance, value, **kwargs)
+
+        #Invoke the default Transforms, hey, its policy
+        #Note that we stash the product of transforms on
+        #bu.transforms and BU deals with that
+        #tt = getToolByName(self, "transformation_tool")
+        #tt.runChains(MUTATION,
+        #             bu.getRaw(),
+        #             bu.transforms)
+        
+
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -239,7 +289,6 @@ class TextField(ObjectField):
                     # This new file has no length, so we keep
                     # the orig
                     return default
-                mime_type = kwargs.get('mime_type', mime_type)
                 return value, mime_type
 
             elif IBaseUnit.isImplementedBy(value):
@@ -568,6 +617,7 @@ class ImageField(ObjectField):
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
         'widget': ImageWidget,
+        'storage': ObjectManagedStorage(),
         })
                        
     default_view = "view"
@@ -584,7 +634,7 @@ class ImageField(ObjectField):
         if value == '' or type(value) != StringType:
             image = None
             try:
-                image = ObjectField.get(self, instance)
+                image = ObjectField.get(self, instance, **kwargs)
             except AttributeError:
                 pass
 
