@@ -1,5 +1,8 @@
 after 1.3.2-final
 ==================
+ * textarea.pt and image.pt were broken under 2.7.2 (newline in python
+   expression)
+   [gotcha]
 
  * Correct getMsgId on DisplayList (when using int keys) and IntDisplayList
    [gotcha]
