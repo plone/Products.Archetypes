@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 ##XXX remove dep, report errors properly
+import i18n
 
 class iwidget:
     def __call__(instance, context=None):
@@ -15,13 +16,19 @@ class iwidget:
     def getContext(self, mode, instance):
         """returns any prepaired context or and empty {}"""
 
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+
+    def Description(self, instance):
+        """Returns the description, possibly translated"""
+
 class widget:
     """
     Base class for widgets
-    
+
     A dynamic widget with a reference to a macro that can be used to
     render it
-    
+
     description -- tooltip
     label       -- textual label
     visible     -- 1[default] visible 0 hidden -1 skipped
@@ -39,11 +46,11 @@ class widget:
         'visible' : 1, ##XXX Remove for modes
         'attributes' : ''
         }
-    
+
     def __init__(self, **kwargs):
         self._processed  = 0
         self._process_args(**kwargs)
-        
+
     def _process_args(self, **kwargs):
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
@@ -55,58 +62,52 @@ class widget:
     def getContext(self, instance):
         return {}
 
+    def _translate_attribute(self, instance, name):
+        value = getattr(self, name)
+        domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
+        if domain is None:
+            return value
+        msgid = getattr(self, name+'_msgid', None) or value
+        return i18n.translate(domain, msgid, mapping=instance.REQUEST, context=instance, default=value)
 
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+        return self._translate_attribute(instance, 'label')
 
-from Products.PageTemplates.Expressions import PathExpr
-import Products.CMFCore.Expression as ex
-from TAL.TALInterpreter import TALInterpreter
-from cStringIO import StringIO
+    def Description(self, instance, **kwargs):
+        """Returns the description, possibly translated"""
+        value = self.description
+        method = getattr(instance.aq_explicit, value, None)
+        if method and callable(method):
+            ##Description methods can be called with kwargs and should
+            ##return the i18n version of the description
+            value = method(**kwargs)
+            return value
 
-engine  = ex.getEngine()
-_macro_registry = {}
+        return self._translate_attribute(instance, 'description')
+
 
 class macrowidget(widget):
     """macro is the file containing the macros, the mode/view is the
     name of the macro in that file
     """
-    
+
     _properties = widget._properties.copy()
     _properties.update({
         'macro' : None,
         })
 
     def bootstrap(self, instance):
-        if not hasattr(instance, '_v_context'):
-            instance._v_context = engine.getContext(here=instance)
-
-        
-        context = instance._v_context
-        path    = PathExpr("nocall", self.macro, engine)
-        try:
-            pt = context.evaluate(path)
-            ptc  = pt.pt_getContext()
-            macros = pt.pt_macros()
-        except:
-            ### XXX report
-            log_exc(pt.pt_errors())
-            pass
-
-        return macros
-
-    def getContext(self, instance):
-        self.bootstrap(instance)
-        return instance._v_context
+        # do initialization-like thingies that need the instance
+        pass
 
     def __call__(self, mode, instance, context=None):
-        macros = self.bootstrap(instance)
-        output = StringIO()
-        
-        ti = TALInterpreter(macros[mode], {}, context, output,
-                            tal=1, metal=1, strictinsert=0)
-        #ti.debug = 1
-        ti()
+        self.bootstrap(instance)
+        #If an attribute called macro_<mode> exists resolve that
+        #before the generic macro, this lets other projects
+        #create more partial widgets
+        macro = getattr(self, "macro_%s" % mode, self.macro)
+        template = instance.restrictedTraverse(path = macro)
+        return template.macros[mode]
 
-        
-        return output.getvalue()
-    
 InitializeClass(widget)
