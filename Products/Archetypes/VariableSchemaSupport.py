@@ -36,8 +36,6 @@ class VarClassGen(ClassGenerator):
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))
 
-        self.checkSchema(klass)
-
         fields = self.schema.fields()
         generator = Generator()
         for field in fields:
@@ -47,9 +45,9 @@ class VarClassGen(ClassGenerator):
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'type')
             for mode in field.mode: #(r, w)
-                self.handle_mode(klass, generator, type, field, mode)
+                self.handle_mode(klass, generator, field, mode, None)
                 if mode == 'w':
-                    self.handle_mode(klass, generator, type, field, 'm')
+                    self.handle_mode(klass, generator, field, 'm', None)
 
         InitializeClass(klass)
 
