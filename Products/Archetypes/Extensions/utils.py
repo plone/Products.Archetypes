@@ -58,18 +58,18 @@ def install_catalog(self, out):
                  ('id', 'FieldIndex'),
                  ('Title', 'FieldIndex'),
                  ('portal_type', 'FieldIndex'),
-             )    
-    
+             )
+
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        
+
     catalog = getToolByName(self, UID_CATALOG)
     schema = catalog.schema()
     indexes = catalog.indexes()
     schemaFields = []
-        
+
     for indexName, indexType in ( ('UID', 'FieldIndex'),
                                   ('Type', 'FieldIndex'),
                                   ('id', 'FieldIndex'),
