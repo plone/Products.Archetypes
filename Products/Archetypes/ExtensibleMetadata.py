@@ -227,7 +227,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     def isEffective(self, date):
         """ Is the date within the resource's effective range? """
         effectiveDate = self.schema['effectiveDate'].get(self)
-        expirationDate = self.schema['effectiveDate'].get(self)
+        expirationDate = self.schema['expirationDate'].get(self)
         pastEffective = ( effectiveDate is None
                        or effectiveDate <= date )
         beforeExpiration = ( expirationDate is None
