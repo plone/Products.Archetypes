@@ -26,9 +26,10 @@ fields = ['ObjectField', 'StringField',
           # 'ReferenceField', 'ComputedField', 'CMFObjectField',
           ]
 
-field_instances = []
+field_instances = [Field.FixedPointField('fixedpointfield2')]
 for name in fields:
     field_instances.append(getattr(Field, name)(name.lower()))
+
 
 txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
@@ -108,8 +109,9 @@ class ProcessingTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
-        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
-                                      schema=schema)
+        self._dummy = mkDummyInContext(Dummy, oid='dummy',
+                                       context=self.portal,
+                                       schema=schema)
         txt_file.seek(0)
         img_file.seek(0)
 

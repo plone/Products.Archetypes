@@ -14,7 +14,7 @@ from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
 from DateTime import DateTime
 
 schema = BaseSchema
-schema1= BaseSchema + Schema(StringField('additionalField'),)
+schema1= BaseSchema + Schema((StringField('additionalField'),))
 
 class Dummy(VariableSchemaSupport,BaseContent):
     schema = schema
