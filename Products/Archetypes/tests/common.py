@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.2 2003/11/03 21:44:22 dreamcatcher Exp $
+# $Id: common.py,v 1.3 2003/11/03 22:14:27 dreamcatcher Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -79,6 +79,3 @@ __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
            'flattenInterfaces', 'newSecurityManager', 'noSecurityManager',
            'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
            + __all__Boolean
-
-
-

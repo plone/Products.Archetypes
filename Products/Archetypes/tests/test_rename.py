@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.10 2003/11/03 21:59:47 dreamcatcher Exp $
+$Id: test_rename.py,v 1.11 2003/11/03 22:14:27 dreamcatcher Exp $
 """
 
 import os, sys
@@ -9,7 +9,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
@@ -19,7 +19,7 @@ from Products.Archetypes.tests.test_sitepolicy import makeContent
 
 class RenameTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
@@ -48,4 +48,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(RenameTests))
-        return suite 
+        return suite

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 from os import curdir
 from os.path import join, abspath, dirname
@@ -25,7 +25,7 @@ else:
 class ContentTypeTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
+        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -88,7 +88,7 @@ class ContentTypeTest( ArchetypesTestCase ):
         self.assertEqual(obj.getField('afilefield').getContentType(obj),
                          'application/x-tar')
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         del self._dummy
         ArchetypesTestCase.beforeTearDown(self)
 
@@ -101,4 +101,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(ContentTypeTest))
-        return suite 
+        return suite

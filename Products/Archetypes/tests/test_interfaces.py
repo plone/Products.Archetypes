@@ -94,7 +94,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         """ returns the interfaces implemented by the klass (flat)"""
         impl = getImplementsOfInstances(klass)
         if type(impl) is not TupleType:
-             impl = (impl,)
+            impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
 
@@ -102,7 +102,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         """ returns the interfaces implemented by the instance (flat)"""
         impl = getImplements(instance)
         if type(impl) is not TupleType:
-             impl = (impl,)
+            impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
 

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 from Products.Archetypes.utils import OrderedDict
 
@@ -76,4 +76,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(OrderedDictTest))
-        return suite 
+        return suite

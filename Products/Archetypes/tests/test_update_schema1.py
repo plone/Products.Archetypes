@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
@@ -17,7 +17,7 @@ from Products.Archetypes.public import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema') 
+    raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema')
 import sys, os, shutil
 
 # We are breaking up the update schema test into 2 separate parts, since
@@ -27,9 +27,9 @@ import sys, os, shutil
 # XXX
 class test_update_schema1(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
-        newSecurityManager( None, user ) 
+        newSecurityManager( None, user )
 
 
     def _setClass(self, version):
@@ -79,4 +79,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(test_update_schema1))
-        return suite 
+        return suite

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 # need this to initialize new BU for tests
 from test_classgen import Dummy
@@ -316,8 +316,8 @@ class BaseSchemaTest(ArchetypesTestCase):
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(tuple(vocab) == ())
- 
-    def beforeTearDown(self): 
+
+    def beforeTearDown(self):
         del self._dummy
         ArchetypesTestCase.beforeTearDown(self)
 
@@ -330,4 +330,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(BaseSchemaTest))
-        return suite 
+        return suite
