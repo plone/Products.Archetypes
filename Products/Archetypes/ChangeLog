@@ -1,3 +1,10 @@
+2003-11-17  Jens Klein <jens.klein@jensquadrat.de>
+        * OrderderBaseFolder.py and interfaces/orderdfolder.py  adapted 
+	  to Zope 2.7 style interface and implementation. This is needed
+	  to run with Plone 2.0. There's a backward compatibility mode: 
+	  In config.py you can set USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
+	  to 1 for using the old style implementaion instead.
+	  
 2003-11-13  Sylvain Thénault  <syt@logilab.fr>
 
 	* BaseObject.py (BaseObject): added the Type method, copied from
