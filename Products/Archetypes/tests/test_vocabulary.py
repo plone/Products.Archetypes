@@ -1,11 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -62,9 +60,10 @@ sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
-class VocabularyTest( unittest.TestCase ):
+class VocabularyTest( ArchetypesTestCase ):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -82,13 +81,17 @@ class VocabularyTest( unittest.TestCase ):
                                 ('Test125', 'Test125')])
         self.assertEqual(vocab, expected)
 
-    def tearDown(self):
+    def beforeTearDown(self): 
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(VocabularyTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(VocabularyTest))
+        return suite 

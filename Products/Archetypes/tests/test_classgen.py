@@ -1,11 +1,10 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
+from common import *
+from utils import * 
 
-try:
-    Zope.startup()
-except AttributeError: # Zope > 2.6
-    pass
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -13,6 +12,8 @@ from Products.Archetypes import listTypes
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
+
+from Products.CMFCore.DiscussionTool import DiscussionTool
 
 from DateTime import DateTime
 from copy import deepcopy
@@ -49,6 +50,11 @@ schema = BaseSchema + Schema((
     StringField('areadonlyfield', mode="r"),
     ))
 
+class DummyDiscussionTool:
+    def isDiscussionAllowedFor( self, content ): 
+        return False
+    def overrideDiscussionFor(self, content, allowDiscussion):
+        pass
 
 class SiteProperties:
     default_charset = 'UTF-8'
@@ -61,6 +67,7 @@ class PortalProperties:
 class Dummy(BaseContent):
     portal_properties = PortalProperties()
     mimetypes_registry = MimeTypesTool()
+    portal_discussion = DummyDiscussionTool()
     
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
@@ -76,9 +83,10 @@ def gen_dummy():
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
-class ClassGenTest( unittest.TestCase ):
+class ClassGenTest( ArchetypesTestCase ):
 
-    def setUp( self ):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self) 
         gen_dummy()
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -147,14 +155,18 @@ class ClassGenTest( unittest.TestCase ):
         obj = self._dummy
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
-        
-    def tearDown( self ):
+         
+    def beforeTearDown(self): 
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ClassGenTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(ClassGenTest))
+        return suite 

@@ -1,11 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -20,9 +18,10 @@ schema = BaseSchema
 class Dummy(BaseContent):
     schema = schema
    
-class SchemataTest( unittest.TestCase ):
+class SchemataTest( ArchetypesTestCase ):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self) 
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -54,13 +53,17 @@ class SchemataTest( unittest.TestCase ):
                                       'contributors', 'effectiveDate', 'expirationDate', \
                                       'language', 'rights'])
 
-    def tearDown( self ):
+    def beforeTearDown(self): 
         del self._dummy
-        
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(SchemataTest),
-        ))
-
+        ArchetypesTestCase.beforeTearDown(self)
+                
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(SchemataTest))
+        return suite 

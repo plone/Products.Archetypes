@@ -1,6 +1,10 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-# that trigger zope import
+from common import *
+from utils import * 
+
 from test_classgen import Dummy
 
 
@@ -21,7 +25,9 @@ class FakeTransformer:
         data.setData(orig)
         return data
     
-class UnicodeStringFieldTest( unittest.TestCase ):
+tests = []    
+    
+class UnicodeStringFieldTest( ArchetypesTestCase ):
     
     def test_set(self):
         f = StringField('test')
@@ -34,8 +40,10 @@ class UnicodeStringFieldTest( unittest.TestCase ):
         f.set(instance, u'héhéhé')
         self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
+
+tests.append(UnicodeStringFieldTest)
             
-class UnicodeLinesFieldTest( unittest.TestCase ):
+class UnicodeLinesFieldTest( ArchetypesTestCase ):
     
     def test_set1(self):
         f = LinesField('test')
@@ -60,8 +68,10 @@ class UnicodeLinesFieldTest( unittest.TestCase ):
         f.set(instance, [u'héhéhé'])
         self.failUnlessEqual(f.get(instance), ['h\xc3\xa9h\xc3\xa9h\xc3\xa9'])
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), ['héhéhé'])
+
+tests.append(UnicodeLinesFieldTest)
             
-class UnicodeTextFieldTest( unittest.TestCase ):
+class UnicodeTextFieldTest( ArchetypesTestCase ):
     
     def test_set(self):
         f = TextField('test')
@@ -74,10 +84,12 @@ class UnicodeTextFieldTest( unittest.TestCase ):
         f.set(instance, u'héhéhé', mimetype='text/plain')
         self.failUnlessEqual(f.getRaw(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
-            
+ 
+tests.append(UnicodeTextFieldTest)
 
-class UnicodeBaseUnitTest(unittest.TestCase):
-    def setUp(self):
+class UnicodeBaseUnitTest(ArchetypesTestCase):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
         
     def test_store(self):
@@ -92,14 +104,17 @@ class UnicodeBaseUnitTest(unittest.TestCase):
         instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        
-    
-def test_suite():
-    return unittest.TestSuite([unittest.makeSuite(UnicodeStringFieldTest),
-                               unittest.makeSuite(UnicodeLinesFieldTest),
-                               unittest.makeSuite(UnicodeTextFieldTest),
-                               unittest.makeSuite(UnicodeBaseUnitTest),
-                               ])
 
-if __name__=='__main__':
-    unittest.main(defaultTest='test_suite')
+tests.append(UnicodeBaseUnitTest)        
+    
+if __name__ == '__main__':
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test)) 
+        return suite 

@@ -1,11 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
 
 import unittest
 from zExceptions.ExceptionFormatter import format_exception
@@ -172,11 +170,12 @@ class DummyTool:
         setattr(instance, TOOL_NAME, self)
         setattr(instance, connection_id, self.sql_connection)
 
-class SQLStorageTest(unittest.TestCase):
+class SQLStorageTest(ArchetypesTestCase):
     # abstract base class for the tests
     db_name = ''
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self) 
         storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
         gen_dummy(storage_class)
         self._storage_class = storage_class
@@ -185,9 +184,10 @@ class SQLStorageTest(unittest.TestCase):
         dummy_tool.setup(dummy)
         dummy.initializeArchetype()
 
-    def tearDown(self):
+    def beforeTearDown(self): 
         db = getattr(self._dummy, connection_id)()
         db.tpc_abort()
+        ArchetypesTestCase.beforeTearDown(self)
 
     def test_objectfield(self):
         dummy = self._dummy
@@ -252,10 +252,11 @@ for db_name in connectors.keys():
         db_name = db_name
         cleanup = cleanup
 
-        def tearDown(self):
+    def beforeTearDown(self): 
             clean = self.cleanup.get(self.db_name, None)
             if clean is None:
                 SQLStorageTest.tearDown(self)
+            ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestSubclass)
 
@@ -269,7 +270,7 @@ for db_name in connectors.keys():
         db_name = db_name
         cleanup = cleanup
 
-        def setUp(self):
+        def afterSetUp(self):
             RenameTests.setUp(self)
             site = self.root.testsite
             storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
@@ -285,13 +286,13 @@ for db_name in connectors.keys():
                                                 typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
 
-	def test_referencefield(self):
+        def test_referencefield(self):
             dummy = self._dummy
             self.failUnless(dummy.getAreferencefield() is None)
             dummy.setAreferencefield('Bla')
             value = dummy.getAreferencefield()
             __traceback_info__ = repr(value)
-            self.failUnless(str(value) == 'Bla')
+            self.failUnless(str(value) == 'Bla') 
 
         def test_rename(self):
             site = self.root.testsite
@@ -373,7 +374,7 @@ for db_name in connectors.keys():
             PUID = f.get(doc)
             self.failUnless(PUID is None)
 
-        def tearDown(self):
+    def beforeTearDown(self): 
             cleanup = self.cleanup.get(self.db_name, None)
             if cleanup is None:
                 db = getattr(self._dummy, connection_id)()
@@ -381,14 +382,21 @@ for db_name in connectors.keys():
             else:
                 cleanup(self)
             RenameTests.tearDown(self)
+            ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestRenameSubclass)
 
 #################################################################
 # run tests
 
-def test_suite():
-    return unittest.TestSuite([unittest.makeSuite(test) for test in tests])
-
 if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test)) 
+        return suite 

@@ -1,4 +1,10 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from common import *
+from utils import * 
+
 from os import curdir
 from os.path import join, abspath, dirname
 
@@ -16,9 +22,10 @@ else:
     # Test was called by another test.
     _prefix = abspath(dirname(__file__))
 
-class ContentTypeTest( unittest.TestCase ):
+class ContentTypeTest( ArchetypesTestCase ):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self) 
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -73,13 +80,17 @@ class ContentTypeTest( unittest.TestCase ):
         file.close()
         self.assertEqual(obj.getField('afilefield').getContentType(obj), 'application/x-tar')
 
-    def tearDown(self):
+    def beforeTearDown(self): 
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ContentTypeTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(ContentTypeTest))
+        return suite 

@@ -1,20 +1,19 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
 
 from Products.Archetypes.utils import OrderedDict
 
 import unittest
 
 
-class OrderedDictTest( unittest.TestCase ):
+class OrderedDictTest( ArchetypesTestCase ):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         self.d = OrderedDict()
         self.d['a'] = '1'
         self.d['b'] = '2'
@@ -68,10 +67,13 @@ class OrderedDictTest( unittest.TestCase ):
         self.failUnless(k == 'c')
         self.failUnless(v == '3')
 
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(OrderedDictTest),
-        ))
-
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(OrderedDictTest))
+        return suite 

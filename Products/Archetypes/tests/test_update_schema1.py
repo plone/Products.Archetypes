@@ -1,10 +1,10 @@
-import unittest
-import Zope
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
+
 
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
@@ -13,29 +13,31 @@ from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
 from Products.Archetypes.public import listTypes, registerType
-from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
+#XXX from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 import sys, os, shutil
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class test_update_schema1(SecurityRequestTest):
+# XXX
+class test_update_schema1(ArchetypesTestCase, SecurityRequestTest):
 
     site_id = 'unittest_test_site'
     created_site = 0
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         SecurityRequestTest.setUp(self)
         if not hasattr(self.root, self.site_id):
             self.root.manage_addProduct['CMFPlone'].manage_addSite(self.site_id)
             self.created_site = 1
         site = getattr(self.root, self.site_id)
         install_archetypes(site)
-        install_test(site)
+        #XXX install_test(site)
 
 
-    def tearDown(self):
+    def beforeTearDown(self): 
         get_transaction().abort()
         # clean things up by hand, since the transaction seems to be getting
         # committed somewhere along the way
@@ -49,6 +51,7 @@ class test_update_schema1(SecurityRequestTest):
                 self.root.manage_delObjects([self.site_id])
             get_transaction().commit()
         SecurityRequestTest.tearDown(self)
+        ArchetypesTestCase.beforeTearDown(self)
 
 
     def _setClass(self, version):
@@ -89,10 +92,13 @@ class test_update_schema1(SecurityRequestTest):
         self.failUnless(t1._isSchemaCurrent())
 
 
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(test_update_schema1),
-        ))
-
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        #XXX suite.addTest(unittest.makeSuite(test_update_schema1))
+        return suite 

@@ -1,11 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -15,8 +13,11 @@ from test_classgen import ClassGenTest, Dummy, gen_dummy
 
 from DateTime import DateTime
 
-class ChangeStorageTest( unittest.TestCase ):
-    def setUp(self):
+tests = []
+
+class ChangeStorageTest( ArchetypesTestCase ):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -60,9 +61,12 @@ class ChangeStorageTest( unittest.TestCase ):
         self.failIf(dummy._md.has_key('atextfield'))
         self.failUnless(hasattr(dummy, 'atextfield'))
 
-class MetadataStorageTest( ClassGenTest ):
+tests.append(ChangeStorageTest)
 
-    def setUp(self):
+class MetadataStorageTest( ArchetypesTestCase ):
+
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -70,10 +74,12 @@ class MetadataStorageTest( ClassGenTest ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
+tests.append(MetadataStorageTest)
 
-class AttributeStorageTest( ClassGenTest ):
+class AttributeStorageTest( ArchetypesTestCase ):
 
-    def setUp( self ):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -81,13 +87,16 @@ class AttributeStorageTest( ClassGenTest ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ChangeStorageTest),
-        unittest.makeSuite(MetadataStorageTest),
-        unittest.makeSuite(AttributeStorageTest),
-        ))
+tests.append(AttributeStorageTest)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test)) 
+        return suite 

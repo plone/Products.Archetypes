@@ -1,12 +1,10 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
-
+from common import *
+from utils import *
+ 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from Products.Archetypes.BaseUnit import BaseUnit
@@ -14,7 +12,6 @@ from StringIO import StringIO
 from os.path import join, abspath, dirname, split
 from os import curdir
 import glob
-from utils import normalize_html, showdiff
 
 from test_classgen import Dummy, gen_dummy
 
@@ -27,7 +24,7 @@ else:
     # Test was called by another test.
     _prefix = abspath(dirname(__file__))    
 
-class BaseUnitTest( unittest.TestCase ):
+class BaseUnitTest( ArchetypesTestCase ):
 
     def testSame(self):
         gen_dummy()
@@ -59,8 +56,14 @@ for f in input_files:
 
     tests.append(BaseUnitTestSubclass)
 
-def test_suite():
-    return unittest.TestSuite([unittest.makeSuite(test) for test in tests])
-
-if __name__=='__main__':
-    unittest.main(defaultTest='test_suite')
+if __name__ == '__main__':
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
+        return suite 
