@@ -1,6 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed 1058669 Wrong i18n:translate in widgets/field.pt
+   [yenzenz]
+
  * Use method getFilename in at_download.pt instead of direkt attribute access, 
    which ignores BaseUnit.
    [yenzenz]
