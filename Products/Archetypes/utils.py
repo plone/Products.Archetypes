@@ -472,3 +472,14 @@ def getPkgInfo(product):
                       ['__pkginfo__'])
     os.chdir(cur_dir)
     return pkg
+
+def shasattr(obj, attr):
+    """Safe has attribute method
+    
+    * It's acquisition safe because it's removing the acquisition wrapper before
+      trying to test for the attribute
+
+    * It's not using hasattr which might swallow a ZODB ConflictError instead
+      it's comparing the output of getattr with a special marker object
+    """
+    return getattr(aq_base(obj), attr, _marker) is not _marker

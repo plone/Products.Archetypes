@@ -246,6 +246,19 @@ def install_indexes(self, out, types):
                         use_column = 1
                     index_spec = index_spec[0]
 
+                    index_accessor = getattr(field, 'index_method', None)
+                    if index_accessor == '_at_edit_accessor':
+                        accessor = field.edit_accessor or field.accessor
+                    elif index_accessor == '_at_accessor':
+                        accessor = field.accessor
+                    elif index_accessor:
+                        if type(index_acessor) is not UnboundMethodType:
+                            raise ValueError('The index accessor is not a valid method')
+                        accessor = index_accessor
+                    else:
+                        accessor = field.accessor
+
+
                     parts = index_spec.split('|')
                     # we want to be able to specify which catalog we want to use
                     # for each index. syntax is
@@ -259,8 +272,8 @@ def install_indexes(self, out, types):
 
                     if use_column:
                         try:
-                            if field.accessor not in catalog.schema():
-                                catalog.addColumn(field.accessor)
+                            if accessor not in catalog.schema():
+                                catalog.addColumn(accessor)
                         except:
                             import traceback
                             traceback.print_exc(file=out)
@@ -281,9 +294,9 @@ def install_indexes(self, out, types):
                             props = None
                         try:
                             #Check for the index and add it if missing
-                            catalog.addIndex(field.accessor, itype,
+                            catalog.addIndex(accessor, itype,
                                              extra=props)
-                            catalog.manage_reindexIndex(ids=(field.accessor,))
+                            catalog.manage_reindexIndex(ids=(accessor,))
                         except:
                             # FIXME: should only catch "Index Exists"
                             # damned string exception !

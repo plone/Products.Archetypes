@@ -494,7 +494,7 @@ class BasicSchema(Schemata):
             else:
                 result = None
             if result is None or result is _marker:
-                accessor = field.getAccessor(instance)
+                accessor = field.getEditAccessor(instance) or field.getAccessor(instance)
                 if accessor is not None:
                     value = accessor()
                 else:

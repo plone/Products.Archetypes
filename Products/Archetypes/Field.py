@@ -121,6 +121,9 @@ class Field(DefaultLayerContainer):
         'widget': StringWidget,
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
+        'index_method' : '_at_accessor', # method used for the index
+                                         # _at_accessor an _at_edit_accessor 
+                                         # are the accessor and edit accessor
         'schemata' : 'default',
         'languageIndependent' : False,
         }
@@ -1232,6 +1235,7 @@ class ReferenceField(ObjectField):
         'referenceClass' : Reference,
         'referenceReferences' : False,
         'callStorageOnSet': False,
+        'index_method' : '_at_edit_accessor',
         })
 
     security  = ClassSecurityInfo()
@@ -1670,31 +1674,6 @@ class ImageField(FileField):
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
-
-##        if value == '' or type(value) != StringType:
-##            image = None
-##            try:
-##                image = ObjectField.get(self, instance, **kwargs)
-##            except AttributeError:
-##                pass
-##
-##            # just keep stuff if nothing was uploaded
-##            if not value: return
-##
-##            # check for file
-##            if not ((isinstance(value, FileUpload) and value.filename != '') or
-##                    (isinstance(value, FileType) and value.name != '')):
-##                return
-##
-##            if image:
-##                #OK, its a file, is it empty?
-##                value.seek(-1, 2)
-##                size = value.tell()
-##                value.seek(0)
-##                if size == 0:
-##                    # This new file has no length, so we keep
-##                    # the orig
-##                    return
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
         imgdata = self.rescaleOriginal(value, **kwargs)
