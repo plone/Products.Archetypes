@@ -1209,8 +1209,8 @@ class ImageField(ObjectField):
         'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
-        'default_content_type' : 'image/gif',
-        'allowable_content_types' : ('image/gif','image/jpeg'),
+        'default_content_type' : 'image/png',
+        'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'image_class': Image,
@@ -1348,8 +1348,10 @@ class ImageField(ObjectField):
             w, h = size
             id = self.getName() + "_" + n
             imgdata = self.scale(data, w, h)
+            pimage = PIL.Image.open(imgdata)
             image = self.image_class(id, self.getName(),
-                                      imgdata, 'image/jpeg')
+                                     imgdata,
+                                     'image/" + lower(pimage.format))
             # manually use storage
             delattr(image, 'title')
             self.storage.set(id, instance, image)
@@ -1359,17 +1361,32 @@ class ImageField(ObjectField):
         #make sure we have valid int's
         keys = {'height':int(h), 'width':int(w)}
 
-        pilfilter = 0 # NEAREST
+        pilfilter = PIL.Image.NEAREST
         #check for the pil version and enable antialias if > 1.1.3
         if PIL.Image.VERSION >= "1.1.3":
-            pilfilter = 1 # ANTIALIAS
+            pilfilter = PIL.Image.ANTIALIAS
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
-        image = image.convert('RGB')
+        # consider image mode when scaling
+        # source images can be mode '1','L,','P','RGB(A)'
+        # convert to greyscale or RGBA before scaling
+        # preserve palletted mode (but not pallette)
+        # for palletted-only image formats, e.g. GIF
+        # PNG compression is OK for RGBA thumbnails
+        original_mode = image.mode
+        if original_mode == '1':
+            image = image.convert('L')
+        elif original_mode == 'P':
+            image = image.convert('RGBA')
         image.thumbnail((keys['width'],keys['height']), pilfilter)
+        # decided to only preserve palletted mode
+        # for GIF, could also use   image.format in ('GIF','PNG')
+        if original_mode == 'P' and image.format == 'GIF':
+            image = image.convert('P')
         thumbnail_file = StringIO()
-        image.save(thumbnail_file, "JPEG", quality=88)
+        # quality parameter doesn't affect lossless formats
+        image.save(thumbnail_file, image.format, quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
