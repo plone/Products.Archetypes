@@ -301,6 +301,30 @@ class IntegerField(ObjectField):
         
         ObjectField.set(self, instance, value, **kwargs)
 
+class FixedPointField(ObjectField):
+    __implements__ = ObjectField.__implements__
+
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'fixedpoint',
+        'precision' : 2,
+        'default' : '0.0',
+        widget : DecimalWidget,
+        })
+
+    def set(self, instance, value, **kwargs):
+        value = value.split('.') # FIXME: i18n?
+        if len(value) < 2:
+            value = (int(value[0]), 0)
+        else:
+            value = (int(value[0]), int(value[1][:self.precision]))
+        
+        ObjectField.set(self, instance, value, **kwargs)
+
+    def get(self, instance, **kwargs):
+        template = '%%d.%%0%dd' % self.precision
+        return template % ObjectField.get(self, instance, **kwargs)
+
 class ReferenceField(ObjectField):
     __implements__ = ObjectField.__implements__
 

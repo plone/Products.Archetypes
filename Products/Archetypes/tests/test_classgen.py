@@ -32,6 +32,11 @@ schema = BaseSchema + Schema((
                                     label="An Object Field"),
                 validators=('isURL',),
                 ),
+
+    FixedPointField('afixedpointfield',
+                    widget=DecimalWidget(description="A fixed point field",
+                                         label="A Fixed Point Field"),
+                    ),
     ))
 
 
@@ -56,11 +61,13 @@ class ClassGenTest( unittest.TestCase ):
         self.failUnless(hasattr(klass, 'setAlinesfield'))
         self.failUnless(hasattr(klass, 'setAdatefield'))
         self.failUnless(hasattr(klass, 'setAnobjectfield'))
+        self.failUnless(hasattr(klass, 'setAfixedpointfield'))
         #getters
         self.failUnless(hasattr(klass, 'getAtextfield'))
         self.failUnless(hasattr(klass, 'getAlinesfield'))
         self.failUnless(hasattr(klass, 'getAdatefield'))
         self.failUnless(hasattr(klass, 'getAnobjectfield'))
+        self.failUnless(hasattr(klass, 'getAfixedpointfield'))
 
     def test_textfield(self):
         klass = self._dummy
@@ -81,6 +88,11 @@ class ClassGenTest( unittest.TestCase ):
         klass = self._dummy
         klass.setAnobjectfield('bla')
         self.failUnless(klass.getAnobjectfield() == 'bla')
+                
+    def test_fixedpointfield(self):
+        klass = self._dummy
+        klass.setAfixedpointfield('26.05')
+        self.failUnless(klass.getAfixedpointfield() == '26.05')
                 
     def tearDown( self ):
         del self._dummy

@@ -35,10 +35,11 @@ class StringWidget(TypesWidget):
         'macro' : "widgets/string"
         })
 
-class FloatWidget(TypesWidget):
+class DecimalWidget(TypesWidget):
+    # FIXME: needs validation!
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/float",
+        'macro' : "widgets/decimal",
         'size' : '5',
         })
 
