@@ -357,7 +357,6 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                             initalizedLayers.append((layer, object))
                         object.initalizeField(instance, field)
                         
-
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
@@ -381,7 +380,6 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         queuedLayers.append((layer, object))
                     if ILayer.isImplementedBy(object):
                         object.cleanupField(instance, field)
-
 
         for layer, object in queuedLayers:
             if ILayer.isImplementedBy(object):

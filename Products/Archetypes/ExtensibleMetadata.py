@@ -1,9 +1,8 @@
 from AccessControl import ClassSecurityInfo
+from Field import *
+from Widget import *
+from Schema import MetadataSchema
 from DateTime.DateTime import DateTime
-from Field import MetadataField, LinesField, DateTimeField, \
-     MetadataFieldList, IntegerField, ObjectField
-from Widget import StringWidget, TextAreaWidget, BooleanWidget, KeywordWidget, SelectionWidget, \
-     LinesWidget, CalendarWidget
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
@@ -21,7 +20,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
     security.declareObjectPublic()
     security.setDefaultAccess('allow')
     
-    schema = type = MetadataFieldList((
+    schema = type = MetadataSchema((
         ObjectField('allowDiscussion',
                       accessor="isDiscussable",
                       mutator="allowDiscussion",

@@ -1,7 +1,7 @@
 from Products.Archetypes.public import *
 from DateTime import DateTime
 
-schema = BaseSchema + FieldList((
+schema = BaseSchema + Schema((
     TextField('quote',
               searchable=1,
               required=1,

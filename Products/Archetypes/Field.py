@@ -415,7 +415,7 @@ class FixedPointField(ObjectField):
         'validators' : ('isDecimal'),
         })
 
-    def set(self, instance, value, **kwargs):
+    def _to_tuple(self, value):
         value = value.split('.') # FIXME: i18n?
         if len(value) < 2:
             value = (int(value[0]), 0)
@@ -423,7 +423,10 @@ class FixedPointField(ObjectField):
             fra = value[1][:self.precision]
             fra += '0' * (self.precision - len(fra))
             value = (int(value[0]), int(fra))
-        
+        return value
+
+    def set(self, instance, value, **kwargs):
+        value = self._to_tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
@@ -431,6 +434,7 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.default
+        if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
 
 class ReferenceField(ObjectField):
@@ -728,6 +732,12 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
-
-
 InitializeClass(Field)
+
+__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
+           'FileField', 'TextField', 'DateTimeField', 'LinesField', \
+           'IntegerField', 'FloatField', 'FixedPointField', \
+           'ReferenceField', 'ComputedField', 'BooleanField', \
+           'CMFObjectField', 'ImageField', \
+           'FieldList', 'MetadataFieldList', # Those two should go away after 1.0
+           )

@@ -22,8 +22,6 @@ from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME
 from debug import log, log_exc
 from utils import capitalize, findDict, DisplayList, unique
-import BaseContent
-import ExtensibleMetadata
 from Renderer import renderer
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
@@ -166,7 +164,7 @@ def listTypes(package=None):
 def getType(name):
     return _types[name]
 
-class Schema(SimpleItem):
+class TTWSchema(SimpleItem):
     def __init__(self, oid, text=None):
         self.id = oid
         self.text = text
@@ -178,6 +176,10 @@ class Schema(SimpleItem):
         """Take the text of a schema and produce a field list
         by evaling in a preped namespace"""
         ns = {}
+        # We need to import these here to avoid circular imports
+        import BaseContent
+        import ExtensibleMetadata
+        
         exec "from Products.Archetypes.Form import *" in ns
         exec "from Products.Archetypes.Field import *" in ns
 
@@ -458,7 +460,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         schema = schema.replace('\r', '')
         
         if not self._schemas.has_key(id):
-            s = Schema(id, schema)
+            s = TTWSchema(id, schema)
             self._schemas[id] = s
             portal_types = getToolByName(self, 'portal_types')
             s.register(portal_types)

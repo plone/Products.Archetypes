@@ -1,5 +1,6 @@
 import ZODB
 from ZODB.PersistentMapping import PersistentMapping
+from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from interfaces.storage import IStorage
 from interfaces.field import IObjectField
@@ -88,7 +89,7 @@ class MetadataStorage(StorageLayer):
     __implements__ = (IStorage, ILayer)
     
     def initalizeInstance(self, instance, item=None, container=None):
-        if not hasattr(instance, "_md"):
+        if not hasattr(aq_base(instance), "_md"):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
@@ -109,7 +110,7 @@ class MetadataStorage(StorageLayer):
         instance._p_changed = 1
         
     def unset(self, name, instance, **kwargs):
-        if not hasattr(instance, "_md"):
+        if not hasattr(aq_base(instance), "_md"):
             log("Broken instance %s, no _md" % instance)
         else:
             del instance._md[name]
