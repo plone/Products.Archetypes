@@ -1,3 +1,15 @@
+2004-05-24  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Fixed multiple small interfaces glitches
+    
+    * Subclass some fields from FileField and reworked FileField
+      including interfaces
+      
+    * Now requires MimetypesRegistry as seperate product from
+      http://sf.net/projects/archetypes
+      
+    * Fixed some unit tests
+
 2004-05-09  Christian Heimes <heimes@faho.rwth-aachen.de>
 
     * Introduced new validators syntax (again). The {'strategy' : 'and', 

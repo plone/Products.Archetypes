@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.2.2.1 2004/05/22 17:22:27 tiran Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.3 2004/05/24 11:20:57 tiran Exp $
 
 from Testing import ZopeTestCase
 
