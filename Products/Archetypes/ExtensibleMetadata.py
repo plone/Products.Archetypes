@@ -48,11 +48,12 @@ class ExtensibleMetadata(Persistence.Persistent):
             'allowDiscussion',
             accessor="isDiscussable",
             mutator="allowDiscussion",
+            edit_accessor="editIsDiscussable",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList(((None,'Default', 'label_discussion_default'),
-                                    (1,'Enabled', 'label_discussion_enabled'),
-                                    (0,'Disabled', 'label_discussion_disabled'),
+            vocabulary=DisplayList((('None', 'Default', 'label_discussion_default'),
+                                    ('1',    'Enabled', 'label_discussion_enabled'),
+                                    ('0',    'Disabled', 'label_discussion_disabled'),
                                    )),
             widget=SelectionWidget(
                 label="Allow Discussion?",
@@ -169,6 +170,14 @@ class ExtensibleMetadata(Persistence.Persistent):
     def isDiscussable(self, encoding=None):
         dtool = getToolByName(self, 'portal_discussion')
         return dtool.isDiscussionAllowedFor(self)
+    
+    security.declareProtected(CMFCorePermissions.View,
+                              'editIsDiscussable')
+    def editIsDiscussable(self, encoding=None):
+        # XXX this method highly depends on the current implementation
+        # it's a quick hacky fix
+        result = getattr(aq_base(self), 'allow_discussion', None)
+        return str(result)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'allowDiscussion')
@@ -178,7 +187,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 allowDiscussion = int(allowDiscussion)
             except (TypeError, ValueError):
                 allowDiscussion = allowDiscussion.lower().strip()
-                d = {'on' : 1, 'off': 0, 'none':None, '':None}
+                d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
                 allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
         try:

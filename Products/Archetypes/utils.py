@@ -3,7 +3,7 @@ import os.path
 import types
 import time, random, md5, socket
 from inspect import getargs
-from types import TupleType, ListType
+from types import TupleType, ListType, StringType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -224,6 +224,8 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -245,6 +247,8 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
@@ -303,6 +307,8 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         try:
             return self._i18n_msgids[key]
         except (KeyError, AttributeError):
@@ -385,7 +391,8 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         value = default
         if v: 

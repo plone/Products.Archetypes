@@ -109,14 +109,15 @@ class BaseSchemaTest(ArcheSiteTestCase):
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
-        self.failUnless(field.vocabulary == DisplayList(((0, 'Disabled'),
-                                                         (1, 'Enabled'),
-                                                         (None, 'Default'))))
+        self.failUnless(field.vocabulary == DisplayList((('0', 'Disabled'),
+                                                         ('1', 'Enabled'),
+                                                         ('None', 'Default'))))
         self.failUnless(field.enforceVocabulary == 1)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'isDiscussable')
         self.failUnless(field.mutator == 'allowDiscussion')
+        self.failUnless(field.edit_accessor == 'editIsDiscussable')
         self.failUnless(field.read_permission == CMFCorePermissions.View)
         self.failUnless(field.write_permission ==
                         CMFCorePermissions.ModifyPortalContent)
@@ -129,9 +130,9 @@ class BaseSchemaTest(ArcheSiteTestCase):
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
-        self.failUnless(vocab == DisplayList(((0, 'Disabled'),
-                                              (1, 'Enabled'),
-                                              (None, 'Default'))))
+        self.failUnless(vocab == DisplayList((('0', 'Disabled'),
+                                              ('1', 'Enabled'),
+                                              ('None', 'Default'))))
 
     def test_subject(self):
         dummy = self._dummy
