@@ -1422,6 +1422,10 @@ class ImageField(FileField):
     default_view = "view"
 
     def set(self, instance, value, **kwargs):
+        if not value:
+            # nothing to do
+            return
+
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
             self.removeScales(image)
@@ -1429,30 +1433,41 @@ class ImageField(FileField):
             ObjectField.unset(self, instance, **kwargs)
             return
 
-        if value == '' or type(value) != StringType:
-            image = None
-            try:
-                image = ObjectField.get(self, instance, **kwargs)
-            except AttributeError:
-                pass
+        if not kwargs.has_key('mimetype'):
+            kwargs['mimetype'] = None
 
-            # just keep stuff if nothing was uploaded
-            if not value: return
+        value, mimetype, filename = self._process_input(value,
+                                                      default=self.getDefault(instance),
+                                                      **kwargs)
+        print type(value), mimetype, filename
+        
+        kwargs['mimetype'] = mimetype
+        kwargs['filename'] = filename
 
-            # check for file
-            if not ((isinstance(value, FileUpload) and value.filename != '') or
-                    (isinstance(value, FileType) and value.name != '')):
-                return
-
-            if image:
-                #OK, its a file, is it empty?
-                value.seek(-1, 2)
-                size = value.tell()
-                value.seek(0)
-                if size == 0:
-                    # This new file has no length, so we keep
-                    # the orig
-                    return
+##        if value == '' or type(value) != StringType:
+##            image = None
+##            try:
+##                image = ObjectField.get(self, instance, **kwargs)
+##            except AttributeError:
+##                pass
+##
+##            # just keep stuff if nothing was uploaded
+##            if not value: return
+##
+##            # check for file
+##            if not ((isinstance(value, FileUpload) and value.filename != '') or
+##                    (isinstance(value, FileType) and value.name != '')):
+##                return
+##
+##            if image:
+##                #OK, its a file, is it empty?
+##                value.seek(-1, 2)
+##                size = value.tell()
+##                value.seek(0)
+##                if size == 0:
+##                    # This new file has no length, so we keep
+##                    # the orig
+##                    return
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
         imgdata = self.rescaleOriginal(value, **kwargs)
@@ -1514,9 +1529,11 @@ class ImageField(FileField):
         """
         mimetype = kwargs.get('mimetype', 'image/png')
         filename = kwargs.get('filename', '')
+        
         image = self.content_class(self.getName(), self.getName(),
                                  value, mimetype)
         image.filename = filename
+        image.content_type = mimetype
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 

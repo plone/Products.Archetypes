@@ -147,6 +147,12 @@ class BaseUnit(File):
         """return the imimetype object for this BU"""
         return self.mimetype
 
+    def setContentType(self, value):
+        """
+        """
+        print value, self.getContentType()
+        self.mimetype = value
+
     def content_type(self):
         return self.getContentType()
     

@@ -7,6 +7,7 @@ from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema, Schemata
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
@@ -215,6 +216,17 @@ class BaseObject(Implicit):
         if element and hasattr(element, 'getContentType'):
             return element.getContentType()
         return value
+
+    def setContentType(self, value):
+        """
+        """
+        pfield = self.getPrimaryField()
+        if pfield and IFileField.isImplementedBy(pfield):
+            bu = pfield.getBaseUnit(self)
+            bu.setContentType(value)
+            pfield.set(self, bu)
+            #assert value == bu.getContentType()
+            #assert value == pfield.getContentType(self)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
