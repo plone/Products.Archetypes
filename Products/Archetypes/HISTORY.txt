@@ -5,6 +5,10 @@
    glitches.
    [tiran]
 
+ * Fixed [ 1011658 ] portal_skins/archetypes folder disappeared after AT 
+   reinstall. Under some circumstances the skins aren't properly registered.
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

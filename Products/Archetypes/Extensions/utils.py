@@ -380,6 +380,9 @@ def setupArchetypes(self, out, require_dependencies=True):
     install_archetypetool(self, out)
     install_uidcatalog(self, out, rebuild=False)
     install_referenceCatalog(self, out, rebuild=False)
+
+    # install skins and register templates
+    install_subskin(self, out, types_globals)
     install_templates(self, out)
 
 def setupEnvironment(self, out, types,
