@@ -11,7 +11,7 @@ _modes = {
             'attr'     : 'accessor',
             'security' : 'read_permission',
             },
-    'm' : { 'prefix'   : 'get_raw',
+    'm' : { 'prefix'   : 'getRaw',
             'attr'     : 'edit_accessor',
             'security' : 'write_permission',
             },
