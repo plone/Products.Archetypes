@@ -163,11 +163,15 @@ class Field(DefaultLayerContainer):
         properties dictionary.
         """
         cdict = dict(vars(self))
-        # Widget must be copied separatedly
+        # Widget and storage must be copied separatedly
         widget = cdict['widget']
+        ##storage = cdict['storage']
         del cdict['widget']
+        ##del cdict['storage']
+        ##del cdict['_layers'] # will be recreated 
         properties = deepcopy(cdict)
         properties['widget'] = widget.copy()
+        ##properties['storage'] = storage.copy()
         return self.__class__(self.getName(), **properties)
 
     def __repr__(self):

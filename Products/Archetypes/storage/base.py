@@ -24,6 +24,8 @@
 #
 ################################################################################
 
+from copy import deepcopy
+
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.lib.logging import log
@@ -73,6 +75,14 @@ class Storage:
     security.declarePrivate('unset')
     def unset(self, name, instance, **kwargs):
         raise NotImplementedError('%s: unset' % self.getName())
+
+##    security.declarePrivate('copy')
+##    def copy(self):
+##        """Return a copy of storage instance
+##        """
+##        cdict = dict(vars(self))
+##        properties = deepcopy(cdict)
+##        return self.__class__(**properties)
 
 setSecurity(Storage)
 
