@@ -89,6 +89,9 @@ class newBaseUnit(File):
     def __str__(self):
         return self.raw
 
+    def __len__(self):
+        return self.get_size()
+
     def isBinary(self):
         try:
             return self.getContentType().binary
