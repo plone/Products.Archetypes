@@ -77,7 +77,7 @@ class widget:
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated"""
         value = self.description
-        method = getattr(instance, value, None)
+        method = getattr(instance.aq_explicit, value, None)
         if method and callable(method):
             ##Description methods can be called with kwargs and should
             ##return the i18n version of the description
