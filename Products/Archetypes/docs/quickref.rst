@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/07/03 16:23:41 $
-:Version: $Revision: 1.7 $
+:Date: $Date: 2003/08/04 15:38:43 $
+:Version: $Revision: 1.8 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -45,6 +45,12 @@ using the following combination:
 
 It is also known to work smoothly with Zope 2.5.
 
+You should install the *validation* and *generator* packages available 
+on the archetypes'sourceforge page before installing Archetypes itself. 
+WARNING: those packages was used to be installed as Zope products, this 
+not the case anymore. They should be installed as regular python package 
+(look at the packages'README file for more info).
+
 Using the tarball
 *****************
 
@@ -56,9 +62,6 @@ Using the tarball
 
      Archetypes
      ArchExample
-     transform
-     validation
-     generator
 
 3. Restart your Zope.
 
@@ -94,7 +97,6 @@ Quick and dirty::
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co ArchExample
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co validation
   cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co generator
-  cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/archetypes co transform
 
 
 Schema
@@ -313,7 +315,7 @@ Writing a custom validator
 
 If you need custom validation, you can write a new validator in your product.::
 
-    from Products.validation.interfaces import ivalidator
+    from validation.interfaces import ivalidator
     class FooValidator:
         __implements__ = (ivalidator,)
         def __init__(self, name):

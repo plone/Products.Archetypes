@@ -22,7 +22,7 @@ from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, FileFieldException
-from Products.validation import validation
+from validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
@@ -459,8 +459,8 @@ class TextField(ObjectField):
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
-            if encoding is not None and type(value) == type(u''):
-                value = value.encode(encoding)
+            if type(value) == type(u''):
+                value = value.encode(encoding or 'UTF-8')
             else:
                 value = str(value)
             if mimetype is None:
@@ -565,7 +565,7 @@ class TextField(ObjectField):
         except AttributeError:
             import site
             encoding = site.encoding
-
+            
         kwargs['encoding'] = encoding
         value, mimetype = self._process_input(value,
                                               default=self.default,
@@ -749,14 +749,15 @@ class ReferenceField(ObjectField):
 
         if not value:
             value=None
-
+        __traceback_info__ = (instance, self.getName(), value)
+        
         #establish the relation through the ReferenceEngine
         tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
         #XXX: thats too cheap, but I need the proof of concept before going on
         instance.deleteReferences(refname)
-
+        
         if self.multiValued:
             if type(value) in (type(()),type([])):
                 for uid in value:
@@ -1099,7 +1100,8 @@ class I18NMixIn(ObjectField):
         self.storage = AttributeStorage()
         self._i18n_default = self.default or self._wrapped_class._properties['default']
         self.default = None
-
+        self.type = self.__class__.__name__.lower().replace('field', '')
+        
     def getI18NFieldId(self, lang):
         return '%s__%s'  % (self.__name__, lang)
 
@@ -1111,13 +1113,9 @@ class I18NMixIn(ObjectField):
         """return a list of defined language ids for the given instance"""
         return self._get_mapping(instance).keys()
 
-
     def get(self, instance, lang=None, **kwargs):
         lang = getLanguage(instance, lang)
         mapping = self._get_mapping(instance)
-        #log('I18Nget %s with %s %s %s from %r at %s' % (self.__name__, instance,
-        #                                                lang, kwargs, mapping,
-        #                                                id(mapping)))
         try:
             return mapping[lang].get(instance, **kwargs)
         except KeyError:
@@ -1142,7 +1140,6 @@ class I18NMixIn(ObjectField):
     def set(self, instance, value, lang=None, **kwargs):
         value = value or self._i18n_default
         lang = getLanguage(instance, lang)
-        #log('I18Nset %s with %s %s %s %s' % (self.__name__, instance, lang, value, kwargs))
         mapping = self._get_mapping(instance)
         field = self._build_lang_field(instance, lang)
         field.set(instance, value, **kwargs)
