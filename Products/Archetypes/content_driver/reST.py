@@ -28,7 +28,8 @@ class Converter(ContentDriver):
 
       # do the format
       html = publish_string(writer=Writer(), source=data, settings_overrides=settings_overrides)
-
+      html = html.replace(' class="document"', '', 1)
+        
       # XXX what todo with this?
       #warnings = ''.join(pub.settings.warning_stream.messages)
 
