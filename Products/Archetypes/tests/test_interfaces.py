@@ -28,14 +28,16 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
-from Interface.Implements import getImplementsOfInstances, \
-    getImplements, flattenInterfaces
+from Interface.Implements import getImplementsOfInstances
+from Interface.Implements import getImplements
+from Interface.Implements import flattenInterfaces
 from Interface.Verify import verifyClass, verifyObject
-from Interface.Exceptions import BrokenImplementation, DoesNotImplement
+from Interface.Exceptions import BrokenImplementation
+from Interface.Exceptions import DoesNotImplement
 from Interface.Exceptions import BrokenMethodImplementation
 
 from Products.Archetypes.interfaces.base import *

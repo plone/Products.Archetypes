@@ -221,7 +221,5 @@ def test():
     assert(isinstance(v('-1'), basestring)) # error
     assert(isinstance(v('a'), basestring)) # error
 
-test()
-
 if __name__ == '__main__':
     test()

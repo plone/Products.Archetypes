@@ -1,44 +1,19 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
 
+from Testing import ZopeTestCase
+
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import make_uuid
 
-class UidGeneratorTest(ArchetypesTestCase):
+class UidGeneratorTest(ATTestCase):
     """Some ppl have reported problems with uids. This test isn't mathematical
     correct but should show the issue on plattform. I suspect it's Windows :|
     """
-
+    
     def test_uuid(self):
         uids = {}
         loop_length = 10**5 # about 1.5 seconds on a fast cpu
@@ -47,7 +22,7 @@ class UidGeneratorTest(ArchetypesTestCase):
             uids[uid] = 1
         self.failUnlessEqual(len(uids), loop_length)
 
-class DisplayListTest(ArchetypesTestCase):
+class DisplayListTest(ATTestCase):
 
     def test_cmp(self):
         ta = ('a', 'b', 'c')
@@ -154,30 +129,30 @@ class DisplayListTest(ArchetypesTestCase):
         assert dlb_s.values() == ['X', 'Y', 'Z']
         dlc_s = dlc.sortedByKey()
         assert dlc_s.values() == ['Z', 'X', 'Y']
-
+        
 ##    def test_getIndex(self):
 ##        a = ((None,'a',), (2,'b'), ('c', 'c'))
 ##        dla = DisplayList(a)
-##
+##        
 ##        self.assertEquals(dla.getIndex(None), 1)
 ##        self.assertEquals(dla.getIndex(2), 2)
 ##        self.assertEquals(dla.getIndex('c'), 3)
-##
+##        
 ##    def test_getIndexesFromKeys(self):
 ##        a = ((None,'a',), (2,'b'), ('c', 'c'))
 ##        dla = DisplayList(a)
-##
+##        
 ##        self.assertEquals(dla.getIndexesFromKeys([None, 2]), [1,2])
 ##        self.failUnless(dla.getIndexesFromKeys([None, 'a']) == [1])
-##
+##        
 ##
 ##    def test_getKeysFromIndexes(self):
 ##        a = ((None,'a',), (2,'b'), ('c', 'c'))
 ##        dla = DisplayList(a)
-##
+##        
 ##        self.assertEquals(dla.getKeysFromIndexes([1,2]), [None, 2])
 ##        self.failUnless(dla.getKeysFromIndexes([1,5]) == [None])
-
+    
 
 
 def test_suite():

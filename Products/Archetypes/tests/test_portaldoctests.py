@@ -10,17 +10,17 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 # a list of dotted paths to modules which contains doc tests
-DOCTEST_MODULES = (
-    'Products.Archetypes.registry.base',
+PORTALDOCTEST_MODULES = (
     )
 
-from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
+from Products.CMFCore.utils import getToolByName
 
 def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATTestCase,
-                             extraglobs={},
-                             *DOCTEST_MODULES
+    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
+                             extraglobs={'getToolByName' : getToolByName},
+                             *PORTALDOCTEST_MODULES
                              )
     return suite
 

@@ -1,29 +1,3 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 
@@ -34,12 +8,20 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
-import types
-from Products.CMFTestCase.setup import portal_owner, portal_name
+from Testing import ZopeTestCase
 
-class CutPasteCopyPasteTests(ArcheSiteTestCase):
+import types
+
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.atsitetestcase import portal_owner
+from Products.Archetypes.tests.atsitetestcase import portal_name
+from Products.Archetypes.tests.utils import PACKAGE_HOME
+
+class CutPasteCopyPasteTests(ATSiteTestCase):
 
     def test_copy_and_paste(self):
         ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
@@ -69,10 +51,10 @@ class CutPasteCopyPasteTests(ArcheSiteTestCase):
 
 from Testing.ZopeTestCase.ZopeTestCase import user_name
 
-class PortalCopyTests(ArcheSiteTestCase):
+class PortalCopyTests(ATSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
+        ATSiteTestCase.afterSetUp(self)
         self.setRoles(['Manager',])
 
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')

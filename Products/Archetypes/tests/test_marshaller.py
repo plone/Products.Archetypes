@@ -1,29 +1,3 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 """
 Unittests for marshaller
 
@@ -34,11 +8,14 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
+import urllib
+
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.atapi import *
-
 from Products.Archetypes import config
 from Products.Archetypes.example.DDocument import DDocument
 
@@ -47,13 +24,6 @@ from ZPublisher.HTTPRequest import HTTPRequest
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.BaseRequest import RequestContainer
 from Testing.makerequest import makerequest
-
-
-import sys
-from os import curdir
-from os.path import join, abspath, dirname, split
-import urllib
-
 
 def aputrequest(file, content_type):
     resp = HTTPResponse(stdout=sys.stdout)
@@ -66,14 +36,14 @@ def aputrequest(file, content_type):
     return req
 
 
-class MarshallerTests(ArcheSiteTestCase):
+class MarshallerTests(ATSiteTestCase):
 
     # XXX this test is fu... up the machine by eating all memory
     def XXX_test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
         obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -93,7 +63,7 @@ class MarshallerTests(ArcheSiteTestCase):
         ## And again with an RST
         obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
-        rstFilePath = join(PACKAGE_HOME, "input", "rest1.rst")
+        rstFilePath = os.path.join(PACKAGE_HOME, "input", "rest1.rst")
         rstFile = open(rstFilePath, 'r')
         data = rstFile.read()
         rstFile.seek(0)
@@ -113,7 +83,7 @@ class MarshallerTests(ArcheSiteTestCase):
         #test that uploading to an existing object works
         obj1 = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
 
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -152,7 +122,7 @@ class MarshallerTests(ArcheSiteTestCase):
         ctr = self.setupCTR()
 
         #now trigger the creation of a content type akin to DAV
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
 
         obj = self.folder.PUT_factory('test', 'application/msword', wordFile)

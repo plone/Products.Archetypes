@@ -1,40 +1,15 @@
-# -*- coding: ISO-8859-1 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
+# -*- coding: iso8859-1 -*-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
+from Products.Archetypes.tests.attestcase import ATTestCase
 from test_classgen import Dummy
 
-from Products.Archetypes.field import *
+from Products.Archetypes.atapi import *
 from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
-from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.PortalTransforms.data import datastream
 instance = Dummy()
 
@@ -50,7 +25,7 @@ class FakeTransformer:
         return data
 
 
-class UnicodeStringFieldTest( ArchetypesTestCase ):
+class UnicodeStringFieldTest( ATTestCase ):
 
     def test_set(self):
         f = StringField('test')
@@ -65,7 +40,7 @@ class UnicodeStringFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeLinesFieldTest( ArchetypesTestCase ):
+class UnicodeLinesFieldTest( ATTestCase ):
 
     def test_set1(self):
         f = LinesField('test')
@@ -97,7 +72,7 @@ class UnicodeLinesFieldTest( ArchetypesTestCase ):
 
 
 
-class UnicodeTextFieldTest( ArchetypesTestCase ):
+class UnicodeTextFieldTest( ATTestCase ):
 
     def test_set(self):
         f = TextField('test')
@@ -112,7 +87,7 @@ class UnicodeTextFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeBaseUnitTest(ArchetypesTestCase):
+class UnicodeBaseUnitTest(ATTestCase):
 
     def afterSetUp(self):
         self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')

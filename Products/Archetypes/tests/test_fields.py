@@ -1,48 +1,22 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
-from os import curdir
-from os.path import join, abspath, dirname, split
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import portal_name
+from Products.Archetypes.tests.utils import mkDummyInContext
+from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
-from Products.Archetypes.lib.vocabulary import DisplayList
-from Products.Archetypes import field as at_fields
+from Products.Archetypes import field as at_field
 from Products.Archetypes.field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
-from Products.CMFTestCase.setup import portal_name
+
 
 test_fields = [
           ('ObjectField', 'objectfield'),
@@ -63,11 +37,11 @@ test_fields = [
 
 field_instances = []
 for type, name in test_fields:
-    field_instances.append(getattr(at_fields, type)(name))
+    field_instances.append(getattr(at_field, type)(name))
 
-txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
+txt_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
-img_file = open(join(PACKAGE_HOME, 'input', 'tool.gif'))
+img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'))
 img_content = img_file.read()
 
 field_values = {'objectfield':'objectfield',
@@ -96,8 +70,8 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
                    # this only works for Plone b/c of monkeypatch
-                   #'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name,
+                   #'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name, 
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name, 
                    'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name}
 
 empty_values = {'objectfield':None,
@@ -139,10 +113,10 @@ class FakeRequest:
         self.form = {}
 
 
-class ProcessingTest(ArcheSiteTestCase):
+class ProcessingTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
+        ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
                                       schema=schema)
         txt_file.seek(0)

@@ -1,47 +1,23 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
-from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.lib.baseunit import BaseUnit
-from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
-from Products.PortalTransforms.TransformTool import TransformTool
-from Products.Archetypes.interfaces.base import IBaseUnit
-
-from Products.CMFCore.DiscussionTool import DiscussionTool
+from copy import deepcopy
 
 from DateTime import DateTime
-from copy import deepcopy
+
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import mkDummyInContext
+from Products.Archetypes.tests.utils import gen_class
+from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
+from Products.PortalTransforms.TransformTool import TransformTool
+from Products.CMFCore.DiscussionTool import DiscussionTool
+
 
 default_text = """
 Title
@@ -66,7 +42,7 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('anotherfilefield', widget=FileWidget),
-
+    
     LinesField('alinesfield', widget=LinesWidget),
 
     DateTimeField('adatefield',
@@ -119,10 +95,10 @@ def gen_dummy():
     gen_class(Dummy, schema)
 
 
-class ClassGenTest(ArcheSiteTestCase):
+class ClassGenTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
+        ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
                                       schema=schema)
 
@@ -199,7 +175,7 @@ class ClassGenTest(ArcheSiteTestCase):
             bu = field.getBaseUnit(obj)
             self.failUnless(IBaseUnit.isImplementedBy(bu),
                'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
-
+            
 
 def test_suite():
     from unittest import TestSuite, makeSuite

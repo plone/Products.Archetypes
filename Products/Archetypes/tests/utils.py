@@ -1,31 +1,28 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import re
 from TAL import ndiff
+from Globals import package_home
+
+from Products.Archetypes.atapi import registerType
+from Products.Archetypes.atapi import process_types
+from Products.Archetypes.atapi import listTypes
+from Products.Archetypes.config import PKG_NAME
+
+PACKAGE_HOME = package_home(globals())
+
+def gen_class(klass, schema=None):
+    """generats and registers the klass
+    """
+    if schema is not None:
+        klass.schema = schema.copy()
+    registerType(klass)
+    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
+def mkDummyInContext(klass, oid, context, schema=None):
+    gen_class(klass, schema)
+    dummy = klass(oid=oid).__of__(context)
+    setattr(context, oid, dummy)
+    dummy.initializeArchetype()
+    return dummy
 
 def makeContent( container, portal_type, id='document', **kw ):
     container.invokeFactory( type_name=portal_type, id=id )

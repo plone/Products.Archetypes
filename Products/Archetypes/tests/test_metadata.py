@@ -1,46 +1,22 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
-from types import FunctionType
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import mkDummyInContext
+from Products.Archetypes.tests.utils import gen_class
+from Products.Archetypes.tests.test_classgen import Dummy
+from Products.Archetypes.tests.test_classgen import schema
+
+from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
-
-from test_classgen import Dummy, schema
-
 
 fieldList = [
     # (accessor, mutator, field),
@@ -103,10 +79,10 @@ class DummyFolder(BaseFolder):
     portal_membership = DummyPortalMembership()
 
 
-class ExtensibleMetadataTest(ArcheSiteTestCase):
+class ExtensibleMetadataTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
+        ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.getPortal(), schema=schema)
         # to enable overrideDiscussionFor
@@ -161,10 +137,10 @@ class ExtensibleMetadataTest(ArcheSiteTestCase):
                             'isMetadata not set correctly for field %s.' % meta)
 
 
-class ExtMetadataContextTest(ArcheSiteTestCase):
+class ExtMetadataContextTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
+        ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.getPortal(), schema=schema)
         gen_class(DummyFolder)
@@ -205,7 +181,7 @@ class ExtMetadataContextTest(ArcheSiteTestCase):
                          'Some tests will give you false results!'))
 
 
-class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
+class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
 
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
@@ -227,7 +203,7 @@ class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
         dummy = getattr(self.folder, 'dummy')
         self.failUnlessEqual(dummy.Language(), language)
 
-class ExtMetadataSetFormatTest(ArcheSiteTestCase):
+class ExtMetadataSetFormatTest(ATSiteTestCase):
 
     value = "fooooo"
     filename = 'foo.txt'
