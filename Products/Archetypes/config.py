@@ -8,7 +8,8 @@ UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True ##Initialize the demo types
 INSTALL_DEMO_TYPES = False ##Install the demo types
-DEBUG = True  ## See debug messages
+DEBUG =  False ## Hide debug messages
+#DEBUG = True  ## See debug messages
 
 ##Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"

@@ -6,7 +6,7 @@ from copy import deepcopy
 from types import StringType
 from DateTime import DateTime
 from StringIO import StringIO
-import warnings
+from debug import deprecated
 
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -304,9 +304,9 @@ def _guessPackage(base):
 
 def registerType(klass, package=None):
     if not package:
-        warnings.warn("registerType without a package name is deprecated. "
-                      "Please apply a package name for class %s" % repr(klass),
-                      DeprecationWarning, stacklevel=2)
+        deprecated("registerType without a package name is deprecated. "
+                   "Please apply a package name for class %s" % repr(klass),
+                   level=2)
         package = _guessPackage(klass.__module__)
 
     # Registering a class results in classgen doing its thing
@@ -1077,9 +1077,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return False
 
     def lookupObject(self,uid):
-        import warnings
-        warnings.warn('ArchetypeTool.lookupObject is dreprecated',
-                      DeprecationWarning)
+        deprecated('ArchetypeTool.lookupObject is deprecated')
         return self.reference_catalog.lookupObject(uid)
 
     getObject = lookupObject
