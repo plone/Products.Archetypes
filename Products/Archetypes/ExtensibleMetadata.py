@@ -148,7 +148,23 @@ class ExtensibleMetadata(Persistence.Persistent):
                 d = {'on' : 1, 'off': 0, 'none':None, '':None}
                 allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
-        dtool.overrideDiscussionFor(self, allowDiscussion)
+        # XXX This try block is a workaround for a CMF bug: overrideDiscussionFor 
+        # checks for the ModifyPortalContent permission and raises an 
+        # 'Unauthorized' if it's not available.  However, the mechanism used 
+        # does not take into account proxy roles.  If you have an anonymous user 
+        # creating an archetypes object via a script that uses a proxy role, an 
+        # exception gets raised in allowDiscussion, and that causes the setting 
+        # of all metadata to get rolled back.  This try block prevents that rollback
+        # by swallowing the exception.  You still can't modify the discussion
+        # flag, but at least things work if you don't try to do so.  Security
+        # is correctly enforced by the declareProtected statement above, which
+        # does see proxy roles.  I understand the problem will be fixed in 
+        # CMF 1.5.
+        try:
+            dtool.overrideDiscussionFor(self, allowDiscussion)
+        except 'Unauthorized':
+            log_exc()
+            
 
     # Vocabulary methods ######################################################
 
