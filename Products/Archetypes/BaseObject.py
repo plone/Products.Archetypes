@@ -174,9 +174,11 @@ class BaseObject(Implicit):
         return isinstance(field, TextField)  or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
-    def widget(self, field_name, mode="view", **kwargs):
-        widget = self.Schema()[field_name].widget
-        return renderer.render(field_name, mode, widget, self,
+    def widget(self, field_name, mode="view", field=None, **kwargs):
+        if not field:
+            field = self.Schema()[field_name]
+        widget = field.widget
+        return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
