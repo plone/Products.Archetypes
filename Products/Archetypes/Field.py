@@ -1067,6 +1067,8 @@ class TextField(FileField):
         # fix for external editor support
         # set mimetype to the last state if the mimetype in kwargs is None or 'None'
         mimetype = kwargs.get('mimetype', None)
+        # NOTE: 'None' might be transmitted by external editor or the widgets
+        # 'None' means None so no change to the mimetype
         if mimetype == 'None':
             kwargs['mimetype'] = self.getContentType(instance)
         # set filename to '' if not in kwargs

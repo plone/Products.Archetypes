@@ -114,7 +114,8 @@ base_factory_type_information = (
                        'name': 'References',
                        'action': 'string:${object_url}/reference_graph',
                        'condition': 'object/archetype_tool/has_graphviz',
-                       'permissions': (CMFCorePermissions.View,),
+                       'permissions': (CMFCorePermissions.ModifyPortalContent,
+                                      CMFCorePermissions.ReviewPortalContent,),
                        'visible' : True,
                        },
 
