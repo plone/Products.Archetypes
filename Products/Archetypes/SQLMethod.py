@@ -199,6 +199,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         #   site_encoding:      The uncoding used for the site
         #                       If not specified, we use sys.getdefaultencoding()        
         db_encoding = kw.get('db_encoding',None)
+
         try:
             site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
         except AttributeError, KeyError:
@@ -206,6 +207,10 @@ class SQLMethod(Aqueduct.BaseQuery):
         
         if db_encoding:
             query = query.encode(db_encoding)
+        else:
+            # if database does not have an encoding setting, we could
+            # consider that it stores strings, not unicode.
+            query = str(query)
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))
