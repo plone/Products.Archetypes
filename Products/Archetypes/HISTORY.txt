@@ -1,5 +1,5 @@
-after 1.3.2-final
-=================
+1.3.3-rc1 - 2005-03-25
+======================
 
  * Fixed [ 1163878 ] Field.toString() always return the same thing; thx to 
    flacoste for his Patch
