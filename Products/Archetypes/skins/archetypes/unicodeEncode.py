@@ -7,7 +7,7 @@
 ##bind subpath=traverse_subpath
 ##parameters=value
 
-charset = context.portal_properties.site_properties.default_charset
+site_charset = context.portal_properties.site_properties.default_charset
 
 if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
     value = str(value)
