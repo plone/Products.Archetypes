@@ -52,7 +52,6 @@ class Field(DefaultLayerContainer):
         'write_permission' : CMFCorePermissions.ModifyPortalContent,
 
         'storage' : AttributeStorage(),
-        'form_info' : None,
 
         'generateMode' : 'veVc',
         'force' : '',
@@ -121,7 +120,7 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 #Do nothing, the bomb is already set up
                 pass
-            elif type(sample) == type(()):
+            elif type(sample) in [TupleType, ListType]:
                 #Assume we have ( (value, display), ...)
                 #and if not ('', '', '', ...)
                 if len(sample) != 2:
@@ -156,6 +155,7 @@ class Field(DefaultLayerContainer):
     def getDefault(self):
         return self.default
 
+                    
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
     data. This layer implements the interface to IStorage and other
@@ -321,7 +321,7 @@ class TextField(ObjectField):
             if value == '':
                 return default, mime_type
             return value, mime_type
-        raise TextFieldException('Value is not File, String or BaseUnit')
+        raise TextFieldException('Value is not File, String or BaseUnit: %r' % type(value))
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
@@ -333,7 +333,8 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.name, value, mime_type)
+            #bu = BaseUnit(self.name, value, mime_type)
+            bu = BaseUnit(self.name, instance, value, mime_type)
         ObjectField.set(self, instance, bu, **kwargs)
 
         #Invoke the default Transforms, hey, its policy
@@ -664,10 +665,7 @@ class ImageField(ObjectField):
         })
 
     default_view = "view"
-
-    def defaultView(self):
-        return self.form_info.defaultView() or self.default_view
-
+    
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
         if value=="DELETE_IMAGE":
