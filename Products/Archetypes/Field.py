@@ -805,7 +805,7 @@ class ReferenceField(ObjectField):
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
 
-                        instance.addReference(target,refname)
+                        instance.addReference(target,refname, **kwargs)
                     newValue.append(uid)
 
                 #delete references
@@ -819,7 +819,7 @@ class ReferenceField(ObjectField):
                 target=tool.lookupObject(uuid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target, refname)
+                instance.addReference(target, refname, **kwargs)
                 newValue = value
 
         # and now do the normal assignment
@@ -835,7 +835,10 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            kw = {self.allowed_type_column:self.allowed_types}
+            if self.allowed_type_column in catalog.indexes():
+                kw = {self.allowed_type_column:self.allowed_types}
+            else:
+                kw = {'Type':self.allowed_types}
             results = catalog(**kw)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
