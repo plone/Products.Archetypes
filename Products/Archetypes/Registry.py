@@ -149,10 +149,12 @@ class TypeDescription:
 
     def schemata(self):
         from Products.Archetypes.Schema import getSchemata
-        return getSchemata(self.klass)
+        # Build a temp instance.
+        return getSchemata(self.klass('test'))
 
     def signature(self):
-        return self.klass.getSchema().signature()
+        # Build a temp instance.
+        return self.klass('test').Schema().signature()
 
     def portal_type(self):
         return self.klass.portal_type
