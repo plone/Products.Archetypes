@@ -109,7 +109,7 @@
 
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div class="error" tal:content="error_id">Validation Error</div>
+            <div tal:content="error_id">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
         </div>
