@@ -1,3 +1,11 @@
+2004-06-30 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+   * Vocabulary supports i18n translation. It uses field or widget i18n_domain 
+     property
+   
+   * Improve template to be xhtml compliant: attribute 'for' from <label> is
+     linked to an attribute 'id' from input field
+
 2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
 
 	* BaseObject.py (BaseObject._updateSchema): Moved call to
