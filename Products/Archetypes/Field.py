@@ -860,7 +860,7 @@ class ReferenceField(ObjectField):
         for typeid in self.allowed_types:
             info = tool.getTypeInfo(typeid)
             if info is None:
-                raise ValueError('No such content type: %s' % type_name)
+                raise ValueError('No such content type: %s' % typeid)
             d[typeid] = info.Title()
 
         return d
