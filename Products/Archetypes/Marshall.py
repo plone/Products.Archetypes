@@ -10,7 +10,7 @@ class Marshaller:
         self.demarshall_hook = demarshall_hook
         self.marshall_hook = marshall_hook
 
-    def initializeInstance(self, instance):
+    def initializeInstance(self, instance, item=None, container=None):
         self.instance.demarshall_hook = getattr(instance, self.demarshall_hook)
         self.instance.marshall_hook = getattr(instance, self.marshall_hook)
 
