@@ -25,7 +25,7 @@
             <b>[<span tal:content="set" i18n:translate="" />]</b>
           </tal:current>
           <tal:others condition="python:set != fieldset">
-            <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
+            <a href="#" tal:attributes="href string:${here/absolute_url}/${template/getId}?fieldset=${set}">
             [<span tal:content="set" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
