@@ -4,93 +4,118 @@
 ##bind context=context
 ##bind namespace=
 ##bind script=script
-##bind state=state
 ##bind subpath=traverse_subpath
 ##parameters=id=''
-##
+
 REQUEST = context.REQUEST
 
 new_context = context.portal_factory.doCreate(context, id)
 new_context.processForm()
 
-portal_status_message = context.translate(
-    msgid='message_content_changes_saved',
-    domain='archetypes',
-    default='Content changes saved.')
-
-portal_status_message = REQUEST.get('portal_status_message', portal_status_message)
+portal_status_message = REQUEST.get('portal_status_message', 'Content changes saved.')
 
 # handle navigation for multi-page edit forms
-next = not REQUEST.get('form_next', None) is None
-previous = not REQUEST.get('form_previous', None) is None
-fieldset = REQUEST.get('fieldset', None)
-schemata = new_context.Schemata()
+next = not REQUEST.get('form_next',None) is None
+previous = not REQUEST.get('form_previous',None) is None
 
-if next or previous:
-    s_names = [s for s in schemata.keys() if s != 'metadata']
+if REQUEST.has_key('form_add_object'):
+    portal_status_message='Object has been added.'
+    return state.set(status='add_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_delete_objects'):
+    portal_status_message='Object has been deleted.'
+    return state.set(status='delete_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_rename_objects'):
+    portal_status_message='Object has been renamed.'
+    return state.set(status='rename_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_objects_up'):
+    portal_status_message='Object has been moved up.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_objects_down'):
+    portal_status_message='Object has been moved down.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_objects_top'):
+    portal_status_message='Object has been moved to the top.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_objects_bottom'):
+    portal_status_message='Object has been moved to the bottom.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_delete_object'):
+    portal_status_message='Object has been deleted.'
+    return state.set(status='delete_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_object_up'):
+    portal_status_message='Object has been moved up.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_object_down'):
+    portal_status_message='Object has been moved down.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_object_top'):
+    portal_status_message='Object has been moved to the top.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+elif REQUEST.has_key('form_move_object_bottom'):
+    portal_status_message='Object has been moved to the bottom.'
+    return state.set(status='move_object', \
+                     context=new_context, \
+                     portal_status_message=portal_status_message)
+
+
+elif next or previous:
+    fieldset = REQUEST.get('fieldset', None)
+
+    schematas = [s for s in new_context.Schemata().keys() if s != 'metadata']
 
     if previous:
-        s_names.reverse()
+        schematas.reverse()
 
     next_schemata = None
     try:
-        index = s_names.index(fieldset)
+        index = schematas.index(fieldset)
     except ValueError:
         raise 'Non-existing fieldset: %s' % fieldset
     else:
         index += 1
-        if index < len(s_names):
-            next_schemata = s_names[index]
-            return state.set(status='next_schemata',
-                             context=new_context,
-                             fieldset=next_schemata,
+        if index < len(schematas):
+            next_schemata = schematas[index]
+            return state.set(status='next_schemata', \
+                             context=new_context, \
+                             fieldset=next_schemata, \
                              portal_status_message=portal_status_message)
 
-    if next_schemata != None:
-        return state.set(status='next_schemata', \
-                 context=new_context, \
-                 fieldset=next_schemata, \
-                 portal_status_message=portal_status_message)
-    else:
+    if next_schemata == None:
         raise 'Unable to find next field set after %s' % fieldset
 
-env = state.kwargs
-reference_source_url = env.get('reference_source_url')
-if reference_source_url is not None:
-    reference_source_url = env['reference_source_url'].pop()
-    reference_source_field = env['reference_source_field'].pop()
-    reference_source_fieldset = env['reference_source_fieldset'].pop()
-    portal = context.portal_url.getPortalObject()
-    reference_obj = portal.restrictedTraverse(reference_source_url)
-    portal_status_message = context.translate(
-        msgid='message_reference_added',
-        domain='archetypes',
-        default='Reference Added.')
-    kwargs = {
-        'status':'success_add_reference',
-        'context':reference_obj,
-        'portal_status_message':portal_status_message,
-        'fieldset':reference_source_fieldset,
-        'field':reference_source_field,
-        reference_source_field:new_context.UID(),
-        }
-    return state.set(**kwargs)
-
-if state.errors:
-    errors = state.errors
-    s_items = [(s, schemata[s].keys()) for s in schemata.keys()]
-    fields = []
-    for s, f_names in s_items:
-        for f_name in f_names:
-            fields.append((s, f_name))
-    for s_name, f_name in fields:
-        if errors.has_key(f_name):
-            REQUEST.set('fieldset', s_name)
-            return state.set(
-                status='failure',
-                context=new_context,
-                portal_status_message=portal_status_message)
-
-return state.set(status='success',
-                 context=new_context,
+return state.set(status='success',\
+                 context=new_context,\
                  portal_status_message=portal_status_message)

@@ -1,41 +1,17 @@
+from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
+from UserDict import UserDict as BaseDict
+from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
+from types import TupleType, ListType, UnicodeType
+from debug import log
 import sys
 import os.path
 import types
-import time, random, md5, socket
-from inspect import getargs
-from types import TupleType, ListType
-from UserDict import UserDict as BaseDict
-
-from Products.Archetypes.debug import log
-
-from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
-from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
-
-try:
-    _v_network = socket.gethostbyname(socket.gethostname())
-except:
-    _v_network = random.random() * 100000000000000000L
-
-def fixSchema(schema):
-    """Fix persisted schema from AT < 1.3 (UserDict-based)
-    to work with the new fixed order schema."""
-    from Products.Archetypes.Schema import Schemata
-    if not hasattr(aq_base(schema), '_fields'):
-        fields = schema.data.values()
-        Schemata.__init__(schema, fields)
-        del schema.data
-    return schema
-
-def make_uuid(*args):
-    t = long(time.time() * 1000)
-    r = long(random.random()*100000000000000000L)
-    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
-    data = md5.md5(data).hexdigest()
-    return data
+from inspect import getargs
+import string
+from DateTime import DateTime
 
 
 _marker = []
@@ -120,8 +96,7 @@ def unique(s):
     equality-testing.  Then unique() will usually work in quadratic
     time.
     """
-    # taken from ASPN Python Cookbook,
-    # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+    # taken from ASPN Python Cookbook, http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
 
     n = len(s)
     if n == 0:
@@ -169,6 +144,34 @@ def unique(s):
         if x not in u:
             u.append(x)
     return u
+
+
+def xlate2url( url, allowucase=1, code_page='ISO-8859-1'):
+    """Takes an url and translates it into something that makes up a good url"""
+
+    if type(url) is UnicodeType:
+        url=url.encode(code_page)
+
+    url=str(url)
+    url=url.strip()
+
+    bad_chars =  ' +?&,;()[]{}/ÄÅÁÀÂÃäåáàâãÇçÉÈÊËÆéèêëæÍÌÎÏíìîïÑñÖÓÒÔÕØöóòôõøŠšßÜÚÙÛüúùûÝŸýÿŽž'
+    good_chars = '_____________AAAAAAaaaaaaCcEEEEEeeeeeIIIIiiiiNnOOOOOOooooooSssUUUUuuuuYYyyZz'
+    TRANSMAP = string.maketrans(bad_chars, good_chars)
+
+    # make sure url is a string, and remove all funky characters according to TRANSMAP:
+    result = string.translate(url, TRANSMAP)
+    while len(result) > 0 and result[0]=='_': result=result[1:]
+    result=result.strip()
+    if not allowucase:
+        return string.lower(result)
+    return result
+
+def generateId(type_name):
+    now=DateTime()
+    return type_name.replace(' ', '_')+'.'+now.strftime('%Y-%m-%d')+'.'+now.strftime('%M%S')
+
+
 
 class DisplayList:
     """Static display lists, can look up on
@@ -237,7 +240,7 @@ class DisplayList:
         v = self._values.get(value, None)
         if v: return v[1]
         for k, v in self._values.items():
-            if repr(value) == repr(k):
+            if str(value) == str(k):
                 return v[1]
         return default
 
@@ -246,7 +249,7 @@ class DisplayList:
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
-            if repr(key) == repr(k):
+            if str(key) == str(k):
                 return v[1]
         return default
 

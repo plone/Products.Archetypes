@@ -1,24 +1,29 @@
-from Products.Archetypes.ArchetypeTool import registerType, process_types, \
-     listTypes
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.BaseContent import BaseContent, BaseContentMixin
-from Products.Archetypes.BaseFolder import BaseFolder, BaseFolderMixin
-from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolder
-from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.Schema import BasicSchema, Schema, MetadataSchema, \
-     ManagedSchema
-#from Products.Archetypes.Schema.Composite import CompositeSchema
-#from Products.Archetypes.Schema.Facade import FacadeMetadataSchema
-from Products.Archetypes.Field import *
-from Products.Archetypes.Widget import *
-from Products.Archetypes.Storage import *
-from Products.Archetypes.utils import DisplayList
+from AccessControl import ClassSecurityInfo
+from ArchetypeTool import registerType, process_types, listTypes
+
+from BaseContent import BaseContent
+from BaseFolder import BaseFolder
+from BaseBTreeFolder import BaseBTreeFolder
+from OrderedBaseFolder import OrderedBaseFolder
+
+from ExtensibleMetadata import ExtensibleMetadata
+
+from Schema import Schema, MetadataSchema
+from Field  import *
+from Widget import *
+from Storage import *
+
+from ContainerFields import *
+from ContainerWidgets import *
+
+from SessionStorage import *
+from MemberFolderStorage import *
+
+
+from utils import DisplayList
 
 BaseBTreeFolderSchema = BaseBTreeFolder.schema
+
 BaseFolderSchema = BaseFolder.schema
+
 BaseSchema = BaseContent.schema
-MinimalSchema = BaseObject.schema
-
-from AccessControl import ClassSecurityInfo
-

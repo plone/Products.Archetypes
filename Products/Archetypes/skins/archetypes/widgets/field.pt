@@ -10,16 +10,17 @@
 
     <!-- Base Field Widgets -->
     <metal:base_view_macro define-macro="base_view"
-                           tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
+                           tal:define="use_label use_label|python:1;
+               widget_view python:here.widget(field.getName(), mode=mode, use_label=use_label);
                                        field_macros here/widgets/field/macros;
                                        label_macro view_macros/label|label_macro|field_macros/label;
                                        data_macro view_macros/data|data_macro|field_macros/data;">
-      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
+      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r', here)">
         <tal:if_use_label condition="use_label|nothing">
           <metal:use_label use-macro="label_macro" />
         </tal:if_use_label>
-	<metal:use_data use-macro="data_macro|default" />
       </tal:if_perm>
+      <metal:use_data use-macro="data_macro|default" />
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
@@ -51,7 +52,8 @@
 
     <metal:define define-macro="edit"
                   tal:define="visState python: widget.isVisible(here, mode);
-                              value python:widget.populate and here.getRaw(fieldName) or '';
+                              edit_accessor python:field.getEditAccessor(here);
+                              value python:widget.populate and edit_accessor and edit_accessor() or '';
                               value python:widget.postback and request.get(fieldName, value) or value;
                               error_id python:errors.get(fieldName)">
       <tal:condition condition="python: visState == 'visible'">
@@ -60,22 +62,24 @@
              tal:attributes="class python:test(error_id, 'field error', 'field')">
           <label i18n:translate=""
                  tal:content="python:widget.Label(here)"
-                 tal:attributes="for python:field.getName()">
+                 tal:attributes="for python:field.getName()"
+                 tal:condition="widget/show_label">
           </label>
           <span class="fieldRequired"
-                tal:condition="field/required"
+                tal:condition="python:field.required and widget.show_required"
                 title="Required">
             (Required)
           </span>
           <div class="formHelp"
-               tal:define="description python:widget.Description(here)"
-               tal:content="structure description"
+               tal:content="structure python:widget.Description(here)"
                tal:attributes="id string:${fieldName}_help"
+               tal:condition="widget/show_description"
                i18n:translate="">
             Help
           </div>
 
-          <div class="formHelp">
+          <div class="formHelp"
+            tal:condition="widget/show_help">
             <span tal:condition="field/workflowable|nothing"
                   tal:omit-tag="">
               State:
@@ -96,7 +100,7 @@
           </div>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:content="error_id">Validation Error</div>
+            <div tal:replace="error_id">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
         </div>

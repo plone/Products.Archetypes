@@ -1,0 +1,273 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- String Widgets -->
+    <metal:view_macro define-macro="view"
+              tal:replace="structure accessor" />
+
+    <metal:define define-macro="render_fields">
+        <strong tal:content="object/getLabel" tal:condition="field/show_object_label">Object Id</strong>
+        <tal:fields repeat="subfield python: object.Schemata()['default'].fields()">
+          <metal:fieldMacro use-macro="python: object.widget(subfield.getName(), mode='edit')"/>
+        </tal:fields>
+    </metal:define>
+
+    <metal:define define-macro="item_buttons">
+      <div class="stupid_button_container"
+        tal:condition="field/show_mini_buttons">
+          <input class="stupid_button" type="image"
+            tabindex=""
+            name=""
+            i18n:attributes="value"
+            value=""
+            tal:condition="field/show_delete_button"
+            tal:attributes="src here/ordered_list/delete_archetype.gif/absolute_url;
+                            name string:form_delete_object.${fieldName}:record;
+                            value object/getId;
+                            tabindex tabindex/next;"
+          /><input class="stupid_button" type="image"
+            tabindex=""
+            name=""
+            i18n:attributes="value"
+            value=""
+            al:condition="field/show_move_buttons"
+            tal:attributes="src here/ordered_list/move_top_archetype.gif/absolute_url;
+                            name string:form_move_object_top.${fieldName}:record;
+                            value object/getId;
+                            tabindex tabindex/next;"
+          /><input class="stupid_button" type="image"
+            tabindex=""
+            name=""
+            i18n:attributes="value"
+            value=""
+            al:condition="field/show_move_buttons"
+            tal:attributes="src here/ordered_list/move_up_archetype.gif/absolute_url;
+                            name string:form_move_object_up.${fieldName}:record;
+                            value object/getId;
+                            tabindex tabindex/next;"
+          /><input class="stupid_button" type="image"
+            tabindex=""
+            name=""
+            i18n:attributes="value"
+            value=""
+            al:condition="field/show_move_buttons"
+            tal:attributes="src here/ordered_list/move_down_archetype.gif/absolute_url;
+                            name string:form_move_object_down.${fieldName}:record;
+                            value object/getId;
+                            tabindex tabindex/next;"
+          /><input class="stupid_button" type="image"
+            tabindex=""
+            name=""
+            i18n:attributes="value"
+            value=""
+            al:condition="field/show_move_buttons"
+            tal:attributes="src here/ordered_list/move_bottom_archetype.gif/absolute_url;
+                            name string:form_move_object_bottom.${fieldName}:record;
+                            value object/getId;
+                            tabindex tabindex/next;"/>
+      </div>
+    </metal:define>
+
+
+    <metal:define define-macro="item_buttons2">
+      This doesn't really work because there is not way to put the id?
+      <div lass="stupid_button_container"
+        tal:condition="field/show_mini_buttons">
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Del"
+                 tal:condition="field/show_delete_button"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_delete_object.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Top"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_object_top.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Up"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_object_up.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Down"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_object_down.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Bottom"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_object_bottom.${fieldName}:record;
+                    " />
+      </div>
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <div metal:fill-slot="widget_body">
+         <tal:fields repeat="object python:field.getObjects(here)"
+                     al:define="field_macro here/arch_widgets/field/macros/edit;
+                     show_sub_fields_label field/show_sub_fields_label|nothing;
+                     show_sub_fields_required field/show_sub_fields_required|nothing;
+                     show_sub_fields_description field/show_sub_fields_description|nothing;
+                     ">
+            <fieldset style="padding:0px 5px 5px 5px;margin:5px 0px 5px 0px;border:1px solid #333;"
+                tal:attributes="style string:padding:0px 5px 5px 5px;;margin:5px 0px 5px 0px;;border:1px solid ${here/base_properties/globalBorderColor};;"
+                tal:condition="field/show_fieldset">
+              <legend tal:content="object/getLabel" tal:condition="field/show_object_legend">Object Id</legend>
+              <table tal:condition="field/show_select_box" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td valign="top" width="20">
+                    <input class="stupid_checkbox" type="checkbox" name="" value="" tabindex=""
+                        tal:attributes="tabindex tabindex/next;
+                            name string:form_object_ids.${fieldName}:list:record;
+                            value object/getId;
+                            "/>
+                  </td>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/render_fields"/></td>
+                </tr>
+              </table>
+              <table tal:condition="not:field/show_select_box" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/render_fields"/></td>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/item_buttons"/></td>
+                </tr>
+              </table>
+
+            </fieldset>
+            <tal:if condition="not:field/show_fieldset">
+              <table tal:condition="field/show_select_box" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td valign="top"  width="20">
+                    <input type="checkbox" class="stupid_checkbox" name="" value="" tabindex=""
+                        tal:attributes="tabindex tabindex/next;
+                            name string:form_object_ids.${fieldName}:list:record;
+                            value object/getId;
+                            "/>
+                  </td>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/render_fields"/></td>
+                </tr>
+              </table>
+              <table tal:condition="not:field/show_select_box" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/render_fields"/></td>
+                  <td valign="top"><metal:fieldMacro use-macro="here/widgets/container_fields/macros/item_buttons"/></td>
+                </tr>
+              </table>
+
+            </tal:if>
+          </tal:fields>
+
+
+          <input type="text" name="new_id" value="" tabindex="" style="height:17px;margin-bottom: 1em;"
+            tal:condition="field/show_id_field"
+            tal:attributes="tabindex tabindex/next;
+                name string:form_add_object_id.${fieldName}:record;
+                "/>
+          <input class="context"
+             tabindex=""
+             type="submit"
+             name=""
+             i18n:attributes="value"
+             value="Add"
+             tal:condition="field/show_add_button"
+             tal:attributes="tabindex tabindex/next;
+                name string:form_add_object.${fieldName}:record;
+                " />
+          <tal:if condition="field/show_main_buttons">
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Delete"
+                 tal:condition="field/show_delete_button"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_delete_objects.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Move to Top"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_objects_top.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Move Up"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_objects_up.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Move Down"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_objects_down.${fieldName}:record;
+                    " />
+              <input class="context"
+                 tabindex=""
+                 type="submit"
+                 name=""
+                 i18n:attributes="value"
+                 value="Move to Bottom"
+                 tal:condition="field/show_move_buttons"
+                 tal:attributes="tabindex tabindex/next;
+                    name string:form_move_objects_bottom.${fieldName}:record;
+                    " />
+            </tal:if>
+
+            <tal:if condition="python:field.packingNeeded(here)">
+                <pre>You need to pack this field.</pre>
+            </tal:if>
+        </div>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/string/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
