@@ -4,6 +4,9 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from common import *
+from utils import *
+
 try:
     from Products.CMFTestCase import CMFTestCase
 except ImportError:
@@ -18,9 +21,7 @@ from Products.CMFCore.CMFCorePermissions \
      import View, AccessContentsInformation, ModifyPortalContent
 import Products.CMFCore.CMFCorePermissions as CMFCorePermissions
 
-from ArchetypesTestCase import DEPS, DEPS_OWN
-from common import *
-from utils import *
+from Products.Archetypes.tests.ArchetypesTestCase import DEPS, DEPS_OWN
 
 # install products
 for product in DEPS + DEPS_OWN:
