@@ -424,7 +424,7 @@ class ObjectField(Field):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default,_initializing_=1,**kwargs)
+                self.set(instance, self.default, _initializing_=1, **kwargs)
             return self.default
 
     def getRaw(self, instance, **kwargs):
@@ -554,6 +554,10 @@ class FileField(StringField):
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -797,7 +801,7 @@ class FixedPointField(ObjectField):
     _properties.update({
         'type' : 'fixedpoint',
         'precision' : 2,
-        'default' : '0.0',
+        'default' : '0.00',
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
@@ -827,6 +831,10 @@ class FixedPointField(ObjectField):
         if value is None: return self.default
         if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
+
+    def validate_required(self, instance, value, errors):
+        value = sum(self._to_tuple(value))
+        return ObjectField.validate_required(self, instance, value, errors)
 
 class ReferenceField(ObjectField):
     """A field for containing a reference"""
@@ -1291,6 +1299,9 @@ class ImageField(ObjectField):
             return img.getContentType()
         return ''
 
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(Field)
 
@@ -1575,8 +1586,13 @@ class PhotoField(ObjectField):
     def set(self, instance, value, **kw):
         if isinstance(value, StringType):
             value = StringIO(value)
-        image = ScalableImage(self.name, file=value, displays=self.displays)
+        image = ScalableImage(self.getName(), file=value,
+                              displays=self.displays)
         ObjectField.set(self, instance, image, **kw)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(PhotoField)
 
