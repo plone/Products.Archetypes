@@ -111,6 +111,11 @@ after 1.3.0-rc2
  * Fixed LinesWidget according to [ 1013379 ] LinesField/widget broken
    [tiran]
 
+ * Fixed bug in VariableSchemaSupport.VarClassGen mentioned in the thread on the
+   AT devel mailing list. See "Warning: avoid changing your AT class' meta_type
+   when you have existing instances"
+   [mitchel, dreamcatcher, tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

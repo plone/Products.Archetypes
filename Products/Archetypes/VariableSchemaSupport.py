@@ -23,10 +23,12 @@ class VarClassGen(ClassGenerator):
         #We are going to assert a few things about the class here
         #before we start, set meta_type, portal_type based on class
         #name
-        klass.meta_type = klass.__name__
-        klass.portal_type = klass.__name__
-        klass.archetype_name = getattr(klass, 'archetype_name',
-                                       self.generateName(klass))
+        # Only get the values from the klass and not from it's parent classes
+        kdict = vars(klass)
+        klass.meta_type = kdict.get('meta_type', klass.__name__)
+        klass.portal_type = kdict.get('portal_type', klass.meta_type)
+        klass.archetype_name = kdict.get('archetype_name',
+                                         self.generateName(klass))
 
         self.checkSchema(klass)
 
