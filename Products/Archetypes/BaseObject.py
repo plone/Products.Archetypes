@@ -306,9 +306,7 @@ class BaseObject(Referenceable):
             field = self.getField(key) or getattr(self, key, None)
 
         if field and IFileField.isImplementedBy(field):
-            bu = field.getBaseUnit(self)
-            bu.setContentType(self, value)
-            field.set(self, bu)
+            field.setContentType(self, value)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setFilename')
@@ -321,9 +319,7 @@ class BaseObject(Referenceable):
             field = self.getField(key) or getattr(self, key, None)
 
         if field and IFileField.isImplementedBy(field):
-            bu = field.getBaseUnit(self)
-            bu.setFilename(self, value)
-            field.set(self, bu)
+            field.setFilename(self, value)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):

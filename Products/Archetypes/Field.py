@@ -1,7 +1,9 @@
 from __future__ import nested_scopes
+
+import sys
+
 from copy import deepcopy
 from cgi import escape
-import sys
 from cStringIO import StringIO
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
@@ -657,6 +659,14 @@ class ObjectField(Field):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
 
+    security.declarePrivate('setContentType')
+    def setContentType(self, instance, value):
+        """Set mimetype in the base unit.
+        """
+        bu = self.getBaseUnit(instance)
+        bu.setContentType(instance, value)
+        self.set(instance, bu)
+
     security.declarePublic('getContentType')
     def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
@@ -875,17 +885,10 @@ class FileField(ObjectField):
     def getBaseUnit(self, instance):
         """Return the value of the field wrapped in a base unit object
         """
-        storage = self.getStorage(instance)
-        if shasattr(storage, 'getFilename'):
-            filename = storage.getFilename(instance, self.getName())
-        else:
-            filename = self.getFilename(instance, fromBaseUnit=False)
+        filename = self.getFilename(instance, fromBaseUnit=False)
         if not filename:
             filename = ''
-        if shasattr(storage, 'getContentType'):
-            mimetype = storage.getContentType(instance, self.getName())
-        else:
-            mimetype = self.getContentType(instance, fromBaseUnit=False)
+        mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
             value = str(aq_base(value).data)
@@ -915,10 +918,11 @@ class FileField(ObjectField):
 
     security.declarePrivate('setFilename')
     def setFilename(self, instance, filename):
-        """Set file name in the base unit [PRIVATE]
+        """Set file name in the base unit.
         """
         bu = self.getBaseUnit(instance)
         bu.setFilename(filename)
+        self.set(instance, bu)
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
