@@ -56,15 +56,6 @@ class widget:
         return {}
 
 
-
-from Products.PageTemplates.Expressions import PathExpr
-import Products.CMFCore.Expression as ex
-from TAL.TALInterpreter import TALInterpreter
-from cStringIO import StringIO
-
-engine  = ex.getEngine()
-_macro_registry = {}
-
 class macrowidget(widget):
     """macro is the file containing the macros, the mode/view is the
     name of the macro in that file
@@ -81,21 +72,6 @@ class macrowidget(widget):
 
     def __call__(self, mode, instance, context=None):
         self.bootstrap(instance)
-        pt = instance.restrictedTraverse(self.macro)
-        macros = pt.macros
-        transformer = getattr(context, 'tr_engine', None)
-        if transformer is None:
-            # ZPT
-            output = StringIO()
-        
-            ti = TALInterpreter(macros[mode], {}, context, output,
-                            tal=1, metal=1, strictinsert=0)
-            #ti.debug = 1
-            ti()
-        
-            return output.getvalue()
-        else:
-            # OpenPT with paxtransform
-            return transformer.transform(macros[mode], context).text
+        return instance.restrictedTraverse(self.macro).macros[mode]
     
 InitializeClass(widget)

@@ -4,7 +4,6 @@ class renderer:
                                     instance, **kwargs)
             
         result = widget(mode, instance, context)
-        context.endScope()
         return result
 
         
