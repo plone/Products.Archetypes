@@ -22,7 +22,13 @@
 	    <span i18n:translate="" tal:omit-tag="">View</span> <span tal:replace="fieldName"/>
 	  </a>
 	  (<tal:filename content="string:${filename} " condition="filename">myfile.pdf
-	  </tal:filename><span tal:content="python: field.getContentType(here)">ContentType</span> <tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
+	  </tal:filename><span
+                tal:define="mimetool nocall:here/mimetypes_registry;
+                            contenttype python:field.getContentType(here);
+                            mimetypes python:mimetool.lookup(contenttype);
+                            value python:mimetypes and mimetypes[0].name() or contenttype"
+                tal:content="value">ContentType</span>
+          <tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
 	  <a href=""
 	     tal:condition="python:field.checkExternalEditor(here)"
 	     tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
