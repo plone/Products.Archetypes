@@ -93,7 +93,7 @@ __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
-    if type(value) is type(u''):
+    if type(value) is UnicodeType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -107,7 +107,7 @@ def encode(value, instance, **kwargs):
 
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
-    if type(value) is type(''):
+    if type(value) is StringType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -346,7 +346,7 @@ class Field(DefaultLayerContainer):
             for v in vocab:
                 if type(v) in (TupleType, ListType):
                     v = v[0]
-                if not type(v) in [type(''), type(u'')]:
+                if not type(v) in STRING_TYPES:
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -428,14 +428,14 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
-            elif type(sample) in [TupleType, ListType]:
+            elif type(sample) in (TupleType, ListType):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if sample and len(sample[0]) != 2:
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
-            elif len(sample) and type(sample[0]) == type(''):
+            elif len(sample) and type(sample[0]) is StringType:
                 value = DisplayList(zip(value, value))
             else:
                 log("Unhandled type in Vocab")
@@ -1049,7 +1049,7 @@ class TextField(FileField):
 
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
-        if type(value) is type(u'') and encoding is None:
+        if type(value) is UnicodeType and encoding is None:
             encoding = 'UTF-8'
 
         # fix for external editor support
@@ -1245,7 +1245,7 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.getDefault(instance)
-        if type(value) in [StringType]: value = self._to_tuple(instance, value)
+        if type(value) in (StringType,): value = self._to_tuple(instance, value)
         return template % value
 
     security.declarePrivate('validate_required')
@@ -1321,7 +1321,7 @@ class ReferenceField(ObjectField):
                       tool.getReferences(instance, self.relationship)]
 
         if (not self.multiValued and value and
-            type(value) not in (type(()),type([]))):
+            type(value) not in (ListType, TupleType)):
             value = (value,)
 
         if not value:
@@ -1330,7 +1330,7 @@ class ReferenceField(ObjectField):
         #convertobjects to uids if necessary
         uids=[]
         for v in value:
-            if type(v) in (type(''),type(u'')):
+            if type(v) in STRING_TYPES:
                 uids.append(v)
             else:
                 uids.append(v.UID())
@@ -1542,7 +1542,7 @@ class CMFObjectField(ObjectField):
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
-        if type(value) != StringType:
+        if type(value) is not StringType:
             if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
