@@ -59,6 +59,8 @@ sdist_tgz:
            --exclude=.cvsignore \
            --exclude=makefile \
            --exclude=Makefile \
+           --exclude=*.pyc \
+           --exclude=TAGS \
            --exclude=*~ \
            --exclude=.#*
 	${RMRF} ${TMPDIR}/${PACKAGE_NAME}
