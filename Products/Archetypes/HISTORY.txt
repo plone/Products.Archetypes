@@ -1,6 +1,10 @@
 1.3.0-rc3 -
 ======================
 
+ * Added class and id attributes to fields rendered in view-mode (field.pt).
+   These had been accidentally left out.  
+   [elvix]
+
  * Fixed problem with BaseBTreeFolder losing references. It was calling
    CMFBTreeFolder manage_* methods which would end calling
    PortalFolder.manage_* methods (as they are not overriden in the class
