@@ -15,6 +15,7 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from Products.Archetypes.config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
+from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo, Permissions
 from Globals import InitializeClass
@@ -238,8 +239,10 @@ class OrderedContainer:
     security.declareProtected(ModifyPortalContent, 'orderObjects')
     def orderObjects(self, key, reverse=None):
         """ Order sub-objects by key and direction.
+        
+        Key can be an attribute or a method
         """
-        ids = [ id for id, obj in sort( self.objectItems(),
+        ids = [ id for id, obj in sequence.sort( self.objectItems(),
                                         ( (key, 'cmp', 'asc'), ) ) ]
         if reverse:
             ids.reverse()
