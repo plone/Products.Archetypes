@@ -948,6 +948,12 @@ class ImageField(ObjectField):
         This is important if you don't want to store megabytes of
         imagedata if you only need a max. of 100x100 ;-)
 
+	max_size -- similar to max_size but if it's given then the image
+	            is checked to be no bigger than any of the given values
+		    of width or height.
+		    XXX: I think it is, because the one who added it did not
+		    document it ;-) (mrtopf - 2003/07/20)
+
         example:
 
         ImageField('image',
@@ -980,7 +986,7 @@ class ImageField(ObjectField):
     _properties.update({
         'type' : 'image',
         'default' : '',
-        'original_size': (600,600),
+        'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
@@ -1065,7 +1071,7 @@ class ImageField(ObjectField):
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(w or h), 'width':int(h or w)}
+        keys = {'height':int(h), 'width':int(w)}
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
