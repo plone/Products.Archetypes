@@ -936,6 +936,10 @@ class ReferenceField(ObjectField):
         value = ObjectField.Vocabulary(self, content_instance)
         if value:
             return value
+        else:
+            return self._Vocabulary(content_instance)
+
+    def _Vocabulary(self, content_instance=None):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
