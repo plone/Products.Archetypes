@@ -1,6 +1,10 @@
 1.3.1-POST rc1 - 2004-10-23
 ===========================
 
+ * Changed boolean widget so that the checkbox is displayed before
+    the label and not below the help text. Makes more sense UI wise.
+    [_ender_]
+
  * fix manage_delObjects of BaseFolderMixin that did not return anything
    [gotcha]
 
