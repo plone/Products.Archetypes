@@ -376,6 +376,9 @@ class Schema(Schemata, DefaultLayerContainer):
         The passed dictionary ``errors`` will be filled with human readable
         error messages as values and the corresponding fields' names as
         keys.
+        
+        If a REQUEST object is present, validate the field valules in the 
+        REQUEST.  Otherwise, validate the values currently in the object.
         """
         if REQUEST:
             fieldset = REQUEST.form.get('fieldset', None)
@@ -395,14 +398,20 @@ class Schema(Schemata, DefaultLayerContainer):
                 fields.extend([(field.getName(), field)
                                for field in self.filterFields(isMetadata=1)])
 
-        form = REQUEST.form
+        if REQUEST:
+            form = REQUEST.form
+        else:
+            form = None
         _marker = []
         for name, field in fields:
             error = 0
             value = None
             widget = field.widget
-            result = widget.process_form(instance, field, form,
-                                         empty_marker=_marker)
+            if form:
+                result = widget.process_form(instance, field, form,
+                                             empty_marker=_marker)
+            else:
+                result = None
             if result is None or result is _marker:
                 accessor = field.getAccessor(instance)
                 if accessor is not None:
