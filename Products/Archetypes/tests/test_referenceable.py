@@ -575,7 +575,7 @@ class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    #suite.addTest(makeSuite(SimpleFolderReferenceableTests))
+    suite.addTest(makeSuite(SimpleFolderReferenceableTests))
     suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
 
