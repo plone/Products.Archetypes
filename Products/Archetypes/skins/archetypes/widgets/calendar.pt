@@ -18,7 +18,7 @@
 		      tal:replace="structure python: result or 'not set'" />
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body">
 	  <div tal:define="id fieldName;
 	       inputname  fieldName;
@@ -42,7 +42,7 @@
 		    formname   string:search_form;
 		    inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
 		    tabindex tabindex/next;"
-		    >
+		    tal:omit-tag="">
 	    <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 	      a calendar, hopefully
 	    </metal:box>

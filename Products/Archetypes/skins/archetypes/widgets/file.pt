@@ -47,6 +47,7 @@
          />
         <span i18n:translate="delete_file">delete file</span>
       </div>
+      <div>
       <input type="file"
 	     size="30"
 	     tabindex=""
@@ -61,7 +62,7 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body">
 	  <metal:block metal:use-macro="here/widgets/file/macros/file_edit"/>
 	</metal:fill>

@@ -15,7 +15,7 @@
     <metal:define define-macro="edit_area">
       <tal:define define="inputname fieldName;
 		  accessor python: field.getEditAccessor(here) or field.getAccessor(here);
-		  value python: request.get(inputname, accessor());
+		  value python: accessor();
 		  base python: hasattr(value, 'isUnit');
 		  binary python: base and value.isBinary() or here.isBinary(fieldName);
 		  content python: (base == 1) and value.getRaw() or value ;
@@ -34,7 +34,7 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill metal:fill-slot="widget_body">
 	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
 	</metal:fill>

@@ -15,7 +15,7 @@
 		      tal:replace="structure display"/>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="vocab python:field.Vocabulary(here);
 		    vlen python:len(vocab);
@@ -27,12 +27,10 @@
 		     tabindex=""
 		     type="radio"
 		     tal:attributes="name fieldName;
-		     id fieldName;
 		     checked python:here.checkSelected(item, value);
 		     value item;
 		     tabindex tabindex/next;"
-		     /> <label i18n:translate="" tal:content="python: vocab.getValue(item)"
-			     tal:attributes="for fieldName" />
+		     /><span i18n:translate="" tal:content="python: vocab.getValue(item)"/>
 		     <br />
 	    </tal:radios>
 	  </tal:shortVocab>
