@@ -1,3 +1,11 @@
+2004-12-14  Dorneles Treméa  <deo@plonesolutions.com>
+
+	* i18n/archetypes-ca.po: - Adapted to the standard form	(conforming
+	with the organism in catalonia responsible for standarization of catalan
+	software). Added the fallback for Catalan-Andorra, Catalan-Spain,
+	catalan-France and Catalan-Italy (ca-ad ca-es ca-fr ca-it). Changed the
+	codification to ISO Latin1. Thanks to Albert Lombarte.
+
 2004-12-04  Cyrille Lebeaupin  <cyrille.lebeaupin@ingeniweb.com>
 
 	* utils.py (getMsgId): Compare type to string, unicode and int types, not
