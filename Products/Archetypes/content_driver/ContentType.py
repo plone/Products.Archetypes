@@ -123,11 +123,11 @@ def addContentType(ct, default=0):
     _ctm.addType(ct, default)
     return ct
 
-def selectPlugin(file='', mime_type=''):
+def selectPlugin(file='', mimetype=''):
     ''' Find a converter for 'file'.
         If 'file' is type(file), get 'mime_type' from 'file.headers',
         otherwise try getting a plugin from the file extension,
-        otherwise use the passed-in 'mime_type',
+        otherwise use the passed-in 'mimetype',
         otherwise return the plugin for the default content-type.
     '''
     if file and (type(file) is not type('')):
@@ -141,7 +141,7 @@ def selectPlugin(file='', mime_type=''):
     if file and filename:
         return _ctm.getByExtension(ext)
 
-    return _ctm.getByMimeType(mime_type) or _ctm.getDefault()
+    return _ctm.getByMimeType(mimetype) or _ctm.getDefault()
 
 def getDefaultPlugin(file='', mime_type=''):
     return _ctm.getDefault()
