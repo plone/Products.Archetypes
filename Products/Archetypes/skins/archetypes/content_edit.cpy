@@ -47,10 +47,16 @@ if next or previous:
         raise 'Unable to find next field set after %s' % fieldset
 
 if current:
+    portal_status_message=''
+    form_params = {}
+    for key, value in REQUEST.form.items():
+        if key != 'form_current':
+            form_params[key] = value
+
     return state.set(status='next_schemata', \
              context=new_context, \
-             fieldset=fieldset,
-             portal_status_message='')
+             **form_params
+             )
     
 return state.set(status='success',\
                  context=new_context,\
