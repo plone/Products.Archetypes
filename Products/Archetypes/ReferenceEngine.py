@@ -150,9 +150,16 @@ class Reference(Referenceable, SimpleItem):
 
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
-
-        rc = getToolByName(container, REFERENCE_CATALOG)
-        url = getRelURL(container, self.getPhysicalPath())
+        
+        # when copying a full site containe is the container of the plone site
+        # and item is the plone site (at least for objects in portal root)
+        base = container
+        try:
+            rc = getToolByName(base, REFERENCE_CATALOG)
+        except:
+            base = item
+            rc = getToolByName(base, REFERENCE_CATALOG)
+        url = getRelURL(base, self.getPhysicalPath())
         rc.catalog_object(self, url)
 
 
