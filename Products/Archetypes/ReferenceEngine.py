@@ -29,8 +29,7 @@ class Reference(SimpleItem):
 
     def __repr__(self):
         return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
-    
-        
+            
     ###
     # Convience methods
     def getSourceObject(self):
@@ -85,8 +84,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             existingId = brains[0].getObject().id
             self._delObject(existingId)
 
-        rID = make_uuid(sID, tID)
-        rID = "ref_%s" % rID
+        rID = self._makeName(sID, tID)
         if not referenceObject:
             referenceObject = Reference(rID, sID, tID, relationship, **kwargs)
 
@@ -179,6 +177,8 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
     def _objectByUUID(self, uuid):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=uuid)
+        if not brains:
+            return None
         return brains[0].getObject()
         
     def _queryFor(self, sid=None, tid=None, relationship=None, merge=1):
@@ -218,8 +218,9 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         """generate and attach a new uid to the object returning it"""
         uuid = make_uuid(object.title_and_id())
         setattr(object, UUID_ATTR, uuid)
+
         #uid_catalog = getToolByName(self, UID_CATALOG)
-        #uid_catalog.catalog_object(object, uuid)
+        #uid_catalog.catalog_object(object, self._makeName(uuid))
         return uuid
     
     def _deleteReference(self, brain):
@@ -237,6 +238,11 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             objects = [b.getObject() for b in brains]
             objects = [b for b in objects if b]
         return objects
+
+    def _makeName(self, *args):
+        name = make_uuid(*args)
+        name = "ref_%s" % name
+        return name
 
 def manage_addReferenceCatalog(self, id, title,
                                vocab_id=None, # Deprecated
