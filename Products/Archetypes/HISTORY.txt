@@ -1,5 +1,7 @@
 1.3.2-svn - Unreleased
 ======================
+ * Fix redirect of ZMI constructor, fix ZMI Base_add and base_edit
+   [__gotcha]
 
  * Fixed 1058669 Wrong i18n:translate in widgets/field.pt
    [yenzenz]
@@ -93,7 +95,7 @@
    [_ender_]
 
  * Fix manage_delObjects of BaseFolderMixin that did not return anything
-   [gotcha]
+   [__gotcha]
 
  * Allow comma as dezimal delimiter in FixedPointField and convert it
    immediatly to a point-delimited-value. The whole process needs a rewrite
@@ -396,7 +398,7 @@
    [mitchel, dreamcatcher, tiran]
 
  * Corrected icon in ZMI; Added some utils for ZMI setup.
-   [gotcha]
+   [__gotcha]
 
  * Changed unit test to work with an unpatched version of getToolByName to get
    mimetyptes_registry and portal_transform.
@@ -738,7 +740,7 @@
    [tiran]
 
  * Don't raise AttributeError when no reference can be found
-   [gotcha]
+   [__gotcha]
 
  * Fixed a problem introduced by getRaw method on ReferenceField class.
    When using a field on 'hidden' mode, field.pt uses field.edit_acessor

@@ -217,10 +217,8 @@ def manage_add%(name)s(self, id, REQUEST=None):
     obj = self._getOb(id)
     manage_tabs_message = 'Successfully added %(name)s'
     if REQUEST is not None:
-        return obj.manage_edit%(name)sForm(
-            REQUEST,
-            management_view='Edit',
-            manage_tabs_message=manage_tabs_message)
+        url = obj.absolute_url()
+        REQUEST.RESPONSE.redirect(url + '/manage_edit%(name)sForm?manage_tabs_message=' + manage_tabs_message)
     return id
 """ % {'name':name}
 

@@ -12,7 +12,7 @@
       Header
     </h1>
 
-    <h2 tal:define="manage_tabs_message options/manage_tabs_message | nothing"
+    <h2 tal:define="manage_tabs_message request/manage_tabs_message | nothing"
         tal:replace="structure here/manage_tabs">
       Tabs
     </h2>
