@@ -1,4 +1,4 @@
-<div id="title">
+<div class="document" id="title">
      <h3 class="title">Title</h3>
 
      <h4 class="subtitle" id="subtitle">Subtitle</h4>

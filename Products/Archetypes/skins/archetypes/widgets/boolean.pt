@@ -22,11 +22,11 @@
       <div metal:use-macro="here/widgets/field/macros/edit">
 	<div metal:fill-slot="widget_body">
 	  <input type="hidden"
-		 tal:attributes="name fieldName;
+		 tal:attributes="name fieldName; 
 	         id string:${fieldName}_hidden;
                  value value;"
 	    />
-
+	    
 	    <script>
 	      // this function turns a checkbox into a radio button... sort of
 	      function toggle_boolean(visibleCheckbox, hiddenBoolean) {
@@ -40,17 +40,19 @@
 	          return true;
 	      }
 	  </script>
-
-	    <input class="noborder"
-		   type="checkbox"
-		   value="on"
+	    
+	    <input class="noborder" 
+		   type="checkbox" 
+		   value="on" 
 		   tabindex=""
-		   tal:attributes="tabindex tabindex/next;
-		   name string:${fieldName}_visible;
-		   onClick string:toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');; return true;
-		   id string:${fieldName}_checkbox;
-		   checked python:str(value) == '1';"
-		   />
+                       tal:attributes="tabindex tabindex/next;
+	      name string:${fieldName}_visible;
+	      onClick string:toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');; return true;
+	      id string:${fieldName}_checkbox;
+	      checked python:str(value) == '1';
+              onfocus string:formtooltip('${fieldName}_help',1);
+              onblur string:formtooltip('${fieldName}_help',0)"
+	      />
 
 	</div>
       </div>
@@ -62,6 +64,6 @@
     </div>
 
   </body>
-
+  
 </html>
 

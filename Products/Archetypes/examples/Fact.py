@@ -34,3 +34,4 @@ class Fact(BaseContent):
 
 
 registerType(Fact)
+

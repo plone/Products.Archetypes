@@ -1,9 +1,11 @@
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+import unittest
 
-from common import *
-from utils import *
+import Zope # Sigh, make product initialization happen
+
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -13,11 +15,8 @@ from test_classgen import ClassGenTest, Dummy, gen_dummy
 
 from DateTime import DateTime
 
-tests = []
-
-class ChangeStorageTest( ArchetypesTestCase ):
-    def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
+class ChangeStorageTest( unittest.TestCase ):
+    def setUp(self):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -25,28 +24,28 @@ class ChangeStorageTest( ArchetypesTestCase ):
 
     def test_changestorage(self):
         dummy = self._dummy
-        dummy.setAtextfield('sometext', mimetype="text/plain")
+        dummy.setAtextfield('sometext')
         dummy.setAdatefield('2003-01-01')
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
-        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
-        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
+        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
+        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
+        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
+        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
 
         for field in dummy.schema.fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
-                self.failUnlessEqual(field.getStorage().getName(), 'AttributeStorage')
+                self.failUnless(field.getStorage().getName() == 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
-                self.failUnlessEqual(field.getStorage().getName(), 'MetadataStorage')
+                self.failUnless(field.getStorage().getName() == 'MetadataStorage')
 
-        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
-        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
-        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
+        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
+        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
+        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
+        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
 
     def test_unset(self):
         dummy = self._dummy
@@ -61,12 +60,9 @@ class ChangeStorageTest( ArchetypesTestCase ):
         self.failIf(dummy._md.has_key('atextfield'))
         self.failUnless(hasattr(dummy, 'atextfield'))
 
-tests.append(ChangeStorageTest)
+class MetadataStorageTest( ClassGenTest ):
 
-class MetadataStorageTest( ArchetypesTestCase ):
-
-    def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
+    def setUp(self):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -74,12 +70,10 @@ class MetadataStorageTest( ArchetypesTestCase ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
-tests.append(MetadataStorageTest)
 
-class AttributeStorageTest( ArchetypesTestCase ):
+class AttributeStorageTest( ClassGenTest ):
 
-    def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
+    def setUp( self ):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -87,16 +81,13 @@ class AttributeStorageTest( ArchetypesTestCase ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 
-tests.append(AttributeStorageTest)
+
+def test_suite():
+    return unittest.TestSuite((
+        unittest.makeSuite(ChangeStorageTest),
+        unittest.makeSuite(MetadataStorageTest),
+        unittest.makeSuite(AttributeStorageTest),
+        ))
 
 if __name__ == '__main__':
-    framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite
+    unittest.main()

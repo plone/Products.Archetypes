@@ -5,34 +5,34 @@ class IReferenceable(Interface):
     def getRefs():
         """get all the referenced objects for this object"""
 
-    def getBRefs():
+    def getBRefs(self):
         """get all the back referenced objects for this object"""
-
-    def _register(archetype_tool=None):
+    
+    def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
 
-    def _unregister():
+    def _unregister(self):
         """unregister with the archetype tool, remove all references"""
-
-    def UID():
+        
+    def UID(self):
         """ Unique ID """
-
-    def _getUID():
+    
+    def _getUID(self):
         """ Get current UID """
 
-    def _setUID(id):
+    def _setUID(self, id):
         """ Change UID """
 
-    def pasteReference(REQUEST=None):
+    def pasteReference(self, REQUEST=None):
         """ Use the copy support buffer to paste object references into this object.
         I think I am being tricky. """
-
-    def _notifyOfCopyTo(container, op=0):
+        
+    def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
         because in those cases we need to keep refs"""
 
-
-    def _verifyPasteRef(object):
+        
+    def _verifyPasteRef(self, object):
         """ Verify whether the current user is allowed to paste the
         passed object into self. This is determined by checking to see
         if the user could create a new object of the same meta_type of

@@ -10,9 +10,9 @@ from config import DEBUG, PKG_NAME
 
 
 if os.name == 'posix':
-    COLOR = 1
+        COLOR = 1
 else:
-    COLOR = 0
+        COLOR = 0
 
 COLORS = {
         'green' : "\033[00m\033[01;32m",
@@ -28,20 +28,20 @@ norm  = "\033[00m"
 class SafeFileWrapper:
     def __init__(self, fp):
         self.fp = fp
-
+	
     def write(self, msg):
-        """If for some reason we can't log, just deal with it"""
-        try:
-            self.fp.write(msg)
-        except IOError, E:
-            pass
+	"""If for some reason we can't log, just deal with it"""
+	try:
+	    self.fp.write(msg)
+	except IOError, E:
+	    pass
 
     def close(self):
-        self.fp.close()
+	self.fp.close()
 
     def __getattr__(self, key):
-        return getattr(self.fp, key)
-
+	return getattr(self.fp, key)
+    
 
 class Log:
     closeable = 0
@@ -61,8 +61,8 @@ class Log:
         else:
             fp = self.target
 
-        self.fp = SafeFileWrapper(fp)
-
+	self.fp = SafeFileWrapper(fp)
+	
 
     def _close(self):
         if self.closeable:
@@ -76,12 +76,12 @@ class Log:
         self._open()
         self.fp.write("%s\n" % (self.munge_message(msg, **kwargs)))
         for arg in args:
-            self.fp.write("%s\n" % pprint.pformat(arg))
+                self.fp.write("%s\n" % pprint.pformat(arg))
         self._close()
 
     def log_exc(self, msg=None, *args, **kwargs):
-        self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1, color="red")
-        if msg: self.log(msg, collapse=0, deep=0, *args, **kwargs)
+	self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1, color="red")
+	if msg: self.log(msg, collapse=0, deep=0, *args, **kwargs)
 
 
     def __call__(self, msg):
@@ -125,10 +125,10 @@ class ClassLog(Log):
                 res.insert(0, self._process_frame(f, color=color))
             frame = ''.join(res)
         finally:
-            try:
-                del frames
-            except:
-                pass
+		try:
+			del frames
+		except:
+			pass
 
         if collapse == 1:
             if frame == self.last_frame_msg:
@@ -147,15 +147,15 @@ class ZPTLogger(ClassLog):
             # We want to look for either <script...
             # or <template...
             print f
-        return frames
+	return frames
 
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
-        level = kwargs.get('level', INFO)
+	level = kwargs.get('level', INFO)
         msg = "%s\n" % (self.munge_message(msg, **kwargs))
-        for arg in args:
-            msg += "%s\n" % pprint.pformat(arg)
-        LOG(PKG_NAME, level, msg)
+	for arg in args:
+	    msg += "%s\n" % pprint.pformat(arg)
+	LOG(PKG_NAME, level, msg)
 
     def log_exc(self, msg=None, *args, **kwargs):
         LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
@@ -165,8 +165,8 @@ _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()
 _zlogger = ZLogger()
 
-#log = _default_logger.log
+log = _default_logger.log
 #log_exc = _default_logger.log_exc
 #zptlog = _zpt_logger.log
-log = zlog = _zlogger.log
+#log = zlog = _zlogger.log
 log_exc    = _zlogger.log_exc

@@ -12,7 +12,7 @@
 ##############################################################################
 """ SQL Storage Configuration for Archetypes.
 
-$Id: SQLStorageConfig.py,v 1.4 2003/11/03 18:51:26 dreamcatcher Exp $
+$Id: SQLStorageConfig.py,v 1.3 2003/04/12 15:39:26 dreamcatcher Exp $
 """
 
 from OFS.SimpleItem import SimpleItem
@@ -216,3 +216,4 @@ class SQLStorageConfig (SimpleItem):
         return conn
 
 InitializeClass(SQLStorageConfig)
+

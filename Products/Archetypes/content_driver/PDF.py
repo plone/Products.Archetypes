@@ -59,3 +59,5 @@ class Converter(ContentDriver):
         instance.text = doc.getText()
 
         doc.cleandir()
+
+

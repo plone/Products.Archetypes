@@ -33,44 +33,52 @@
 	</style>
 	
 	<form action="manage_templates" method="POST" 
-	      tal:define="at here/archetype_tool;
-	                  templates at/listTemplates;
-			  vocab python:templates;
-	                 ">
+	      tal:define="gen here/archetype_tool;
+	    templates gen/listTemplates;
+	    ">
+	 	 
+	    <p> This doesn't really work because I don&quote;t show
+	    the types that each of these is mapped to, I need a
+	    different data structure</p>
 
-	
-      <table class="main" width="80%">
-	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
-	  <tal:condition condition="python:meta_type['schema'].has_key('layout')">
-	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
-	  <td>
-	    <select multiple="multiple"
-	      tal:define="value python:at.lookupTemplates(meta_type['name']);"
-		tal:attributes="name string:template_names_${meta_type/name}:list;
-		                size python: len(vocab)">
-	      <option selected=""
-		tal:repeat="item vocab"
-		tal:attributes="value item;
-		selected python:test(item in value, 'selected', None);"
-		tal:content="item"/>
-	    </select>
+	    <table class="main" width="80%">
+	      <tr tal:repeat="template templates">
+		<td>
+		  <input type="checkbox" name="template:list"
+			 tal:attributes="value template">
+		</td>
+		<td tal:content="template"/>
+		<td tal:content="python:templates.getValue(template)"/>
+	      </tr>
+	    </table>
+	    <input type="submit" name="submit" value="Unregister"/>
 
-          </td>
-	 </tal:condition>
-	</tr>
-
-	<tr>
-           <td>Add a new template</td>
-	   <td>	
-              <input type="text" name="newTemplate"/>
-           </td>
-	</tr>
-      </table>
-      
-      <input type="submit" name="submit" value="Update Bindings"/>
-      <input type="submit" name="addTemplate" value="Add Template"/>
-      
-    </form>
-
+	    
+	    <table>
+		<tr>
+		  <th>template name</th>
+		  <th>visible name</th>
+		  <th>for types? (blank for all)</th>
+		</tr>
+	      <tr>
+		<td><input name="name" tal:attributes="value python:request.get('name', '')"/></td>
+		<td><input name="vis" tal:attributes="value python:request.get('vis', '')"/></td>
+		<td>
+		  <select multiple="multiple" name="types:list" size="4">
+		    <option 
+			    tal:repeat="item gen/listRegisteredTypes"
+		      tal:attributes="value item/name;"
+		      tal:content="item/name"
+		      /> 
+		  </select>	  
+		</td>
+	      </tr>
+	    </table>
+	    
+	    <br/>
+	      <input type="submit" name="submit" value="Add Template"/>
+		
+	  </form>
+	  
       </body>
   </html>

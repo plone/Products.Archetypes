@@ -28,7 +28,10 @@
 		    tal:attributes="name string:$fieldName:lines;
 	    cols widget/cols;
 	    rows widget/rows;
-	    tabindex tabindex/next;"><span tal:replace="python:'\n'.join(value)"></span></textarea>
+	    tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
+	    "><span tal:replace="python:'\n'.join(value)"></span></textarea>
 	</div>
       </div>
     </div>

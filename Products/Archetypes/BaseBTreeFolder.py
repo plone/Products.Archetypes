@@ -81,3 +81,4 @@ if not has_btree:
     class BaseBTreeFolder(BaseFolder):
         """ Just so it doenst break when BTreeFolder isnt available """
         pass
+

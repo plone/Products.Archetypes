@@ -9,7 +9,8 @@
 errors = {}
 errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
 
+## TODO: Update to use ScriptStatus Object
 if errors:
-    return state.set(status='failure', errors=errors, portal_status_message='Please correct the indicated errors.')
+    return ('failure', errors, {'portal_status_message':'Please correct the indicated errors.'})
 else:
-    return state.set(portal_status_message='Your changes have been saved.')
+    return ('success', errors, {'portal_status_message':'Your changes have been saved.'})

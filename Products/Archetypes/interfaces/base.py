@@ -5,7 +5,7 @@ class IBaseObject(Interface):
     #XXX windows is strange
     #schema = Attribute('schema', 'Schema of the object')
     #installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
-
+    
     def initializeLayers(item=None, container=None):
         """ Layer initialization. Performed on __init__ """
 
@@ -20,7 +20,7 @@ class IBaseObject(Interface):
 
     def getDefault(field):
         """get default value for a field by id"""
-
+    
     def isBinary(key):
         """check if an element is binary"""
 
@@ -35,7 +35,7 @@ class IBaseObject(Interface):
 
     def setDefaults():
         """set default values for the fields. called on __init__"""
-
+            
     def update(**kwargs):
         """update all fields and reindexObject"""
 
@@ -59,16 +59,16 @@ class IBaseObject(Interface):
 
     def pre_validate(REQUEST, errors):
         """pre-validation hook"""
-
+        
     def post_validate(REQUEST, errors):
         """post-validation hook"""
-
+    
     def validate(REQUEST, errors):
         """validate fields"""
-
+        
     def SearchableText():
         """full indexable text"""
-
+    
     def get_size():
         """ Used for FTP and apparently the ZMI now too """
 

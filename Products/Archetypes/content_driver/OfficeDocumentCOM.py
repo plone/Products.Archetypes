@@ -77,3 +77,4 @@ class OfficeDocument:
 
         path = "%s\\" % self.tmpdir
         return path, imgs
+

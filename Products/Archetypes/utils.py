@@ -7,13 +7,6 @@ from types import TupleType, ListType
 from debug import log
 import sys
 import os.path
-import types
-from ExtensionClass import ExtensionClass
-
-def className(klass):
-    if type(klass) not in [types.ClassType, ExtensionClass]:
-        klass = klass.__class__
-    return "%s.%s" % (klass.__module__, klass.__name__)
 
 def productDir():
     module = sys.modules[__name__]

@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+
+<metal:block fill-slot="javascript_head_slot">
+<tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing" tal:condition="macro">
+  <metal:block use-macro="macro" />
+</tal:block>
+</metal:block>
+
+<body>
+
+   <div metal:fill-slot="main">
+      <div metal:define-macro="main"
+	   tal:define="errors python:request.get('errors', {});
+                   Iterator python:modules['Products.CMFPlone'].IndexIterator;
+                   tabindex python:Iterator();
+                   schematas here/Schemata;
+                   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
+                   fieldset request/fieldset|options/fieldset|default_fieldset;
+                   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
+           tal:omit-tag="">
+
+      <h1 i18n:translate="heading_edit_item">
+      Edit
+          <span i18n:name="itemtype">
+              <span i18n:translate=""
+                    tal:content="here/archetype_name"
+                    tal:omit-tag="">Item type</span>
+          </span>
+      </h1>
+
+     <div tal:condition="fieldsets">
+       <tal:block repeat="set fieldsets">
+         <div tal:condition="python: set == fieldset and fieldsets != ['default']" tal:omit-tag="">
+           <b>[<span tal:content="set" />]</b>
+         </div>
+         <div tal:condition="python: set != fieldset" tal:omit-tag="">
+           <a href="#" tal:attributes="href string:${here/absolute_url}/portal_form/base_edit?fieldset=${set}">
+              [<span tal:content="set" />]</a>
+         </div>
+       </tal:block>
+     </div>
+
+     <form class="group"
+	    name="edit_form"
+	    method="post"
+	    enctype="multipart/form-data"
+        tal:attributes="action python:here.portal_form_url(template.id)" >
+
+<!--
+ 	<div tal:condition="errors" class="error">
+          <div tal:repeat="error errors/keys">
+           <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
+	  </div>
+	</div>
+-->
+
+
+        <span class="legend"
+              i18n:translate=""
+              tal:content="python:(len(fieldsets) > 1 and fieldset != 'default') and fieldset or here.archetype_name " />
+
+	    <tal:fields repeat="field python: schematas[fieldset].fields()">
+            <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+        </tal:fields>
+
+        <input type="hidden" name="form_submitted" value="1" tal:attributes="value template/id" />
+        <input type="hidden" name="fieldset" value="default" tal:attributes="value fieldset" />
+
+        <div class="row" tal:define="fieldset_index python:fieldsets.index(fieldset);
+                                     n_fieldsets python:len(fieldsets);">
+            <div class="label">&nbsp;</div>
+            <div class="field">
+                <input tal:condition="python:fieldset_index > 0"
+                       class="context"
+                       tabindex=""
+                       type="submit"
+                       name="form_previous"
+                       i18n:attributes="value"
+                       value="Previous"
+                       tal:attributes="tabindex tabindex/next;" />
+                <input tal:condition="python:fieldset_index < n_fieldsets-1"
+                       class="context"
+                       tabindex=""
+                       type="submit"
+                       name="form_next"
+                       i18n:attributes="value"
+                       value="Next"
+                       tal:attributes="tabindex tabindex/next;" />
+                <input tal:condition="python:fieldset_index == n_fieldsets-1"
+                       class="context"
+                       tabindex=""
+                       type="submit"
+                       name="form_submit"
+                       i18n:attributes="value"
+                       value="Save"
+                       tal:attributes="tabindex tabindex/next;" />
+            </div>
+        </div>
+
+    </form>
+    </div>
+</div>
+
+</body>
+</html>

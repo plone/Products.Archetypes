@@ -1,39 +1,43 @@
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+"""
+Unittests for a Referenceable engine.
 
-from common import *
-from utils import *
+$Id: test_sitepolicy.py,v 1.3.4.1 2003/07/10 00:03:01 dreamcatcher Exp $
+"""
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
+import unittest
+import Zope
 
-import test_classgen
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
 
+from Products.CMFCore.tests.base.testcase import SecurityRequestTest
+from Products.CMFPlone.Portal import manage_addSite
 from Acquisition import aq_base
-from DateTime import DateTime
-from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
 def makeContent(site, portal_type, id='document', **kw ):
+
     site.invokeFactory( type_name=portal_type, id=id )
     content = getattr( site, id )
 
     return content
 
-class SitePolicyTests(ArcheSiteTestCase):
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager( None, user )
+class SitePolicyTests( SecurityRequestTest ):
+
+    def setUp(self):
+        SecurityRequestTest.setUp(self)
+        manage_addSite( self.root, 'testsite', \
+                        custom_policy='Archetypes Site' )
 
     def test_new( self ):
-        site = self.getPortal()
+        site = self.root.testsite
         # catalog should have one entry, for index_html or frontpage
         # and another for Members
         self.assertEqual( len( site.portal_catalog ), 2 )
 
     def test_availabledemotypes(self):
-        site = self.getPortal()
+        site = self.root.testsite
         portal_types = [ x for x in site.portal_types.listContentTypes()]
         self.failUnless('DDocument' in portal_types)
         self.failUnless('SimpleType' in portal_types)
@@ -42,60 +46,16 @@ class SitePolicyTests(ArcheSiteTestCase):
         self.failUnless('Fact' in portal_types)
 
     def test_creationdemotypes(self):
-        site = self.getPortal()
+        site = self.root.testsite
         demo_types = ['DDocument', 'SimpleType', 'Fact', 'ComplexType']
         for t in demo_types:
-            content = makeContent(site, portal_type=t, id=t)
+            makeContent(site, portal_type=t, id=t)
             self.failUnless(t in site.contentIds())
-            self.failUnless(not isinstance(content, DefaultDublinCoreImpl))
 
-    # XXX Tests for some basic methods. Should be moved to
-    # a separate test suite.
-    def test_ComplexTypegetSize(self):
-        site = self.getPortal()
-        content = makeContent(site, portal_type='ComplexType', id='ct')
-        size = content.get_size()
-        now = DateTime()
-        content.setExpirationDate(now)
-        new_size = size + len(str(now))
-        self.assertEqual(new_size, content.get_size())
-        content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
-        self.assertEqual(new_size, content.get_size())
-        content.setIntegerfield(100)
-        new_size = new_size + 2
-        self.assertEqual(new_size, content.get_size())
-        content.setIntegerfield(1)
-        new_size = new_size - 2
-        self.assertEqual(new_size, content.get_size())
-        text = 'Bla bla bla'
-        content.setTextfield(text)
-        new_size = new_size + len(text)
-        self.assertEqual(new_size, content.get_size())
-
-    def test_SimpleFoldergetSize(self):
-        site = self.getPortal()
-        content = makeContent(site, portal_type='SimpleFolder', id='sf')
-        size = content.get_size()
-        now = DateTime()
-        content.setExpirationDate(now)
-        new_size = size + len(str(now))
-        self.assertEqual(new_size, content.get_size())
-        content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
-        self.assertEqual(new_size, content.get_size())
-        text = 'Bla bla bla'
-        content.setTitle(text)
-        new_size = new_size + len(text)
-        self.assertEqual(new_size, content.get_size())
+def test_suite():
+    suite = unittest.TestSuite()
+    suite.addTest( unittest.makeSuite( SitePolicyTests ) )
+    return suite
 
 if __name__ == '__main__':
-    framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(SitePolicyTests))
-        return suite
+    unittest.main( defaultTest = 'test_suite' )

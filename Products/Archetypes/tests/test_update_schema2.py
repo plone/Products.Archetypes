@@ -1,37 +1,55 @@
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+import unittest
+import Zope
 
-from common import *
-from utils import *
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
-
+from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
+#from Products.Archetypes.tests.update_schema import getDir, PROJECTNAME, ADD_CONTENT_PERMISSION
 from Products.Archetypes.Extensions.utils import installTypes
 from Products.Archetypes.public import listTypes, registerType
-try:
-    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
-except ImportError:
-    raise TestPreconditionFailed('test_update_schema2', 'Cannot import from ArchetypesTestUpdateSchema')
+from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 import sys, os, shutil
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class test_update_schema2(ArcheSiteTestCase):
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager(None, user)
-        portal = self.getPortal()
-        qi = getToolByName(portal, 'portal_quickinstaller')
-        qi.installProduct('ArchetypesTestUpdateSchema')
+class test_update_schema2(SecurityRequestTest):
+
+    site_id = 'unittest_test_site'
+    created_site = 0
+
+    def setUp(self):
+        SecurityRequestTest.setUp(self)
+        if not hasattr(self.root, self.site_id):
+            self.root.manage_addProduct['CMFPlone'].manage_addSite(self.site_id)
+            self.created_site = 1
+        site = getattr(self.root, self.site_id)
+        install_test(site)
+
+
+    def tearDown(self):
+        get_transaction().abort()
+        # clean things up by hand, since the transaction seems to be getting
+        # committed somewhere along the way
+        site = getattr(self.root, self.site_id, None)
+        if site:
+            if hasattr(site, 't1'):
+                site.manage_delObjects(['t1'])
+            if hasattr(site, 't2'):
+                site.manage_delObjects(['t2'])
+            if self.created_site:
+                self.root.manage_delObjects([self.site_id])
+            get_transaction().commit()
+        SecurityRequestTest.tearDown(self)
+
 
     def _setClass(self, version):
         import Products.ArchetypesTestUpdateSchema
@@ -46,11 +64,11 @@ class test_update_schema2(ArcheSiteTestCase):
         except:
             pass
 
-        self.app.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
+        self.root.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
 
 
     def test_update_schema(self):
-        site = self.getPortal()
+        site = getattr(self.root, self.site_id)
         self._setClass(1)
 
         t1 = makeContent(site, portal_type='TestClass', id='t1')
@@ -84,15 +102,12 @@ class test_update_schema2(ArcheSiteTestCase):
         self.failUnless(hasattr(t1, 'b'))
         self.failUnless(hasattr(t1, 'getA'))
         self.failUnless(hasattr(t1, 'getB'))
+        
 
+def test_suite():
+    return unittest.TestSuite((
+        unittest.makeSuite(test_update_schema2),
+        ))
 
 if __name__ == '__main__':
-    framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(test_update_schema2))
-        return suite
+    unittest.main()        

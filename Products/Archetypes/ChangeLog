@@ -1,336 +1,9 @@
-2003-11-14  Sidnei da Silva  <sidnei@plone.org>
-
-	* Field.py (ImageField.scale): Mini-patch by Gabriel Wicke.
-	- scaling is done with the ANTIALIAS filter instead of
-	NEAREST. Disadvantage: slower.
-	- jpg compression is 88 instead of the 75 default (maybe 85 would
-	be enough, makes some difference for file size). Less Artifacts.
-	(ImageField.scale): ANTIALIAS is only available on PIL 1.1.3
-
-2003-11-10  Sidnei da Silva  <sidnei@plone.org>
-
-	* BaseObject.py (BaseObject.get_size): Better get_size
-	implementation. DateTime's raise an AttributeError when using
-	len().
-
-
-2003-11-10  Geoff Davis <geoff@geoffdavis.net>
-
-    * BaseObject.py: Added optional values argument to processForm to allow one
-      to massage incoming form values in a script before passing them along to
-      processForm.  If values is set (should be a dict), processForm takes its
-      values from the dict; otherwise it gets them from REQUEST.form.
-
-2003-11-09  Geoff Davis <geoff@geoffdavis.net>
-
-    * updateSchemaForm.pt: Let user choose which classes should be updated
-      since automatic schema change detection loses change info when Archetypes
-      is reinstalled.  Also let the user choose to update all classes or only
-      classes with an old schema.
-
-    * ArchetypeTool.py: getChangedSchema now returns a tuple consisting of
-      type, changed_flag rather than just a list of changed types.
-      If called from a REQUEST, manage_updateSchema checks to see which
-      classes need to be updated.  Fixed catalog search for objects that need
-      updating (was using incorrect metatype and searching the UID catalog).
-
-    * BaseObject.py: Made automated migrations slightly more robust by handling
-      AttributeErrors gracefully.
-
-2003-11-07  Sylvain Thénault  <syt@logilab.fr>
-
-    * BaseFolder.py: added the Description method to not fallback to
-    the PortalFolder's one
-
-    * __init__.py: make DisplayList public
-
-    * Extensions/utils.py: don't try to add an index when we only want
-    to add the field to metadata
-
-2003-11-05  Sidnei da Silva  <sidnei@plone.org>
-
-	* BaseObject.py (BaseObject.get_size): Fix for when the value is
-	a BaseUnit. Also, use the 'standard' way to get the raw value.
-
-2003-11-05  Sylvain Thénault  <syt@logilab.fr>
-	* Extensions/utils.py
-	extends fields'index attribute syntax to support extra
-	arguments. That allows for instance to add ZCTextIndex :
-	index='ZCTextIndex, lexicon_id=lexicon, index_type=Okapi BM25
-	Rank'
-
-	* __init__.py: make IndexIterator available even without Plone
-	and use it in base_edit, base_metadata and reference_edit
-
-	* Field.py: use the new getCharset script to get the site
-	charset. This is usefull for non plone site without
-	site_properties.
-
-	* skins/archetypes/unicodeEncode.py: use the new getCharset
-	script to get the site charset.
-
-	* Archetypes should now working as well with plain CMF site :)
-
-2003-11-05  Sidnei da Silva  <sidnei@plone.org>
-
-        * skins/archetypes/widgets/*: Removed cruft (onfocus/onblur from
-	Plone 1.0.x).
-
-	* Widget.py (RichWidget.process_form): Better handling of
-	upload/content-type/typed-in text.
-
-	* BaseObject.py (BaseObject._migrateGetValue): Tentatively fix
-	migrateGetValue by using __getitem__ (which looks up
-	getEditAccessor, then falls back to getAcessor.
-
-        * Several fixes all over the place. Updated forms to Plone 2.0
-	style. Fixed problem with setting an empty value to a field (needs
-	a test). Moved test suite to use ZopeTestCase (thanks to
-	Tiran). Fixed problem were if you registered two classes with the
-	same meta_type, the latter would win and override the first. Fixed
-	getContentType method of TextField to work with the new BaseUnit.
-
-2003-10-09  Benjamin Saller  <bcsaller@yahoo.com>
-
-	* Widget.py (RichWidget.process_form): I think we'd want to take
-	the mime_type input incase we can't guess the file type down the
-	line?  if I am outta line with this tell me, but on unix many
-	files don't have extensions so this is a win.
-
-
-	* BaseObject.py (BaseObject._processForm): MAJOR CHANGE, minor
-	expected impact. Unless I missed something (and I might have)
-	normal users should notice no changes, however form processing has
-	been broken out and delegated to the widget. This has the cool
-	effect that widgets can now easily present multiple UI elements so
-	long as they can produce a single value (and optional kwargs) that
-	would be passed to the fields mutator. This also greatly simplfies
-	processForm.
-
-	The base widgets should have been updated. As an example of this
-	new extension point the newish plone keywords widget replaces the
-	plone 1.0 keywords widget. Previously this would have required
-	additional javascript or alteration to the procesForm loop. Now
-	its the responcibility of the the widget author to make sure if
-	you need funky processing it happens in your widget.
-
-	(schema): marked ID as not required in keeping with the plonish
-	way of presenting this now, however the widget must mask this as a
-	function of the way its displayed or not. The new code handles
-	this nicely. Also, ID is invis by default now on the view screen.
-
-	* skins/archetypes/widgets/zid.pt: brought into line with plone
-	policy for id display and made to work with portal_factory. This
-	deprecates the widget.displayautogenerated stuff that was there
-	before, but because we call a script in the skinpath for this
-	people that used that may get things back?
-
-	* skins/archetypes/widgets/keyword.pt: updated to plone 2.0 styled
-	keyword widgets.
-
-	* skins/archetypes/widgets/epoz.pt: fixed tabindex handling (at
-	least with my version of epoz)
-
-	* skins/archetypes/base_metadata.cpt: slightly modularized this so
-	you can provide a different header per type or per skin and
-	included default that mirrors plone's current metadata text as its
-	a good default.
-
-	* skins/archetypes/base_edit.cpt: slightly modularized this so you
-	can provide a different header per type or per skin
-
-2003-10-08  Benjamin Saller  <bcsaller@yahoo.com>
-
-	* TemplateMixin.py (getTemplateFor): Made registerTemplate less
-	restrictive and TemplateMixin a bit more robust.
-
-	* ArchetypeTool.py (fixActionsForType): Added CMF1.4 support for
-	method aliases by defining an aliases dict on the class
-	object. This is needed to make TemplateMixin work again as
-	_guessMethodAliases would break the view delegate before.
-
-	Refactored the actions code ever so slightly and moved it out of
-	extensions and into the archetypes tool.
-
-	Made the TTW type installer call process types and the actions
-	code to be sure that modify_fti was called and the correct actions
-	installed.
-
-
-2003-10-03    <demo@bazil.runyaga.org>
-
-	* BaseContent.py (BaseContent.PUT): Dont Trust Content-Type Sent
-	By Client. We have the filename, so we can figure it out.
-
-
-2003-10-03  Sidnei da Silva  <sidnei@dreamcatcher.homeunix.org>
-
-	* BaseUnit.py (newBaseUnit.update): Go with defaults, as we may
-	get a string on mimetype here, which is not what we want.
-	(newBaseUnit.update): Simplified a bit by using hacked
-	getToolByName from PortalTransforms.
-
 2003-09-22  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.getPrimaryField): Moved
 	getPrimaryField from BaseContent to BaseObject, so it is available
 	to BaseFolder as well.
 
-2003-09-19  Benjamin Saller  <bcsaller@yahoo.com>
-
-	* ReferenceEngine.py: This is a BIG CHANGE. Using the
-	multi-catalog code the reference engine is now tooled to use a
-	uid_catalog (which is created by the install script). Archetypes
-	should have uid_catalog listed in the archetypes_tool/catalogs tab
-	in addition to portal_catalog or what ever other cataloging is
-	arranged. This helps with the use-case that context is indexed in
-	a catalog other than portal catalog for a specific data
-	type. Previous to this portal_catalog was needed for UID support
-	and hence references to work. This will no longer be the case.
-
-2003-09-14  Sidnei da Silva  <sidnei@plone.org>
-
-	* Registry.py (availableTypes): Created a property type registry.
-
-2003-09-13  Sidnei da Silva  <sidnei@plone.org>
-
-	* ArchTTWTool.py: Added TTW Tool, which will be responsible for
-	exporting XML out of the registries, and handling the editing of
-	existing content types and adding of new content types.
-
-	* Validators.py: Changed registration to go through our new registry.
-
-	* Widget.py: Registered default widgets.
-
-	* Field.py: Registered default fields.
-
-	* Registry.py: Added a registry, for registering widgets, fields,
-	validators, types...
-
-2003-09-06  Sidnei da Silva  <sidnei@plone.org>
-
-	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
-	some cases.
-
-2003-09-04  Sidnei da Silva  <sidnei@plone.org>
-
-	* Marshall.py (RFC822Marshaller.marshall): And more marshalling fixes.
-	(RFC822Marshaller.marshall): Dang. Missing a parameter to
-	getContentType call.
-
-	* BaseObject.py (BaseObject.__getitem__): Avoid breakage when
-	fields dont take **kw.
-
-	* Marshall.py (RFC822Marshaller.demarshall): A couple more
-	marshalling fixes.
-
-2003-09-05  Benjamin Saller  <bcsaller@yahoo.com>
-
-	* CatalogMultiplex.py (CatalogMultiplex.reindexObjectSecurity):
-	First pass at flexible multi-catalog support. This has a very
-	simple UI and prolly some impl problems in that it might not be as
-	flexible as needed from an extension POV, but it seems to work
-	locally. Add a new ZCatalog with a unique id to your Plone site,
-	then in the archetypes tool goto the catalogs tab and add the id
-	of the catalog and it will start getting updates.
-
-2003-09-04  Benjamin Saller  <bcsaller@yahoo.com>
-
-	* skins/archetypes/widgets/field.pt: adding back visiblity handling to widgets
-		widget=Foo(visible={'edit' : 'hidden'}, missing states default to visible
-		states can be visible, hidden, invisible
-
-
-2003-08-08  Sylvain Thénault  <syt@logilab.fr>
-	* BaseObject.py: fix addSubObjects, remove _datify and Date
-
-	* ExtensibleMetada.py: remove inheritance of DefaultDublinCoreImpl:)
-	not more use of the ObjectField.
-
-        * I18NMixin.py: stop trying to del the title property. Need to
-	find a clean way to do this
-
-	* examples/ComplexType.py: remove the MetaDataField, use of
-	BaseSchema to avoid buggy metadata. I think we should not make
-	PortalContent and PortalFolder using ExtensibleMetaData
-
-	* tests/: make tests working (fix some ones according to new
-	implementation, code cleaning)
-
-2003-08-07  Sylvain Thénault  <syt@logilab.fr>
-	* config.py: make new base unit the default unit :)
-
-	* Field.py: remove MetadataField, works on unicode for
-	String, Lines and Text fields. Override setStorage in TextField
-	and I18NMixin.
-
-	* BaseUnit.py: works on unicode, more reliance on the mime types
-	registry
-
-	* tests/test_unicode.py: new unit tests testing unicode behaviour
-
-2003-08-04  Sylvain Thénault  <syt@logilab.fr>
-
-	* use generator and validation as Python package instead of zope
-	products
-
-2003-07-30  Sylvain Thénault  <syt@logilab.fr>
-
-	* Extensions/utils.py: only run install_subskins if
-	product_skins_dir is not None
-
-	* TemplateMixin.py: use StringField instead of Objectfield
-
-2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* skins/archetypes/content_edit.py (previous): Clearer schemata
-	handling. Should fix #770953.
-
-	* BaseObject.py (content_type): Make the RFC822Marshaller the
-	default one. Pending tests.
-	(BaseObject.SearchableText): Misplaced piece of code, for handling
-	LinesField and SearchableText.
-
-	* Marshall.py (RFC822Marshaller.marshall): Small fixes to deal
-	with objects without PrimaryField set.
-
-2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* skins/archetypes/unicodeTestIn.py: Trying to fix current unicode
-	state on archetypes. Needs a unicode guru.
-
-	* Schema.py (Schema.validate): Filter empty values on vocabulary lookup.
-
-	* skins/archetypes/widgets/string.pt: Whitespace.
-
-	* skins/archetypes/widgets/keyword.pt: Fill from request if available.
-
-	* skins/archetypes/widgets/multiselection.pt: Reverting Xiru's
-	changes and fixing accordingly. Include the default hidden field
-	if not required.
-
-	* Validators.py: Zope-dependent validators goes here.
-
-	* skins/archetypes/widgets/field.pt: Display content type if available.
-
-2003-07-15  Sidnei da Silva  <sidnei@redesul.com.br>
-
-	* BaseObject.py: Missing import.
-
-2003-07-11  Sidnei da Silva  <sidnei@x3ng.com>
-
-	* skins/archetypes/base_edit.pt: Show 'default' schemata when
-	there is more than one.
-	Ops. That wasn't quite it. Fixed accordingly now.
-
-	* skins/archetypes/widgets/multiselection.pt: <input> can't have
-	tal:content. I guess it should be value, so changed it to that. It
-	is a 'singleton' (or something like that).
-
-	* ArchetypeTool.py (process_types): I was missing this feature for
-	a loooong time. Lookup modify_fti on the base classes's modules.
-
-=======
 2003-09-06  Sidnei da Silva  <sidnei@plone.org>
 
 	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
@@ -422,7 +95,7 @@
 
 	* Field.py (Field.validate): Patch by Azazel. Allow passing kwargs
 	to the validators, as they seem to already support kwargs in the
-	method signatures.
+	method signatures. 
 
 	* BaseObject.py (BaseObject._processForm): As suggested by George
 	Pan, have a REQUEST argument on the processForm method to allow
@@ -544,44 +217,31 @@
 
 2003-07-08  Sylvain Thénault  <syt@logilab.fr>
 
-	* make subobjects working :))) You can access to subobjects
-	generated by transformation of new base unit from the
-	instance. For instance if there is a 'image.jpg' subobject on
-	<yourobject>, you can get it by accessing yourobject_url/image.jpg
-	(or yourobject.getSubObject('image.jpg') ).
+    * make subobjects working :))) You can access to subobjects
+    generated by transformation of new base unit from the
+    instance. For instance if there is a 'image.jpg' subobject on
+    <yourobject>, you can get it by accessing yourobject_url/image.jpg
+    (or yourobject.getSubObject('image.jpg') ).
 
-	* BaseObject.py: new method isTransformable which return true if
-	the field is transformable (i.e. TextField based). New methods to
-	handle subobjects : addSubObjects and getSubObject (objects are
-	stored in sessions). Automatic access to these subojects by
-	overriding __bobo_traverse__.
+    * BaseObject.py: new method isTransformable which return true if
+    the field is transformable (i.e. TextField based). New methods to
+    handle subobjects : addSubObjects and getSubObject (objects are
+    stored in sessions). Automatic access to these subojects by
+    overriding __bobo_traverse__.
 
-	* BaseUnit.py: use the new idatastream api and the subobjects api
-	of BaseObject. Move cache handling to the transforms tool.
+    * BaseUnit.py: use the new idatastream api and the subobjects api
+    of BaseObject. Move cache handling to the transforms tool.
 
-	* I18NMixIn.py: docstring cleanup, fix to work with
-	BaseObject.__bobo_traverse__.
+    * I18NMixIn.py: docstring cleanup, fix to work with
+    BaseObject.__bobo_traverse__.
 
-	* skins/archetypes/widgets/rich.pt: use isTransformable instead
-	of isBinary
+    * skins/archetypes/widgets/rich.pt: use isTransformable instead
+    of isBinary
 
-2003-07-03  Sylvain Thénault  <syt@logilab.fr>
+2003-07-07  Sidnei da Silva  <sidnei@x3ng.com>
 
-	* added some tests for i18n fields and a basic documentation
-
-        * BaseObject.py: remove the getLanguage function to put it into an
-	external python script (getContentLanguage).
-
-	* Field.py: use the external python script to get the current
-	language.
-
-	* skins/i18n_content_scripts: some scripts / template to handle
-	the current language selection.
-
-	* Schema.py: add hasI18NContent method
-
-	* Extensions/utils.py: add an additional script (change_lang) to
-	navigation after content_edit.success to reset the content language
+	* Extensions/utils.py: Removed hard dependencies on
+	PortalTransform. We will make it optional for 1.0
 
 2003-06-25  Sidnei da Silva  <sidnei@x3ng.com>
 
@@ -591,20 +251,6 @@
 	* utils.py (OrderedDict.reverse): Implemented 'reverse' operation
 	on OrderedDict. Returns a reversed copy of the items list without
 	modifying the object. Fixes bug #755622 on sf.
-
-2003-06-24  Sylvain Thénault  <syt@logilab.fr>
-
-	* BaseContent.py: add I18NBaseContent
-
-	* BaseFolder.py: add I18NBaseFolder
-
-	* BaseObject.py: fix a bug related to translation state
-
-	* public.py: export I18NBaseFolder and I18NBaseContent
-
-	* skins/archetypes/base_translation.pt: add an hidden input field
-	for required but no I18N fields
-
 
 2003-06-23  Sylvain Thénault  <syt@logilab.fr>
 
@@ -619,39 +265,37 @@
 
 	* skins/archetypes/manage_translations_form.pt: form to delete
 	existant translations or change the master translation.
+
 2003-06-22  Geoff Davis <geoff@geoffdavis.net> (plonista)
 
-	* ArchetypeTool.py: added mechanism for monitoring object schemae.
-	Schema are signed at registration time, and when a schema
-	signature changes, it is flagged in ArchetypeTool._types.  Added a
-	new tab on the tool that lets you see which types have schema that
-	have changed and lets you update all the schema in place.  You
-	will need to reinstall Archetypes to make this work.
+    * ArchetypeTool.py: added mechanism for monitoring object schemae.  Schema
+    are signed at registration time, and when a schema signature changes, it is
+    flagged in ArchetypeTool._types.  Added a new tab on the tool that lets you
+    see which types have schema that have changed and lets you update all the
+    schema in place.  You will need to reinstall Archetypes to make this work.
 
-	* Schema.py: Added toString and signature methods for use with
-	update detection.  The toString method could use some improving.
-	Also made a minor fix for the case of validating objects in place.
+    * Schema.py: Added toString and signature methods for use with update
+    detection.  The toString method could use some improving.  Also made a minor
+    fix for the case of validating objects in place.
 
-	* Field.py: Added toString and signature methods for use with
-	update detection.  The toString method could use some improving.
+    * Field.py: Added toString and signature methods for use with update
+    detection.  The toString method could use some improving.
 
-	* BaseObject.py: Added an automigration method for handling
-	updated schema.  The migration method works fine as long as
-	calling a mutator on the value returned by an object's accessor
-	leaves the object unchanged.  If you have objects for which this
-	simple migration mechanism won't work, you will need to override
-	BaseObject._updateSchema.
+    * BaseObject.py: Added an automigration method for handling updated schema.
+    The migration method works fine as long as calling a mutator on the value
+    returned by an object's accessor leaves the object unchanged.  If you have
+    objects for which this simple migration mechanism won't work, you will need
+    to override BaseObject._updateSchema.
 
-	* tests/test_update_schema.py: A new test to make sure all the
-	schema updates work.  The individual subtests all work when run
-	individually, but something evil in Archetypes is causing
-	POSKeyErrors to be raised when the suite is run.  You will need to
-	download the test product ArchetypesTestUpdateSchema for this test
-	to run.
+    * tests/test_update_schema.py: A new test to make sure all the schema updates
+    work.  The individual subtests all work when run individually, but something
+    evil in Archetypes is causing POSKeyErrors to be raised when the suite is
+    run.  You will need to download the test product ArchetypesTestUpdateSchema
+    for this test to run.
 
-	* skins/archetypes/widget/label.pt: Added a skin for a Label
-	Widget (a widget used not for data storage, but rather as a kludge
-	for displaying text on a form)
+    * skins/archetypes/widget/label.pt: Added a skin for a Label Widget (a
+    widget used not for data storage, but rather as a kludge for displaying
+    text on a form)
 
 2003-06-19  Sylvain Thénault  <syt@logilab.fr>
 

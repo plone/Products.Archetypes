@@ -4,10 +4,7 @@ from Globals import InitializeClass
 from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
-from Products.PortalTransforms.utils import getToolByName
-from Products.PortalTransforms.interfaces import idatastream
-from Products.PortalTransforms.mime_types import text_plain, \
-     application_octet_stream
+from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
@@ -18,6 +15,7 @@ from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
 import os.path
 import re
+import site
 import urllib
 
 from config import *
@@ -31,66 +29,44 @@ except ImportError:
     class idatastream(Interface):
         """ Dummy idatastream for when PortalTransforms isnt available """
 
+
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
-    isUnit = 1
 
     security = ClassSecurityInfo()
 
     def __init__(self, name, file='', instance=None,
-                 **kw):
+                 mimetype=None, encoding=site.encoding):
         self.id = name
-        self.update(file, instance, **kw)
+        self.update(file, instance, mimetype, encoding)
 
-    def update(self, data, instance, **kw):
-        #Convert from str to unicode as needed
-        mimetype = kw.get('mimetype', None)
-        filename = kw.get('filename', None)
-        encoding = kw.get('encoding', None)
-
+    def update(self, data, instance,
+               mimetype=None, encoding=site.encoding):
+        #Convert from file/str to str/unicode as needed
         adapter = getToolByName(instance, 'mimetypes_registry')
-        data, filename, mimetype = adapter(data, **kw)
+        data, filename, mimetype = adapter(data, mimetype=mimetype,
+                                           encoding=encoding)
 
-        assert mimetype
         self.mimetype = mimetype
-        if not mimetype.binary:
-            assert type(data) is type(u'')
-            if encoding is None:
-                try:
-                    encoding = adapter.guess_encoding(data)
-                except UnboundLocalError:
-                    # adapter is not defined, we are in object creation
-                    import site
-                    encoding = site.encoding
-            self.original_encoding = encoding
-        else:
-            self.original_encoding = None
-        self.raw  = data
+        self.encoding = encoding
+        # XXXFIXME: data may have been translated to unicode by the adapter method
+        #            why encode it here ??
+        try:
+            self.raw  = data and str(data) or ''
+        except UnicodeError:
+            self.raw = data.encode(encoding)
+
         self.size = len(data)
         self.filename = filename
 
 
     def transform(self, instance, mt):
-        """Takes a mimetype so object.foo.transform('text/plain') should return
+        """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
-
-        return None if no data or if data is untranformable to desired output
-        mime type
         """
-        encoding = self.original_encoding
-        orig = self.getRaw(encoding)
-        if not orig:
-            return None
-
-        #on ZODB Transaction commit there is by specification
-        #no acquisition context. If it is not present, take
-        #the untransformed getRaw, this is necessary for
-        #being used with APE
-        if not hasattr(instance, 'aq_parent'):
-            return orig
-
+        #Do we have a cached transform for this key?
         transformer = getToolByName(instance, 'portal_transforms')
-        data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
+        data = transformer.convertTo(mt, self.raw, object=self, usedby=self.id,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 
@@ -98,71 +74,38 @@ class newBaseUnit(File):
             assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
-            portal_encoding = self.portalEncoding(instance)
-            encoding = data.getMetadata().get("encoding") or encoding \
-                       or portal_encoding
-            if portal_encoding != encoding:
-                _data = unicode(_data, encoding).encode(portal_encoding)
             return _data
 
         # we have not been able to transform data
         # return the raw data if it's not binary data
-        # FIXME: is this really the behaviour we want ?
-        if not self.isBinary():
-            portal_encoding = self.portalEncoding(instance)
-            if portal_encoding != encoding:
-                orig = self.getRaw(portal_encoding)
-            return orig
+        registry = getToolByName(instance, 'mimetypes_registry')
+        mt = registry.lookup(mt)
+        if mt and not mt[0].binary:
+            return self.raw
 
         return None
 
     def __str__(self):
-        return self.getRaw()
-
-    def __len__(self):
-        return self.get_size()
+        return self.raw
 
     def isBinary(self):
-        """return true if this contains a binary value, else false"""
         try:
-            return self.mimetype.binary
+            return self.getContentType().binary
         except AttributeError:
-            # FIXME: backward compat, self.mimetype should not be None anymore
             return 1
-
+##         registry = getToolByName('mimetypes_registry')
+##         mt = registry.lookup(self.getContentType())
+##         if not mt: return 1 #if we don't hear otherwise its binary
+##         return mt[0].binary
 
     # File handling
     def get_size(self):
         return self.size
 
-    def getRaw(self, encoding=None, instance=None):
-        """return encoded raw value"""
-        if self.isBinary():
-            return self.raw
-        # FIXME: backward compat, non binary data should always be stored as unicode
-        if not type(self.raw) is type(u''):
-            return self.raw
-        if encoding is None:
-            if instance is None:
-                encoding ='UTF-8'
-            else:
-                # FIXME: fallback to portal encoding or original encoding ?
-                encoding = self.portalEncoding(instance)
-        return self.raw.encode(encoding)
-
-    def portalEncoding(self, instance):
-        """return the default portal encoding, using an external python script
-        (look the archetypes skin directory for the default implementation)
-        """
-        try:
-            return instance.getCharset()
-        except AttributeError:
-            # that occurs during object initialization
-            # (no acquisition wrapper)
-            return 'UTF8'
+    def getRaw(self):
+        return self.raw
 
     def getContentType(self):
-        """return the imimetype object for this BU"""
         return self.mimetype
 
     def content_type(self):
@@ -178,7 +121,7 @@ class newBaseUnit(File):
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
-        RESPONSE.write(self.getRaw(encoding=self.original_encoding))
+        RESPONSE.write(self.raw)
         return ''
 
     ### webDAV me this, webDAV me that
@@ -202,9 +145,11 @@ class newBaseUnit(File):
         "Get the raw content for this unit(also used for the WebDAV SRC)"
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
-        return self.getRaw(encoding=self.original_encoding)
 
-from OFS.content_types import guess_content_type
+        if type(self.raw) is type(''): return self.raw
+
+        return ''
+
 
 class oldBaseUnit(File, ObjectManager):
     """ """
@@ -242,15 +187,7 @@ class oldBaseUnit(File, ObjectManager):
             if hasattr(file, 'filename') and file.filename != '':
                 self.fullfilename = getattr(file, 'filename')
                 self.filename = basename(self.fullfilename)
-        # need to introduce this since field doesn't care of mime type anymore
-        if mimetype is None:
-            if file and hasattr(file, 'read'):
-                data = file.read()
-                file.seek(0)
-            else:
-                data = file or ''
-            mimetype, enc = guess_content_type(self.filename, data, mimetype)
-            self.mimetype = mimetype
+
         driver, mimetype = self._driverFromType(mimetype, file)
 
         self.content_type = mimetype

@@ -1,14 +1,11 @@
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+import unittest
 
-from common import *
-from utils import *
+import Zope # Sigh, make product initialization happen
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_vocabulary', 'Cannot import ArcheSiteTestCase')
-
-from StringIO import StringIO
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -16,6 +13,8 @@ from Products.Archetypes import listTypes
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import ReferenceField
 from Products.Archetypes.utils import DisplayList
+
+import unittest
 
 schema = Schema((ReferenceField('test',
                                 allowed_types='Test',
@@ -26,9 +25,6 @@ class Dummy(BaseContent):
 
     def Title(self):
         return self.getId()
-
-    def _setObject(self, id, object):
-        setattr(self, id, object)
 
 class DummyBrain:
 
@@ -44,14 +40,6 @@ class DummyBrain:
     def getURL(self):
         return self.path
 
-class DummyArchTool:
-
-    def lookupObject(self, uid):
-        return Dummy(uid)
-
-    def deleteReferences(self, obj, reference):
-        pass
-
 class DummyCatalog:
 
     def __init__(self, brains=None):
@@ -62,24 +50,26 @@ class DummyCatalog:
 
     searchResults = __call__
 
+class DummyArchTool:
+
+    def lookupObject(self, uid):
+        return Dummy(uid)
+
+    def deleteReferences(self, obj, reference):
+        pass
+
 sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
-class VocabularyTest(ArcheSiteTestCase):
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager(None, user)
+class VocabularyTest( unittest.TestCase ):
+
+    def setUp(self):
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        site = self.getPortal()
-        site.dummy = Dummy(oid='dummy')
-        self._dummy = site.dummy
-        # XXX doesn't work this way :(
+        self._dummy = Dummy(oid='dummy')
         brains = [DummyBrain(*args) for args in sample_data]
         self._dummy.portal_catalog = DummyCatalog(brains)
-        self._dummy.uid_catalog = DummyCatalog(brains)
         self._dummy.archetype_tool = DummyArchTool()
         self._dummy.initializeArchetype()
 
@@ -92,17 +82,13 @@ class VocabularyTest(ArcheSiteTestCase):
                                 ('Test125', 'Test125')])
         self.assertEqual(vocab, expected)
 
-    def beforeTearDown(self):
+    def tearDown(self):
         del self._dummy
-        ArcheSiteTestCase.beforeTearDown(self)
+
+def test_suite():
+    return unittest.TestSuite((
+        unittest.makeSuite(VocabularyTest),
+        ))
 
 if __name__ == '__main__':
-    framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(VocabularyTest))
-        return suite
+    unittest.main()

@@ -1,25 +1,27 @@
-from validation.interfaces import ivalidator
+try:
+    from validation.interfaces import ivalidator
+    from validation import validation
+except ImportError:
+    from Products.validation.interfaces import ivalidator
+    from Products.validation import validation
 from DateTime import DateTime
-from Registry import registerValidator
 
 class DateValidator:
-
     __implements__ = (ivalidator,)
 
-    def __init__(self, name, title='', description=''):
+    def __init__(self, name):
         self.name = name
-        self.title = title or name
-        self.description = description
 
     def __call__(self, value, *args, **kwargs):
         if not value:
-            return ("Validation Failed(%s): value is "
-                    "empty or not informed (%s)." % (self.name, repr(value)))
+            return """Validation Failed(%s): value is empty or not informed (%s).""" % (self.name,
+                                                                                        repr(value))
         if not isinstance(value, DateTime):
             try:
                 value = DateTime(value)
             except:
-                return ("Validation Failed(%s): could not "
-                        "convert %s to a date.""" % (self.name, value))
+                return """Validation Failed(%s): could not convert %s to a date.""" %(self.name,
+                                                                                 value)
 
-registerValidator(DateValidator('isValidDate'))
+validation.register(DateValidator('isValidDate'))
+

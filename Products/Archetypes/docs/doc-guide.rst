@@ -4,8 +4,8 @@ Archetypes Documentation Guide
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/06/24 15:14:56 $
-:Version: $Revision: 1.2 $
+:Date: $Date: 2003/06/24 15:07:04 $
+:Version: $Revision: 1.1.2.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 This guide's purpose is to help developers to mantain some level of

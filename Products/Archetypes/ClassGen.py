@@ -133,20 +133,6 @@ class ClassGenerator:
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
 
-def generateCtor(type, module):
-    name = capitalize(type)
-    ctor = """
-def add%s(self, id, **kwargs):
-    o = %s(id)
-    self._setObject(id, o)
-    o = getattr(self, id)
-    o.initializeArchetype(**kwargs)
-    return id
-""" % (name, type)
-
-    exec ctor in module.__dict__
-    return getattr(module, "add%s" % name)
-
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass

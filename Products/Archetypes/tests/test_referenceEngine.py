@@ -1,14 +1,17 @@
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+import unittest
 
-from common import *
-from utils import *
+import Zope # Sigh, make product initialization happen
+
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.ReferenceEngine import ReferenceEngine
-#from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore  import CMFCorePermissions
 
 from DateTime import DateTime
 import unittest
@@ -19,14 +22,12 @@ class ReferenceEngine(ReferenceEngine):
 
 
 
-class TestReferenceEngine(ArchetypesTestCase):
-    def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
+class TestReferenceEngine(unittest.TestCase):
+    def setUp(self):
         self.re = ReferenceEngine()
 
-    def beforeTearDown(self):
+    def tearDown( self ):
         del self.re
-        ArchetypesTestCase.beforeTearDown(self)
 
     def test_clearBrefs(self):
         re = self.re
@@ -80,13 +81,10 @@ class TestReferenceEngine(ArchetypesTestCase):
         assert gb(c) == []
 
 
+def test_suite():
+    return unittest.TestSuite((
+        unittest.makeSuite(TestReferenceEngine),
+        ))
+
 if __name__ == '__main__':
-    framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(TestReferenceEngine))
-        return suite
+    unittest.main()

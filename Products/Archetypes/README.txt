@@ -1,5 +1,5 @@
 Archetypes
-     Archetypes (formerly known as CMFTypes) is a developers framework
+     Formerly known as CMFTypes, Archetypes is a developers framework
      for rapidly developing and deploying rich, full featured content
      types within the context of Zope/CMF and Plone.
 
@@ -16,37 +16,31 @@ Features
     * Simple schemas with working default policy.
     * Power and flexibility with lowered incidental complexity.
     * Integration with rich content sources such as Office Product Suites.
-    * Full automatic form generation
-    * Unique Ids for objects
-    * Object References/Relationships
-    * Per Type cataloging in one or more catalogs
+    * Full automatic form generation     
 
 Requires
-	Plone 2.0+
-	CMF 1.4+
+	Plone 1.0.3+
+	CMF 1.3.1+
 	Zope 2.6.1+
-	
-	CMFFormController (from collective CVS)
-	
-        You have to install the "PortalTransforms", "generator" and
-        "validation" python packages available on SF Archetypes CVS.
 
-	 You should also install the I18NTExtIndexNG product if you
-	 want to use the i18n content features of archetypes. All that
-	 products are also available on SF Archetypes CVS.
+        Zope products "PortalTransforms", "generator", "validation"
+        should also be installed. All that products are also available 
+        on SF Archetypes CVS.
 
 
 Quickstart
+
+    Or, in an existing Plone site, 
     
-    1) Use the quickinstaller_tool and install archetypes
-
-    Or, in an existing Plone site,
-
     1) Edit config.py and change INSTALL_DEMO_TYPES to 1
     2) restart server
     3) Create an external method, module Archetypes.Install, function: install
     4) Run it
 
+    Or,
+
+    Create a new Plone site with ZMI and use the Archetype site customization
+       policy in the Add Plone Site page.
 
 
 Documentation

@@ -26,10 +26,13 @@
 		 size="30" 
 		 tabindex="#"
 		 tal:attributes="name string:${fieldName};
-		 value value;
-		 size widget/size;
-		 tabindex tabindex/next;"
-		 />
+	    value value;
+	    size widget/size;
+	    tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
+	    "
+	    />
 	</div>
       </div>
     </div>

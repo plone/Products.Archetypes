@@ -1,8 +1,7 @@
 from interfaces.layer import ILayer
 try:
     from generator.renderer import renderer as base
-except:
-    # backward compat
+except ImportError:
     from Products.generator.renderer import renderer as base
 from debug import log, log_exc
 import sys
@@ -29,8 +28,6 @@ class ArchetypesRenderer(base):
         context.setLocal('accessor', accessor)
         context.setLocal('widget', widget)
         context.setLocal('field', field)
-        context.setLocal('mode', mode)
-
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)
@@ -39,3 +36,4 @@ class ArchetypesRenderer(base):
         return context
 
 renderer = ArchetypesRenderer()
+

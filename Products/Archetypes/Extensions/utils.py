@@ -1,35 +1,38 @@
-import sys, traceback, os
-from types import *
-
-from OFS.ObjectManager import BadRequestException
-from Globals import package_home
-
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, createDirectoryView, manage_listAvailableDirectories
+from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory, \
+     createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.config import *
+from OFS.ObjectManager import BadRequestException
+from Globals import package_home
+import sys, traceback, os
+from types import *
 
-from Products.PortalTransforms.Extensions.Install \
-     import install as install_portal_transforms
+try:
+    from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
+    HAS_PORTAL_TRANSFORMS = 1
+except ImportError:
+    HAS_PORTAL_TRANSFORMS = 0
 
-from Products.ZCatalog.ZCatalog import manage_addZCatalog
+try:
+    from Products.CMFPlone.Configuration import getCMFVersion
+except ImportError:
+    # Configuration and getCMFVersion come with Plone 1.1
+    def getCMFVersion():
+        from os.path import join
+        from Globals import package_home
+        from Products.CMFCore import cmfcore_globals
 
-class Extra:
-    """indexes extra properties holder"""
-    
-def install_dependencies(self, out):
-    qi=getToolByName(self, 'portal_quickinstaller')
-    qi.installProduct('CMFFormController',locked=1)
-    qi.installProduct('PortalTransforms',)
-
+        path=join(package_home(cmfcore_globals),'version.txt')
+        file=open(path, 'r')
+        _version=file.read()
+        file.close()
+        return _version.strip()
 
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
@@ -40,37 +43,24 @@ def install_tools(self, out):
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
 
-    install_catalog(self, out)
+    #and the tool uses an index
+    catalog = getToolByName(self, 'portal_catalog')
+    try:
+        catalog.addIndex('UID', 'FieldIndex', extra=None)
+    except:
+        pass
 
+    try:
+        if not 'UID' in catalog.schema():
+            catalog.addColumn('UID')
+    except:
+        print >> out, ''.join(traceback.format_exception(*sys.exc_info()))
+        print >> out, "Problem updating catalog for UIDs"
 
-def install_catalog(self, out):
-    if not hasattr(self, UID_CATALOG):
-        #Add a zcatalog for uids
-        addCatalog = manage_addZCatalog
-        addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = getToolByName(self, UID_CATALOG)
-
-        for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                      ('Type', 'FieldIndex'),
-                                      ('Title', 'FieldIndex'),
-                                      ):
-            try:
-                catalog.addIndex(indexName, indexType, extra=None)
-            except:
-                pass
-
-        try:
-            if not 'UID' in catalog.schema():
-                catalog.addColumn('UID')
-        except:
-            pass
-
+    try:
         catalog.manage_reindexIndex(ids=('UID',))
-
-def install_templates(self, out):
-    at = self.archetype_tool
-    at.registerTemplate('base_view')
-
+    except:
+        pass
 
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
@@ -121,12 +111,90 @@ def install_types(self, out, types, package_name):
         if t:
             t.title = type.archetype_name
 
+def install_validation(self, out, types):
+    form_tool = getToolByName(self, 'portal_form')
+    type_tool = getToolByName(self, 'portal_types')
+
+    # No validation on references
+    form_tool.setValidators('reference_edit', [])
+
+    # Default validation for types
+    form_tool.setValidators("base_edit", ["validate_base"])
+    form_tool.setValidators("base_metadata", ["validate_base"])
+
+
+def install_navigation(self, out, types):
+    nav_tool = getToolByName(self, 'portal_navigation')
+    type_tool = getToolByName(self, 'portal_types')
+
+    #Generic Edit
+    script = "content_edit"
+    nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
+    nav_tool.addTransitionFor('default', "content_edit", 'success', 'action:view')
+    nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
+
+    nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
+    nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
+
+    nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
+    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
+
+    #And References
+    nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')
+    nav_tool.addTransitionFor('default', 'reference_edit', 'failure', 'url:reference_edit')
+
+
 
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
-        fixActionsForType(portal_type, typesTool)
+        if 'actions' in portal_type.installMode:
+            typeInfo = getattr(typesTool, portal_type.__name__)
+            if hasattr(portal_type,'actions'):
+                #Look for each action we define in portal_type.actions
+                #in typeInfo.action replacing it if its there and
+                #just adding it if not
+                if getattr(portal_type,'include_default_actions',1):
+                    new = list(typeInfo._actions)
+                else:
+                    # if no standard actions are wished - dont display them
+                    new=[]
+
+                cmfver=getCMFVersion()
+
+                for action in portal_type.actions:
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
+                        #then we know actions are defined new style as ActionInformations
+                        hits = [a for a in new if a.id==action['id']]
+
+                        #change action and condition into expressions,
+                        #if they are still strings
+                        if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
+                            action['action']=Expression(action['action'])
+                        if action.has_key('condition') and type(action['condition']) in (type(''), type(u'')):
+                            action['condition']=Expression(action['condition'])
+                        if hits:
+                            hits[0].__dict__.update(action)
+                        else:
+                            if action.has_key('name'):
+                                action['title']=action['name']
+                                del action['name']
+
+                            new.append (ActionInformation(**action))
+                    else:
+                        hit = findDict(new, 'id', action['id'])
+                        if hit:
+                            hit.update(action)
+                        else:
+                            new.append(action)
+
+                typeInfo._actions = tuple(new)
+                typeInfo._p_changed = 1
+
+            if hasattr(portal_type,'factory_type_information'):
+                typeInfo.__dict__.update(portal_type.factory_type_information)
+                typeInfo._p_changed = 1
 
 def install_indexes(self, out, types):
     catalog = getToolByName(self, 'portal_catalog')
@@ -153,30 +221,15 @@ def install_indexes(self, out, types):
                         except:
                             pass
 
-                    # we may want to add a field to metadata without indexing it
-                    if not schema[0]:
-                        continue
-                    
-                    parts = schema[0].split('|')
+                    parts = alternative.split('|')
 
                     for itype in parts:
-                        extras = itype.split(',')
-                        if len(extras) > 1:
-                            itype = extras[0]
-                            props = Extra()
-                            for extra in extras[1:]:
-                                name, value = extra.split('=')
-                                setattr(props, name.strip(), value.strip())
-                        else:
-                            props = None
                         try:
                             #Check for the index and add it if missing
                             catalog.addIndex(field.accessor, itype,
-                                             extra=props)
+                                             extra=None)
                             catalog.manage_reindexIndex(ids=(field.accessor,))
                         except:
-                            # FIXME: should only catch "Index Exists"
-                            # damned string exception !
                             pass
                         else:
                             installed = 1
@@ -230,7 +283,7 @@ def filterTypes(self, out, types, package_name):
                 if IBaseObject.isImplementedByInstancesOf(k):
                     isBaseObject = 1
                     break
-
+        
         if isBaseObject:
             filtered_types.append(t)
         else:
@@ -246,22 +299,19 @@ def setupEnvironment(self, out, types,
                      globals=types_globals,
                      product_skins_dir='skins'):
 
-    install_dependencies(self, out)
-
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-
-    if product_skins_dir:
-        install_subskin(self, out, globals, product_skins_dir)
-
-
-
-    install_templates(self, out)
+    install_subskin(self, out, globals, product_skins_dir)
 
     install_indexes(self, out, types)
     install_actions(self, out, types)
 
-    install_portal_transforms(self)
+    if HAS_PORTAL_TRANSFORMS:
+        install_portal_transforms(self)
+
+    if isPloneSite(self):
+        install_validation(self, out, types)
+        install_navigation(self, out, types)
 
 
 ## The master installer

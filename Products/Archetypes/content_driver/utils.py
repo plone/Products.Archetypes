@@ -20,8 +20,8 @@ def bin_search(binary):
             result = path
             break
     return result
-
-
+    
+    
 
 
 _bodyre = re.compile('<body.*?>', re.DOTALL|re.I)
@@ -56,5 +56,5 @@ def stripMSTags(text):
 
     #IE honors line-height so setting the default font doesn't really help
     text = re.sub("line-height:.*?;", '', text)
-
+    
     return text
