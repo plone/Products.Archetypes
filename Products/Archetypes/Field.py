@@ -963,6 +963,7 @@ class ReferenceField(ObjectField):
                                             # display path as well
 
         'referenceClass' : Reference,
+        'referenceReferences' : False,
         })
 
 
@@ -970,22 +971,7 @@ class ReferenceField(ObjectField):
         """Not really publicly useful.
 
         See IReferenceable for more convenient ways."""
-        tool = getToolByName(instance, REFERENCE_CATALOG)
-        value = [ref.targetUID for ref in
-                 tool.getReferences(instance, self.relationship)]
-
-        if not self.multiValued: # return a string or None if single valued
-            if len(value) > 1:
-                log('%s of %s is single valued but multiple %s relationships '
-                    'exist: %s' %
-                    (self.getName(), instance, self.relationship, value))
-
-            if len(value) == 0:
-                value = None
-            else:
-                value = value[0]
-
-        return value
+        return instance.getRefs(relationship=self.relationship)
 
     def set(self, instance, value, **kwargs):
         """Mutator.
@@ -1031,11 +1017,10 @@ class ReferenceField(ObjectField):
 
     def _Vocabulary(self, content_instance):
         pairs = []
-        pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
 
         skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
-        brains = pc.searchResults(**skw)
+        brains = uc.searchResults(**skw)
 
         if len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
@@ -1048,6 +1033,14 @@ class ReferenceField(ObjectField):
         for b in brains:
             #translate abs path to rel path since uid_cat stores paths relative now
             path=b.getPath()[len(getToolByName(content_instance,'portal_url').getPortalPath())+1:]
+            # The reference field will not expose Refrerences by
+            # default, this is a complex use-case and makes things too hard to
+            # understand for normal users. Because of reference class
+            # we don't know portal type but we can look for the annotation key in
+            # the path
+            if self.referenceReferences is False and \
+               path.find(config.REFERENCE_ANNOTATION) != -1:
+                continue
             pairs.append((b.UID, label(b)))
 
         if not self.required and not self.multiValued:

@@ -41,6 +41,7 @@
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
                          fieldName python:multiVal and fieldName+':list' or fieldName;
+                         uids python: [v.UID() for v in value];
                          vlen python:len(vocab);">
 
           <input type="hidden"
@@ -58,7 +59,7 @@
                        tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
-                                       checked python:test(same_type(value, []) and (item in value) or value==item, 1, nothing);
+                                       checked python:test(same_type(value, []) and (item in uids) or value==item, 1, nothing);
                                        tabindex item_tabindex;
                                        value item;
                                        id item_id;
@@ -83,7 +84,7 @@
               <option selected="selected"
                       tal:repeat="item vocab"
                       tal:attributes="value item;
-                                      selected python:test(same_type(value, []) and (item in value) or value==item, 'selected', '')"
+                                      selected python:test(same_type(value, []) and (item in uids) or value==item, 'selected', '')"
                       tal:content="python:vocab.getValue(item)"></option>
             </select>
           </div>
