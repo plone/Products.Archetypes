@@ -34,7 +34,6 @@ from ComputedAttribute import ComputedAttribute
 from ZPublisher.HTTPRequest import FileUpload
 from OFS.Image import Pdata
 from Products.CMFCore import CMFCorePermissions
-from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.registries import registerField
 from Products.Archetypes.registries import registerPropertyType
 from Products.Archetypes.storages import AttributeStorage
@@ -50,6 +49,7 @@ from OFS.Image import File
 from OFS.content_types import guess_content_type
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.interfaces.field import ICMFObjectField
 from Products.Archetypes.widgets import FileWidget
 from Products.Archetypes.storages import ObjectManagedStorage
 from Products.Archetypes.lib.baseunit import BaseUnit
@@ -59,7 +59,7 @@ class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
 
-    __implements__ = IFileField, ILayerContainer
+    __implements__ = IFileField
     #XXX __implements__ = IFileField, IObjectField.__implements__
 
     _properties = ObjectField._properties.copy()
@@ -277,7 +277,7 @@ class CMFObjectField(ObjectField):
     """
     COMMENT TODO
     """
-    __implements__ = ObjectField.__implements__
+    __implements__ = ICMFObjectField
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'object',

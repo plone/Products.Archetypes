@@ -40,7 +40,14 @@ from Acquisition import aq_inner
 from OFS.content_types import guess_content_type
 from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes.validation import ValidationChain
-from Products.Archetypes.interfaces.validation import IValidator, IValidationChain
+from Products.Archetypes.interfaces.validation import IValidator
+from Products.Archetypes.interfaces.validation import IValidationChain
+from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IField
+from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.interfaces.layer import ILayerContainer
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.exceptions import UnknownValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.registries import registerField
@@ -51,12 +58,6 @@ from Products.Archetypes.lib.translate import translate
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.vocabulary import Vocabulary
-from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.interfaces.field import IField
-from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.interfaces.layer import ILayerContainer
-from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.registries import setSecurity
 from Products.Archetypes.lib.utils import shasattr

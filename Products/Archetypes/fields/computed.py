@@ -33,7 +33,6 @@ from Acquisition import aq_inner
 from ComputedAttribute import ComputedAttribute
 from ZPublisher.HTTPRequest import FileUpload
 from Products.CMFCore import CMFCorePermissions
-from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.registries import registerField
 from Products.Archetypes.registries import registerPropertyType
 from Products.Archetypes.storages import AttributeStorage
@@ -46,12 +45,13 @@ from Products.Archetypes.fields.base import ObjectField
 # field specific imports
 from Products.Archetypes.widgets import ComputedWidget
 from Products.Archetypes.storages import ReadOnlyStorage
+from Products.Archetypes.interfaces.field import IComputedField
 
 __docformat__ = 'reStructuredText'
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = IComputedField
 
     _properties = Field._properties.copy()
     _properties.update({

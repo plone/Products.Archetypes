@@ -25,31 +25,32 @@
 ################################################################################
 
 from Interface import Interface, Attribute
+from Products.Archetypes.interfaces.layer import ILayerContainer
 
-class IField(Interface):
+class IField(ILayerContainer):
     """ Interface for fields """
 
-#     required = Attribute('required', 'Require a value to be present when submitting the field')
-#     default = Attribute('default', 'Default value for a field')
-#     vocabulary = Attribute('vocabulary', 'List of suggested values for the field')
-#     enforceVocabulary = Attribute('enforceVocabulary', \
-#                                   'Restrict the allowed values to the ones in the vocabulary')
-#     multiValued = Attribute('multiValued', 'Allow the field to have multiple values')
-#     searchable = Attribute('searchable', 'Make the field searchable')
-#     isMetadata = Attribute('isMetadata', 'Is this field a metadata field?')
-#     accessor = Attribute('accessor', 'Use this method as the accessor for the field')
-#     mutator = Attribute('mutator', 'Use this method as the mutator for the field')
-#     mode = Attribute('mode', 'Mode of access to this field')
-#     read_permission = Attribute('read_permission', \
-#                                 'Permission to use to protect field reading')
-#     write_permission = Attribute('write_permission', \
-#                                  'Permission to use to protect writing to the field')
+    required = Attribute('required', 'Require a value to be present when submitting the field')
+    default = Attribute('default', 'Default value for a field')
+    vocabulary = Attribute('vocabulary', 'List of suggested values for the field')
+    enforceVocabulary = Attribute('enforceVocabulary', 
+                                  'Restrict the allowed values to the ones in the vocabulary')
+    multiValued = Attribute('multiValued', 'Allow the field to have multiple values')
+    searchable = Attribute('searchable', 'Make the field searchable')
+    isMetadata = Attribute('isMetadata', 'Is this field a metadata field?')
+    accessor = Attribute('accessor', 'Use this method as the accessor for the field')
+    mutator = Attribute('mutator', 'Use this method as the mutator for the field')
+    mode = Attribute('mode', 'Mode of access to this field')
+    read_permission = Attribute('read_permission', \
+                                'Permission to use to protect field reading')
+    write_permission = Attribute('write_permission', \
+                                 'Permission to use to protect writing to the field')
 
-#     storage = Attribute('storage', 'Storage class to use for this field')
-#     form_info = Attribute('form_info', 'Form Info (?)')
-#     generateMode = Attribute('generateMode', 'Generate Mode (?)')
-#     force = Attribute('force', 'Force (?)')
-#     type = Attribute('type', 'Type of the field')
+    storage = Attribute('storage', 'Storage class to use for this field')
+    form_info = Attribute('form_info', 'Form Info (?)')
+    generateMode = Attribute('generateMode', 'Generate Mode (?)')
+    force = Attribute('force', 'Force (?)')
+    type = Attribute('type', 'Type of the field')
 
     def Vocabulary(content_instance=None):
         """
@@ -220,13 +221,18 @@ class IObjectField(IField):
         lists/tuples/dicts.
         """
 
+class IComputedField(IObjectField):
+    """A field that stores a read-only computation
+    """
+
+
 class IFileField(IObjectField):
     """Interface fora fields which (may) contain a file like FileField or
     TextField
     """
 
-    #content_class = Attribute("""Class that is used to wrap the data like
-    #                              OFS.Image.File for FileField"""
+    content_class = Attribute("""Class that is used to wrap the data like
+                                  OFS.Image.File for FileField""")
 
     # private
     def _process_input(value, default=None, mimetype=None, **kwargs):
@@ -264,3 +270,43 @@ class IFileField(IObjectField):
 
 class IImageField(IFileField):
     """ Marker interface for detecting an image field """
+
+class ICMFObjectField(IObjectField):
+    """XXX
+    """
+
+class IIntegerField(IObjectField):
+    """A field that stores an integer"""
+
+class IFloatField(IObjectField):
+    """A field that stores floats"""
+    
+class IFixedPointField(IObjectField):
+    """A field for storing numerical data with fixed points"""
+
+class IBooleanField(IObjectField):
+    """A field that stores boolean values."""
+
+class IDateTimeField(IObjectField):
+    """A field that stores dates and times"""
+
+class IReferenceField(IObjectField):
+    """A field for creating references between objects.
+
+    get() returns the list of objects referenced under the relationship
+    set() converts a list of target UIDs into references under the
+    relationship associated with this field.
+
+    If no vocabulary is provided by you, one will be assembled based on
+    allowed_types.
+    """
+
+class IStringField(IObjectField):
+    """A field that stores strings"""
+    
+class ITextField(IFileField):
+    """Base Class for Field objects that rely on some type of
+    transformation"""
+
+class ILinesField(IObjectField):
+    """For creating lines objects"""

@@ -49,12 +49,17 @@ from Products.Archetypes.widgets import IntegerWidget
 from Products.Archetypes.widgets import DecimalWidget
 from Products.Archetypes.widgets import BooleanWidget
 from Products.Archetypes.widgets import CalendarWidget
+from Products.Archetypes.interfaces.field import IIntegerField
+from Products.Archetypes.interfaces.field import IFloatField
+from Products.Archetypes.interfaces.field import IFixedPointField
+from Products.Archetypes.interfaces.field import IBooleanField
+from Products.Archetypes.interfaces.field import IDateTimeField
 
 __docformat__ = 'reStructuredText'
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = IIntegerField
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -85,6 +90,7 @@ registerField(IntegerField,
 
 class FloatField(ObjectField):
     """A field that stores floats"""
+    __implements__ = IFloatField
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'float',
@@ -113,7 +119,7 @@ registerField(FloatField,
 
 class FixedPointField(ObjectField):
     """A field for storing numerical data with fixed points"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = IFixedPointField
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -180,7 +186,7 @@ registerField(FixedPointField,
 
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
-    __implements__ = ObjectField.__implements__
+    __implements__ = IBooleanField
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'boolean',
@@ -215,7 +221,7 @@ registerField(BooleanField,
 
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = IDateTimeField
 
     _properties = Field._properties.copy()
     _properties.update({

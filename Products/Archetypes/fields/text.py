@@ -48,9 +48,13 @@ from Products.Archetypes.exceptions import TextFieldException
 from types import UnicodeType, StringTypes, FileType
 from Products.Archetypes import config
 from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import ITextField
+from Products.Archetypes.interfaces.field import IStringField
+from Products.Archetypes.interfaces.field import ILinesField
 from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.widgets import LinesWidget
+
 
 
 __docformat__ = 'reStructuredText'
@@ -85,6 +89,7 @@ def decode(value, instance, **kwargs):
 
 class StringField(ObjectField):
     """A field that stores strings"""
+    __implements__ = IStringField
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'string',
@@ -114,7 +119,7 @@ class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
 
-    __implements__ = FileField.__implements__
+    __implements__ = ITextField
 
     _properties = FileField._properties.copy()
     _properties.update({
@@ -252,7 +257,7 @@ registerField(TextField,
 
 class LinesField(ObjectField):
     """For creating lines objects"""
-    __implements__ = ObjectField.__implements__
+    __implements__ = ILinesField
 
     _properties = Field._properties.copy()
     _properties.update({

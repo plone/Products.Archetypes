@@ -52,6 +52,7 @@ from Products.Archetypes.refengine.references import Reference
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
+from Products.Archetypes.interfaces.field import IReferenceField
 
 __docformat__ = 'reStructuredText'
 
@@ -66,7 +67,7 @@ class ReferenceField(ObjectField):
     allowed_types.
     """
 
-    __implements__ = ObjectField.__implements__
+    __implements__ = IReferenceField
 
     _properties = Field._properties.copy()
     _properties.update({

@@ -57,6 +57,8 @@ from OFS.Traversable import Traversable
 from OFS.Cache import ChangeCacheSettingsPermission
 from Products.Archetypes.config import HAS_PIL
 from Products.Archetypes.widgets import ImageWidget
+from Products.Archetypes.interfaces.field import IImageField
+
 if HAS_PIL:
     import PIL
 
@@ -147,7 +149,7 @@ class ImageField(FileField):
         will be deleted (None is understood as no-op)
         """
 
-    # XXX__implements__ = FileField.__implements__ , IImageField
+    __implements__ = IImageField
 
     _properties = FileField._properties.copy()
     _properties.update({
