@@ -1,0 +1,62 @@
+<dtml-let form_title="'Connections by Type'">
+<dtml-if manage_page_header>
+ <dtml-var manage_page_header>
+<dtml-else>
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html lang="en">
+ <head>
+ <title>&dtml-form_title;</title>
+ </head>
+ <body bgcolor="#FFFFFF" link="#000099" vlink="#555555">
+ <h3>&dtml-form_title;</h3>
+</dtml-if>
+</dtml-let>
+
+<dtml-var manage_tabs>
+
+<h3>Connections by type</h3>
+
+<form action="manage_changeConnections" method="POST">
+<table>
+
+<dtml-in types_info mapping sort=id>
+<tr>
+<td class="form-label">
+ <a href="../portal_types/&dtml.url_quote-id;/manage_workspace"
+  >&dtml-id;<dtml-if title> (&dtml-title;)</dtml-if></a>
+</td>
+<td class="form-element">
+    <select name="conn_&dtml-id;">
+      <option value="(Default)" selected>(Default)</option>
+      <dtml-in SQLConnectionIDs>
+        <option value="&dtml-sequence-item;"<dtml-if expr="conn==_['sequence-item']">
+	  selected</dtml-if>>
+        <dtml-var sequence-key></option>
+      </dtml-in>
+    </select>
+ </td>
+</tr>
+</dtml-in>
+
+<tr>
+<td class="form-label" align="left">(Default)</td>
+<td class="form-element">
+    <select name="default_conn">
+      <dtml-in SQLConnectionIDs>
+        <option value="&dtml-sequence-item;"<dtml-if expr="default_conn==_['sequence-item']">
+	  selected</dtml-if>>
+        <dtml-var sequence-key></option>
+      </dtml-in>
+    </select>
+</td>
+</tr>
+
+</table>
+
+<input type="submit" name="submit" value="Change" />
+
+</form>
+
+<hr />
+
+<dtml-var manage_page_footer>
