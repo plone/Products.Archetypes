@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/19 16:33:38 $
-:Version: $Revision: 1.6 $
+:Date: $Date: 2003/07/03 16:23:41 $
+:Version: $Revision: 1.7 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -162,6 +162,14 @@ accessor [#]_
   of the field. If the method already exists, nothing is done. If the
   method doesn't exist, Archetypes will generate a basic method for you.
 
+edit_accessor
+  Name of the method that will be used for getting data out
+  of the field just before edition. Unlike the standard accessor
+  method which could apply some transformation to the accessed data,
+  this method should return the raw data without any transformation. 
+  If the method already exists, nothing is done. If the method
+  doesn't exist, Archetypes will generate a basic method for you. 
+
 mutator
   Name of the method that will be used for changing the value
   of the field. If the method already exists, nothing is done. If the
@@ -169,8 +177,9 @@ mutator
 
 mode
   One of ``r``, ``w`` or ``rw``. If ``r``, only the accessor is
-  generated. If ``w`` only the mutator is generated. If ``rw``, both
-  the accessor and mutator are generated.
+  generated. If ``w`` only the mutator and the edit accessor are
+  generated. If ``rw``, accessor and mutator and edit accessor are
+  generated.
 
 read_permission
   Permission needed to view the field. Defaults to
