@@ -370,6 +370,7 @@ class FileField(StringField):
         'type' : 'file',
         'default' : '',
         'primary' : 0,
+        'widget' : FileWidget,
         })
 
     def _process_input(self, value, default=None,
