@@ -36,7 +36,7 @@ class TypesWidget(macrowidget):
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
-        if self.description == '':
+        if not self.description:
             self.description = 'Enter a value for %s.' % self.label
 
     def isVisible(self, instance, mode='view'):
