@@ -29,7 +29,7 @@ except ImportError:
     class idatastream(Interface):
         """ Dummy idatastream for when PortalTransforms isnt available """
 
-    
+
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 
@@ -44,7 +44,8 @@ class newBaseUnit(File):
                mimetype=None, encoding=site.encoding):
         #Convert from file/str to str/unicode as needed
         adapter = getToolByName(instance, 'mimetypes_registry')
-        data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
+        data, filename, mimetype = adapter(data, mimetype=mimetype,
+                                           encoding=encoding)
 
         self.mimetype = mimetype
         self.encoding = encoding
@@ -131,7 +132,7 @@ class newBaseUnit(File):
         file=REQUEST['BODYFILE']
         data = file.read()
 
-        self.update(data, mimetype=mimetype)
+        self.update(data, self.aq_parent, mimetype=mimetype)
 
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)

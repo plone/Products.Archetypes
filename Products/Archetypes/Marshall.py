@@ -38,7 +38,7 @@ class PrimaryFieldMarshaller(Marshaller):
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        data = p and p.get(instance) or ''
+        data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(data):
@@ -75,7 +75,7 @@ class RFC822Marshaller(Marshaller):
     def marshall(self, instance, **kwargs):
         from Products.CMFDefault.utils import formatRFC822Headers
         p = instance.getPrimaryField()
-        body = p and p.get(instance) or ''
+        body = p and instance[p.getName()] or ''
         pname = p and p.getName() or None
         content_type = length = None
         # Gather/Guess content type
