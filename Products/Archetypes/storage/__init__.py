@@ -17,7 +17,7 @@ from Products.Archetypes.storage.storage import MetadataStorage
 from Products.Archetypes.storage.annotation import AnnotationStorage
 from Products.Archetypes.storage.annotation import MetadataAnnotationStorage
 from Products.Archetypes.storage.aggregated import AggregatedStorage
-from Products.Archetypes.storage.fascade import FacadeMetadataStorage
+from Products.Archetypes.storage.facade import FacadeMetadataStorage
 from Products.Archetypes.storage.sql.storage import BaseSQLStorage
 from Products.Archetypes.storage.sql.storage import GadflySQLStorage
 from Products.Archetypes.storage.sql.storage import MySQLSQLStorage
