@@ -24,11 +24,10 @@
 #
 ################################################################################
 
-# -*- coding: latin-1 -*-
 """
 AggregatedStorage for Archetypes
 
-(C) 2004, Andreas Jung & Econtec GmbH, D-90492 Nürnberg, Germany
+(C) 2004, Andreas Jung & Econtec GmbH, D-90492 NÃ¼rnberg, Germany
 
 Released as open-source under the current Archetypes license
 
@@ -46,41 +45,50 @@ from Products.Archetypes.registries import registerStorage
 CACHE_TIMEOUT = 5  # timeout in seconds for cache entries to expire
 
 class AggregatedStorage(Storage):
-    """ Implementation of the AggregatedStorage proposal as described in http://plone.org/development/teams/developer/AggregatedStorage """
+    """Implementation of the AggregatedStorage proposal as described
+    in http://plone.org/development/teams/developer/AggregatedStorage."""
 
     def __init__(self, caching=0):
-        self._reg_ag = Registry(StringType)  # registry for aggregators
-        self._reg_dag = Registry(StringType) # registry for disaggregators
-        self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
         self._caching = caching
         self._lock = Lock()
 
-    def __getstate__(self):
-        """Override __getstate__ used for copy operations
+        # registry for aggregators
+        self._reg_ag = Registry(StringType)
 
-        Required to fix the copy problem with the lock
+        # registry for disaggregators
+        self._reg_dag = Registry(StringType)
+
+        # map (objId, aggregator) -> (timestamp, result_dict)
+        self.cache = {}
+
+    def __getstate__(self):
+        """Override __getstate__ used for copy operations.
+
+        Required to fix the copy problem with the lock.
         """
         state = self.__dict__
         state['_lock'] = None
         return state
 
     def __setstate__(self, state):
-        """Override __setstate__ used for copy operations
+        """Override __setstate__ used for copy operations.
 
-        Required to fix the copy problem with the lock
+        Required to fix the copy problem with the lock.
         """
         state['_lock'] = Lock()
         self.__dict__.update(state)
 
     def registerAggregator(self, fieldname, methodname):
         if self._reg_ag.get(fieldname):
-            raise KeyError('Aggregator for field "%s" already registered' % fieldname)
+            raise KeyError('Aggregator for field "%s" already registered' %
+                           fieldname)
         self._reg_ag.register(fieldname, methodname)
 
 
     def registerDisaggregator(self, fieldname, methodname):
         if self._reg_dag.get(fieldname):
-            raise KeyError('Disaggregator for field "%s" already registered' % fieldname)
+            raise KeyError('Disaggregator for field "%s" already registered' %
+                           fieldname)
         self._reg_dag.register(fieldname, methodname)
 
     def get(self, name, instance, **kwargs):
@@ -89,10 +97,12 @@ class AggregatedStorage(Storage):
             raise KeyError('No aggregator registered for field "%s"' % name)
         method = getattr(instance, methodname)
         if not method:
-            raise KeyError('Aggregator "%s" for field "%s" not found' % (methodname, name))
+            raise KeyError('Aggregator "%s" for field "%s" not found' %
+                           (methodname, name))
         result = method(name, instance, **kwargs)
         if not isinstance(result, DictType):
-            raise TypeError('Result returned from an aggregator must be DictType')
+            raise TypeError('Result returned from an aggregator must be '
+                            'DictType.')
         return result[name]
 
         if self._caching:
@@ -103,10 +113,12 @@ class AggregatedStorage(Storage):
         if cache_entry is None:
             method = getattr(instance, methodname)
             if not method:
-                raise KeyError('Aggregator "%s" for field "%s" not found' % (methodname, name))
+                raise KeyError('Aggregator "%s" for field "%s" not found' %
+                               (methodname, name))
             result = method(name, instance, **kwargs)
             if not isinstance(result, DictType):
-                raise TypeError('Result returned from an aggregator must be DictType')
+                raise TypeError('Result returned from an aggregator must be '
+                                'DictType')
 
             if self._caching:
                 self._cache_put(instance.getId(), methodname, result)
@@ -126,7 +138,8 @@ class AggregatedStorage(Storage):
 
         method = getattr(instance, methodname)
         if not method:
-            raise KeyError('Disaggregator "%s" for field "%s" not found' % (methodname, name))
+            raise KeyError('Disaggregator "%s" for field "%s" not found' %
+                           (methodname, name))
         if self._caching:
             self._cache_remove(instance.getId(), methodname)
         method(name, instance, value, **kwargs)
@@ -140,7 +153,7 @@ class AggregatedStorage(Storage):
     ######################################################################
 
     def _cache_get(self, objId, methodname):
-        """ retrieve the result dictionary for (objId, methodname) """
+        """Retrieve the result dictionary for (objId, methodname)."""
         self._lock.acquire()
         entry = self.cache.get((objId, methodname))
         if entry is None:
@@ -154,13 +167,13 @@ class AggregatedStorage(Storage):
         return entry[1]
 
     def _cache_put(self, objId, methodname, result):
-        """ store (objId, methodname) : (current_time, result) in cache """
+        """Store (objId, methodname): (current_time, result) in cache."""
         self._lock.acquire()
         self.cache[(objId, methodname)] = (time.time(), result)
         self._lock.release()
 
     def _cache_remove(self, objId, methodname):
-        """ remove (objId, methodname) from cache """
+        """Remove (objId, methodname) from cache."""
 
         self._lock.acquire()
         key = (objId, methodname)
