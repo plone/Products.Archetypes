@@ -19,25 +19,12 @@
 		    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();
                     fieldset request/fieldset|options/fieldset|string:metadata;
-                    schematas here/Schemata"
+                    schematas here/Schemata;
+	            metadata_macros python:path('here/metadata_macros/macros|nothing');"
            tal:omit-tag="">
 
-      <h1 i18n:translate="heading_edit_item">
-      Edit
-          <span i18n:name="itemtype">
-                <span i18n:translate=""
-                      tal:content="here/archetype_name"
-                      tal:omit-tag="">Item type</span>
-          </span>
-
-          <span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'metadata'">
-               [
-                <span i18n:translate=""
-                      tal:content="fieldset"
-                      tal:omit-tag="">fieldset</span>
-               ]
-          </span>
-      </h1>
+      
+      <h1 tal:content="here/title_or_id" metal:use-macro="metadata_macros/header|default" />
 
       <form class="group"
 	    name="edit_form"

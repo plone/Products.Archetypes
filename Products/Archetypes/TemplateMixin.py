@@ -5,7 +5,7 @@ from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from config import TOOL_NAME
 
-type_mixin = Schema((
+schema = Schema((
     StringField('layout',
                 accessor="getLayout",
                 mutator="setLayout",
@@ -19,7 +19,7 @@ type_mixin = Schema((
 
 
 class TemplateMixin:
-    schema = type = type_mixin
+    schema = schema
     actions = (
         { 'id': 'view',
           'name': 'View',

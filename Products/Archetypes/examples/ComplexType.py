@@ -29,9 +29,10 @@ schema = Schema(tuple(field_instances) + (
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
-
+    archetypes_name = "Complex Type"
+    
     def _get_selection_vocab(self):
-        return DisplayList((('Test','Test'),))
+        return DisplayList((('Test','Test'), ))
 
 registerType(ComplexType)
 

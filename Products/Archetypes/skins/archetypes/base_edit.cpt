@@ -23,30 +23,13 @@
                    dummy python: currentLang != masterLang and here.setCurrentLanguage(lang=masterLang,old_lang=currentLang,referer=0);
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
-                   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
+                   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
+	           portal_type python:here.getPortalTypeName().lower();
+	           edit_template python:'%s_edit' % portal_type;
+	           edit_macros python:path('here/%s/macros|here/edit_macros/macros' % edit_template);"
            tal:omit-tag="">
 
-
-      <h1 i18n:translate="heading_edit_item">
-      Edit
-          <span i18n:name="itemtype">
-              <span i18n:translate=""
-                    tal:content="here/archetype_name"
-                    tal:omit-tag="">Item type</span>
-          </span>
-      </h1>
-
-     <div tal:condition="fieldsets">
-       <tal:block repeat="set fieldsets">
-         <div tal:condition="python: set == fieldset and fieldsets != ['default']" tal:omit-tag="">
-           <b>[<span tal:content="set" />]</b>
-         </div>
-         <div tal:condition="python: set != fieldset" tal:omit-tag="">
-           <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
-              [<span tal:content="set" />]</a>
-         </div>
-       </tal:block>
-     </div>
+     <h1 tal:content="here/title_or_id" metal:use-macro="edit_macros/header|default"/>
 
      <form class="group"
 	    name="edit_form"

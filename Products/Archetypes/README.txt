@@ -17,27 +17,22 @@ Features
     * Power and flexibility with lowered incidental complexity.
     * Integration with rich content sources such as Office Product Suites.
     * Full automatic form generation
-    * i18n content on a field basis
+    * Unique Ids for objects
+    * Object References/Relationships
 
 Requires
-	Plone 1.0.3+
-	CMF 1.3.1+
+	Plone 2.0+
+	CMF 1.4+
 	Zope 2.6.1+
+	
+	CMFFormController (from collective CVS)
+	
+        You have to install the "PortalTransforms", "generator" and
+        "validation" python packages available on SF Archetypes CVS.
 
-        You have to install the "generator" and "validation" python packages 
-        available on SF Archetypes CVS.
-
-        WARNING ! Those packages was used to be installed as Zope products, 
-        this not the case anymore. They should be installed as regular python 
-        package (look at the packages'README file for more info). If you're 
-        really allergic to distutils, you can keep them as provided in your 
-        Products and that should work anyway.
-
-        Zope product "PortalTransforms" should also be installed if you want 
-        to use the new base units. You should also install the
-        I18NTExtIndexNG product if you want to use the i18n content
-        features of archetypes. All that products are also available
-        on SF Archetypes CVS.
+	 You should also install the I18NTExtIndexNG product if you
+	 want to use the i18n content features of archetypes. All that
+	 products are also available on SF Archetypes CVS.
 
 
 Quickstart

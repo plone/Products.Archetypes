@@ -22,7 +22,9 @@
            base python: hasattr(value, 'isUnit');
 	   binary python: base and value.isBinary() or here.isBinary(fieldName);
 	   content python: (base == 1) and value.getRaw() or value ;
-	   inputvalue python: (binary == 0) and content or ''">
+	   inputvalue python: (binary == 0) and content or '';
+	   tabindex tabindex/next;
+	">
 	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
       <input type="hidden" tal:attributes="name string: ${fieldName}_text_format;" value="text/html"/>

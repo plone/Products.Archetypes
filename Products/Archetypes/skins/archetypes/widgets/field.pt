@@ -27,17 +27,6 @@
         </a>)
         </span>
 
-        <tal:block condition="python:0">
-        <!-- This is really ugly when you're using a TextField with
-             a word document for example. Do we really need this?
-             I don't see any use for it.
-        <metal:define define-macro="hidden" tal:define="value python:widget.populate and field.getAccessor(here)() or '';
-	                                               value python:widget.postback and request.get(fieldName, value) or value;">
-	  <input type="hidden" tal:attributes="name fieldName; value value"/>
-        </metal:define>
-        -->
-        </tal:block>
-
         <br />
 	</tal:block>
         </tal:block>
@@ -64,7 +53,6 @@
                                  class python:test(review_state, review_state, 'private')"
                  tal:content="review_state">review_state</a>)
              </span>
-	    <!-- I'll let this go, content authors might care -->
              <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
                    tal:omit-tag="">
              (<span tal:replace="python:field.getContentType(here)" />)

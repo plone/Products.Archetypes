@@ -27,13 +27,14 @@ from Products.Archetypes.Marshall import RFC822Marshaller
 
 content_type = Schema((
     StringField('id',
-                required=1,
+                required=0, ##Still actually required, but the widget will supply the missing value on non-submits
                 mode="rw",
                 accessor="getId",
                 mutator="setId",
                 default=None,
                 widget=IdWidget(label_msgid="label_name",
                                 description_msgid="help_name",
+                                visible={'view' : 'invisible'},
                                 i18n_domain="plone"),
                 ),
 
@@ -352,43 +353,24 @@ class BaseObject(Implicit):
         form_keys = form.keys()
 
         for field in fields:
-            if field.getName() in form_keys or \
-                   "%s_file" % field.getName() in form_keys:
-                text_format = None
-                isFile = 0
-                value = None
+            ## Delegate to the widget for processing of the form element.
+            ## This means that if the widget needs _n_ fields under a naming convention
+            ## it can handle this internally.
+            ## The calling API is process_form(instance, field, form)
+            ##    where instance should rarely be needed, field is the field object
+            ##    and form is the dict. of kv_pairs from the REQUEST
+            ##
+            ## The product of the widgets processing should be:
+            ##        (value, **kwargs) which will be passed to the mutator
+            ##        or None which will simply pass
+            widget = field.widget
+            result = widget.process_form(self, field, form)
+            if not result: continue
 
-                # text field with formatting
-                if hasattr(field, 'allowable_content_types') and \
-                   field.allowable_content_types:
-                    #was a mimetype specified
-                    text_format = form.get("%s_text_format" % field.getName())
-
-                # or a file?
-                fileobj = form.get('%s_file' % field.getName())
-
-                if fileobj:
-                    filename = getattr(fileobj, 'filename', '')
-                    if filename != '':
-                        value  =  fileobj
-                        isFile = 1
-
-                if not value:
-                    value = form.get(field.getName())
-
-                #Set things by calling the mutator
-                if value is None: continue
-                mutator = field.getMutator(self)
-                __traceback_info__ = (self, field, mutator)
-                kwargs = {}
-
-                if text_format and not isFile:
-                    mutator(value, mimetype=text_format, **kwargs)
-                elif self.isBinary(field.getName()) and not isFile:
-                    # file field with content, no new content uploaded
-                    pass
-                else:
-                    mutator(value, **kwargs)
+            #Set things by calling the mutator
+            mutator = field.getMutator(self)
+            __traceback_info__ = (self, field, mutator)
+            mutator(result[0], **result[1])
 
         self.reindexObject()
 
