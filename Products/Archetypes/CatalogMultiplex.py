@@ -1,10 +1,10 @@
+from Products.Archetypes.config import *
+
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.CMFCorePermissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
-
-from config import *
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()

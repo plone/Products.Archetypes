@@ -14,11 +14,6 @@ from Acquisition import aq_base
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
-def makeContent(site, portal_type, id='document', **kw ):
-    site.invokeFactory( type_name=portal_type, id=id )
-    content = getattr( site, id )
-    return content
-
 class SitePolicyTests(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)

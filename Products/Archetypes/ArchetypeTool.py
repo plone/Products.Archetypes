@@ -34,6 +34,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
+
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
@@ -49,7 +50,7 @@ except ImportError:
         return _version.strip()
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
-
+ 
 # This is the template that we produce our custom types from
 # Never actually used
 base_factory_type_information = (

@@ -1,7 +1,7 @@
-from types import DictType, FileType, StringType, UnicodeType
-
+from types import FileType
+from types import DictType # needed for ugly hack in class TypesWidget
+                           # def isVisible
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
@@ -16,8 +16,6 @@ class TypesWidget(macrowidget):
         'postback' : 1,  # should this field be repopulated with POSTed
                          # value when an error occurs?
         'show_content_type' : 0,
-        'helper_js': (),
-        'helper_css': (),
         })
 
     def getName(self):
@@ -48,28 +46,9 @@ class TypesWidget(macrowidget):
         if not vis_dic:
             return state
         # ugly hack ...
-        if type(vis_dic) == DictType:
+        if type(vis_dic)==DictType:
             state = vis_dic.get(mode, state)
         return state
-
-    def setCondition(self, condition):
-        """Set the widget expression condition."""
-        self.condition = condition
-
-    def getCondition(self):
-        """Return the widget text condition."""
-        return self.condition
-
-    def testCondition(self, folder, portal, object):
-        """Test the widget condition."""
-        try:
-            if self.condition:
-                ec = createExprContext(folder, portal, object)
-                return Expression(self.condition)(ec)
-            else:
-                return 1
-        except AttributeError:
-            return 1
 
     def process_form(self, instance, field, form, empty_marker=None):
         """Basic impl for form processing in a widget"""
@@ -108,66 +87,30 @@ class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
-
+        
         'addable' : 0, # create createObject link for every addable type
         'destination' : None, # may be name of method on instance or string.
-                              # destination is where createObject is invoked
+                              # destination is relative to portal root
         })
 
     def addableTypes(self, instance, field):
         """Returns a dictionary which maps portal_type to its human readable
         form."""
-        def lookupDestinationsFor(typeinfo, tool):
-            """
-            search where the user can add a typeid instance
-            """
-            purl = getToolByName(instance, 'portal_url')
-            destinations = []
-            if typeinfo.globalAllow():
-                for registeredType in tool.listTypeInfo():
-                    if registeredType.globalAllow() or \
-                        typeinfo.getId() in registeredType.allowed_content_types:
-                        for brain in instance.portal_catalog(
-                            portal_type=registeredType.getId(),
-                            ):
-                            obj = brain.getObject()
-                            if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
-                                break
-                            destinations.append(purl.getRelativeUrl(obj))
-            else:
-                for registeredType in tool.listTypeInfo():
-                    if not registeredType.globalAllow() and \
-                        typeinfo.getId() in registeredType.allowed_content_types:
-                            for brain in instance.portal_catalog(
-                                portal_type=registeredType.getId(),
-                                ):
-                                obj = brain.getObject()
-                                if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
-                                    break
-                                destinations.append(purl.getRelativeUrl(obj))
-            return destinations
-
         tool = instance.portal_types
-        types = []
+        value = {}
 
         for typeid in field.allowed_types:
             info = tool.getTypeInfo(typeid)
             if info is None:
                 raise ValueError, 'No such portal type: %s' % typeid
 
-            value = {}
-            value['id'] = typeid
-            value['name'] = info.Title()
-            destinations = (not self.destination) and \
-                lookupDestinationsFor(info, tool) or []
-            value['destinations'] = destinations
-            types.append(value)
+            value[typeid] = info.Title()
 
-        return types
+        return value
 
     def getDestination(self, instance):
+        purl = getToolByName(instance, 'portal_url')
         if not self.destination:
-            purl = getToolByName(instance, 'portal_url')
             return purl.getRelativeUrl(aq_parent(instance))
         else:
             value = getattr(aq_base(instance), self.destination,
@@ -175,7 +118,7 @@ class ReferenceWidget(TypesWidget):
             if callable(value):
                 value = value()
 
-            return value
+            return purl.getPortalPath() + value
 
 
 class ComputedWidget(TypesWidget):
@@ -232,9 +175,6 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
-        'helper_js': ('jscalendar/calendar_stripped.js',
-                      'jscalendar/calendar-en.js'),
-        'helper_css': ('jscalendar/calendar-system.css',),
         })
 
 class SelectionWidget(TypesWidget):

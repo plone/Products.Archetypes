@@ -26,7 +26,7 @@ Requires
 
   Plone 2.0+
   CMF 1.4+
-  Zope 2.6.1+
+  Zope 2.7.0+
 
   CMFFormController (from collective CVS)
 
@@ -35,10 +35,6 @@ Requires
   directory. Installing generator and validation as Python package is not longer
   supported by Archetypes. If you have installed them as Python package they are
   silently ignored.
-
-  You should also install the I18NTExtIndexNG product if you
-  want to use the i18n content features of archetypes. All that
-  products are also available on SF Archetypes CVS.
 
 Quickstart
 

@@ -41,7 +41,6 @@ connectors = {}
 cleanup = {}
 
 try:
-    raise ImportError
     from Products.ZGadflyDA.DA import Connection
     connectors['Gadfly'] = Connection(id=connection_id,
                                       title='connection',
@@ -49,8 +48,10 @@ try:
                                       connection_string='demo',
                                       check=1, # connect immediatly
                                       )
-except ImportError:
-    pass
+#except ImportError:
+#    pass
+except:
+    Xprint('Failed to import ZGadFlyDA')
 
 
 try:

@@ -1,12 +1,12 @@
-from types import StringType
 import inspect
 import os, os.path
 import sys
 import traceback
 import pprint
+from types import StringType
 from zLOG import LOG, INFO, DEBUG, ERROR
 
-from config import DEBUG, PKG_NAME
+from Products.Archetypes.config import DEBUG, PKG_NAME
 
 
 if os.name == 'posix':

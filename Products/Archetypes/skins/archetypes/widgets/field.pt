@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      lang="en"
+      xml:lang="en-US"
+      lang="en-US"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
@@ -12,21 +12,19 @@
     <metal:base_view_macro define-macro="base_view"
                            tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
                                        field_macros here/widgets/field/macros;
-                                       label_macro view_macros/label | label_macro | field_macros/label;
-                                       data_macro view_macros/data | data_macro | field_macros/data;">
-      <tal:if_perm condition="python:'view' in widget.modes and
-                                     'r' in field.mode and
-                                     field.checkPermission('r',here)">
-        <tal:if_use_label condition="use_label | nothing">
+                                       label_macro view_macros/label|label_macro|field_macros/label;
+                                       data_macro view_macros/data|data_macro|field_macros/data;">
+      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
+        <tal:if_use_label condition="use_label|nothing">
           <metal:use_label use-macro="label_macro" />
         </tal:if_use_label>
+	<metal:use_data use-macro="data_macro|default" />
       </tal:if_perm>
-      <metal:use_data use-macro="data_macro | default" />
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
       <label tal:content="python:widget.Label(here) + ':'">Field</label>
-      <span tal:condition="field/workflowable | nothing"
+      <span tal:condition="field/workflowable|nothing"
             tal:omit-tag="">
         (
         <a href="#"
@@ -52,17 +50,14 @@
     </div>
 
     <metal:define define-macro="edit"
-                  tal:define="visState python:widget.isVisible(here, mode);
+                  tal:define="visState python: widget.isVisible(here, mode);
                               edit_accessor python:field.getEditAccessor(here);
                               value python:widget.populate and edit_accessor and edit_accessor() or '';
                               value python:widget.postback and request.get(fieldName, value) or value;
-                              visCondition python:field.widget.testCondition(here, portal, template);
                               error_id python:errors.get(fieldName)">
-      <tal:condition condition="python:visState == 'visible' and visCondition">
+      <tal:condition condition="python: visState == 'visible'">
         <div class="field"
-             tal:condition="python:'edit' in widget.modes and
-                                   'w' in field.mode and
-                                   field.checkPermission('w',here)"
+             tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)"
              tal:attributes="class python:test(error_id, 'field error', 'field')">
           <label i18n:translate=""
                  tal:content="python:widget.Label(here)"
@@ -82,7 +77,7 @@
           </div>
 
           <div class="formHelp">
-            <span tal:condition="field/workflowable | nothing"
+            <span tal:condition="field/workflowable|nothing"
                   tal:omit-tag="">
               State:
               <a href="#"
@@ -95,9 +90,7 @@
                 review_state
               </a>
             </span>
-            <span tal:condition="python:getattr(widget, 'show_content_type', 0) and
-                                        hasattr(field, 'getContentType') and
-                                        field.getContentType(here)"
+            <span tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
                   tal:omit-tag="">
               Content Type: <span tal:replace="python:field.getContentType(here)" />
             </span>
@@ -110,7 +103,7 @@
         </div>
       </tal:condition>
 
-      <tal:condition condition="python:visState == 'hidden' or not visCondition">
+      <tal:condition condition="python: visState == 'hidden'">
         <metal:use use-macro="here/widgets/field/macros/hidden"/>
       </tal:condition>
     </metal:define>

@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en"
-      lang="en"
+      xml:lang="en-US"
+      lang="en-US"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
@@ -9,19 +9,19 @@
   <body>
     <div metal:fill-slot="main">
       <metal:main_macro define-macro="main"
-            tal:define="portal_type python:here.getPortalTypeName().lower();
-            base_macros here/base/macros;
-            view_template python:'%s_view' % portal_type;
-            view_macros python:path('here/%s/macros|nothing' % view_template);
-            header_macro view_macros/header | header_macro | base_macros/header;
-            body_macro view_macros/body | body_macro | base_macros/body;
-            footer_macro view_macros/footer | footer_macro | base_macros/footer;
-            errors python:request.get('errors', {})">
-
-        <metal:use_header use-macro="header_macro" />
-        <metal:use_body use-macro="body_macro" />
-        <metal:use_footer use-macro="footer_macro" />
-
+			tal:define="portal_type python:here.getPortalTypeName().lower();
+			base_macros here/base/macros;
+			view_template python:'%s_view' % portal_type;
+			view_macros python:path('here/%s/macros|nothing' % view_template);
+			header_macro view_macros/header|header_macro|base_macros/header;
+			body_macro view_macros/body|body_macro|base_macros/body;
+			footer_macro view_macros/footer|footer_macro|base_macros/footer;
+			errors python:request.get('errors', {})">
+	<metal:use_header use-macro="header_macro" />
+	<div>
+	  <metal:use_body use-macro="body_macro" />
+	</div>
+	<metal:block use-macro="footer_macro" />
       </metal:main_macro>
     </div>
   </body>
