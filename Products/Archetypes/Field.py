@@ -177,14 +177,12 @@ class Field(DefaultLayerContainer):
                 log("WARNING: no validator %s for %s" % (v,
                 self.getName()))
 
-    def validate(self, value, **kwargs):
+    def validate(self, value, instance, errors={}, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-        errors = kwargs['errors']
-        instance = kwargs['instance']
         name = self.getName()
 
         if errors and errors.has_key(name):
