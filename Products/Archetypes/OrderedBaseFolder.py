@@ -136,8 +136,11 @@ class OrderedContainer:
     # the 2.7 specific class OSF.OrderedContainer.OrderedContainer
 
     security.declareProtected(ModifyPortalContent, 'moveObjectsByDelta')
-    def moveObjectsByDelta(self, ids, delta):
+    def moveObjectsByDelta(self, ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
+        
+        XXX zope 2.7 has a new argument subset_ids which isn't handled by this
+        implementation
         """
         if type(ids) is StringType:
             ids = (ids,)

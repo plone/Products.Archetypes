@@ -14,7 +14,7 @@ from Products.Archetypes.Field import *
 from Products.PortalTransforms.MimeTypesRegistry import MimeTypesRegistry
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.PortalTransforms.data import datastream
-instance = Dummy('foo')
+instance = Dummy()
 
 class FakeTransformer:
     def __init__(self, expected):
@@ -121,7 +121,7 @@ class UnicodeBaseUnitTest(ArchetypesTestCase):
         """check the string given to the transformer is encoded using its
         original encoding, and finally returned using the default charset
         """
-        instance = Dummy('bar')
+        instance = Dummy()
         instance.aq_parent = None
         instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(instance, 'text/plain')

@@ -1,6 +1,7 @@
 import types
 
 from Products.Archetypes.utils import className
+from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
 def getDoc(klass):
@@ -46,7 +47,6 @@ class FieldDescription:
                  title='', description=''):
         self.id = className(klass)
         self.klass = klass
-        self.type = klass._properties.get('type', None)
         default_widget = default_widget or klass._properties.get('widget', None)
         if default_widget is None:
             raise ValueError, '%r Must have a default_widget' % klass
@@ -87,7 +87,6 @@ class WidgetDescription:
         self.title = title or klass.__name__
         self.description = description or getDoc(klass)
         self.used_for = used_for
-
 
     def properties(self):
         from Products.Archetypes.Registry import getPropertyType
@@ -182,7 +181,6 @@ class TypeRegistry:
         pass
 
     def items(self):
-        from Products.Archetypes.ArchetypeTool import listTypes
         return [(className(t['klass']),
                  TypeDescription(t['klass'],
                                  title=t['name'],

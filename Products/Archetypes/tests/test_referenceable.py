@@ -112,6 +112,47 @@ class ReferenceableTests(ArcheSiteTestCase):
         assert a.getRefs() == [b]
         assert c.getBRefs() == []
 
+    def test_back_relationships(self):
+        site = self.getPortal()
+
+        account_id = 'caixa'
+        invoice_id = 'fatura'
+        payment_id = 'entrada'
+        future_payment_id = 'cta_receber'
+        payment2_id = 'quitacao'
+
+        account = makeContent( site, portal_type='DDocument',title='Account', id=account_id)
+        invoice = makeContent( site, portal_type='DDocument',title='Invoice', id=invoice_id)
+        payment = makeContent( site, portal_type='DDocument',title='Payment', id=payment_id)
+        future_payment = makeContent( site, portal_type='DDocument',title='Future Payment', id=future_payment_id)
+        payment2 = makeContent( site, portal_type='DDocument',title='Payment 2', id=payment2_id)
+
+        invoice.addReference(payment, "Owns")
+        invoice.addReference(future_payment, "Owns")
+        future_payment.addReference(payment2, "Owns")
+        payment.addReference(account, "From")
+        payment2.addReference(account, "From")
+
+        brels = account.getBRelationships()
+        assert brels == ['From']
+        brefs = account.getBRefs('From')
+        assert brefs == [payment, payment2]
+
+        brels = payment.getBRelationships()
+        assert brels == ['Owns']
+        brefs = payment.getBRefs('Owns')
+        assert brefs == [invoice]
+
+        brels = payment2.getBRelationships()
+        assert brels == ['Owns']
+        brefs = payment2.getBRefs('Owns')
+        assert brefs == [future_payment]
+
+        invoice.deleteReference(payment, "Owns")
+
+        assert invoice.getRefs() == [future_payment]
+        assert payment.getBRefs() == []
+
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
         site = self.getPortal()

@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.12.1 2004/04/21 16:29:01 bcsaller Exp $
+# $Id: ArchetypesTestCase.py,v 1.5 2003/12/06 16:43:25 dreamcatcher Exp $
 
 from Testing import ZopeTestCase
 
@@ -25,7 +25,6 @@ ZopeTestCase.installProduct('Archetypes', 1)
 ZopeTestCase.installProduct('ArchExample', 1)
 ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
 ZopeTestCase.installProduct('PortalTransforms', 1)
-ZopeTestCase.installProduct('ProxyIndex', 1)
 
 class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
     pass

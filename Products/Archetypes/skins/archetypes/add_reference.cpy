@@ -34,14 +34,7 @@ if (not state.kwargs.get('reference_source_url') and
         context=context,
         portal_status_message=portal_status_message)
 
-# save data form, portal_factory will use that later, when back
-# hey, don't forget to increment object number for sessions
-form_data = {'HTTP_REFERER':REQUEST.get('lastest_referer', None)}
-for field in context.schema.values():
-    fieldname = field.getName()
-    if REQUEST.has_key(fieldname):
-        form_data[fieldname] = REQUEST.get(fieldname)
-REQUEST.SESSION.set(context.getId(), form_data)
+context.session_save_form()
 
 fieldset = REQUEST.get('fieldset', 'default')
 
@@ -70,19 +63,6 @@ if context.portal_factory.getFactoryTypes().has_key(add_reference.type):
 else:
     destination_context.invokeFactory(add_reference.type, new_id)
     reference_object = getattr(destination_context, new_id)
-
-ref = reference_object.UID()
-
-# If the field is multiValued, we must pass the existing
-# references in addition to the new one.
-#if field.multiValued:
-#    existing = tuple(accessor())
-#    ref = (ref,)
-#    ref = existing and ref + existing or ref
-
-# set a reference to the newly-created object
-# ANDRE: and if I cancel the newly-created object?
-#mutator(ref)
 
 info = {'reference_source_field':add_reference['field'],
         'reference_source_url':portal.portal_url.getRelativeUrl(context),

@@ -1,7 +1,7 @@
 from Products.Archetypes.config import *
 from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes import Validators
 from Products.Archetypes.utils import DisplayList
-
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
@@ -48,7 +48,6 @@ types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
-    from Products.Archetypes import Validators
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,

@@ -1,11 +1,17 @@
 <!--
 function <dtml-with field><dtml-var getName></dtml-with>_show() {
-    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').style.display='none';
+    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+        value = 'Hide Add Form';
+        onclick = <dtml-with field><dtml-var getName></dtml-with>_hide;
+    }
     document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='block';
 }
 
 function <dtml-with field><dtml-var getName></dtml-with>_hide() {
-    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').style.display='block';
+    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+        value = 'Add New <dtml-var "widget.label">';
+        onclick = <dtml-with field><dtml-var getName></dtml-with>_show;
+    }
     document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='none';
 }
 
