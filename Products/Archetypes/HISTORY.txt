@@ -14,6 +14,11 @@
  * Fixed typo in Field.Field.getContentType
    [tiran]
 
+ * Fixed Field.ImageField.rescaleOriginal to always return a binary string. This
+   fixes the problem with original_size: [ 1004323 ] "IOError: cannot identify
+   image file" when uploading image
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

@@ -1778,7 +1778,8 @@ class ImageField(FileField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    value, format = self.scale(data,w,h)
+                    fvalue, format = self.scale(data,w,h)
+                    value = fvalue.read()
         return value
 
     security.declarePrivate('createOriginal')
