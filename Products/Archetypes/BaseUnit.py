@@ -1,5 +1,4 @@
 from AccessControl import ClassSecurityInfo
-from Acquisition import Explicit, aq_base
 from Globals import InitializeClass
 from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
@@ -52,7 +51,7 @@ class newBaseUnit(File):
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = aq_base(mimetype)
+        self.mimetype = mimetype
         if not mimetype.binary:
             assert type(data) is type(u'')
             if encoding is None:
