@@ -1,6 +1,12 @@
+import sys, traceback, os
+from types import *
+
+from OFS.ObjectManager import BadRequestException
+from Globals import package_home
+
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory, \
-     createDirectoryView, manage_listAvailableDirectories
+from Products.CMFCore.DirectoryView import addDirectoryViews, \
+     registerDirectory, createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
@@ -9,18 +15,12 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
-
-from Products.PortalTransforms.Extensions.Install import install as install_portal_transforms
-
-from OFS.ObjectManager import BadRequestException
-from Globals import package_home
-import sys, traceback, os
-from types import *
-
-from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
-
-
 from Products.Archetypes.config import *
+
+from Products.PortalTransforms.Extensions.Install \
+     import install as install_portal_transforms
+
+from Products.ZCatalog.ZCatalog import manage_addZCatalog
 
 def install_dependencies(self, out):
     qi=getToolByName(self, 'portal_quickinstaller')
@@ -40,11 +40,11 @@ def install_tools(self, out):
     install_catalog(self, out)
 
 
-def install_catalog(self, out)
+def install_catalog(self, out):
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
-        addCatalog = self.manage_addProduct['ZCatalog'].manage_addZCatalog
-        addCatalog(UID_CATALOG, 'Archetypes UID Catalog')
+        addCatalog = manage_addZCatalog
+        addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
 
         for indexName, indexType in ( ('UID', 'FieldIndex'),

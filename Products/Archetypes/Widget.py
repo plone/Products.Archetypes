@@ -2,6 +2,7 @@ from Acquisition import aq_base
 
 from debug import log
 from utils import className, unique, capitalize
+from types import FileType
 
 try:
     from generator.widget import macrowidget
@@ -54,12 +55,11 @@ class TypesWidget(macrowidget):
         state = vis_dic.get(mode, state)
         return state
 
-    def process_form(self, instance, field, form):
+    def process_form(self, instance, field, form, empty_marker=None):
         """Basic impl for form processing in a widget"""
-        value = form.get(field.getName())
-        if not value: return None
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker: return empty_marker
         return value, {}
-
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -104,14 +104,14 @@ class TextAreaWidget(TypesWidget):
         'format': 0,
         })
 
-    def process_form(self, instance, field, form):
+    def process_form(self, instance, field, form, empty_marker=None):
         """handle text formatting"""
         text_format = None
         value = None
         # text field with formatting
-        value = form.get(field.getName())
-        if not value:
-            return None
+        value = form.get(field.getName(), empty_marker)
+
+        if value is empty_marker: return empty_marker
 
         if hasattr(field, 'allowable_content_types') and \
                field.allowable_content_types:
@@ -167,11 +167,16 @@ class KeywordWidget(TypesWidget):
         'roleBasedAdd' : 1,
         })
 
-    def process_form(self, instance, field, form):
-        """process keywords from form where this widget has a list of available keywords and any new ones"""
+    def process_form(self, instance, field, form, empty_marker=None):
+        """process keywords from form where this widget has a list of
+        available keywords and any new ones"""
         name = field.getName()
-        existing_keywords = form.get('%s_existing_keywords' % name, [])
-        new_keywords = form.get('%s_keywords' % name, [])
+        existing_keywords = form.get('%s_existing_keywords' % name, empty_marker)
+        if existing_keywords is empty_marker:
+            return empty_marker
+        new_keywords = form.get('%s_keywords' % name, empty_marker)
+        if new_keywords is empty_marker:
+            return empty_marker
 
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
@@ -184,16 +189,23 @@ class FileWidget(TypesWidget):
         'macro' : "widgets/file",
         })
 
-    def process_form(self, instance, field, form):
+    def process_form(self, instance, field, form, empty_marker=None):
         """form processing that deals with binary data"""
         value = None
-        fileobj = form.get('%s_file' % field.getName())
-        if fileobj:
-            filename = getattr(fileobj, 'filename', '')
-            if filename != '':
-                value  =  fileobj
+
+        fileobj = form.get('%s_file' % field.getName(), empty_marker)
+
+        if fileobj is empty_marker: return empty_marker
+
+        filename = getattr(fileobj, 'filename', '') or \
+                   isinstance(fileobj, FileType) and \
+                   getattr(fileobj, 'name', '')
+
+        if filename != '':
+            value = fileobj
 
         if not value: return None
+
         return value, {}
 
 
@@ -207,8 +219,9 @@ class RichWidget(TypesWidget):
         'format': 1,
         })
 
-    def process_form(self, instance, field, form):
-        """complex form processing, includes handling for text formatting and file objects"""
+    def process_form(self, instance, field, form, empty_marker=None):
+        """complex form processing, includes handling for text
+        formatting and file objects"""
         # This is basically the old processing chain from base object
         text_format = None
         isFile = 0
@@ -218,21 +231,28 @@ class RichWidget(TypesWidget):
         if hasattr(field, 'allowable_content_types') and \
            field.allowable_content_types:
             #was a mimetype specified
-            text_format = form.get("%s_text_format" % field.getName())
+            text_format = form.get("%s_text_format" % field.getName(),
+                                   empty_marker)
 
         # or a file?
-        fileobj = form.get('%s_file' % field.getName())
+        fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
-        if fileobj:
-            filename = getattr(fileobj, 'filename', '')
-            if filename != '':
-                value  =  fileobj
-                isFile = 1
+        if fileobj is empty_marker:
+            return empty_marker
+
+        filename = getattr(fileobj, 'filename', '') or \
+                   isinstance(fileobj, FileType) and \
+                   getattr(fileobj, 'name', '')
+
+        if filename != '':
+            value = fileobj
+            isFile = 1
 
         if not value:
-            value = form.get(field.getName())
+            value = form.get(field.getName(), empty_marker)
 
-        if value is None: return None
+        if value is empty_marker: return empty_marker
+
         kwargs = {}
         kwargs['mimetype'] = text_format
         if instance.isBinary(field.getName()) and not isFile:
@@ -250,10 +270,10 @@ class IdWidget(TypesWidget):
         'is_autogenerated' : 'isIDAutoGenerated',  # script used to determine if an ID is autogenerated
         })
 
-    def process_form(self, instance, field, form):
+    def process_form(self, instance, field, form, empty_marker=None):
         """the id might be hidden by the widget and not submitted"""
-        value = form.get('id')
-        if not value or not value.strip():
+        value = form.get('id', empty_marker)
+        if not value or value is empty_marker or not value.strip():
             value = instance.getId()
         return value,  {}
 
@@ -264,18 +284,23 @@ class ImageWidget(FileWidget):
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
-    def process_form(self, instance, field, form):
+    def process_form(self, instance, field, form, empty_marker=None):
         """form processing that deals with image data (and its delete case)"""
         value = None
         ## check to see if the delete hidden was selected
-        delete = form.get('%s_delete' % field.getName())
-        if delete is not None: return "DELETE_IMAGE", {}
+        delete = form.get('%s_delete' % field.getName(), empty_marker)
+        if delete is not empty_marker: return "DELETE_IMAGE", {}
 
-        fileobj = form.get('%s_file' % field.getName())
-        if fileobj:
-            filename = getattr(fileobj, 'filename', '')
-            if filename != '':
-                value  =  fileobj
+        fileobj = form.get('%s_file' % field.getName(), empty_marker)
+
+        if fileobj is empty_marker: return empty_marker
+
+        filename = getattr(fileobj, 'filename', '') or \
+                   isinstance(fileobj, FileType) and \
+                   getattr(fileobj, 'name', '')
+
+        if filename != '':
+            value = fileobj
 
         if not value: return None
         return value, {}

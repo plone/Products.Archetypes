@@ -33,7 +33,7 @@ class BaseSchemaTest( unittest.TestCase ):
         field = dummy.getField('id')
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
-        self.failUnless(field.required == 1)
+        self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
         self.failUnless(field.vocabulary == ())

@@ -25,6 +25,8 @@ from Renderer import renderer
 
 from Products.Archetypes.Marshall import RFC822Marshaller
 
+_marker = []
+
 content_type = Schema((
     StringField('id',
                 required=0, ## Still actually required, but
@@ -372,9 +374,12 @@ class BaseObject(Implicit):
             ## The product of the widgets processing should be:
             ##   (value, **kwargs) which will be passed to the mutator
             ##   or None which will simply pass
+            if field.getName() == 'filefield':
+                import pdb
+                pdb.set_trace()
             widget = field.widget
-            result = widget.process_form(self, field, form)
-            if not result: continue
+            result = widget.process_form(self, field, form, empty_marker=_marker)
+            if result is _marker or result is None: continue
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)

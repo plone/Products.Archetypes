@@ -7,14 +7,14 @@ try:
 except: # Zope > 2.6
     pass
 
+from StringIO import StringIO
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import ReferenceField
 from Products.Archetypes.utils import DisplayList
-
-import unittest
 
 schema = Schema((ReferenceField('test',
                                 allowed_types='Test',
@@ -25,6 +25,9 @@ class Dummy(BaseContent):
 
     def Title(self):
         return self.getId()
+
+    def _setObject(self, id, object):
+        setattr(self, id, object)
 
 class DummyBrain:
 
@@ -62,7 +65,7 @@ sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
-class VocabularyTest( unittest.TestCase ):
+class VocabularyTest(unittest.TestCase):
 
     def setUp(self):
         registerType(Dummy)
@@ -70,6 +73,7 @@ class VocabularyTest( unittest.TestCase ):
         self._dummy = Dummy(oid='dummy')
         brains = [DummyBrain(*args) for args in sample_data]
         self._dummy.portal_catalog = DummyCatalog(brains)
+        self._dummy.uid_catalog = DummyCatalog(brains)
         self._dummy.archetype_tool = DummyArchTool()
         self._dummy.initializeArchetype()
 

@@ -7,13 +7,14 @@ try:
 except: # Zope > 2.6
     pass
 
+import glob
+from os import curdir
+from os.path import join, abspath, dirname, split
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from Products.Archetypes.BaseUnit import BaseUnit
 from StringIO import StringIO
-from os.path import join, abspath, dirname, split
-from os import curdir
-import glob
 from utils import normalize_html, showdiff
 
 from test_classgen import Dummy, gen_dummy
