@@ -23,13 +23,19 @@
 	<div metal:fill-slot="widget_body">
 	  <textarea  
 		    tabindex="#"
-		    tal:attributes="name fieldName;
-	    value value;
+		    tal:attributes="name string:$fieldName:lines;
 	    cols widget/cols;
 	    rows widget/rows;
 	    tabindex tabindex/next;
-	    "><span tal:repeat="item value" tal:replace="python: '%s\n' % item"></span></textarea>
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
+	    "><span tal:replace="python:'\n'.join(value)"></span></textarea>
 	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/lines/macros/edit">
       </div>
     </div>
 

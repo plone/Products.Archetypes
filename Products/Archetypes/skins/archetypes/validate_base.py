@@ -1,4 +1,4 @@
-## Script (Python) "validate_DDocument_edit"
+## Script (Python) "validate_base"
 ##bind container=container
 ##bind context=context
 ##bind namespace=
@@ -7,7 +7,7 @@
 ##parameters=
 ##
 errors = {}
-errors = context.validate(REQUEST=context.REQUEST, errors=errors)
+errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
 
 ## TODO: Update to use ScriptStatus Object
 if errors:

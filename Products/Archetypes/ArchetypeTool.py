@@ -1,3 +1,4 @@
+from __future__ import nested_scopes
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
@@ -14,17 +15,17 @@ import sys
 import time
 from ZODB.PersistentMapping import PersistentMapping
 
+from interfaces.base import IBaseObject, IBaseFolder
+from interfaces.referenceable import IReferenceable
+from interfaces.metadata import IExtensibleMetadata
 
-from interfaces.base import IBaseObject
 from ClassGen import generateClass
 from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME
 from debug import log, log_exc
 from utils import capitalize, findDict, DisplayList, unique
-import BaseContent
-import ExtensibleMetadata
-
+from Renderer import renderer
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
@@ -45,13 +46,13 @@ base_factory_type_information = (
                        'action': 'base_view',
                        'permissions': (CMFCorePermissions.View,),
                        },
-                     
+
                      { 'id': 'edit',
                        'name': 'Edit',
                        'action': 'portal_form/base_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
-                     
+
                      { 'id': 'metadata',
                        'name': 'Properties',
                        'action': 'portal_form/base_metadata',
@@ -63,8 +64,8 @@ base_factory_type_information = (
                        'action': 'portal_form/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
-    
-                     ) 
+
+                     )
       }, )
 
 
@@ -78,9 +79,26 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "content_icon"):
         fti[0]['content_icon'] = klass.content_icon
 
+    if hasattr(klass, "global_allow"):
+        allow = klass.global_allow
+        fti[0]['global_allow'] = allow
+
     if hasattr(klass, "allowed_content_types"):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed
+        fti[0]['filter_content_types'] = allowed and 1 or 0
+
+    if hasattr(klass, "filter_content_types"):
+             filter = klass.filter_content_types
+             fti[0]['filter_content_types'] = filter
+
+    if not IReferenceable.isImplementedByInstancesOf(klass):
+        refs = findDict(fti[0]['actions'], 'id', 'references')
+        refs['visible'] = 0
+
+    if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
+        refs = findDict(fti[0]['actions'], 'id', 'metadata')
+        refs['visible'] = 0
 
 def generateCtor(type, module):
     name = capitalize(type)
@@ -88,23 +106,24 @@ def generateCtor(type, module):
 def add%s(self, id, **kwargs):
     o = %s(id)
     self._setObject(id, o)
-    o.initalizeArchetype(**kwargs)
+    o = getattr(self, id)
+    o.initializeArchetype(**kwargs)
 """ % (name, type)
 
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
-    
+
 
 def process_types(types, pkg_name):
     content_types = ()
     constructors  = ()
     ftis          = ()
 
-        
-    for klass in types:
-        module = sys.modules[klass.__module__]
-        type   = klass.__name__
-        
+    for rti in types:
+        typeName = rti['name']
+        klass  = rti['klass']
+        module = rti['module']
+
         if hasattr(module, "factory_type_information"):
             fti = module.factory_type_information
         else:
@@ -113,13 +132,12 @@ def process_types(types, pkg_name):
 
         # Add a callback to modifty the fti
         if hasattr(module, "modify_fti"):
-            module.modify_fti(fti)
-            
-        ctor   = getattr(module, "add%s" % capitalize(type),
+            module.modify_fti(fti[0])
+        ctor   = getattr(module, "add%s" % capitalize(typeName),
                          None)
         if ctor is None:
-            ctor = generateCtor(type, module)
-            
+            ctor = generateCtor(typeName, module)
+
         content_types += (klass,)
         constructors  += (ctor,)
         ftis   += fti
@@ -137,33 +155,36 @@ def _guessPackage(base):
             base = base[:idx]
     return base
 
-    
-def registerType(type, package=None):
-    if not package: package = _guessPackage(type.__module__)
+
+def registerType(klass, package=None):
+    if not package: package = _guessPackage(klass.__module__)
 
     ## registering a class results in classgen doing its thing
     ## Set up accessor/mutators and sane meta/portal_type
-    generateClass(type) 
-    
+    generateClass(klass)
+
     data = {
-        'klass' : type,
-        'name'  : type.meta_type,
+        'klass' : klass,
+        'name'  : klass.meta_type,
         'package' : package,
-        'type' : type.type, ## XXX to schema
+        'module' : sys.modules[klass.__module__],
+        'schema' : klass.schema,
+        # backward compatibility, remove later
+        'type' : klass.schema,
         }
-    _types[type.meta_type] = data
+    _types[klass.meta_type] = data
 
 def listTypes(package=None):
     values = _types.values()
     if package:
         values = [v for v in values if v['package'] == package]
-        
+
     return values
 
 def getType(name):
     return _types[name]
 
-class Schema(SimpleItem):
+class TTWSchema(SimpleItem):
     def __init__(self, oid, text=None):
         self.id = oid
         self.text = text
@@ -175,14 +196,19 @@ class Schema(SimpleItem):
         """Take the text of a schema and produce a field list
         by evaling in a preped namespace"""
         ns = {}
+        # We need to import these here to avoid circular imports
+        import BaseContent
+        import ExtensibleMetadata
+
         exec "from Products.Archetypes.Form import *" in ns
         exec "from Products.Archetypes.Field import *" in ns
 
         exec text in ns
         schema = ns['schema']
-        schema = BaseContent.BaseContent.type + ExtensibleMetadata.ExtensibleMetadata.type + schema
+        schema = BaseContent.BaseContent.Schema() + \
+                 ExtensibleMetadata.ExtensibleMetadata.Schema() + schema
         self.schema = schema
-        
+
     def register(self, typesTool):
         #update reg with types tool
         #update actions
@@ -198,8 +224,20 @@ class Schema(SimpleItem):
         t = getattr(typesTool, self.id, None)
         if t:
             process_types((t,), PKG_NAME)
-            
-    
+
+
+class WidgetWrapper:
+    """ Wrapper used for drawing widgets without an instance (for ex.,
+    for a search form) """
+
+    security = ClassSecurityInfo()
+    security.declareObjectPublic()
+    def __init__(self, **args):
+        self._args = args
+
+    def __call__(self):
+        __traceback_info__ = self._args
+        return renderer.render(**self._args)
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     SQLStorageConfig, Folder, ReferenceEngine):
@@ -214,28 +252,41 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         ))
 
     manage_options=(
-        (Folder.manage_options[0],) + 
+        (Folder.manage_options[0],) +
         (
         { 'label'  : 'Templates',
           'action' : 'manage_templateForm',
           },
-        
+
         { 'label'  : 'Introspect',
           'action' : 'manage_debugForm',
           },
-        
+
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
-           },        
+           },
         )  + SQLStorageConfig.manage_options
         )
 
     manage_uids = PageTemplateFile('viewContents', _www)
     manage_addSchemaForm = PageTemplateFile('addSchema', _www)
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
-    manage_generateForm = PageTemplateFile('generateView', _www)
     manage_debugForm = PageTemplateFile('generateDebug', _www)
-    
+    manage_dumpSchemaForm = PageTemplateFile('schema', _www)
+
+    def manage_dumpSchema(self, REQUEST=None):
+        """XML Dump Schema of passed in class"""
+        from Products.Archetypes.Schema import getSchemata
+        package = REQUEST.get('package', '')
+        type_name = REQUEST.get('type_name', '')
+        spec = self.getTypeSpec(package, type_name)
+        type = self.lookupType(package, type_name)
+        options = {}
+        options['classname'] = spec
+        options['schematas'] = getSchemata(type['klass'])
+        REQUEST.RESPONSE.setHeader('Content-Type', 'text/xml')
+        return self.manage_dumpSchemaForm(**options)
+
     def __init__(self):
         ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
@@ -253,7 +304,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def lookupTemplates(self, instance=None):
         results = []
-        if type(instance) != type(''):
+        if type(instance) is not StringType:
             instance = instance.portal_type
 
         results += self._templates.get(instance, {}).items()
@@ -275,22 +326,28 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
             if v != 0: return v
-            c = cmp(a['type'].__class__.__name__,
-                    b['type'].__class__.__name__)
+            c = cmp(a['klass'].__class__.__name__,
+                    b['klass'].__class__.__name__)
 
             if c == 0:
                 return cmp(a['package'], b['package'])
             return c
-            
+
         values = listTypes()
         values.sort(type_sort)
         return values
 
+    def getTypeSpec(self, package, type):
+        t = self.lookupType(package, type)
+        module = t['klass'].__module__
+        klass = t['name']
+        return '%s.%s' % (module, klass)
+
     def listTypes(self, package=None):
-        """just the names"""
+        """just the class"""
         return [t['klass'] for t in listTypes(package)]
-    
-    
+
+
     def lookupType(self, package, type):
         types = self.listRegisteredTypes()
         for t in types:
@@ -298,19 +355,57 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if t['name'] == type:
                 return t
         return None
-        
+
     def getSchema(self, sid):
         return self._schemas[sid]
 
+    def getSearchWidgets(self, package=None):
+        """empty widgets for searching"""
+
+        # possible problem: assumes fields with same name can be
+        # searched with the same widget
+
+        widgets = {}
+        for t in self.listTypes(package):
+            instance = t('fake')
+            instance._is_fake_instance = 1
+            instance.schema = instance.schema.copy()
+            instance = instance.__of__(self)
+            for field in instance.schema.fields():
+                if field.index and not widgets.has_key(field.name):
+                    field.required = 0
+                    field.addable = 0 # for ReferenceField
+                    if not isinstance(field.vocabulary, DisplayList):
+                        field.vocabulary = field.Vocabulary(instance)
+                    if '' not in field.vocabulary.keys():
+                        field.vocabulary = DisplayList([('', '<any>')]) + \
+                                           field.vocabulary
+                        field.default = ''
+                    widgets[field.name] = WidgetWrapper(field_name=field.name,
+                                                        mode='search',
+                                                        widget=field.widget,
+                                                        instance=instance,
+                                                        field=field,
+                                                        accessor=field.getDefault)
+        widgets = widgets.items()
+        widgets.sort()
+        return [widget for name, widget in widgets]
+
     ## Reference Engine Support
-    def getObject(self, uid):
+    def lookupObject(self, uid):
         object = None
         catalog = getToolByName(self, 'portal_catalog')
         result  = catalog({'UID' : uid})
         if result:
-            object = result[0].getObject()
+            object = result[0]
 
         return object
+
+    def getObject(self, uid):
+        object = self.lookupObject(uid)
+        if object:
+            return object.getObject()
+        return None
 
 
     def _rawEnum(self, callback, *args, **kwargs):
@@ -319,13 +414,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
-            if o:
-                if IBaseObject.isImplementedByInstancesOf(o):
+            if o is not None:
+                if IBaseObject.isImplementedBy(o):
                     callback(o, *args, **kwargs)
             else:
                 log("no object for brain: %s:%s" % (b,b.getURL()))
-        
-    
+
+
     def enum(self, callback, *args, **kwargs):
         catalog = getToolByName(self, 'portal_catalog')
         keys = catalog.uniqueValuesFor('UID')
@@ -362,7 +457,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         cid = self.getUidFrom(object)
         self._delReferences(cid)
         return cid
-            
+
 
     def getUidFrom(self, object):
         """return the UID for an object or None"""
@@ -376,8 +471,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def setUidOn(self, object, cid):
         if hasattr(object, "_setUID"):
             object._setUID(cid)
-            
-        
+
+
     def Content(self):
         """Return a list of all the content ids"""
         catalog = getToolByName(self, 'portal_catalog')
@@ -390,16 +485,17 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def manage_addSchema(self, id, schema, REQUEST=None):
         """add a schema to the generator tool"""
         schema = schema.replace('\r', '')
-        
+
         if not self._schemas.has_key(id):
-            s = Schema(id, schema)
+            s = TTWSchema(id, schema)
             self._schemas[id] = s
             portal_types = getToolByName(self, 'portal_types')
             s.register(portal_types)
 
         if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_workspace")
-        
+            return REQUEST.RESPONSE.redirect(self.absolute_url() + \
+                                             "/manage_workspace")
+
     def manage_templates(self, submit, REQUEST=None):
         """template mgmt method"""
         if submit == "Add Template":
@@ -420,12 +516,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
             for d, k in clean:
                 del d[k]
-                
-            
+
+
         if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_templateForm")
-        
-        
+            return REQUEST.RESPONSE.redirect(self.absolute_url() + \
+                                             "/manage_templateForm")
+
+
     def manage_doGenerate(self, sids=(), REQUEST=None):
         """(Re)generate types """
         schemas = []
@@ -436,7 +533,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             s.generate()
 
         if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_workspace")
+            return REQUEST.RESPONSE.redirect(self.absolute_url() + \
+                                             "/manage_workspace")
 
     def manage_inspect(self, UID, REQUEST=None):
         """dump some things about an object hook in the debugger for
@@ -444,14 +542,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         object = self.getObject(UID)
         #if object:
         #    import pdb;pdb.set_trace()
-        log(object, object.type, dir(object))
-        
+        log(object, object.Schema(), dir(object))
+
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() +
                                          "/manage_uids"
                                          )
-            
-    
+
     def manage_reindex(self, REQUEST=None):
         """assign UIDs to all basecontent objects"""
 
@@ -459,7 +556,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 archetype_tool.registerContent(object)
 
         self._rawEnum(_index, self)
-        
+
         return REQUEST.RESPONSE.redirect(self.absolute_url() +
                                          "/manage_uids"
                                          )
@@ -467,7 +564,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     index = manage_reindex
 
-    
 InitializeClass(ArchetypeTool)
 
 

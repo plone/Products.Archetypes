@@ -1,3 +1,314 @@
+2003-05-16  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* utils.py (DisplayList.__add__): Typo. mgsids -> msgids.
+
+	* Field.py (Field.checkExternalEditor): Add check for external
+	editor plus permission. This is to make it display the external
+	edit link only if it is enabled in plone site_properties (which
+	usually means external editor is installed and setup).
+
+	* TemplateMixin.py: Changed references from FieldList to Schema.
+
+2003-05-15  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Schema.py (Schema.validate): Dont fail if visible_ids is False
+	and no id was sent in the request.
+	Missing import :(
+
+2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* interfaces/interface.py: Trying to normalize the way interfaces
+	are imported in different versions of Zope.
+
+2003-05-13  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Extensions/utils.py (install_indexes): Changed behavior on index
+	instantiation: now uses "TextIndex|FieldIndex:schema". The change
+	is in that before this, schema was separated by a pipe, and now it
+	uses ':'.
+
+	* skins/archetypes/widgets/calendar.pt: Allow to override calendar
+	default value on search widget from request.
+
+	* Storage.py (AttributeStorage.get): Strip acquisition wrappers
+	before doing getattr, and try to add them back before returning the value.
+
+	* Field.py (FileField.set): Fixed problem with uploading
+	files. Sometimes the mime_type was being wrongly set. Added a test
+	to make sure it keeps working.
+	(ObjectField.set): Remove acquisition wrappers before going into storage.
+
+2003-05-12  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* ArchetypeTool.py (modify_fti): Get 'global_allow' from the class
+	definition, if possible.
+
+2003-05-08  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Schema.py (Schema.setDefaults): ok, we really do need callable
+	default methods but we not have the normal Field.default and the
+	Field.default_method that is a name of a method on the instance,
+	called with no args and returning the value to be used as the
+	default.
+
+2003-05-07  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
+
+	* skins/archetypes/widgets/textarea.pt: Value is not a valid
+	attribute for textareas.
+
+	* Field.py (TextField.getContentType): Changed default to None, or
+	else uploaded files of unknown type could end up as text/plain.
+
+	* skins/archetypes/widgets/rich.pt: Display 'download or edit'
+	widget.
+
+	* Field.py (Field.getAccessor): Provide a common way for finding
+	the accessor and mutator methods.
+
+	* BaseObject.py (BaseObject.isBinary): Improve testing for
+	'binaricity' of content.
+
+	* skins/archetypes/widgets/rich.pt: Dont display binary content.
+
+	* ArchetypeTool.py (modify_fti): Set filter_content_types
+	accordingly with allowed_content_types or klass attribute.
+
+	* BaseBTreeFolder.py (__getitem__): Cope with BaseBTreeFolder __getitem__.
+
+	* Field.py (FileField.set): Should really store a file, if we want
+	it to use external editor with it. This change should not break
+	existing instances, but tell me if it does.
+
+2003-05-05  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* BaseObject.py (BaseObject._processForm): Wrong property. Should
+	be isMetadata, not metadata.
+
+	* skins/archetypes/widgets/multiselection.pt: Add default value
+	for when no option was selected.
+
+2003-05-01  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ReferenceEngine.py (ReferenceEngine._addBref): There was a
+	problem with Brefs getting added more than once since an
+	assumption was violated with the addition of relationships. Fixed.
+
+2003-04-30  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ReferenceEngine.py (ReferenceEngine.addReference): changed the
+	before add/del hooks to get passed the name of the
+	relationship. Made delete take the name of the relationship and
+	introduced a slight policy change as seen in test_singleReference.
+	We record a single reference for an (object, relationship) pair,
+	but an object can keep many references to a single object with
+	different relationships. The delete case was also broken by the
+	introduction of relationship types, this has been fixed and a test
+	added.
+
+
+2003-04-30  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* BaseObject.py (BaseObject._processForm): Mispelling. metdata -> metadata.
+
+2003-04-28  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Referenceable changes: added before Add/Delete hooks for
+	target. Added getRelationships which is a list of all types of
+	relationships managed for this object.
+
+2003-04-27  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (RFC822Marshaller.demarshall): Use the mutator
+	instead of field.set().
+	(RFC822Marshaller.marshall): Add a new line.
+
+2003-04-25  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* tests/test_all.py (test_suite): Was missing a test on the test suite.
+
+2003-04-23  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Schema.py (MetadataSchema.addField): Layer was not being
+	registered, which caused it not to be initialized/cleaned.
+
+	* Storage.py (Storage.__repr__): Uniquefy Storage. Storages dont
+	have special attributes, so using two instances need to be like
+	one to initializeLayers and cleanupLayers.
+
+	* Marshall.py (Marshaller.cleanupInstance): Avoid trying to delete
+	the hook twice. XXX Need to find out why it is being called twice.
+
+	* Field.py (TextField.set): The the mime-type parameter is spelled
+	mime_type, also, the new BaseUnit doesnt accepts an instance parameter.
+
+2003-04-22  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* tests/test_referenceable.py
+	(ReferenceableTests.test_relationships): Added tests for and the
+	ability to define the relationship between references. Look at the
+	test for details but know that we can say things like:
+		a.addReference('Owns', b)
+		a.getRefs() = [..all..]
+		a.getRefs('Owns') [b]
+
+	IMPORTANT: The old storage format for reference is no longer
+	supported. It should possible to convert to the new model using a
+	script and a default relationship type though
+
+
+2003-04-22  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (Marshaller.initializeInstance): Method was not
+	matching the interface.
+	(RFC822Marshaller.marshall): Check by interface, instead of attribute.
+	(Marshaller.initializeInstance): Better initialization/cleanup.
+
+	* interfaces/layer.py (ILayerRuntime.initializeLayers): Update
+	interfaces to match the real implementation.
+
+
+2003-04-21  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* BaseContent.py (BaseContent): No ObjectManager here please.
+
+	* Field.py (ImageField): Theres no reason why this coudlnt use
+	AttributeStorage by default. Using ObjectManagedStorage breaks it
+	when using with BaseContent objects.
+
+	* tests/test_baseunit.py (BaseUnitTest.testSame): Added the same
+	tests here as on the transform package, to confirm it works with
+	the new BaseUnit.
+
+2003-04-20  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* content_driver/html4zope.py: Fixed Subtitle.
+
+2003-04-19  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (RFC822Marshaller.demarshall): Adding a bare RFC822
+	Marshaller, and fixing lots of typoes :P
+	(RFC822Marshaller.marshall): Should use instance['field_name'] to
+	reliably access fields. BaseObject.__getitem__ does the right job
+	at getting and calliing the accessor.
+
+	* content_driver/reST.py (Converter.convertData): Rendering of
+	reST was broken. It was not rendering references the right way,
+	and it didnt seem like it was doing the right thing with
+	titles. Updated to use docutils.core.publish_string.
+
+	* tests/test_baseunit.py: Added minimal test for BaseUnit.
+
+2003-04-18  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* public.py: Added BaseBTreeFolderSchema. Fixed BaseFolderSchema
+	and BaseSchema, now that we have added ExtensibleMetadata in the classes.
+
+2003-04-17  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ArchetypeTool.py (listTypes): deprecated old listTypes, but keep
+	the import working, this should avoid a class of errors coming
+	from 'near misses' on the imports
+
+
+2003-04-16  Sidnei da Silva  <sidnei@x3ng.com>
+
+        * BaseFolder.py: Add ExtensibleMetadata.schema to the Folder
+	schema. Otherwise, were dont really implement IExtensibleMetadata.
+
+	* BaseFolder.py (BaseFolder.manage_afterAdd): SkinnedFolder
+	subclasses CMFCatalogAware, so, now that Referenceable doenst
+	subclasses it anymore, we call SkinnedFolder.manage_afterAdd.
+
+	* BaseContent.py (BaseContent.manage_afterAdd): PortalContent
+	subclasses CMFCatalogAware, so, now that Referenceable doenst
+	subclasses it anymore, we call PortalContent.manage_afterAdd.
+
+	* Referenceable.py (Referenceable.manage_afterAdd): Dont subclass
+	CMFCatalogAware anymore. Some methods were being called twice,
+	because of this, and some initialization couldnt be performed
+	because it tried to catalog fields that were not being
+	initialized, and you couldnt make initialization happen first
+	because it could depend on UID being set.
+
+	* ArchetypeTool.py (modify_fti): Setting category to Folder was
+	causing bad things. We need to fix plone, because a portal_type
+	that is marked as 'use_folder_tabs' dont get tabs of the object category.
+	(modify_fti): Hide references if IReferenceable is not implemented
+	by the class.
+	(modify_fti): Hide metadata if IExtensibleMetadata is not
+	implemented by the class.
+
+	* BaseContent.py: Assert that we implement IReferenceable
+
+	* BaseFolder.py: Assert that we implement IReferenceable
+
+	* BaseObject.py: Assert that we implement IReferenceable
+
+	* interfaces/referenceable.py (IReferenceable._verifyObjectPaste):
+	Added IReferenceable interface.
+
+2003-04-15  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Made widget.Description more runtime callable by looking for an
+	optional method on the class of its name and returning its value.
+
+2003-04-15  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* skins/archetypes/widgets/lines.pt: Should be :lines, not
+	:list. Textareas dont have a value attribute.
+
+	* skins/archetypes/base_view.pt: Allow users to provide custom
+	header, body and footer macros for the the autogenerated
+	view. This happens by looking for a template named
+	'${portal_type}_view' and inside this template, looking for macros
+	named 'header', 'body' and 'footer'. The body macro overrides the
+	generated field listing. The header macro is inserted at the top,
+	replacing <h1>Title</h1> and the footer macro is inserted after
+	the field listing.
+
+	* SQLStorage.py: Forgot to import type_map from Storage.py
+
+2003-04-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* BaseBTreeFolder.py: Declare the right interfaces we implement.
+
+	* ArchetypeTool.py (modify_fti): Make folderish types actions have
+	a category of 'folder', so it works correctly with Plone.
+
+	* public.py: Make Storages and DisplayList available from public.
+
+	* SQLStorage.py: Import only what is needed from Storage.
+
+	* Storage.py (__all__): Restrict whats going to be imported so we
+	dont pollute the namespace.
+
+	* BaseObject.py (BaseObject.__getitem__): Was not playing nicely
+	with acquisition.
+
+2003-04-12  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* *.py: Removed trailing whitespace and rewrapped some long lines.
+
+	* Marshall.py (PrimaryFieldMarshaller.marshall): Fixing a broken
+	import plus moving interface declaration to interfaces subdir.
+
+2003-04-08  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ArchetypeTool.py (process_types): changed the module level fti
+	hook to pass fti[0] as its simpler for the developer
+
+2003-04-07 Sidnei da Silva <sidnei@x3ng.com>
+
+        * Made possible to have multiple fieldsets (they are called
+	schemata). Just add "schemata = 'your_fieldset_name' when
+	declaring a field. It will show up as a link on your edit form.
+
+	* Blown away validate_metadata.py and metadata_edit.py. You may
+	need to fix your portal_properties/form_properties
+	[validate_metadata -> validate_base] and
+	portal_properties/navigation_properties [metadata_edit ->
+	content_edit] on your existing sites.
+
 2003-02-11  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* Field.py (FieldList.__init__): Added the ability for FieldList
@@ -65,7 +376,7 @@
 
 	* Generator.py (Generator.__init__): All references to editable
 	are removed from generator and the templates. The str method on
-	BaseUnits mostly covers this as we always return the raw object. 
+	BaseUnits mostly covers this as we always return the raw object.
 
 	* ClassGen.py (Generator.makeMethod): Generate uniform lambda for
 	the created methods, this works now that we delegate to the schema
@@ -83,7 +394,7 @@
 
 	* Extensions/utils.py (install_navigation): changes to all the
 	external method calls to skip most of the special metadata
-	handling. 
+	handling.
 
 	* ExtensibleMetadata.py: Its just called 'type' now, metadata type
 	is deprecated and we have more uniform handling of data/metadata.
@@ -151,13 +462,13 @@
 	indirection can be overridden on a per field basis to alter the
 	way storage is handled. With the right tool it should be a simple
 	task to store large fields on the filesystem or in a RDB of some
-	sort. 
+	sort.
 
 	* Field.py (FieldList.setDefaults): Simplfied setDefaults, but now
 	it really only should be called when object is uninitalized (which
 	I may want to track)
 
-	* BaseUnit.py (BaseUnit.PUT): Fixed PUT to use new driver code	
+	* BaseUnit.py (BaseUnit.PUT): Fixed PUT to use new driver code
 
 	* __init__.py (listTypes): Updated to use generatorTool, still
 	generates on initalize though

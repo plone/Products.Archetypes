@@ -20,7 +20,7 @@
 
     <div metal:define-macro="edit">
       <div tal:attributes="class python:test(field.required, 'required label', 'label')">
-	<span i18n:translate="" tal:content="widget/label"/>
+	<span i18n:translate="" tal:content="python:widget.Label(here)"/>
 	<div class="field"
 	     tal:define="error errors/fieldName | nothing;
 	    accessor_name field/accessor;
@@ -115,6 +115,12 @@
       </div>
     </div>         
   </div>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/keyword/macros/edit">
+      </div>
+    </div>
+
   </body>
   
 </html>

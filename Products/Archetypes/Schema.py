@@ -19,34 +19,153 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.validation import validation
+from Products.CMFCore.utils import getToolByName
 
 # Used in fields() method
 def index_sort(a, b): return  a._index - b._index
 
+def getNames(schema):
+    return [f.name for f in schema.fields()]
 
-class Schema(UserDict, DefaultLayerContainer):
+def getSchemata(klass):
+    schema = klass.schema
+    schemata = {}
+    for f in schema.fields():
+        sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+        sub.addField(f)
+        schemata[f.schemata] = sub
+    return schemata
+
+class Schemata(UserDict):
+    """Manage a list of fields by grouping them together"""
+
+    security = ClassSecurityInfo()
+    security.declareObjectPublic()
+    security.setDefaultAccess("allow")
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    order_fields = None
+    index = 0
+
+    def __init__(self, name='default', fields=None):
+        self.name = name
+        UserDict.__init__(self)
+
+        if fields is not None:
+            if type(fields) not in [ListType, TupleType]:
+                fields = (fields, )
+
+            for field in fields:
+                self.addField(field)
+
+    security.declarePublic('getName')
+    def getName(self):
+        return self.name
+
+    def __add__(self, other):
+        c = Schemata()
+        #We can't use update and keep the order so we do it manually
+        for field in self.fields():
+            c.addField(field)
+        for field in other.fields():
+            c.addField(field)
+
+        #XXX This should also merge properties (last write wins)
+        c._layers = self._layers.copy()
+        c._layers.update(other._layers)
+        return c
+
+
+    def copy(self):
+        c = Schema()
+        for field in self.fields():
+            c.addField(field.copy())
+        return c
+
+
+    security.declarePublic('fields')
+    def fields(self):
+        """list all the fields in order"""
+        if self.order_fields is None:
+            f = self.values()
+            f.sort(index_sort)
+            self.order_fields = f
+
+        return self.order_fields
+
+    security.declarePublic('widgets')
+    def widgets(self):
+        """list all the widgets in order, keyed by field name"""
+        widgets = {}
+        for f in self.fields():
+            widgets[f.name] = f.widget
+        return widgets
+
+    def filterFields(self, *args, **kwargs):
+        """Args is a list of callable conditions
+        arg(field) -> 0, omit field, 1 keep field
+        kwargs is a list of attribute -> valid value mappings
+        if the field doesn't match the rhs then its ommited
+        """
+        results = []
+        fields = self.fields()
+
+        for field in fields:
+            skip = 0
+            for arg in args:
+                if arg(field) == 0:
+                    skip = 1
+                    break
+
+            for k, v in kwargs.items():
+                if not hasattr(field, k):
+                    skip = 1
+                    break
+                else:
+                    fv = getattr(field, k)
+                    if fv != v:
+                        skip = 1
+                        break
+
+            if not skip:
+                results.append(field)
+
+        return results
+
+    security.declarePrivate('addField')
+    def addField(self, field):
+        if IField.isImplementedBy(field):
+            self[field.name] = field
+            field._index = self.index
+            self.index +=1
+        else:
+            log_exc('Object doesnt implements IField: %s' % field)
+
+    security.declarePublic('searchable')
+    def searchable(self):
+        """return the names of all the searchable fields"""
+        return [f.name for f in self.values() if f.searchable]
+
+class Schema(Schemata, UserDict, DefaultLayerContainer):
     """Manage a list of fields and run methods over them"""
 
     __implements__ = (ILayerRuntime, ILayerContainer)
-    
+
     security = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess("allow")
 
     _properties = {
-        'marshal' : None
+        'marshall' : None
         }
-
 
     def __init__(self, *args, **kwargs):
         UserDict.__init__(self)
         DefaultLayerContainer.__init__(self)
-        
+
         self._props = self._properties.copy()
         self._props.update(kwargs)
-        
-        self.order_fields = None
-        self.index = 0
+
         if len(args):
             if type(args[0]) in [ListType, TupleType]:
                 for field in args[0]:
@@ -59,59 +178,23 @@ class Schema(UserDict, DefaultLayerContainer):
         if marshall:
             self.registerLayer('marshall', marshall)
 
-        
-        
-        
     def __add__(self, other):
         c = Schema()
-        #We can't use update and keep the order so we do it manually
+        # We can't use update and keep the order so we do it manually
         for field in self.fields():
             c.addField(field)
         for field in other.fields():
             c.addField(field)
+        # Need to be smarter when joining layers
+        # and internal props
+        layers = {}
+        for k, v in self.registeredLayers():
+            layers[k] = v
+        for k, v in other.registeredLayers():
+            layers[k] = v
+        for k, v in layers.items():
+            c.registerLayer(k, v)
         return c
-
-
-    def fields(self):
-        """list all the fields in order"""
-        if self.order_fields is None:
-            f = self.values()
-            f.sort(index_sort)
-            self.order_fields = f
-
-        return self.order_fields
-
-
-    def filterFields(self, *args, **kwargs):
-        """Args is a list of callable conditions
-        arg(field) -> 0, omit field, 1 keep field
-        kwargs is a list of attribute -> valid value mappings
-        if the field doesn't match the rhs then its ommited
-        """
-
-        results = []
-        fields = self.fields()
-
-        for field in fields:
-            skip = 0
-            for arg in args:
-                if arg(field) == 0:
-                    skip = 1 
-                    break
-                
-            for k, v in kwargs.items():
-                if hasattr(field, k):
-                    fv = getattr(field, k)
-                    if fv != v:
-                        skip = 1
-                        break
-
-            if not skip:
-                results.append(field)
-
-        return results
-    
-        
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
@@ -119,44 +202,42 @@ class Schema(UserDict, DefaultLayerContainer):
             instance[name] = value
 
     def setDefaults(self, instance):
-        """Only call during object initalization. Sets fields to
+        """Only call during object initialization. Sets fields to
         schema defaults
         """
         ## XXX think about layout/vs dyn defaults
-        instance = aq_base(instance)
         for field in self.values():
-            if not getattr(instance, field.name, None):
+            if field.name.lower() != 'id':
+                # always set defaults
+                #if not hasattr(aq_base(instance), field.name) and \
+                #   getattr(instance, field.name, None):
                 default = field.default
-                #See if the instance has a method named the default
-                ##default = getattr(instance, default, default)
-                ###if it does call it
-                ##if callable(default):
-                ##    default = default()
+                if field.default_method:
+                    method = getattr(instance, field.default_method, None)
+                    if method:
+                        default = method()
 
                 field.set(instance, default)
-                
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
         keys = kwargs.keys()
+
         for field in self.values():
+            if field.name not in keys:
+                continue
+
             if 'w' not in field.mode:
                 log("tried to update %s:%s which is not writeable" % \
                     (instance.portal_type, field.name))
                 continue
-            
+
             method = getattr(instance, field.mutator, None)
             if not method:
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
 
-            if field.name in keys:
-                method(kwargs[field.name])
-            
-    def addField(self, field):
-        if IField.isImplementedBy(field):
-            self[field.name] = field
-            field._index = self.index
-            self.index +=1
+            method(kwargs[field.name])
 
     security.declarePublic("allow")
     def allow(self, key):
@@ -164,9 +245,29 @@ class Schema(UserDict, DefaultLayerContainer):
         return self.get(key) != None
 
     security.declarePublic('validate')
-    def validate(self, instance, REQUEST=None, errors=None):
+    def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
         """Validate the state of the entire object"""
-        for name, field in self.items():
+        if REQUEST:
+            fieldset = REQUEST.form.get('fieldset', None)
+        else:
+            fieldset = None
+        fields = []
+
+        if fieldset is not None:
+            schemata = instance.Schemata()
+            fields = [(field.name, field) for field in schemata[fieldset].fields()]
+        else:
+            if data:
+                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
+            if metadata:
+                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
+
+        for name, field in fields:
+            if name == 'id':
+                member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
+                if not getattr(member, 'visible_ids', None) and \
+                   not REQUEST.form.get('id', None):
+                    continue
             if errors and errors.has_key(name): continue
             error = 0
             value = None
@@ -182,47 +283,73 @@ class Schema(UserDict, DefaultLayerContainer):
                         else:
                             #Do other types need special handling here
                             pass
-                        
+
                     if value is not None and value != '': break
+
+            # if no REQUEST, validate existing value
+            else:
+                accessor = getattr(instance, field.accessor)
+                value = accessor()
 
             #REQUIRED CHECK
             if field.required == 1:
                 if not value or value == "":
                     ## The only time a field would not be resubmitted with the form is if
-                    ## was a file object from a previous edit. That will not come back. 
+                    ## was a file object from a previous edit. That will not come back.
                     ## We have to check to see that the field is populated in that case
                     try:
-                        accessor = getattr(instance, self.accessor)
+                        accessor = getattr(instance, field.accessor)
                         unit = accessor()
-                        if hasattr(unit, 'isUnit'): ##XXX to implements
-                            if unit.filename != '':
-                                value = unit.filename #doesn't matter what it is
+                        if IBaseUnit.isImplementedBy(unit):
+                            if unit.filename != '' or unit.get_size():
+                                value = 1 #value doesn't matter
+
+                        elif hasattr(aq_base(unit), 'get_size') and \
+                                 unit.get_size():
+                            value = unit
                     except:
                         pass
-                if not value and isinstance(value, FileUpload) and value.filename!='':
+                if ((isinstance(value, FileUpload) and value.filename != '') or
+                    (isinstance(value, FileType) and value.name != '')):
                     #OK, its a file, is it empty?
                     value.seek(-1, 2)
                     size = value.tell()
                     value.seek(0)
                     if size == 0:
                         value = None
-                    
+
                 if not value:
                     errors[name] =  "%s is required, please correct" % capitalize(name)
                     error = 1
                     break
 
-            #VOCABILARY CHECKS
+            #VOCABULARY CHECKS
             if error == 0  and field.enforceVocabulary == 1:
                 if value: ## we need to check this as optional field will be
                           ## empty and thats ok
-                    values = field.multiValued == 1  and value or [value]
-                    for value in values:
-                        if not value in field.Vocabulary(instance):
-                            errors[name] = "Value %s is not allowed for vocabulary " \
-                                           "of element: %s" %(value, capitalize(name))
-                            error = 1
-                            break
+                    # coerce value into a list called values
+                    values = value
+                    if isinstance(value, type('')) or isinstance(value, type(u'')):
+                        values = [value]
+                    elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
+                        raise TypeError("Field value type error")
+#                    values = field.multiValued == 1  and value or [value]
+                    vocab = field.Vocabulary(instance)
+                    for val in values:
+                        error = 1
+                        for v in vocab:
+                            if type(v) in [type(()), type([])]:
+                                valid = v[0]
+                            else:
+                                valid = v
+                            # XXX do we need to do unicode casting here?
+                            if val == valid or str(val) == str(valid):
+                                error = 0
+                                break
+
+                    if error == 1:
+                        errors[name] = "Value %s is not allowed for vocabulary " \
+                                       "of element: %s" %(val, capitalize(name))
 
             #Call any field level validation
             if error == 0 and value:
@@ -234,7 +361,7 @@ class Schema(UserDict, DefaultLayerContainer):
                 except Exception, E:
                     log_exc()
                     errors[name] = E
-                
+
             #CUSTOM VALIDATORS
             if error == 0:
                 try:
@@ -243,79 +370,82 @@ class Schema(UserDict, DefaultLayerContainer):
                     log_exc()
                     errors[name] = E
 
-    security.declarePublic('searchable')
-    def searchable(self):
-        """return the names of all the searchable fields"""
-        return [f.name for f in self.values() if f.searchable]
-
     #ILayerRuntime
-    def initalizeLayers(self, instance):
+    def initializeLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
-        # optionally call its initalizeInstance method and
-        # then the initalizeField method
-        initalizedLayers = []
-        called = lambda x: x in initalizedLayers
+        # optionally call its initializeInstance method and
+        # then the initializeField method
+        initializedLayers = []
+        called = lambda x: x in initializedLayers
 
         for field in self.fields():
-            layers = field.registeredLayers()
-            for layer, object in layers:
-                if ILayer.isImplementedBy(object):
-                    if not called(layer):
-                        object.initalizeInstance(instance)
-                        initalizedLayers.append(layer)
-                    object.initalizeField(instance, field)
-
-                    
-
+            if ILayerContainer.isImplementedBy(field):
+                layers = field.registeredLayers()
+                for layer, object in layers:
+                    if ILayer.isImplementedBy(object):
+                        if not called((layer, object)):
+                            object.initializeInstance(instance, item, container)
+                            # Some layers may have the same name, but different classes,
+                            # so, they may still need to be initialized
+                            initializedLayers.append((layer, object))
+                        object.initializeField(instance, field)
 
         #Now do the same for objects registered at this level
-        for layer, object in self.registeredLayers():
-            if not called(layer) and ILayer.isImplementedBy(object):
-                object.initalizeInstance(instance)
-                initalizedLayers.append(layer)
+        if ILayerContainer.isImplementedBy(self):
+            for layer, object in self.registeredLayers():
+                if not called((layer, object)) \
+                   and ILayer.isImplementedBy(object):
+                    object.initializeInstance(instance, item, container)
+                    initializedLayers.append((layer, object))
 
-    def cleanupLayers(self, instance):
+    def cleanupLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
         # optionally call its cleanupInstance method and
         # then the cleanupField method
         queuedLayers = []
         queued = lambda x: x in queuedLayers
-        
+
         for field in self.fields():
-            layers = field.registeredLayers()
-            for layer, object in layers:
-                if ILayer.isImplementedBy(object):
-                    object.cleanupField(instance, field)
+            if ILayerContainer.isImplementedBy(field):
+                layers = field.registeredLayers()
+                for layer, object in layers:
                     if not queued((layer, object)):
                         queuedLayers.append((layer, object))
+                    if ILayer.isImplementedBy(object):
+                        object.cleanupField(instance, field)
 
         for layer, object in queuedLayers:
-            object.cleanupInstance(instance)
-                    
-        #Now do the same for objects registered at this level
-        for layer, object in self.registeredLayers():
-            if not queued((layer, object)) and ILayer.isImplementedBy(object):
-                object.cleanupInstance(instance)
-                cleanedLayers.append((layer, object))
+            if ILayer.isImplementedBy(object):
+                object.cleanupInstance(instance, item, container)
 
+        #Now do the same for objects registered at this level
+
+        if ILayerContainer.isImplementedBy(self):
+            for layer, object in self.registeredLayers():
+                if not queued((layer, object)) and ILayer.isImplementedBy(object):
+                    object.cleanupInstance(instance, item, container)
+                    queuedLayers.append((layer, object))
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
-                
+
 class MetadataSchema(Schema):
+    """ Schema that enforces MetadataStorage """
+
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
         markup and make sure each field is marked as such for
         generation and introspcection purposes.
         """
-        field.isMetadata = 1
-        field.storage = MDS
-        if 'm' not in field.generateMode:
-            field.generateMode = 'mVc'
+        _properties = {'isMetadata': 1,
+                       'storage': MetadataStorage(),
+                       'schemata': 'metadata',
+                       'generateMode': 'mVc'}
 
-        
-        FieldList.addField(self, field)
+        field.__dict__.update(_properties)
+        field.registerLayer('storage', field.storage)
 
+        Schema.addField(self, field)
 
 InitializeClass(Schema)
 

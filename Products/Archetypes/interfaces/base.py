@@ -1,11 +1,12 @@
 from interface import Interface, Attribute
 
 class IBaseObject(Interface):
+
+    #XXX windows is strange
+    #schema = Attribute('schema', 'Schema of the object')
+    #installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
     
-    type = Attribute('type', 'FieldList information about the object')
-    installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
-    
-    def initalizeLayers():
+    def initializeLayers(item=None, container=None):
         """ Layer initialization. Performed on __init__ """
 
     def getId():
@@ -29,12 +30,6 @@ class IBaseObject(Interface):
     def Vocabulary(key):
         """vocabulary for a field by key"""
 
-    def get(key, **kwargs):
-        """return editable version of content"""
-
-    def set(key, value, **kw):
-        """set the value for a field"""
-        
     def edit(**kwargs):
         """edit"""
 

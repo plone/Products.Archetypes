@@ -3,6 +3,7 @@ from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
+from debug import log_exc
 
 try: from IOBTree import Bucket
 except: Bucket=lambda:{}
@@ -27,7 +28,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         for k, v in _defaults.items():
             if not hasattr(context, k):
                 setattr(context, k, v)
-        
+
     def edit(self, connection_id, arguments, template):
         """Change database method  properties
 
@@ -132,6 +133,23 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         return result
 
+    def _get_dbc(self):
+        "Get the database connection"
+        context = self.context
+
+        try: dbc = getattr(context, self.connection_id)
+        except AttributeError:
+            raise AttributeError, (
+                "The database connection <em>%s</em> cannot be found." % (
+                self.connection_id))
+
+        try: DB__=dbc()
+        except:
+            raise 'Database Error', (
+            '%s is not connected to a database' % self.id)
+
+        return dbc, DB__
+
     def __call__(self, src__=0, test__=0, **kw):
         """Call the database method
 
@@ -144,16 +162,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         The returned value is a sequence of record objects.
         """
         context = self.context
-        
-        try: dbc = getattr(context, self.connection_id)
-        except AttributeError:
-            raise AttributeError, (
-                "The database connection <em>%s</em> cannot be found." % (
-                self.connection_id))
 
-        try: DB__=dbc()
-        except: raise 'Database Error', (
-            '%s is not connected to a database' % self.id)
+        dbc, DB__ = self._get_dbc()
 
         p=None
 
@@ -169,11 +179,17 @@ class SQLMethod(Aqueduct.BaseQuery):
                                 "argument name in this context")
             else: raise
 
+        __traceback_info__ = query
+
         if src__: return query
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result=self._cached_result(DB__, (query, context.max_rows_))
-        else: result=DB__.query(query, context.max_rows_)
+        else:
+            try:
+                result=DB__.query(query, context.max_rows_)
+            except:
+                log_exc(msg = 'Database query failed', reraise = 1)
 
         if hasattr(context, '_v_sql_brain'): brain = context._v_sql_brain
         else:
@@ -196,6 +212,13 @@ class SQLMethod(Aqueduct.BaseQuery):
         if test__: return query, result
 
         return result
+
+    def abort(self):
+        dbc, DB__ = self._get_dbc()
+        try:
+            DB__.tpc_abort()
+        except:
+            log_exc(msg = 'Database abort failed')
 
     def connectionIsValid(self):
         context = self.context

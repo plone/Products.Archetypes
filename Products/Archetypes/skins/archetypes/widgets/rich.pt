@@ -10,33 +10,44 @@
 
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor"/>
+	<div metal:fill-slot="widget_view"
+                   tal:define="binary python: here.isBinary(fieldName);">
+	  <span tal:condition="not:binary"
+                tal:replace="structure accessor"/>
+	  <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
 	</div>
       </div>
     </div>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body" 
-	  tal:define="binary python: here.isBinary(fieldName);">
-	  <div class="group">
-	    <span tal:condition="error" tal:replace="error" />
-	      <div class="label">Enter new text</div>
-	      <metal:block
-		metal:use-macro="here/widgets/textarea/macros/area_edit"/>
-		
-		<br/>
-		  <metal:block
-		    metal:use-macro="here/widgets/textarea/macros/area_format"/>
-		<div class="label">or Upload a File</div>
-		<metal:block
-		  metal:use-macro="here/widgets/file/macros/file_edit"/>
-		  <br/>
-	  </div>
-	</div>
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body" 
+	        tal:define="binary python: here.isBinary(fieldName);">
+        <div class="group">
+	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
+            <div class="row">
+                <metal:use use-macro="here/widgets/textarea/macros/area_edit"/>
+            </div>
+            <div class="row">
+	            <metal:use use-macro="here/widgets/textarea/macros/area_format"/>
+            </div>
+            <div class="row">
+                <strong>OR</strong>
+            </div>
+            <div class="row">
+	        <div class="label">Upload a File</div>
+                <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+            </div>
+        </div>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/rich/macros/edit">
       </div>
     </div>
+
 
   </body>
   

@@ -1,7 +1,6 @@
 from Acquisition import aq_base
 from AccessControl import getSecurityManager
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore import CMFCorePermissions
 
 from ExtensionClass import Base
@@ -19,11 +18,45 @@ from debug import log, log_exc
 ##                a delete to lose refs
 ####
 
-class Referenceable(CMFCatalogAware, Base):
+class Referenceable(Base):
+    """ A Mix-in for Referenceable objects """
     isReferenceable = 1
+
+    def reference_url(self):
+        """like absoluteURL, but return a link to the object with this UID"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.reference_url(self)
+    
+    def addReference(self, object, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.addReference(self, object, relationship)
+
+    def deleteReference(self, object, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.deleteReference(self, object, relationship)
+
+    def deleteReferences(self, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.deleteReferences(self, relationship)
+
+    def getRelationships(self):
+        """What kinds of relationships do this object have"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.getRelationships(self)
+    
+    def getRefs(self, relationship=None):
+        """get all the referenced objects for this object"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return [tool.getObject(ref) for ref in tool.getRefs(self, relationship)]
+
+    def getBRefs(self, relationship=None):
+        """get all the back referenced objects for this object"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return [tool.getObject(ref) for ref in tool.getBRefs(self, relationship)]
+    
     def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
-        if hasattr(self, '_uid') and self._uid is not None:
+        if hasattr(aq_base(self), '_uid') and self._uid is not None:
             return
         
         try:
@@ -48,9 +81,7 @@ class Referenceable(CMFCatalogAware, Base):
         return self._getUID()
     
     def _getUID(self):
-        return getattr(self, '_uid', None)
-
-    
+        return getattr(aq_base(self), '_uid', None)
 
     def _setUID(self, id):
         tid =  self._getUID()
@@ -66,8 +97,6 @@ class Referenceable(CMFCatalogAware, Base):
         ct = getToolByName(container, config.TOOL_NAME, None)
         if ct:
             self._register(archetype_tool=ct)
-        Referenceable.inheritedAttribute('manage_afterAdd')(self, item, \
-                                                            container)
         
     def manage_afterClone(self, item):
         """
@@ -76,7 +105,6 @@ class Referenceable(CMFCatalogAware, Base):
         """
         self._uid = None
         self._register()
-        Referenceable.inheritedAttribute('manage_afterClone')(self, item)
         
     def manage_beforeDelete(self, item, container):
         """
@@ -92,8 +120,6 @@ class Referenceable(CMFCatalogAware, Base):
 
         #and reset the flag
         self._cp_refs = None
-        Referenceable.inheritedAttribute('manage_beforeDelete')(self, item, \
-                                                            container)
 
     def pasteReference(self, REQUEST=None):
         """

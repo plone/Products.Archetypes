@@ -2,7 +2,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
 
 
-content_type = BaseSchema + Schema((
+schema = BaseSchema + Schema((
     TextField('teaser',
               searchable=1,
               widget=TextAreaWidget(description="""A short lead-in to the
@@ -34,11 +34,11 @@ content_type = BaseSchema + Schema((
                allowable_content_types=('image/*',),
                widget=ImageWidget),
 
-    )) + TemplateMixin.type
+    )) + TemplateMixin.schema
 
 class DDocument(TemplateMixin, BaseContent):
     """An extensible Document (test) type"""
-    type = content_type
+    schema = schema
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
     

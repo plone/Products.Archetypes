@@ -6,25 +6,42 @@
 
   <body>
 
+    <metal:block define-macro="image_display">
+	  <tal:def define="img accessor; inline python: img and
+	                         (img.getSize() <= widget.display_threshold) and
+				 (request.get('HTTP_ACCEPT', '').find(img.getContentType()) >= 0)">
+	    <img tal:replace="structure img/tag" tal:condition="inline" src="foo.png" />
+	    <tal:if condition="not:inline">
+	    </tal:if>
+	  </tal:def>
+    </metal:block>
+
+
     <!-- Image Widgets -->
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor"/>
+	  <metal:display use-macro="here/widgets/image/macros/image_display" />
+	  <metal:file use-macro="here/widgets/file/macros/file_view">download link</metal:file>
 	</div>
       </div>
     </div>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-	  <div class="group">
-	    <div tal:replace="structure value"/>
-	      <br/>
-	    <div metal:use-macro="here/widgets/file/macros/file_edit"/>
-	      
-	    </div>
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body">
+	<div>
+	  <metal:display use-macro="here/widgets/image/macros/image_display">
+            <br />
+	  </metal:display>
 	</div>
+        <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+    </metal:fill>      
+    </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/image/macros/edit">
       </div>
     </div>
 
