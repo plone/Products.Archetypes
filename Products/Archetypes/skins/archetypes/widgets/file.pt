@@ -113,11 +113,9 @@
         <input type="file"
                size="30"
                tabindex=""
-               disabled="disabled"
                tal:attributes="name string:${fieldName}_file;
                                id string:${fieldName}_file;
-                               tabindex tabindex/next;
-                               disabled python:test(accessor()=='', None, 'disabled')"
+                               tabindex tabindex/next"
                />
     </metal:define>
 
