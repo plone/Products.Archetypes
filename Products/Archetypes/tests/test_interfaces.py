@@ -35,6 +35,7 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.Validators import DateValidator
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.public import registerType
 
 def className(klass):
     """ get the short class name """
@@ -165,16 +166,26 @@ testClasses = [
         (MetadataStorage, ()),
     (BaseSQLStorage, ()), (GadflySQLStorage, ()), (MySQLSQLStorage, ()),
         (PostgreSQLStorage, ()),
-    (DateValidator, ()),
 ]
+
+PROJECTNAME = 'Archetypes.tests'
+class EM(ExtensibleMetadata): pass
+registerType(EM, PROJECTNAME)
+class BC(BaseContent): pass
+registerType(BC, PROJECTNAME)
+class BF(BaseFolder): pass
+registerType(BF, PROJECTNAME)
+class OBF(OrderedBaseFolder): pass
+registerType(OBF, PROJECTNAME)
 
 # format: (instance object, (list interface objects))
 # take care: you must provide an instance, not a class!
 testInstances = [
-    (ExtensibleMetadata(), ()),
-    (BaseContent('test'), ()),
-    (BaseFolder('test'), ()),
-    (OrderedBaseFolder('test'), ()),
+    (EM(), ()),
+    (BC('test'), ()),
+    (BF('test'), ()),
+    (OBF('test'), ()),
+    (DateValidator('isValidDate'), ()),
 ]
 
 for testClass in testClasses:
