@@ -84,7 +84,7 @@ class Reference(Referenceable, SimpleItem):
 
     def UID(self):
         """the uid method for compat"""
-        return getattr(self, UUID_ATTR)
+        return getattr(aq_base(self), UUID_ATTR)
 
     ###
     # Convenience methods
@@ -187,11 +187,12 @@ class ContentReference(Reference, ObjectManager):
             tt.constructContent(self.contentType,self,REFERENCE_CONTENT_INSTANCE_NAME)
         else:
             #type given as class
-            setattr(self.REFERENCE_CONTENT_INSTANCE_NAME,self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
-            getattr(self.REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
+            setattr(self, REFERENCE_CONTENT_INSTANCE_NAME,
+                    self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
+            getattr(self, REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
 
     def getContentObject(self):
-        return getattr(self,REFERENCE_CONTENT_INSTANCE_NAME)
+        return getattr(self.aq_inner.aq_explicit, REFERENCE_CONTENT_INSTANCE_NAME)
 
 InitializeClass(ContentReference)
 
@@ -623,7 +624,8 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject
 
-            if not getattr(uobject, UUID_ATTR, None):
+            # shasattr() doesn't work here
+            if not getattr(aq_base(uobject), UUID_ATTR, None):
                 uuid = self._getUUIDFor(uobject)
             else:
                 uuid = getattr(uobject, UUID_ATTR)
