@@ -46,7 +46,7 @@ class BaseSQLStorage(StorageLayer):
         connection_id = c_tool.getConnFor(instance)
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.isImplementedBy(f) \
-                  and ISQLStorage.isImplementedBy(f.getStorage())]
+                  and f.getStorage().__class__ is self.__class__]
         columns = []
         args = {}
         for field in fields:
@@ -61,13 +61,10 @@ class BaseSQLStorage(StorageLayer):
         method.edit(connection_id, ' '.join(args.keys()), self.query_create)
         try:
             query, result = method(test__=1, **args)
-	    get_transaction().commit() #XXX We need to commit the transaction so subsequent
-	                               #    transactions can fill the table.  Else the table 
-				       #    is not yet created to be filled.
             # print query
         except Exception, msg:
             # usually, table already exists
-            # raise SQLInitException(msg)
+            method.abort()
             if not str(msg).find('exists') > 0:
                 raise
 

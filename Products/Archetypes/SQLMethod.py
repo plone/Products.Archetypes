@@ -132,6 +132,22 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         return result
 
+    def _get_dbc(self):
+        "Get the database connection"
+        context = self.context
+        
+        try: dbc = getattr(context, self.connection_id)
+        except AttributeError:
+            raise AttributeError, (
+                "The database connection <em>%s</em> cannot be found." % (
+                self.connection_id))
+
+        try: DB__=dbc()
+        except: raise 'Database Error', (
+            '%s is not connected to a database' % self.id)
+
+        return dbc, DB__
+
     def __call__(self, src__=0, test__=0, **kw):
         """Call the database method
 
@@ -145,15 +161,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         """
         context = self.context
         
-        try: dbc = getattr(context, self.connection_id)
-        except AttributeError:
-            raise AttributeError, (
-                "The database connection <em>%s</em> cannot be found." % (
-                self.connection_id))
-
-        try: DB__=dbc()
-        except: raise 'Database Error', (
-            '%s is not connected to a database' % self.id)
+        dbc, DB__ = self._get_dbc()
 
         p=None
 
@@ -203,6 +211,13 @@ class SQLMethod(Aqueduct.BaseQuery):
         if test__: return query, result
 
         return result
+
+    def abort(self):
+        dbc, DB__ = self._get_dbc()
+        try:
+            DB__.tpc_abort()
+        except AttributeError:
+            pass
 
     def connectionIsValid(self):
         context = self.context
