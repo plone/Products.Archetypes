@@ -75,6 +75,10 @@
    available.
    [tiran]
 
+ * BaseContent.PUT and BaseUnit.PUT is also trying to get the uploaded data from
+   BODY if BODYFILE is empty.
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
 

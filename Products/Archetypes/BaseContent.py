@@ -17,6 +17,8 @@ from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
 
+_marker = []
+
 class BaseContentMixin(CatalogMultiplex,
                     BaseObject,
                     PortalContent,
@@ -69,12 +71,19 @@ class BaseContentMixin(CatalogMultiplex,
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
 
-        file = REQUEST['BODYFILE']
+        file = REQUEST.get('BODYFILE', _marker)
+        if file is _marker:
+            data = REQUEST.get('BODY', _marker)
+            if data is _marker:
+                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
+        else:
+            data = file.read()
+            file.seek(0)
+        
         # XXX should we maybe not accept PUT requests without a
         # content type?
         mimetype = REQUEST.get_header('content-type', None)
-        data = file.read()
-        file.seek(0)
+
         try:
             filename = REQUEST._steps[-2] #XXX fixme, use a real name
         except ConflictError:

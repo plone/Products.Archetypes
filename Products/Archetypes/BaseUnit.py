@@ -16,6 +16,8 @@ from Products.PortalTransforms.interfaces import idatastream
 #     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
+_marker = []
+
 class BaseUnit(File):
     __implements__ = WriteLockInterface, IBaseUnit
     isUnit = 1
@@ -225,8 +227,14 @@ class BaseUnit(File):
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
         mimetype=REQUEST.get_header('Content-Type', None)
 
-        file=REQUEST['BODYFILE']
-        data = file.read()
+        file = REQUEST.get('BODYFILE', _marker)
+        if file is _marker:
+            data = REQUEST.get('BODY', _marker)
+            if data is _marker:
+                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
+        else:
+            data = file.read()
+            file.seek(0)
 
         self.update(data, self.aq_parent, mimetype=mimetype)
 
