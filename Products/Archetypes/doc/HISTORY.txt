@@ -1,6 +1,10 @@
 1.4-devel
 =========
 
+ * Filtering schemata from showing up on base_edit unless user actually
+   has edit privs to some of the fields
+   [rafrombrc]
+
  * Fixed utils.OrderedDict problems:
    -  constructor was failing w/ non-empty argument
    -  infinite loop when copy() was called
