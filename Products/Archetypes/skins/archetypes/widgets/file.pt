@@ -21,7 +21,7 @@
         (<tal:filename content="string:${filename} " condition="filename">myfile.pdf
          </tal:filename><tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
 	<a href="" 
-       tal:condition="python:field.checkPermission('edit', here)"
+       tal:condition="python:field.checkExternalEditor(here)"
        tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
 	   tal:define="edit here/edit.gif">
 	    <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
