@@ -262,7 +262,6 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             if metadata:
                 fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=1)])
 
-        log('%s' % (REQUEST.form.items()) )
         for name, field in fields:
             if name == 'id':
                 member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
@@ -272,7 +271,6 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             if errors and errors.has_key(name): continue
             error = 0
             value = None
-            log('%s %s' % (name, field) )
             if REQUEST:
                 form = REQUEST.form
                 for postfix in ['_file', '']: ##Contract with FileWidget
