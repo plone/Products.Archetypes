@@ -4,8 +4,8 @@ HOWTO: Using Archetypes SQLStorage and Advanced Tips
 
 :Author: Joel Burton
 :Contact: joel@joelburton.com
-:Date: $Date: 2003/07/25 20:38:18 $
-:Version: $Revision: 1.1.2.3 $
+:Date: $Date: 2003/07/28 18:13:29 $
+:Version: $Revision: 1.1.4.1 $
 :Web site: http://sourceforge.net/projects/archetypes
 :Covers: Archetypes 1.0beta
 
