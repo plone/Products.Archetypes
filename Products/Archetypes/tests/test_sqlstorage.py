@@ -222,15 +222,17 @@ class SQLStorageTest(ArchetypesTestCase):
         self.failUnless(dummy.getAobjectfield() == None)
         dummy.setAobjectfield('Bla')
         value = dummy.getAobjectfield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (repr(value), 'Bla')
         self.failUnless(str(value) == 'Bla')
 
     def test_textfield(self):
         dummy = self._dummy
-        self.failUnless(dummy.getAtextfield() == '')
+        value = dummy.getAtextfield()
+        __traceback_info__ = (repr(value), '')
+        self.failUnless(value == '')
         dummy.setAtextfield('Bla')
         value = dummy.getAtextfield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (repr(value), 'Bla')
         self.failUnless(str(value) == 'Bla')
 
     def test_datetimefield(self):
@@ -247,26 +249,32 @@ class SQLStorageTest(ArchetypesTestCase):
 
     def test_integerfield(self):
         dummy = self._dummy
-        self.failUnless(dummy.getAintegerfield() == 0)
+        value = dummy.getAintegerfield()
+        __traceback_info__ = (repr(value), 0)
+        self.failUnless(value == 0)
         dummy.setAintegerfield(23)
         value = dummy.getAintegerfield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (repr(value), 23)
         self.failUnless(value == 23)
 
     def test_fixedpointfield(self):
         dummy = self._dummy
-        self.failUnless(dummy.getAfixedpointfield() == '0.00')
+        value = dummy.getAfixedpointfield()
+        __traceback_info__ = (repr(value), '0.00')
+        self.failUnless(value == '0.00')
         dummy.setAfixedpointfield('2.3')
         value = dummy.getAfixedpointfield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (repr(value), '2.30')
         self.failUnless(value == '2.30')
 
     def test_booleanfield(self):
         dummy = self._dummy
-        self.failUnless(dummy.getAbooleanfield() is None)
+        value = dummy.getAbooleanfield()
+        __traceback_info__ = (repr(value), None)
+        self.failUnless(value is None)
         dummy.setAbooleanfield(1)
         value = dummy.getAbooleanfield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (repr(value), 1)
         self.failUnless(value == 1)
 
 tests = []

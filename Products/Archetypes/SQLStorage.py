@@ -130,7 +130,7 @@ class BaseSQLStorage(StorageLayer):
         except:
             # usually, duplicate key
             # raise SQLInitException(msg)
-            pass
+            raise
         try:
             instance.__initialized += (self.getName(),)
         except AttributeError:
@@ -158,12 +158,15 @@ class BaseSQLStorage(StorageLayer):
             # we can't allow that to break
             return None
         field = kwargs.get('field', instance.getField(name))
-        default = field.default
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['field'] = name
         result = self._query(instance, self.query_select, args)
+        # XXX Do not remove this. What we are doing here is:
+        # - Getting the first result
+        # - Getting the first column from the first result
+        result = result[0]
         result = result[0]
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
@@ -247,8 +250,8 @@ class GadflySQLStorage(BaseSQLStorage):
     query_insert = ('insert into <dtml-var table> '
                     'values (<dtml-sqlvar UID type="string">, '
                     '<dtml-sqlvar PARENTUID type="string">, '
-                    '<dtml-in expr="_.string.split(columns,',')[1:]"> '
-                    '<dtml-if sequence-end><dtml-else>,</dtml-if> '
+                    '<dtml-in expr="_.string.split(columns,\',\')[1:]"> '
+                    '<dtml-if sequence-end>\'\'<dtml-else>\'\', </dtml-if> '
                     '</dtml-in>) ')
     query_select = ('select <dtml-var field> from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
