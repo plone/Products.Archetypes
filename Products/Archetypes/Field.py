@@ -253,7 +253,9 @@ class Field(DefaultLayerContainer):
     security.declarePublic('getMutator')
     def getMutator(self, instance):
         """Return the mutator method used for changing the value of this field"""
-        return getattr(instance, self.mutator, None)
+        if self.mutator:
+            return getattr(instance, self.mutator, None)
+        return None
 
     def hasI18NContent(self):
         """Return true it the field has I18N content. Currently not

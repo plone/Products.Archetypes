@@ -1,3 +1,8 @@
+2003-07-18  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Field.py (Field.getMutator): Aha! self.mutator may be None
+	actually, with ComputedField.
+
 2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* skins/archetypes/content_edit.py (previous): Clearer schemata
