@@ -13,52 +13,53 @@ from Products.Archetypes import listTypes
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema
-
-class Dummy(BaseContent):
-    schema = schema
-
-test_schema = Schema(
-   (StringField('a', schemata='waldi'),
-    StringField('d', schemata='nasbär'),
-    StringField('x', schemata='edgar'),
-    StringField('b', schemata='waldi'),
-    StringField('e', schemata='nasbär'),
-    StringField('y', schemata='edgar'),
-    StringField('c', schemata='waldi'),
-    StringField('f', schemata='nasbär'),
-    StringField('z', schemata='edgar')
-))
-
 
 class SchemataManipulationTest( ArchetypesTestCase ):
 
     def setUp(self):
-        self.schema = test_schema
+        self.schema = Schema(
+               (StringField('a', schemata='waldi'),
+                StringField('d', schemata='nasbaer'),
+                StringField('x', schemata='edgar'),
+                StringField('b', schemata='waldi'),
+                StringField('e', schemata='nasbaer'),
+                StringField('y', schemata='edgar'),
+                StringField('c', schemata='waldi'),
+                StringField('f', schemata='nasbaer'),
+                StringField('z', schemata='edgar')
+            ))
 
-    def field2names(self, fields):
+    def fields2names(self, fields):
         return [f.getName() for f in fields]
 
     def testBasic(self):
-        self.assertEqual(self.field2names(self.schema.fields()), 
+        self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','x', 'b','e','y','c','f','z'])
-        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbär', 'edgar'])
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
+
+    def testSchemataFields(self):
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')),
+                        ['a', 'b', 'c'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('nasbaer')),
+                        ['d', 'e', 'f'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('edgar')),
+                        ['x', 'y', 'z'])
 
     def testDelField(self):
         self.schema.delField('x')
         self.schema.delField('b')
         self.schema.delField('z')
-        self.assertEqual(self.field2names(self.schema.fields()), 
+        self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','e','y','c','f'])
         self.schema.addField(StringField('z'))
         self.schema.addField(StringField('b'))
         self.schema.addField(StringField('x'))
-        self.assertEqual(self.field2names(self.schema.fields()), 
+        self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','e','y','c','f','z','b','x'])
         self.schema.delField('b')
         self.schema.delField('z')
         self.schema.delField('x')
-        self.assertEqual(self.field2names(self.schema.fields()), 
+        self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','e','y','c','f'])
 
 if __name__ == '__main__':

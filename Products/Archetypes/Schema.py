@@ -582,6 +582,12 @@ class Schema(Schemata, DefaultLayerContainer):
                 lst.append(f.schemata)
         return lst
 
+    def getSchemataFields(self, name):
+        """ return list of fields belong to schema 'name' in order 
+            of appearing 
+        """
+        return [f for f in self.fields()  if f.schemata == name]
+
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
