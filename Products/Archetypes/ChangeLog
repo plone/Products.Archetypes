@@ -1,3 +1,9 @@
+2003-12-30  Daniel Nouri  <daniel.nouri@con-fuse.org>
+
+	* Field.py (ReferenceField.addableTypes): Renamed allowedTypesReadable
+	to addableTypes. Added note for the use of addable feature of
+	ReferenceField.
+
 2003-12-19  Sidnei da Silva  <sidnei@awkly.org>
 
 	* SQLStorage.py (SQLServerStorage.table_exists): Added

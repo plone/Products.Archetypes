@@ -60,7 +60,7 @@
 	    </select>
 	  </div><!-- handle "addable" option -->
 	  <div tal:condition="field/addable|nothing">
-	    <span tal:define="types python:field.allowedTypesReadable(here)"
+	    <span tal:define="types python:field.addableTypes(here)"
 		  tal:repeat="typename python:types.keys()"
 		  tal:omit-tag="">
 	      <a href="#"
