@@ -60,7 +60,8 @@
         define-macro="edit"
         tal:define="visState python:widget.isVisible(here, mode);
                     edit_accessor python:field.getEditAccessor(here);
-                    value python:widget.populate and edit_accessor and edit_accessor() or accessor();
+                    getMethod python:(widget.populate and edit_accessor or accessor) or None;
+                    value python:getMethod and getMethod() or None;
                     value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
                     visCondition python:field.widget.testCondition(here, portal, template);
                     error_id python:errors.get(fieldName)">

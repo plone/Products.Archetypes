@@ -30,7 +30,13 @@
    make any harm to get a field. Besides it is currently possible getting a
    field over archetype_tool.
    [tiran]
-   
+
+ * Fixed [ 1012344 ] 'NoneType' not callable error on CMFMember prefs page. Also
+   cleaned up the way how the value is calculated inside field.pt. Depending
+   on widget.populate it's either assigning edit_accessor or accessor to a var
+   and THEN it's calling the var (which is a method) when it's not None.
+   Sounds complex? Well the former version was much complexer.
+   [tiran]
 
 1.3.0-rc1 - 2004-08-16
 ======================
