@@ -1,12 +1,14 @@
-from Shared.DC.ZRDB import Aqueduct
+from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
 from debug import log_exc
 
-try: from IOBTree import Bucket
-except: Bucket=lambda:{}
+try:
+    from IOBTree import Bucket
+except:
+    Bucket = lambda:{}
 
 _defaults = {'max_rows_':1000,
              'cache_time_':0,
@@ -43,13 +45,13 @@ class SQLMethod(Aqueduct.BaseQuery):
         SQL Template.
         """
         context = self.context
-        self.connection_id=str(connection_id)
-        arguments=str(arguments)
-        self.arguments_src=arguments
-        self._arg=Aqueduct.parse(arguments)
-        template=str(template)
-        self.src=template
-        self.template=t=context.template_class(template)
+        self.connection_id = str(connection_id)
+        arguments = str(arguments)
+        self.arguments_src = arguments
+        self._arg = Aqueduct.parse(arguments)
+        template = str(template)
+        self.src = template
+        self.template = t = context.template_class(template)
         t.cook()
         context._v_query_cache={}, Bucket()
 
@@ -88,25 +90,28 @@ class SQLMethod(Aqueduct.BaseQuery):
         context = self.context
         # paranoid type checking
         if type(max_rows) is not type(1):
-            max_rows=atoi(max_rows)
+            max_rows = atoi(max_rows)
         if type(max_cache) is not type(1):
-            max_cache=atoi(max_cache)
+            max_cache = atoi(max_cache)
         if type(cache_time) is not type(1):
-            cache_time=atoi(cache_time)
-        class_name=str(class_name)
-        class_file=str(class_file)
+            cache_time = atoi(cache_time)
+        class_name = str(class_name)
+        class_file = str(class_file)
 
         context.max_rows_ = max_rows
         context.max_cache_, context.cache_time_ = max_cache, cache_time
-        context._v_sql_cache={}, Bucket()
+        context._v_sql_cache = {}, Bucket()
         context.class_name_, context.class_file_ = class_name, class_file
-        context._v_sql_brain=getBrain(context.class_file_, context.class_name_, 1)
+        context._v_sql_brain = getBrain(context.class_file_,
+                                        context.class_name_, 1)
 
     def _cached_result(self, DB__, query):
         context = self.context
         # Try to fetch from cache
-        if hasattr(context,'_v_sql_cache'): cache = context._v_sql_cache
-        else: cache = context._v_sql_cache={}, Bucket()
+        if hasattr(context,'_v_sql_cache'):
+            cache = context._v_sql_cache
+        else:
+            cache = context._v_sql_cache={}, Bucket()
         cache, tcache = cache
         max_cache = context.max_cache_
         now = time()
@@ -115,8 +120,8 @@ class SQLMethod(Aqueduct.BaseQuery):
             keys = tcache.keys()
             keys.reverse()
             while keys and (len(keys) > max_cache or keys[-1] < t):
-                key=keys[-1]
-                q=tcache[key]
+                key = keys[-1]
+                q = tcache[key]
                 del tcache[key]
                 if int(cache[q][0]) == key:
                     del cache[q]
@@ -129,21 +134,23 @@ class SQLMethod(Aqueduct.BaseQuery):
         result = apply(DB__.query, query)
         if context.cache_time_ > 0:
             tcache[int(now)] = query
-            cache[query]= now, result
+            cache[query] = now, result
 
         return result
 
     def _get_dbc(self):
-        "Get the database connection"
+        """Get the database connection"""
         context = self.context
 
-        try: dbc = getattr(context, self.connection_id)
+        try:
+            dbc = getattr(context, self.connection_id)
         except AttributeError:
             raise AttributeError, (
                 "The database connection <em>%s</em> cannot be found." % (
                 self.connection_id))
 
-        try: DB__=dbc()
+        try:
+            DB__ = dbc()
         except:
             raise 'Database Error', (
             '%s is not connected to a database' % self.id)
@@ -165,13 +172,14 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         dbc, DB__ = self._get_dbc()
 
-        p=None
+        p = None
 
-        argdata=self._argdata(kw)
-        argdata['sql_delimiter']='\0'
-        argdata['sql_quote__']=dbc.sql_quote__
+        argdata = self._argdata(kw)
+        argdata['sql_delimiter'] = '\0'
+        argdata['sql_quote__'] = dbc.sql_quote__
 
-        try:     query=apply(self.template, (p,), argdata)
+        try:
+            query = apply(self.template, (p,), argdata)
         except TypeError, msg:
             msg = str(msg)
             if find(msg,'client'):
@@ -184,28 +192,31 @@ class SQLMethod(Aqueduct.BaseQuery):
         if src__: return query
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
-            result=self._cached_result(DB__, (query, context.max_rows_))
+            result = self._cached_result(DB__, (query, context.max_rows_))
         else:
             try:
-                result=DB__.query(query, context.max_rows_)
+                result = DB__.query(query, context.max_rows_)
             except:
-                log_exc(msg = 'Database query failed', reraise = 1)
+                log_exc(msg='Database query failed', reraise=1)
 
-        if hasattr(context, '_v_sql_brain'): brain = context._v_sql_brain
+        if hasattr(context, '_v_sql_brain'):
+            brain = context._v_sql_brain
         else:
-            brain=context._v_sql_brain=getBrain(context.class_file_, context.class_name_)
+            brain=context._v_sql_brain = getBrain(context.class_file_,
+                                                context.class_name_)
 
         if type(result) is type(''):
-            f=StringIO()
+            f = StringIO()
             f.write(result)
             f.seek(0)
-            result=RDB.File(f, brain, p, None)
+            result = RDB.File(f, brain, p, None)
         else:
-            result=Results(result, brain, p, None)
+            result = Results(result, brain, p, None)
 
-        columns=result._searchable_result_columns()
+        columns = result._searchable_result_columns()
 
-        if test__ and columns != self._col: self._col=columns
+        if test__ and columns != self._col:
+            self._col=columns
 
         # If run in test mode, return both the query and results so
         # that the template doesn't have to be rendered twice!

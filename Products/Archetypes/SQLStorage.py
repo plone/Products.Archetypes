@@ -358,3 +358,44 @@ class PostgreSQLStorage(BaseSQLStorage):
                            ('select relname from pg_class where '
                             '<dtml-sqltest relname op="eq" type="string">'),
                            {'relname': instance.portal_type.lower()})
+
+class SQLServerStorage(BaseSQLStorage):
+    __implements__ = BaseSQLStorage.__implements__
+
+    query_create = ('create table <dtml-var table> '
+                    '(UID varchar(50) CONSTRAINT pk_uid '
+                    'PRIMARY KEY CLUSTERED, '
+                    'PARENTUID varchar(50) '
+                    '<dtml-var columns>)')
+    query_insert = ('insert into <dtml-var table> '
+                    '(UID, PARENTUID) values '
+                    '(<dtml-sqlvar UID type="string">, '
+                    '<dtml-sqlvar PARENTUID type="string">)')
+    query_select = ('select <dtml-var field> from '
+                    '<dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
+    query_update = ('update <dtml-var table> set '
+                    '<dtml-var field>=<dtml-sqlvar value '
+                    'type="%s" optional> where '
+                    '<dtml-sqltest UID op="eq" type="string">')
+    query_delete = ('delete from <dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
+
+    sqlm_type_map = {'integer': 'int'}
+
+    db_type_map = {'object':'varchar',
+                   'string':'varchar',
+                   'reference':'varchar',
+                   'metadata':'varchar',
+                   'lines':'varchar',
+                   'datetime':'timestamp',
+                   'fixedpoint':'integer'
+                   }
+
+    def table_exists(self, instance):
+        return self._query(instance,
+                           ('select name from '
+                            'sysobjects where '
+                            'xtype=char(85) and uid=1 and '
+                            '<dtml-sqltest name op="eq" type="string">'),
+                           {'name':instance.portal_type.lower()})

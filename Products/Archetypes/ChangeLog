@@ -1,3 +1,10 @@
+2003-12-19  Sidnei da Silva  <sidnei@awkly.org>
+
+	* SQLStorage.py (SQLServerStorage.table_exists): Added
+	SQLServerStorage, contributed by Dwight Lowry as per #862448.
+
+	* SQLMethod.py: Missing import.
+
 2003-12-16  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ClassGen.py (ClassGenerator.checkSchema): Return an acquisition
