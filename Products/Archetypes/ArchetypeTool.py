@@ -869,7 +869,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return out.getvalue()
 
     def _updateObject(self, o, path):
-        sys.stdout.write('updating %s\n' % o.getId())
+        #sys.stdout.write('updating %s\n' % o.getId())
         o._updateSchema()
 
     def _updateChangedObject(self, o, path):
