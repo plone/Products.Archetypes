@@ -12,7 +12,6 @@ class BaseSQLStorage(StorageLayer):
     # SQLStorage that is more or less ISO SQL, should be usable as a base
     __implements__ = (ISQLStorage, ILayer)
 
-    column_template = "%(name)s not null default %(default)s"
     query_create = """create table <dtml-var table> \
                       (UID char(50) primary key not null <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
@@ -25,7 +24,17 @@ class BaseSQLStorage(StorageLayer):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer':'int'}
-    db_type_map = {}
+    db_type_map = {'fixedpoint': 'integer'}
+
+    def map_fixedpoint(self, field, value):
+        __traceback_info__ = repr(value)
+        template = '%%d%%0%dd' % field.precision
+        return template % value
+    
+    def unmap_fixedpoint(self, field, value):
+        __traceback_info__ = repr(value)
+        split = 10 ** field.precision
+        return (value / split), (value % split)
     
     def initalizeInstance(self, instance):
         c_tool = getToolByName(instance, TOOL_NAME)
@@ -38,13 +47,7 @@ class BaseSQLStorage(StorageLayer):
         for field in fields:
             type = self.db_type_map.get(field.type, field.type)
             name = field.name
-            default = field.default
-            column = '%s %s' % (name, type)
-            if default is not None:
-                if type == 'text':
-                    default = "'%s'" % default
-                column = self.column_template % {'name': column, 'default': default}
-            columns.append(column)
+            columns.append('%s %s' % (name, type))
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['columns'] = ', ' + ', '.join(columns)
@@ -86,12 +89,18 @@ class BaseSQLStorage(StorageLayer):
             result = result[0][0]
         except Exception, msg:
             raise AttributeError(msg)
+        mapper = getattr(self, 'unmap_' + field.type, None)
+        if mapper is not None:
+            result = mapper(field, result)
         return result
 
     def set(self, name, instance, value, **kwargs):
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
         field = instance.getField(name)
+        mapper = getattr(self, 'map_' + field.type, None)
+        if mapper is not None:
+            value = mapper(field, value)
         type = type_map.get(field.type, 'string')
         sql_type = self.sqlm_type_map.get(field.type, 'string')
         default = field.default
@@ -102,7 +111,7 @@ class BaseSQLStorage(StorageLayer):
         if default:
             if type == 'string':
                 default = "'%s'" % default
-            field_name =  "%s=%s" % (args['field'], default)
+            field_name =  "%s=%s" % (name, default)
         args[field_name] = name
         args['field'] = name
         args['value'] = value
@@ -142,7 +151,6 @@ class BaseSQLStorage(StorageLayer):
 class GadflySQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
-    column_template = "%(name)s"
     query_create = """create table <dtml-var table> \
                       (UID varchar <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
@@ -199,9 +207,9 @@ class PostgreSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
-                      (UID char(50) primary key not null <dtml-var columns>)"""
-    query_insert = """insert into <dtml-var table> \
-                      set UID=<dtml-sqlvar UID type="string">"""
+                      (UID text primary key not null <dtml-var columns>)"""
+    query_insert = """insert into <dtml-var table> (UID) values\
+                      (<dtml-sqlvar UID type="string">)"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
@@ -209,5 +217,9 @@ class PostgreSQLStorage(BaseSQLStorage):
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
 
-    sqlm_type_map = {'integer':'int'}
-    db_type_map = {}
+    sqlm_type_map = {'integer': 'int'}
+    db_type_map = {
+        'object': 'bytea',
+        'fixedpoint': 'integer',
+        'reference': 'text',
+        }

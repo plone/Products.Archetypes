@@ -83,6 +83,18 @@ def gen_dummy(storage_class):
                      widget = IntegerWidget(label = 'aintegerfield',
                                             description = 'Just a integer field for the testing')),
 
+        FixedPointField('afixedpointfield',
+                        default = '0',
+                        storage = storage_class(),
+                        widget = DecimalWidget(label = 'afixedwidthfield',
+                                               description = 'Just a fixed-width field for the testing')),
+
+        ReferenceField('areferencefield',
+                       default = 0,
+                       storage = storage_class(),
+                       widget = ReferenceWidget(label = 'areferencefield',
+                                                description = 'Just a reference field for the testing')),
+
         #BooleanField('abooleanfield',
         #             widget = StringWidget(label = 'abooleanfield',
         #                                   description = 'Just a boolean field for the testing')),
@@ -102,6 +114,8 @@ def gen_dummy(storage_class):
 class DummyTool:
     def __init__(self, db_name):
         self.connection = connectors[db_name]
+        # to ensure test atomicity
+        self.connection().tpc_abort()
 
     def getConnFor(self, instance=None):
         return connection_id
@@ -121,12 +135,48 @@ class SQLStorageTest(unittest.TestCase):
         dummy_tool.setup(dummy)
         dummy.initalizeArchetype()
 
+    def tearDown(self):
+        db = getattr(self._dummy, connection_id)()
+        db.tpc_abort()
+
+    def test_objectfield(self):
+        dummy = self._dummy
+        dummy.setAobjectfield('Bla')
+        value = dummy.getAobjectfield()
+        __traceback_info__ = repr(value)
+        self.failUnless(str(value) == 'Bla')
+
+
     def test_textfield(self):
         dummy = self._dummy
         dummy.setAtextfield('Bla')
-        text = dummy.getAtextfield()
-        __traceback_info__ = repr(text)
-        self.failUnless(str(text) == 'Bla')
+        value = dummy.getAtextfield()
+        __traceback_info__ = repr(value)
+        self.failUnless(str(value) == 'Bla')
+
+    def test_integerfield(self):
+        dummy = self._dummy
+        dummy.setAintegerfield(23)
+        value = dummy.getAintegerfield()
+        __traceback_info__ = repr(value)
+        self.failUnless(value == 23)
+
+
+    def test_fixedpointfield(self):
+        dummy = self._dummy
+        dummy.setAfixedpointfield('2.3')
+        value = dummy.getAfixedpointfield()
+        __traceback_info__ = repr(value)
+        self.failUnless(value == '2.30')
+
+
+    def test_referencefield(self):
+        dummy = self._dummy
+        dummy.setAreferencefield('Bla')
+        value = dummy.getAreferencefield()
+        __traceback_info__ = repr(value)
+        self.failUnless(str(value) == 'Bla')
+
 
 
 tests = []
