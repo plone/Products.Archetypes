@@ -35,6 +35,19 @@
     </div>
 
     <metal:define define-macro="file_edit">
+      <div tal:condition="accessor">
+        <input class="noborder"
+               type="checkbox"
+               value="on"
+               tabindex=""
+               tal:attributes="tabindex tabindex/next;
+                   name string:${fieldName}_delete;
+                   id string:${fieldName}_checkbox;
+                   checked python:str(value) == '1';"
+         />
+        <span i18n:translate="delete_file">delete file</span>
+      </div>
+      <div>
       <input type="file"
 	     size="30"
 	     tabindex=""

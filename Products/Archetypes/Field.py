@@ -1,44 +1,40 @@
 from __future__ import nested_scopes
 from copy import copy, deepcopy
-from types import ListType, TupleType, ClassType, FileType
-from types import StringType, UnicodeType
-from UserDict import UserDict
-
-from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
-from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.interfaces.field import IField, IObjectField, \
-     IImageField
-from Products.Archetypes.interfaces.layer import ILayerContainer, \
-     ILayerRuntime, ILayer
-from Products.Archetypes.exceptions import ObjectFieldException, \
-     TextFieldException, FileFieldException
-from Products.Archetypes.Widget import *
-from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.ReferenceEngine import Reference
-from Products.Archetypes.utils import capitalize, DisplayList, \
-     className, mapply
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes import config
-from Products.Archetypes.Storage import AttributeStorage, \
-     MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
-
-from Products.validation import validation
-from Products.generator.i18n import translate
-from Products.PortalTransforms.interfaces import idatastream
-
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base, aq_parent, aq_inner
-from DateTime import DateTime
-from OFS.content_types import guess_content_type
-from OFS.Image import File
-from Globals import InitializeClass
-from ComputedAttribute import ComputedAttribute
-from ZPublisher.HTTPRequest import FileUpload
+from types import ListType, TupleType, ClassType, FileType
+from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
+from Globals import InitializeClass
+from Widget import *
+from utils import capitalize, DisplayList, className, mapply
+from debug import log, log_exc
+from ZPublisher.HTTPRequest import FileUpload
+from BaseUnit import BaseUnit
+from types import StringType, UnicodeType
+from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
+     ReadOnlyStorage
+from DateTime import DateTime
+from Layer import DefaultLayerContainer
+from interfaces.field import IField, IObjectField, IImageField
+from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
+from interfaces.storage import IStorage
+from interfaces.base import IBaseUnit
+from exceptions import ObjectFieldException, TextFieldException, \
+     FileFieldException
+from config import TOOL_NAME, USE_NEW_BASEUNIT
+from OFS.content_types import guess_content_type
+from OFS.Image import File
+from ComputedAttribute import ComputedAttribute
+from Products.PortalTransforms.interfaces import idatastream
 
+import config
+
+try:
+    from validation import validation
+except ImportError:
+    from Products.validation import validation
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
@@ -151,13 +147,10 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given and call
-        widget.populateProps
+        instantiate the widget if a class was given
         """
-        if hasattr(self, 'widget'):
-            if type(self.widget) == ClassType:
-                self.widget = self.widget()
-            self.widget.populateProps(self)
+        if hasattr(self, 'widget') and type(self.widget) == ClassType:
+            self.widget = self.widget()
 
     def _validationLayer(self):
         """
@@ -183,88 +176,11 @@ class Field(DefaultLayerContainer):
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-        errors = kwargs['errors']
-        instance = kwargs['instance']
-        name = self.getName()
-
-        if errors and errors.has_key(name):
-            return 1
-
-        if self.required:
-            res = self.validate_required(instance, value, errors)
-            if res != 1:
-                return res
-
-        if self.enforceVocabulary:
-            res = self.validate_vocabulary(instance, value, errors)
-            if res != 1:
-                return res
-
-        res = instance.validate_field(name, value, errors)
-        if res != 1:
-            return res
-
         for v in self.validators:
             res = validation.validate(v, value, **kwargs)
             if res != 1:
                 return res
-        return None
-
-    def validate_required(self, instance, value, errors):
-        if not value:
-            label = self.widget.Label(instance)
-            name = self.getName()
-            errors[name] =  translate(
-                'archetypes', 'error_required',
-                {'name': label}, instance,
-                default = "%s is required, please correct."
-                % label,
-                )
-            return 1
-        return None
-
-    def validate_vocabulary(self, instance, value, errors):
-        """Make sure value is inside the allowed values
-        for a given vocabulary"""
-        error = 0
-        if value:
-            # coerce value into a list called values
-            values = value
-            if isinstance(value, type('')) or \
-                   isinstance(value, type(u'')):
-                values = [value]
-            elif not (isinstance(value, type((1,))) or \
-                      isinstance(value, type([]))):
-                raise TypeError("Field value type error")
-            vocab = self.Vocabulary(instance)
-            # filter empty
-            values = [instance.unicodeEncode(v)
-                      for v in values if v.strip()]
-            # extract valid values from vocabulary
-            valids = []
-            for v in vocab:
-                if type(v) in [type(()), type([])]:
-                    v = v[0]
-                if not type(v) in [type(''), type(u'')]:
-                    v = str(v)
-                valids.append(instance.unicodeEncode(v))
-            # check field values
-            for val in values:
-                error = 1
-                for v in valids:
-                    if val == v:
-                        error = 0
-                        break
-
-        if error == 1:
-            errors[name] = translate(
-                'archetypes', 'error_vocabulary',
-                {'val': val, 'name': label}, instance,
-                default = "Value %s is not allowed for vocabulary "
-                "of element %s." % (val, label),
-                )
-
-        return error
+            return None
 
     def Vocabulary(self, content_instance=None):
         """
@@ -424,7 +340,7 @@ class ObjectField(Field):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default, _initializing_=1, **kwargs)
+                self.set(instance, self.default,_initializing_=1,**kwargs)
             return self.default
 
     def getRaw(self, instance, **kwargs):
@@ -433,7 +349,6 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
-        kwargs.update({'field': self.__name__})
         if accessor is None:
             args = [instance,]
             return mapply(self.get, *args, **kwargs)
@@ -490,7 +405,7 @@ class FileField(StringField):
     _properties = StringField._properties.copy()
     _properties.update({
         'type' : 'file',
-        'default' : '',
+        'default' : None,
         'primary' : 0,
         'widget' : FileWidget,
         })
@@ -538,8 +453,18 @@ class FileField(StringField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+        
+        if not value:
+            return
+
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
+
+        if value=="DELETE_FILE":
+            if hasattr(aq_base(instance), '_FileField_types'):
+                delattr(aq_base(instance), '_FileField_types')
+            ObjectField.unset(self, instance, **kwargs)
+            return
 
         value, mimetype = self._process_input(value,
                                                default=self.default,
@@ -555,10 +480,6 @@ class FileField(StringField):
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
-
-    def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
-        return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -620,7 +541,7 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
-        If raw, return the base unit object, else return encoded raw data
+        if raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
@@ -725,7 +646,7 @@ class LinesField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'lines',
-        'default' : (),
+        'default' : [],
         'widget' : LinesWidget,
         })
 
@@ -737,20 +658,15 @@ class LinesField(ObjectField):
         """
         __traceback_info__ = value, type(value)
         if type(value) in STRING_TYPES:
-            value =  value.split('\n')
+            value = value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            return tuple([encode(v, instance, **kwargs) for v in value])
-        else:
-            return [encode(v, instance, **kwargs) for v in value]
+        return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -802,7 +718,7 @@ class FixedPointField(ObjectField):
     _properties.update({
         'type' : 'fixedpoint',
         'precision' : 2,
-        'default' : '0.00',
+        'default' : '0.0',
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
@@ -833,10 +749,6 @@ class FixedPointField(ObjectField):
         if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
 
-    def validate_required(self, instance, value, errors):
-        value = sum(self._to_tuple(value))
-        return ObjectField.validate_required(self, instance, value, errors)
-
 class ReferenceField(ObjectField):
     """A field for containing a reference"""
     __implements__ = ObjectField.__implements__
@@ -850,8 +762,7 @@ class ReferenceField(ObjectField):
         'allowed_type_column' : 'portal_type',
         'addable': 0,
         'destination': None,
-        'relationship':None,
-        'referenceClass':Reference,
+        'relationship':None
         })
 
     def containsValueAsString(self, value, attrval):
@@ -875,46 +786,29 @@ class ReferenceField(ObjectField):
             value=None
         __traceback_info__ = (instance, self.getName(), value)
 
-        kwargs.setdefault('referenceClass', self.referenceClass)
-
         # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance, REFERENCE_CATALOG)
+        tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
-        refs=tool.getReferences(instance,refname)
-        if refs:
-            targetUIDs=[r.targetUID for r in refs]
-        else:
-            targetUIDs=[]
-
+        # XXX: thats too cheap, but I need the proof of concept before
+        # going on
+        instance.deleteReferences(refname)
         newValue = []
-
         if self.multiValued:
-            #add the new refs
-            if value:
-                value=[v for v in value if v]
-                #add new references
+            if type(value) in (type(()),type([])):
                 for uid in value:
-                    if uid not in targetUIDs:
-                        target=tool.lookupObject(uuid=uid)
+                    if uid:
+                        target=tool.lookupObject(uid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
-
-                        instance.addReference(target,refname, **kwargs)
-                    newValue.append(uid)
-
-                #delete references
-                for uid in targetUIDs:
-                    if uid and uid not in value:
-                        target=tool.lookupObject(uid)
-                        if target:
-                            instance.deleteReference(target,refname)
+                        instance.addReference(target, refname)
+                        newValue.append(uid)
         else:
             if value:
-                target=tool.lookupObject(uuid=value)
+                target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target, refname, **kwargs)
+                instance.addReference(target, refname)
                 newValue = value
 
         # and now do the normal assignment
@@ -930,44 +824,28 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
+
+            # the else branch is for backwards compatibility: we
+            # switched to look up portal_type by default instead of
+            # Type for AT 1.2.4
             if self.allowed_type_column in catalog.indexes():
                 kw = {self.allowed_type_column:self.allowed_types}
             else:
                 kw = {'Type':self.allowed_types}
+
             results = catalog(**kw)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
-
-        value = [(r.UID, r.Title and r.Title or r.id) for r in results]
-
+        results = [(r, r.getObject()) for r in results]
+        value = [(r.UID, obj and (str(obj.Title().strip()) or \
+                                  str(obj.getId()).strip())  or \
+                  log('Field %r: Object at %r could not be found' % \
+                      (self.getName(), r.getURL())) or \
+                  r.Title or r.UID) for r, obj in results]
         if not self.required and not self.multiValued:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
-
-    def addableTypes(self, instance):
-        # XXX This needs to be fixed so it works with allowed_types being
-        # a list of Type Titles (which is the default way of specifying
-        # allowed_types).
-        # Currently, you need to set 'allowed_type_column' property to
-        # 'portal_type' and set 'allowed_types' accordingly to have the
-        # addable=1 feature work.
-        """Returns a dictionary that maps portal_type to its human readable
-        form."""
-        tool = getToolByName(instance, 'portal_types')
-        if tool is None:
-            msg = "Couldn't get portal_types tool from this context"
-            raise AttributeError(msg)
-
-        d = {}
-        for typeid in self.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                raise ValueError('No such content type: %s' % typeid)
-            d[typeid] = info.Title()
-
-        return d
-
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -1300,9 +1178,6 @@ class ImageField(ObjectField):
             return img.getContentType()
         return ''
 
-    def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
-        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(Field)
 
@@ -1587,13 +1462,8 @@ class PhotoField(ObjectField):
     def set(self, instance, value, **kw):
         if isinstance(value, StringType):
             value = StringIO(value)
-        image = ScalableImage(self.getName(), file=value,
-                              displays=self.displays)
+        image = ScalableImage(self.name, file=value, displays=self.displays)
         ObjectField.set(self, instance, image, **kw)
-
-    def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
-        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(PhotoField)
 
@@ -1601,7 +1471,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField', 'PhotoField',
+           'CMFObjectField', 'ImageField',
            )
 
 from Registry import registerField
