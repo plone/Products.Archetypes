@@ -80,7 +80,12 @@ class BaseSQLStorage(StorageLayer):
             return 0
         else:
             return 1
+        
+    def map_reference(self, field, value):
+        __traceback_info__ = repr(value)
 
+        return ','.join(value)
+    
     def unmap_boolean(self, field, value):
         __traceback_info__ = repr(value)
         if not value or value == '0':   # Gadfly return integers as strings

@@ -1156,6 +1156,7 @@ class ReferenceField(ObjectField):
                                          # override display_path_bound
         'referenceClass' : Reference,
         'referenceReferences' : False,
+        'callStorageOnSet': False,
         })
 
     security  = ClassSecurityInfo()
@@ -1220,6 +1221,12 @@ class ReferenceField(ObjectField):
 
         for uid in sub:
             tool.deleteReference(instance, uid, self.relationship)
+
+        if self.callStorageOnSet:
+            #if this option is set the reference fields's values get written
+            #to the storage even if the reference field never use the storage
+            #e.g. if i want to store the reference UIDs into an SQL field
+            ObjectField.set(self, instance, self.getRaw(instance), **kwargs)
 
     security.declarePrivate('getRaw')
     def getRaw(self, instance, **kwargs):
