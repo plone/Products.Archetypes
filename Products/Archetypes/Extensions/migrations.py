@@ -7,6 +7,15 @@ from Products.Archetypes.Extensions.utils import install_referenceCatalog
 from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
 
+def reinstallArchetypes(portal,out):
+    ''' lets quickinstaller reinstall the archetypes '''
+    # heuristic: if there is no reference_catalog, lets reinstall
+    refcat=getToolByName(portal,REFERENCE_CATALOG,None)
+    if not refcat:
+        print >>out, 'reinstalling Archetypes...'
+        getToolByName(portal,'portal_quickinstaller').reinstallProducts(['Archetypes'])
+        print >>out, 'reinstalled Archetypes.'
+        
 def fixArchetypesTool(portal, out):
     at = portal.archetype_tool
 
@@ -44,6 +53,7 @@ def migrateReferences(portal, out):
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
                 targetBrains = uc(**{olduididx:targetUID})
+                assert(len(targetBrains) == 1,'catalog query for OLD uid (%s) must returned %d results instead of 1' % (targetUID,len(targetBrains)))
                 targetObj=targetBrains[0].getObject()
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
@@ -168,6 +178,7 @@ def migrate(self):
     print >>out, "Begin Migration"
 
     fixArchetypesTool(portal, out)
+    reinstallArchetypes(portal,out)
     migrateSchemas(portal, out)
     migrateMetadata(portal, out)
     migrateUIDs(portal, out)
