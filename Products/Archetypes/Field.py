@@ -842,7 +842,7 @@ class ReferenceField(ObjectField):
             results = archetype_tool.Content()
 
         value = [(r.UID, r.Title and r.Title or r.id) for r in results]
-        
+
         if not self.required and not self.multiValued:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
