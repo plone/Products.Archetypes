@@ -17,6 +17,7 @@ class TypesWidget(macrowidget):
         'modes' : ('view', 'edit'),
         'populate' : 1,  # should this field be populated in edit and view?
         'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
+        'show_content_type' : 0,
         })
 
     def getName(self):
@@ -193,6 +194,7 @@ class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/file",
+        'show_content_type' : 1,
         })
 
     def process_form(self, instance, field, form, empty_marker=None):

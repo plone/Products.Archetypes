@@ -567,7 +567,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if isinstance(instance, DefaultDublinCoreImpl):
                 DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
-            schema = instance.Schema().copy()
+            schema = instance.schema = instance.Schema().copy()
             fields = [f for f in schema.fields()
                       if (not widgets.has_key(f.getName()) and f.index)]
             for field in fields:
