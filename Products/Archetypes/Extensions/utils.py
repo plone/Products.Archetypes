@@ -133,6 +133,7 @@ def install_actions(self, out, types):
 
 def install_indexes(self, out, types):
     catalog = getToolByName(self, 'portal_catalog')
+    catalog = aq_base(catalog)
 
     for cls in types:
         if 'indexes' not in cls.installMode:

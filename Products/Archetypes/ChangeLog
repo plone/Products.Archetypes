@@ -1,3 +1,16 @@
+2003-12-16  Sidnei da Silva  <sidnei@awkly.org>
+
+	* ClassGen.py (ClassGenerator.checkSchema): Return an acquisition
+	wrapped Schema so that the security machinery can find it's way
+	through. **WARNING**: Consumers of Schema() and Schemata() must
+	make sure to remove acquisition wrappers when persisting the
+	resultant object. Failure on doing so will bite your butt when you
+	get to run Zope HEAD :)
+
+	* Schema.py (getSchemata): Wrap schemata into an
+	ImplicitAcquisitionWrapper, so that the security machinery can
+	find it's way through.
+
 2003-12-13  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): Applied Joel

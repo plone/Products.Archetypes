@@ -1,3 +1,4 @@
+from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from debug import log
@@ -79,7 +80,8 @@ class ClassGenerator:
                           stacklevel = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
-            klass.Schema = lambda self: self.schema
+            klass.Schema = lambda self: \
+                ImplicitAcquisitionWrapper(self.schema, self)
 
     def generateClass(self, klass):
         #We are going to assert a few things about the class here
