@@ -234,7 +234,7 @@
           Get the byline - contains details about author and modification date.
         </div>
       </tal:has_document_byline>
-    </metal:footer_mac
+    </metal:footer_macro>
         
   </body>
 
