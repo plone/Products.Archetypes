@@ -3,7 +3,7 @@ from Products.Archetypes.public import *
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
-     AccessContentsInformation, View
+     AccessContentsInformation, View, ListFolderContents
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
@@ -62,6 +62,13 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declareProtected(AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues
+
+    security.declareProtected(ListFolderContents, 'listFolderContents')
+    listFolderContents = BaseFolder.listFolderContents
+    
+    security.declareProtected(AccessContentsInformation,
+                              'folderlistingFolderContents')
+    folderlistingFolderContents = BaseFolder.folderlistingFolderContents
 
     __call__ = SkinnedFolder.__call__
 

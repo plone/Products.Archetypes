@@ -58,6 +58,31 @@ class BaseFolderMixin(BaseObject,
         Folder.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
+    security.declareProtected(CMFCorePermissions.ListFolderContents,
+                              'listFolderContents')
+    def listFolderContents(self, spec=None, contentFilter=None,
+                           suppressHiddenFiles=0):
+        """
+        Optionally you can suppress "hidden" files, or files that begin with .
+        """
+        contents=SkinnedFolder.listFolderContents(self, 
+                                                  spec=spec, 
+                                                  contentFilter=contentFilter)
+        if suppressHiddenFiles:
+            contents=[obj for obj in contents if obj.getId()[:1]!='.']
+   
+        return contents
+
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
+                              'folderlistingFolderContents')
+    def folderlistingFolderContents(self, spec=None, contentFilter=None,
+                                    suppressHiddenFiles=0 ):
+        """
+        Calls listFolderContents in protected only by ACI so that folder_listing
+        can work without the List folder contents permission, as in CMFDefault
+        """
+        return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
+
     security.declareProtected(CMFCorePermissions.View, 'Title')
     def Title(self, **kwargs):
         """We have to override Title here to handle arbitrary
