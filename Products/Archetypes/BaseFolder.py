@@ -6,19 +6,18 @@ from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
-from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl import ClassSecurityInfo
+from AccessControl import Unauthorized
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Products.CMFCore.utils import getToolByName
-from OFS.Folder import Folder
 
 class BaseFolderMixin(CatalogMultiplex,
-                      BaseObject,
-                      SkinnedFolder,
-                      Folder
-                      ):
+                    BaseObject,
+                    SkinnedFolder,
+                    ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
@@ -40,26 +39,27 @@ class BaseFolderMixin(CatalogMultiplex,
         """In the case of a move (op=1) we need to make sure
         references are mainained for all referencable objects within
         the one being moved.
-       
+
         manage_renameObject calls _notifyOfCopyTo so that the
         object being renamed doesn't lose its references. But
-        manage_ renameObject calls _delObject which calls
+        manage_renameObject calls _delObject which calls
         manage_beforeDelete on all the children of the object
         being renamed which deletes all references for children
         of the object being renamed. Here is a patch that does
         recursive calls for _notifyOfCopyTo to address that
         problem.
         """
+        BaseObject._notifyOfCopyTo(self, container, op=op)
+        SkinnedFolder._notifyOfCopyTo(self, container, op=op)
         if op==1: # For efficiency, remove if op==0 needs something
             for child in self.contentValues():
                 if IReferenceable.isImplementedBy(child):
                     child._notifyOfCopyTo(self, op)
-            return Referenceable._notifyOfCopyTo(self, container, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
-        Folder.manage_afterAdd(self, item, container)
+        SkinnedFolder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
 
@@ -67,14 +67,14 @@ class BaseFolderMixin(CatalogMultiplex,
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
-        Folder.manage_afterClone(self, item)
+        SkinnedFolder.manage_afterClone(self, item)
 
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
-        Folder.manage_beforeDelete(self, item, container)
+        SkinnedFolder.manage_beforeDelete(self, item, container)
 
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -129,6 +129,42 @@ class BaseFolderMixin(CatalogMultiplex,
         arguments since PortalFolder defines it."""
         self.getField('title').set(self, value, **kwargs)
 
+    # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
+    # as it insists on creating folders of type "Folder".
+    # use instead "_at_type_subfolder" or our own type.
+    def manage_addFolder( self
+                        , id
+                        , title=''
+                        , REQUEST=None
+                        , type_name = None
+                        ):
+        """ Add a new folder-like object with id *id*.
+
+        IF present, use the parent object's 'mkdir' alias; otherwise, just add
+        a PortalFolder.
+        """
+        ti = self.getTypeInfo()
+        method = ti and ti.getMethodURL('mkdir') or None
+        if method:
+            # call it
+            getattr(self, method)(id=id)
+        else:
+            if type_name is None:
+                type_name = getattr(self, '_at_type_subfolder', None)
+            if type_name is None:
+                type_name = ti and ti.getId() or 'Folder'
+            self.invokeFactory( type_name, id=id )
+
+        ob = self._getOb( id )
+        try:
+            ob.setTitle( title )
+        except AttributeError:
+            pass
+        try:
+            ob.reindexObject()
+        except AttributeError:
+            pass
+
 InitializeClass(BaseFolderMixin)
 
 
@@ -162,6 +198,9 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
 
-
-
 InitializeClass(BaseFolder)
+
+
+BaseFolderSchema = BaseFolder.schema
+
+__all__ = ('BaseFolder', 'BaseFolderMixin', 'BaseFolderSchema', )

@@ -1,6 +1,7 @@
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from Globals import PersistentMapping
@@ -24,7 +25,7 @@ class Storage:
     at least those methods"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePublic('getName')
@@ -54,7 +55,7 @@ setSecurity(Storage)
 class ReadOnlyStorage(Storage):
     """A marker storage class for used for read-only fields."""
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
 class StorageLayer(Storage):
@@ -63,7 +64,7 @@ class StorageLayer(Storage):
     subclass and implement those methods"""
 
     __implements__ = IStorage, ILayer
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
@@ -89,12 +90,12 @@ class AttributeStorage(Storage):
     commonly used storage"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, name, instance, **kwargs):
-        if not hasattr(aq_base(instance), name):
+        if not shasattr(instance, name):
             raise AttributeError(name)
         return getattr(instance, name)
 
@@ -118,7 +119,7 @@ class ObjectManagedStorage(Storage):
     used for BaseFolder-based content"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
@@ -149,13 +150,12 @@ class MetadataStorage(StorageLayer):
     a persistent mapping named ``_md`` on the instance."""
 
     __implements__ = IStorage, ILayer
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
     def initializeInstance(self, instance, item=None, container=None):
-        base = aq_base(instance)
-        if not hasattr(base, "_md"):
+        if not shasattr(instance, "_md"):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
@@ -188,12 +188,11 @@ class MetadataStorage(StorageLayer):
 
     security.declarePrivate('unset')
     def unset(self, name, instance, **kwargs):
-        base = aq_base(instance)
-        if not hasattr(base, "_md"):
+        if not shasattr(instance, "_md"):
             log("Broken instance %s, no _md" % instance)
         else:
-            del base._md[name]
-            base._p_changed = 1
+            del instance._md[name]
+            instance._p_changed = 1
 
     security.declarePrivate('cleanupField')
     def cleanupField(self, instance, field, **kwargs):

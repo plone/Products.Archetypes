@@ -1,3 +1,179 @@
+1.3.0-rc1 - 2004-08-16
+======================
+
+ * Try to use BaseUnit for schema migration to keep the mimetype and the 
+   filename of a BaseUnit based field. Without the changes the mimetype of 
+   TextField got lost.
+   This should fix [ 1001446 ] Content type lost in migration from pre 1.3b4 to
+   1.3b4
+   [tiran]
+
+ * Changed portal type of ComplexType to keep it compatible with AT 1.2
+   [tiran]
+
+ * Fixed typo in Field.Field.getContentType
+   [tiran]
+
+ * Fixed Field.ImageField.rescaleOriginal to always return a binary string. This
+   fixes the problem with original_size: [ 1004323 ] "IOError: cannot identify
+   image file" when uploading image
+   [tiran]
+   
+ * Fixed [ 1004510 ] folderlisting or plone_utils.browserDefault by adding an action
+   'folderlisting' to folderish content types.
+   [tiran]
+
+ * Use True and False in favor to 1 and 0 to make the code more readable.
+   [tiran]
+
+ * Raise an error when trying to use an index on a reference field unless we
+   have a good solution to avoid catalog corruption.
+   [tiran]
+
+ * Use edit accessor instead of the accessor in Schema.BasicSchema.validate().
+   [alecacct]
+
+ * Added a index_method property to Field.Field which may be either _at_accessor,
+   _at_edit_accessor or the name of a method which is used as accessor for the
+   index.
+   [alecacct]
+
+ * Starting from NOW all attributes starting with '_at_' are reserved for 
+   internal usage. You MUST NEITHER add NOR access any attributes starting
+   with '_at_' in your content types.
+  tiran]
+
+ * Fixed  FTP/WebDAV's PUT in BaseObject:If a new object should be created with
+   an id that can be acquired, then the existing object is silently overwritten
+   rather than a new one created
+   [dm]
+
+ * Fixed with problem MKCOL/MKD used by FTP/WebDAV and 
+   BaseFolde.manage_addFolder. Now MKCOL/MKD are creating a sub folder with the
+   type name of the current folder except when this behavior is overwritten
+   by an attribute called _at_type_subfolder.
+   [dm]
+
+ * Fixed [ 1006559 ] addReference allows adding garbage references. addReference
+   is raising a ReferenceException when an invalid source or target was applied.
+   [duncanb, tiran]
+
+ * Fixed [ 1006491 ] File widget makes useless str(value) conversion
+   [tiran, lurker]
+   
+ * Fixed possible issue inside ArchetypeTool.getWidgets() by calling
+   initializeArchetype() on the wrapped dummy instance.
+   [tiran]
+
+ * Update catalog on reference catalog has raised a KeyError when trying to
+   access an object that was already removed. Now ReferenceResolver is fetching
+   the KeyError in resolve_url() and returns None instead.
+   [tiran]
+
+ * Added getRaw() method to LinesField which is returning the output of get().
+   Before this change the edit accessor was using the accessor which might be an
+   overwritten accessor. Thx to Joel Burton who has figured out the problem.
+   [tiran]
+
+ * Raise an ReferenceException inside Field.ReferenceField._Vocabulary when the
+   brain doesn't have a valid uid.
+   [tiran]
+
+ * Refresh the uid catalog and reference catalog after migration.
+   [tiran]
+
+ * Don't commit full transactions inside migration. This may lead to database
+   corruption.
+   [tiran]
+
+ * General cleanup of imports and public.py. Also include Marshallers in public.
+   [tiran]
+
+ * Fixed [ 1007850 ] Cancel content creation fails with portal factory tool
+   Archetypes is playing nice again with portal factory
+   [tiran]
+
+ * Raise SchemaException when trying to add two or more primary fields to one
+   content type. Adding more than one primary field can lead to unexpected
+   behaviors.
+   [tiran]
+
+ * Don't store mimetype item instances in BaseUnit. Now BaseUnit is storing the
+   mimetype and the binary flag as ordinary strings. Old BaseUnits are auto-
+   magically altered using __setstate__().
+   Storing mimetype item objects in BaseUnit seemed to lead to memory leaks.
+   [tiran]
+
+ * Reenabled ints as DisplayList and Vocabulary keys. 
+   XXX: Add a comment to the documentation that users should take care when
+   mixing strings and ints!
+   [tiran]
+
+ * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
+   to InAndOutWidget.
+   [ender]
+
+ * Removed old and deprecated old_OrderedBaseFolder implementation from
+   Archetypes.
+   [tiran]
+
+ * There is no need to subclass BaseFolder from Folder since SkinnedFolder is
+   already subclasses from Folder (over PortalFolder).
+   [tiran]
+
+ * Store subobjects inside a volatile attribute instead of using SESSION which
+   1) was broken by design 2) was a possible memory eater.
+   [tiran]
+
+ * Fixed [ 988948 ] Reference field: radio button "no reference" isn't checked
+   [tiran]
+
+ * Added properties for [ 1008670 ] Feature request: specify year interval for
+   the Calendar Widget
+   Right now these properties are useless because the plone templates can't
+   handle it but I got word from limi that we are allowed to add these features
+   to the templates
+   [tiran]
+   
+ * Fixed [ 1005843 ] Stringfields should not default to '0' in search mode
+   [tiran]
+
+ * Moved addable feature of reference.pt to a seperate file and added addable to
+   inandout.pt
+   [ender]
+
+ * Use manage_rebuildCatalog for refresh_references in installTypes()
+   [tiran]
+
+ * Fixed [ 905677 ] manage_afterClone is a bit of a mess
+   [dreamcatcher]
+
+ * Template cleanups
+   [dreamcatcher]
+   
+ * ImageField: Fixed problem with empty image field and calls to getScale,
+   getSize and tag()
+   [tiran]
+   
+ * Cleaned up the Extensions/utils.py function which are installing AT and it's
+   dependencies. Added a method setupArchetypes() which is setting up the internals.
+   These fixes are fixing the problem that AT don't seemed to be installed when
+   it's installed from an AT based product.
+   [tiran]
+
+ * Schema: fixed a bug, it wasnt allowed to override a primary field by another 
+   primary field with the same name.
+   [jensens]
+
+ * Added getWrappedField(key) to BaseObject which is returning the field
+   instance explictly wrapped relative to the Archetype instance. This method is
+   required for security reasons in order to allow Zope to find the acl_users.
+   [tiran]
+
+ * Fixed [ 1009894 ] CSS class on validation error messages. It's using Plone's
+   'error' class.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

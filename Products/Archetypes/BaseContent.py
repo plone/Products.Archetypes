@@ -5,20 +5,21 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.PortalContent  import PortalContent
+from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
 
 class BaseContentMixin(CatalogMultiplex,
-                       BaseObject,
-                       PortalContent,
-                       Historical):
+                    BaseObject,
+                    PortalContent,
+                    Historical):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
@@ -34,7 +35,6 @@ class BaseContentMixin(CatalogMultiplex,
         BaseObject.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
-
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
@@ -45,9 +45,13 @@ class BaseContentMixin(CatalogMultiplex,
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
+    def _notifyOfCopyTo(self, container, op=0):
+        """OFS.CopySupport notify
+        """
+        BaseObject._notifyOfCopyTo(self, container, op=op)
+        PortalContent._notifyOfCopyTo(self, container, op=op)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
-                              'PUT')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
         """ HTTP PUT handler with marshalling support """
         if not REQUEST:
@@ -82,7 +86,7 @@ class BaseContentMixin(CatalogMultiplex,
                                       filename=filename,
                                       REQUEST=REQUEST,
                                       RESPONSE=RESPONSE)
-        if hasattr(aq_base(self), 'demarshall_hook') \
+        if shasattr(self, 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
 
@@ -107,7 +111,7 @@ class BaseContentMixin(CatalogMultiplex,
 
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.marshall(self, REQUEST=REQUEST, RESPONSE=RESPONSE)
-        if hasattr(aq_base(self), 'marshall_hook') \
+        if shasattr(self, 'marshall_hook') \
            and self.marshall_hook:
             ddata = self.marshall_hook(ddata)
 
@@ -142,3 +146,8 @@ class BaseContent(BaseContentMixin,
         ExtensibleMetadata.__init__(self)
 
 InitializeClass(BaseContent)
+
+
+BaseSchema = BaseContent.schema
+
+__all__ = ('BaseContent', 'BaseContentMixin', 'BaseSchema', )

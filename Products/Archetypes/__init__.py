@@ -64,7 +64,7 @@ for info in (mtr_info, pt_info, gen_info, val_info, ):
         raise RuntimeError('The current Archetypes version %s is not in list ' \
                            'of compatible versions for %s!\nList: %s' % \
                            (at_version, info.modname, info.at_versions)
-                          ) 
+                          )
 
 ###
 # Tools

@@ -113,6 +113,8 @@
             </tr>
           </table>
 
+          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+
         </metal:fill>
       </metal:use>
     </metal:define>

@@ -2,14 +2,18 @@ import string
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schema, MetadataSchema
+from Products.Archetypes.Schema import Schema
+from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.debug import log, log_exc, ERROR
+from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import ERROR
 
 import Persistence
 from Acquisition import aq_base
-from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl import ClassSecurityInfo
+from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
@@ -674,3 +678,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         self.reindexObject()
 
 InitializeClass(ExtensibleMetadata)
+
+ExtensibleMetadataSchema = ExtensibleMetadata.schema
+
+__all__ = ('ExtensibleMetadata', 'ExtensibleMetadataSchema', )

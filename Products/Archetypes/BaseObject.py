@@ -1,17 +1,29 @@
 from Products.Archetypes.debug import log_exc, log, _default_logger
-from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
-    getRelURL, getRelPath
-from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
+from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import mapply
+from Products.Archetypes.utils import fixSchema
+from Products.Archetypes.utils import getRelURL
+from Products.Archetypes.utils import getRelPath
+from Products.Archetypes.utils import shasattr
+from Products.Archetypes.Field import StringField
+from Products.Archetypes.Field import TextField
+from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Widget import IdWidget, StringWidget
+from Products.Archetypes.Widget import IdWidget
+from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
-from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
+from Acquisition import aq_base
+from Acquisition import aq_acquire
+from Acquisition import aq_inner
+from Acquisition import aq_parent
+from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
@@ -123,10 +135,12 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
+        __traceback_info__ = (self, item)
         Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
+        __traceback_info__ = (self, item, container)
         self.cleanupLayers(item, container)
         Referenceable.manage_beforeDelete(self, item, container)
 
@@ -142,7 +156,7 @@ class BaseObject(Referenceable):
     def title_or_id(self):
         """Utility that returns the title if it is not blank and the id otherwise.
         """
-        if hasattr(aq_base(self), 'Title'):
+        if shasattr(self, 'Title'):
             if callable(self.Title):
                 return self.Title() or self.getId()
 
@@ -177,7 +191,7 @@ class BaseObject(Referenceable):
         at the object level (i.e. with or without metadata) to interact
         with the uid catalog
         """
-        if hasattr(aq_base(self), 'getTypeInfo'):
+        if shasattr(self, 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:
                 return ti.Title()
@@ -185,10 +199,19 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
-    def getField(self, key):
+    def getField(self, key, wrapped=False):
         """Return a field object
         """
         return self.Schema().get(key)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'getWrappedField')
+    def getWrappedField(self, key):
+        """Get a field by id which is explicitly wrapped
+        
+        XXX Maybe we should subclass field from Acquisition.Explicit?
+        """
+        return ExplicitAcquisitionWrapper(self.getField(key), self)
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
@@ -202,10 +225,10 @@ class BaseObject(Referenceable):
         """Return wether a field contains binary data
         """
         element = getattr(self, key, None)
-        if element and hasattr(aq_base(element), 'isBinary'):
+        if element and shasattr(element, 'isBinary'):
             return element.isBinary()
         mimetype = self.getContentType(key)
-        if mimetype and hasattr(aq_base(mimetype), 'binary'):
+        if mimetype and shasattr(mimetype, 'binary'):
             return mimetype.binary
         elif mimetype and mimetype.find('text') >= 0:
             return 0
@@ -237,16 +260,16 @@ class BaseObject(Referenceable):
         # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
             pfield = self.getPrimaryField()
-            if pfield and hasattr(pfield, 'getContentType'):
+            if pfield and shasattr(pfield, 'getContentType'):
                 return pfield.getContentType(self)
             else:
                 return value
 
         field = self.getField(key)
-        if field and hasattr(field, 'getContentType'):
+        if field and shasattr(field, 'getContentType'):
             return field.getContentType(self)
         element = getattr(self, key, None)
-        if element and hasattr(element, 'getContentType'):
+        if element and shasattr(element, 'getContentType'):
             return element.getContentType()
         return value
 
@@ -266,7 +289,7 @@ class BaseObject(Referenceable):
         pfield = self.getPrimaryField()
         if pfield and IFileField.isImplementedBy(pfield):
             bu = pfield.getBaseUnit(self)
-            bu.setContentType(value)
+            bu.setContentType(self, value)
             pfield.set(self, bu)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
@@ -375,7 +398,7 @@ class BaseObject(Referenceable):
         methodName = "validate_%s" % name
         result = None
 
-        if hasattr(aq_base(self), methodName):
+        if shasattr(self, methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
@@ -609,7 +632,9 @@ class BaseObject(Referenceable):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                kw['mimetype'] = f.getContentType(self)
+                # XXX commented out because we are trying to directly use
+                # the new base unit
+                # kw['mimetype'] = f.getContentType(self)
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
@@ -635,6 +660,14 @@ class BaseObject(Referenceable):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
+            # at very first try to use the BaseUnit itself
+            try:
+                if IFileField.isImplementedBy(field):
+                    return field.getBaseUnit(self)
+            except ConflictError:
+                raise
+            except:
+                pass
             # first try the edit accessor
             try:
                 editAccessor = field.getEditAccessor(self)
@@ -695,7 +728,7 @@ class BaseObject(Referenceable):
         # Nope -- now see if the current object has an attribute
         # with the same name
         # as the new field
-        if hasattr(self, name):
+        if shasattr(self, name):
             return getattr(self, name)
 
         raise ValueError, 'name = %s' % (name)
@@ -724,11 +757,36 @@ class BaseObject(Referenceable):
                     log_exc()
         else:
             # try setting an existing attribute
-            if hasattr(self, name):
+            if shasattr(self, name):
                 setattr(self, name, value)
                 return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
+    security.declareProtected(CMFCorePermissions.View, 'isTemporary')
+    def isTemporary(self):
+        """Check to see if we are created as temporary object by portal factory"""
+        parent = aq_parent(aq_inner(self))
+        return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
+    
+    def getFolderWhenPortalFactory(self):
+        """Return the folder where this object was created temporarily
+        """
+        ctx = aq_inner(self)
+        if not ctx.isTemporary():
+            # not a temporary object!
+            return aq_parent(ctx)
+        utool = getToolByName(self, 'portal_url')
+        portal_object = utool.getPortalObject()
+        
+        while ctx.getId() != 'portal_factory':
+            # find the portal factory object
+            if ctx == portal_object:
+                # uups, shouldn't happen!
+                return ctx
+            ctx = aq_parent(ctx)
+        # ctx is now the portal_factory in our parent folder
+        return aq_parent(ctx)
+        
 
     # subobject access ########################################################
     #
@@ -740,30 +798,31 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionary of objects to the session
+        """add a dictionary of objects to a volatile attribute
         """
         if objects:
-            if REQUEST is None:
-                REQUEST = self.REQUEST
-            key = getRelURL(self, self.getPhysicalPath())
-            session = REQUEST.SESSION
-            defined = session.get(key, {})
-            defined.update(objects)
-            session[key] = defined
+            storage = getattr(aq_base(self), '_v_at_subobjects', None)
+            if storage is None:
+                setattr(self, '_v_at_subobjects', {})
+                storage = getattr(aq_base(self), '_v_at_subobjects')
+            for name, obj in objects.items():
+                storage[name] = aq_base(obj)
 
     security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """Get a dictionary of objects from the session
+        """Get a dictionary of objects from a volatile attribute
         """
-        try:
-            data = REQUEST.SESSION[getRelURL(self, self.getPhysicalPath())][name]
-        except AttributeError:
-            return
-        except KeyError:
-            return
+        storage = getattr(aq_base(self), '_v_at_subobjects', None)
+        if storage is None:
+            return None
+
+        data = storage.get(name, None)
+        if data is None:
+            return None
+
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, mt or 'application/octet')
+        return Wrapper(data, name, str(mt) or 'application/octet')
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
@@ -773,10 +832,29 @@ class BaseObject(Referenceable):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        target = getattr(self, name, None)
+        # DM 2004-08-10: this breaks FTP/WebDAV's PUT:
+        #  If a new object should be created with an id that can
+        #  be acquired, then the existing object is silently overwritten
+        #  rather than a new one created.
+        ## target = getattr(self, name, None)
+        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0
+            and not (
+                # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+                # to check whether this is a browser request
+                method == 'GET'
+                or method == 'POST' and not isinstance(RESPONSE, xmlrpc.Response)
+                )
+            ):
+            if shasattr(self, name):
+                target = getattr(self, name)
+            else:
+                target = None
+        else:
+            # we are allowed to acquire
+            target = getattr(self, name, None)
         if target is not None:
             return target
-        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
         if (not method in ('GET', 'POST', 'HEAD') and
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
@@ -808,4 +886,9 @@ class Wrapper:
                                'inline;filename=%s' % name)
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
+
+
+MinimalSchema = BaseObject.schema
+
+__all__ = ('BaseObject', 'MinimalSchema', )
 

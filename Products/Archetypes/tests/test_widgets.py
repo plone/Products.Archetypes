@@ -39,7 +39,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.app.REQUEST['SESSION'] = {}
 
     def test_subject_keyword_widget(self):
-        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
         form = {'subject_keywords':['bla','ble'],
@@ -75,7 +75,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(expected, result[0])
 
     def _test_widgets(self):
-        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
 
         #Now render this doc in view and edit modes. If this works
         #then we have pretty decent assurance that things are working
@@ -89,7 +89,7 @@ class WidgetTests(ArcheSiteTestCase):
         request = FakeRequest()
         mystring = str('<<<<this is a test string>>>>')
         
-        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
         
@@ -111,7 +111,7 @@ class WidgetTests(ArcheSiteTestCase):
 
     def test_rich_text_widget(self):
         request = FakeRequest()
-        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['richtextfield']
         widget = field.widget
         form = {'richtextfield_text_format':'text/x-rst',

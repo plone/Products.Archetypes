@@ -183,6 +183,12 @@ class SQLMethod(Aqueduct.BaseQuery):
         argdata['sql_delimiter'] = '\0'
         argdata['sql_quote__'] = dbc.sql_quote__
 
+        # TODO: Review the argdata dictonary. The line bellow is receiving unicode 
+        # strings, mixed with standard strings. It is insane! Archetypes needs a policy 
+        # about unicode, and lots of tests on this way. I prefer to not correct it now, 
+        # only doing another workarround. We need to correct the cause of this problem, 
+        # not its side effects :-(
+
         try:
             query = apply(self.template, (p,), argdata)
         except TypeError, msg:
@@ -207,13 +213,12 @@ class SQLMethod(Aqueduct.BaseQuery):
             site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
         except AttributeError, KeyError:
             site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
-        
-        if db_encoding:
-            query = query.encode(db_encoding)
-        else:
-            # if database does not have an encoding setting, we could
-            # consider that it stores strings, not unicode.
-            query = str(query)
+       
+        if type(query) == type(u''):
+            if db_encoding:
+                query = query.encode(db_encoding)
+            else:
+                query = query.encode('latin-1')
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))

@@ -16,7 +16,7 @@ from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
 class SitePolicyTests(ArcheSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
-                  'Fact', 'Complex Type']
+                  'Fact', 'ComplexType']
 
     # This test sucks, it doesn't test a unit, or assert anything
     # useful --bcsaller
@@ -40,7 +40,7 @@ class SitePolicyTests(ArcheSiteTestCase):
     # XXX Tests for some basic methods. Should be moved to
     # a separate test suite.
     def test_ComplexTypeGetSize(self):
-        content = makeContent(self.folder, portal_type='Complex Type', id='ct')
+        content = makeContent(self.folder, portal_type='ComplexType', id='ct')
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)

@@ -10,31 +10,38 @@ from StringIO import StringIO
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-
-from Products.Archetypes.ClassGen import generateClass, generateCtor, \
-     generateZMICtor
+from Products.Archetypes.ClassGen import generateClass
+from Products.Archetypes.ClassGen import generateCtor
+from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config import TOOL_NAME, UID_CATALOG, HAS_GRAPHVIZ
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
-from Products.Archetypes.utils import findDict, DisplayList, mapply
+from Products.Archetypes.utils import findDict
+from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import mapply
 from Products.Archetypes.Renderer import renderer
 
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass, PersistentMapping
-from OFS.Folder import Folder
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
-from Products.ZCatalog.IZCatalog import IZCatalog
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-from ZODB.POSException import ConflictError
+
+from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
+from Globals import InitializeClass
+from Globals import PersistentMapping
+from OFS.Folder import Folder
+from Products.ZCatalog.IZCatalog import IZCatalog
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from ZODB.POSException import ConflictError
+
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -44,7 +51,7 @@ class BoundPageTemplateFile(PageTemplateFile):
         args = (self,) + args
         mapply(PageTemplateFile.__init__, *args, **kw)
 
-    def pt_render(self, source=0, extra_context={}):
+    def pt_render(self, source=False, extra_context={}):
         options = extra_context.get('options', {})
         options.update(self._extra)
         extra_context['options'] = options
@@ -80,8 +87,8 @@ base_factory_type_information = (
       , 'product': 'Unknown Package'
       , 'factory': 'addContent'
       , 'immediate_view': 'base_edit'
-      , 'global_allow': 1
-      , 'filter_content_types': 0
+      , 'global_allow': True
+      , 'filter_content_types': False
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -106,7 +113,16 @@ base_factory_type_information = (
                        'action': 'string:${object_url}/reference_graph',
                        'condition': 'object/archetype_tool/has_graphviz',
                        'permissions': (CMFCorePermissions.View,),
-                       'visible' : 1,
+                       'visible' : True,
+                       },
+
+                     { 'id': 'folderlisting',
+                       'name': 'Folder Listing',
+                       'action': 'string:${folder_url}/folder_listing',
+                       'condition': 'object/isPrincipiaFolderish',
+                       'permissions': (CMFCorePermissions.View,),
+                       'category': 'folder',
+                       'visible' : False,
                        },
                      )
       }, )
@@ -118,7 +134,7 @@ def fixActionsForType(portal_type, typesTool):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            if getattr(portal_type,'include_default_actions', 1):
+            if getattr(portal_type,'include_default_actions', True):
                 new = list(typeInfo._actions)
             else:
                 # If no standard actions are wished -
@@ -132,6 +148,7 @@ def fixActionsForType(portal_type, typesTool):
                 #  we must not put persistent objects into class attributes.
                 #  Thus, copy "action"
                 action = action.copy()
+                
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -171,11 +188,11 @@ def fixActionsForType(portal_type, typesTool):
                         typeInfo._guessMethodAliases()
 
             typeInfo._actions = tuple(new)
-            typeInfo._p_changed = 1
+            typeInfo._p_changed = True
 
         if hasattr(portal_type,'factory_type_information'):
             typeInfo.__dict__.update(portal_type.factory_type_information)
-            typeInfo._p_changed = 1
+            typeInfo._p_changed = True
 
 
 def modify_fti(fti, klass, pkg_name):
@@ -195,7 +212,7 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "allowed_content_types"):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed
-        fti[0]['filter_content_types'] = allowed and 1 or 0
+        fti[0]['filter_content_types'] = allowed and True or False
 
     if hasattr(klass, "filter_content_types"):
         filter = klass.filter_content_types
@@ -206,11 +223,19 @@ def modify_fti(fti, klass, pkg_name):
 
     if not IReferenceable.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
-        refs['visible'] = 0
+        refs['visible'] = False
 
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
-        refs['visible'] = 0
+        refs['visible'] = False
+
+    # remove folderlisting action from non folderish content types
+    if not getattr(klass,'isPrincipiaFolderish', None):
+        actions = []
+        for action in fti[0]['actions']:
+            if action['id'] != 'folderlisting':
+                actions.append(action)
+        fti[0]['actions'] = tuple(actions)
 
 def process_types(types, pkg_name):
     content_types = ()
@@ -347,7 +372,7 @@ def registerClasses(context, package, types=None):
                                              'portal_type':portal_type}
                                       ))
 
-        position = 0
+        position = False
         for item in klass.manage_options:
             if item['label'] != 'Contents':
                 continue
@@ -400,7 +425,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     meta_type = TOOL_NAME.title().replace('_', ' ')
 
-    isPrincipiaFolderish = 1 # Show up in the ZMI
+    isPrincipiaFolderish = True # Show up in the ZMI
 
     security = ClassSecurityInfo()
 
@@ -565,11 +590,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
-            if v != 0: return v
+            if v != False: return v
             c = cmp(a['klass'].__class__.__name__,
                     b['klass'].__class__.__name__)
 
-            if c == 0:
+            if c == False:
                 return cmp(a['package'], b['package'])
             return c
 
@@ -682,9 +707,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             for t in self.listTypes(package, type):
                 instance = t('')
                 wrapped = instance.__of__(context)
-                if isinstance(wrapped, DefaultDublinCoreImpl):
-                    DefaultDublinCoreImpl.__init__(wrapped)
-                wrapped._is_fake_instance = 1
+                wrapped.initializeArchetype()
+                #if isinstance(wrapped, DefaultDublinCoreImpl):
+                #    DefaultDublinCoreImpl.__init__(wrapped)
+                wrapped._is_fake_instance = True
                 instances.append(wrapped)
         for instance in instances:
             if schemata is not None:
@@ -709,17 +735,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 field_name = field.getName()
                 accessor = field.getAccessor(instance)
                 if mode == 'search':
-                    field.required = 0
-                    field.addable = 0 # for ReferenceField
+                    field.required = False
+                    field.addable = False # for ReferenceField
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
                         field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
                                            field.vocabulary
-                    widget.populate = 0
+                    widget.populate = False
                     field_name = field.accessor
-                    accessor = field.getDefault
-
+                    # accessor must be a method which doesn't take an argument
+                    # this lambda is facking an accessor
+                    accessor = lambda: field.getDefault(instance)
+    
                 w_keys[field_name] = None
                 widgets.append((field_name, WidgetWrapper(
                     field_name=field_name,
@@ -830,22 +858,26 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
            Tuples have the form (schema, changed)"""
         list = []
         currentTypes = _types
-        ourTypes = self._types; modified = 0
+        ourTypes = self._types
+        modified = False
         keys = self._listAllTypes()
         keys.sort()
         for t in keys:
             if t not in ourTypes:
                 # add it
-                ourTypes[t] = currentTypes[t]['signature']; modified = 1
+                ourTypes[t] = currentTypes[t]['signature']
+                modified = True
                 list.append((t, 0))
             elif t not in currentTypes:
                 # huh: what shall we do? We remove it -- this might be wrong!
-                del ourTypes[t]; modified = 1
+                del ourTypes[t]
+                modified = True
                 # we do not add an entry because we cannot update
                 # these objects (having no longer type information for them)
             else:
                 list.append((t, ourTypes[t] != currentTypes[t]['signature']))
-        if modified: self._p_changed = 1
+        if modified:
+            self._p_changed = True
         return list
 
 
@@ -864,9 +896,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         else:
             # DM (avoid persistency bug):
             for t in self._listAllTypes():
-                if REQUEST.form.get(t, 0):
+                if REQUEST.form.get(t, False):
                     update_types.append(t)
-            update_all = REQUEST.form.get('update_all', 0)
+            update_all = REQUEST.form.get('update_all', False)
 
         # XXX: Enter this block only when there are types to update!
         if update_types:
@@ -880,13 +912,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             meta_types = [_types[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=1, apply_func=self._updateObject)
+                    search_sub=True, apply_func=self._updateObject)
             else:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=1, apply_func=self._updateChangedObject)
+                    search_sub=True, apply_func=self._updateChangedObject)
             for t in update_types:
                 self._types[t] = _types[t]['signature']
-            self._p_changed = 1
+            self._p_changed = True
         return out.getvalue()
 
     # a counter to ensure that in a given interval a subtransaction commit is 
@@ -985,16 +1017,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View, 'visibleLookup')
     def visibleLookup(self, field, vis_key, vis_value='visible'):
         """Checks the value of a specific key in the field widget's 'visible'
-           dictionary... returns 1 or 0 so it can be used within a lambda as
+           dictionary... returns True or False so it can be used within a lambda as
            the predicate for a filterFields call"""
         vis_dict = field.widget.visible
         value = ""
         if vis_dict.has_key(vis_key):
             value = field.widget.visible[vis_key]
         if value==vis_value:
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     def lookupObject(self,uid):
         import warnings
@@ -1008,4 +1040,5 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def has_graphviz(self):
         """runtime check for graphviz, used in condition on tab"""
         return HAS_GRAPHVIZ
+
 InitializeClass(ArchetypeTool)

@@ -105,7 +105,7 @@ class RFC822Marshaller(Marshaller):
                 mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
-        content_type = headers.get('Content-Type', 'text/plain')
+        content_type = headers.get('Content-Type')
         if not kwargs.get('mimetype', None):
             kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
@@ -148,3 +148,5 @@ class RFC822Marshaller(Marshaller):
         return (content_type, length, data)
 
 InitializeClass(RFC822Marshaller)
+
+__all__ = ('PrimaryFieldMarshaller', 'RFC822Marshaller', )

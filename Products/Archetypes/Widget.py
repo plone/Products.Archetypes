@@ -1,30 +1,33 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType
+
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression, createExprContext
-from Products.Archetypes.utils import className, unique, capitalize
+from Products.CMFCore.Expression import Expression
+from Products.CMFCore.Expression import createExprContext
+
+from Products.Archetypes.utils import className
+from Products.Archetypes.utils import unique
+from Products.Archetypes.utils import capitalize
 from Products.generator.widget import macrowidget
 from Products.Archetypes.debug import log
+from Products.Archetypes.Registry import registerPropertyType
+from Products.Archetypes.Registry import registerWidget
+
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from Acquisition import aq_base
+from Acquisition import Implicit
 
-from Acquisition import aq_base, Implicit
-
-try:
-    True
-except NameError:
-    True=1
-    False=0
 
 class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
-        'populate' : 1,  # should this field be populated in edit and view?
-        'postback' : 1,  # should this field be repopulated with POSTed
+        'populate' : True,  # should this field be populated in edit and view?
+        'postback' : True,  # should this field be repopulated with POSTed
                          # value when an error occurs?
-        'show_content_type' : 0,
+        'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
         })
@@ -86,9 +89,9 @@ class TypesWidget(macrowidget, Base):
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
             else:
-                return 1
+                return True
         except AttributeError:
-            return 1
+            return True
 
     # XXX
     security.declarePublic('process_form')
@@ -114,26 +117,6 @@ class TypesWidget(macrowidget, Base):
 
 InitializeClass(TypesWidget)
 
-##class VocabularyWidget(TypesWidget):
-##
-##    security = ClassSecurityInfo()
-##
-##    security.declarePublic('process_form')
-##    def process_form(self, instance, field, form, empty_marker=None,
-##                     emptyReturnsMarker=False):
-##        """Vocabulary impl for form processing in a widget"""
-##        value = form.get(field.getName(), empty_marker)
-##        value = field.Vocabulary(instance).getKeysFromIndexes(value)
-##
-##        if value is empty_marker:
-##            return empty_marker
-##        if emptyReturnsMarker and value == '':
-##            return empty_marker
-##
-##        return value, {}
-##
-##InitializeClass(VocabularyWidget)
-
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -150,9 +133,9 @@ class DecimalWidget(TypesWidget):
         'macro' : "widgets/decimal",
         'size' : '5',
         'maxlength' : '255',
-        'dollars_and_cents' : 0,
-        'whole_dollars' : 0,
-        'thousands_commas' : 0,
+        'dollars_and_cents' : False,
+        'whole_dollars' : False,
+        'thousands_commas' : False,
         })
 
     security = ClassSecurityInfo()
@@ -173,7 +156,7 @@ class ReferenceWidget(TypesWidget):
         'macro' : "widgets/reference",
         'checkbox_bound': 5,
 
-        'addable' : 0, # create createObject link for every addable type
+        'addable' : False, # create createObject link for every addable type
         'destination' : None, # may be:
                               # - ".", context object;
                               # - None, any place where
@@ -289,7 +272,7 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
-        'append_only':0,
+        'append_only': False,
         'divider':"\n\n========================\n\n",
         })
 
@@ -324,12 +307,16 @@ class TextAreaWidget(TypesWidget):
         # SPANKY: It would be nice to add a datestamp too, if desired
 
         # Don't append if the existing data is empty or nothing was passed in
-        if getattr(field.widget, 'append_only', None) and (value and not value.isspace()):
+        if getattr(field.widget, 'append_only', None):
             if field.get(instance):
-                # using default_output_type caused a recursive transformation
-                # that sucked, thus mimetype= here to keep it in line
-                value = value + field.widget.divider + field.get(instance, mimetype="text/plain")
-
+                if (value and not value.isspace()):
+                    # using default_output_type caused a recursive transformation
+                    # that sucked, thus mimetype= here to keep it in line
+                    value = value + field.widget.divider + \
+                            field.get(instance, mimetype="text/plain")
+                else:
+                    # keep historical entries
+                    value = field.get(instance, mimetype="text/plain")
         return value, kwargs
 
 class LinesWidget(TypesWidget):
@@ -355,6 +342,12 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
+        # the following five vars aren't supported by the plone templates yet
+        'show_hm' : True, # False not supported by the plone templates yet
+        'show_ymd' : True, # False not supported by the plone templates yet
+        'starting_year' : 1999, # not supported by the plone templates yet
+        'ending_year' : None, # not supported by the plone templates yet
+        'future_years' : 5, # not supported by the plone templates yet
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
@@ -387,7 +380,7 @@ class KeywordWidget(TypesWidget):
         'macro' : "widgets/keyword",
         'size'  : 5,
         'vocab_source' : 'portal_catalog',
-        'roleBasedAdd' : 1,
+        'roleBasedAdd' : True,
         })
 
     security = ClassSecurityInfo()
@@ -418,7 +411,7 @@ class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/file",
-        'show_content_type' : 1,
+        'show_content_type' : True,
         })
 
     security = ClassSecurityInfo()
@@ -457,7 +450,7 @@ class RichWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 1,
-        'allow_file_upload':1,
+        'allow_file_upload': True,
         })
 
     security = ClassSecurityInfo()
@@ -470,7 +463,7 @@ class RichWidget(TypesWidget):
         formatting and file objects"""
         # This is basically the old processing chain from base object
         text_format = None
-        isFile = 0
+        isFile = False
         value = None
 
         # text field with formatting
@@ -491,7 +484,7 @@ class RichWidget(TypesWidget):
 
             if filename:
                 value = fileobj
-                isFile = 1
+                isFile = True
 
         kwargs = {}
         if not value:
@@ -516,7 +509,7 @@ class IdWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/zid",
          # show IDs in edit boxes when they are autogenerated?
-        'display_autogenerated' : 1,
+        'display_autogenerated' : True,
         # script used to determine if an ID is autogenerated
         'is_autogenerated' : 'isIDAutoGenerated',
         })
@@ -598,8 +591,8 @@ class PasswordWidget(TypesWidget):
     _properties.update({
         'macro' : 'widgets/password',
         'modes' : ('edit',),
-        'populate' : 0,
-        'postback' : 0,
+        'populate' : False,
+        'postback' : False,
         'size' : 20,
         'maxlength' : '255',
         })
@@ -615,7 +608,7 @@ class VisualWidget(TextAreaWidget):
         'width' : '507px', #width of VE frame (if VE is avalilable)
         'height': '400px', #same for height
         'format': 0,
-        'append_only':0, #creates a textarea you can only add to, not edit
+        'append_only': False, #creates a textarea you can only add to, not edit
         'divider': '\n\n<hr />\n\n', # default divider for append only divider
         })
 
@@ -629,8 +622,8 @@ class EpozWidget(TextAreaWidget):
 
     security = ClassSecurityInfo()
 
-class InAndOutWidget(TypesWidget):
-    _properties = TypesWidget._properties.copy()
+class InAndOutWidget(ReferenceWidget):
+    _properties = ReferenceWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/inandout",
         'size' : '6',
@@ -655,10 +648,8 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           'InAndOutWidget', 'PicklistWidget',
-           'RequiredIdWidget',)
-
-from Registry import registerWidget
+           'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           )
 
 registerWidget(StringWidget,
                title='String',
@@ -685,7 +676,7 @@ registerWidget(ReferenceWidget,
                title='Reference',
                description=('Renders a HTML text input box which '
                             'accepts a reference value'),
-               used_for=('Products.Archetypes.Field.IntegerField',)
+               used_for=('Products.Archetypes.Field.ReferenceField',)
                )
 
 registerWidget(ComputedWidget,
@@ -807,7 +798,8 @@ registerWidget(InAndOutWidget,
                description=('Renders a widget for moving items '
                             'from one list to another. Items are '
                             'removed from the first list.'),
-               used_for=('Products.Archetypes.Field.LinesField',)
+               used_for=('Products.Archetypes.Field.LinesField',
+                         'Products.Archetypes.Field.ReferenceField',)
                )
 
 registerWidget(PicklistWidget,
@@ -817,8 +809,6 @@ registerWidget(PicklistWidget,
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
-
-from Registry import registerPropertyType
 
 registerPropertyType('maxlength', 'integer', StringWidget)
 registerPropertyType('populate', 'boolean')

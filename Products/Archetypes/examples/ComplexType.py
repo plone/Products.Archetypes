@@ -42,6 +42,9 @@ schema = Schema(tuple(field_instances) + (
               ),
     ReferenceField('referencefield',
                    relationship='complextype',
+                   widget=ReferenceWidget(addable=1),
+                   allowed_types=('ComplexType', ),
+                   multiValued=1,
                   ),
     #ReferenceField('reffield1',
     #               relationship='myref1',
@@ -56,7 +59,8 @@ schema = Schema(tuple(field_instances) + (
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
-    archetype_name = portal_type = meta_type = "Complex Type"
+    archetype_name = meta_type = "Complex Type"
+    portal_type = 'ComplexType'
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'), ))

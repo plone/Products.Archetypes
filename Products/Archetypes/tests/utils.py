@@ -72,3 +72,54 @@ def start_http(address, port):
     sys.ZServerExitCode=0
     asyncore.loop()
     sys.exit(sys.ZServerExitCode)
+
+def populateFolder(folder, folder_type, doc_type):
+    """ Creates a structure like:
+
+    \index_html
+    \doc1
+    \folder1
+       \folder11
+       \folder12
+       \doc11
+    \folder2
+       \folder21
+       \doc21
+       \index_html
+       \folder22
+          \folder221
+             \doc2211
+             \doc2212
+          \folder222
+             \doc2221
+             \doc2222
+          \folder223
+             \doc2231
+             \doc2232
+    """
+    folder.invokeFactory(doc_type, id='index_html')
+    folder.invokeFactory(doc_type, id='doc1')
+    folder.invokeFactory(folder_type, id='folder1')
+    folder.invokeFactory(folder_type, id='folder2')
+    f1 = folder.folder1
+    f2 = folder.folder2
+    f1.invokeFactory(folder_type, id='folder11')
+    f1.invokeFactory(folder_type, id='folder12')
+    f1.invokeFactory(doc_type, id='doc11')
+    f2.invokeFactory(folder_type, id='folder21')
+    f2.invokeFactory(folder_type, id='folder22')
+    f2.invokeFactory(doc_type, id='doc21')
+    f2.invokeFactory(doc_type, id='index_html')
+    f22 = f2.folder22
+    f22.invokeFactory(folder_type, id='folder221')
+    f221 = f22.folder221
+    f221.invokeFactory(doc_type, id='doc2211')
+    f221.invokeFactory(doc_type, id='doc2212')
+    f22.invokeFactory(folder_type, id='folder222')
+    f222 = f22.folder222
+    f222.invokeFactory(doc_type, id='doc2221')
+    f222.invokeFactory(doc_type, id='doc2222')
+    f22.invokeFactory(folder_type, id='folder223')
+    f223 = f22.folder223
+    f223.invokeFactory(doc_type, id='doc2231')
+    f223.invokeFactory(doc_type, id='doc2232')

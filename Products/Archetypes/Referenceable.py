@@ -2,7 +2,7 @@ from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
@@ -207,7 +207,7 @@ class Referenceable(Base):
         """
         uc = getToolByName(self, config.UID_CATALOG)
 
-        if not hasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
+        if not shasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
             #if the object has no UID or the UID already exists, get a new one
             setattr(self, config.UUID_ATTR, None)
         
@@ -315,15 +315,19 @@ class Referenceable(Base):
         # and if we are folderish we need to get those too
         # where as references are concerned
         children = []
-        if hasattr(aq_base(self), 'objectValues'):
-            children.extend(self.objectValues())
+        if shasattr(self, 'objectValues'):
+            # Only apply to objects that subclass
+            # from Referenceable, and only apply the
+            # method from Referenceable. Otherwise manage_* will get
+            # called multiple times.
+            nc = lambda obj: isinstance(obj, Referenceable)
+            children.extend(filter(nc, self.objectValues()))
         children.extend(self._getReferenceAnnotations().objectValues())
         if children:
             for child in children:
-                if hasattr(aq_base(child), methodName):
-                    method = getattr(child, methodName)
-                    method(*args, **kwargs)
-
+                if shasattr(Referenceable, methodName):
+                    method = getattr(Referenceable, methodName)
+                    method(*((child,) + args), **kwargs)
 
     # graph hooks
     security.declareProtected(CMFCorePermissions.View,

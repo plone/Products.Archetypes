@@ -2,12 +2,15 @@ from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.Extensions.utils import install_catalog
-from Products.Archetypes.Extensions.utils import install_referenceCatalog
+from Products.Archetypes.Extensions.utils import install_uidcatalog
 from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
 
+# WARNING!
+# Using full transactions after every migration step may be dangerous but it's
+# required if you don't have enough space and memory
+USE_FULL_TRANSACTIONS = False
 
 def reinstallArchetypes(portal,out):
     ''' lets quickinstaller reinstall the archetypes '''
@@ -29,7 +32,7 @@ def fixArchetypesTool(portal, out):
     if not hasattr(at, 'catalog_map'):
         at.catalog_map = PersistentMapping()
 
-    install_catalog(portal, out)
+    install_uidcatalog(portal, out)
 
 
 def migrateReferences(portal, out):
@@ -69,8 +72,10 @@ def migrateReferences(portal, out):
                 print >>out, "%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
-        get_transaction().commit()
-        return
+        if USE_FULL_TRANSACTIONS:
+            get_transaction().commit()
+        else:
+            get_transaction().commit(1)
     
     else:
         # SECOND
@@ -95,8 +100,16 @@ def migrateReferences(portal, out):
                 
             count+=1
             sourceObject.addReference(targetObject,relationship=brain.relationship)
+            # avoid eating up all RAM
+            if not count % 250:
+                get_transaction().commit(1) 
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
+
+        if USE_FULL_TRANSACTIONS:
+            get_transaction().commit()
+        else:
+            get_transaction().commit(1)
 
     print >>out, "Migrated References"
 
@@ -139,7 +152,12 @@ def migrateUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             get_transaction().commit(1) 
-    get_transaction().commit()        
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
     print >>out, count, "UID's migrated."
 
 def removeOldUIDs(portal, out):
@@ -162,14 +180,36 @@ def removeOldUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             get_transaction().commit(1) 
-    get_transaction().commit()
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
     print >>out, count, "old UID attributes removed."
 
 def migrateSchemas(portal, out):
     at = getToolByName(portal, TOOL_NAME)
-    msg = at.manage_updateSchema(update_all=1)    
-    get_transaction().commit()
+    msg = at.manage_updateSchema(update_all=1)
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
     print >>out, msg
+    
+def refreshCatalogs(portal, out):
+    uc = getToolByName(portal, UID_CATALOG)
+    rc = getToolByName(portal, REFERENCE_CATALOG)
+    print >>out, 'Refreshing uid catalog'
+    uc.refreshCatalog(clear=1)
+    print >>out, 'Refreshing reference catalog'
+    rc.refreshCatalog(clear=1)
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
 
 def migrate(self):
     """migrate an AT site"""
@@ -184,5 +224,6 @@ def migrate(self):
     migrateUIDs(portal, out)
     migrateReferences(portal,out)
     removeOldUIDs(portal, out)
+    refreshCatalogs(portal, out)
     print >>out, "Archetypes Migration Successful"
     return out.getvalue()

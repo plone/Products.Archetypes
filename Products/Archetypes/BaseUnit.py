@@ -8,7 +8,7 @@ from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
 from Products.MimetypesRegistry.common import getToolByName
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistry
+from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
 #from Products.MimetypesRegistry.mime_types import text_plain, \
 #     application_octet_stream
@@ -23,6 +23,15 @@ class BaseUnit(File):
     def __init__(self, name, file='', instance=None, **kw):
         self.id = self.__name__ = name
         self.update(file, instance, **kw)
+        
+    def __setstate__(self, dict):
+        mimetype = dict.get('mimetype', None)
+        if IMimetype.isImplementedBy(mimetype):
+            dict['mimetype'] = str(mimetype)
+            dict['binary'] = not not mimetype.binary
+        assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
+        assert(dict.has_key('binary'), 'no binary in setstate dict')
+        File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
         #Convert from str to unicode as needed
@@ -37,8 +46,9 @@ class BaseUnit(File):
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = mimetype
-        if not mimetype.binary:
+        self.mimetype = str(mimetype)
+        self.binary = mimetype.binary
+        if not self.isBinary():
             assert type(data) is type(u'')
             if encoding is None:
                 try:
@@ -78,7 +88,7 @@ class BaseUnit(File):
 
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
-                                     context=instance,                                     
+                                     context=instance,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 
@@ -114,11 +124,7 @@ class BaseUnit(File):
 
     def isBinary(self):
         """return true if this contains a binary value, else false"""
-        try:
-            return self.mimetype.binary
-        except AttributeError:
-            # FIXME: backward compat, self.mimetype should not be None anymore
-            return 1
+        return self.binary
 
     # File handling
     def get_size(self):
@@ -152,14 +158,22 @@ class BaseUnit(File):
             return 'UTF8'
 
     def getContentType(self):
-        """return the imimetype object for this BU"""
+        """return the mimetype string for this BU"""
         return self.mimetype
 
-    def setContentType(self, value):
+    def setContentType(self, instance, value):
         """
         """
-        #print value, self.getContentType()
-        self.mimetype = value
+        mtr = getToolByName(instance, 'mimetypes_registry')
+        if not IMimetypesRegistry.isImplementedBy(mtr):
+            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
+                               (repr(mtr), repr(mtr.__class__)))
+        result = mtr.lookup(value)
+        if not result:
+            raise ValueError('Unknown mime type %s' % value)
+        mimetype = result[0]
+        self.mimetype = str(mimetype)
+        self.binary = mimetype.binary
 
     def content_type(self):
         return self.getContentType()
