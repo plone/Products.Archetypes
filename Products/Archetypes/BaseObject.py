@@ -102,7 +102,7 @@ class BaseObject(Referenceable):
         if not request:
             log("markCreationFlag: Can't get request from %s" % repr(self))
             return
-        session = getattr(request, 'session', None)
+        session = getattr(request, 'SESSION', None)
         if not session:
             log("markCreationFlag: Can't get session from request")
             return
