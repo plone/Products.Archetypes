@@ -1,5 +1,8 @@
 2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* skins/archetypes/content_edit.py (previous): Clearer schemata
+	handling. Should fix #770953.
+
 	* BaseObject.py (content_type): Make the RFC822Marshaller the
 	default one. Pending tests.
 	(BaseObject.SearchableText): Misplaced piece of code, for handling
