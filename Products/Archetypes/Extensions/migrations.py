@@ -1,4 +1,4 @@
-from ZODB.PersistentMapping import PersistentMapping
+from Persistence.PersistentMapping import PersistentMapping
 from StringIO import StringIO
 from Products.Archetypes.Extensions.utils import install_catalog
 from Products.Archetypes.Extensions.utils import install_referenceCatalog
