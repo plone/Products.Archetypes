@@ -180,7 +180,7 @@ class Field(DefaultLayerContainer):
 
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
-        chainname = 'Validator_%s' % self.getName
+        chainname = 'Validator_%s' % self.getName()
 
         if type(self.validators) is DictType:
             raise NotImplementedError, 'Please use the new syntax with validation chains'
