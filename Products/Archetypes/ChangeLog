@@ -1,3 +1,10 @@
+2003-07-30  Sylvain Thénault  <syt@logilab.fr>
+	
+	* Extensions/utils.py: only run install_subskins if
+	product_skins_dir is not None
+
+	* TemplateMixin.py: use StringField instead of Objectfield
+	
 2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* skins/archetypes/content_edit.py (previous): Clearer schemata
