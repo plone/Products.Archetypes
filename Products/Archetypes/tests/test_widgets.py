@@ -52,7 +52,7 @@ class WidgetTests(ArcheSiteTestCase):
 
     def test_subject_keyword_widget(self):
         site = self.getPortal()
-        doc = makeContent(site, portal_type='ComplexType', id='demodoc')
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
         form = {'subject_keywords':['bla','ble'],
@@ -87,10 +87,9 @@ class WidgetTests(ArcheSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
-
     def test_widgets(self):
         site = self.getPortal()
-        doc = makeContent(site, portal_type='ComplexType', id='demodoc')
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
 
         #Now render this doc in view and edit modes. If this works
         #then we have pretty decent assurance that things are working
@@ -103,7 +102,7 @@ class WidgetTests(ArcheSiteTestCase):
     def test_rich_text_widget(self):
         site = self.getPortal()
         request = FakeRequest()
-        doc = makeContent(site, portal_type='ComplexType', id='demodoc')
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['richtextfield']
         widget = field.widget
         form = {'richtextfield_text_format':'text/x-rst',

@@ -21,6 +21,7 @@ from AccessControl import ClassSecurityInfo, Permissions
 from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
      AddPortalContent, ModifyPortalContent, ManageProperties
@@ -37,7 +38,7 @@ except ImportError:
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
-    from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
+    from interfaces.orderedfolder import IOrderedContainer
 
 class OrderedFolder(SkinnedFolder):
     """ DEPRECATED, may be removed in next releaeses """
@@ -257,7 +258,7 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
     __implements__ = OrderedContainer.__implements__ + \
-                     BaseFolder.__implements__
+                     BaseFolder.__implements__ + (DynamicType,)
 
     security = ClassSecurityInfo()
 
@@ -286,8 +287,7 @@ class old_OrderedBaseFolder(BaseObject,
 
     __implements__ = (IBaseFolder, IReferenceable,
                       IExtensibleMetadata,
-                      IOrderedFolder,
-                      IOrderedContainer)
+                      IOrderedFolder)
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"

@@ -14,12 +14,10 @@ from Acquisition import aq_base
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
-def makeContent(site, portal_type, id='document', **kw ):
-    site.invokeFactory( type_name=portal_type, id=id )
-    content = getattr( site, id )
-    return content
-
 class SitePolicyTests(ArcheSiteTestCase):
+    demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
+                  'Fact', 'Complex Type']
+
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
@@ -33,26 +31,23 @@ class SitePolicyTests(ArcheSiteTestCase):
 
     def test_availabledemotypes(self):
         site = self.getPortal()
-        portal_types = [ x for x in site.portal_types.listContentTypes()]
-        self.failUnless('DDocument' in portal_types)
-        self.failUnless('SimpleType' in portal_types)
-        self.failUnless('SimpleFolder' in portal_types)
-        self.failUnless('ComplexType' in portal_types)
-        self.failUnless('Fact' in portal_types)
+        portal_types = site.portal_types.listContentTypes()
+        for t in self.demo_types:
+            self.failUnless(t in portal_types,
+                            "%s not available in portal_types." % t)
 
     def test_creationdemotypes(self):
         site = self.getPortal()
-        demo_types = ['DDocument', 'SimpleType', 'Fact', 'ComplexType']
-        for t in demo_types:
+        for t in self.demo_types:
             content = makeContent(site, portal_type=t, id=t)
             self.failUnless(t in site.contentIds())
             self.failUnless(not isinstance(content, DefaultDublinCoreImpl))
 
     # XXX Tests for some basic methods. Should be moved to
     # a separate test suite.
-    def test_ComplexTypegetSize(self):
+    def test_ComplexTypeGetSize(self):
         site = self.getPortal()
-        content = makeContent(site, portal_type='ComplexType', id='ct')
+        content = makeContent(site, portal_type='Complex Type', id='ct')
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
@@ -72,7 +67,7 @@ class SitePolicyTests(ArcheSiteTestCase):
         new_size = new_size + len(text)
         self.assertEqual(new_size, content.get_size())
 
-    def test_SimpleFoldergetSize(self):
+    def test_SimpleFolderGetSize(self):
         site = self.getPortal()
         content = makeContent(site, portal_type='SimpleFolder', id='sf')
         size = content.get_size()

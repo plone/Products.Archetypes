@@ -1,9 +1,10 @@
+from Products.Archetypes.debug import log_exc
+
 from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
-from debug import log_exc
 
 try:
     from IOBTree import Bucket

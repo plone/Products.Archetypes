@@ -2,63 +2,73 @@ from __future__ import nested_scopes
 
 import os.path
 import sys
-import time
-import random
 from copy import deepcopy
 from types import StringType
 from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
 
+from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+
+from Products.Archetypes.ClassGen import generateClass, generateCtor, \
+     generateZMICtor
+from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
+from Products.Archetypes.config  import PKG_NAME, TOOL_NAME, UID_CATALOG
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import capitalize, findDict, DisplayList, \
+     unique, mapply
+from Products.Archetypes.Renderer import renderer
+
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from OFS.SimpleItem import SimpleItem
+from Globals import InitializeClass, PersistentMapping
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
-from Products.CMFCore.TypesTool import  FactoryTypeInformation
+from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.ZCatalog.IZCatalog import IZCatalog
-
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import PersistentMapping
-
-from interfaces.base import IBaseObject, IBaseFolder
-from interfaces.referenceable import IReferenceable
-from interfaces.metadata import IExtensibleMetadata
-
-from ClassGen import generateClass, generateCtor
-from ReferenceEngine import ReferenceEngine
-from SQLStorageConfig import SQLStorageConfig
-from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
-from debug import log, log_exc
-from utils import capitalize, findDict, DisplayList, unique
-from Renderer import renderer
-
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
+class BoundPageTemplateFile(PageTemplateFile):
+
+    def __init__(self, *args, **kw):
+        self._extra = kw['extra']
+        del kw['extra']
+        args = (self,) + args
+        mapply(PageTemplateFile.__init__, *args, **kw)
+
+    def pt_render(self, source=0, extra_context={}):
+        options = extra_context.get('options', {})
+        options.update(self._extra)
+        extra_context['options'] = options
+        return PageTemplateFile.pt_render(self, source, extra_context)
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
-    # Configuration and getCMFVersion come with Plone 1.1
+    # Configuration and getCMFVersion come with Plone 2.0
     def getCMFVersion():
         from os.path import join
         from Globals import package_home
         from Products.CMFCore import cmfcore_globals
-
         path=join(package_home(cmfcore_globals),'version.txt')
         file=open(path, 'r')
         _version=file.read()
         file.close()
         return _version.strip()
 
-
 _www = os.path.join(os.path.dirname(__file__), 'www')
+_skins = os.path.join(os.path.dirname(__file__), 'skins')
+_zmi = os.path.join(_www, 'zmi')
+document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
+folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
 # Never actually used
@@ -95,18 +105,19 @@ base_factory_type_information = (
                        'name': 'References',
                        'action': 'string:${object_url}/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
+                       'visible' : 0,
                        },
                      )
       }, )
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.__name__)
-        if hasattr(portal_type,'actions'):
+        typeInfo = getattr(typesTool, portal_type.portal_type)
+        if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            if getattr(portal_type,'include_default_actions',1):
+            if getattr(portal_type,'include_default_actions', 1):
                 new = list(typeInfo._actions)
             else:
                 # If no standard actions are wished -
@@ -116,6 +127,10 @@ def fixActionsForType(portal_type, typesTool):
             cmfver=getCMFVersion()
 
             for action in portal_type.actions:
+                # DM: "Expression" derives from "Persistent" and
+                #  we must not put persistent objects into class attributes.
+                #  Thus, copy "action"
+                action = action.copy()
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -166,7 +181,7 @@ def modify_fti(fti, klass, pkg_name):
     fti[0]['id']          = klass.__name__
     fti[0]['meta_type']   = klass.meta_type
     fti[0]['description'] = klass.__doc__
-    fti[0]['factory']     = "add%s" % capitalize(klass.__name__)
+    fti[0]['factory']     = "add%s" % klass.__name__
     fti[0]['product']     = pkg_name
 
     if hasattr(klass, "content_icon"):
@@ -225,8 +240,7 @@ def process_types(types, pkg_name):
             if m is not None:
                 m.modify_fti(fti[0])
 
-        ctor = getattr(module, "add%s" % capitalize(typeName),
-                         None)
+        ctor = getattr(module, "add%s" % typeName, None)
         if ctor is None:
             ctor = generateCtor(typeName, module)
 
@@ -238,7 +252,8 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-_types_callback = []
+# DM (avoid persistency bug): 
+##_types_callback = []
 
 def _guessPackage(base):
     if base.startswith('Products'):
@@ -247,7 +262,6 @@ def _guessPackage(base):
         if idx != -1:
             base = base[:idx]
     return base
-
 
 def registerType(klass, package=None):
     if not package: package = _guessPackage(klass.__module__)
@@ -258,8 +272,10 @@ def registerType(klass, package=None):
 
     data = {
         'klass' : klass,
-        'name'  : klass.meta_type,
-        'portal_type' : klass.portal_type,
+        'name'  : klass.__name__,
+        'identifier': klass.meta_type.capitalize().replace(' ', '_'),
+        'meta_type': klass.meta_type,
+        'portal_type': klass.portal_type,
         'package' : package,
         'module' : sys.modules[klass.__module__],
         'schema' : klass.schema,
@@ -268,12 +284,65 @@ def registerType(klass, package=None):
         'type' : klass.schema,
         }
 
-    key = "%s.%s" % (package, klass.meta_type)
+    key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
 
-    for tc in _types_callback:
-        tc(klass, package)
+    # DM (avoid persistency bug): 
+##    for tc in _types_callback:
+##        tc(klass, package)
 
+def registerClasses(context, package, types=None):
+    registered = listTypes(package)
+    if types is not None:
+        registered = filter(lambda t: t['meta_type'] in types, registered)
+    for t in registered:
+        module = t['module']
+        typeName = t['name']
+        meta_type = t['meta_type']
+        portal_type = t['portal_type']
+        klass = t['klass']
+        ctorName = "manage_add%s" % typeName
+        constructor = getattr(module, ctorName, None)
+        if constructor is None:
+            constructor = generateZMICtor(typeName, module)
+        addFormName = "manage_add%sForm" % typeName
+        setattr(module, addFormName,
+                BoundPageTemplateFile('base_add.pt', _zmi,
+                                      __name__=addFormName,
+                                      extra={'constructor':ctorName,
+                                             'type':meta_type,
+                                             'package':package,
+                                             'portal_type':portal_type}
+                                      ))
+        editFormName = "manage_edit%sForm" % typeName
+        setattr(klass, editFormName,
+                BoundPageTemplateFile('base_edit.pt', _zmi,
+                                      __name__=editFormName,
+                                      extra={'handler':'processForm',
+                                             'type':meta_type,
+                                             'package':package,
+                                             'portal_type':portal_type}
+                                      ))
+
+        position = 0
+        for item in klass.manage_options:
+            if item['label'] != 'Contents':
+                continue
+            position += 1
+        folderish = getattr(klass, 'isPrincipiaFolderish', position)
+        options = list(klass.manage_options)
+        options.insert(position, {'label' : 'Edit',
+                                  'action' : editFormName
+                                  })
+        klass.manage_options = tuple(options)
+        generatedForm = getattr(module, addFormName)
+        context.registerClass(
+            t['klass'],
+            constructors=(generatedForm,
+                          constructor),
+            visibility=None,
+            icon=folderish and folder_icon or document_icon,
+            )
 
 def listTypes(package=None):
     values = _types.values()
@@ -302,9 +371,8 @@ class WidgetWrapper:
 last_load = DateTime()
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
-                    SQLStorageConfig, Folder, ReferenceEngine):
+                    SQLStorageConfig, Folder):
     """ Archetypes tool, manage aspects of Archetype instances """
-
     id        = TOOL_NAME
 
     meta_type = TOOL_NAME.title().replace('_', ' ')
@@ -359,19 +427,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'manage_catalogs')
     manage_catalogs = PageTemplateFile('manage_catalogs', _www)
 
+
+
     def __init__(self):
-        ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
+        # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-        for k, t in _types.items():
-            self._types[k] = {'signature':t['signature'], 'update':1}
-        cb = lambda klass, package:self.registerType(klass, package)
-        _types_callback.append(cb)
-        self.last_types_update = DateTime()
+##        for k, t in _types.items():
+##            self._types[k] = {'signature':t['signature'], 'update':1}
+##        cb = lambda klass, package:self.registerType(klass, package)
+##        DM: never put something referencing a persistent object into
+##            a module global variable!
+##        _types_callback.append(cb)
+##        self.last_types_update = DateTime()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -436,9 +508,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'bindTemplate')
-    def bindTemplate(self, meta_type, templateList):
+    def bindTemplate(self, portal_type, templateList):
         """create binding between a type and its associated views"""
-        self._templates[meta_type] = templateList
+        self._templates[portal_type] = templateList
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_templates')
@@ -508,7 +580,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         types = self.listRegisteredTypes()
         for t in types:
             if t['package'] != package: continue
-            if t['name'] == type:
+            if t['meta_type'] == type:
                 return t
         return None
 
@@ -545,7 +617,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         t = getattr(typesTool, typeName, None)
         if t:
             t.title = getattr(typeDesc['klass'], 'archetype_name',
-                              typeDesc['name'])
+                              typeDesc['portal_type'])
 
 
         # and update the actions as needed
@@ -558,74 +630,75 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declarePublic('getSearchWidgets')
     def getSearchWidgets(self, package=None, type=None, context=None):
-        """empty widgets for searching"""
+        """Empty widgets for searching"""
+        return self.getWidgets(package=package, type=type,
+                               context=context, mode='search')
 
-        # possible problem: assumes fields with same name can be
-        # searched with the same widget
-        widgets = {}
-        context = context is not None and context or self
-        for t in self.listTypes(package, type):
-            instance = t('fake')
-            instance = instance.__of__(context)
-            if isinstance(instance, DefaultDublinCoreImpl):
-                DefaultDublinCoreImpl.__init__(instance)
-            instance._is_fake_instance = 1
-            schema = instance.schema = instance.Schema().copy()
-            fields = [f for f in schema.fields()
-                      if (not widgets.has_key(f.getName())
-                          and f.index and f.accessor)]
+    security.declarePublic('getWidgets')
+    def getWidgets(self, instance=None,
+                   package=None, type=None,
+                   context=None, mode='edit',
+                   fields=None, schemata=None):
+        """Empty widgets for standalone rendering"""
+
+        widgets = []
+        w_keys = {}
+        context = context is None and context or self
+        instances = instance is not None and [instance] or []
+        f_names = fields
+        if not instances:
+            for t in self.listTypes(package, type):
+                instance = t('')
+                wrapped = instance.__of__(context)
+                if isinstance(wrapped, DefaultDublinCoreImpl):
+                    DefaultDublinCoreImpl.__init__(wrapped)
+                wrapped._is_fake_instance = 1
+                instances.append(wrapped)
+        for instance in instances:
+            if schemata is not None:
+                schema = instance.Schemata()[schemata].copy()
+            else:
+                schema = instance.Schema().copy()
+            fields = schema.fields()
+            if mode == 'search':
+                # Include only fields which have an index
+                # XXX duplicate fieldnames may break this,
+                # as different widgets with the same name
+                # on different schemas means only the first
+                # one found will be used
+                fields = [f for f in fields
+                          if (f.accessor and
+                              not w_keys.has_key(f.accessor)
+                              and f.index)]
+            if f_names is not None:
+                fields = filter(lambda f: f.getName() in f_names, fields)
             for field in fields:
-                field.required = 0
-                field.addable = 0 # for ReferenceField
-                if not isinstance(field.vocabulary, DisplayList):
-                    field.vocabulary = field.Vocabulary(instance)
-                if '' not in field.vocabulary.keys():
-                    field.vocabulary = DisplayList([('', '<any>')]) + \
-                                       field.vocabulary
                 widget = field.widget
-                widget.populate = 0
-                widgets[field.getName()] = WidgetWrapper(
-                    field_name=field.accessor,
-                    mode='search',
-                    widget=field.widget,
+                field_name = field.getName()
+                accessor = field.getAccessor(instance)
+                if mode == 'search':
+                    field.required = 0
+                    field.addable = 0 # for ReferenceField
+                    if not isinstance(field.vocabulary, DisplayList):
+                        field.vocabulary = field.Vocabulary(instance)
+                    if '' not in field.vocabulary.keys():
+                        field.vocabulary = DisplayList([('', '<any>')]) + \
+                                           field.vocabulary
+                    widget.populate = 0
+                    field_name = field.accessor
+                    accessor = field.getDefault
+
+                w_keys[field_name] = None
+                widgets.append((field_name, WidgetWrapper(
+                    field_name=field_name,
+                    mode=mode,
+                    widget=widget,
                     instance=instance,
                     field=field,
-                    accessor=field.getDefault)
-        widgets = widgets.items()
-        widgets.sort()
+                    accessor=accessor)))
+        if mode == 'search':
+            widgets.sort()
         return [widget for name, widget in widgets]
-
-    ## Reference Engine Support
-    security.declarePublic('lookupObject')
-    def lookupObject(self, uid):
-        if not uid:
-            return None
-        object = None
-        catalog = getToolByName(self, UID_CATALOG)
-        result  = catalog({'UID' : uid})
-        if result:
-            # This is an awful workaround for the UID under
-            # containment problem. NonRefs will aq there parents UID
-            # which is so awful I am having trouble putting it into
-            # words.
-            for object in result:
-                o = object.getObject()
-                if o is not None:
-                    if IReferenceable.isImplementedBy(o):
-                        return o
-        return None
-
-    security.declarePublic('getObject')
-    def getObject(self, uid):
-        return self.lookupObject(uid)
-
-
-    security.declarePublic('reference_url')
-    def reference_url(self, object):
-        """Return a link to the object by reference"""
-        uid = object.UID()
-        return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
-
 
     security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
@@ -653,57 +726,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log("no object for %s" % uid)
 
-    security.declarePrivate('_genId')
-    def _genId(self, object):
-        catalog = getToolByName(self, UID_CATALOG)
-        keys = catalog.uniqueValuesFor('UID')
-
-        cid = object.getId()
-        i = 0
-        counter = 0
-        postfix = ''
-        while cid in keys:
-            if counter > 0:
-                g = random.Random(time.time())
-                postfix = g.random() * 10000
-            cid = "%s-%s%s" % (object.getId(),
-                               i, postfix)
-            i = int((time.time() % 1.0) * 10000)
-            counter += 1
-
-        return cid
-
-    security.declarePrivate('registerContent')
-    def registerContent(self, object):
-        """register a content object and set its unique id"""
-        cid = self.getUidFrom(object)
-        if cid is None:
-            cid = self._genId(object)
-            self.setUidOn(object, cid)
-
-        return cid
-
-    security.declarePrivate('unregisterContent')
-    def unregisterContent(self, object):
-        """remove all refs/backrefs from an object"""
-        cid = self.getUidFrom(object)
-        self._delReferences(cid)
-        return cid
-
-    security.declarePublic('getUidFrom')
-    def getUidFrom(self, object):
-        """return the UID for an object or None"""
-        value = None
-
-        if hasattr(object, "_getUID"):
-            value = object._getUID()
-
-        return value
-
-    security.declarePrivate('setUidOn')
-    def setUidOn(self, object, cid):
-        if hasattr(object, "_setUID"):
-            object._setUID(cid)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Content')
@@ -737,8 +759,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """dump some things about an object hook in the debugger for
         now"""
         object = self.getObject(UID)
-        #if object:
-        #    import pdb;pdb.set_trace()
         log(object, object.Schema(), dir(object))
 
 
@@ -766,16 +786,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     index = manage_reindex
 
 
+    def _listAllTypes(self):
+        """list all types -- either currently known or known to us."""
+        allTypes = _types.copy(); allTypes.update(self._types)
+        return allTypes.keys()
+
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
         """Returns a list of tuples indicating which schema have changed.
            Tuples have the form (schema, changed)"""
         list = []
-        keys = self._types.keys()
+        currentTypes = _types
+        ourTypes = self._types; modified = 0
+        keys = self._listAllTypes()
         keys.sort()
         for t in keys:
-            list.append((t, self._types[t]['update']))
+            if t not in ourTypes:
+                # add it
+                ourTypes[t] = currentTypes[t]['signature']; modified = 1
+                list.append((t, 0))
+            elif t not in currentTypes:
+                # huh: what shall we do? We remove it -- this might be wrong!
+                del ourTypes[t]; modified = 1
+                # we do not add an entry because we cannot update
+                # these objects (having no longer type information for them)
+            else:
+                list.append((t, ourTypes[t] != currentTypes[t]['signature']))
+        if modified: self._p_changed = 1
         return list
 
 
@@ -789,12 +827,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         update_types = []
         if REQUEST is None:
-            for t in self._types.keys():
-                if self._types[t]['update']:
-                    update_types.append(t)
+            # DM (avoid persistency bug): avoid code duplication
+            update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
+##            for t in self._types.keys():
+##                if self._types[t]['update']:
+##                    update_types.append(t)
             update_all = 0
         else:
-            for t in self._types.keys():
+            # DM (avoid persistency bug):
+            for t in self._listAllTypes():
                 if REQUEST.form.get(t, 0):
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
@@ -806,7 +847,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # can't update it if you require that it be in the catalog.
         catalog = getToolByName(self, 'portal_catalog')
         portal = getToolByName(self, 'portal_url').getPortalObject()
-        meta_types = [_types[t]['name'] for t in update_types]
+        meta_types = [_types[t]['meta_type'] for t in update_types]
         if update_all:
             catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                 search_sub=1, apply_func=self._updateObject)
@@ -814,12 +855,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                 search_sub=1, apply_func=self._updateChangedObject)
         for t in update_types:
-            self._types[t]['update'] = 0
+            # DM (avoid persistency bug): set to current signature
+##            self._types[t]['update'] = 0
+            self._types[t] = _types[t]['signature']
         self._p_changed = 1
         return out.getvalue()
 
     def _updateObject(self, o, path):
-        import sys
         sys.stdout.write('updating %s\n' % o.getId())
         o._updateSchema()
 
@@ -827,45 +869,47 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not o._isSchemaCurrent():
             o._updateSchema()
 
-    def __setstate__(self, v):
-        """Add a callback to track product registrations"""
-        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
-        global _types
-        global _types_callback
-        import sys
-        if hasattr(self, '_types'):
-            if not hasattr(self, 'last_types_update') or \
-                   self.last_types_update.lessThan(last_load):
-                for k, t in _types.items():
-                    if self._types.has_key(k):
-                        update = (t['signature'] !=
-                                  self._types[k]['signature'])
-                    else:
-                        update = 1
-                    self._types[k] = {'signature':t['signature'],
-                                      'update':update}
-                cb = lambda klass, package:self.registerType(klass, package)
-                _types_callback.append(cb)
-                self.last_types_update = DateTime()
+# DM (avoid persistency bug): 
+##    def __setstate__(self, v):
+##        """Add a callback to track product registrations"""
+##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
+##        global _types
+##        global _types_callback
+##        import sys
+##        if hasattr(self, '_types'):
+##            if not hasattr(self, 'last_types_update') or \
+##                   self.last_types_update.lessThan(last_load):
+##                for k, t in _types.items():
+##                    if self._types.has_key(k):
+##                        update = (t['signature'] !=
+##                                  self._types[k]['signature'])
+##                    else:
+##                        update = 1
+##                    self._types[k] = {'signature':t['signature'],
+##                                      'update':update}
+##                cb = lambda klass, package:self.registerType(klass, package)
+##                _types_callback.append(cb)
+##                self.last_types_update = DateTime()
 
 
-    security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'registerType')
-    def registerType(self, klass, package):
-        """This gets called every time registerType is called as soon as the
-        hook is installed by setstate"""
-        # See if the schema has changed.  If it has, flag it
-        update = 0
-        sig = klass.schema.signature()
-        key = "%s.%s" % (package, klass.meta_type)
-        old_data = self._types.get(key, None)
-        if old_data:
-            update = old_data.get('update', 0)
-            old_sig = old_data.get('signature', None)
-            if sig != old_sig:
-                update = 1
-        self._types[key] = {'signature':sig, 'update':update}
-        self._p_changed = 1
+# DM (avoid persistency bug): 
+##    security.declareProtected(CMFCorePermissions.ManagePortal,
+##                              'registerType')
+##    def registerType(self, klass, package):
+##        """This gets called every time registerType is called as soon as the
+##        hook is installed by setstate"""
+##        # See if the schema has changed.  If it has, flag it
+##        update = 0
+##        sig = klass.schema.signature()
+##        key = "%s.%s" % (package, klass.meta_type)
+##        old_data = self._types.get(key, None)
+##        if old_data:
+##            update = old_data.get('update', 0)
+##            old_sig = old_data.get('signature', None)
+##            if sig != old_sig:
+##                update = 1
+##        self._types[key] = {'signature':sig, 'update':update}
+##        self._p_changed = 1
 
 
     # Catalog management
@@ -903,7 +947,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         catalogs = []
         catalog_map=getattr(self,'catalog_map',None)
         if catalog_map:
-            names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
+            names = self.catalog_map.get(meta_type, ['portal_catalog',
+                                                     UID_CATALOG])
         else:
             names = ['portal_catalog', UID_CATALOG]
         for name in names:
@@ -932,5 +977,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return res
 
+    def lookupObject(self,uid):
+        import warnings
+        warnings.warn('ArchetypeTool.lookupObject is dreprecated',
+                      DeprecationWarning)
+        return self.reference_catalog.lookupObject(uid)
+
+    getObject=lookupObject
 
 InitializeClass(ArchetypeTool)

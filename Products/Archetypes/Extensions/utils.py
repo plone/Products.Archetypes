@@ -23,12 +23,20 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
+from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 
 class Extra:
     """indexes extra properties holder"""
 
-def install_dependencies(self, out):
-    qi=getToolByName(self, 'portal_quickinstaller')
+def install_dependencies(self, out, required=1):
+    qi=getToolByName(self, 'portal_quickinstaller', None)
+    if qi is None:
+        if required:
+            raise RuntimeError, (
+                'portal_quickinstaller tool could not be found, and it is '
+                'required to install Archetypes dependencies')
+        else:
+            return
     qi.installProduct('CMFFormController',locked=1)
     qi.installProduct('PortalTransforms',)
 
@@ -37,8 +45,8 @@ def install_tools(self, out):
     if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
-        at = getToolByName(self, 'archetype_tool', None)
 
+        at = getToolByName(self, 'archetype_tool', None)
         ##Test some of the templating code
         at.registerTemplate('base_view', "Normal View")
     else:
@@ -63,43 +71,73 @@ def install_catalog(self, out):
         #Add a zcatalog for uids
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = getToolByName(self, UID_CATALOG)
 
-        for indexName, indexType in index_defs:
-            try:
-                catalog.addIndex(indexName, indexType, extra=None)
-            except:
-                pass
+    catalog = getToolByName(self, UID_CATALOG)
+    schema = catalog.schema()
+    indexes = catalog.indexes()
+    schemaFields = []
 
+    for indexName, indexType in ( ('UID', 'FieldIndex'),
+                                  ('Type', 'FieldIndex'),
+                                  ('id', 'FieldIndex'),
+                                  ('Title', 'FieldIndex'),
+                                  ('portal_type', 'FieldIndex'),
+                                  ):
         try:
-            if not 'UID' in catalog.schema():
-                catalog.addColumn('UID')
+            if indexName not in indexes:
+                catalog.addIndex(indexName, indexType, extra=None)
+            if not indexName in schema:
+                catalog.addColumn(indexName)
+                schemaFields.append(indexName)
         except:
             pass
 
-
-        catalog.manage_reindexIndex(ids=('UID',))
-    else:
-        #add the indexes if not in the catalog (in the case that
-        #the index has been added within an Archetypes update)
-        catalog=getattr(self,UID_CATALOG)
-        for indexName, indexType in index_defs:
-            if indexName not in catalog.indexes():
-                catalog.addIndex(indexName, indexType, extra=None)
+    catalog.manage_reindexIndex(ids=schemaFields)
 
 def install_templates(self, out):
     at = self.archetype_tool
     at.registerTemplate('base_view')
 
-def install_subskin(self, out, globals=types_globals,
-                    product_skins_dir='skins'):
+
+def install_referenceCatalog(self, out):
+    if not hasattr(self, REFERENCE_CATALOG):
+        #Add a zcatalog for uids
+        addCatalog = manage_addReferenceCatalog
+        addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
+        catalog = getToolByName(self, REFERENCE_CATALOG)
+        schema = catalog.schema()
+        for indexName, indexType in ( ('sourceUID', 'FieldIndex'),
+                                      ('targetUID', 'FieldIndex'),
+                                      ('relationship', 'FieldIndex'),
+                                      ('targetId', 'FieldIndex'),
+                                      ('targetTitle', 'FieldIndex'),
+                                      ):
+            try:
+                catalog.addIndex(indexName, indexType, extra=None)
+            except:
+                pass
+            try:
+                if not indexName in schema:
+                    catalog.addColumn(indexName)
+            except:
+                pass
+
+        #catalog.manage_reindexIndex()
+
+
+def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
 
-    fullProductSkinsPath = join(package_home(globals), product_skins_dir)
+    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
     productSkinsPath = minimalpath(fullProductSkinsPath)
     registered_directories = manage_listAvailableDirectories()
     if productSkinsPath not in registered_directories:
-        registerDirectory(product_skins_dir, globals)
+        try:
+            registerDirectory(product_skins_dir, globals)
+        except OSError, ex:
+            if ex.errno == 2: # No such file or directory
+                return
+            raise
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
@@ -126,17 +164,17 @@ def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     for type in types:
         try:
-            typesTool._delObject(type.__name__)
+            typesTool._delObject(type.portal_type)
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, type.__name__)
+        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
 
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id=type.__name__,
+                                                id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
         # set the human readable title explicitly
-        t = getattr(typesTool, type.__name__, None)
+        t = getattr(typesTool, type.portal_type, None)
         if t:
             t.title = type.archetype_name
 
@@ -146,38 +184,53 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    catalog = getToolByName(self, 'portal_catalog')
-    catalog = aq_base(catalog)
-
+    
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
 
         for field in cls.schema.fields():
             if field.index:
+                portal_catalog = catalog = getToolByName(self, 'portal_catalog')
+                
                 if type(field.index) is StringType:
                     index = (field.index,)
-                else:
+                elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
-
+                else:
+                    raise SyntaxError("Invalid Index Specification %r"%field.index)
+                
                 for alternative in index:
                     installed = None
-                    schema = alternative.split(':', 1)
-                    if len(schema) == 2 and schema[1] == 'schema':
-                        # FIXME: why do we try/except this part ?
+                    index_spec = alternative.split(':', 1)
+                    use_column  = 0 
+                    if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
+                        use_column = 1
+                    index_spec = index_spec[0]
+
+                    parts = index_spec.split('|')
+                    # we want to be able to specify which catalog we want to use
+                    # for each index. syntax is
+                    # index=('member_catalog/:schema',)
+                    # portal catalog is used by default if not specified
+                    if parts[0].find('/') > 0:
+                        str_idx = parts[0].find('/')
+                        catalog_name = parts[0][:str_idx]
+                        parts[0] = parts[0][str_idx+1:]
+                        catalog = getToolByName(self, catalog_name)
+                    
+                    if use_column:
                         try:
                             if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
                         except:
-                            pass
+                            import traceback
+                            traceback.print_exc(file=out)
 
-                    # we may want to add a field to metadata without
-                    # indexing it
-                    if not schema[0]:
-                        continue
-
-                    parts = schema[0].split('|')
-
+                    # if you want to add a schema field without an index
+                    #if not parts[0]:
+                    #    continue
+                        
                     for itype in parts:
                         extras = itype.split(',')
                         if len(extras) > 1:
@@ -228,7 +281,7 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
-        typeinfo_name="%s: %s" % (package_name, t.__name__)
+        typeinfo_name="%s: %s" % (package_name, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:
@@ -265,12 +318,14 @@ def filterTypes(self, out, types, package_name):
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
-                     product_skins_dir='skins'):
+                     product_skins_dir='skins',
+                     require_dependencies=1):
 
-    install_dependencies(self, out)
+    install_dependencies(self, out, require_dependencies)
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
+    install_referenceCatalog(self, out)
 
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
@@ -287,10 +342,11 @@ def setupEnvironment(self, out, types,
 
 ## The master installer
 def installTypes(self, out, types, package_name,
-                 globals=types_globals, product_skins_dir='skins'):
+                 globals=types_globals, product_skins_dir='skins',
+                 require_dependencies=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir)
+                     globals, product_skins_dir, require_dependencies)

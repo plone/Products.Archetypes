@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export SOFTWARE_HOME="/usr/lib/zope/2.7-branch-23/lib/python"
-export INSTANCE_HOME="/var/lib/zope/plone"
+export SOFTWARE_HOME="/usr/local/zope/Zope/lib/python"
+export INSTANCE_HOME="/usr/local/zope/Instance1"
 
 python2.3 runalltests.py

@@ -10,7 +10,7 @@ from common import *
 from utils import *
 
 from Products.Archetypes.public import *
-from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.BaseUnit import BaseUnit
 from StringIO import StringIO
 
@@ -29,7 +29,7 @@ class BaseUnitTest( ArchetypesTestCase ):
 
     def testSame(self):
         gen_dummy()
-        # The new BaseUnit expects 'instance' to be
+        # The BaseUnit expects 'instance' to be
         # acquisition wrapped, or else it does return
         # the untransformed text -- this was introduced
         # for compatibility with APE.
@@ -40,10 +40,7 @@ class BaseUnitTest( ArchetypesTestCase ):
                       mimetype='text/restructured',
                       instance=dummy)
         input.close()
-        if USE_NEW_BASEUNIT:
-            got = normalize_html(bu.transform(dummy, 'text/html'))
-        else:
-            got = normalize_html(bu())
+        got = normalize_html(bu.transform(dummy, 'text/html'))
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()

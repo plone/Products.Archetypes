@@ -1,17 +1,18 @@
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.Referenceable import Referenceable
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.interfaces.base import IBaseContent
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+
 from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
-from debug import log, log_exc
-from BaseObject import BaseObject
-from Referenceable import Referenceable
-from ExtensibleMetadata import ExtensibleMetadata
-from interfaces.base import IBaseContent
-from interfaces.referenceable import IReferenceable
-from interfaces.metadata import IExtensibleMetadata
-from CatalogMultiplex import CatalogMultiplex
 
 class BaseContentMixin(BaseObject,
                        Referenceable,
@@ -63,6 +64,9 @@ class BaseContentMixin(BaseObject,
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
 
         file = REQUEST['BODYFILE']
+        # XXX should we maybe not accept PUT requests without a
+        # content type?
+        mimetype = REQUEST.get_header('content-type', None)
         data = file.read()
         file.seek(0)
         try:
@@ -73,7 +77,7 @@ class BaseContentMixin(BaseObject,
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=None,
+        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
                                       filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:

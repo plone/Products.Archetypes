@@ -130,7 +130,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == [])
+        self.failUnless(field.default == ())
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -188,7 +188,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == [])
+        self.failUnless(field.default == ())
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -318,7 +318,7 @@ class BaseSchemaTest(ArchetypesTestCase):
                         CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'string')
+        self.failUnless(field.type == 'text')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())

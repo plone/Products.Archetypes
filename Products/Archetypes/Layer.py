@@ -1,4 +1,4 @@
-from interfaces.layer import ILayerContainer
+from Products.Archetypes.interfaces.layer import ILayerContainer
 
 class DefaultLayerContainer:
     __implements__ = (ILayerContainer, )
