@@ -7,7 +7,7 @@
 ##bind subpath=traverse_subpath
 ##parameters=value
 
-site_charset = context.portal_properties.site_properties.default_charset
+site_charset = context.getCharset()
 
 if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
     value = str(value)
@@ -19,6 +19,8 @@ if hasattr(value, 'decode'): # type(value) is type('')
             break
         except UnicodeError:
             pass
+    # that should help debugging unicode problem
+    # remove it if you feel not
     else:
         raise UnicodeError('Unable to decode %s' % value)
 

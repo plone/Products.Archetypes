@@ -47,12 +47,12 @@ def encode(value, instance, **kwargs):
     if type(value) is type(u''):
         encoding = kwargs.get('encoding')
         if encoding is None:
-            p_props = getattr(instance, 'portal_properties', None)
-            if p_props is not None:
-                site_props = p_props.site_properties
-                encoding = site_props.getProperty('default_charset')
-            else:
-                encoding = 'utf-8'
+            try:
+                encoding = instance.getCharset()
+            except AttributeError:
+                # that occurs during object initialization
+                # (no acquisition wrapper)
+                encoding = 'UTF8'
         value = value.encode(encoding)
     return value
 
@@ -61,12 +61,12 @@ def decode(value, instance, **kwargs):
     if type(value) is type(''):
         encoding = kwargs.get('encoding')
         if encoding is None:
-            p_props = getattr(instance, 'portal_properties', None)
-            if p_props is not None:
-                site_props = p_props.site_properties
-                encoding = site_props.getProperty('default_charset')
-            else:
-                encoding = 'utf-8'
+            try:
+                encoding = instance.getCharset()
+            except AttributeError:
+                # that occurs during object initialization
+                # (no acquisition wrapper)
+                encoding = 'UTF8'
         value = unicode(value, encoding)
     return value
 
