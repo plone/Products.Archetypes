@@ -1230,7 +1230,7 @@ class FixedPointField(ObjectField):
         # * the locale settings of the zope-server, Plone, logged in user
         # * maybe the locale of the browser sending the value.
         # same should happen with the output.
-        value.replace(',','.')
+        value = value.replace(',','.')
 
         value = value.split('.')
         __traceback_info__ = (self, value)
