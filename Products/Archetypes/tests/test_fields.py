@@ -19,25 +19,16 @@ from Products.Archetypes.Field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
-fields = [('ObjectField', 'objectfield'),
-          ('StringField', 'stringfield'),
-          ('FileField', 'filefield'),
-	  ('TextField', 'textfield'),
-	  ('DateTimeField', 'datetimefield'),
-	  ('LinesField','linesfield'),
-          ('IntegerField', 'integerfield'),
-	  ('FloatField', 'floatfield'),
-	  ('FixedPointField', 'fixedpointfield1'),
-	  ('FixedPointField', 'fixedpointfield2'),
-          ('BooleanField', 'booleanfield'),
-	  ('ImageField', 'imagefield'),
-	  ('PhotoField', 'photofield'),
+fields = ['ObjectField', 'StringField',
+          'FileField', 'TextField', 'DateTimeField', 'LinesField',
+          'IntegerField', 'FloatField', 'FixedPointField', 'FixedPointField',
+          'BooleanField', 'ImageField', 'PhotoField',
           # 'ReferenceField', 'ComputedField', 'CMFObjectField',
           ]
 
 field_instances = []
-for type, name in fields:
-    field_instances.append(getattr(Field, type)(name))
+for name in fields:
+    field_instances.append(getattr(Field, name)(name.lower()))
 
 txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
@@ -52,7 +43,7 @@ field_values = {'objectfield':'objectfield',
                 'linesfield':'bla\nbla',
                 'integerfield':'1',
                 'floatfield':'1.5',
-                'fixedpointfield1': '1.5',
+                'fixedpointfield':  '1.5',
                 'fixedpointfield2': '1,5',
                 'booleanfield':'1',
                 'imagefield_file':img_file,
@@ -66,7 +57,7 @@ expected_values = {'objectfield':'objectfield',
                    'linesfield':('bla', 'bla'),
                    'integerfield': 1,
                    'floatfield': 1.5,
-                   'fixedpointfield1': '1.50',
+                   'fixedpointfield':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
                    'imagefield':'<img src="portal/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
@@ -80,8 +71,7 @@ empty_values = {'objectfield':None,
                    'linesfield':(),
                    'integerfield': None,
                    'floatfield': None,
-                   'fixedpointfield1': None,
-                   'fixedpointfield2': None,
+                   'fixedpointfield': None,
                    'booleanfield': None,
                    #XXX'imagefield':"DELETE_IMAGE",
                    #XXX'photofield':"DELETE_IMAGE",

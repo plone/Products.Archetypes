@@ -477,10 +477,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_migrationForm',
           },
 
-        { 'label'  : 'Copying',
-          'action' : 'manage_copyingForm',
-          },
-
         )  + SQLStorageConfig.manage_options
         )
 
@@ -499,9 +495,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_migrationForm')
     manage_migrationForm = PageTemplateFile('migrationForm', _www)
-    security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'manage_copyingForm')
-    manage_copyingForm = PageTemplateFile('copyingForm', _www)
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchemaForm')
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
@@ -979,22 +972,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self._updateObject(o, path)
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'manage_migrate')
+                              'manage_updateSchema')
     def manage_migrate(self, REQUEST=None):
         """Run Extensions.migrations.migrate."""
         from Products.Archetypes.Extensions.migrations import migrate
         out = migrate(self)
         self.manage_updateSchema()
         return out
-
-    security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'manage_keepreferences')
-    def manage_keepreferences(self, keep_references=0, REQUEST=None):
-        """Change the policy on keeping or destroying references after a copy."""
-        self.keepReferencesOnCopy = keep_references
-
-    def getKeepReferencesOnCopy(self):
-        return getattr(self, 'keepReferencesOnCopy', 0)
 
     # Catalog management
     security.declareProtected(CMFCorePermissions.View,

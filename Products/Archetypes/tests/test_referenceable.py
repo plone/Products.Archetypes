@@ -11,17 +11,10 @@ if not hasArcheSiteTestCase:
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList
-from Products.CMFCore.utils import getToolByName
 
 class BaseReferenceableTests(ArcheSiteTestCase):
 
     FOLDER_TYPE = None
-    KEEP_REFERENCES = False
-
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        at = self.portal.archetype_tool
-        at.manage_keepreferences(self.KEEP_REFERENCES)
 
     def verifyBrains(self):
         uc = getattr(self.portal, UID_CATALOG)
@@ -528,7 +521,6 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         # copy/paste behaviour test
         # in another folder, pasted object should lose all references
         # added by GL (for bug #985393)
-        
         org_folder = makeContent(self.folder,
                                  portal_type=self.FOLDER_TYPE,
                                  title='Origin folder',
@@ -545,7 +537,6 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         self.failUnlessEqual(a.getRefs(), [b])
 
         cb = org_folder.manage_copyObjects(ids=['a'])
-        #import pdb; pdb.set_trace()
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
 
@@ -554,25 +545,14 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         ca_uid = copy_a.UID()
         self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
 
-        if self.KEEP_REFERENCES:
-            # The copy should have references
-            self.failUnlessEqual(copy_a.getRefs(), [b])
-
-            # Original object should keep references
-            self.failUnlessEqual(a.getRefs(), [b])
-            backrefs = b.getBRefs()
-            self.failUnlessEqual(len(backrefs), 2)
-            self.failUnless(a in backrefs)
-            self.failUnless(copy_a in backrefs)
-        else:
-            # The copy shouldn't have references
-            self.failUnlessEqual(copy_a.getRefs(), [])
-            self.failIf(copy_a in b.getBRefs())
+        # The copy shouldn't have references
+        self.failUnlessEqual(copy_a.getRefs(), [])
+        self.failIf(copy_a in b.getBRefs())
 
 
-            # Original object should keep references
-            self.failUnlessEqual(a.getRefs(), [b])
-            self.failUnlessEqual(b.getBRefs(), [a])
+        # Original object should keep references
+        self.failUnlessEqual(a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [a])
 
     def test_cutPasteSupport(self):
         # cut/paste behaviour test
@@ -603,16 +583,11 @@ class SimpleFolderReferenceableTests(BaseReferenceableTests):
 class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleBTreeFolder'
 
-class PreservingReferenceableTests(SimpleFolderReferenceableTests):
-    KEEP_REFERENCES = True
-
-
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(SimpleFolderReferenceableTests))
     suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
-    suite.addTest(makeSuite(PreservingReferenceableTests))
     return suite
 
 if __name__ == '__main__':
