@@ -23,7 +23,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
-from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
+from Products.Archetypes.ReferenceEngine import \
+     manage_addReferenceCatalog, manage_addUIDCatalog
 
 class Extra:
     """indexes extra properties holder"""
@@ -69,7 +70,7 @@ def install_catalog(self, out):
 
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
-        addCatalog = manage_addZCatalog
+        addCatalog = manage_addUIDCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
 
     catalog = getToolByName(self, UID_CATALOG)
@@ -94,11 +95,6 @@ def install_catalog(self, out):
 
     catalog.manage_reindexIndex(ids=schemaFields)
 
-def install_templates(self, out):
-    at = self.archetype_tool
-    at.registerTemplate('base_view')
-
-
 def install_referenceCatalog(self, out):
     if not hasattr(self, REFERENCE_CATALOG):
         #Add a zcatalog for uids
@@ -106,7 +102,9 @@ def install_referenceCatalog(self, out):
         addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
         catalog = getToolByName(self, REFERENCE_CATALOG)
         schema = catalog.schema()
-        for indexName, indexType in ( ('sourceUID', 'FieldIndex'),
+        for indexName, indexType in (
+                                      ('UID', 'FieldIndex'),
+                                      ('sourceUID', 'FieldIndex'),
                                       ('targetUID', 'FieldIndex'),
                                       ('relationship', 'FieldIndex'),
                                       ('targetId', 'FieldIndex'),
@@ -123,6 +121,12 @@ def install_referenceCatalog(self, out):
                 pass
 
         #catalog.manage_reindexIndex()
+
+
+def install_templates(self, out):
+    at = self.archetype_tool
+    at.registerTemplate('base_view')
+
 
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):

@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8 2004/02/09 00:02:03 dreamcatcher Exp $
+$Id: test_referenceCatalog.py,v 1.8.18.1 2004/05/04 10:06:44 bcsaller Exp $
 """
 
 import os, sys
@@ -79,12 +79,13 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         obj2._p_oid = new_oid()
         # /MAGIC
 
-        #Rename can't invalidate UID or refernces
+        #Rename can't invalidate UID or references
         obj.setId('new1')
         self.failUnless(obj.getId() == 'new1')
         self.failUnless(obj.UID() == uid1)
 
         b = obj.getRefs()
+        print b
         self.failUnless(b[0].UID() == uid2)
 
         obj2.setId('new2')

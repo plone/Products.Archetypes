@@ -947,10 +947,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         catalogs = []
         catalog_map=getattr(self,'catalog_map',None)
         if catalog_map:
-            names = self.catalog_map.get(meta_type, ['portal_catalog',
-                                                     UID_CATALOG])
+            names = self.catalog_map.get(meta_type, ['portal_catalog',]
+                                         )
         else:
-            names = ['portal_catalog', UID_CATALOG]
+            names = ['portal_catalog', ]
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))

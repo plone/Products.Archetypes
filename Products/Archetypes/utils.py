@@ -376,3 +376,13 @@ class OrderedDict(BaseDict):
         return (k, v)
 
 InitializeClass(OrderedDict)
+
+def getRelPath(self, ppath):
+    """take something with context (self) and a physical path as a
+    tuple, return the relative path for the portal"""
+    portal_path = self.portal_url.getPortalObject().getPhysicalPath()
+    ppath = ppath[len(portal_path):]
+    return ppath
+
+def getRelURL(self, ppath):
+    return '/'.join(getRelPath(self, ppath))

@@ -9,12 +9,14 @@ from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
-
+from ZODB.PersistentMapping import PersistentMapping
+from utils import getRelPath, getRelURL
 ####
 ## In the case of a copy we want to lose refs
 ##                a cut/paste we want to keep refs
 ##                a delete to lose refs
 ####
+
 
 class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
@@ -84,6 +86,13 @@ class Referenceable(Base):
         reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.unregisterObject(self)
 
+    def _getReferenceAnnotations(self):
+        """given an object extract the bag of references for which it
+        is the source"""
+        if not hasattr(self, config.REFERENCE_ANNOTATION):
+            setattr(self, config.REFERENCE_ANNOTATION, PersistentMapping())
+        return getattr(self, config.REFERENCE_ANNOTATION)
+
 
     def UID(self):
         return getattr(self, config.UUID_ATTR, None)
@@ -96,6 +105,22 @@ class Referenceable(Base):
         """
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
+
+        #Make sure _this_ gets re UID_CATALOGed
+        uc = getToolByName(container, config.UID_CATALOG)
+        url = getRelURL(container, self.getPhysicalPath())
+        #if not url:
+        #    import pdb;pdb.set_trace()
+        uc.catalog_object(self, url)
+
+        # the UID index needs to be updated for any annotations we
+        # carry
+        annotations = self._getReferenceAnnotations()
+        if annotations:
+            for ref in annotations.values():
+                url = getRelURL(container, ref.getPhysicalPath())
+                uc.catalog_object(ref, url)
+
 
     def manage_afterClone(self, item):
         """
@@ -110,12 +135,11 @@ class Referenceable(Base):
             Remove self from the catalog.
             (Called when the object is deleted or moved.)
         """
-        rc = getattr(container, config.REFERENCE_CATALOG)
-        references = rc.getReferences(self)
-        back_references = rc.getBackReferences(self)
-
         storeRefs = getattr(self, '_cp_refs', None)
         if storeRefs is None:
+            rc = getattr(container, config.REFERENCE_CATALOG)
+            references = rc.getReferences(self)
+            back_references = rc.getBackReferences(self)
             try:
                 #First check the 'delete cascade' case
                 if references:
