@@ -13,7 +13,7 @@
    CEILING_DATE from year 9999 to year 2500.
    [tiran]
 
- * Fixed [ 1012238 ] Cannot set field using boolean widget under IE
+ * Fixed [ 1012238 ] Cannot set field using boolean widget under IE.
    [duncanb]
 
  * Changed TemplateMixin.getDefaultLayout(): It first checks for an attribute
@@ -51,13 +51,13 @@
  * Added Danish translation. Thx to stonor!
    [tiran]
 
- * Added 'de-de' as fallback to the German translation
+ * Added 'de-de' as fallback to the German translation.
    [tiran]
 
  * Applied fix from [ 924832 ] Widget:isVisible always returns 'visible' for not
-   DictType which is fixing a broken behavior for Widget.isVisible()
+   DictType which is fixing a broken behavior for Widget.isVisible().
 
- * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient
+ * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient.
    [runyan]
 
  * Temporary fix for [ 1012408 ] __getitem__ doesn't play nice which is backward
@@ -66,19 +66,19 @@
    get an item starting with _ and it throws a KeyError when trying to access
    a nonexisting object. Also it's using explicit acquisition.
 
- * Fixed unicodeTestIn.py: return False immediately when the list is None or empty
+ * Fixed unicodeTestIn.py: return False immediately when the list is None or empty.
    [tiran]
 
  * Widget.py: Changed some field.get(instance) calls to
    field.getEditAccessor(instance)() to get rid of some sort of infinite loop
-   (in append_only code forTextAreaWidget)
+   (in append_only code forTextAreaWidget).
    [rafrombrc]
 
  * Readded Extensions/utils.py:install_tools for backward compat.
    [dreamcatcher]
 
  * fixed edit view rendering of append_only textarea history in
-   widgets/textarea.ptdata so whitespace is correct
+   widgets/textarea.pt data so whitespace is correct.
    [rafrombrc]
 
  * Fix a misbehavior on __bobo_traverse__ now that Tiran changed the __getitem__
@@ -102,41 +102,44 @@
  * Fixed [ 1013265 ] last changes to Widget.py is highly inefficient.
    [dtremea]
 
- * Fixed LinesWidget according to [ 1013379 ] LinesField/widget broken
+ * Fixed LinesWidget according to [ 1013379 ] LinesField/widget broken.
    [tiran]
 
  * Fixed bug in VariableSchemaSupport.VarClassGen mentioned in the thread on the
    AT devel mailing list. See "Warning: avoid changing your AT class' meta_type
-   when you have existing instances"
+   when you have existing instances".
    [mitchel, dreamcatcher, tiran]
 
  * Corrected icon in ZMI; Added some utils for ZMI setup.
    [gotcha]
 
  * Changed unit test to work with an unpatched version of getToolByName to get
-   mimetyptes_registry and portal_transform
+   mimetyptes_registry and portal_transform.
    [tiran]
 
- * Fixed [ 1015956 ] getBestIcon can fail
+ * Fixed [ 1015956 ] getBestIcon can fail.
    [ctheuni]
 
  * Fixed [ 1015292 ] boolean widget error, [ 1015394 ] 1.3 branch field.pt sets
-   value = None inappropriately and another problem with field.pt value
+   value = None inappropriately and another problem with field.pt value.
    [tiran, alecacct]
 
- * Fixed [ 1018821 ] _processInput in Field.py should rewind
+ * Fixed [ 1018821 ] _processInput in Field.py should rewind.
    [batlogg]
 
- * Part fix of bug #1013363 (renaming of folders nukes all references to AT 
-   objects inside them): 
+ * Part fix [ 1013363 ] (renaming of folders nukes all references to AT
+   objects inside them):
    It works now for AT folders, but renaming of non-AT folders stil breaks refs
    to their contained items so ATContentTypes based portals should be fine now
-   (except you rename the portal itself)
+   (except you rename the portal itself).
    [zworkb]
 
  * Added monkey patch for CMFCatalogAware, PortalContent and PortalFolder to
-   fix the second part of bug #1013363
+   fix the second part of [ 1013363 ].
    [tiran]
+
+ * Fixed [ 1018300 ] schema defined indexes are not set anymore.
+   [dtremea]
 
 1.3.0-rc1 - 2004-08-16
 ======================
