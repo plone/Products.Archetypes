@@ -240,7 +240,8 @@ class Field(DefaultLayerContainer):
             if request:
                 form   = request.form
                 result = widget.process_form(instance, self, form,
-                                             empty_marker=_marker)
+                                             empty_marker=_marker,
+                                             emptyReturnsMarker=True)
                 if result is _marker or result is None: # FileWidget returns None
                     isEmpty = True
 
@@ -509,7 +510,7 @@ class ObjectField(Field):
         self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
-        kwargs['field'] = self
+        #kwargs['field'] = self
         __traceback_info__ = (self.getName(), instance, kwargs)
         self.getStorage(instance).unset(self.getName(), instance, **kwargs)
 
@@ -1249,7 +1250,7 @@ class ImageField(ObjectField):
         will be deleted (None is understood as no-op)
         """
 
-    __implements__ = ObjectField.__implements__ + (IImageField,)
+    __implements__ = ObjectField.__implements__ #, IImageField)
 
     _properties = Field._properties.copy()
     _properties.update({
