@@ -70,6 +70,10 @@ class ObjectManagedStorage(Storage):
         return instance._getOb(name)
 
     def set(self, name, instance, value, **kwargs):
+        try:
+            instance._delObject(name)
+        except AttributeError:
+            pass
         instance._setObject(name, value)
         instance._p_changed = 1
 
