@@ -1,7 +1,7 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.5.4.1 2003/10/20 17:09:17 tiran Exp $
+$Id: test_sitepolicy.py,v 1.5.4.2 2003/10/21 02:18:46 tiran Exp $
 """
 import os, sys
 if __name__ == '__main__':
@@ -12,8 +12,6 @@ from utils import *
 
 import test_classgen
 
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
-from Products.CMFPlone.Portal import manage_addSite
 from Acquisition import aq_base
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
@@ -23,24 +21,20 @@ def makeContent(site, portal_type, id='document', **kw ):
 
     return content
 
-class SitePolicyTests( ArchetypesTestCase, SecurityRequestTest ):
-
+class SitePolicyTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
-        SecurityRequestTest.setUp(self)
-        manage_addSite( self.root, 'testsite', \
-                        custom_policy='Archetypes Site' )
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user ) 
 
-    # XXX hangs up my process
-    def __test_new( self ):
-        site = self.root.testsite
+    def test_new( self ):
+        site = self.getPortal()
         # catalog should have one entry, for index_html or frontpage
         # and another for Members
         self.assertEqual( len( site.portal_catalog ), 2 )
 
-    # XXX hangs up my process
-    def __test_availabledemotypes(self):
-        site = self.root.testsite
+    def test_availabledemotypes(self):
+        site = self.getPortal()
         portal_types = [ x for x in site.portal_types.listContentTypes()]
         self.failUnless('DDocument' in portal_types)
         self.failUnless('SimpleType' in portal_types)
@@ -48,9 +42,8 @@ class SitePolicyTests( ArchetypesTestCase, SecurityRequestTest ):
         self.failUnless('ComplexType' in portal_types)
         self.failUnless('Fact' in portal_types)
 
-    # XXX hangs up my process
-    def __test_creationdemotypes(self):
-        site = self.root.testsite
+    def test_creationdemotypes(self):
+        site = self.getPortal()
         demo_types = ['DDocument', 'SimpleType', 'Fact', 'ComplexType']
         for t in demo_types:
             content = makeContent(site, portal_type=t, id=t)

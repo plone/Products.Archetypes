@@ -8,7 +8,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.ReferenceEngine import ReferenceEngine
-from Products.CMFCore  import CMFCorePermissions
+#from Products.CMFCore  import CMFCorePermissions
 
 from DateTime import DateTime
 import unittest

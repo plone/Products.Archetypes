@@ -6,7 +6,6 @@ from common import *
 from utils import * 
 
 
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
@@ -21,27 +20,18 @@ import sys, os, shutil
 # run multiple tests in the same test suite.
 
 # XXX
-class test_update_schema1(ArchetypesTestCase, SecurityRequestTest):
-
-    site_id = 'unittest_test_site'
-    created_site = 0
-
+class test_update_schema1(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
-        SecurityRequestTest.setUp(self)
-        if not hasattr(self.root, self.site_id):
-            self.root.manage_addProduct['CMFPlone'].manage_addSite(self.site_id)
-            self.created_site = 1
-        site = getattr(self.root, self.site_id)
-        install_archetypes(site)
-        #XXX install_test(site)
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user ) 
 
 
     def beforeTearDown(self): 
         get_transaction().abort()
         # clean things up by hand, since the transaction seems to be getting
         # committed somewhere along the way
-        site = getattr(self.root, self.site_id, None)
+        site = self.getPortal()
         if site:
             if hasattr(site, 't1'):
                 site.manage_delObjects(['t1'])
@@ -71,7 +61,7 @@ class test_update_schema1(ArchetypesTestCase, SecurityRequestTest):
 
 
     def test_detect_schema_change(self):
-        site = getattr(self.root, self.site_id)
+        site = self.getPortal()
         self._setClass(1)
 
         t1 = makeContent(site, portal_type='TestClass', id='t1')

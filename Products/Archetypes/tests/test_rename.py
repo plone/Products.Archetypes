@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.8.4.1 2003/10/20 17:09:17 tiran Exp $
+$Id: test_rename.py,v 1.8.4.2 2003/10/21 02:18:46 tiran Exp $
 """
 
 import os, sys
@@ -12,22 +12,17 @@ from common import *
 from utils import * 
 
 from Acquisition import aq_base
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
-from Products.CMFPlone.Portal import manage_addSite
 
-# XXX
-class RenameTests( ArchetypesTestCase, SecurityRequestTest ):
-
+class RenameTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
-        SecurityRequestTest.setUp(self)
-        manage_addSite( self.root, 'testsite', \
-                        custom_policy='Archetypes Site' )
-    
-    # XXX hangs up my process
-    def __test_rename(self):
-        site = self.root.testsite
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user )
+
+    # XXX test is not running: ValueError: can not change oid of cached object
+    def test_rename(self):
+        site = self.getPortal()
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
         doc = makeContent(site, portal_type='Fact', id=obj_id)
@@ -35,8 +30,8 @@ class RenameTests( ArchetypesTestCase, SecurityRequestTest ):
         doc.setQuote(content, mimetype="text/plain")
         self.failUnless(str(doc.getQuote()) == str(content))
         #make sure we have _p_jar
-        doc._p_jar = site._p_jar = self.root._p_jar
-        new_oid = self.root._p_jar.new_oid
+        doc._p_jar = site._p_jar = self.app._p_jar
+        new_oid = self.app._p_jar.new_oid
         site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(obj_id, new_id)

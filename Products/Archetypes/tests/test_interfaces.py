@@ -137,7 +137,6 @@ class InterfaceTest(ArchetypesTestCase):
     def testBaseContentInterface(self):
         klass = BaseContent
         impl = self._getImplements(klass)
-        Xprint(impl)
         for iface in self._getImplements(klass):
             self._testInterfaceImplementation(klass, iface)
 

@@ -48,28 +48,23 @@ class DummyCatalog:
 
     searchResults = __call__
 
-class DummyArchTool:
-
-    def lookupObject(self, uid):
-        return Dummy(uid)
-
-    def deleteReferences(self, obj, reference):
-        pass
-
 sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
-class VocabularyTest( ArchetypesTestCase ):
-
+class VocabularyTest(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user ) 
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        self._dummy = Dummy(oid='dummy')
+        site = self.getPortal()
+        site.dummy = Dummy(oid='dummy')
+        self._dummy = site.dummy
+        # XXX doesn't work this way :(
         brains = [DummyBrain(*args) for args in sample_data]
-        self._dummy.portal_catalog = DummyCatalog(brains)
-        self._dummy.archetype_tool = DummyArchTool()
+        self._dummy.portal_catalog = DummyCatalog(brains) 
         self._dummy.initializeArchetype()
 
     def test_vocabulary(self):
@@ -83,7 +78,7 @@ class VocabularyTest( ArchetypesTestCase ):
 
     def beforeTearDown(self): 
         del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+        ArcheSiteTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
     framework()

@@ -2,11 +2,15 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.3 2003/10/20 19:01:30 tiran Exp $
+# $Id: common.py,v 1.1.2.4 2003/10/21 02:18:46 tiran Exp $
 
 from Testing import ZopeTestCase
 from ArchetypesTestCase import ArchetypesTestCase
 from ArcheSiteTestCase import ArcheSiteTestCase
+
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+#from Acquisition import aq_base #, aq_parent, aq_base
 
 # enable nice names for True and False from newer python versions
 try:
@@ -51,7 +55,8 @@ def Xprint(s):
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
            'verifyClass', 'verifyObject', 'BrokenImplementation',
            'DoesNotImplement', 'BrokenMethodImplementation', 
-           'getImplementsOfInstances', 'flattenInterfaces') \
+           'getImplementsOfInstances', 'flattenInterfaces',
+           'newSecurityManager', 'noSecurityManager' ) \
            + __all__Boolean
 
 

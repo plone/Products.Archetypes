@@ -13,9 +13,7 @@ from Acquisition import aq_base
 #XXX import ClientForm
 import urllib2
 
-from Products.CMFPlone.Portal import manage_addSite
 
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from thread import start_new_thread
 from utils import start_http
@@ -58,24 +56,18 @@ def findEditForm(forms):
     return None
 
 # XXX
-class WidgetTests(ArchetypesTestCase, SecurityRequestTest ):
-
+class WidgetTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
-        SecurityRequestTest.setUp(self)
-        try:
-            self.root.manage_delObjects(ids=('testsite',))
-        except:
-            pass
-        manage_addSite( self.root, 'testsite', \
-                        custom_policy='Archetypes Site' )
-        start_new_thread(start_http, ('127.0.0.1', 8080))
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user )
+        start_new_thread(start_http, ('127.0.0.1', 50080))
 
     def test_widgets(self):
         site = self.root.testsite
         doc = makeContent(site, portal_type='ComplexType', id='demodoc')
         get_transaction().commit()
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/base_edit")
+        request = urllib2.Request("http://127.0.0.1:50080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)
@@ -86,7 +78,7 @@ class WidgetTests(ArchetypesTestCase, SecurityRequestTest ):
                 control.readonly = 0
             form[k] = v
         response = urllib2.urlopen(form.click("form_submit"))
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/base_edit")
+        request = urllib2.Request("http://127.0.0.1:50080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)
