@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.2 2003/10/20 17:34:49 tiran Exp $
+# $Id: common.py,v 1.1.2.3 2003/10/20 19:01:30 tiran Exp $
 
 from Testing import ZopeTestCase
 from ArchetypesTestCase import ArchetypesTestCase
@@ -27,10 +27,15 @@ except ImportError:
         return True
     def verifyObject(iface, candidate, tentative=0):
         return True
+    def getImplementsOfInstances(object):
+        return []
+    def flattenInterfaces(interfaces, remove_duplicates=1):
+        return []
     class BrokenImplementation(Execption): pass
     class DoesNotImplement(Execption): pass
     class BrokenMethodImplementation(Execption): pass
 else:
+    from Interface.Implements import getImplementsOfInstances, flattenInterfaces
     from Interface.Verify import verifyClass, verifyObject
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
     from Interface.Exceptions import BrokenMethodImplementation  
@@ -45,7 +50,8 @@ def Xprint(s):
 
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
            'verifyClass', 'verifyObject', 'BrokenImplementation',
-           'DoesNotImplement', 'BrokenMethodImplementation') \
+           'DoesNotImplement', 'BrokenMethodImplementation', 
+           'getImplementsOfInstances', 'flattenInterfaces') \
            + __all__Boolean
 
 
