@@ -10,6 +10,7 @@
     <div metal:define-macro="view">
       <div tal:condition="python:'view' in widget.modes">
 	<div metal:define-slot="widget_view"/>
+	  <br/>
       </div>
     </div>
     
@@ -25,6 +26,7 @@
 	  <span tal:condition="error" tal:replace="error" />
            <div metal:define-slot="widget_body"/>
           </div></div>
+	  <br/>
       </div>
   </body>
   
