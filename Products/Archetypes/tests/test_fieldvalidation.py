@@ -5,9 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
-from Products.Archetypes.base.baseobject import BaseObject
+from Products.Archetypes.bases.baseobject import BaseObject
 
 from Products.validation import validation, interfaces
 

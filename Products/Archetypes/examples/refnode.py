@@ -1,4 +1,4 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 
 schema = BaseSchema + Schema((
     ReferenceField('link',

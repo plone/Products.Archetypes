@@ -4,13 +4,13 @@ from AccessControl import ClassSecurityInfo
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.lib.logging import log
-from Products.Archetypes.storage.base import Storage
-from Products.Archetypes.storage.base import StorageLayer
-from Products.Archetypes.storage.base import _marker
+from Products.Archetypes.storages.base import Storage
+from Products.Archetypes.storages.base import StorageLayer
+from Products.Archetypes.storages.base import _marker
 from Products.Archetypes.lib.annotations import AT_ANN_STORAGE
 from Products.Archetypes.lib.annotations import AT_MD_STORAGE
-from Products.Archetypes.registry import setSecurity
-from Products.Archetypes.registry import registerStorage
+from Products.Archetypes.registries import setSecurity
+from Products.Archetypes.registries import registerStorage
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance

@@ -35,8 +35,8 @@ PortalFolder._notifyOfCopyTo = _notifyOfCopyTo
 import sys
 
 # import list of modules
-from Products.Archetypes.tool import archetypetool
-from Products.Archetypes.tool import ttwtool
+from Products.Archetypes.tools import archetypetool
+from Products.Archetypes.tools import ttwtool
 from Products.Archetypes.refengine import engine
 from Products.Archetypes.refengine import references
 from Products.Archetypes.lib import baseunit

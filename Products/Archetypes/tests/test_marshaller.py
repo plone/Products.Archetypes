@@ -11,7 +11,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
@@ -45,8 +45,7 @@ def aputrequest(file, content_type):
 
 class MarshallerTests(ArcheSiteTestCase):
 
-    # XXX this test is fu... up the machine by eating all memory
-    def XXX_test_textFieldObjectWordReplace(self):
+    def test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
         obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
@@ -120,8 +119,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
         return ctr
 
-    # XXX this test is fu... up the machine by eating all memory
-    def XXX_test_objectCreate(self):
+    def test_objectCreate(self):
         #create the correct object on upload
         #one day, but this will need a change to the factory
         ctr = self.setupCTR()

@@ -16,21 +16,21 @@ from Products.Archetypes.interfaces.orderedfolder import *
 from Products.Archetypes.interfaces.referenceable import *
 from Products.Archetypes.interfaces.storage import *
 
-from Products.Archetypes.base.baseobject import BaseObject
-from Products.Archetypes.base.basecontent import BaseContent
-from Products.Archetypes.base.basefolder import BaseFolder
+from Products.Archetypes.bases.baseobject import BaseObject
+from Products.Archetypes.bases.basecontent import BaseContent
+from Products.Archetypes.bases.basefolder import BaseFolder
 from Products.Archetypes.lib.baseunit import BaseUnit
-from Products.Archetypes import field # use __all__ field
-from Products.Archetypes.marshall import Marshaller, PrimaryFieldMarshaller, \
+from Products.Archetypes import fields # use __all__ field
+from Products.Archetypes.marshallers import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
-from Products.Archetypes.base.baseorderedfolder import OrderedBaseFolder
-from Products.Archetypes.schema import Schema
-from Products.Archetypes.storage.sql.storage import BaseSQLStorage, GadflySQLStorage, \
+from Products.Archetypes.bases.baseorderedfolder import OrderedBaseFolder
+from Products.Archetypes.schemata import Schema
+from Products.Archetypes.storages.sql.storage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
-from Products.Archetypes.storage import Storage, ReadOnlyStorage, \
+from Products.Archetypes.storages import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.base.extensiblemetadata import ExtensibleMetadata
-from Products.Archetypes.public import registerType
+from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.atapi import registerType
 
 def className(klass):
     """ get the short class name """
@@ -138,12 +138,12 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
 
-    klass = field.Field # not used but set to class Field
+    klass = fields.Field # not used but set to class Field
     forcedImpl = ()
 
     def testFieldInterface(self):
-        for fieldname in field.__all__:
-            klass = getattr(field, fieldname)
+        for fieldname in fields.__all__:
+            klass = getattr(fields, fieldname)
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
             for iface in self.getImplementsOfInstanceOf(klass):
                 self.interfaceImplementedByInstanceOf(klass, iface)

@@ -4,7 +4,7 @@ This module contains classes that where formally known as
 Products.Archetypes.ReferenceEngine.CLASS. It's used by patches.py to create an
 alias.
 """
-from Products.Archetypes.refengine.pluggablecatalog import PluggableCatalog
+from Products.Archetypes.refengine.common import PluggableCatalog
 
 from Products.Archetypes.refengine.referencecatalog import ReferenceCatalogBrains
 from Products.Archetypes.refengine.referencecatalog import ReferenceBaseCatalog

@@ -7,7 +7,7 @@ from Acquisition import aq_parent
 from Acquisition import aq_inner
 from Products.CMFCore import CMFCorePermissions
 
-from Products.Archetypes.schema.schema import Schema
+from Products.Archetypes.schemata.schema import Schema
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces.layer import ILayerRuntime
 from Products.Archetypes.interfaces.schema import ICompositeSchema

@@ -1,7 +1,7 @@
 from types import StringType
 
-from Products.Archetypes.base.basefolder import BaseFolder
-from Products.Archetypes.base.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.bases.basefolder import BaseFolder
+from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from DocumentTemplate import sequence
 

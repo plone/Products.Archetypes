@@ -4,18 +4,18 @@ from Acquisition import aq_parent
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 
-from Products.Archetypes.storage.sql.method import SQLMethod
+from Products.Archetypes.storages.sql.method import SQLMethod
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import MYSQL_SQLSTORAGE_TABLE_TYPE
-from Products.Archetypes.storage.base import StorageLayer
-from Products.Archetypes.storage.base import type_map
+from Products.Archetypes.storages.base import StorageLayer
+from Products.Archetypes.storages.base import type_map
 # XXX setSecurity and registerStorage
-from Products.Archetypes.registry import registerStorage
-from Products.Archetypes.registry import setSecurity
+from Products.Archetypes.registries import registerStorage
+from Products.Archetypes.registries import setSecurity
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """

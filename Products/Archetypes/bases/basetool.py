@@ -1,5 +1,5 @@
-from Products.Archetypes.base.basecontent import BaseContentMixin
-from Products.Archetypes.base.basefolder import BaseFolderMixin
+from Products.Archetypes.bases.basecontent import BaseContentMixin
+from Products.Archetypes.bases.basefolder import BaseFolderMixin
 
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase

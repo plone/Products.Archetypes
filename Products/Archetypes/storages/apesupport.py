@@ -21,7 +21,7 @@
 
 
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from types import ClassType
 
 from apelib.core.interfaces import ISerializer

@@ -53,7 +53,7 @@ def fixSchema(schema):
     to work with the new fixed order schema."""
     if not hasattr(aq_base(schema), '_fields'):
         fields = schema.data.values()
-        from Products.Archetypes.schema import Schemata
+        from Products.Archetypes.schemata import Schemata
         Schemata.__init__(schema, fields)
         del schema.data
     return schema

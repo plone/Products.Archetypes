@@ -9,7 +9,7 @@ from Products.Archetypes.lib.utils import className
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.Archetypes.interfaces.base import IBaseObject
 
-from Products.Archetypes.baseregistry import getDoc
+from Products.Archetypes.basesregistry import getDoc
 from Products.Archetypes.baseregistry import findBaseTypes
 from Products.Archetypes.baseregistry import setSecurity
 from Products.Archetypes.baseregistry import mergeSecurity

@@ -108,7 +108,7 @@ class ArchTTWTool(UniqueObject, Folder):
         type = self.REQUEST.get('type', '')
         if not type:
             raise ValueError, 'Type is not valid'
-        from Products.Archetypes.registry import typeDescriptionRegistry
+        from Products.Archetypes.registries import typeDescriptionRegistry
         type = typeDescriptionRegistry[type]
         return self.type_template(type=type)
 

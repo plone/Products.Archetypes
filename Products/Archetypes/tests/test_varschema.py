@@ -5,11 +5,11 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.schema import Schemata, getNames
+from Products.Archetypes.schemata import Schemata, getNames
 from Products.Archetypes import listTypes
-from Products.Archetypes.schema.variable import VariableSchemaSupport
+from Products.Archetypes.schemata.variable import VariableSchemaSupport
 
 from DateTime import DateTime
 

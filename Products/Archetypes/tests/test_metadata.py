@@ -7,7 +7,7 @@ from utils import *
 
 from types import FunctionType, ListType, TupleType
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime

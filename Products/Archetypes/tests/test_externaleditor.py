@@ -9,7 +9,7 @@ import glob
 from os import curdir
 from os.path import join, abspath, dirname, split
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.Archetypes.interfaces.base import IBaseUnit

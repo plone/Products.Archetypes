@@ -7,9 +7,9 @@ from Acquisition import aq_base
 from Globals import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.registry import registerStorage
-from Products.Archetypes.storage.base import Storage
-from Products.Archetypes.storage.base import StorageLayer
+from Products.Archetypes.registries import registerStorage
+from Products.Archetypes.storages.base import Storage
+from Products.Archetypes.storages.base import StorageLayer
 
 type_map = {'text':'string',
             'datetime':'date',

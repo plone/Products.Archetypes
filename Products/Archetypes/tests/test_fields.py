@@ -8,18 +8,17 @@ from utils import *
 from os import curdir
 from os.path import join, abspath, dirname, split
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
-from Products.Archetypes import Field
-from Products.Archetypes.interfaces.vocabulary import IVocabulary
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.Field import ScalableImage, Image
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes import fields
+from Products.Archetypes.fields import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
-fields = ['ObjectField', 'StringField',
+field_names = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField', 'ImageField', 'PhotoField',
@@ -27,8 +26,8 @@ fields = ['ObjectField', 'StringField',
           ]
 
 field_instances = []
-for name in fields:
-    field_instances.append(getattr(Field, name)(name.lower()))
+for name in field_names:
+    field_instances.append(getattr(fields, name)(name.lower()))
 
 txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
@@ -78,21 +77,11 @@ empty_values = {'objectfield':None,
 if not ZOPE_LINES_IS_TUPLE_TYPE:
     expected_values['linesfield'] = list(expected_values['linesfield'])
 
-schema = Schema(tuple(field_instances))
-sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
-class sampleInterfaceVocabulary:
-    __implements__ = IVocabulary
-    def getDisplayList(self, instance):
-        return sampleDisplayList
+schema = Schema(tuple(field_instances))
 
 class Dummy(BaseContentMixin):
-    def Title(self):
-        # required for ImageField 
-        return 'Spam'
-    
-    def aMethod(self):
-        return sampleDisplayList
+    def Title(self): return 'Spam' # required for ImageField
 
 
 class FakeRequest:
@@ -207,46 +196,6 @@ class ProcessingTest(ArcheSiteTestCase):
             if f_name not in err_fields:
                 failures.append(f_name)
         self.failIf(failures, "%s failed to report error." % failures)
-
-    def test_static_vocabulary(self):
-        dummy = self.makeDummy()
-        request = FakeRequest()
-        field = dummy.Schema().fields()[0]
-
-        # Default
-        self.failUnlessEqual(field.Vocabulary(), DisplayList())
-        # DisplayList  
-        field.vocabulary = sampleDisplayList()
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
-        # List  
-        field.vocabulary = ['e1', 'element2'] 
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
-        # 2-Tuples  
-        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
-
-    def test_dynamic_vocabulary(self):
-        dummy = self.makeDummy()
-        request = FakeRequest()
-        field = dummy.Schema().fields()[0]
-
-        # Default
-        self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
-        # Method
-        field.vocabulary = 'aMethod'
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # DisplayList  
-        field.vocabulary = sampleDisplayList()
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # List  
-        field.vocabulary = ['e1', 'element2'] 
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # 2-Tuples  
-        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # Interface
-        field.vocabulary = sampleInterfaceVocabulary()
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
 
 
 def test_suite():

@@ -5,11 +5,11 @@ from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.lib.utils import unique
 
-from Products.Archetypes.widget.base import TypesWidget
+from Products.Archetypes.widgets.base import TypesWidget
 from Products.Archetypes.lib.logging import log
-from Products.Archetypes.registry import registerPropertyType
-from Products.Archetypes.registry import registerWidget
-from Products.Archetypes.widget.base import TypesWidget
+from Products.Archetypes.registries import registerPropertyType
+from Products.Archetypes.registries import registerWidget
+from Products.Archetypes.widgets.base import TypesWidget
 
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo

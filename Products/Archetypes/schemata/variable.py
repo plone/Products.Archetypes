@@ -1,9 +1,9 @@
 import sha
 
-#from Products.Archetypes.field import *
-#from Products.Archetypes.widget import *
-from Products.Archetypes.schema import Schemata
-from Products.Archetypes.schema import WrappedSchemata
+#from Products.Archetypes.fields import *
+#from Products.Archetypes.widgets import *
+from Products.Archetypes.schemata import Schemata
+from Products.Archetypes.schemata import WrappedSchemata
 from Products.Archetypes.lib.classgen import ClassGenerator
 from Products.Archetypes.lib.classgen import Generator
 from Products.Archetypes.lib.classgen import _modes

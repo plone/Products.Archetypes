@@ -1,8 +1,8 @@
-from Products.Archetypes.public import *
-from Products.Archetypes import field
+from Products.Archetypes.atapi import *
+from Products.Archetypes import fields
 from Products.Archetypes.examples.simpletype import SimpleType
 
-fields = ['StringField',
+field_names = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField', 'ImageField'
@@ -11,8 +11,8 @@ fields = ['StringField',
 
 field_instances = []
 
-for f in fields:
-    field_instances.append(getattr(field, f)(f.lower()))
+for f in field_names:
+    field_instances.append(getattr(fields, f)(f.lower()))
 
 schema = Schema(tuple(field_instances) + (
     LinesField('selectionlinesfield1',

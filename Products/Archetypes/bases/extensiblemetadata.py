@@ -1,9 +1,9 @@
 import string
 
-from Products.Archetypes.field import *
-from Products.Archetypes.widget import *
-from Products.Archetypes.schema import Schema
-from Products.Archetypes.schema import MetadataSchema
+from Products.Archetypes.fields import *
+from Products.Archetypes.widgets import *
+from Products.Archetypes.schemata import Schema
+from Products.Archetypes.schemata import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.logging import log

@@ -7,9 +7,9 @@ from utils import *
 
 import unittest
 
-from Products.Archetypes.storage.aggregated import AggregatedStorage
-from Products.Archetypes.public import Schema, StringField, BaseContent
-from Products.Archetypes.public import registerType
+from Products.Archetypes.storages.aggregated import AggregatedStorage
+from Products.Archetypes.atapi import Schema, StringField, BaseContent
+from Products.Archetypes.atapi import registerType
 
 
 class Dummy(BaseContent):

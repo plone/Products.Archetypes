@@ -9,11 +9,11 @@ from Products.Archetypes.lib.utils import className
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.Archetypes.interfaces.base import IBaseObject
 
-from Products.Archetypes.registry.baseregistry import getDoc
-from Products.Archetypes.registry.baseregistry import findBaseTypes
-from Products.Archetypes.registry.baseregistry import setSecurity
-from Products.Archetypes.registry.baseregistry import mergeSecurity
-from Products.Archetypes.registry.baseregistry import Registry
+from Products.Archetypes.registries.baseregistry import getDoc
+from Products.Archetypes.registries.baseregistry import findBaseTypes
+from Products.Archetypes.registries.baseregistry import setSecurity
+from Products.Archetypes.registries.baseregistry import mergeSecurity
+from Products.Archetypes.registries.baseregistry import Registry
 
 class FieldDescription:
 
@@ -112,7 +112,7 @@ class TypeDescription:
 
     def schemata(self):
         # Build a temp instance.
-        from Products.Archetypes.schema import getSchemata
+        from Products.Archetypes.schemata import getSchemata
         return getSchemata(self.klass('test'))
 
     def signature(self):
