@@ -41,7 +41,7 @@
  * Starting from NOW all attributes starting with '_at_' are reserved for 
    internal usage. You MUST NEITHER add NOR access any attributes starting
    with '_at_' in your content types.
-   [tiran]
+  tiran]
 
  * Fixed  FTP/WebDAV's PUT in BaseObject:If a new object should be created with
    an id that can be acquired, then the existing object is silently overwritten
@@ -160,7 +160,11 @@
    These fixes are fixing the problem that AT don't seemed to be installed when
    it's installed from an AT based product.
    [tiran]
-   
+
+ * Schema: fixed a bug, it wasnt allowed to override a primary field by another 
+   primary field with the same name.
+   [jensens]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 
