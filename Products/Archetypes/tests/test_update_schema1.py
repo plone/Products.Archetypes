@@ -30,7 +30,9 @@ class test_update_schema1(ArcheSiteTestCase):
         ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
         newSecurityManager( None, user )
-
+        portal = self.getPortal()
+        qi = getToolByName(portal, 'portal_quickinstaller')
+        qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
         import Products.ArchetypesTestUpdateSchema

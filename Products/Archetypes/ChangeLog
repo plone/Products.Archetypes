@@ -1,3 +1,12 @@
+2003-11-05  Sidnei da Silva  <sidnei@plone.org>
+
+        * Several fixes all over the place. Updated forms to Plone 2.0
+	style. Fixed problem with setting an empty value to a field (needs
+	a test). Moved test suite to use ZopeTestCase (thanks to
+	Tiran). Fixed problem were if you registered two classes with the
+	same meta_type, the latter would win and override the first. Fixed
+	getContentType method of TextField to work with the new BaseUnit.
+
 2003-10-09  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* Widget.py (RichWidget.process_form): I think we'd want to take

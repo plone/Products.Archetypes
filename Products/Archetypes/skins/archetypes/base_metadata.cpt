@@ -1,36 +1,45 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
       lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       metal:use-macro="here/main_template/macros/master"
       i18n:domain="plone">
 
-<metal:block fill-slot="javascript_head_slot">
-<tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing" tal:condition="macro">
-  <metal:block use-macro="macro" />
-</tal:block>
-</metal:block>
+  <metal:block fill-slot="javascript_head_slot">
+    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+	       tal:condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:block>
 
-<body>
+  <body>
 
-   <div metal:fill-slot="main">
+    <div metal:fill-slot="main">
       <div metal:define-macro="main"
 	   tal:define="rejection here/rejectAnonymous;
-                   errors options/state/getErrors|nothing;
-		    Iterator python:modules['Products.CMFPlone'].IndexIterator;
-                    tabindex python:Iterator();
-                    fieldset request/fieldset|options/fieldset|string:metadata;
-                    schematas here/Schemata;
-	            metadata_macros python:path('here/metadata_macros/macros|nothing');"
-           tal:omit-tag="">
+	   errors options/state/getErrors|nothing;
+	   Iterator python:modules['Products.CMFPlone'].IndexIterator;
+	   tabindex python:Iterator();
+	   fieldset request/fieldset|options/fieldset|string:metadata;
+	   schematas here/Schemata;
+	   metadata_macros python:path('here/metadata_macros/macros|nothing');"
+	   tal:omit-tag="">
 
-      
-      <h1 tal:content="here/title_or_id" metal:use-macro="metadata_macros/header|default" />
+	<h1 tal:content="here/title_or_id"
+	    metal:use-macro="metadata_macros/header|default" />
 
-      <form class="group"
-	    name="edit_form"
+      <form name="edit_form"
 	    method="post"
 	    enctype="multipart/form-data"
 	    tal:attributes="action python:here.absolute_url()+'/'+template.id">
+
+	<fieldset>
+
+	  <legend i18n:translate=""
+		  tal:content="here/archetype_name" />
 
 <!--
  	<div tal:condition="errors" class="error">
@@ -40,33 +49,29 @@
 	</div>
 -->
 
-        <span class="legend" i18n:translate="" tal:content="here/archetype_name"></span>
+         <tal:fields repeat="field python: schematas[fieldset].fields()">
+	   <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+	 </tal:fields>
 
-	<tal:fields repeat="field python: schematas[fieldset].fields()">
-	    <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
-        </tal:fields>
+	 <input type="hidden" name="form.submitted" value="1" />
 
-	<input type="hidden" name="form.submitted" value="1" />
+	 <input type="hidden" name="fieldset" value="metadata"
+		tal:attributes="value fieldset|string:metadata" />
 
-	<input type="hidden" name="fieldset" value="metadata"
-	tal:attributes="value fieldset|string:metadata" />
-
-	  <div class="row">
-            <div class="label">&nbsp;</div>
-            <div class="field" tal:define="process_creation request/process_creation|nothing;">
-	      <input class="context"
-		     tabindex=""
-		     type="submit"
-		     name="Change"
-                     i18n:attributes="value"
-		     value="Save"
-		     tal:attributes="tabindex tabindex/next;" />
-            </div>
+	 <div class="field">
+            <label>&nbsp;</label>
+	    <input class="context"
+		   tabindex=""
+		   type="submit"
+		   name="Change"
+		   i18n:attributes="value"
+		   value="Save"
+		   tal:attributes="tabindex tabindex/next;" />
 	  </div>
-
-    </form>
+	</fieldset>
+      </form>
     </div>
-</div>
+  </div>
 
 </body>
 </html>

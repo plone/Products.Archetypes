@@ -1,81 +1,96 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
 
-<body>
+  <body>
 
     <!-- Base Field Widgets -->
-    <metal:block define-macro="view" tal:define="visState python: widget.isVisible(here, mode)">
+    <metal:block define-macro="view"
+		 tal:define="visState python: widget.isVisible(here, mode)">
       <tal:block condition="python: visState == 'visible'">
-      <tal:block condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)" tal:omit-tag="">
-        <tal:block condition="use_label|nothing">
-        <span class="label"
-              tal:content="python:widget.Label(here) + ':'">Field</span>
-        <span tal:condition="field/workflowable|nothing"
-              tal:omit-tag="">
-        (<a href="#"
-        tal:define="wf_tool here/portal_workflow;
-                    obj python:accessor();
-                    review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-        tal:attributes="href string:${obj/absolute_url}/content_status_history;
-                        class python:test(review_state, review_state, 'private')"
-        tal:content="review_state">
-        review_state
-        </a>)
-        </span>
-
-        <br />
+	<tal:block condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)" tal:omit-tag="">
+	  <tal:block condition="use_label|nothing">
+	    <label tal:content="python:widget.Label(here) + ':'">Field</label>
+	    <span tal:condition="field/workflowable|nothing"
+		  tal:omit-tag="">
+	      (
+	      <a href="#"
+		 tal:define="wf_tool here/portal_workflow;
+		 obj python:accessor();
+		 review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+		 tal:attributes="href string:${obj/absolute_url}/content_status_history;
+		 class python:test(review_state, review_state, 'private')"
+		 tal:content="review_state">
+		review_state
+		</a>
+		)
+	      </span>
+	      <br />
+	    </tal:block>
+	  </tal:block>
+	  <metal:block define-slot="widget_view" />
 	</tal:block>
-        </tal:block>
-	<metal:block define-slot="widget_view" />
-      </tal:block>
-    </metal:block>
+      </metal:block>
 
-    <metal:define define-macro="edit" tal:define="visState python: widget.isVisible(here, mode)">
-      <tal:condition condition="python: visState == 'visible'">
-      <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">
-        <div tal:attributes="class python:test(field.required, 'required label', 'label')">
-             <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
-             <div id="title_help" class="help" style="visibility: hidden;"
-                  tal:content="structure python:widget.Description(here)"
-                  tal:attributes="id string:${fieldName}_help">Help tooltip</div>
+      <metal:define define-macro="edit"
+		    tal:define="visState python: widget.isVisible(here, mode);
+		    error_id python:errors.get(fieldName)">
+	<tal:condition condition="python: visState == 'visible'">
+	  <div class="field"
+	       tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)"
+	       tal:attributes="class python:test(error_id, 'field error', 'field')">
+	    <label i18n:translate=""
+		   tal:content="python:widget.Label(here)"
+		   tal:attributes="for python:field.getName()">
+	    </label>
+	    <span class="fieldRequired"
+		  tal:condition="field/required"
+		  title="Required">
+	      (Required)
+	    </span>
+	    <div class="formHelp"
+		 tal:content="structure python:widget.Description(here)"
+		 tal:attributes="id string:${fieldName}_help"
+		 i18n:translate="">
+	      Help
+	    </div>
 
-             <span tal:condition="field/workflowable|nothing"
-                   tal:omit-tag="">
-             (<a href="#"
-                 tal:define="wf_tool here/portal_workflow;
-                             obj python:accessor();
-                             review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-                 tal:attributes="href string:${obj/absolute_url}/content_status_history;
-                                 class python:test(review_state, review_state, 'private')"
-                 tal:content="review_state">review_state</a>)
-             </span>
-             <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
-                   tal:omit-tag="">
-             (<span tal:replace="python:field.getContentType(here)" />)
-             </span>
-        </div>
-        <div class="field"
-	           tal:define="error python:errors.get(fieldName);
-                               edit_accessor python:field.getEditAccessor(here);
-                               value python:widget.populate and edit_accessor and edit_accessor() or '';
-	                       value python:widget.postback and request.get(fieldName, value) or value;"
-	           tal:attributes="class python:test(error, 'field error', 'field')" >
-             <div tal:condition="error">
-                 <tal:block i18n:translate="" content="error">Error</tal:block>
-                 <br />
-             </div>
-             <div metal:define-slot="widget_body"></div>
-        </div>
-    </div>
-      </tal:condition>
+	    <span tal:condition="field/workflowable|nothing"
+		  tal:omit-tag="">
+	      State:
+	      <a href="#"
+		 tal:define="wf_tool here/portal_workflow;
+		 obj python:accessor();
+		 review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+		 tal:attributes="href string:${obj/absolute_url}/content_status_history;
+		 class python:test(review_state, review_state, 'private')"
+		 tal:content="review_state">
+		review_state
+	      </a>
+	    </span>
+	    <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
+		  tal:omit-tag="">
+	      Content Type: <span tal:replace="python:field.getContentType(here)" />
+	    </span>
+	    <span tal:omit-tag=""
+		  tal:define="error python:errors.get(fieldName);
+		  edit_accessor python:field.getEditAccessor(here);
+		  value python:widget.populate and edit_accessor and edit_accessor() or '';
+		  value python:widget.postback and request.get(fieldName, value) or value;">
+	      <div tal:replace="error_id">Validation Error</div>
+	      <div metal:define-slot="widget_body"></div>
+	    </span>
+	  </div>
+	</tal:condition>
 
-      <tal:condition condition="python: visState == 'hidden'">
-	<metal:use use-macro="here/widgets/field/macros/hidden"/>
-      </tal:condition>
-    </metal:define>
-
-   </body>
+	<tal:condition condition="python: visState == 'hidden'">
+	  <metal:use use-macro="here/widgets/field/macros/hidden"/>
+	</tal:condition>
+      </metal:define>
+    </body>
 </html>

@@ -8,6 +8,7 @@ from copy import deepcopy
 from types import StringType
 from md5 import md5
 from DateTime import DateTime
+from StringIO import StringIO
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass

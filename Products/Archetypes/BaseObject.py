@@ -400,8 +400,9 @@ class BaseObject(Implicit):
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determine whether the current object's schema is up to date."""
-        from Products.Archetypes.ArchetypeTool import getType
-        return getType(self.meta_type)['signature'] == self._signature
+        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
+        package = _guessPackage(self.__module__)
+        return getType(self.meta_type, package)['signature'] == self._signature
 
 
     security.declarePrivate('_updateSchema')
