@@ -213,11 +213,12 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         obj = None
         try:
             path = self.getPath()
-            is_ref_path  = path.find('REF_PREFIX')
+            is_ref_path = path.find('REF_PREFIX') != -1
 
             if not is_ref_path:
                 try:
-                    obj = self.aq_parent.unrestrictedTraverse(self.getPath())
+                    portal = getToolByName(self, 'portal_url').getPortalObject()
+                    obj = portal.unrestrictedTraverse(self.getPath())
                     obj = aq_inner( obj )
                 except: #NotFound
                     pass
