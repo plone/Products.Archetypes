@@ -552,6 +552,7 @@ class ObjectField(Field):
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
+        kwargs['mimetype'] = kwargs.get('mimetype', getattr(self, 'default_content_type', 'application/octet'))
         # Remove acquisition wrappers
         value = aq_base(value)
         __traceback_info__ = (self.getName(), instance, value, kwargs)
@@ -586,6 +587,33 @@ class ObjectField(Field):
     def getStorageType(self, instance=None):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
+
+    def getContentType(self, instance):
+        """Return the mime type of object if known or can be guessed;
+        otherwise, return None."""
+        value = ''
+        # ask the BaseUnit for the content type
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            mimetype = str(value.getContentType())
+        else:
+            mimetype = getattr(aq_base(value), 'mimetype', None)
+        # some instances like OFS.Image have a getContentType method
+        if mimetype is None:
+            raw = self.getRaw(instance)
+            getCT = getattr(raw, 'getContentType', None)
+            if callable(getCT):
+                mimetype = getCT()
+        # try to guess
+        if mimetype is None:
+            mimetype, enc = guess_content_type('', str(value), None)
+        else:
+            # mimetype may be an imimetype object
+            mimetype = str(mimetype)
+        # failed
+        if mimetype is None:
+            mimetype = getattr(self, 'default_content_type', 'application/octet')
+        return mimetype
 
 
 class StringField(ObjectField):
@@ -652,13 +680,6 @@ class FileField(StringField):
             return value, mimetype, f_name
         raise FileFieldException('Value is not File or String')
 
-    def getContentType(self, instance):
-        """Return the type of file of this object if known; otherwise,
-        return None."""
-        if hasattr(aq_base(instance), '_FileField_types'):
-            return instance._FileField_types.get(self.getName(), None)
-        return None
-
     def set(self, instance, value, **kwargs):
         """
         Assign input value to object. If mimetype is not specified,
@@ -676,6 +697,7 @@ class FileField(StringField):
                                                       default=self.default,
                                                       **kwargs)
         kwargs['mimetype'] = mimetype
+        kwargs['filename'] = f_name
 
         if value=="DELETE_FILE":
             if hasattr(aq_base(instance), '_FileField_types'):
@@ -683,12 +705,9 @@ class FileField(StringField):
             ObjectField.unset(self, instance, **kwargs)
             return
 
-        # FIXME: ugly hack
-        try:
-            types_d = instance._FileField_types
-        except AttributeError:
-            types_d = {}
-            instance._FileField_types = types_d
+        # remove ugly hack
+        if hasattr(aq_base(instance), '_FileField_types'):
+            del instance._FileField_types
         if value is None:
             # do not send None back as file value if we get a default (None)
             # value back from _process_input.  This prevents
@@ -696,10 +715,26 @@ class FileField(StringField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
-        types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         setattr(value, 'filename', f_name or self.getName())
+        setattr(value, 'content_type', mimetype)
         ObjectField.set(self, instance, value, **kwargs)
+
+    def getFilename(self, instance):
+        """Get file name of underlaying file object
+        """
+        filename = None
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            filename = value.filename
+        else:
+            filename = getattr(aq_base(value), 'filename', None)
+        # for OFS.Image.*
+        if filename is None:
+            raw = self.getRaw(instance)
+            filename = getattr(raw, 'filename', None)
+        # might still be None
+        return filename
 
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()
@@ -747,21 +782,6 @@ class TextField(ObjectField):
         raise TextFieldException(('Value is not File, String or '
                                   'BaseUnit on %s: %r' % (self.getName(),
                                                           type(value))))
-
-    def getContentType(self, instance):
-        """Return the mime type of object if known or can be guessed;
-        otherwise, return None."""
-        value = ''
-        value = self.getRaw(instance, raw=1)
-        if IBaseUnit.isImplementedBy(value):
-            return str(value.getContentType())
-        mimetype = getattr(aq_base(value), 'mimetype', None)
-        if mimetype is None:
-            mimetype, enc = guess_content_type('', str(value), None)
-        else:
-            # mimetype may be an imimetype object
-            mimetype = str(mimetype)
-        return mimetype
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
@@ -1493,11 +1513,21 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
 
-    def getContentType(self, instance):
-        img = self.getRaw(instance)
-        if img:
-            return img.getContentType()
-        return ''
+    def getFilename(self, instance):
+        """Get file name of underlaying file object
+        """
+        filename = None
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            filename = value.filename
+        else:
+            filename = getattr(aq_base(value), 'filename', None)
+        # for OFS.Image.*
+        if filename is None:
+            raw = self.getRaw(instance)
+            filename = getattr(raw, 'filename', None)
+        # might still be None
+        return filename
 
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: str(value))()
