@@ -99,8 +99,7 @@ class BaseObject(Implicit):
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'title_or_id')
+    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     def title_or_id(self):
         """
         Utility that returns the title if it is not blank and the id
@@ -112,8 +111,7 @@ class BaseObject(Implicit):
 
         return self.getId()
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getId')
+    security.declareProtected(CMFCorePermissions.View, 'getId')
     def getId(self):
         """get the objects id"""
         return self.id
@@ -129,9 +127,8 @@ class BaseObject(Implicit):
                     )
             self._setId(value)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Type')
-    def Type( self ):
+    security.declareProtected(CMFCorePermissions.View, 'Type')
+    def Type(self):
         """Dublin Core element - Object type
 
         this method is redefined in ExtensibleMetadata but we need this
@@ -290,26 +287,23 @@ class BaseObject(Implicit):
             result = method(value)
             if result is not None:
                 errors[name] = result
-
         return result
-        
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
-    def pre_validate(self, REQUEST, errors):
+    def pre_validate(self, REQUEST=None, errors=None):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'post_validate')
-    def post_validate(self, REQUEST, errors):
+    def post_validate(self, REQUEST=None, errors=None):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
-        if REQUEST is None:
-            REQUEST = self.REQUEST
         if errors is None:
             errors = {}
+
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
@@ -351,7 +345,7 @@ class BaseObject(Implicit):
                     datum = ' '.join(datum)
                 elif type_datum in (type(''), type(u''), ):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
-                    
+
                 # FIXME: we really need an unicode policy !
                 if type_datum is type(u''):
                     datum = datum.encode(charset)
@@ -378,7 +372,7 @@ class BaseObject(Implicit):
         return encoding
 
 
-    security.declareProtected(CMFCorePermissions.View, 'get_size' )
+    security.declareProtected(CMFCorePermissions.View, 'get_size')
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
@@ -446,8 +440,7 @@ class BaseObject(Implicit):
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Schemata')
+    security.declareProtected(CMFCorePermissions.View, 'Schemata')
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
@@ -634,7 +627,7 @@ class BaseObject(Implicit):
                     raise
                 except:
                     log_exc()
-        else:            
+        else:
             # try setting an existing attribute
             if hasattr(self, name):
                 setattr(self, name, value)
@@ -663,8 +656,7 @@ class BaseObject(Implicit):
             defined.update(objects)
             session[key] = defined
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getSubObject')
+    security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """add a dictionnary of objects to session variable
         """

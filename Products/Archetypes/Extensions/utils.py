@@ -164,16 +164,17 @@ def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     for type in types:
         try:
-            typesTool._delObject(type.__name__)
+            typesTool._delObject(type.portal_type)
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, type.__name__)
+        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
+
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id=type.__name__,
+                                                id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
         # set the human readable title explicitly
-        t = getattr(typesTool, type.__name__, None)
+        t = getattr(typesTool, type.portal_type, None)
         if t:
             t.title = type.archetype_name
 
@@ -280,7 +281,7 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
-        typeinfo_name="%s: %s" % (package_name, t.__name__)
+        typeinfo_name="%s: %s" % (package_name, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:

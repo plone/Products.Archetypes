@@ -1,3 +1,22 @@
+2004-04-06  Sidnei da Silva  <sidnei@awkly.org>
+
+	* ArchetypeTool.py (BoundPageTemplateFile.__init__): Created a
+	'BoundPageTemplateFile', that is bound to an Archetype. This is
+	used for the (experimental) zmi support.
+	(registerClasses): A method to allow a set of classes to be
+	registered for adding through the zmi. This registers the classes,
+	and creates a BoundTemplateFile (which will use the archetypes
+	widgets) that will be the add form. For now it uses the default
+	constructor generated.
+	(ArchetypeTool.getWidgets): Factored getSearchWidgets into the
+	more generic getWidgets, while keeping backward
+	compatibility. This allows for getting fields for any mode (for
+	example 'edit'). Check the method signature for the exact options.
+	Tried to normalize the use of klass.__name__, meta_type and
+	portal_type. Installing types and binding templates uses
+	portal_type. Registering classes uses meta_type. Constructors use
+	class name. I hope this is a bit more clear now.
+
 2004-03-26  Chris McDonough  <chrism@plope.com>
 
 	* BaseContent.py BaseContent.PUT did not take into account that
@@ -19,7 +38,7 @@
 	the field upload form element, a traceback was raised somewhere in
 	the bowels of AT/Zope.  Now, we just assume he knows what he's
 	doing and turn the upload into a blank string, for better or worse.
-	
+
 2004-03-02  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): field_name

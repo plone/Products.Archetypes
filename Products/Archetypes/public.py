@@ -1,5 +1,5 @@
 from Products.Archetypes.ArchetypeTool import registerType, process_types, \
-     listTypes
+     listTypes, registerClasses
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent, BaseContentMixin
 from Products.Archetypes.BaseFolder import BaseFolder, BaseFolderMixin
