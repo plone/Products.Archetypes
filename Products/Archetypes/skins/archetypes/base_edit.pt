@@ -27,8 +27,6 @@
           </span> 
       </h1>
 
-      <p tal:content="string:Fill in the details of this ${here/archetype_name}."></p>  
-
       <form class="group"
 	    name="edit_form"
 	    method="post" 
