@@ -4,7 +4,7 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from OFS.SimpleItem import SimpleItem
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
-#from Products.BTree2Folder.BTree2Folder import BTree2Folder
+from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 
 from debug import log, log_exc
 
@@ -62,17 +62,30 @@ class Reference(SimpleItem):
         #to reject the delete raise a ReferenceException
         pass
 
-        
-        
+    ###
+    # OFS Operations Policy Hooks
+    # These Hooks are experimental and subject to change
+    def beforeTargetDeleteInformSource(self):
+        """called before target object is deleted so the source can have a say"""
+        pass
+    
+    def beforeSourceDeleteInformTarget(self):
+        """called when the refering source Object is about to be deleted"""
+        pass
+    
 
-##class ReferenceCatalog(UniqueObject, BTree2Folder, ZCatalog):
+#class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 class ReferenceCatalog(UniqueObject, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    
+
+##    def __init__(self, id, title=None, vocab_id=None, container=None):
+##        BTreeFolder2.__init__(self, id)
+##        ZCatalog.__init__(self, id, title, vocab_id, container)
+        
     ###
     ## Public API
-    def addReference(self, source, target, relationship=None, referenceObject=None, **kwargs):        
+    def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):        
         sID, sobj = self._uidFor(source)
         tID, tobj = self._uidFor(target)
 
@@ -85,8 +98,9 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             self._delObject(existingId)
 
         rID = self._makeName(sID, tID)
-        if not referenceObject:
-            referenceObject = Reference(rID, sID, tID, relationship, **kwargs)
+        if not referenceClass:
+            referenceClass = Reference
+        referenceObject = referenceClass(rID, sID, tID, relationship, **kwargs)
 
         try:
             referenceObject.addHook(self, sobj, tobj)

@@ -98,8 +98,9 @@ class ReferenceableTests(ArcheSiteTestCase):
         a.addReference(b, "KnowsAbout")
         a.addReference(c, "Owns")
 
-        assert b in a.getRefs()
-        assert c in a.getRefs()
+        refs = a.getRefs()
+        assert b in refs
+        assert c in refs
         assert a.getRefs('Owns') == [c]
         assert c.getBRefs('Owns')== [a]
         rels = a.getRelationships()

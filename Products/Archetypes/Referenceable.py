@@ -4,10 +4,8 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
 from ExtensionClass import Base
-import OFS.Moniker
-from OFS.CopySupport import _cb_decode, cookie_path, \
-     CopyContainer, CopySource, eNoData, eInvalid, \
-     eNotFound, eNotSupported
+from OFS.ObjectManager import BeforeDeleteException
+from exceptions import ReferenceException
 
 import config
 from debug import log, log_exc
@@ -94,7 +92,7 @@ class Referenceable(Base):
 
     def manage_afterClone(self, item):
         """
-        Get a new UID
+        Get a new UID (effectivly dropping reference)
         (Called when the object is cloned.)
         """
         setattr(self, UUID_ATTR, None)
@@ -105,11 +103,25 @@ class Referenceable(Base):
             Remove self from the catalog.
             (Called when the object is deleted or moved.)
         """
-        #log("deleting %s:%s" % (self.getId(), self.UID()))
-        #log("self, item, container", self, item, container)
-
+        rc = getattr(container, config.REFERENCE_CATALOG)
+        references = rc.getReferences(item)
+        back_references = rc.getBackReferences(item)
+        
         storeRefs = getattr(self, '_cp_refs', None)
+        if storeRefs is None:
+            try:
+                #First check the 'delete cascade' case
+                if references:
+                    for ref in references:
+                        ref.beforeSourceDeleteInformTarget()
+                #Then check the 'holding/ref count' case
+                if back_references:
+                    for ref in back_references:
+                        ref.beforeTargetDeleteInformSource()
+            except ReferenceException, E:
+                raise BeforeDeleteException(E)
 
+                
         if not storeRefs: self._unregister()
 
         #and reset the flag

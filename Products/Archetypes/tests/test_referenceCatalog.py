@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.1 2003/11/06 18:05:52 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.2 2003/11/07 18:23:35 bcsaller Exp $
 """
 
 import os, sys
@@ -17,6 +17,10 @@ if not hasArcheSiteTestCase:
 from Acquisition import aq_base
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 import Products.Archetypes.config as config
+from Products.Archetypes.references import HoldingReference, CascadeReference
+from Products.Archetypes.exceptions import ReferenceException
+from OFS.ObjectManager import BeforeDeleteException
+
 
 class ReferenceCatalogTests(ArcheSiteTestCase):
     def afterSetUp(self):
@@ -88,6 +92,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         self.failUnless(obj2.UID() == uid2)
 
         b = obj2.getBRefs()
+
         self.failUnless(b[0].UID() == uid1)
 
         #Add another reference with a different relationship (and the
@@ -102,12 +107,38 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         self.failUnless(refs[0].sourceUID == b[0].UID() == uid2)
         
 
+    def test_holdingref(self):
+        site = self.getPortal()
+        rc = getattr(site, config.REFERENCE_CATALOG)
+        uc = getattr(site, config.UID_CATALOG)
+               
+        obj1 = makeContent(site, portal_type='Fact', id='obj1')
+        obj2 = makeContent(site, portal_type='Fact', id='obj2')
 
-        
-        
-        
-        
-        
+        obj1.addReference(obj2, relationship="uses", referenceClass=HoldingReference)
+
+        self.failUnless(obj2 in obj1.getRefs('uses'))
+
+        # a holding reference says obj2 can't be deleted cause its held
+        try:
+            site._delObject(obj2.id)
+        except BeforeDeleteException, E:
+            pass
+        else:
+            raise AssertionError("holding reference didn't hold")
+
+        #and just check to make sure its still there
+        self.failUnless(hasattr(site, obj2.id))
+
+        obj3 = makeContent(site, portal_type='Fact', id='obj3')
+        obj4 = makeContent(site, portal_type='Fact', id='obj4')
+
+        obj3.addReference(obj4, relationship="uses", referenceClass=CascadeReference)
+
+        site.manage_delObjects(obj3.id)
+        items = site.contentIds()
+        self.failUnless(obj3.id not in items)
+        self.failUnless(obj4.id not in items)
         
         
 
