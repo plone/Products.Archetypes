@@ -143,7 +143,7 @@ class ClassGenTest( ArchetypesTestCase ):
     def test_linesfield(self):
         obj = self._dummy
         obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnlessEqual(obj.getAlinesfield(), ['Bla', 'Ble', 'Bli'])
+        self.failUnlessEqual(obj.getAlinesfield(), ('Bla', 'Ble', 'Bli'))
 
     def test_datefield(self):
         obj = self._dummy
