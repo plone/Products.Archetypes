@@ -1,7 +1,7 @@
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 
-$Id: test_copying.py,v 1.1.2.1 2004/06/09 03:46:39 andrecamargo Exp $
+$Id: test_copying.py,v 1.1.2.2 2004/06/10 09:14:18 shh42 Exp $
 """
 
 import os, sys
@@ -21,14 +21,12 @@ class CutPasteCopyPasteTests(ArcheSiteTestCase):
         ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
-        #make sure we have _p_jar
-        #get_transaction().commit(1)
         self.failIf('tourist' not in ffrom.contentIds())
 
-        fto.manage_pasteObjects(ffrom.manage_copyObjects(ffrom.contentIds()))
-        #get_transaction().commit(1)
-        #fto.manage_pasteObjects()
+        #make sure we have _p_jar
         get_transaction().commit(1)
+        cb = ffrom.manage_copyObjects(ffrom.contentIds())
+        fto.manage_pasteObjects(cb)
         self.failIf('tourist' not in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
 
@@ -36,16 +34,15 @@ class CutPasteCopyPasteTests(ArcheSiteTestCase):
         ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
-        #make sure we have _p_jar
-        #get_transaction().commit(1)
         self.failIf('tourist' not in ffrom.contentIds())
 
-        fto.manage_pasteObjects(ffrom.manage_cutObjects(ffrom.contentIds()))
-        #get_transaction().commit(1)
-        #fto.manage_pasteObjects()
+        #make sure we have _p_jar
         get_transaction().commit(1)
+        cb = ffrom.manage_cutObjects(ffrom.contentIds())
+        fto.manage_pasteObjects(cb)
         self.failIf('tourist' in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
