@@ -51,8 +51,8 @@ unittest.TestResult._exc_info_to_string = pretty_exc
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes import SQLStorage
-from Products.Archetypes import SQLMethod
+from Products.Archetypes.storage.sql import storage as SQLStorage
+from Products.Archetypes.storage.sql import method as SQLMethod
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.utils import makeContent
