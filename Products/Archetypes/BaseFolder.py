@@ -11,12 +11,12 @@ from interfaces.base import IBaseFolder
 class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
 
     __implements__ = IBaseFolder
-    
-    manage_options = SkinnedFolder.manage_options       
+
+    manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
 
     security = ClassSecurityInfo()
-    
+
     def __init__(self, oid, **kwargs):
         #call skinned first cause baseobject will set new defaults on
         #those attributes anyway

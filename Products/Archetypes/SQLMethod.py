@@ -28,7 +28,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         for k, v in _defaults.items():
             if not hasattr(context, k):
                 setattr(context, k, v)
-        
+
     def edit(self, connection_id, arguments, template):
         """Change database method  properties
 
@@ -136,7 +136,7 @@ class SQLMethod(Aqueduct.BaseQuery):
     def _get_dbc(self):
         "Get the database connection"
         context = self.context
-        
+
         try: dbc = getattr(context, self.connection_id)
         except AttributeError:
             raise AttributeError, (
@@ -162,7 +162,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         The returned value is a sequence of record objects.
         """
         context = self.context
-        
+
         dbc, DB__ = self._get_dbc()
 
         p=None

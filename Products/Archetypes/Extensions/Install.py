@@ -9,7 +9,7 @@ def install(self, include_demo=None):
     if not hasattr(self, "_isPortalRoot"):
         print >> out, "Must be installed in a CMF Site (read Plone)"
         return
-    
+
     if include_demo or INSTALL_DEMO_TYPES:
         print >> out, "Installing %s" % listTypes(PKG_NAME)
         installTypes(self, out, listTypes(PKG_NAME), PKG_NAME)
@@ -18,6 +18,6 @@ def install(self, include_demo=None):
         setupEnvironment(self, out, [], PKG_NAME)
 
     print >> out, 'Successfully installed %s' % PKG_NAME
-        
+
     return out.getvalue()
 

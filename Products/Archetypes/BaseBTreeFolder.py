@@ -14,7 +14,7 @@ if has_btree:
         """ A BaseBTreeFolder with all the bells and whistles"""
 
         security = ClassSecurityInfo()
-        
+
         def __init__(self, oid, **kwargs):
             CMFBTreeFolder.__init__(self, id)
             BaseFolder.__init__(self, oid, **kwargs)

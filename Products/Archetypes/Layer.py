@@ -5,7 +5,7 @@ class DefaultLayerContainer:
 
     def __init__(self):
         self._layers = {}
-        
+
         #ILayerContainer
     def registerLayer(self, name, object):
         self._layers[name] = object

@@ -46,7 +46,7 @@ class StorageLayer(Storage):
 
     def cleanupField(self, instance, field):
         raise NotImplementedError('%s: cleanupField' % self.getName())
-    
+
 class AttributeStorage(Storage):
     __implements__ = IStorage
 
@@ -66,7 +66,7 @@ class AttributeStorage(Storage):
 
 class ObjectManagedStorage(Storage):
     __implements__ = IStorage
-    
+
     def get(self, name, instance, **kwargs):
         try:
             return instance._getOb(name)
@@ -87,7 +87,7 @@ class ObjectManagedStorage(Storage):
 
 class MetadataStorage(StorageLayer):
     __implements__ = (IStorage, ILayer)
-    
+
     def initializeInstance(self, instance, item=None, container=None):
         if not hasattr(aq_base(instance), "_md"):
             instance._md = PersistentMapping()
@@ -108,7 +108,7 @@ class MetadataStorage(StorageLayer):
     def set(self, name, instance, value, **kwargs):
         instance._md[name] = value
         instance._p_changed = 1
-        
+
     def unset(self, name, instance, **kwargs):
         if not hasattr(aq_base(instance), "_md"):
             log("Broken instance %s, no _md" % instance)

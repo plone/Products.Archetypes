@@ -17,7 +17,7 @@ def pathFor(path=None, file=None):
         base = os.path.join(base, path)
     if file:
         base = os.path.join(base, file)
-        
+
     return base
 
 def capitalize(string):
@@ -36,23 +36,23 @@ def findDict(listofDicts, key, value):
 
 def basename(path):
     return path[max(path.rfind('\\'), path.rfind('/'))+1:]
-        
+
 def unique(s):
     """Return a list of the elements in s, but without duplicates.
-    
+
     For example, unique([1,2,3,1,2,3]) is some permutation of [1,2,3],
     unique("abcabc") some permutation of ["a", "b", "c"], and
     unique(([1, 2], [2, 3], [1, 2])) some permutation of
     [[2, 3], [1, 2]].
-    
+
     For best speed, all sequence elements should be hashable.  Then
     unique() will usually work in linear time.
-    
+
     If not possible, the sequence elements should enjoy a total
     ordering, and if list(s).sort() doesn't raise TypeError it's
     assumed that they do enjoy a total ordering.  Then unique() will
     usually work in O(N*log2(N)) time.
-    
+
     If that's not possible either, the sequence elements must support
     equality-testing.  Then unique() will usually work in quadratic
     time.
@@ -62,7 +62,7 @@ def unique(s):
     n = len(s)
     if n == 0:
         return []
-    
+
     # Try using a dict first, as that's the fastest and will usually
     # work.  If it doesn't work, it will usually fail quickly, so it
     # usually doesn't cost much to *try* it.  It requires that all the
@@ -113,7 +113,7 @@ class DisplayList:
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
-    
+
     def __init__(self, data=None):
         self._keys = {}
         self._values = {}
@@ -121,7 +121,7 @@ class DisplayList:
         self.index = 0
         if data:
             self.fromList(data)
-            
+
     def __repr__(self):
         return '<DisplayList %s at %s>' % (self[:], id(self))
 
@@ -137,7 +137,7 @@ class DisplayList:
 
     def __len__(self):
         return self.index
-    
+
     def __add__(self, other):
         a = tuple(self.items())
         if hasattr(other, 'items'):
@@ -147,10 +147,10 @@ class DisplayList:
 
         v = DisplayList(a + b)
         return v
-        
+
     def index_sort(self, a, b):
         return  a[0] - b[0]
-    
+
     def add(self, key, value):
         self.index +=1
         k = (self.index, key)
@@ -159,7 +159,7 @@ class DisplayList:
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
-        
+
     def getKey(self, value, default=None):
         """get key"""
         v = self._values.get(value, None)
@@ -196,7 +196,7 @@ class DisplayList:
         values = list(self.items())
         values.sort(_cmp)
         return DisplayList(values)
-    
+
     def sortedByKey(self):
         """return a new display list sorted by value"""
         def _cmp(a, b):
@@ -227,5 +227,4 @@ class DisplayList:
 
     slice=__getslice__
 
-    
 InitializeClass(DisplayList)

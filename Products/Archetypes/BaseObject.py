@@ -29,7 +29,7 @@ content_type = Schema((
                                 description_msgid="help_name",
                                 i18n_domain="plone"),
                 ),
-    
+
     StringField('title',
                 required=1,
                 searchable=1,
@@ -46,12 +46,12 @@ class BaseObject(Implicit):
 
     schema = type = content_type
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
-    
+
     __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid
-    
+
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         self.initializeLayers()
@@ -61,14 +61,11 @@ class BaseObject(Implicit):
 
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
-        
+
     def manage_afterClone(self, item):
         pass
 
     def manage_beforeDelete(self, item, container):
-        # should provide a hook for removing object
-        # from database. Eg: when we are using
-        # SQLStorage for a field.
         self.cleanupLayers(item, container)
 
     def initializeLayers(self, item=None, container=None):
@@ -88,7 +85,7 @@ class BaseObject(Implicit):
                 return self.Title() or self.getId()
 
         return self.getId()
-        
+
     security.declarePublic("getId")
     def getId(self):
         """get the objects id"""
@@ -102,8 +99,9 @@ class BaseObject(Implicit):
                 parent.manage_renameObjects((self.id,), (value,),\
                                             getattr(self, 'REQUEST', None))
         self.id = value
-    
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'getField')
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'getField')
     def getField(self, key):
         return self.Schema().get(key)
 
@@ -113,7 +111,7 @@ class BaseObject(Implicit):
         field = self.getField(field)
         return field.default
 
- 
+
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
         element = getattr(self, key, None)
@@ -145,10 +143,10 @@ class BaseObject(Implicit):
         except:
             log_exc()
             return None, 0
-        
+
         if not policy:
             policy = spec.getPolicy(None)
-        
+
         return DisplayList(map(lambda x: (x,x), policy.allowedVocabulary())), \
                policy.enforceVocabulary()
 
@@ -161,13 +159,14 @@ class BaseObject(Implicit):
                 vocab, enforce = self.get_portal_metadata(field)
 
             if vocab is None:
-                vocab, enforce = field.Vocabulary(self), field.enforceVocabulary
+                vocab, enforce = field.Vocabulary(self), \
+                                 field.enforceVocabulary
 
         if vocab is None:
             vocab = DisplayList()
 
         return vocab, enforce
-    
+
     def __getitem__(self, key):
         """play nice with externaleditor again"""
         ## Also play nice with aq again... doh!
@@ -185,26 +184,29 @@ class BaseObject(Implicit):
 ##     def set(self, key, value, **kw):
 ##         mutator = getattr(self, self.Schema()[key].mutator)
 ##         mutator(value, **kw)
-        
+
     def edit(self, **kwargs):
         self.update(**kwargs)
 
     def setDefaults(self):
         self.Schema().setDefaults(self)
-            
+
     def update(self, **kwargs):
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
-        
+
     def validate_field(self, name, value, errors):
+
         """
         write a method: validate_foo(new_value) -> "error" or None
-        If there is a validate method defined for a given field invoke it by name
+        If there is a validate method defined for a given field invoke
+        it by name
         name -- the name to register errors under
         value -- the proposed new value
         errors -- dict to record errors in
         """
+
         methodName = "validate_%s" % name
 
         if hasattr(aq_base(self), methodName):
@@ -216,16 +218,15 @@ class BaseObject(Implicit):
 
     ##Pre/post validate hooks that will need to write errors
     ##into the errors dict directly using errors[fieldname] = ""
-    security.declareProtected(CMFCorePermissions.View, 'pre_validate')            
+    security.declareProtected(CMFCorePermissions.View, 'pre_validate')
     def pre_validate(self, REQUEST, errors):
         pass
 
-    security.declareProtected(CMFCorePermissions.View, 'post_validate')            
+    security.declareProtected(CMFCorePermissions.View, 'post_validate')
     def post_validate(self, REQUEST, errors):
         pass
-    
-            
-    security.declareProtected(CMFCorePermissions.View, 'validate')            
+
+    security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
         if REQUEST is None:
             REQUEST = self.REQUEST
@@ -235,11 +236,12 @@ class BaseObject(Implicit):
         if errors:
             return errors
 
-        self.Schema().validate(self, REQUEST=REQUEST, errors=errors, data=data, metadata=metadata)
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors, 
+                               data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
         return errors
-    
+
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """full indexable text"""
@@ -260,7 +262,7 @@ class BaseObject(Implicit):
         data = ' '.join(data)
         return data
 
-    
+
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
@@ -274,11 +276,12 @@ class BaseObject(Implicit):
                     size += len(field)
                 except:
                     pass
-                
+
         return size
 
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, '_processForm')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              '_processForm')
     def _processForm(self, data=1, metadata=None):
         request = self.REQUEST
         form = request.form
@@ -299,11 +302,12 @@ class BaseObject(Implicit):
                 text_format = None
                 isFile = 0
                 value = None
-                
+
                 # text field with formatting
-                if hasattr(field, 'allowable_content_types') and field.allowable_content_types:
+                if hasattr(field, 'allowable_content_types') and \
+                   field.allowable_content_types:
                     #was a mime_type specified
-                    text_format = form.get("%s_text_format" % field.name) 
+                    text_format = form.get("%s_text_format" % field.name)
                 # or a file?
                 fileobj = form.get('%s_file' % field.name)
                 if fileobj:
@@ -314,7 +318,7 @@ class BaseObject(Implicit):
 
                 if not value:
                     value = form.get(field.name)
-                
+
                 #Set things by calling the mutator
                 if not value: continue
                 mutator = getattr(self, field.mutator)
@@ -322,17 +326,18 @@ class BaseObject(Implicit):
                     mutator(value, mime_type=text_format)
                 else:
                     mutator(value)
-                    
+
         self.reindexObject()
-        
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'processForm')
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'processForm')
     def processForm(self, data=1, metadata=0):
         """Process the schema looking for data in the form"""
         self._processForm(data=data, metadata=metadata)
-        
+
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
-    
+
 InitializeClass(BaseObject)
 

@@ -22,7 +22,7 @@ class TypesWidget(macrowidget):
                 self.description = "Enter a value for %s" % name
             if not self.label:
                 self.label = capitalize(name)
-                
+
     def findField(self, instance):
         #This is a sad hack, I don't want widgets to have to take a
         #reference to a field or its own name
@@ -82,13 +82,13 @@ class LinesWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         })
-    
+
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/boolean",
         })
-    
+
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -107,7 +107,7 @@ class MultiSelectionWidget(TypesWidget):
         'macro' : "widgets/multiselection",
         'size'  : 5,
         })
-    
+
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

@@ -1,5 +1,7 @@
 2003-04-12  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* *.py: Removed trailing whitespace and rewrapped some long lines. 
+
 	* Marshall.py (PrimaryFieldMarshaller.marshall): Fixing a broken
 	import plus moving interface declaration to interfaces subdir.
 

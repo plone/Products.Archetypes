@@ -45,7 +45,7 @@ class Schemata(UserDict):
 
     order_fields = None
     index = 0
-    
+
     def __init__(self, name='default', fields=None):
         self.name = name
         UserDict.__init__(self)
@@ -53,14 +53,14 @@ class Schemata(UserDict):
         if fields is not None:
             if type(fields) not in [ListType, TupleType]:
                 fields = (fields, )
-                
+
             for field in fields:
                 self.addField(field)
 
     security.declarePublic('getName')
     def getName(self):
         return self.name
-    
+
     def __add__(self, other):
         c = Schemata()
         #We can't use update and keep the order so we do it manually
@@ -110,9 +110,9 @@ class Schemata(UserDict):
             skip = 0
             for arg in args:
                 if arg(field) == 0:
-                    skip = 1 
+                    skip = 1
                     break
-                
+
             for k, v in kwargs.items():
                 if hasattr(field, k):
                     fv = getattr(field, k)
@@ -143,7 +143,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     """Manage a list of fields and run methods over them"""
 
     __implements__ = (ILayerRuntime, ILayerContainer)
-    
+
     security = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess("allow")
@@ -155,10 +155,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     def __init__(self, *args, **kwargs):
         UserDict.__init__(self)
         DefaultLayerContainer.__init__(self)
-        
+
         self._props = self._properties.copy()
         self._props.update(kwargs)
-        
+
         if len(args):
             if type(args[0]) in [ListType, TupleType]:
                 for field in args[0]:
@@ -201,9 +201,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 #if it does call it
                 ##if callable(default):
                 ##    default = default()
-            
+
                 field.set(instance, default)
-                
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
         keys = kwargs.keys()
@@ -215,14 +215,14 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 log("tried to update %s:%s which is not writeable" % \
                     (instance.portal_type, field.name))
                 continue
-            
+
             method = getattr(instance, field.mutator, None)
             if not method:
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
 
             method(kwargs[field.name])
-            
+
     security.declarePublic("allow")
     def allow(self, key):
         """Allow update to keys of this name (must be a valid field)"""
@@ -242,7 +242,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
             if metadata:
                 fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
-                
+
         for name, field in fields:
             if errors and errors.has_key(name): continue
             error = 0
@@ -259,14 +259,14 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         else:
                             #Do other types need special handling here
                             pass
-                        
+
                     if value is not None and value != '': break
 
             #REQUIRED CHECK
             if field.required == 1:
                 if not value or value == "":
                     ## The only time a field would not be resubmitted with the form is if
-                    ## was a file object from a previous edit. That will not come back. 
+                    ## was a file object from a previous edit. That will not come back.
                     ## We have to check to see that the field is populated in that case
                     try:
                         accessor = getattr(instance, field.accessor)
@@ -287,7 +287,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     value.seek(0)
                     if size == 0:
                         value = None
-                    
+
                 if not value:
                     errors[name] =  "%s is required, please correct" % capitalize(name)
                     error = 1
@@ -304,7 +304,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 #                    values = field.multiValued == 1  and value or [value]
                     vocab = field.Vocabulary(instance)
                     for value in values:
-                        error = 1 
+                        error = 1
                         for v in vocab:
                             if type(v) in [type(()), type([])]:
                                 valid = v[0]
@@ -328,7 +328,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 except Exception, E:
                     log_exc()
                     errors[name] = E
-                
+
             #CUSTOM VALIDATORS
             if error == 0:
                 try:
@@ -356,7 +356,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                             # so, they may still need to be initialized
                             initializedLayers.append((layer, object))
                         object.initializeField(instance, field)
-                        
+
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
@@ -371,7 +371,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         # then the cleanupField method
         queuedLayers = []
         queued = lambda x: x in queuedLayers
-        
+
         for field in self.fields():
             if ILayerContainer.isImplementedBy(field):
                 layers = field.registeredLayers()
@@ -384,7 +384,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         for layer, object in queuedLayers:
             if ILayer.isImplementedBy(object):
                 object.cleanupInstance(instance, item, container)
-                    
+
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
@@ -394,7 +394,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
-                
+
 class MetadataSchema(Schema):
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
@@ -406,7 +406,7 @@ class MetadataSchema(Schema):
         field.schemata = 'metadata'
         if 'm' not in field.generateMode:
             field.generateMode = 'mVc'
-        
+
         FieldList.addField(self, field)
 
 

@@ -33,7 +33,7 @@ class BaseSQLStorage(StorageLayer):
         __traceback_info__ = repr(value)
         template = '%%d%%0%dd' % field.precision
         return template % value
-    
+
     def unmap_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
         split = 10 ** field.precision
@@ -68,7 +68,7 @@ class BaseSQLStorage(StorageLayer):
         method.edit(connection_id, ' '.join(args.keys()), query)
         query, result = method(test__=1, **args)
         return result
-    
+
     def initializeInstance(self, instance, item=None, container=None):
         if self.is_initialized(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be initialized twice
@@ -163,13 +163,13 @@ class BaseSQLStorage(StorageLayer):
             # omiting it causes dtml-sqlvar to insert NULL
             args['value'] = value
         self._query(instance, self.query_update % sql_type, args)
-        
+
     def unset(self, name, instance, **kwargs):
         # probably use drop column here
         pass
 
     cleanupField = unset
-    
+
     def cleanupInstance(self, instance, item=None, container=None):
         if self.is_cleaned(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be cleaned twice
@@ -263,7 +263,7 @@ class MySQLSQLStorage(BaseSQLStorage):
     def map_object(self, field, value):
         __traceback_info__ = repr(value)
         return repr(value)
-    
+
     def unmap_object(self, field, value):
         __traceback_info__ = repr(value)
         # XXX dangerous!
@@ -294,7 +294,7 @@ class OracleSQLStorage(BaseSQLStorage):
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {}
-    
+
 
 class PostgreSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
@@ -325,7 +325,7 @@ class PostgreSQLStorage(BaseSQLStorage):
     def map_object(self, field, value):
         __traceback_info__ = repr(value)
         return repr(value)
-    
+
     def unmap_object(self, field, value):
         __traceback_info__ = repr(value)
         # XXX dangerous!

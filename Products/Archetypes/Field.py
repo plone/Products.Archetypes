@@ -30,7 +30,7 @@ from Schema import FieldList, MetadataFieldList
 
 class Field(DefaultLayerContainer):
     __implements__ = (IField, ILayerContainer)
-    
+
     security  = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess("allow")
@@ -73,12 +73,12 @@ class Field(DefaultLayerContainer):
 
         self._widgetLayer()
         self._validationLayer()
-        
+
         self.registerLayer('storage', self.storage)
 
     def copy(self):
         return self.__class__(**self.__dict__)
-    
+
     def __repr__(self):
         return "<Field %s(%s:%s)>" %(self.name, self.type, self.mode)
 
@@ -94,7 +94,7 @@ class Field(DefaultLayerContainer):
         # __call__
         if type(self.validators) not in [type(()), type([])]:
             self.validators = (self.validators,)
-            
+
         for v in self.validators:
             if not validation.validatorFor(v):
                 log("WARNING: no validator %s for %s" % (v,
@@ -114,7 +114,7 @@ class Field(DefaultLayerContainer):
                 method = getattr(content_instance, self.vocabulary, None)
                 if method and callable(method):
                     value = method()
-                    
+
             # Post process value into a DisplayList, templates will use
             # this interface
             sample = value[:1]
@@ -150,17 +150,17 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
-        return self.widget.getName() 
+        return self.widget.getName()
 
     security.declarePublic('getDefault')
     def getDefault(self):
-        return self.default 
+        return self.default
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
     data. This layer implements the interface to IStorage and other
     Field Types should subclass this to delegate through the storage
-    layer. 
+    layer.
     """
     __implements__ = (IObjectField, ILayerContainer)
 
@@ -174,11 +174,12 @@ class ObjectField(Field):
         try:
             kwargs['field'] = self
             return self.storage.get(self.name, instance, **kwargs)
-        except AttributeError: # happens if new Atts are added and not yet stored in the instance
+        except AttributeError:
+            # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
                 self.set(instance,self.default,_initializing_=1,**kwargs)
             return self.default
-        
+
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         self.storage.set(self.name, instance, value, **kwargs)
@@ -226,7 +227,9 @@ class MetadataField(ObjectField):
 
 
 class FileField(StringField):
-    """Something that may be a file, but is not an image and doesn't want text format conversion"""
+    """Something that may be a file, but is not an image and doesn't
+    want text format conversion"""
+
     __implements__ = ObjectField.__implements__
 
     _properties = StringField._properties.copy()
@@ -235,8 +238,9 @@ class FileField(StringField):
         'default' : '',
         'primary' : 0,
         })
-                       
-    def _process_input(self, value, default=None, mime_type='text/plain', **kwargs):
+
+    def _process_input(self, value, default=None,
+                       mime_type='text/plain', **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
@@ -251,7 +255,7 @@ class FileField(StringField):
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
             kwargs['mime_type'] = self.default_content_type
-            
+
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
@@ -272,7 +276,7 @@ class FileField(StringField):
         #tt.runChains(MUTATION,
         #             bu.getRaw(),
         #             bu.transforms)
-        
+
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -288,11 +292,12 @@ class TextField(ObjectField):
         'allowable_content_types' : ('text/plain',),
         'primary' : 0,
         })
-                       
+
     def defaultView(self):
         return self.default_output_type
-    
-    def _process_input(self, value, default=None, mime_type='text/plain', **kwargs):
+
+    def _process_input(self, value, default=None, \
+                       mime_type='text/plain', **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
@@ -321,7 +326,7 @@ class TextField(ObjectField):
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
             kwargs['mime_type'] = self.default_content_type
-            
+
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
@@ -338,7 +343,7 @@ class TextField(ObjectField):
         #tt.runChains(MUTATION,
         #             bu.getRaw(),
         #             bu.transforms)
-        
+
 
 class DateTimeField(ObjectField):
     __implements__ = ObjectField.__implements__
@@ -357,9 +362,9 @@ class DateTimeField(ObjectField):
                 value = DateTime(value)
             except:
                 value = None
-            
+
         ObjectField.set(self, instance, value, **kwargs)
-        
+
 class LinesField(ObjectField):
     __implements__ = ObjectField.__implements__
 
@@ -392,7 +397,7 @@ class IntegerField(ObjectField):
             value = int(value)
         except TypeError:
             value = self.default
-        
+
         ObjectField.set(self, instance, value, **kwargs)
 
 class FloatField(ObjectField):
@@ -406,7 +411,7 @@ class FloatField(ObjectField):
             value = float(value)
         except TypeError:
             value = None
-        
+
         ObjectField.set(self, instance, value, **kwargs)
 
 class FixedPointField(ObjectField):
@@ -459,11 +464,13 @@ class ReferenceField(ObjectField):
     def Vocabulary(self, content_instance=None):
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, str(obj.Title).strip() or str(obj.getId).strip())
+            value = [(obj.UID, str(obj.Title).strip() or \
+                      str(obj.getId).strip()) \
                      for obj in catalog(Type=self.allowed_types)]
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, str(obj.Title).strip() or str(obj.getId).strip())
+            value = [(obj.UID, str(obj.Title).strip() or \
+                      str(obj.getId).strip()) \
                      for obj in archetype_tool.Content()]
         if not self.required:
             value.insert(0, ('', '<no reference>'))
@@ -480,7 +487,7 @@ class ComputedField(ObjectField):
         'mode' : 'r',
         'storage': ReadOnlyStorage(),
         })
-    
+
     def set(self, *ignored, **kwargs):
         pass
 
@@ -497,14 +504,14 @@ class BooleanField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
-        
+
         if not value or value == '0':
             value = None ## False
         else:
             value = 1
-        
+
         ObjectField.set(self, instance, value, **kwargs)
-            
+
 class CMFObjectField(ObjectField):
     __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
@@ -521,7 +528,7 @@ class CMFObjectField(ObjectField):
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
         if type(value) != StringType:
-            if ((isinstance(value, FileUpload) and value.filename != '') or
+            if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
                 #OK, its a file, is it empty?
                 value.seek(-1, 2)
@@ -538,7 +545,7 @@ class CMFObjectField(ObjectField):
             if value == '':
                 return default
             return value
-        
+
         raise ObjectFieldException('Value is not File or String')
 
     def get(self, instance, **kwargs):
@@ -555,7 +562,8 @@ class CMFObjectField(ObjectField):
             if info is None:
                 raise ValueError('No such content type: %s' % type_name)
             if not hasattr(aq_base(info), 'constructInstance'):
-                raise ValueError('Cannot construct content type: %s' % type_name)
+                raise ValueError('Cannot construct content type: %s' % \
+                                 type_name)
             return info.constructInstance(instance, self.name, **kwargs)
 
     def set(self, instance, value, **kwargs):
@@ -572,7 +580,7 @@ class CMFObjectField(ObjectField):
         # ObjectField.set(self, instance, obj, **kwargs)
 
 
-# ImageField.py 
+# ImageField.py
 # Written in 2003 by Christian Scholz (cs@comlounge.net)
 # version: 1.0 (26/02/2002)
 from OFS.Image import Image as BaseImage
@@ -587,11 +595,11 @@ except:
 class Image(BaseImage):
     def isBinary(self):
         return 1
-    
+
 
 class ImageField(ObjectField):
     """ implements an image attribute. it stores
-        it's data in an image sub-object 
+        it's data in an image sub-object
 
         sizes is an dictionary containing the sizes to
         scale the image to. PIL is required for that.
@@ -623,7 +631,7 @@ class ImageField(ObjectField):
                     'normal' : (200,200),
                     'big' : (300,300),
                     'maxi' : (500,500)})
-        
+
         will create an attribute called "image"
         with the sizes mini, normal, big, maxi as given
         and a original sized image of max 600x600.
@@ -654,12 +662,12 @@ class ImageField(ObjectField):
         'widget': ImageWidget,
         'storage': ObjectManagedStorage(),
         })
-                       
+
     default_view = "view"
 
     def defaultView(self):
         return self.form_info.defaultView() or self.default_view
-    
+
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
         if value=="DELETE_IMAGE":
@@ -680,7 +688,7 @@ class ImageField(ObjectField):
             if not ((isinstance(value, FileUpload) and value.filename != '') or
                     (isinstance(value, FileType) and value.name != '')):
                 return
-            
+
             if image:
                 #OK, its a file, is it empty?
                 value.seek(-1, 2)
@@ -691,7 +699,7 @@ class ImageField(ObjectField):
                  # the orig
                  return
 
-        ### 
+        ###
         ### store the original
         ###
 
@@ -711,7 +719,7 @@ class ImageField(ObjectField):
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
-        if not has_pil or not self.sizes: 
+        if not has_pil or not self.sizes:
             return
 
         data=str(image.data)
@@ -727,7 +735,7 @@ class ImageField(ObjectField):
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(w or h), 'width':int(h or w)} 
+        keys = {'height':int(w or h), 'width':int(h or w)}
 
         original_file=StringIO(data)
         image=PIL.Image.open(original_file)
@@ -745,5 +753,6 @@ __all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
            'IntegerField', 'FloatField', 'FixedPointField', \
            'ReferenceField', 'ComputedField', 'BooleanField', \
            'CMFObjectField', 'ImageField', \
-           'FieldList', 'MetadataFieldList', # Those two should go away after 1.0
+           'FieldList', 'MetadataFieldList', # Those two should go
+                                             # away after 1.0
            )

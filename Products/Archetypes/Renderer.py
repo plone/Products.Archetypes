@@ -1,4 +1,4 @@
-from interfaces.layer import *
+from interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
 from debug import log, log_exc
 import sys
@@ -8,8 +8,8 @@ _marker = []
 class ArchetypesRenderer(base):
     __implements__ = (ILayer,)
 
-    def setupContext(self, field_name, mode, widget, instance, field, accessor,
-                     **kwargs):
+    def setupContext(self, field_name, mode, widget, instance, field, \
+                     accessor, **kwargs):
 
         # look for the context in the stack
         frame = sys._getframe()
@@ -28,9 +28,8 @@ class ArchetypesRenderer(base):
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)
-                
-        return context
 
+        return context
 
 renderer = ArchetypesRenderer()
 

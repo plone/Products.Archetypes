@@ -8,7 +8,8 @@ from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
 from interfaces.base import IBaseContent
 
-class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
+class BaseContent(BaseObject, Referenceable, PortalContent, \
+                  ExtensibleMetadata):
     __implements__ = IBaseContent
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options
@@ -30,14 +31,14 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
         BaseObject.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
-    def manage_beforeDelete(self, item, container): 
+    def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
         """The primary field is some object that responds to
-        PUT/manage_FTPget events. 
+        PUT/manage_FTPget events.
         """
         fields = self.Schema().filterFields(primary=1)
         if fields: return fields[0]
@@ -49,7 +50,7 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
-        
+
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
         mime_type=REQUEST.get_header('Content-Type', None)
@@ -82,9 +83,9 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
         ddata = marshall.marshall(self)
         if self.marshall_hook:
             ddata = self.marshall_hook(ddata)
-            
+
         content_type, length, data = ddata
-        
+
         RESPONSE.setHeader('Content-Type', content_type)
         RESPONSE.setHeader('Content-Length', length)
 
