@@ -263,17 +263,7 @@ class Field(DefaultLayerContainer):
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
-        vocab = self.vocabulary
-        error = 0
-        
-        if type(value) in (IntType,) and vocab:
-            # Use case vocabulary with None or/and 0 keys
-            if not vocab.getIndex(value):
-                error = 1
-        elif not value:
-            error = 1
-              
-        if error:
+        if not value:
             label = self.widget.Label(instance)
             name = self.getName()
             error = i18n.translate(
