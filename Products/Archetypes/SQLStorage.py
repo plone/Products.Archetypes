@@ -94,8 +94,6 @@ class BaseSQLStorage(StorageLayer):
         pass
 
     def _query(self, instance, query, args):
-        import pdb
-        pdb.set_trace()
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
         method = SQLMethod(instance)
