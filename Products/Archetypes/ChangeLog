@@ -1,3 +1,15 @@
+2004-01-17  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* ExtensibleMetadata.py (ExtensibleMetadata.isEffective):
+	Copy/paste error. Was using effectiveDate for expirationDate when
+	calculating isEffective.
+
+	* ArchetypeTool.py (modify_fti): Allow overriding immediate_view
+	from klass attribute.
+
+	* Extensions/utils.py (install_subskin): Don't try to install .svn
+	directory as a skin.
+
 2003-12-19  Sidnei da Silva  <sidnei@awkly.org>
 
 	* SQLStorage.py (SQLServerStorage.table_exists): Added

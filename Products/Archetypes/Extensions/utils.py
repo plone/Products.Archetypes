@@ -95,7 +95,8 @@ def install_subskin(self, out, globals=types_globals,
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
         if (isdir(join(fullProductSkinsPath, productSkinName))
-            and productSkinName != 'CVS'):
+            and productSkinName != 'CVS'
+            and productSkinName != '.svn'):
             for skinName in skinstool.getSkinSelections():
                 path = skinstool.getSkinPath(skinName)
                 path = [i.strip() for i in  path.split(',')]
