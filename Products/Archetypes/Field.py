@@ -178,7 +178,7 @@ class Field(DefaultLayerContainer):
     security.declarePublic('getDefault')
     def getDefault(self):
         return self.default
-        
+
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
 #        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
@@ -371,7 +371,7 @@ class TextField(ObjectField):
     def defaultView(self):
         return self.default_output_type
 
-    def _process_input(self, value, default=None, 
+    def _process_input(self, value, default=None,
                        mimetype=None, encoding=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
@@ -427,7 +427,7 @@ class TextField(ObjectField):
     def getRaw(self, instance, **kwargs):
         kwargs['raw'] = 1
         return self.get(instance, **kwargs)
-    
+
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         try:
             kwargs['field'] = self
@@ -441,22 +441,20 @@ class TextField(ObjectField):
             return self.default
 
         if raw:
-            if IBaseUnit.isImplementedBy(value):
-                return value.getRaw()
             return value
-        
+
         if mimetype is None:
             mimetype =  self.default_output_type or 'text/plain'
-        
+
         if not hasattr(value,'transform'): # oldBaseUnits have no transform
             return str(value)
-        
+
         data = value.transform(instance, mimetype, cache=1)
         if not data:
             data = value.transform(instance, 'text/plain', cache=1)
         if not data:
             return ''
-        
+
         if idatastream.isImplementedBy(data):
             data = data.getData()
         if type(data) == type({}) and data.has_key('html'):
@@ -627,20 +625,20 @@ class ReferenceField(ObjectField):
             return str(value) == str(attrval)
 
     def set(self, instance, value, **kwargs):
-        ''' before setting the value the reference gets also be established 
+        ''' before setting the value the reference gets also be established
             in the reference tool
         '''
-        
+
         if not value:
             value=None
-            
+
         #establish the relation through the ReferenceEngine
         tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
-        
+
         #XXX: thats too cheap, but I need the proof of concept before going on
         instance.deleteReferences(refname)
-        
+
         if self.multiValued:
             if type(value) in (type(()),type([])):
                 for uid in value:
@@ -653,10 +651,10 @@ class ReferenceField(ObjectField):
                 instance.addReference(target,refname)
 
             pass
-        
+
         #and now do the normal assignment
         ObjectField.set(self, instance, value, **kwargs)
-        
+
     def Vocabulary(self, content_instance=None):
         #If we have a method providing the list of types go with it,
         #it can always pull allowed_types if it needs to (not that we
@@ -982,7 +980,7 @@ class I18NMixIn(ObjectField):
         self.storage = AttributeStorage()
         self._i18n_default = self.default or self._wrapped_class._properties['default']
         self.default = None
-        
+
     def getI18NFieldId(self, lang):
         return '%s__%s'  % (self.__name__, lang)
 
@@ -1010,9 +1008,9 @@ class I18NMixIn(ObjectField):
             langs = mapping.keys()
             if langs:
                 return mapping[langs[0]].get(instance, **kwargs)
-                
+
             return self._i18n_default
-        
+
     def getRaw(self, instance, lang=None, **kwargs):
         lang = instance.getLanguage(lang)
         mapping = self._get_mapping(instance)
@@ -1040,7 +1038,7 @@ class I18NMixIn(ObjectField):
             del mapping[lang]
         except:
             pass
-        
+
 
     def _get_mapping(self, instance):
         try:
@@ -1051,7 +1049,7 @@ class I18NMixIn(ObjectField):
             mapping = PersistentMapping()
             self.storage.set(self.getName(), instance, mapping)
         return mapping
-    
+
     def _build_lang_field(self, instance, lang):
         dict = copy(self.__dict__)
         dict["storage"] = self._i18n_storage
@@ -1065,26 +1063,26 @@ class I18NMixIn(ObjectField):
         del dict['edit_accessor']
         del dict['mutator']
         return self._wrapped_class(self.getI18NFieldId(lang), **dict)
-    
 
-class I18NStringField(I18NMixIn, StringField): pass        
-class I18NMetadataField(I18NMixIn, MetadataField): pass        
-class I18NFileField(I18NMixIn, FileField): pass        
-class I18NTextField(I18NMixIn, TextField): pass        
-class I18NLinesField(I18NMixIn, LinesField): pass        
+
+class I18NStringField(I18NMixIn, StringField): pass
+class I18NMetadataField(I18NMixIn, MetadataField): pass
+class I18NFileField(I18NMixIn, FileField): pass
+class I18NTextField(I18NMixIn, TextField): pass
+class I18NLinesField(I18NMixIn, LinesField): pass
 class I18NImageField(I18NMixIn, ImageField): pass
 
 
 InitializeClass(Field)
 
-__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', 
-           'FileField', 'TextField', 'DateTimeField', 'LinesField', 
-           'IntegerField', 'FloatField', 'FixedPointField', 
-           'ReferenceField', 'ComputedField', 'BooleanField', 
-           'CMFObjectField', 'ImageField', 
-           
-           'I18NStringField', 'I18NMetadataField', 
-           'I18NFileField', 'I18NTextField', 'I18NLinesField', 
+__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField',
+           'FileField', 'TextField', 'DateTimeField', 'LinesField',
+           'IntegerField', 'FloatField', 'FixedPointField',
+           'ReferenceField', 'ComputedField', 'BooleanField',
+           'CMFObjectField', 'ImageField',
+
+           'I18NStringField', 'I18NMetadataField',
+           'I18NFileField', 'I18NTextField', 'I18NLinesField',
            'I18NImageField',
 
            'FieldList', 'MetadataFieldList', # Those two should go

@@ -43,7 +43,7 @@ class newBaseUnit(File):
             self.raw  = data and str(data) or ''
         except UnicodeError:
             self.raw = data.encode(encoding)
-            
+
         self.size = len(data)
         self.filename = filename
 
@@ -105,7 +105,7 @@ class newBaseUnit(File):
 
     def __str__(self):
         return self.raw
-    
+
     def isBinary(self):
         try:
             return self.getContentType().binary
@@ -181,7 +181,7 @@ class oldBaseUnit(File, ObjectManager):
         self.filename = ''
         self.data = ''
         self.size = 0
-        self.content_type = None
+        self.content_type = mimetype
         self.mimetype = mimetype
         self.update(file, mimetype)
 

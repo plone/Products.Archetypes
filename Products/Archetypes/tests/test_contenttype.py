@@ -30,19 +30,19 @@ class ContentTypeTest( unittest.TestCase ):
     def test_textfieldwithmime(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/restructured')
-        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
+        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/restructured')
 
     def test_textfieldwithmime2(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/structured')
-        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
+        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/structured')
 
     def test_textfieldwithoutmime(self):
         obj = self._dummy
         obj.setAtextfield('Bla')
-        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
+        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/plain')
 
     def test_textfielduploadwithoutmime(self):
