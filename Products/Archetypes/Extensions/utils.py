@@ -59,12 +59,12 @@ def install_tools(self, out):
 
 def install_catalog(self, out):
 
-    index_defs=(('UID', 'FieldIndex'),
+    index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
                  ('Title', 'FieldIndex'),
                  ('portal_type', 'FieldIndex'),
-             )
+               )
 
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
@@ -72,26 +72,15 @@ def install_catalog(self, out):
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
 
     catalog = getToolByName(self, UID_CATALOG)
-    schema = catalog.schema()
-    indexes = catalog.indexes()
-    schemaFields = []
-
-    for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                  ('Type', 'FieldIndex'),
-                                  ('id', 'FieldIndex'),
-                                  ('Title', 'FieldIndex'),
-                                  ('portal_type', 'FieldIndex'),
-                                  ):
-        try:
-            if indexName not in indexes:
+    for indexName, indexType in index_defs:
+        try: #ugly try catch XXX FIXME
+            if indexName not in catalog.indexes():
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in schema:
+            if not indexName in catalog.schema():
                 catalog.addColumn(indexName)
-                schemaFields.append(indexName)
         except:
             pass
 
-    #catalog.manage_reindexIndex(ids=schemaFields)
     catalog.manage_reindexIndex()
 
 def install_referenceCatalog(self, out):
