@@ -627,10 +627,11 @@ class BaseObject(Implicit):
                     raise
                 except:
                     log_exc()
-        # try setting an existing attribute
-        if hasattr(self, name):
-            setattr(self, name, value)
-            return
+        else:            
+            # try setting an existing attribute
+            if hasattr(self, name):
+                setattr(self, name, value)
+                return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
 
