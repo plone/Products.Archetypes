@@ -31,11 +31,9 @@ default.
               <metal:block use-macro="here/widgets/visual/macros/area_format" />
             </div>
           </tal:area_format>
-
           <metal:use use-macro="here/widgets/epoz/macros/edit_area">
             <metal:fill fill-slot="text_format"/>
           </metal:use>
-
           <div style="text-align: right; margin-right: 0.75em;"
                tal:condition="widget/allow_file_upload | python:1">
               <span class="discreet" i18n:translate="label_or">or</span>

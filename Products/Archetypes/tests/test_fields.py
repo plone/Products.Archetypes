@@ -101,11 +101,9 @@ expected_values = {'objectfield':'objectfield',
                    'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name, 
                    'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name
                    }
-
 if HAS_PLONE:
     # Plone has a patch which removed the border="0" 
     expected_values['imagefield'] = '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
-
 
 empty_values = {'objectfield':None,
                    'stringfield':'',

@@ -64,7 +64,8 @@ class BaseUnitTest( ATSiteTestCase ):
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()
-        self.assertEqual(got, expected)
+
+        self.assertEquals(got, expected)
 
 tests = []
 

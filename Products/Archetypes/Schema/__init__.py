@@ -447,7 +447,6 @@ class BasicSchema(Schemata):
         """Only call during object initialization. Sets fields to
         schema defaults
         """
-
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
             if field.getName().lower() == 'id': continue
@@ -461,7 +460,6 @@ class BasicSchema(Schemata):
 
             args = (default,)
             kw = {'field': field.__name__}
-
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
