@@ -9,7 +9,7 @@ from UserDict import UserDict as BaseDict
 from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
@@ -382,7 +382,11 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    portal_path = self.portal_url.getPortalObject().getPhysicalPath()
+    try:
+        urlTool = aq_parent(self).portal_url
+    except AttributeError:
+        urlTool = self.portal_url
+    portal_path = urlTool.getPortalObject().getPhysicalPath()
     ppath = ppath[len(portal_path):]
     return ppath
 
