@@ -9,7 +9,6 @@ from utils import capitalize, DisplayList, OrderedDict, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
-from types import StringType, StringTypes
 from Storage import AttributeStorage, MetadataStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
