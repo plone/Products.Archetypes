@@ -129,6 +129,42 @@ class BaseFolderMixin(CatalogMultiplex,
         arguments since PortalFolder defines it."""
         self.getField('title').set(self, value, **kwargs)
 
+    # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
+    # as it insists on creating folders of type "Folder".
+    # use instead "_at_type_subfolder" or our own type.
+    def manage_addFolder( self
+                        , id
+                        , title=''
+                        , REQUEST=None
+                        , type_name = None
+                        ):
+        """ Add a new folder-like object with id *id*.
+
+        IF present, use the parent object's 'mkdir' alias; otherwise, just add
+        a PortalFolder.
+        """
+        ti = self.getTypeInfo()
+        method = ti and ti.getMethodURL('mkdir') or None
+        if method:
+            # call it
+            getattr(self, method)(id=id)
+        else:
+            if type_name is None:
+                type_name = getattr(self, '_at_type_subfolder', None)
+            if type_name is None:
+                type_name = ti and ti.getId() or 'Folder'
+            self.invokeFactory( type_name, id=id )
+
+        ob = self._getOb( id )
+        try:
+            ob.setTitle( title )
+        except AttributeError:
+            pass
+        try:
+            ob.reindexObject()
+        except AttributeError:
+            pass
+
 InitializeClass(BaseFolderMixin)
 
 

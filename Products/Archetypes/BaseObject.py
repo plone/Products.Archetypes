@@ -7,7 +7,6 @@ from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
-from Products.Archetypes.ATAnnotations import ATAnnotatableMixin
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
@@ -58,7 +57,7 @@ content_type = Schema((
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Referenceable, ATAnnotatableMixin):
+class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
 
@@ -70,7 +69,7 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = IBaseObject, ATAnnotatableMixin.__implements__
+    __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -784,10 +783,30 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        target = getattr(self, name, None)
+        # DM 2004-08-10: this breaks FTP/WebDAV's PUT:
+        #  If a new object should be created with an id that can
+        #  be acquired, then the existing object is silently overwritten
+        #  rather than a new one created.
+        ## target = getattr(self, name, None)
+        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0
+            and not (
+                # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+                # to check whether this is a browser request
+                method == 'GET'
+                or method == 'POST' and not isinstance(response, xmlrpc.Response)
+                )
+            ):
+            # we must not acquire
+            if hasattr(aq_base(self), name):
+                target = getattr(self, name)
+            else:
+                target = None
+        else:
+            # we are allowed to acquire
+            target = getattr(self, name, None)
         if target is not None:
             return target
-        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
         if (not method in ('GET', 'POST', 'HEAD') and
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
