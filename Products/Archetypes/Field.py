@@ -566,6 +566,13 @@ class FileField(StringField):
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
+        if value is None:
+            # do not send None back as file value if we get a default (None)
+            # value back from _process_input.  This prevents
+            # a hard error (NoneType object has no attribute 'seek') from
+            # occurring if someone types in a bogus name in a file upload
+            # box (at least under Mozilla).
+            value = ''
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
