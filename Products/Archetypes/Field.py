@@ -136,7 +136,7 @@ class Field(DefaultLayerContainer):
     def checkPermission(self, mode, instance):
         if mode in ('w', 'write', 'edit', 'set'):
             perm = self.write_permission
-        elif mode in ('w', 'write', 'edit', 'set'):
+        elif mode in ('r', 'read', 'view', 'get'):
             perm = self.read_permission
         else:
             return None
