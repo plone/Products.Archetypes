@@ -3,12 +3,12 @@ from types import StringType, UnicodeType
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import unique, make_uuid, getRelPath, getRelURL
+from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
 from Products.Archetypes.config import UID_CATALOG, \
      REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
 from Products.Archetypes.exceptions import ReferenceException
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
@@ -134,14 +134,12 @@ class Reference(Referenceable, SimpleItem):
         # it under its own UID, the ref cat brains will do the rest
         uc.catalog_object(self, getRelURL(container, self.getPhysicalPath()))
 
-
-
     def getPhysicalPath(self):
         """return the munged physical path"""
-        return getRelPath(self,
-                          self.getSourceObject().getPhysicalPath()) + (
-            '%s%s' %( REF_PREFIX,
-                      self.UID()), )
+        segments = list( SimpleItem.getPhysicalPath(self) )
+        segments.pop(-1)
+        segments.append( "%s%s"%( REF_PREFIX, self.UID() ) )
+        return getRelPath(self, segments)
 
     def getURL(self):
         """the url used as the relative path based uid in the catalogs"""
@@ -163,16 +161,25 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         """
         obj = None
         try:
-            try:
-                obj = self.aq_parent.unrestrictedTraverse(self.getPath())
-            except: #NotFound
-                pass
+            path = self.getPath()
+            is_ref_path  = path.find('REF_PREFIX')
+            
+            if not is_ref_path:
+                try:
+                    obj = self.aq_parent.unrestrictedTraverse(self.getPath())
+                    obj = aq_inner( obj )
+                except: #NotFound
+                    pass
 
             if not obj:
                 if REQUEST is None:
                     REQUEST = self.REQUEST
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
+            # wrong object type
+            if not hasattr( obj, 'UID'):
+                return
+            
             if obj.UID() != self.UID:
                 # We have the parent that contains an object with
                 # this UID as an annotation.
@@ -459,6 +466,21 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             self.uid_catalog.uncatalog_object(url)
             self.uncatalog_object(url)
 
+    def resolve_url(self, path, REQUEST):
+        """Strip path prefix during resolution, This interacts with
+        the default brains.getObject model and allows and fakes the
+        ZCatalog protocol for traversal
+        """
+        # Resolve to the real object by removing the
+        # ref annotation prefix, the brains do the rest
+        parts = path.split('/')
+        if parts[-1].find(REF_PREFIX) == 0:
+            path = '/'.join(parts[:-1])
+
+        portal_object = self.portal_url.getPortalObject()
+        return portal_object.unrestrictedTraverse(path)
+
+    
     def _resolveBrains(self, brains):
         objects = []
         if brains:
@@ -474,19 +496,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
     def __nonzero__(self):
         return 1
 
-    def resolve_url(self, path, REQUEST):
-        """Strip path prefix during resolution, This interacts with
-        the default brains.getObject model and allows and fakes the
-        ZCatalog protocol for traversal
-        """
-        # Resolve to the real object by removing the
-        # ref annotation prefix, the brains do the rest
-        parts = path.split('/')
-        if parts[-1].find(REF_PREFIX) == 0:
-            path = '/'.join(parts[:-1])
 
-        portal_object = self.portal_url.getPortalObject()
-        return portal_object.unrestrictedTraverse(path)
 
 
 def manage_addReferenceCatalog(self, id, title,

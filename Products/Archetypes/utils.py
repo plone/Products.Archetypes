@@ -377,6 +377,7 @@ class OrderedDict(BaseDict):
 
 InitializeClass(OrderedDict)
 
+
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
@@ -386,3 +387,4 @@ def getRelPath(self, ppath):
 
 def getRelURL(self, ppath):
     return '/'.join(getRelPath(self, ppath))
+

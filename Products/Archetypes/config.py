@@ -11,7 +11,7 @@ DEBUG = 1  ## See debug messages
 ##Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
-REFERENCE_ANNOTATION = "_references"
+REFERENCE_ANNOTATION = "_at_references"
 
 ##ordered folder handling
 ##implement the old style ordered folder?
