@@ -38,4 +38,10 @@ class CatalogMultiplex(CMFCatalogAware):
 
             for c in catalogs:
                 if c is not None:
-                    c.catalog_object(self, self.__url(), idxs=idxs)
+                    #We want the intersection of the catalogs idxs
+                    #and the incoming list
+                    lst = idxs
+                    indexes = c.indexes()
+                    if idxs:
+                        lst = [i for i in idxs if i in indexes] 
+                    c.catalog_object(self, self.__url(), idxs=lst)
