@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.4 2004/06/20 17:31:54 shh42 Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.5 2004/06/23 13:37:42 tiran Exp $
 
 from Testing import ZopeTestCase
 
@@ -30,9 +30,15 @@ from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 import time
+from StringIO import StringIO
 
 default_user = ZopeTestCase.user_name
 default_role = 'Member'
+
+
+from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.public import listTypes
+from Products.Archetypes.Extensions.utils import installTypes
 
 
 class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
@@ -93,6 +99,20 @@ else:
             noSecurityManager()
             get_transaction().commit()
             if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
+        else:
+            _start = time.time()
+            if not quiet: ZopeTestCase._print('Installing Archetypes demo types ... ')
+            # Login as portal owner
+            user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
+            newSecurityManager(None, user)
+            # Install Archetypes
+            out = StringIO()
+            installTypes(portal, out, listTypes(PKG_NAME), PKG_NAME)
+            # Log out
+            noSecurityManager()
+            get_transaction().commit()
+            if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
+
 
     app = ZopeTestCase.app()
     setupArchetypes(app)

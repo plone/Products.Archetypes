@@ -51,7 +51,7 @@ def initialize(context):
                    ).initialize(context)
 
     if REGISTER_DEMO_TYPES:
-        import examples
+        import Products.Archetypes.examples
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)
