@@ -60,7 +60,7 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
-        self.failUnless(doc.UID() == UID)
+        self.assertEquals(doc.UID(), UID)
 
 
     def test_renameKeepsReferences(self):
@@ -190,8 +190,8 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         UID2 = doc2.UID()
         self.failIf(UID == UID2)
         uniq = catalog.uniqueValuesFor('UID')
-        self.failUnless(UID in uniq)
-        self.failUnless(UID2 in uniq)
+        self.failUnless(UID in uniq, (UID, uniq))
+        self.failUnless(UID2 in uniq, (UID, uniq))
 
     def test_setUID_keeps_relationships(self):
         obj_id   = 'demodoc'
@@ -211,12 +211,12 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('KnowsAbout') == [b]
-        assert b.getRefs('KnowsAbout') == [a]
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('KnowsAbout'), [b])
+        self.assertEquals(b.getRefs('KnowsAbout'), [a])
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
 
         old_uid = a.UID()
 
@@ -257,12 +257,12 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         self.assertEquals(new_refs[0], new_uid)
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('KnowsAbout') == [b]
-        assert b.getRefs('KnowsAbout') == [a]
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('KnowsAbout'), [b])
+        self.assertEquals(b.getRefs('KnowsAbout'), [a])
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
 
         self.verifyBrains()
 
@@ -284,17 +284,17 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        assert b in refs
-        assert c in refs
-        assert a.getRefs('Owns') == [c]
-        assert c.getBRefs('Owns')== [a]
+        self.failUnless(b in refs, (b, refs))
+        self.failUnless(c in refs, (c, refs))
+        self.assertEquals(a.getRefs('Owns'), [c])
+        self.assertEquals(c.getBRefs('Owns'), [a])
         rels = a.getRelationships()
-        assert "KnowsAbout" in rels
-        assert "Owns" in rels
+        self.failUnless("KnowsAbout" in rels, ("KnowsAbout", rels))
+        self.failUnless("Owns" in rels, ("Owns", rels))
 
         a.deleteReference(c, "Owns")
-        assert a.getRefs() == [b]
-        assert c.getBRefs() == []
+        self.assertEquals(a.getRefs(), [b])
+        self.assertEquals(c.getBRefs(), [])
 
     def test_back_relationships(self):
 
@@ -323,24 +323,24 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         payment2.addReference(account, "From")
 
         brels = account.getBRelationships()
-        assert brels == ['From']
+        self.assertEquals(brels, ['From'])
         brefs = account.getBRefs('From')
-        assert brefs == [payment, payment2]
+        self.assertEquals(brefs, [payment, payment2])
 
         brels = payment.getBRelationships()
-        assert brels == ['Owns']
+        self.assertEquals(brels, ['Owns'])
         brefs = payment.getBRefs('Owns')
-        assert brefs == [invoice]
+        self.assertEquals(brefs, [invoice])
 
         brels = payment2.getBRelationships()
-        assert brels == ['Owns']
+        self.assertEquals(brels, ['Owns'])
         brefs = payment2.getBRefs('Owns')
-        assert brefs == [future_payment]
+        self.assertEquals(brefs, [future_payment])
 
         invoice.deleteReference(payment, "Owns")
 
-        assert invoice.getRefs() == [future_payment]
-        assert payment.getBRefs() == []
+        self.assertEquals(invoice.getRefs(), [future_payment])
+        self.assertEquals(payment.getBRefs(), [])
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
@@ -353,12 +353,12 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
 
-        assert len(a.getRefs('KnowsAbout')) == 1
+        self.assertEquals(len(a.getRefs('KnowsAbout')),  1)
 
         #In this case its a different relationship
         a.addReference(b, 'Flogs')
-        assert len(a.getRefs('KnowsAbout')) == 1
-        assert len(a.getRefs()) == 2
+        self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
+        self.assertEquals(len(a.getRefs()), 2)
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
@@ -371,40 +371,43 @@ class BaseReferenceableTests(ArcheSiteTestCase):
 
         fuid = folder.UID()
         nuid = nonRef.UID()
-        #We expect this to break, an aq_explicit would fix it but
-        #we can't change the calling convention
+        # We expect this to break, an aq_explicit would fix it but
+        # we can't change the calling convention
         # XXX: but proxy index could
-        #XXX: assert fuid != nuid
+        # XXX: assert fuid != nuid
 
     def test_hasRelationship(self):
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument',title='Foo', id='c')
+
+        # Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+
+        self.assertEquals(a.hasRelationshipTo(b), 1)
+        self.assertEquals(a.hasRelationshipTo(b, "KnowsAbout"), 1)
+        self.assertEquals(a.hasRelationshipTo(b, "Foo"), 0)
+        self.assertEquals(a.hasRelationshipTo(c), 0)
+        self.assertEquals(a.hasRelationshipTo(c, "KnowsAbout"), 0)
+
+        # XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
+
+    def test_graph(self):
+        if not HAS_GRAPHVIZ:
+            return
+
+        # This just asserts that nothing went wrong
+        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
         c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
 
-        #Two made up kinda refs
+        # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
-
-        assert a.hasRelationshipTo(b) == 1
-        assert a.hasRelationshipTo(b, "KnowsAbout") == 1
-        assert a.hasRelationshipTo(b, "Foo") == 0
-        assert a.hasRelationshipTo(c) == 0
-        assert a.hasRelationshipTo(c, "KnowsAbout") == 0
-
-        #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
-
-
-    def test_graph(self):
-        if HAS_GRAPHVIZ:
-            # This just asserts that nothing went wrong
-            a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
-            b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
-            c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
-
-            #Two made up kinda refs
-            a.addReference(b, "KnowsAbout")
-            c.addReference(a, "Owns")
-            assert a.getReferenceMap()
-            assert a.getReferencePng()
+        c.addReference(a, "Owns")
+        refmap = a.getReferenceMap()
+        self.failUnless(refmap, refmap)
+        png = a.getReferencePng()
+        self.failUnless(png, png)
 
 
     def test_folderishDeleteCleanup(self):
@@ -415,27 +418,26 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         b = makeContent(folder, portal_type='DDocument',title='Bar', id='b')
         a.addReference(b, "KnowsAbout")
 
-        #again, lets assert the sanity of the UID and Ref Catalogs
+        # Again, lets assert the sanity of the UID and Ref Catalogs
         uc = self.portal.uid_catalog
         rc = self.portal.reference_catalog
 
         uids = uc.uniqueValuesFor('UID')
-        assert a.UID() in uids
-        assert b.UID() in uids
+        self.failUnless(a.UID() in uids, (a.UID(), uids))
+        self.failUnless(b.UID() in uids, (b.UID(), uids))
 
         refs = rc()
-        assert len(refs) == 1
+        self.assertEquals(len(refs), 1)
         ref = refs[0].getObject()
-        assert ref.targetUID == b.UID()
-        assert ref.sourceUID == a.UID()
+        self.assertEquals(ref.targetUID, b.UID())
+        self.assertEquals(ref.sourceUID, a.UID())
 
-        #Now Kill the folder and make sure it all went away
+        # Now Kill the folder and make sure it all went away
         self.folder._delObject("reftest")
         self.verifyBrains()
 
         uids = uc.uniqueValuesFor('UID')
-        #assert len(uids) == 0
-        assert len(rc()) == 0
+        self.assertEquals(len(rc()), 0)
 
     def test_reindexUIDCatalog(self):
         catalog = self.portal.uid_catalog
@@ -471,17 +473,20 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         test125 = makeContent(self.folder, portal_type="Refnode",
                               id="Test125")
 
+        field = dummy.Schema()['adds']
+
         expected = DisplayList([
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+        self.assertEquals(field.Vocabulary(dummy), expected)
 
         # We should have the option of nothing
-        dummy.Schema()['adds'].required = 0
-        dummy.Schema()['adds'].multiValued = 0
+        field = field.copy()
+        field.required = 0
+        field.multiValued = 0
 
         expected = DisplayList([
             ('', '<no reference>'),
@@ -490,7 +495,7 @@ class BaseReferenceableTests(ArcheSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+        self.assertEquals(field.Vocabulary(dummy), expected)
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference
@@ -535,9 +540,15 @@ class BaseReferenceableTests(ArcheSiteTestCase):
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
 
-        # The copy should'nt have references
+        # The copy should get a new UID
+        a_uid = a.UID()
+        ca_uid = copy_a.UID()
+        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+
+        # The copy shouldn't have references
         self.failUnlessEqual(copy_a.getRefs(), [])
         self.failIf(copy_a in b.getBRefs())
+
 
         # Original object should keep references
         self.failUnlessEqual(a.getRefs(), [b])
