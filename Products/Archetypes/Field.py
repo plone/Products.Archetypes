@@ -632,7 +632,7 @@ class ObjectField(Field):
             if IBaseUnit.isImplementedBy(bu):
                 return str(bu.getContentType())
         raw = self.getRaw(instance)
-        mimetype = getattr(aq_base(value), 'mimetype', None)
+        mimetype = getattr(aq_base(raw), 'mimetype', None)
         # some instances like OFS.Image have a getContentType method
         if mimetype is None:
             getCT = getattr(raw, 'getContentType', None)
