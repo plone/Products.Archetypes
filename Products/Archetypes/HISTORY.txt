@@ -5,6 +5,14 @@
    DEBUG in config.py to True.
    [yenzenz]
 
+ * Added IntDisplayList to the public module
+   [tiran]
+
+ * Added Sidney's AttributeValidator to BaseObject. It's disabled for now
+   because it might break third party software which relies on a broken
+   behavior. You can enable it by setting ATTRIBUTE_SECURITY to True.
+   [tiran]
+
 1.3.2-rc1 - 2005-02-26
 ======================
 
