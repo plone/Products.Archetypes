@@ -613,6 +613,36 @@ class Schema(Schemata, DefaultLayerContainer):
         field.schemata = schemataname
         self.addField(field)
 
+    def moveSchemata(self, name, direction):
+        """ move a schemata to left (direction=-1) or to right
+            (direction=1)
+        """
+        if not direction in (-1, 1):
+            raise ValueError('direction must be either -1 or 1')
+
+        fields = self.fields()
+        fieldnames = [f.getName() for f in fields]
+        schemata_names = self.getSchemataNames()
+
+        d = {}
+        for s_name in self.getSchemataNames():
+            d[s_name] = self.getSchemataFields(s_name)
+        for f in fieldnames: self.delField(f)
+
+        pos = schemata_names.index(name)
+        if direction == -1:
+            if pos > 0:
+                schemata_names.remove(name)
+                schemata_names.insert(pos-1, name)
+        if direction == 1:
+            if pos < len(schemata_names):
+                schemata_names.remove(name)
+                schemata_names.insert(pos+1, name)
+                
+        for s_name in schemata_names:
+            for f in fields:
+                if f.schemata == s_name:
+                    self.addField(f)
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

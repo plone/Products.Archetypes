@@ -84,6 +84,28 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('otto')), ['z'])
         self.schema.changeSchemataForField('z','waldi')
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar']) 
+
+
+    def testMoveSchemata1(self):
+        self.schema.moveSchemata('waldi', -1)
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
+        self.schema.moveSchemata('waldi', 1)
+        self.assertEqual(self.schema.getSchemataNames(), ['nasbaer', 'waldi', 'edgar'])
+        self.schema.moveSchemata('waldi', 1)
+        self.assertEqual(self.schema.getSchemataNames(), ['nasbaer', 'edgar', 'waldi'])
+        self.schema.moveSchemata('waldi', 1)
+        self.assertEqual(self.schema.getSchemataNames(), ['nasbaer', 'edgar', 'waldi'])
+      
+    def testMoveSchemata2(self):
+        self.schema.moveSchemata('edgar', 1)
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
+        self.schema.moveSchemata('edgar', -1)
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'edgar', 'nasbaer'])
+        self.schema.moveSchemata('edgar', -1)
+        self.assertEqual(self.schema.getSchemataNames(), ['edgar', 'waldi', 'nasbaer'])
+        self.schema.moveSchemata('edgar', -1)
+        self.assertEqual(self.schema.getSchemataNames(), ['edgar', 'waldi', 'nasbaer'])
+      
         
 
 if __name__ == '__main__':
