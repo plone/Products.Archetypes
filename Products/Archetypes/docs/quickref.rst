@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/19 12:07:14 $
-:Version: $Revision: 1.5 $
+:Date: $Date: 2003/05/19 16:33:38 $
+:Version: $Revision: 1.6 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -20,12 +20,13 @@ fields, widgets, and validators; and fourth, in automating
 transformations of rich content.
 
 The project is hosted on the `Archetypes Project`_ at
-`SourceForge`_. Other sources of information include the documentation
-included in the download under the `docs`_ directory.
+`SourceForge`_. The latest version of this document can be always
+found under the under the `docs`_ directory of Archetypes.
 
 .. _SourceForge: http://www.sourceforge.net
 .. _Archetypes Project: http://sourceforge.net/projects/archetypes
-.. _docs: .
+.. _docs: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/Archetypes/docs
+
 
 Installation
 ------------
@@ -136,10 +137,10 @@ default
 vocabulary
   This parameter specifies a vocabulary. It can be given either
   as a static instance of DisplayList or as a method name (it has to
-  be the name as a string). This method is then called and the result
-  is taken as vocabulary. Thus it should be a ``DisplayList``, too.
+  be the name as a string). The method is called and the result
+  is taken as the vocabulary. The method should return a ``DisplayList``.
 
-  The contents of the vocabulary are then the ones which can be
+  The contents of the vocabulary are used as the values which can be
   choosen from to fill this field.
 
   An example for a ``DisplayList`` usage can be found in the 
@@ -150,8 +151,8 @@ enforceVocabulary
   of ``vocabulary`` upon validation
 
 multiValued
-  If set allows the field to have multiple values (eg: a
-  list) instead of a single one
+  If set, allows the field to have multiple values (eg. a
+  list) instead of a single value
 
 isMetadata
   If set, the field is considered metadata
@@ -159,12 +160,12 @@ isMetadata
 accessor [#]_
   Name of the method that will be used for getting data out
   of the field. If the method already exists, nothing is done. If the
-  method doesnt exists, Archetypes will generate a basic method for you.
+  method doesn't exist, Archetypes will generate a basic method for you.
 
 mutator
   Name of the method that will be used for changing the value
   of the field. If the method already exists, nothing is done. If the
-  method doesnt exists, Archetypes will generate a basic method for you.
+  method doesn't exist, Archetypes will generate a basic method for you.
 
 mode
   One of ``r``, ``w`` or ``rw``. If ``r``, only the accessor is
@@ -226,11 +227,11 @@ Here is an example of a schema (from 'examples/SimpleType.py')::
 
 
 .. [#] Depending on the mode of each Field in the Schema the runtime system
-   will look for an accessor or mutator. If for example the mode of a field is
-   "rw" (as is the default) then the generator will ensure that accessors and
-   mutators exist for that field. This can happen one of two ways, either as a
-   developer you define the methods directly on your class, or you let the
-   generator provide them for you. If you don't require specialized logic then
+   will look for an accessor or mutator. If, for example, the mode of a field is
+   "rw" (as is the default), then the generator will ensure that accessors and
+   mutators exist for that field. This can happen one of two ways: either
+   you define the methods directly on your class, or you let the
+   generator provide them for you. If you don't require specialized logic, then
    letting the generator create these methods on your new type is a good idea.
 
    The format for accessors and mutators is as follows::
@@ -243,7 +244,7 @@ Here is an example of a schema (from 'examples/SimpleType.py')::
 Validators
 ----------
 
-Archetypes also provides some validators. You use them by
+Archetypes provides some pre-defined validators. You use them by
 passing a sequence of strings in the ``validator`` field property, each
 string being a name of a validator. The validators and the conditions
 they test are:
@@ -289,13 +290,13 @@ error messaging, and the lack of support for separators in SSNs, phone
 numbers, and ZIP codes.
 
 There are also hooks for pre and post validation that can be used to
-assert things about the entire object, these are as follows::
+assert things about the entire object. These hooks are::
 
   pre_validate(self, REQUEST, errors)
   post_validate(self, REQUEST, errrors)
 
-You must then extract values from ``REQUEST`` and write values into ``errors``
-with the field name as the key. If ``pre_validate`` throws errors then
+You must extract values from ``REQUEST`` and write values into ``errors``
+using the field name as the key. If ``pre_validate`` throws errors, then
 other custom validators (including post) will not be called.
 
 Writing a custom validator
@@ -335,7 +336,8 @@ Individual widgets may have additional properties.
 attributes
    Used for??
 
-description: The tooltip for this field. Appears onFocus.
+description
+  The tooltip for this field. Appears in response to ``onFocus``.
 
 description_msgid
   i18n id for the description
@@ -354,7 +356,7 @@ Views
 
 Views are auto-generated for you by default, based on the options you
 specified on your ``Schema`` (Widgets, Fields, widget labels, etc.) if
-you use the default FTI actions (eg: dont provide an ``actions``
+you use the default FTI actions (eg: don't provide an ``actions``
 attribute in your class. See `Additional notes about Factory Type
 Information`_).
 
@@ -362,24 +364,24 @@ Customizing Views
 *****************
 
 If you want only to override a few parts of the
-generated View, like the header or footer you can:
+generated View, like the header or footer, you can:
 
 1. Create a template named ``${your_portal_type_lowercase}_view`` [#]_
 
-2. On this template you may provide the following macros::
+2. On this template, you may provide the following macros::
 
      header
      body
      footer
 
-3. When building the auto-generated view, archetypes will look for
-   these macros and include them in the view if available. Note that
+3. When building the auto-generated view, archetypes looks for
+   these macros and includes them in the view, if available. Note that
    the body macro overrides the auto-generated list of fields/values.
 
 .. [#] Currently, this is only implemented for the auto-generated
    ``view`` template.
 
-or, for customizing only a widget:
+Or, for customizing only a widget:
 
 1. Set the attributes ``macro_view`` or ``macro_edit`` to the location
    of your custom macro upon instantiation of the Widget.
@@ -453,7 +455,7 @@ Storage
 -------
 
 There are a few basic storages available by default on Archetypes,
-including storages that store data on SQL. Heres a listing:
+including storages that store data on SQL. Here's a listing:
 
 AttributeStorage
   Simply stores the attributes right into the instance.
@@ -467,13 +469,13 @@ ReadOnlyStorage
 
 ObjectManagedStorage
   Uses the ``ObjectManager`` methods to keep the attribute inside the
-  instance. Allows to make a folderish content object behave like a
+  instance. Allows you to make a folderish content object behave like a
   simple content object.
 
 ``*SQLStorage``
   Experimental storage layer, which puts the data inside
-  SQL. Available variations are: MySQL and PostGRES. Theres a initial
-  implementation of a Oracle storage, but it isn't tested at the
+  SQL. Available variations are: MySQL and PostGRES. There's an initial
+  implementation of an Oracle storage, but it isn't tested at the
   moment.
 
 How to write your own SQLStorage
@@ -504,7 +506,7 @@ Archetypes currently has a few sample marshallers, but they are
 somewhat experimental (there are no tests to confirm that they work,
 and that they will keep working). One of the sample marshallers is the
 ``RFC822Marshaller``, which does a job very similar to what CMF does
-when using FTP and WebDAV with content types. Here's what happen,
+when using FTP and WebDAV with content types. Here's what happens,
 basically:
 
 1. Find the primary field for the content object, if any.
@@ -513,7 +515,7 @@ basically:
 
 3. Build a dict with all the other fields and its values.
 
-4. use the function ``formatRFC822Headers`` from ``CMFCore.utils`` to
+4. Use the function ``formatRFC822Headers`` from ``CMFCore.utils`` to
    encode the dict into RFC822-like fields.
 
 5. Append the primary field content as the body.
@@ -531,7 +533,7 @@ primary field.
 3. For each of the headers, we call the mutator of the given matching
 field with the header value.
 
-Thats it.
+That's it.
 
 An example of using a Marshaller
 ********************************
@@ -557,10 +559,16 @@ one of the arguments for the Schema. For example::
 Examples and more information
 -----------------------------
 
-Examples can be found on the ArchExample product, that is include in
+Examples can be found on the ArchExample product, that is included in
 the download. You can also `browse the cvs repository`_.
 
 .. _browse the cvs repository: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/
+
+Special Thanks
+--------------
+
+To Vladimir Iliev, for contributing with i18n and lots of other nice
+ideas and Bill Schindler, for lots of nice patches and reviewing documentation.
 
 
 ..
