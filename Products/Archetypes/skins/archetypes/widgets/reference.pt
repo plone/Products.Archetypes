@@ -77,12 +77,13 @@
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
               <tal:block tal:define="item_tabindex tabindex/next;
-                                     item_id string:${fieldName}_${item_tabindex}">
+                                   item_id string:${fieldName}_${item_tabindex};
+                                   no_ref python: value is None and item == ''">
                 <input class="noborder"
                        tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
-                                       checked python:test(item in uids, 'checked', nothing);
+                                       checked python:test((item in uids) or no_ref, 'checked', nothing);
                                        tabindex item_tabindex;
                                        value item;
                                        id item_id;
@@ -105,11 +106,13 @@
                                     multiple python:multiVal and 'multiple' or None;
                                     tabindex tabindex/next;">
 
+             <tal:item tal:repeat="item vocab">
               <option selected="selected"
-                      tal:repeat="item vocab"
+                      tal:define="no_ref python: value is None and item == '';"
                       tal:attributes="value item;
-                                      selected python:test((item in uids), 'selected', '')"
+                                      selected python:test((item in uids) or no_ref, 'selected', '')"
                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
+             </tal:item>
             </select>
           </div>
 

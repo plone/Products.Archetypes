@@ -125,6 +125,9 @@
    1) was broken by design 2) was a possible memory eater.
    [tiran]
 
+ * Fixed [ 988948 ] Reference field: radio button "no reference" isn't checked
+   [tiran]
+   
 1.3.0-beta5 - 2004-08-06
 ========================
 
