@@ -196,6 +196,10 @@ class FileWidget(TypesWidget):
 
     def process_form(self, instance, field, form, empty_marker=None):
         """form processing that deals with binary data"""
+
+        delete = form.get('%s_delete' % field.getName(), empty_marker)
+        if delete is not empty_marker: return "DELETE_FILE", {}
+
         value = None
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)

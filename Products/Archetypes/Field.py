@@ -490,7 +490,7 @@ class FileField(StringField):
     _properties = StringField._properties.copy()
     _properties.update({
         'type' : 'file',
-        'default' : '',
+        'default' : None,
         'primary' : 0,
         'widget' : FileWidget,
         })
@@ -538,6 +538,10 @@ class FileField(StringField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+
+        if not value:
+            return
+        
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -545,6 +549,12 @@ class FileField(StringField):
                                                default=self.default,
                                                **kwargs)
         kwargs['mimetype'] = mimetype
+
+        if value=="DELETE_FILE":
+            if hasattr(aq_base(instance), '_FileField_types'):
+                delattr(aq_base(instance), '_FileField_types')
+            ObjectField.unset(self, instance, **kwargs)
+            return
 
         # FIXME: ugly hack
         try:
