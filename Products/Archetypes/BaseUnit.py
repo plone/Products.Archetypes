@@ -30,7 +30,7 @@ except ImportError:
     class idatastream(Interface):
         """ Dummy idatastream for when PortalTransforms isnt available """
 
-    
+
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 

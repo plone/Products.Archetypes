@@ -45,11 +45,11 @@ def getLanguage(instance, lang):
         # this may occurs during object construction
         # FIXME : in that case, we would like to get a default language from portal_properties
         return 'en'
-    
+
 class Field(DefaultLayerContainer):
     """
-    Extend `DefaultLayerContainer`. 
-    Implements `IField` and `ILayerContainer` interfaces. 
+    Extend `DefaultLayerContainer`.
+    Implements `IField` and `ILayerContainer` interfaces.
     Class security = public with default access = allow.
     Class attribute _properties is a dictionary containing all of a
     field's property values.
@@ -70,7 +70,7 @@ class Field(DefaultLayerContainer):
         'multiValued' : 0,
         'searchable' : 0,
         'isMetadata' : 0,
-        
+
         'accessor' : None,
         'edit_accessor' : None,
         'mutator' : None,
@@ -92,7 +92,7 @@ class Field(DefaultLayerContainer):
 
     def __init__(self, name, **kwargs):
         """
-        Assign name to __name__. Add properties and passed-in 
+        Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
@@ -131,10 +131,10 @@ class Field(DefaultLayerContainer):
         """
         Resolve that each validator is in the service. If validator is
         not, log a warning.
-        
-        We could replace strings with class refs and keep things impl 
+
+        We could replace strings with class refs and keep things impl
         the ivalidator in the list.
-        
+
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
         if type(self.validators) not in [type(()), type([])]:
@@ -147,8 +147,8 @@ class Field(DefaultLayerContainer):
 
     def validate(self, value):
         """
-        Validate passed-in value using all field validators. 
-        Return None if all validations pass; otherwise, return failed 
+        Validate passed-in value using all field validators.
+        Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
         for v in self.validators:
@@ -404,14 +404,14 @@ class FileField(StringField):
 
     def getContentType(self, instance):
         """Return the type of file of this object if known; otherwise,
-        return None."""       
+        return None."""
         if hasattr(aq_base(instance), '_FileField_types'):
             return instance._FileField_types.get(self.getName(), None)
         return None
 
     def set(self, instance, value, **kwargs):
         """
-        Assign input value to object. If mimetype is not specified, 
+        Assign input value to object. If mimetype is not specified,
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
@@ -494,7 +494,7 @@ class TextField(ObjectField):
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
 
     def getContentType(self, instance):
-        """Return the mime type of object if known or can be guessed; 
+        """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
         value = ''
         accessor = self.getEditAccessor(instance)
@@ -517,7 +517,7 @@ class TextField(ObjectField):
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         """
         Return value of object, transformed into requested mime type.
-        If no requested type, then return value in default type. If raw 
+        If no requested type, then return value in default type. If raw
         format is specified, try to transform data into the default output type
         or to plain text. If we are unable to transform data, return an empty
         string.
@@ -552,7 +552,7 @@ class TextField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         """
-        Assign input value to object. If mimetype is not specified, 
+        Assign input value to object. If mimetype is not specified,
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
@@ -602,7 +602,7 @@ class DateTimeField(ObjectField):
     def set(self, instance, value, **kwargs):
         """
         Check if value is an actual date/time value. If not, attempt
-        to convert it to one; otherwise, set to None. Assign all 
+        to convert it to one; otherwise, set to None. Assign all
         properties passed as kwargs to object.
         """
         if not value:
@@ -740,7 +740,7 @@ class ReferenceField(ObjectField):
             return str(value) == str(attrval)
 
     def set(self, instance, value, **kwargs):
-        """ Add one or more passed in references to the object. 
+        """ Add one or more passed in references to the object.
         Before setting the value the reference gets also be established
         in the reference tool
         """
@@ -823,7 +823,7 @@ class BooleanField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
-        """If value is not defined or equal to 0, set field to false; 
+        """If value is not defined or equal to 0, set field to false;
         otherwise, set to true."""
         if not value or value == '0':
             value = None ## False
