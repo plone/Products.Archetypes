@@ -12,13 +12,13 @@ HIGH_PRIORITY = 1
 LOW_PRIORITY  = 10
 
 class SchemaResult(object):
-        __slots__ = ('priority', 'schema', 'checksum', 'provider')
-
-        def __init__(self, priority=None, schema=None, checksum=None, provider=None):
-            self.priority = priority
-            self.schema = schema
-            self.checksum = checksum
-            self.provider = provider
+    __slots__ = ('priority', 'schema', 'checksum', 'provider')
+    
+    def __init__(self, priority=None, schema=None, checksum=None, provider=None):
+	self.priority = priority
+	self.schema = schema
+	self.checksum = checksum
+	self.provider = provider
             
 
 class Collector(Implicit):
@@ -168,6 +168,7 @@ class SchemaProvider(Implicit):
         return [p.provider for p in providers]
 
     def getSchemaEditor(self):
+        """override if you need an enhanced editor"""
 	return SchemaEditor(self.Schema(), self)
 
 	

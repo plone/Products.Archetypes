@@ -1,5 +1,6 @@
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import *
+from types import StringTypes
 
 class SchemaEditor(object):
     """An interface to manipulating a schema, given an instance of a schema
@@ -65,8 +66,17 @@ class SchemaEditor(object):
     
 
     #Convience methods
-    def assignStorage(self, storage):
+    def assignStorage(self, storage, *args, **kwargs):
         """Assign a new storage to everything in a schema"""
+
+        if type(storage) in StringTypes:
+            tool = getToolByName(self.context, 'archetypes_ttw_tool')
+            if tool:
+                for s in tool.storages():
+                    if s.title == storage:
+                        storage = s.klass(*args, **kwargs)
+                        break
+                    
         def setStorage(field, storage=storage):
             field.storage = storage
         self.enum(setStorage)
@@ -77,3 +87,4 @@ class SchemaEditor(object):
             field.provider = provider
         self.enum(setProvider)
         
+    
