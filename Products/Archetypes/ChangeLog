@@ -1,3 +1,13 @@
+2004-04-21  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Changed syntax for Field.validators. It accepts a dict:
+
+        {'strategy' : 'and', 'handlers' : () }
+
+      Where strategy is 'and' or 'or' and handlers is a tuple of validators.
+      With strategy 'and', every validator must succeed, with 'or' at least one
+      validator must succeed.
+
 2004-04-07  Sidnei da Silva  <sidnei@awkly.org>
 
         * Moved skins/zmi to www/zmi to avoid clash when installing skins.
