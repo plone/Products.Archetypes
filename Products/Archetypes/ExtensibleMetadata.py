@@ -86,7 +86,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator = 'setEffectiveDate',
             widget=CalendarWidget(
                 label="Effective Date",
-                description=("Date when the content should become available"
+                description=("Date when the content should become available "
                              "on the public site"),
                 label_msgid="label_effective_date",
                 description_msgid="help_effective_date",
@@ -139,7 +139,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'allowDiscussion')
-    def allowDiscussion(self, allowDiscussion=None):
+    def allowDiscussion(self, allowDiscussion=None, **kw):
         if allowDiscussion is not None:
             try:
                 allowDiscussion = int(allowDiscussion)
@@ -169,25 +169,23 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'CreationDate')
-    def CreationDate( self ):
-        """
-            Dublin Core element - date resource created.
+    def CreationDate(self):
+        """ Dublin Core element - date resource created.
         """
         # return unknown if never set properly
         return self.creation_date and self.creation_date.ISO() or 'Unknown'
 
     security.declarePublic( CMFCorePermissions.View,
                             'EffectiveDate')
-    def EffectiveDate( self ):
-        """
-            Dublin Core element - date resource becomes effective.
+    def EffectiveDate(self):
+        """ Dublin Core element - date resource becomes effective.
         """
         ed = self.schema['effectiveDate'].get(self)
         return ed and ed.ISO() or 'None'
 
     security.declarePublic( CMFCorePermissions.View,
                             'ExpirationDate')
-    def ExpirationDate( self ):
+    def ExpirationDate(self):
         """
             Dublin Core element - date resource expires.
         """
@@ -196,7 +194,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'Date')
-    def Date( self ):
+    def Date(self):
         """
         Dublin Core element - default date
         """
@@ -226,7 +224,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'isEffective')
-    def isEffective( self, date ):
+    def isEffective(self, date):
         """ Is the date within the resource's effective range? """
         effectiveDate = self.schema['effectiveDate'].get(self)
         expirationDate = self.schema['effectiveDate'].get(self)
@@ -238,7 +236,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'isExpired')
-    def isExpired( self, date=None ):
+    def isExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
             # XXX we need some unittesting for this
@@ -252,10 +250,9 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'created')
-    def created( self ):
-        """
-            Dublin Core element - date resource created,
-              returned as DateTime.
+    def created(self):
+        """Dublin Core element - date resource created,
+        returned as DateTime.
         """
         # allow for non-existent creation_date, existed always
         date = getattr( self, 'creation_date', None )
@@ -263,19 +260,17 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'modified')
-    def modified( self ):
-        """
-            Dublin Core element - date resource last modified,
-              returned as DateTime.
+    def modified(self):
+        """Dublin Core element - date resource last modified,
+        returned as DateTime.
         """
         return self.modification_date
 
     security.declareProtected(CMFCorePermissions.View,
                               'effective')
-    def effective( self ):
-        """
-            Dublin Core element - date resource becomes effective,
-              returned as DateTime.
+    def effective(self):
+        """Dublin Core element - date resource becomes effective,
+        returned as DateTime.
         """
         effective = self.schema['effectiveDate'].get(self)
         if effective is None:
@@ -284,10 +279,9 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'expires')
-    def expires( self ):
-        """
-            Dublin Core element - date resource expires,
-              returned as DateTime.
+    def expires(self):
+        """Dublin Core element - date resource expires,
+        returned as DateTime.
         """
         expires = self.schema['expirationDate'].get(self)
         if expires is None:
@@ -327,9 +321,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     # XXX Could this be simply protected by ModifyPortalContent ?
     security.declarePrivate('setModificationDate')
     def setModificationDate(self, modification_date=None):
-        """
-            Set the date when the resource was last modified.
-            When called without an argument, sets the date to now.
+        """Set the date when the resource was last modified.
+        When called without an argument, sets the date to now.
         """
         if not modification_date:
             self.modification_date = DateTime()
@@ -344,7 +337,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'Creator')
-    def Creator( self ):
+    def Creator(self):
         # XXX: fixme using 'portal_membership' -- should iterate over
         #       *all* owners
         "Dublin Core element - resource creator"
@@ -355,23 +348,22 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'Publisher')
-    def Publisher( self ):
-        "Dublin Core element - resource publisher"
+    def Publisher(self):
+        """Dublin Core element - resource publisher"""
         # XXX: fixme using 'portal_metadata'
         return 'No publisher'
 
     security.declareProtected(CMFCorePermissions.View,
                               'ModificationDate')
-    def ModificationDate( self ):
-        """
-            Dublin Core element - date resource last modified.
+    def ModificationDate(self):
+        """ Dublin Core element - date resource last modified.
         """
         return self.modified().ISO()
 
     security.declareProtected(CMFCorePermissions.View,
                               'Type')
-    def Type( self ):
-        "Dublin Core element - Object type"
+    def Type(self):
+        """Dublin Core element - Object type"""
         if hasattr(aq_base(self), 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:
@@ -380,8 +372,8 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'Identifier')
-    def Identifier( self ):
-        "Dublin Core element - Object ID"
+    def Identifier(self):
+        """Dublin Core element - Object ID"""
         # XXX: fixme using 'portal_metadata' (we need to prepend the
         #      right prefix to self.getPhysicalPath().
         return self.absolute_url()
@@ -392,9 +384,8 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'content_type')
-    def content_type( self ):
-        """
-            WebDAV needs this to do the Right Thing (TM).
+    def content_type(self):
+        """ WebDAV needs this to do the Right Thing (TM).
         """
         return self.Format()
     #
@@ -403,9 +394,8 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(CMFCorePermissions.View,
                               'getMetadataHeaders')
-    def getMetadataHeaders( self ):
-        """
-            Return RFC-822-style headers.
+    def getMetadataHeaders(self):
+        """ Return RFC-822-style headers.
         """
         hdrlist = []
         hdrlist.append( ( 'Title', self.Title() ) )
@@ -427,19 +417,18 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
 
     security.declarePrivate( '_editMetadata' )
-    def _editMetadata( self
-                     , title=_marker
-                     , subject=_marker
-                     , description=_marker
-                     , contributors=_marker
-                     , effective_date=_marker
-                     , expiration_date=_marker
-                     , format=_marker
-                     , language=_marker
-                     , rights=_marker
-                     ):
-        """
-            Update the editable metadata for this resource.
+    def _editMetadata(self
+                      , title=_marker
+                      , subject=_marker
+                      , description=_marker
+                      , contributors=_marker
+                      , effective_date=_marker
+                      , expiration_date=_marker
+                      , format=_marker
+                      , language=_marker
+                      , rights=_marker
+                      ):
+        """ Update the editable metadata for this resource.
         """
         if title is not _marker:
             self.setTitle( title )
@@ -478,8 +467,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                            , rights
                            , REQUEST
                            ):
-        """
-            Update metadata from the ZMI.
+        """ Update metadata from the ZMI.
         """
         self._editMetadata( title, subject, description, contributors
                           , effective_date, expiration_date
@@ -492,31 +480,31 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'editMetadata')
     def editMetadata(self
-                   , title=''
-                   , subject=()
-                   , description=''
-                   , contributors=()
-                   , effective_date=None
-                   , expiration_date=None
-                   , format='text/html'
-                   , language='en-US'
-                   , rights=''
-                    ):
+                     , title=''
+                     , subject=()
+                     , description=''
+                     , contributors=()
+                     , effective_date=None
+                     , expiration_date=None
+                     , format='text/html'
+                     , language='en-US'
+                     , rights=''
+                     ):
         """
         used to be:  editMetadata = WorkflowAction(_editMetadata)
         Need to add check for webDAV locked resource for TTW methods.
         """
         self.failIfLocked()
         self._editMetadata(title=title
-                     , subject=subject
-                     , description=description
-                     , contributors=contributors
-                     , effective_date=effective_date
-                     , expiration_date=expiration_date
-                     , format=format
-                     , language=language
-                     , rights=rights
-                     )
+                           , subject=subject
+                           , description=description
+                           , contributors=contributors
+                           , effective_date=effective_date
+                           , expiration_date=expiration_date
+                           , format=format
+                           , language=language
+                           , rights=rights
+                           )
         self.reindexObject()
 
 
