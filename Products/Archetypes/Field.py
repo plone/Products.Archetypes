@@ -946,7 +946,7 @@ class ReferenceField(ObjectField):
         if value:
             return value
         else:
-            return self._Vocabulary(content_instance)
+            return self._Vocabulary(content_instance).sortedByValue()
 
     def _Vocabulary(self, content_instance=None):
         results = []
