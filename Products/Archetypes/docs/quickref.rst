@@ -3,7 +3,7 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2004/03/30 19:11:42 $
+:Date: $Date$
 :Version: $Revision: 1.12 $
 :Web site: http://sourceforge.net/projects/archetypes
 

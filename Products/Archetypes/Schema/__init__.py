@@ -1,5 +1,6 @@
 from __future__ import nested_scopes
-from types import ListType, TupleType
+from types import ListType, TupleType, StringType
+import warnings
 
 from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
@@ -12,6 +13,7 @@ from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes.exceptions import SchemaException
+from Products.Archetypes.exceptions import ReferenceException
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base, Explicit
@@ -166,20 +168,38 @@ class Schemata(Base):
     def addField(self, field):
         """Adds a given field to my dictionary of fields."""
         field = aq_base(field)
-        if IField.isImplementedBy(field):
-            name = field.getName()
-            if getattr(field, 'primary', False):
-                res = self.hasPrimary()
-                if res is not False and name != res.getName():
-                    raise SchemaException("Tried to add '%s' as primary field "\
-                             "but %s already has the primary field '%s'." % \
-                             (name, repr(self), res.getName())
-                         )
-            if name not in self._names:
-                self._names.append(name)
-            self._fields[name] = field
-        else:
+        self._validateOnAdd(field)
+        name = field.getName()
+        if name not in self._names:
+            self._names.append(name)
+        self._fields[name] = field
+
+    def _validateOnAdd(self, field):
+        """Validates fields on adding and bootstrapping
+        """
+        # interface test
+        if not IField.isImplementedBy(field):
             raise ValueError, "Object doesn't implement IField: %r" % field
+        name = field.getName()
+        # two primary fields are forbidden
+        if getattr(field, 'primary', False):
+            res = self.hasPrimary()
+            if res is not False and name != res.getName():
+                raise SchemaException("Tried to add '%s' as primary field "\
+                         "but %s already has the primary field '%s'." % \
+                         (name, repr(self), res.getName())
+                      )
+        # Do not allowed unqualified references
+        if field.type in ('reference', ):
+            relationship = getattr(field, 'relationship', '')
+            if type(relationship) is not StringType or len(relationship) == 0:
+                raise ReferenceException("Unqualified relationship or "\
+                          "unsupported relationship var type in field '%s'. "\
+                          "The relationship qualifer must be a non empty "\
+                          "string." % name
+                      ) 
+        
+        
 
     def __delitem__(self, name):
         if not self._fields.has_key(name):
@@ -231,6 +251,9 @@ InitializeClass(Schemata)
 
 
 class WrappedSchemata(Schemata, Explicit):
+    """
+    Wrapped Schemata
+    """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -354,8 +377,8 @@ class BasicSchema(Schemata):
         """
         Initialize a Schema.
 
-        The first positional argument may be a sequence of Fields. Otherwise,
-        args is taken to be a list of Fields.
+        The first positional argument may be a sequence of
+        Fields. (All further positional arguments are ignored.)
 
         Keyword arguments are added to my properties.
         """
@@ -369,6 +392,11 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
+                msg = 'You are passing positional arguments to the ' \
+                      'Schema constructor. ' \
+                      'Please consult the docstring for %s.BasicSchema.__init__' % \
+                      (self.__class__.__module__,)
+                warnings.warn(msg, UserWarning)
                 for field in args:
                     self.addField(args[0])
 
@@ -588,6 +616,9 @@ InitializeClass(BasicSchema)
 
 
 class Schema(BasicSchema, SchemaLayerContainer):
+    """
+    Schema
+    """
 
     __implements__ = ILayerRuntime, ILayerContainer, ISchema
 
@@ -643,6 +674,10 @@ InitializeClass(Schema)
 
 
 class WrappedSchema(Schema, Explicit):
+    """
+    Wrapped Schema
+    """
+
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
@@ -650,6 +685,9 @@ InitializeClass(WrappedSchema)
 
 
 class ManagedSchema(Schema):
+    """
+    Managed Schema
+    """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

@@ -5,7 +5,7 @@ from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
 from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.Storage import StorageLayer, type_map
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 
@@ -125,7 +125,7 @@ class BaseSQLStorage(StorageLayer):
 
     def initializeInstance(self, instance, item=None, container=None):
         if (self.is_initialized(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
         fields = instance.Schema().fields()
@@ -226,7 +226,7 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be cleaned twice
             return
         # the object is being deleted. remove data from sql.  but

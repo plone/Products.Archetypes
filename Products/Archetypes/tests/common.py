@@ -2,7 +2,7 @@
 # ArchetypesTestCase and ArcheSiteTestCase classes
 #
 
-# $Id: common.py,v 1.3.24.5 2004/06/23 14:36:02 tiran Exp $
+# $Id$
 
 from Testing import ZopeTestCase
 
@@ -25,13 +25,6 @@ else:
     config._config.rest_output_encoding = 'ascii'
     config._config.rest_header_level = 3
     del config
-
-def createDummyInContext(klass, id, context):
-    dummy = klass(oid=id)
-    dummy = dummy.__of__(context)
-    dummy.initializeArchetype()
-    setattr(context, id, dummy)
-    return dummy
 
 # Import Interface for interface testing
 try:
@@ -96,4 +89,22 @@ else:
     hasArcheSiteTestCase = True
 
 from Products.Archetypes.tests import PACKAGE_HOME
+
+from Products.Archetypes.public import registerType, process_types, listTypes
+from Products.Archetypes.config import PKG_NAME
+
+def gen_class(klass, schema=None):
+    """generats and registers the klass
+    """
+    if schema is not None:
+        klass.schema = schema.copy()
+    registerType(klass)
+    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
+def mkDummyInContext(klass, oid, context, schema=None):
+    gen_class(klass, schema)
+    dummy = klass(oid=oid).__of__(context)
+    setattr(context, oid, dummy)
+    dummy.initializeArchetype()
+    return dummy
 

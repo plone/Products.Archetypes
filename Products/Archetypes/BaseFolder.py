@@ -76,6 +76,9 @@ class BaseFolderMixin(CatalogMultiplex,
         CatalogMultiplex.manage_beforeDelete(self, item, container)
         SkinnedFolder.manage_beforeDelete(self, item, container)
 
+        #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
+        self._v_cp_refs = None
+
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'manage_delObjects')
@@ -128,6 +131,18 @@ class BaseFolderMixin(CatalogMultiplex,
         """We have to override setTitle here to handle arbitrary
         arguments since PortalFolder defines it."""
         self.getField('title').set(self, value, **kwargs)
+
+    def __getitem__(self, key):
+        """Overwrite __getitem__
+
+        At first it's using the BaseObject version. If the element can't be
+        retrieved from the schema it's using SkinnedFolder as fallback which
+        should be the ObjectManager's version.
+        """
+        try:
+            return BaseObject.__getitem__(self, key)
+        except KeyError:
+            return SkinnedFolder.__getitem__(self, key)
 
     # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
     # as it insists on creating folders of type "Folder".

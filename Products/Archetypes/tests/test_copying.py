@@ -1,7 +1,7 @@
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 
-$Id: test_copying.py,v 1.1.2.4 2004/07/04 22:00:26 shh42 Exp $
+$Id$
 """
 
 import os, sys

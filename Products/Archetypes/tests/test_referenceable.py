@@ -127,6 +127,44 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
+    def test_renamecontainerKeepsReferences2( self ):
+        # test for [ 1013363 ] References break on folder rename
+        folderA = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='folderA')
+        objA = makeContent(self.folder.folderA,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='objA')
+
+        folderB = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='folderB')
+        objB = makeContent(self.folder.folderB,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='objB')
+                                                                                 
+        objA.addReference(objB)
+
+        a,b = self.verifyBrains()
+        get_transaction().commit(1)
+
+        self.assertEquals(objB.getBRefs(), [objA])
+        self.assertEquals(objA.getRefs(), [objB])
+
+        # now rename folder B and see if objA still points to objB
+
+        self.folder.manage_renameObject(id='folderB',
+                                        new_id='folderC')
+        c, d = self.verifyBrains()
+
+        # check references
+        self.assertEquals(objB.getBRefs(), [objA])
+        self.assertEquals(objA.getRefs(), [objB])
+        
     def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
 

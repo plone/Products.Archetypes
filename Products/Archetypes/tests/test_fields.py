@@ -81,10 +81,8 @@ if not ZOPE_LINES_IS_TUPLE_TYPE:
 schema = Schema(tuple(field_instances))
 
 class Dummy(BaseContentMixin):
-    schema = schema
     def Title(self): return 'Spam' # required for ImageField
 
-del schema
 
 class FakeRequest:
 
@@ -96,19 +94,14 @@ class FakeRequest:
 class ProcessingTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        ArcheSiteTestCase.afterSetUp(self)
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
+                                      schema=schema)
         txt_file.seek(0)
         img_file.seek(0)
 
     def makeDummy(self):
-        portal = self.getPortal()
-        dummy = Dummy(oid='dummy')
-        dummy.initializeArchetype()
-        dummy = dummy.__of__(portal)
-        portal.dummy = dummy
-        self._dummy = dummy
-        return dummy
+        return self._dummy
 
     def test_processing(self):
         dummy = self.makeDummy()

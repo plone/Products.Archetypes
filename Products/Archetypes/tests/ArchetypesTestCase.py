@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.8 2004/07/22 17:42:28 dpunktnpunkt Exp $
+# $Id$
 
 from Testing import ZopeTestCase
 

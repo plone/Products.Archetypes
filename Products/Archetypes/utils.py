@@ -246,9 +246,11 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         if type(key) not in (StringType, IntType):
-            raise TypeError('DisplayList keys must be strings')
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+                            type(key))
         if type(msgid) not in (StringType, NoneType):
-            raise TypeError('DisplayList msg ids must be strings')
+            raise TypeError('DisplayList msg ids must be strings, got %s' %
+                            type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -271,7 +273,8 @@ class DisplayList:
     def getValue(self, key, default=None):
         "get value"
         if type(key) not in (StringType, IntType):
-            raise TypeError('DisplayList keys must be strings')
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+                            type(key))
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
@@ -282,7 +285,8 @@ class DisplayList:
     def getMsgId(self, key):
         "get i18n msgid"
         if type(key) is not StringType:
-            raise TypeError('DisplayList msg ids must be strings')
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+                            type(key))
         if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
         else:
@@ -367,7 +371,8 @@ class Vocabulary(DisplayList):
         Get i18n value
         """
         if type(key) not in (StringType, IntType):
-            raise TypeError('DisplayList keys must be strings')
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+                            type(key))
         v = self._keys.get(key, None)
         value = default
         if v:
@@ -542,3 +547,24 @@ def unwrap_method(klass, name):
     new_method = getattr(klass, orig_name)
     delattr(klass, orig_name)
     setattr(klass, name, new_method)
+
+
+def _get_position_after(label, options):
+    position = 0 
+    for item in options:
+        if item['label'] != label:
+            continue
+        position += 1
+    return position
+
+def insert_zmi_tab_before(label, new_option, options):
+    _options = list(options)
+    position = _get_position_after(label, options)
+    _options.insert(position-1, new_option)
+    return tuple(_options)
+
+def insert_zmi_tab_after(label, new_option, options):
+    _options = list(options)
+    position = _get_position_after(label, options)
+    _options.insert(position, new_option)
+    return tuple(_options)

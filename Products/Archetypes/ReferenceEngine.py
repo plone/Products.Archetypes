@@ -583,7 +583,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
-        uc.uncatalog_object(self.getURL())
+        uc.uncatalog_object(object._getURL())
 
 
     ######

@@ -7,7 +7,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
-from Products.MimetypesRegistry.common import getToolByName
+from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
 #from Products.MimetypesRegistry.mime_types import text_plain, \

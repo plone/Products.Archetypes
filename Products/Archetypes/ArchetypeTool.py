@@ -384,12 +384,20 @@ def registerClasses(context, package, types=None):
                                   })
         klass.manage_options = tuple(options)
         generatedForm = getattr(module, addFormName)
+        icon=folderish and folder_icon or document_icon
+        if klass.__dict__.has_key('content_icon'):
+            icon = klass.content_icon
+        elif hasattr(klass, 'factory_type_information'):
+            factory_type_information = klass.factory_type_information
+            if factory_type_information.has_key('content_icon'):
+                icon = factory_type_information['content_icon']
+
         context.registerClass(
             t['klass'],
             constructors=(generatedForm,
                           constructor),
             visibility=None,
-            icon=folderish and folder_icon or document_icon,
+            icon=icon
             )
 
 def listTypes(package=None):
@@ -534,9 +542,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View,
                               'lookupTemplates')
     def lookupTemplates(self, instance=None):
+        """
+        lookup templates by giving an instance or a portal_type 
+        returns a DisplayList 
+        """        
         results = []
         if type(instance) is not StringType:
-            instance = instance.portal_type
+            instance = instance.meta_type
         try:
             templates = self._templates[instance]
         except KeyError:
@@ -554,6 +566,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def listTemplates(self):
         """list all the templates"""
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
+    
+    security.declareProtected(CMFCorePermissions.View,
+                              'isTemplateEnabled')
+    def isTemplateEnabled(self, type):
+        """checks if an type uses ITemplateMixin"""
+        # XXX this should check if ITemplateMixin is implemented
+        return type['schema'].has_key('layout')
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'bindTemplate')
@@ -582,11 +601,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     ## Type/Schema Management
     security.declareProtected(CMFCorePermissions.View,
                               'listRegisteredTypes')
-    def listRegisteredTypes(self, inProject=None):
-        """Return the list of sorted types"""
-        tt = getToolByName(self, "portal_types")
-        def isRegistered(type, tt=tt):
-            return tt.getTypeInfo(type['portal_type']) != None
+    def listRegisteredTypes(self, inProject=False):
+        """Return the list of sorted types"""        
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
@@ -600,8 +616,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         values = listTypes()
         values.sort(type_sort)
+
         if inProject:
-            values = [v for v in values if isRegistered(v)]
+            # portal_type can change (as it does after ATCT-migration), so we
+            # need to check against the content_meta_type of each type-info       
+            tt = getToolByName(self, "portal_types")     
+            meta_types= tt.listContentTypes(self, by_metatype=True)
+            values = [v for v in values if v['portal_type'] in meta_types]
 
         return values
 
@@ -705,12 +726,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         f_names = fields
         if not instances:
             for t in self.listTypes(package, type):
-                instance = t('')
+                instance = t('fake_instance')
+                instance._at_is_fake_instance = True
+                # XXX _is_fake_instance will go away in AT 1.4
+                instance._is_fake_instance = True
                 wrapped = instance.__of__(context)
                 wrapped.initializeArchetype()
                 #if isinstance(wrapped, DefaultDublinCoreImpl):
                 #    DefaultDublinCoreImpl.__init__(wrapped)
-                wrapped._is_fake_instance = True
                 instances.append(wrapped)
         for instance in instances:
             if schemata is not None:

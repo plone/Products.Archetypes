@@ -66,6 +66,11 @@ def install_archetypetool(self, out):
         if not hasattr(aq_base(at), 'catalog_map'):
             at.catalog_map = PersistentMapping()
 
+def install_tools(self, out):
+    # Backwards compat. People (eg: me!) may depend on that
+    install_archetypetool(self, out)
+    install_uidcatalog(self, out)
+
 def install_uidcatalog(self, out, rebuild=False):
 
     index_defs=( ('UID', 'FieldIndex'),
@@ -123,6 +128,7 @@ def install_referenceCatalog(self, out, rebuild=False):
                                       ('sourceUID', 'FieldIndex'),
                                       ('targetUID', 'FieldIndex'),
                                       ('relationship', 'FieldIndex'),
+                                      ('targetId', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
@@ -235,8 +241,6 @@ def install_indexes(self, out, types):
 
         for field in cls.schema.fields():
             if field.index:
-                if field.type == 'reference':
-                    raise SyntaxError('Index on reference fields aren\'t supported yet.')
 
                 if type(field.index) is StringType:
                     index = (field.index,)
@@ -276,6 +280,8 @@ def install_indexes(self, out, types):
                         catalog_name = parts[0][:str_idx]
                         parts[0] = parts[0][str_idx+1:]
                         catalog = getToolByName(self, catalog_name)
+                    else:
+                        catalog = portal_catalog
 
                     if use_column:
                         try:
@@ -380,21 +386,26 @@ def setupArchetypes(self, out, require_dependencies=True):
     install_archetypetool(self, out)
     install_uidcatalog(self, out, rebuild=False)
     install_referenceCatalog(self, out, rebuild=False)
+
+    # install skins and register templates
+    install_subskin(self, out, types_globals)
     install_templates(self, out)
 
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
                      product_skins_dir='skins',
-                     require_dependencies=True):
+                     require_dependencies=True,
+                     install_deps=1):
 
-    qi=getToolByName(self, 'portal_quickinstaller', None)
-    if qi is None:
-        setupArchetypes(self, out, require_dependencies=require_dependencies)
-    else:
-        if not qi.isProductInstalled('Archetypes'):
-            qi.installProduct('Archetypes')
-            print >>out, 'Installing Archetypes'
+    if install_deps:
+        qi=getToolByName(self, 'portal_quickinstaller', None)
+        if qi is None:
+            setupArchetypes(self, out, require_dependencies=require_dependencies)
+        else:
+            if not qi.isProductInstalled('Archetypes'):
+                qi.installProduct('Archetypes')
+                print >>out, 'Installing Archetypes'
 
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
@@ -408,14 +419,15 @@ def setupEnvironment(self, out, types,
 ## The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1,
-                 refresh_references=1):
+                 require_dependencies=1, refresh_references=1,
+                 install_deps=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir, require_dependencies)
+                     globals, product_skins_dir, require_dependencies,
+                     install_deps)
     if refresh_references and ftypes:
         rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()

@@ -18,6 +18,7 @@ from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
+from AccessControl import Unauthorized
 from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
@@ -25,6 +26,7 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
+from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
@@ -81,7 +83,7 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = IBaseObject
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -197,15 +199,13 @@ class BaseObject(Referenceable):
                 return ti.Title()
         return self.meta_type
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'getField')
+    security.declareProtected(CMFCorePermissions.View, 'getField')
     def getField(self, key, wrapped=False):
         """Return a field object
         """
         return self.Schema().get(key)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'getWrappedField')
+    security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
         """Get a field by id which is explicitly wrapped
         
@@ -344,11 +344,21 @@ class BaseObject(Referenceable):
     def __getitem__(self, key):
         """Play nice with externaleditor again
         """
+        # don't allow key access to hidden attributes
+        if key.startswith('_'):
+            raise Unauthorized, key
+
         schema = self.Schema()
         keys = schema.keys()
-        if key not in keys and key[:1] != "_": #XXX 2.2
-            return getattr(self, key, None) or \
-                   getattr(aq_parent(aq_inner(self)), key, None)
+
+        if key not in keys and not key.startswith('_'):
+            # XXX fix this in AT 1.4
+            value= getattr(aq_inner(self).aq_explicit, key, _marker) or \
+                   getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
+            if value is _marker:
+                raise KeyError, key
+            else:
+                return value
 
         field = schema[key]
         accessor = field.getEditAccessor(self)
@@ -859,10 +869,12 @@ class BaseObject(Referenceable):
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
-        # ok the RESPONSE is None for web traversal and sometimes the
-        # REQUEST isn't a HTTPRequest object but a dict
-        if hasattr(REQUEST, 'RESPONSE'):
-            REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
+
+        # Nothing has been found. Though it's not written anywere,
+        # from deep ZPublisher inspection it seems like
+        # we *SHOULD NOT* raise a notFoundError, but instead,
+        # return None and leave acquisition do it's job.
+        return
 
 InitializeClass(BaseObject)
 

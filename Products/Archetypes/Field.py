@@ -784,6 +784,7 @@ class FileField(ObjectField):
                 filename = value.name
             # Get only last part from a 'c:\\folder\\file.ext'
             filename = filename.split('\\')[-1]
+            value.seek(0) # rewind
             value = value.read()
             if mimetype is None:
                 mimetype, enc = guess_content_type(filename, value, mimetype)

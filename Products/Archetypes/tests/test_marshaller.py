@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.5.6.3 2004/06/23 14:36:02 tiran Exp $
+$Id$
 """
 
 import os, sys

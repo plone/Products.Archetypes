@@ -41,7 +41,7 @@ class IReference(Interface):
         """called when the refering source Object is
         about to be deleted"""
 
-    def getURL():
+    def _getURL():
         """the url used as the relative path based uid in the catalogs"""
 
 

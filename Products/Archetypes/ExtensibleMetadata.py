@@ -28,8 +28,8 @@ except NameError:
     True=1
     False=0
 
-FLOOR_DATE = DateTime( 1000, 0 ) # always effective
-CEILING_DATE = DateTime( 9999, 0 ) # never expires
+FLOOR_DATE = DateTime(1000, 0) # always effective
+CEILING_DATE = DateTime(2500, 0) # never expires
 
 ## MIXIN
 class ExtensibleMetadata(Persistence.Persistent):

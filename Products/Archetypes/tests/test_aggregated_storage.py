@@ -52,9 +52,8 @@ class AggregatedStorageTestsNoCache(ArcheSiteTestCase):
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])        
 
-        dummy = createDummyInContext(Dummy, id='dummy', context=portal)
-        dummy.schema = schema
-        self._instance = dummy
+        self._instance = mkDummyInContext(klass=Dummy, oid='dummy',
+                                          context=self.getPortal(), schema=schema)
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']

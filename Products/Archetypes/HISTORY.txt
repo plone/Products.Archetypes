@@ -1,8 +1,171 @@
+1.3.0-rc2 - 2004-09-04
+======================
+
+ * Removed class="error" from field.pt error message. It caused some ui
+   glitches.
+   [tiran]
+
+ * Fixed [ 1011658 ] portal_skins/archetypes folder disappeared after AT
+   reinstall. Under some circumstances the skins aren't properly registered.
+   [tiran]
+
+ * Fixed [ 1011533 ] AT CEILING date for expires will break DateIndex. Changed
+   CEILING_DATE from year 9999 to year 2500.
+   [tiran]
+
+ * Fixed [ 1012238 ] Cannot set field using boolean widget under IE.
+   [duncanb]
+
+ * Changed TemplateMixin.getDefaultLayout(): It first checks for an attribute
+   'default_view' then for 'immediate_view' from the FTI and at last it's using
+   'base_view' as fallback.
+   [runyan, tiran]
+
+ * Removed warning when trying to apply an index on a reference field from
+   install_indexes. Indexes on reference fields are fully supported again.
+   [tiran]
+
+ * Changed permission of BaseObject.getField() and getWrappedField() from
+   ModifyPortalContent to View. All mutators on fields are secured and it won't
+   make any harm to get a field. Besides it is currently possible getting a
+   field over archetype_tool.
+   [tiran]
+
+ * Fixed [ 1012344 ] 'NoneType' not callable error on CMFMember prefs page. Also
+   cleaned up the way how the value is calculated inside field.pt. Depending
+   on widget.populate it's either assigning edit_accessor or accessor to a var
+   and THEN it's calling the var (which is a method) when it's not None.
+   Sounds complex? Well the former version was much complexer.
+   [tiran]
+
+ * Subclasses TemplateMixin from ExtensionClass.Base, set default_view to None
+   in order to enable the immediate_view magic and made the getDefaultView()
+   method a little bit more efficient.
+   [tiran]
+
+ * Added a test for unqualified references to Schema to prevent user errors. A
+   relationship must be a non empty string. Also moved all field tests in Schema
+   to a new method _validateOnAdd().
+   [tiran]
+
+ * Added Danish translation. Thx to stonor!
+   [tiran]
+
+ * Added 'de-de' as fallback to the German translation.
+   [tiran]
+
+ * Applied fix from [ 924832 ] Widget:isVisible always returns 'visible' for not
+   DictType which is fixing a broken behavior for Widget.isVisible().
+
+ * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient.
+   [runyan]
+
+ * Temporary fix for [ 1012408 ] __getitem__ doesn't play nice which is backward
+   compatible except of three broken behaviors:
+   BaseObject.__getitem__ now throws an Unauthorized exception when trying to
+   get an item starting with _ and it throws a KeyError when trying to access
+   a nonexisting object. Also it's using explicit acquisition.
+
+ * Fixed unicodeTestIn.py: return False immediately when the list is None or empty.
+   [tiran]
+
+ * Widget.py: Changed some field.get(instance) calls to
+   field.getEditAccessor(instance)() to get rid of some sort of infinite loop
+   (in append_only code forTextAreaWidget).
+   [rafrombrc]
+
+ * Readded Extensions/utils.py:install_tools for backward compat.
+   [dreamcatcher]
+
+ * fixed edit view rendering of append_only textarea history in
+   widgets/textarea.pt data so whitespace is correct.
+   [rafrombrc]
+
+ * Fix a misbehavior on __bobo_traverse__ now that Tiran changed the __getitem__
+   behavior. Before that, __getitem__ was taking precedence and acquiring the
+   object itself, so never getting this far:
+   Nothing has been found. Though it's not written anywere, from deep ZPublisher
+   inspection it seems like we *SHOULD NOT* raise a notFoundError, but instead,
+   return None and leave acquisition do it's job.
+   [dreamcatcher]
+
+ * Fixed [ 1011111 ] mishandling of UID W.R.T layers.
+   The reference engine is now using _getCopy() mark the copy of an object with
+   a marker _v_is_cp so manage_afterAdd() can detect copies in order to reassign
+   a new UUID and remove the reference annotations.
+   [bcsaller, rochael]
+
+ * Fixed Alan's fix for [ 1012570 ] brains has no relative_url.
+   (note to myself: addable option on ReferenceField still needs lots of tests)
+   [dtremea]
+
+ * Fixed [ 1013265 ] last changes to Widget.py is highly inefficient.
+   [dtremea]
+
+ * Fixed LinesWidget according to [ 1013379 ] LinesField/widget broken.
+   [tiran]
+
+ * Fixed bug in VariableSchemaSupport.VarClassGen mentioned in the thread on the
+   AT devel mailing list. See "Warning: avoid changing your AT class' meta_type
+   when you have existing instances".
+   [mitchel, dreamcatcher, tiran]
+
+ * Corrected icon in ZMI; Added some utils for ZMI setup.
+   [gotcha]
+
+ * Changed unit test to work with an unpatched version of getToolByName to get
+   mimetyptes_registry and portal_transform.
+   [tiran]
+
+ * Fixed [ 1015956 ] getBestIcon can fail.
+   [ctheuni]
+
+ * Fixed [ 1015292 ] boolean widget error, [ 1015394 ] 1.3 branch field.pt sets
+   value = None inappropriately and another problem with field.pt value.
+   [tiran, alecacct]
+
+ * Fixed [ 1018821 ] _processInput in Field.py should rewind.
+   [batlogg]
+
+ * Part fix [ 1013363 ] (renaming of folders nukes all references to AT
+   objects inside them):
+   It works now for AT folders, but renaming of non-AT folders stil breaks refs
+   to their contained items so ATContentTypes based portals should be fine now
+   (except you rename the portal itself).
+   [zworkb]
+
+ * Added monkey patch for CMFCatalogAware, PortalContent and PortalFolder to
+   fix the second part of [ 1013363 ].
+   [tiran]
+
+ * Fixed [ 1019803 ] Bug in ArchetypeTool.py: getWidgets(), also renamed
+   _is_fake_instance to _at_is_fake_instance.
+   [johtha, tiran]
+
+ * Fixed [ 1018300 ] schema defined indexes are not set anymore.
+   [dtremea]
+
+ * Added targetId index to reference_catalog. It was removed earlier to make
+   the ref catalog more lightweight. However, it broke
+   ReferenceCatalog._queryFor.
+   [dpunktnpunkt]
+
+ * Explictly reinstall MimetypesRegistry, PortalTransforms and Archetypes when
+   running the migration. Before MTR and PT weren't reinstalled ever and AT
+   under some circumstances which were leading to annoying bug reports.
+   [tiran]
+
+ * Added StdoutStringIO to migration.py which is printing the input to stdout,
+   too. Also added some gimmicks to the migration: After 10 items a '.' is
+   printed to stdout and after 250 items a '*' is printed to stdout so you can
+   see how the migration is coming along.
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
- * Try to use BaseUnit for schema migration to keep the mimetype and the 
-   filename of a BaseUnit based field. Without the changes the mimetype of 
+ * Try to use BaseUnit for schema migration to keep the mimetype and the
+   filename of a BaseUnit based field. Without the changes the mimetype of
    TextField got lost.
    This should fix [ 1001446 ] Content type lost in migration from pre 1.3b4 to
    1.3b4
@@ -18,7 +181,7 @@
    fixes the problem with original_size: [ 1004323 ] "IOError: cannot identify
    image file" when uploading image
    [tiran]
-   
+
  * Fixed [ 1004510 ] folderlisting or plone_utils.browserDefault by adding an action
    'folderlisting' to folderish content types.
    [tiran]
@@ -38,7 +201,7 @@
    index.
    [alecacct]
 
- * Starting from NOW all attributes starting with '_at_' are reserved for 
+ * Starting from NOW all attributes starting with '_at_' are reserved for
    internal usage. You MUST NEITHER add NOR access any attributes starting
    with '_at_' in your content types.
   tiran]
@@ -48,7 +211,7 @@
    rather than a new one created
    [dm]
 
- * Fixed with problem MKCOL/MKD used by FTP/WebDAV and 
+ * Fixed with problem MKCOL/MKD used by FTP/WebDAV and
    BaseFolde.manage_addFolder. Now MKCOL/MKD are creating a sub folder with the
    type name of the current folder except when this behavior is overwritten
    by an attribute called _at_type_subfolder.
@@ -60,7 +223,7 @@
 
  * Fixed [ 1006491 ] File widget makes useless str(value) conversion
    [tiran, lurker]
-   
+
  * Fixed possible issue inside ArchetypeTool.getWidgets() by calling
    initializeArchetype() on the wrapped dummy instance.
    [tiran]
@@ -104,7 +267,7 @@
    Storing mimetype item objects in BaseUnit seemed to lead to memory leaks.
    [tiran]
 
- * Reenabled ints as DisplayList and Vocabulary keys. 
+ * Reenabled ints as DisplayList and Vocabulary keys.
    XXX: Add a comment to the documentation that users should take care when
    mixing strings and ints!
    [tiran]
@@ -134,7 +297,7 @@
    handle it but I got word from limi that we are allowed to add these features
    to the templates
    [tiran]
-   
+
  * Fixed [ 1005843 ] Stringfields should not default to '0' in search mode
    [tiran]
 
@@ -150,18 +313,18 @@
 
  * Template cleanups
    [dreamcatcher]
-   
+
  * ImageField: Fixed problem with empty image field and calls to getScale,
    getSize and tag()
    [tiran]
-   
+
  * Cleaned up the Extensions/utils.py function which are installing AT and it's
    dependencies. Added a method setupArchetypes() which is setting up the internals.
    These fixes are fixing the problem that AT don't seemed to be installed when
    it's installed from an AT based product.
    [tiran]
 
- * Schema: fixed a bug, it wasnt allowed to override a primary field by another 
+ * Schema: fixed a bug, it wasnt allowed to override a primary field by another
    primary field with the same name.
    [jensens]
 
@@ -174,24 +337,28 @@
    'error' class.
    [tiran]
 
-1.3.0-beta5 - 2004-08-06
+ * Fixed two bugs in ttw template registration. 1st the registration-tab was 
+   broken, and 2cd it can't deal with migrated ATCT.
+   [jensens]
+
+1.30beta5 - 2004-08-06
 ========================
 
  * Fixed forbidden access to schema methods when the schema was
    acccessed using archetype_tool.lookupType().
    [tiran]
-   
+
  * Fixed typo in widgets/reference.pt
    [tiran]
 
  * Do not depend on plone's document_byline template which is
    not available in CMF.
    [ajung, tiran]
-      
+
  * Applied patch from [ 997044 ] db_encoding parameter is lost
    in BaseSQLStorage.set
    [biza, tiran]
-   
+
  * Updated complex type to make it work inside Plone again. It's very
    usefull to test fields and widgets.
    [tiran]
@@ -206,17 +373,17 @@
 
  * Support unqualified references in reference graph tool
    [bcsaller]
-   
+
  * Added a test for mimetypes registry before adapter call in BaseUnit.update()
    with a more verbose error in the case the user hasn't updated MTR properly.
    [tiran]
 
- * Fixed Find Objects of uid catalog and reference catalog: Use the relative 
-   path (relative to the portal) of the object as uid instead of the full 
+ * Fixed Find Objects of uid catalog and reference catalog: Use the relative
+   path (relative to the portal) of the object as uid instead of the full
    physical path
    [tiran]
 
- * Added Rebuild Catalog tab to uid catalog and reference catalog to make the 
+ * Added Rebuild Catalog tab to uid catalog and reference catalog to make the
    life easier
    [tiran]
 
@@ -227,7 +394,7 @@
    [spamsch]
 
  * Catch Unauthorized exception in ExtensibleMetadata.allowDiscussion that could
-   be raised by the discussion tool when the authenticated users hasn't 
+   be raised by the discussion tool when the authenticated users hasn't
    ModifyPortalContent permissions.
    [tiran]
 
@@ -238,15 +405,15 @@
  * Added a check to Field._Vocabulary: A result from portal catalog must be a
    result from uid catalog, too.
    [ender]
-   
+
  * FileField/ImageField: Make sure we always get a wrapped object in content_class
    [tiran]
-   
+
  * ImageField: Fixed getScale/getSize methods, added tag() method
    [tiran]
 
  * session_save_form was using direct attr access in UT
-   code you must use Schema accessor so schema has a 
+   code you must use Schema accessor so schema has a
    security context
    REMEMBER: <BradB> "Free as in Free Iraq"
    [runyaga]
@@ -268,7 +435,7 @@
 
  * Fixed [ 1002481 ] Missing i18n: <any>, added at_search_any msgid.
    [tiran]
-   
+
 1.3.0-beta4 - 2004-07-09
 ========================
 
@@ -293,11 +460,11 @@
    to get field value (and edit_accessor calls getRaw).
    The problem was related to ReferenceFields not multivalued where
    getRaw always returns a list, instead of the single UID.
-   [deo]
+   [dtremea]
 
  * Added a flag refresh_references to Archetypes.Extensions.utils.installTypes
    (default False). When enabled it's using ZopeFindAndApply to find all
-   objects of the given types and refreshes their references. This is a 
+   objects of the given types and refreshes their references. This is a
    workaround but not a real fix for bug 997840.
    [tiran]
 
@@ -305,24 +472,24 @@
    [tiran]
 
  * Support Pdata (possible large data from OFS.Image) as type for FileField.
-   This is required to load large images and files based on OFS.Image into a 
+   This is required to load large images and files based on OFS.Image into a
    FileField.
    [tiran]
 
- * Merged sid's security branch. DefaultLayer based classes (Field, Widget) and 
+ * Merged sid's security branch. DefaultLayer based classes (Field, Widget) and
    schema are now subclassed from ExtensionsClass.Base.
    [dreamcatcher, tiran]
 
  * Fixed [ 994511 ] Field.py: Vocabulary cannot handle 2-tuple list
    [tiran]
 
- * Fixed creation_date field to be metadata again 
+ * Fixed creation_date field to be metadata again
    [tiran]
 
- * Fixed [ 944440 ] getMsgID method of DisplayList should be used 
+ * Fixed [ 944440 ] getMsgID method of DisplayList should be used
    [tiran]
 
- * Fixed [ 972091 ] base widget doesn't support visble attribute for view 
+ * Fixed [ 972091 ] base widget doesn't support visble attribute for view
   [tiran]
 
  * Added better traceback information to fixAfterRenameType
