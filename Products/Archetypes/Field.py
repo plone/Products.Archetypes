@@ -400,16 +400,6 @@ class Field(DefaultLayerContainer):
                 return 1
         return None
 
-    security.declarePublic('getStorageName')
-    def getStorageName(self):
-        """Return the storage name that is configured for this field
-        as a string"""
-        return self.storage.getName()
-
-    def getStorageType(self):
-        """Return the type of the storage of this field as a string"""
-        return className(self.storage)
-
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         """Return the widget name that is configured for this field as
@@ -485,12 +475,14 @@ class ObjectField(Field):
         'type' : 'object',
         'default_content_type' : 'application/octet',
         })
+        
+    security  = ClassSecurityInfo()
 
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
-            return self.storage.get(self.getName(), instance, **kwargs)
+            return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
@@ -514,25 +506,38 @@ class ObjectField(Field):
         # Remove acquisition wrappers
         value = aq_base(value)
         __traceback_info__ = (self.getName(), instance, value, kwargs)
-        self.storage.set(self.getName(), instance, value, **kwargs)
+        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
         __traceback_info__ = (self.getName(), instance, kwargs)
-        self.storage.unset(self.getName(), instance, **kwargs)
+        self.getStorage(instance).unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
         if not IStorage.isImplementedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
-        value = self.get(instance)
+        # raw=1 is required for TextField
+        value = self.get(instance, raw=1)
         self.unset(instance)
         self.storage = storage
         if hasattr(self.storage, 'initializeInstance'):
             self.storage.initializeInstance(instance)
         self.set(instance, value)
 
-    def getStorage(self):
+    def getStorage(self, instance=None):
         return self.storage
+
+    security.declarePublic('getStorageName')
+    def getStorageName(self, instance=None):
+        """Return the storage name that is configured for this field
+        as a string"""
+        return self.getStorage(instance).getName()
+
+    security.declarePublic('getStorageType')
+    def getStorageType(self, instance=None):
+        """Return the type of the storage of this field as a string"""
+        return className(self.getStorage(instance))
+
 
 class StringField(ObjectField):
     """A field that stores strings"""
@@ -551,7 +556,7 @@ class StringField(ObjectField):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = decode(aq_base(value), instance, **kwargs)
-        self.storage.set(self.getName(), instance, value, **kwargs)
+        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
 class FileField(StringField):
     """Something that may be a file, but is not an image and doesn't
@@ -731,7 +736,7 @@ class TextField(ObjectField):
         If we are unable to transform data, return an empty string. """
         try:
             kwargs['field'] = self
-            value = self.storage.get(self.getName(), instance, **kwargs)
+            value = self.getStorage(instance).get(self.getName(), instance, **kwargs)
             if not IBaseUnit.isImplementedBy(value):
                 return encode(value, instance, **kwargs)
         except AttributeError:
@@ -777,17 +782,6 @@ class TextField(ObjectField):
                              filename=kwargs.get('filename', ''))
 
         ObjectField.set(self, instance, value, **kwargs)
-
-    def setStorage(self, instance, storage):
-        if not IStorage.isImplementedBy(storage):
-            raise ObjectFieldException, "Not a valid Storage method"
-        value = self.get(instance, raw=1)
-        self.unset(instance)
-        self.storage = storage
-        if hasattr(self.storage, 'initializeInstance'):
-            self.storage.initializeInstance(instance)
-        self.set(instance, value)
-
 
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
@@ -1133,7 +1127,7 @@ class CMFObjectField(ObjectField):
 
     def get(self, instance, **kwargs):
         try:
-            return self.storage.get(self.getName(), instance, **kwargs)
+            return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # object doesnt exists
             tt = getToolByName(instance, 'portal_types', None)
@@ -1282,19 +1276,7 @@ class ImageField(ObjectField):
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            if self.sizes and has_pil:
-                for n, size in self.sizes.items():
-                    id = self.getName() + "_" + n
-                    try:
-                        # the following line may throw exceptions on types, if the
-                        # type-developer add sizes to a field in an existing
-                        # instance and a user try to remove an image uploaded before
-                        # that changed. The problem is, that the behavior for non
-                        # existent keys isnt defined. I assume a keyerror will be
-                        # thrown. Ignore that.
-                        self.storage.unset(id, instance, **kwargs)
-                    except KeyError:
-                        pass
+            self.removeScales(image)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
@@ -1391,6 +1373,23 @@ class ImageField(ObjectField):
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
+    def removeScales(self, instance):
+        """Remove the scaled image
+        """
+        if self.sizes:
+            for name, size in self.sizes.items():
+                id = self.getName() + "_" + name
+                try:
+                    # the following line may throw exceptions on types, if the
+                    # type-developer add sizes to a field in an existing
+                    # instance and a user try to remove an image uploaded before
+                    # that changed. The problem is, that the behavior for non
+                    # existent keys isn't defined. I assume a keyerror will be
+                    # thrown. Ignore that.
+                    self.getStorage(instance).unset(id, instance, **kwargs)
+                except KeyError:
+                    pass
+
     def createScales(self, instance):
         """creates the scales and save them
         """
@@ -1410,7 +1409,7 @@ class ImageField(ObjectField):
                                      )
             # manually use storage
             delattr(image, 'title')
-            self.storage.set(id, instance, image)
+            self.getStorage(instance).set(id, instance, image)
 
     def scale(self, data, w, h):
         """ scale image (with material from ImageTag_Hotfix)"""
