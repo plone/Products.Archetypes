@@ -109,8 +109,8 @@ class ReferenceWidget(TypesWidget):
         return value
 
     def getDestination(self, instance):
+        purl = getToolByName(instance, 'portal_url')
         if not self.destination:
-            purl = getToolByName(instance, 'portal_url')
             return purl.getRelativeUrl(aq_parent(instance))
         else:
             value = getattr(aq_base(instance), self.destination,
@@ -118,7 +118,7 @@ class ReferenceWidget(TypesWidget):
             if callable(value):
                 value = value()
 
-            return value
+            return purl.getPortalPath() + value
 
 
 class ComputedWidget(TypesWidget):
