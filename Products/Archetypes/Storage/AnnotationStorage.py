@@ -7,7 +7,7 @@ from Products.Archetypes.ATAnnotations import AT_ANN_STORAGE, AT_MD_STORAGE
 from Acquisition import aq_base
 
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.Registry import setSecurity, registerStorage
+from Products.Archetypes.Registry import setSecurity
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
@@ -76,9 +76,16 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         if not ann.hasSubkey(self._key, subkeys=field.getName()):
             self.set(field.getName(), instance, field.getDefault(instance))
 
+    security.declarePrivate('cleanupField')
+    def cleanupField(self, instance, field, **kwargs):
+        # Don't clean up the field self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
+
+    security.declarePrivate('cleanupInstance')
+    def cleanupInstance(self, instance, item=None, container=None):
+        # Don't clean up the instance self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
 
 __all__ = ('AnnotationStorage', 'MetadataAnnotationStorage', )
-
-#for name in __all__:
-#    storage = locals()[name]
-#    registerStorage(storage)
