@@ -8,14 +8,26 @@
 
 <!-- File Widgets -->
 
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor" />
-	</div>
-      </div>
+    <metal:define define-macro="file_view">
+    <tal:define define="unit accessor">
+    <div tal:define="size unit/get_size | python: 0;
+	            icon unit/getIcon | nothing;
+		    filename value/filename|nothing">
+	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
+             <img tal:condition="icon" src=""
+                  tal:attributes="src
+	      string:${here/portal_url}/${icon}"/>View <span
+                  tal:replace="fieldName"/></a>
+         (<tal:filename content="string:${filename} " condition="filename">myfile.pdf
+          </tal:filename><tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
+	 <a href="" tal:condition="python:field.checkPermission('edit', here)"
+              tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
+	      tal:define="edit here/edit.gif">
+	     <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />Edit</a>
     </div>
-    
+    </tal:define>
+    </metal:define>
+
     <metal:define define-macro="file_edit">
     <input type="file" 
 	   size="30" 
@@ -25,22 +37,15 @@
            onfocus string:formtooltip('${fieldName}_help',1);
            onblur string:formtooltip('${fieldName}_help',0);
     "/>
-    <tal:define define="unit accessor;
-	                binary python: here.isBinary(fieldName);">
-    <div tal:condition="python: binary == 1"
-	 tal:define="size unit/get_size | python: 0;
-	            icon unit/getIcon | nothing;">
-	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
-             <img tal:condition="icon" src=""
-                  tal:attributes="src
-	      string:${here/portal_url}/${icon}"/>Download <span
-                  tal:replace="fieldName"/></a>
-         (<span tal:content="value/filename|nothing"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
-	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
-	      tal:define="edit here/edit.gif">
-	     <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />Edit</a>
-    </div>
-    </tal:define>
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+    </metal:define>
+
+    <metal:define define-macro="view">
+    <metal:use use-macro="here/widgets/field/macros/view">
+    <metal:fill fill-slot="widget_view">
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+    </metal:fill>
+    </metal:use>
     </metal:define>
 
     <metal:define define-macro="edit">
