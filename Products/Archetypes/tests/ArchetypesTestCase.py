@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.6 2004/06/23 14:36:02 tiran Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.7 2004/07/07 15:53:44 shh42 Exp $
 
 from Testing import ZopeTestCase
 
@@ -15,6 +15,8 @@ ZopeTestCase.installProduct('CMFQuickInstallerTool', 1)
 ZopeTestCase.installProduct('CMFFormController', 1)
 ZopeTestCase.installProduct('GroupUserFolder', 1)
 ZopeTestCase.installProduct('ZCTextIndex', 1)
+ZopeTestCase.installProduct('TextIndexNG2', 1)
+ZopeTestCase.installProduct('SecureMailHost', 1)
 ZopeTestCase.installProduct('CMFPlone', 1)
 ZopeTestCase.installProduct('MailHost', 1)
 ZopeTestCase.installProduct('PageTemplates', 1)
@@ -88,6 +90,7 @@ else:
             uf = self.portal.acl_users
             return uf.getUserById(default_user).__of__(uf)
 
+
     def setupArchetypes(app, id=portal_name, quiet=0):
         '''Installs the Archetypes product into the portal.'''
         portal = app[id]
@@ -103,9 +106,9 @@ else:
             noSecurityManager()
             get_transaction().commit()
             if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
-        else:
+        elif not hasattr(aq_base(portal.portal_types), 'DDocument'):
             _start = time.time()
-            if not quiet: ZopeTestCase._print('Installing Archetypes demo types ... ')
+            if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
             # Login as portal owner
             user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
             newSecurityManager(None, user)
