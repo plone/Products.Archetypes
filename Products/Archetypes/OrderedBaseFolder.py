@@ -1,29 +1,28 @@
 """
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
-
-$Id: OrderedBaseFolder.py,v 1.7 2004/01/22 20:12:59 ajung Exp $
 """
+from types import StringType
+
+from Products.Archetypes.BaseFolder import BaseFolder
+from Products.Archetypes.Referenceable import Referenceable
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.base import IBaseFolder
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
+from Products.Archetypes.config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
 
 from AccessControl import ClassSecurityInfo, Permissions
 from Globals import InitializeClass
-from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
-     AddPortalContent, ModifyPortalContent, ManageProperties
+
 from Products.CMFCore.utils import getToolByName
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from BaseFolder import BaseFolder
-from Referenceable import Referenceable
-from ExtensibleMetadata import ExtensibleMetadata
-from BaseObject import BaseObject
-from CatalogMultiplex  import CatalogMultiplex
-from debug import log, log_exc
-from interfaces.base import IBaseFolder
-from interfaces.referenceable import IReferenceable
-from interfaces.metadata import IExtensibleMetadata
-from interfaces.orderedfolder import IOrderedFolder
-from types import StringType
-
-from config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
+from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
+     AddPortalContent, ModifyPortalContent, ManageProperties
 
 # this import can change with Zope 2.7 to
 try:
@@ -31,14 +30,14 @@ try:
     hasZopeOrderedSupport=1
 except ImportError:
     hasZopeOrderedSupport=0
+
 # atm its safer defining an own so we need an ugly hack to make Archetypes
-# OrderedBaseFolder work with Plone 2.0
+# OrderedBaseFolder work without Plone 2.0
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
     from interfaces.orderedfolder import IOrderedContainer
 
-# implement this class only in backward compatibility mode
 class OrderedFolder(SkinnedFolder):
     """ DEPRECATED, may be removed in next releaeses """
 

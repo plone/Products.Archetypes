@@ -195,9 +195,9 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         assert len(uids) == 0
         assert len(rc.objectValues()) == 0
-        
-        
-        
+
+
+
 
     def beforeTearDown(self):
         noSecurityManager()

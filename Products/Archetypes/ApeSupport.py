@@ -23,7 +23,7 @@
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.public import *
-from types import InstanceType,ClassType
+from types import InstanceType, ClassType
 
 from apelib.core.interfaces import IGateway, ISerializer
 from apelib.sql.sqlbase import SQLGatewayBase

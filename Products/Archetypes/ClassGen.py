@@ -1,10 +1,13 @@
+from __future__ import nested_scopes
+import os, os.path
+import re
+
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import pathFor, unique, capitalize
+
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from debug import log
-from utils import pathFor, unique, capitalize
-import os, os.path
-import re
 
 
 _modes = {
@@ -37,26 +40,31 @@ class Generator:
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
+        name = field.getName()
+        method = None
         if mode == "r":
-            method = lambda self, field=field.getName(), **kw: \
-                     self.Schema()[field].get(self, **kw)
+            def generatedAccessor(self, **kw):
+                """Default Accessor."""
+                return self.Schema()[name].get(self, **kw)
+            method = generatedAccessor
         elif mode == "m":
-            method = lambda self, field=field.getName(), **kw: \
-                     self.Schema()[field].getRaw(self, **kw)
+            def generatedEditAccessor(self, **kw):
+                """Default Edit Accessor."""
+                return self.Schema()[name].getRaw(self, **kw)
+            method = generatedEditAccessor
         elif mode == "w":
-            method = lambda self, value, field=field.getName(), **kw: \
-                     self.Schema()[field].set(self, value, **kw)
+            def generatedMutator(self, value, **kw):
+                """Default Mutator."""
+                return self.Schema()[name].set(self, value, **kw)
+            method = generatedMutator
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
-                                field.getName(),
+                                name,
                                 methodName,
                                 mode))
 
         setattr(klass, methodName, method)
-
-        # Allow the method to be published (for XML-RPC)
-        method.__doc__ = "%s %s" % (mode, field.getName())
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
@@ -83,8 +91,11 @@ class ClassGenerator:
                           stacklevel = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
-            klass.Schema = lambda self: \
-                ImplicitAcquisitionWrapper(self.schema, self)
+            def Schema(self):
+                """Return a (wrapped) schema instance for
+                this object instance."""
+                return ImplicitAcquisitionWrapper(self.schema, self)
+            klass.Schema = Schema
 
     def generateClass(self, klass):
         #We are going to assert a few things about the class here

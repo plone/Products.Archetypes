@@ -1,7 +1,6 @@
 import types
 
-from utils import className
-
+from Products.Archetypes.utils import className
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
@@ -214,7 +213,7 @@ class TypeRegistry:
 class ValidatorRegistry:
 
     def __init__(self):
-        from validation import validation
+        from Products.validation import validation
         self.validation = validation
 
     def register(self,  name, item):

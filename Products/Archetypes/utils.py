@@ -1,21 +1,34 @@
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from UserDict import UserDict as BaseDict
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
-from types import TupleType, ListType
-from debug import log
 import sys
 import os.path
 import types
-from ExtensionClass import ExtensionClass
 import time, random, md5, socket
 from inspect import getargs
+from types import TupleType, ListType
+from UserDict import UserDict as BaseDict
+
+from Products.Archetypes.debug import log
+
+from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
+from ExtensionClass import ExtensionClass
+from Globals import InitializeClass
+from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
 
 try:
     _v_network = socket.gethostbyname(socket.gethostbyname())
 except:
     _v_network = random.random() * 100000000000000000L
+
+def fixSchema(schema):
+    """Fix persisted schema from AT < 1.3 (UserDict-based)
+    to work with the new fixed order schema."""
+    from Products.Archetypes.Schema import Schemata
+    if not hasattr(aq_base(schema), '_fields'):
+        fields = schema.data.values()
+        Schemata.__init__(schema, fields)
+        del schema.data
+    return schema
 
 def make_uuid(*args):
     t = long(time.time() * 1000)
@@ -107,7 +120,8 @@ def unique(s):
     equality-testing.  Then unique() will usually work in quadratic
     time.
     """
-    # taken from ASPN Python Cookbook, http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+    # taken from ASPN Python Cookbook,
+    # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
 
     n = len(s)
     if n == 0:

@@ -4,8 +4,8 @@
 
 :Author: Joel Burton
 :Contact: joel@joelburton.com
-:Date: $Date: 2003/12/16 21:02:04 $
-:Version: $Revision: 1.2 $
+:Date: $Date: 2004/02/09 10:19:00 $
+:Version: $Revision: 1.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 :Covers: Archetypes 1.2.1
 
@@ -68,7 +68,10 @@ The part of the search skin that calls the Archetypes API we need is::
 This will list search widgets for all Archetypes packages. If you want
 search widgets just for a particular Archetypes package name, you
 should change the `getSearchWidgets` call to
-`getSearchWidgets("my_package_name")`.
+`getSearchWidgets(package="my_package_name")`. Also, you can specify a
+single type to use with `type="my_type_name"`. This is useful to
+create a search form for an individual packages or type, or to group
+search controls on a shared search form by the packages or types.
 
 This skin now, when viewed, will show the search widgets. You can wrap
 this in an HTML form that calls your searching script, and unless you
@@ -103,6 +106,8 @@ The current version of Archetypes (1.2.1) requires a one-line fix in
 ArchetypeTool.py to use the getSearchWidgets() call; this has been
 checked into the HEAD of the CVS, and, hopefully, by the time you read
 this, should be in version 1.2.2 and later.
+
+UPDATE: This is in Archetypes 1.2.2.
 
 
 About this Document

@@ -10,12 +10,11 @@
 
     <!-- Base Field Widgets -->
     <metal:base_view_macro define-macro="base_view"
-                           tal:define="use_label use_label|python:1;
-			   widget_view python:here.widget(field.getName(), mode=mode, use_label=use_label);
+                           tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
                                        field_macros here/widgets/field/macros;
                                        label_macro view_macros/label|label_macro|field_macros/label;
                                        data_macro view_macros/data|data_macro|field_macros/data;">
-      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r', here)">
+      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
         <tal:if_use_label condition="use_label|nothing">
           <metal:use_label use-macro="label_macro" />
         </tal:if_use_label>
@@ -70,7 +69,8 @@
             (Required)
           </span>
           <div class="formHelp"
-               tal:content="structure python:widget.Description(here)"
+               tal:define="description python:widget.Description(here)"
+               tal:content="structure description"
                tal:attributes="id string:${fieldName}_help"
                i18n:translate="">
             Help
@@ -97,7 +97,7 @@
           </div>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:replace="error_id">Validation Error</div>
+            <div tal:content="error_id">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
         </div>

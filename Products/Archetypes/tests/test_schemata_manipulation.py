@@ -17,7 +17,7 @@ import unittest
 class SchemataManipulationTest( ArchetypesTestCase ):
 
     def setUp(self):
-        self.schema = Schema(
+        self.schema = ManagedSchema(
                (StringField('a', schemata='waldi'),
                 StringField('d', schemata='nasbaer'),
                 StringField('x', schemata='edgar'),

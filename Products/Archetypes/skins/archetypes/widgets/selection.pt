@@ -27,10 +27,12 @@
 		     tabindex=""
 		     type="radio"
 		     tal:attributes="name fieldName;
+		     id fieldName;
 		     checked python:here.checkSelected(item, value);
 		     value item;
 		     tabindex tabindex/next;"
-		     /><span i18n:translate="" tal:content="python: vocab.getValue(item)"/>
+		     /> <label i18n:translate="" tal:content="python: vocab.getValue(item)"
+			     tal:attributes="for fieldName" />
 		     <br />
 	    </tal:radios>
 	  </tal:shortVocab>
