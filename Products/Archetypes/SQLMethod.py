@@ -175,7 +175,12 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result=self._cached_result(DB__, (query, context.max_rows_))
-        else: result=DB__.query(query, context.max_rows_)
+        else:
+            result=DB__.query(query, context.max_rows_)
+            try:
+                DB__.tpc_finish()
+            except AttributeError:
+                pass
 
         if hasattr(context, '_v_sql_brain'): brain = context._v_sql_brain
         else:
