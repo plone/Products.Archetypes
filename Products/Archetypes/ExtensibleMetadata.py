@@ -150,12 +150,17 @@ class ExtensibleMetadata(Persistence.Persistent):
                 description_msgid="help_copyrights",
                 i18n_domain="plone")),
         )) + Schema((
+        # XXX change this to MetadataSchema in AT 1.4
+        # Currently we want to stay backward compatible without migration
+        # between beta versions so creation and modification date are using the
+        # standard schema which leads to AttributeStorage
         DateTimeField(
             'creation_date',
             schemata='metadata',
             accessor='created',
             mutator='setCreationDate',
-            languageIndependent = True,
+            default_method=DateTime,
+            languageIndependent=True,
             widget=CalendarWidget(
                 label="Creation Date",
                 description=("Date this object was created"),
@@ -169,7 +174,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             accessor='modified',
             mutator = 'setModificationDate',
-            languageIndependent = True,
+            default_method=DateTime,
+            languageIndependent=True,
+            isMetadata=True,
             widget=CalendarWidget(
                 label="Modification Date",
                 description=("Date this content was modified last"),
@@ -180,11 +187,10 @@ class ExtensibleMetadata(Persistence.Persistent):
         ),
         ))
 
-
     def __init__(self):
-        now = DateTime()
-        self.creation_date = now
-        self.modification_date = now
+        pass
+        #self.setCreationDate(None)
+        #self.setModificationDate(None)
 
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
@@ -406,7 +412,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         For now, change the modification_date.
         """
         # XXX This could also store the id of the user doing modifications.
-        self.setModificationDate()
+        self.setModificationDate(None)
 
     # XXX Could this be simply protected by ModifyPortalContent ?
     security.declarePrivate('setModificationDate')
