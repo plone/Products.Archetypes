@@ -5,7 +5,6 @@ from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory
 from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 from Products.Archetypes.Extensions.Install import install as installArchetypes
-from Products.Archetypes import listTypes, types_globals
 import sys
 
 

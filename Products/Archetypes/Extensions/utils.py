@@ -193,17 +193,6 @@ def isPloneSite(self):
             return 1
     return 0
 
-def installTypes(self,
-                 out,
-                 types,
-                 package_name,
-                 globals=types_globals,
-                 product_skins_dir='skins'):
-    """Use this for your site with your types"""
-
-    types = filterTypes(self, out, types, package_name)
-    install_types(self, out, types, package_name)
-    setupEnvironment(self, out, types, package_name, globals, product_skins_dir)
 
 def filterTypes(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
@@ -212,6 +201,7 @@ def filterTypes(self, out, types, package_name):
 
     for rti in types:
         t = rti['klass']
+            
         typeinfo_name="%s: %s" % (package_name, t.__name__)
         info = typesTool.listDefaultTypeInformation()
         found = 0
@@ -250,3 +240,16 @@ def setupEnvironment(self, out, types,
         install_validation(self, out, types)
         install_navigation(self, out, types)
 
+
+## The master installer
+def installTypes(self,
+                 out,
+                 types,
+                 package_name,
+                 globals=types_globals,
+                 product_skins_dir='skins'):
+    """Use this for your site with your types"""
+    ftypes = filterTypes(self, out, types, package_name)
+    install_types(self, out, ftypes, package_name)
+    #Pass the unfiltered types into setup as it does that on its own
+    setupEnvironment(self, out, types, package_name, globals, product_skins_dir)
