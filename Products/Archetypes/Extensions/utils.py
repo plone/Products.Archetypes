@@ -91,7 +91,8 @@ def install_catalog(self, out):
         except:
             pass
 
-    catalog.manage_reindexIndex(ids=schemaFields)
+    #catalog.manage_reindexIndex(ids=schemaFields)
+    catalog.manage_reindexIndex()
 
 def install_referenceCatalog(self, out):
     if not hasattr(self, REFERENCE_CATALOG):
@@ -116,7 +117,7 @@ def install_referenceCatalog(self, out):
             except:
                 pass
 
-        #catalog.manage_reindexIndex()
+        catalog.manage_reindexIndex()
 
 
 def install_templates(self, out):
