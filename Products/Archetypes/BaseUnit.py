@@ -63,7 +63,7 @@ class BaseUnit(File):
         orig = self.getRaw(encoding)
         if not orig:
             return None
-        
+
         #on ZODB Transaction commit there is by specification
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
@@ -100,6 +100,8 @@ class BaseUnit(File):
 
     def __str__(self):
         return self.getRaw()
+
+    __call__ = __str__
 
     def __len__(self):
         return self.get_size()
@@ -155,10 +157,10 @@ class BaseUnit(File):
 
     def content_type(self):
         return self.getContentType()
-    
+
     def getFilename(self):
         return self.filename
-    
+
     def setFilename(self, filename):
         """
         """
@@ -166,7 +168,7 @@ class BaseUnit(File):
             self.filename = filename.split("\\")[-1]
         else:
             self.filename = filename
- 
+
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
