@@ -349,7 +349,7 @@ class BaseObject(Implicit):
         data = ' '.join(data)
         return data
 
-    security.declarePrivate('getCharset')
+    security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()

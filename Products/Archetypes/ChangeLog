@@ -1,5 +1,8 @@
 2003-12-06  Sidnei da Silva  <sidnei@awkly.org>
 
+	* BaseObject.py (BaseObject.getCharset): Ops, protect with view
+	permission, not Private. 
+
 	* BaseBTreeFolder.py (__getitem__): Title/Description should come
 	from BaseFolder, not from SkinnedFolder.
 
