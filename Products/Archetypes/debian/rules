@@ -25,7 +25,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	rm -rf build
-	rm -rf debian/python?.?-tmp*
+	rm -rf debian/python?.?-tmp*/
 	find . -name "*.pyc" | xargs rm -f
 	rm -f changelog.gz
 	dh_clean
