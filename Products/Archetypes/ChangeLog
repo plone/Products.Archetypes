@@ -1,3 +1,19 @@
+2003-11-20  Sidnei da Silva  <sidnei@awkly.org>
+
+	* BaseFolder.py (BaseFolderMixin.manage_afterAdd):
+	CatalogMultiplex inherits from CMFCatalogAware, which
+	SkinnedFolder does as well. So, instead of calling
+	SkinnedFolder.manage_after*/manage_before*, we just inherit from
+	PortalFolder as well (stupid ExtensionClass) and call
+	PortalFolder.manage_after*/manage_before* and let CatalogMultiplex
+	call the methods from CMFCatalogAware.
+
+	* BaseBTreeFolder.py (manage_afterAdd): CMFBTreeFolder seems to
+	inherit from PortalFolder, which BaseFolder does as well (via
+	SkinnedFolder), so we don't need to call
+	manage_after*/manage_before* twice, because they are mostly the
+	same method.
+
 2003-11-18  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ExtensibleMetadata.py (ExtensibleMetadata.allowDiscussion): Take
