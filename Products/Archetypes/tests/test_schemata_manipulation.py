@@ -112,6 +112,16 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.schema.moveField('a', 1)
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b','c','a'])
 
+    def testReplaceField(self):
+        f1 = StringField('f1')
+        f2 = StringField('f2')
+        f3 = StringField('f3')
+        self.schema.replaceField('a', f1)
+        self.schema.replaceField('e', f2)
+        self.schema.replaceField('z', f3)
+        self.assertEqual(self.fields2names(self.schema.fields()),
+                        ['f1','d','x', 'b','f2','y','c','f','f3'])
+
 
 if __name__ == '__main__':
     framework()
