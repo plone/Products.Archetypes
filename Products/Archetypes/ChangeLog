@@ -1,4 +1,4 @@
-2003-11-11  Sylvain Thénault  <syt@logilab.fr>
+2003-11-12  Sylvain Thénault  <syt@logilab.fr>
 
 	* BaseContent.py: BaseContentMixin without Extensible metadata
 	
