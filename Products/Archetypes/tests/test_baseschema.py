@@ -9,6 +9,7 @@ except: # Zope > 2.6
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
 from Products.Archetypes import listTypes
 from Products.Archetypes.Widget import IdWidget, StringWidget, BooleanWidget, \
@@ -37,6 +38,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('id')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 1)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
@@ -52,6 +54,8 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, AttributeStorage))
+        self.failUnless(field.getLayerImpl('storage') == AttributeStorage())
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, IdWidget))
         vocab = field.Vocabulary(dummy)
@@ -62,6 +66,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('title')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 1)
         self.failUnless(field.default == '')
         self.failUnless(field.searchable == 1)
@@ -77,6 +82,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, AttributeStorage))
+        self.failUnless(field.getLayerImpl('storage') == AttributeStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, StringWidget))
         vocab = field.Vocabulary(dummy)
@@ -89,6 +95,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('allowDiscussion')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
@@ -105,6 +112,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'object')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
@@ -116,6 +124,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('subject')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == [])
         self.failUnless(field.searchable == 0)
@@ -132,6 +141,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'lines')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, KeywordWidget))
         vocab = field.Vocabulary(dummy)
@@ -142,6 +152,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('description')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == '')
         self.failUnless(field.searchable == 1)
@@ -158,6 +169,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'metadata')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, TextAreaWidget))
         vocab = field.Vocabulary(dummy)
@@ -168,6 +180,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('contributors')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == [])
         self.failUnless(field.searchable == 0)
@@ -184,6 +197,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'lines')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, LinesWidget))
         vocab = field.Vocabulary(dummy)
@@ -210,6 +224,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'lines')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, CalendarWidget))
         vocab = field.Vocabulary(dummy)
@@ -220,6 +235,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('effectiveDate')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default is None)
         self.failUnless(field.searchable == 0)
@@ -236,6 +252,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'datetime')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, CalendarWidget))
         vocab = field.Vocabulary(dummy)
@@ -246,6 +263,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('expirationDate')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default is None)
         self.failUnless(field.searchable == 0)
@@ -262,6 +280,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'datetime')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, CalendarWidget))
         vocab = field.Vocabulary(dummy)
@@ -272,6 +291,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('language')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == 'en')
         self.failUnless(field.searchable == 0)
@@ -288,6 +308,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'metadata')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
@@ -298,6 +319,7 @@ class BaseSchemaTest( unittest.TestCase ):
         dummy = self._dummy
         field = dummy.getField('rights')
 
+        self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default is None)
         self.failUnless(field.searchable == 0)
@@ -314,6 +336,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'metadata')
         self.failUnless(isinstance(field.storage, MetadataStorage))
+        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, TextAreaWidget))
         vocab = field.Vocabulary(dummy)
