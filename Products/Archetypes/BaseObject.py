@@ -473,21 +473,19 @@ class BaseObject(Implicit):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
-            accessor = field.getAccessor(self)
-            if accessor is not None:
-                # yes -- return the value
-                return accessor()
+            try:
+                return self[field.getName()]
+            except KeyError:
+                pass
 
         # Nope -- see if the new accessor method is present
         # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
-            accessor = new_field.getAccessor(self)
-            if callable(accessor):
-                try:
-                    return accessor()
-                except:
-                    pass
+            try:
+                return self[new_field.getName()]
+            except KeyError:
+                pass
 
         # Nope -- now see if the current object has an attribute
         # with the same name

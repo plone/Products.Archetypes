@@ -1,5 +1,9 @@
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
+	* BaseObject.py (BaseObject._migrateGetValue): Tentatively fix
+	migrateGetValue by using __getitem__ (which looks up
+	getEditAccessor, then falls back to getAcessor.
+
         * Several fixes all over the place. Updated forms to Plone 2.0
 	style. Fixed problem with setting an empty value to a field (needs
 	a test). Moved test suite to use ZopeTestCase (thanks to

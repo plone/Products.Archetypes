@@ -24,7 +24,6 @@ import sys, os, shutil
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-# XXX
 class test_update_schema1(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
