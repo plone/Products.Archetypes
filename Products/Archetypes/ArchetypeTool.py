@@ -97,7 +97,7 @@ base_factory_type_information = (
                        'action' : 'string:${object_url}/schema_editor',
                        'permissions' : (CMFCorePermissions.ManagePortal,),
                        'visible': 1,
-                       'condition' : 'python: object.archetype_tool.getProvidedSchema(object) is not None',
+                       'condition' : 'python: object.getSchemaEditor()'
                        },
                      )
       }, )

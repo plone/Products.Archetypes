@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_classgen.py,v 1.18.10.1 2004/04/14 20:37:56 bcsaller Exp $
+$Id: test_classgen.py,v 1.18.10.2 2004/04/21 16:29:03 bcsaller Exp $
 """
 
 import os, sys
@@ -15,7 +15,7 @@ from Acquisition import aq_base
 import Products.Archetypes.config as config
 from Products.Archetypes.public import *
 from Products.Archetypes.examples.DDocument import schema as DDocumentSchema
-from Products.Archetypes.SchemaProvider import *
+from Products.Archetypes.Schema.Provider import *
 import Products.CMFCore.utils as utils
 from Products.CMFCore import CMFCorePermissions
 
@@ -35,7 +35,7 @@ class Dummy(BaseContent):
         """just return a static"""
         return "Infered Var"
 
-    
+
 
 class ClassGenTest( ArcheSiteTestCase ):
     def afterSetUp(self):
@@ -56,10 +56,10 @@ class ClassGenTest( ArcheSiteTestCase ):
         assert f.accessor == None
 
         f = s['infered']
-        
+
         assert f.accessor == "getInfered"
         assert obj.get('infered') == "Infered Var"
-        
+
         f = s['supplied']
         assert f.accessor == "getFoo"
         obj.set('supplied', 'foo')

@@ -23,10 +23,13 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
+from Products.ProxyIndex.ProxyIndex  import manage_addProxyIndex
 from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
+
 
 class Extra:
     """indexes extra properties holder"""
+    pass
 
 def install_dependencies(self, out, required=1):
     qi=getToolByName(self, 'portal_quickinstaller', None)
@@ -162,6 +165,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
+    folderish = []
     for type in types:
         try:
             typesTool._delObject(type.portal_type)
@@ -173,10 +177,34 @@ def install_types(self, out, types, package_name):
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
-        # set the human readable title explicitly
+        # Set the human readable title explicitly
         t = getattr(typesTool, type.portal_type, None)
         if t:
             t.title = type.archetype_name
+
+        # If the class appears folderish and the 'use_folder_tabs' is
+        # not set to a false value, then we add the portal_type to
+        # Plone's 'use_folder_tabs' property
+        use_folder_tabs = type.isPrincipiaFolderish and getattr(type, 'use_folder_tabs', 1)
+        if use_folder_tabs:
+            folderish.append(type.portal_type)
+    if folderish:
+        pt = getToolByName(self, 'portal_properties', None)
+        if pt is None:
+            return
+        sp = getattr(pt, 'site_properties', None)
+        if sp is None:
+            return
+        props = ('use_folder_tabs', 'typesLinkToFolderContentsInFC')
+        for prop in props:
+            folders = sp.getProperty(prop, None)
+            if folders is None:
+                continue
+            folders = list(folders)
+            folders.extend(folderish)
+            folders = tuple(dict(zip(folders, folders)).keys())
+            sp._updateProperty(prop, folders)
+
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
@@ -184,7 +212,13 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    
+    """For the new get/set simple API of archetypes we need to use
+    proxyIndex's from the ProxyIndex product to invoke the correct
+    accessor (get('foo')). This also means that index names will
+    change from the ugly 'getFoo' to plain old 'foo' which is better
+    anyway.
+    """
+
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
@@ -192,37 +226,37 @@ def install_indexes(self, out, types):
         for field in cls.schema.fields():
             if field.index:
                 portal_catalog = catalog = getToolByName(self, 'portal_catalog')
-                
                 if type(field.index) is StringType:
                     index = (field.index,)
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
                 else:
                     raise SyntaxError("Invalid Index Specification %r"%field.index)
-                
                 for alternative in index:
                     installed = None
                     index_spec = alternative.split(':', 1)
-                    use_column  = 0 
+                    use_column  = 0
+
                     if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
                         use_column = 1
                     index_spec = index_spec[0]
 
                     parts = index_spec.split('|')
+
                     # we want to be able to specify which catalog we want to use
                     # for each index. syntax is
-                    # index=('member_catalog/:schema',)
+                    # index=('FieldIndex|member_catalog/:schema',)
                     # portal catalog is used by default if not specified
                     if parts[0].find('/') > 0:
                         str_idx = parts[0].find('/')
                         catalog_name = parts[0][:str_idx]
                         parts[0] = parts[0][str_idx+1:]
                         catalog = getToolByName(self, catalog_name)
-                    
+
                     if use_column:
                         try:
-                            if field.accessor not in catalog.schema():
-                                catalog.addColumn(field.accessor)
+                            if field.getName() not in catalog.schema():
+                                catalog.addColumn(field.getName())
                         except:
                             import traceback
                             traceback.print_exc(file=out)
@@ -230,7 +264,7 @@ def install_indexes(self, out, types):
                     # if you want to add a schema field without an index
                     #if not parts[0]:
                     #    continue
-                        
+
                     for itype in parts:
                         extras = itype.split(',')
                         if len(extras) > 1:
@@ -243,10 +277,14 @@ def install_indexes(self, out, types):
                             props = None
                         try:
                             #Check for the index and add it if missing
-                            catalog.addIndex(field.accessor, itype,
-                                             extra=props)
-                            catalog.manage_reindexIndex(ids=(field.accessor,))
-                        except:
+                            expr = "python: object.get('%s')" % field.getName()
+                            catalog.manage_addProduct['ProxyIndex'].manage_addProxyIndex(
+                                field.getName(),
+                                idx_type = itype,
+                                value_expr = expr,
+                                extra = props)
+                            catalog.manage_reindexIndex(ids=(field.getName(),))
+                        except Exception, E:
                             # FIXME: should only catch "Index Exists"
                             # damned string exception !
                             pass

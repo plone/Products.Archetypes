@@ -475,7 +475,7 @@ class BaseObject(Persistent):
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
     def Schemata(self):
-        from Products.Archetypes.Schema import getSchemata
+        from Products.Archetypes.Schema.Schema import getSchemata
         return getSchemata(self)
 
     security.declarePrivate('_isSchemaCurrent')
