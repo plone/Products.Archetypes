@@ -80,6 +80,22 @@
 
       <input type="hidden" name="current_lang" value=""
        tal:attributes="value request/LANGUAGE|default_language|default" />
+
+       <!-- This comes from edit_macros, which is somehow used by base_edit.  it seems
+            base_metadata and base_edit are NOT generated the same way ;-(
+       -->
+            <input type="hidden"
+                   name="add_reference.field:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.type:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.destination:record"
+                   value=""
+                   />
        
       <div class="field">
         <label>&nbsp;</label>

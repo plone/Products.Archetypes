@@ -1,6 +1,12 @@
 1.3.0-rc3 -
 ======================
 
+ * Fixed misc unit tests that where broken or relied on a broken behavior
+   [dreamcatcher]
+
+ * Merged patch from [ 1026732 ] base_metadata can not use 'add $type' reference
+   button
+
  * Fixed [ 1029648 ] getBestIcon needs to be better
    [tiran]
 
