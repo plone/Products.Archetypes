@@ -34,10 +34,20 @@ from Schema import FieldList, MetadataFieldList
 from transform.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
+"""Mime-types currently supported"""
 
 __docformat__ = 'reStructuredText'
 
 class Field(DefaultLayerContainer):
+    
+    """
+    Extend `DefaultLayerContainer`. 
+    Implements `IField` and `ILayerContainer` interfaces. 
+    Class security = public with default access = allow.
+    Class attribute _properties is a dictionary containing all of a
+    field's property values.
+    """
+    
     __implements__ = (IField, ILayerContainer)
 
     security  = ClassSecurityInfo()
@@ -74,8 +84,10 @@ class Field(DefaultLayerContainer):
         }
 
     def __init__(self, name, **kwargs):
-        DefaultLayerContainer.__init__(self)
-
+        """
+        TODO
+        """
+        
         self.__name__ = name
 
         self.__dict__.update(self._properties)
@@ -87,16 +99,30 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     def copy(self):
+        """
+        Return a copy of field instance, consisting of field name and
+        properties dictionary.
+        """
+        
         return self.__class__(self.getName(), **self.__dict__)
 
     def __repr__(self):
+        """
+        Return a string representation consisting of name, type and permissions.
+        """
         return "<Field %s(%s:%s)>" %(self.getName(), self.type, self.mode)
 
     def _widgetLayer(self):
+        """
+        TODO
+        """
         if hasattr(self, 'widget') and type(self.widget) == ClassType:
             self.widget = self.widget()
 
     def _validationLayer(self):
+        """
+        TODO
+        """
         # resolve that each validator is in the service
         # we could replace strings with class refs and keep
         # things impl the ivalidator in the list
@@ -111,6 +137,11 @@ class Field(DefaultLayerContainer):
                 self.getName()))
 
     def validate(self, value):
+        """
+        Validate passed-in value using all field validators. 
+        Return None if all validations pass; otherwise, return failed 
+        result returned by validator
+        """
         for v in self.validators:
             res = validation.validate(v, value)
             if res != 1:
