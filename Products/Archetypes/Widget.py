@@ -14,6 +14,7 @@ except NameError:
     False=0
 
 class TypesWidget(macrowidget):
+    __allow_access_to_unprotected_subobjects__ = 0
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),

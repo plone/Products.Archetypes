@@ -177,7 +177,12 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
     if defaultAccess:
         security.setDefaultAccess(defaultAccess)
     if objectPermission:
-        security.declareObjectProtected(objectPermission)
+        if objectPermission == 'public':
+            security.declareObjectPublic()
+        elif objectPermission == 'private':
+            security.declareObjectPrivate()
+        else:
+            security.declareObjectProtected(objectPermission)
     InitializeClass(klass)
     if DEBUG_SECURITY:
         if hasattr(klass, '__allow_access_to_unprotected_subobjects__'):
@@ -192,14 +197,22 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
-    setSecurity(klass, defaultAccess=None, objectPermission=None)
+    # XXX iiiiiigggghhh!
+    # the root of evil security breaches but currently required
+    # FIXME 
+    setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    #setSecurity(klass, defaultAccess=None, objectPermission=None)
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
-    setSecurity(klass, defaultAccess=None, objectPermission=None)
+    # XXX iiiiiigggghhh!
+    # the root of evil security breaches but currently required
+    # FIXME 
+    setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    #setSecurity(klass, defaultAccess=None, objectPermission=None)
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
