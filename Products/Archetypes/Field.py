@@ -736,11 +736,11 @@ class ReferenceField(ObjectField):
         })
 
     def containsValueAsString(self,value,attrval):
-        '''
+        """
         checks wether the attribute contains a value
            if the field is a scalar -> comparison
            if it is multiValued     -> check for 'in'
-        '''
+        """
         if self.multiValued:
             return str(value) in [str(a) for a in attrval]
         else:
@@ -767,13 +767,15 @@ class ReferenceField(ObjectField):
                 for uid in value:
                     if uid:
                         target=tool.lookupObject(uid=uid)
+                        if target is None:
+                            raise ValueError, "Invalid reference %s" % uid
                         instance.addReference(target,refname)
         else:
             if value:
                 target=tool.lookupObject(uid=value)
+                if target is None:
+                    raise ValueError, "Invalid reference %s" % uid
                 instance.addReference(target,refname)
-
-            pass
 
         #and now do the normal assignment
         ObjectField.set(self, instance, value, **kwargs)
@@ -785,16 +787,19 @@ class ReferenceField(ObjectField):
         value = ObjectField.Vocabulary(self, content_instance)
         if value:
             return value
+        results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
-                      str(obj.getId).strip()) \
-                     for obj in catalog(Type=self.allowed_types)]
+            results = catalog(Type=self.allowed_types)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
-                      str(obj.getId).strip()) \
-                     for obj in archetype_tool.Content()]
+            results = archetype_tool.Content()
+        results = [(r, r.getObject()) for r in results]
+        value = [(r.UID, obj and (str(obj.Title().strip()) or \
+                                  str(obj.getId).strip())  or \
+                  log('Field %r: Object at %r could not be found' % \
+                      (self.getName(), r.getURL())) or \
+                  r.Title or r.UID) for r, obj in results]
         if not self.required:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
