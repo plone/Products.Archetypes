@@ -104,7 +104,9 @@ class BaseSQLStorage(StorageLayer):
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['field'] = name
-        result = self._query(instance, self.query_select, args)[0][0]
+        result = self._query(instance, self.query_select, args)
+        result = result[0]
+        result = result[0]
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
             result = mapper(field, result)
@@ -257,6 +259,18 @@ class PostgreSQLStorage(BaseSQLStorage):
         'string': 'text',
         'metadata': 'text', # eew
         }
+
+    def map_object(self, field, value):
+        __traceback_info__ = repr(value)
+        return repr(value)
+    
+    def unmap_object(self, field, value):
+        __traceback_info__ = repr(value)
+        # XXX dangerous!
+        try:
+            return eval(value, {})
+        except:
+            return None
 
     def table_exists(self, instance):
         return self._query(instance,
