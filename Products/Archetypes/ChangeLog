@@ -1,3 +1,15 @@
+2003-04-07 Sidnei da Silva <sidnei@x3ng.com>
+
+        * Made possible to have multiple fieldsets (they are called
+	schemata). Just add "schemata = 'your_fieldset_name' when
+	declaring a field. It will show up as a link on your edit form.
+
+	* Blown away validate_metadata.py and metadata_edit.py. You may
+	need to fix your portal_properties/form_properties
+	[validate_metadata -> validate_base] and
+	portal_properties/navigation_properties [metadata_edit ->
+	content_edit] on your existing sites.
+
 2003-02-11  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* Field.py (FieldList.__init__): Added the ability for FieldList
