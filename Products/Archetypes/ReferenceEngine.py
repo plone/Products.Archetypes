@@ -179,7 +179,7 @@ class ContentReferenceCreator:
         self.contentType=contentType
         
     def __call__(self,*args,**kw):
-        #siulates the constructor call to the reference class in addReference
+        #simulates the constructor call to the reference class in addReference
         res=ContentReference(*args,**kw)
         res.contentType=self.contentType
         
