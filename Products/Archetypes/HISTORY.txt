@@ -69,6 +69,27 @@
  * Fixed unicodeTestIn.py: return False immediately when the list is None or empty
    [tiran]
 
+ * Widget.py: Changed some field.get(instance) calls to
+   field.getEditAccessor(instance)() to get rid of some sort of infinite loop
+   (in append_only code forTextAreaWidget)
+   [rafrombrc]
+
+ * Readded Extensions/utils.py:install_tools for backward compat.
+   [dreamcatcher]
+
+ * fixed edit view rendering of append_only textarea history in
+   widgets/textarea.ptdata so whitespace is correct
+   [rafrombrc]
+
+ * Fix a misbehavior on __bobo_traverse__ now that Tiran changed the __getitem__
+   behavior. Before that, __getitem__ was taking precedence and acquiring the
+   object itself, so never getting this far:
+   Nothing has been found. Though it's not written anywere, from deep ZPublisher
+   inspection it seems like we *SHOULD NOT* raise a notFoundError, but instead,
+   return None and leave acquisition do it's job.
+   [dreamcatcher]
+  
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
