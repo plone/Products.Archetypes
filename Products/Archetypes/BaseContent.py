@@ -5,6 +5,7 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -82,7 +83,7 @@ class BaseContentMixin(CatalogMultiplex,
                                       filename=filename,
                                       REQUEST=REQUEST,
                                       RESPONSE=RESPONSE)
-        if hasattr(aq_base(self), 'demarshall_hook') \
+        if shasattr(self, 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
 
@@ -107,7 +108,7 @@ class BaseContentMixin(CatalogMultiplex,
 
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.marshall(self, REQUEST=REQUEST, RESPONSE=RESPONSE)
-        if hasattr(aq_base(self), 'marshall_hook') \
+        if shasattr(self, 'marshall_hook') \
            and self.marshall_hook:
             ddata = self.marshall_hook(ddata)
 

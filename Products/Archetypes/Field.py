@@ -18,7 +18,8 @@ from Products.Archetypes.exceptions import ObjectFieldException, \
 from Products.Archetypes.Widget import *
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
-from Products.Archetypes.utils import DisplayList, Vocabulary, className, mapply
+from Products.Archetypes.utils import DisplayList, Vocabulary, className, \
+    mapply, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
@@ -175,7 +176,7 @@ class Field(DefaultLayerContainer):
         instantiate the widget if a class was given and call
         widget.populateProps
         """
-        if hasattr(self, 'widget'):
+        if shasattr(self, 'widget'):
             if type(self.widget) in (ClassType, type(Base)):
                 self.widget = self.widget()
             self.widget.populateProps(self)
@@ -466,7 +467,7 @@ class Field(DefaultLayerContainer):
         field"""
         dm = self.default_method
         if dm:
-            if type(dm) is StringType and hasattr(instance, dm):
+            if type(dm) is StringType and shasattr(instance, dm):
                 method = getattr(instance, dm)
                 return method()
             elif callable(dm):
@@ -599,7 +600,7 @@ class ObjectField(Field):
         value = self.get(instance, raw=True)
         self.unset(instance)
         self.storage = storage
-        if hasattr(self.storage, 'initializeInstance'):
+        if shasattr(self.storage, 'initializeInstance'):
             self.storage.initializeInstance(instance)
         self.set(instance, value)
 
@@ -624,7 +625,7 @@ class ObjectField(Field):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
         value = ''
-        if fromBaseUnit and hasattr(self, 'getBaseUnit'):
+        if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
             if IBaseUnit.isImplementedBy(bu):
                 return str(bu.getContentType())
@@ -713,7 +714,7 @@ class FileField(ObjectField):
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if not (isinstance(value, FileUpload) or type(value) is FileType) \
-          and hasattr(value, 'read') and hasattr(value, 'seek'):
+          and shasattr(value, 'read') and shasattr(value, 'seek'):
             # support StringIO and other file like things that aren't either
             # files or FileUploads
             value.seek(0) # rewind
@@ -739,9 +740,9 @@ class FileField(ObjectField):
         if ((isinstance(value, FileUpload) and value.filename != '') or
               (type(value) is FileType and value.name != '')):
             filename = ''
-            if isinstance(value, FileUpload) or hasattr(value, 'filename'):
+            if isinstance(value, FileUpload) or shasattr(value, 'filename'):
                 filename = value.filename
-            if isinstance(value, FileType) or hasattr(value, 'name'):
+            if isinstance(value, FileType) or shasattr(value, 'name'):
                 filename = value.name
             # Get only last part from a 'c:\\folder\\file.ext'
             filename = filename.split('\\')[-1]
@@ -772,7 +773,7 @@ class FileField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        if hasattr(value, '__of__') and not kwargs.get('unwrapped', False):
+        if shasattr(value, '__of__', acquire=True) and not kwargs.get('unwrapped', False):
             return value.__of__(instance)
         else:
             return value
@@ -797,13 +798,13 @@ class FileField(ObjectField):
         kwargs['filename'] = filename
 
         if value=="DELETE_FILE":
-            if hasattr(aq_base(instance), '_FileField_types'):
+            if shasattr(instance, '_FileField_types'):
                 delattr(aq_base(instance), '_FileField_types')
             ObjectField.unset(self, instance, **kwargs)
             return
 
         # remove ugly hack
-        if hasattr(aq_base(instance), '_FileField_types'):
+        if shasattr(instance, '_FileField_types'):
             del instance._FileField_types
         if value is None:
             # do not send None back as file value if we get a default (None)
@@ -984,7 +985,7 @@ class TextField(FileField):
         if mimetype is None:
             mimetype = self.default_output_type or 'text/plain'
 
-        if not hasattr(value, 'transform'): # oldBaseUnits have no transform
+        if not shasattr(value, 'transform'): # oldBaseUnits have no transform
             return str(value)
         data = value.transform(instance, mimetype)
         if not data and mimetype != 'text/plain':
@@ -1516,7 +1517,7 @@ class CMFObjectField(ObjectField):
             info = tt.getTypeInfo(type_name)
             if info is None:
                 raise ValueError('No such content type: %s' % type_name)
-            if not hasattr(aq_base(info), 'constructInstance'):
+            if not shasattr(info, 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
             args = [instance, self.getName()]
@@ -1718,7 +1719,7 @@ class ImageField(FileField):
         if type(sizes) is DictType:
             return sizes
         elif type(sizes) is StringType:
-            assert(hasattr(aq_base(instance), sizes))
+            assert(shasattr(instance, sizes))
             method = getattr(instances, sizes)
             data = method()
             assert(type(data) is DictType)
@@ -1862,7 +1863,7 @@ class ImageField(FileField):
             id = self.getScaleName(scale=scale)
             image = self.getStorage(instance).get(id, instance, **kwargs)
             image = self._wrapValue(instance, image, **kwargs)
-            if hasattr(image, '__of__') and not kwargs.get('unwrapped', False):
+            if shasattr(image, '__of__', acquire=True) and not kwargs.get('unwrapped', False):
                 return image.__of__(instance)
             else:
                 return image

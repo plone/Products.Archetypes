@@ -9,7 +9,8 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
     IReference, IContentReference, IReferenceCatalog, IUIDCatalog
 
-from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
+from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
+    getRelPath, shasattr
 from Products.Archetypes.config import UID_CATALOG, \
      REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
@@ -547,7 +548,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
     def isReferenceable(self, object):
         return (IReferenceable.isImplementedBy(object) or
-                hasattr(aq_base(object), 'isReferenceable'))
+                shasattr(object, 'isReferenceable'))
 
     def reference_url(self, object):
         """return a url to an object that will resolve by reference"""

@@ -1,7 +1,7 @@
 from Products.Archetypes.debug import log_exc, log, _default_logger
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
-    getRelURL, getRelPath
+    getRelURL, getRelPath, shasattr
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
@@ -142,7 +142,7 @@ class BaseObject(Referenceable):
     def title_or_id(self):
         """Utility that returns the title if it is not blank and the id otherwise.
         """
-        if hasattr(aq_base(self), 'Title'):
+        if shasattr(self, 'Title'):
             if callable(self.Title):
                 return self.Title() or self.getId()
 
@@ -177,7 +177,7 @@ class BaseObject(Referenceable):
         at the object level (i.e. with or without metadata) to interact
         with the uid catalog
         """
-        if hasattr(aq_base(self), 'getTypeInfo'):
+        if shasattr(self, 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:
                 return ti.Title()
@@ -202,10 +202,10 @@ class BaseObject(Referenceable):
         """Return wether a field contains binary data
         """
         element = getattr(self, key, None)
-        if element and hasattr(aq_base(element), 'isBinary'):
+        if element and shasattr(element, 'isBinary'):
             return element.isBinary()
         mimetype = self.getContentType(key)
-        if mimetype and hasattr(aq_base(mimetype), 'binary'):
+        if mimetype and shasattr(mimetype, 'binary'):
             return mimetype.binary
         elif mimetype and mimetype.find('text') >= 0:
             return 0
@@ -237,16 +237,16 @@ class BaseObject(Referenceable):
         # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
             pfield = self.getPrimaryField()
-            if pfield and hasattr(pfield, 'getContentType'):
+            if pfield and shasattr(pfield, 'getContentType'):
                 return pfield.getContentType(self)
             else:
                 return value
 
         field = self.getField(key)
-        if field and hasattr(field, 'getContentType'):
+        if field and shasattr(field, 'getContentType'):
             return field.getContentType(self)
         element = getattr(self, key, None)
-        if element and hasattr(element, 'getContentType'):
+        if element and shasattr(element, 'getContentType'):
             return element.getContentType()
         return value
 
@@ -375,7 +375,7 @@ class BaseObject(Referenceable):
         methodName = "validate_%s" % name
         result = None
 
-        if hasattr(aq_base(self), methodName):
+        if shasattr(self, methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
@@ -705,7 +705,7 @@ class BaseObject(Referenceable):
         # Nope -- now see if the current object has an attribute
         # with the same name
         # as the new field
-        if hasattr(self, name):
+        if shasattr(self, name):
             return getattr(self, name)
 
         raise ValueError, 'name = %s' % (name)
@@ -734,7 +734,7 @@ class BaseObject(Referenceable):
                     log_exc()
         else:
             # try setting an existing attribute
-            if hasattr(self, name):
+            if shasattr(self, name):
                 setattr(self, name, value)
                 return
         raise ValueError, 'name = %s, value = %s' % (name, value)
@@ -797,8 +797,7 @@ class BaseObject(Referenceable):
                 or method == 'POST' and not isinstance(response, xmlrpc.Response)
                 )
             ):
-            # we must not acquire
-            if hasattr(aq_base(self), name):
+            if shasattr(self, name):
                 target = getattr(self, name)
             else:
                 target = None

@@ -9,7 +9,7 @@ from Products.Archetypes.interfaces.layer import ILayerContainer, \
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
-from Products.Archetypes.utils import OrderedDict, mapply
+from Products.Archetypes.utils import OrderedDict, mapply, shasattr
 from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
@@ -144,7 +144,7 @@ class Schemata(Base):
 
             # attribute missing:
             missing_attrs = [attr for attr in values.keys() \
-                             if not hasattr(field, attr)]
+                             if not shasattr(field, attr)]
             if missing_attrs: continue
 
             # attribute value unequal:
@@ -405,7 +405,7 @@ class BasicSchema(Schemata):
 
             args = (default,)
             kw = {'field': field.__name__}
-            if hasattr(field, 'default_content_type'):
+            if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
                 kw['mimetype'] = field.default_content_type
