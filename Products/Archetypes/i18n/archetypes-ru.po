@@ -1,26 +1,22 @@
-# Gettext Message File for Archetypes.
-# Dorneles Treméa <dorneles@x3ng.com.br>, 2004
-# Fabiano Weimar dos Santos <fabiano@x3ng.com.br>, 2003
 msgid ""
 msgstr ""
 "Project-Id-Version: Archetypes 1.3\n"
 "POT-Creation-Date: 2004-01-18 16:00 +0100\n"
-"PO-Revision-Date: 2004-01-18 16:00 +0100\n"
-"Last-Translator: Dorneles Treméa <dorneles@x3ng.com.br>\n"
-"Language-Team: Archetypes Framework <archetypes-devel@lists.sourceforge.net>\n"
+"Last-Translator: Mikhail Kashkin (http://keysolutions.ru/)\n"
+"Language-Team:  Russian <mailbox@xen.ru>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language-Code: en\n"
-"Language-Name: English\n"
-"Preferred-Encodings: utf-8 latin1\n"
+"Language-Сode: ru\n"
+"Language-Name: Русский\n"
+"Preferred-Encodings: utf-8 cp1251\n"
 "Domain: archetypes\n"
 
 #: skins/archetypes/reference_edit.cpt
 #. <table i18n:attributes="summary" summary="table_summary">
 msgid "table_summary"
-msgstr "Object References"
+msgstr "Связи объекта"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -28,7 +24,7 @@ msgstr "Object References"
 #.   Referencing
 #.  </span>
 msgid "label_referencing"
-msgstr "Referencing"
+msgstr "Установка связей"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -36,32 +32,32 @@ msgstr "Referencing"
 #.  Referenced By
 #. </span>
 msgid "label_referenced"
-msgstr "Referenced by"
+msgstr "Относится к"
 
 
 #: skins/zmi/base_edit.pt
 #. <input i18n:attributes="value" value="Save" type="submit" />
 msgid "Save"
-msgstr "Save"
+msgstr "Сохранить"
 
 
 #: skins/zmi/base_add.pt
 #. <input i18n:attributes="value" value="Add" type="submit" />
 ## 1 more: skins/archetypes/widgets/reference.pt
 msgid "Add"
-msgstr "Add"
+msgstr "Добавить"
 
 
 #: skins/archetypes/reference_edit.cpt
 #. <a href="" i18n:attributes="title" title="Delete reference">
 msgid "Delete reference"
-msgstr "Delete reference"
+msgstr "Удалить связь"
 
 
 #: skins/archetypes/reference_edit.cpt
 #. <input i18n:attributes="value" value="reference" type="submit" />
 msgid "Reference"
-msgstr "Reference"
+msgstr "Связи"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -70,39 +66,31 @@ msgstr "Reference"
 #.  This will create references.
 #. </p>
 msgid "label_copy"
-msgstr "Copy objects from folders and then click the reference button. This will create references."
+msgstr "Для добавления связей на странице со списком файлов скопируйте элемент и вернитесь на эту страницу."
 
 
 #: Field.py
 #. ${name} is required, please correct.
 msgid "error_required"
-msgstr "${name} is required, please correct."
+msgstr "Поле ${name} обязательно для заполнения."
 
 
 #: Field.py
 #. Value ${val} is not allowed for vocabulary of element ${name}.
 msgid "error_vocabulary"
-msgstr "Value ${val} is not allowed for vocabulary of element ${name}."
+msgstr "Значение ${val} не входит в словарь допистимых значений элемента ${name}."
 
 
 #: Field.py
 #. at
 msgid "label_at"
-msgstr "at"
+msgstr "в"
 
 
 #: Field.py
 #. <no reference>
 msgid "label_no_reference"
-msgstr "<no reference>"
-
-
-#: skins/archetypes/widgets/reference.pt
-#. <a href="" i18n:translate="label_hide_add_form">
-#.  hide add form
-#. </a>
-msgid "label_hide_add_form"
-msgstr "hide add form"
+msgstr "<Нет связей>"
 
 
 #: widgets/reference.pt
@@ -110,7 +98,7 @@ msgstr "hide add form"
 #.  Select what content type you wish to create.
 #. </div>
 msgid "help_select_content_to_create"
-msgstr "Select what content type you wish to create."
+msgstr "Выберите какога типа данные хотите создать."
 
 
 #: widgets/reference.pt
@@ -118,7 +106,15 @@ msgstr "Select what content type you wish to create."
 #.  Select where you want to create that.
 #. </div>
 msgid "help_select_where_to_create"
-msgstr "Select where you want to create that."
+msgstr "Выберите где хотите создать."
+
+
+#: widgets/reference.pt
+#. <a i18n:translate="label_hide_add_form">
+#.  hide add form
+#. </a>
+msgid "label_hide_add_form"
+msgstr "скрыть форму добавления"
 
 
 #: widgets/reference.pt
@@ -126,7 +122,7 @@ msgstr "Select where you want to create that."
 #.  What
 #. </label>
 msgid "label_what"
-msgstr "What"
+msgstr "Что"
 
 
 #: widgets/reference.pt
@@ -134,7 +130,7 @@ msgstr "What"
 #.  Where
 #. </label>
 msgid "label_where"
-msgstr "Where"
+msgstr "Где"
 
 
 #: widgets/reference.pt
@@ -142,34 +138,34 @@ msgstr "Where"
 #.  add new
 #. </legend>
 msgid "legend_add_new"
-msgstr "add new"
+msgstr "добавить новую"
 
 
 #: widgets/rich.pt
 #. <strong i18n:translate="uppercase_or">OR</strong>
 msgid "uppercase_or"
-msgstr "OR"
+msgstr "ИЛИ"
 
 
 #: widgets/rich.pt
-#. <label i18n:translate="upload_a_file">Upload a File</label> 
+#. <label i18n:translate="upload_a_file">Upload a File</label>
 msgid "upload_a_file"
-msgstr "Upload a File"
+msgstr "Закачать файл"
 
 
 #: skins/archetypes/content_edit.cpy
 #. Add New Item operation was cancelled.
 msgid "message_add_new_item_cancelled"
-msgstr "Add New Item operation was cancelled."
+msgstr "Операция добавления отменена."
 
 
 #: skins/archetypes/content_edit.cpy
 #. Reference Added.
 msgid "message_reference_added"
-msgstr "Reference Added."
+msgstr "Ссылка добавлена."
 
 
 #: skins/archetypes/content_edit.cpy
 #. Content changes saved.
 msgid "message_content_changes_saved"
-msgstr "Content changes saved."
+msgstr "Изменения сохранены."
