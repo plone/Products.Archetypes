@@ -4,8 +4,8 @@ Archetypes Documentation Guide
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/06/24 15:03:50 $
-:Version: $Revision: 1.1.2.2 $
+:Date: $Date: 2003/06/24 15:07:04 $
+:Version: $Revision: 1.1.2.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 This guide's purpose is to help developers to mantain some level of
@@ -33,7 +33,7 @@ written using reStructuredText, so they can be extracted using the
 conjunction with the `Archetypes Quick Reference Guide`_.
 
 `PEP 257`_ and `PEP 258`_, specially the section about the `Python
-Source Reader`_, are a *MUST READ* for all developers and
+Source Reader`_, are a **MUST READ** for all developers and
 contributors.
 
 .. _Docutils: http://docutils.sf.net
