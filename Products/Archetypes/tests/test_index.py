@@ -77,10 +77,29 @@ class ETagTest(ATSiteTestCase):
         after = self.inst.http__etag(readonly=True)
         self.failIf(before == after)
 
+
+class ReindexTest(ATSiteTestCase):
+
+    def afterSetUp(self):
+        self.setRoles(['Manager'])
+        self.inst = makeContent(self.portal,
+                                portal_type='SimpleType',
+                                id='simple_type')
+        self.ct = getToolByName(self.portal, 'portal_catalog')
+
+    def test_reindex_unindexes_old(self):
+        ct = self.ct
+        self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
+        self.inst.edit(title='Mosquito')
+        self.assertEquals(len(ct(SearchableText='Mosquito')), 1)
+        self.inst.edit(title='Libido')
+        self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ETagTest))
+    suite.addTest(makeSuite(ReindexTest))
     return suite
 
 if __name__ == '__main__':
