@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.7 2003/10/22 17:27:39 tiran Exp $
+# $Id: common.py,v 1.1.2.8 2003/10/27 20:35:45 tiran Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -46,13 +46,15 @@ except ImportError:
         return True
     def getImplementsOfInstances(object):
         return ()
+    def getImplements(object):
+        return ()
     def flattenInterfaces(interfaces, remove_duplicates=1):
         return ()
     class BrokenImplementation(Execption): pass
     class DoesNotImplement(Execption): pass
     class BrokenMethodImplementation(Execption): pass
 else:
-    from Interface.Implements import getImplementsOfInstances, flattenInterfaces
+    from Interface.Implements import getImplementsOfInstances, getImplements, flattenInterfaces
     from Interface.Verify import verifyClass, verifyObject
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
     from Interface.Exceptions import BrokenMethodImplementation  
@@ -68,7 +70,7 @@ class TestPreconditionFailed(Exception):
 have failed: '%s' " % (self.test, self.precondition)
 
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
-           'verifyClass', 'verifyObject', 'BrokenImplementation',
+           'verifyClass', 'verifyObject', 'getImplements', 'BrokenImplementation',
            'DoesNotImplement', 'BrokenMethodImplementation', 
            'getImplementsOfInstances', 'flattenInterfaces',
            'newSecurityManager', 'noSecurityManager', 
