@@ -386,27 +386,6 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
-    # misc... #################################################################
-
-    security.declarePrivate( '_datify' )
-    def _datify( self, attrib ):
-        """FIXME: overriden from DublinCore to deal with blank value..."""
-        if attrib == 'None' or not attrib:
-            attrib = None
-        elif not isinstance( attrib, DateTime ):
-            attrib = DateTime( attrib )
-        return attrib
-
-    security.declarePublic( 'Date' )
-    def Date( self ):
-        """FIXME: overriden from DublinCore to deal with blank value...
-        Dublin Core element - default date
-        """
-        # Return effective_date if set, modification date otherwise
-        date = getattr(self, 'effective_date', None )
-        if not date:
-            date = self.modified()
-        return date.ISO()
 
     # I18N content management #################################################
 
@@ -555,13 +534,14 @@ class BaseObject(Implicit):
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
-        if REQUEST is None:
-            REQUEST = self.REQUEST
-        key = self.absolute_url()
-        session = REQUEST.SESSION
-        defined = session.get(key, {})
-        defined.update(objects)
-        session[key] = defined
+        if objects:
+            if REQUEST is None:
+                REQUEST = self.REQUEST
+            key = '/'.join(self.getPhysicalPath())
+            session = REQUEST.SESSION
+            defined = session.get(key, {})
+            defined.update(objects)
+            session[key] = defined
 
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """add a dictionnary of objects to session variable
@@ -590,7 +570,7 @@ class BaseObject(Implicit):
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
-
+        
 class Wrapper:
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1
