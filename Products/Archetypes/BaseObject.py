@@ -877,7 +877,10 @@ class BaseObject(Referenceable):
         # from deep ZPublisher inspection it seems like
         # we *SHOULD NOT* raise a notFoundError, but instead,
         # return None and leave acquisition do it's job.
-        return
+        
+        # XXX according to Dieter Maurer the above comment is wrong. Returning
+        # None will result into a Unauthorized exception
+        raise AttributeError(name)
 
 InitializeClass(BaseObject)
 
