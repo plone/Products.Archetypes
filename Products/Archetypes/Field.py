@@ -753,6 +753,14 @@ class FileField(ObjectField):
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
+    
+    def download(self, instance):
+        """
+        """
+        bu = self.getBaseUnit(instance)
+        REQUEST = instance.REQUEST
+        RESPONSE = REQUEST.RESPONSE
+        return bu.index_html(REQUEST, RESPONSE)
 
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of

@@ -10,7 +10,7 @@ from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
 from Products.MimetypesRegistry.common import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-from Products.MimetypesRegistry.mime_types.mtr_mimetypes import text_plain, \
+from Products.MimetypesRegistry.mime_types import text_plain, \
      application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
@@ -164,7 +164,7 @@ class BaseUnit(File):
         filename = self.filename
         if self.filename:
             RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename=%s' % self.filename)
+                               'attachment; filename=%s' % self.getFilename())
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
