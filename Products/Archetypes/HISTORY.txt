@@ -25,6 +25,13 @@
    install_indexes. Indexes on reference fields are fully supported again.
    [tiran]
 
+ * Changed permission of BaseObject.getField() and getWrappedField() from
+   ModifyPortalContent to View. All mutators on fields are secured and it won't
+   make any harm to get a field. Besides it is currently possible getting a
+   field over archetype_tool.
+   [tiran]
+   
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

@@ -25,6 +25,7 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
+from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
@@ -197,15 +198,13 @@ class BaseObject(Referenceable):
                 return ti.Title()
         return self.meta_type
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'getField')
+    security.declareProtected(CMFCorePermissions.View, 'getField')
     def getField(self, key, wrapped=False):
         """Return a field object
         """
         return self.Schema().get(key)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'getWrappedField')
+    security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
         """Get a field by id which is explicitly wrapped
         
@@ -346,7 +345,7 @@ class BaseObject(Referenceable):
         """
         schema = self.Schema()
         keys = schema.keys()
-        if key not in keys and key[:1] != "_": #XXX 2.2
+        if key not in keys and not key.startswith('_'):
             return getattr(self, key, None) or \
                    getattr(aq_parent(aq_inner(self)), key, None)
 
