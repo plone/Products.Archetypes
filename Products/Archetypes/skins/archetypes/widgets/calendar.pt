@@ -50,7 +50,7 @@
           </tal:from>
           -
           <tal:to define="id fieldName;
-                          inputname fieldName;
+                          inputname string:${fieldName}.query:record;
                           formname string:search_form;
                           inputvalue python:max(request.form.get(fieldName, None) or
                                             request.other.get(fieldName, None) or
@@ -62,8 +62,8 @@
           </tal:to>
           <input type="hidden"
                  name="field_usage"
-                 value="range:min:max"
-                 tal:attributes="name string:${fieldName}_usage"
+                 value="min:max"
+                 tal:attributes="name string:${fieldName}.range:record"
                  />
         </metal:slot>
       </metal:field>
