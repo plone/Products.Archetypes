@@ -17,7 +17,7 @@ enc = proptool.site_properties.default_charset
 if same_type(item, 0): item = str(item)
 if same_type(value, 0): value = str(value)
 
-if same_type(item, ''): 
+if same_type(item, ''):
     try:
         item = unicode(item, enc)
     except UnicodeDecodeError:
@@ -26,7 +26,7 @@ if same_type(item, ''):
         except UnicodeDecodeError:
             pass
 
-if same_type(value , ''): 
+if same_type(value , ''):
     try:
         value = unicode(value, enc)
     except UnicodeDecodeError:

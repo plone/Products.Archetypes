@@ -22,4 +22,3 @@ BaseSchema = BaseContent.schema
 MinimalSchema = BaseObject.schema
 
 from AccessControl import ClassSecurityInfo
-

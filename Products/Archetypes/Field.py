@@ -48,7 +48,7 @@ try:
 except NameError:
     True=1
     False=0
-    
+
 _marker = []
 
 __docformat__ = 'reStructuredText'
@@ -184,12 +184,12 @@ class Field(DefaultLayerContainer):
         else:
             strategy  = 'and'
             validators = self.validators
-        
+
         if type(validators) not in (TupleType, ListType):
             validators = (validators,)
         else:
             validators = tuple(validators)
-            
+
         if strategy not in ('and', 'or'):
             raise ValueError("strategy %s not in ('and', 'or')" % strategy)
 
@@ -265,7 +265,7 @@ class Field(DefaultLayerContainer):
 
         for name in validators:
             results[name] = validation.validate(name, value, instance=instance,
-                                                errors=errors, field=self, 
+                                                errors=errors, field=self,
                                                 isEmpty=isEmpty, **kwargs)
 
         for name, res in results.items():
@@ -273,7 +273,7 @@ class Field(DefaultLayerContainer):
                 failed = 1
             if res == 1 and strategy == 'or':
                 failed = 0
-                
+
         if failed:
             return '\n'.join(['%s: %s' % (name, res)
                               for name, res in results.items()
@@ -483,7 +483,7 @@ class ObjectField(Field):
         'type' : 'object',
         'default_content_type' : 'application/octet',
         })
-        
+
     security  = ClassSecurityInfo()
 
     def get(self, instance, **kwargs):
@@ -1319,7 +1319,7 @@ class ImageField(ObjectField):
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
         self.createScales(instance)
-        
+
     def _updateKwargs(self, instance, value, **kwargs):
         # get filename from kwargs, then from the value
         # if no filename is available set it to ''
@@ -1346,7 +1346,7 @@ class ImageField(ObjectField):
 
     def rescaleOriginal(self, value, **kwargs):
         """rescales the original image and sets the data
-        
+
         for self.original_size or self.max_size
         """
         mimetype = kwargs.get('mimetype', 'image/png')
@@ -1367,7 +1367,7 @@ class ImageField(ObjectField):
                     w,h = self.original_size
                 if w and h:
                     value = self.scale(data,w,h)
-        
+
         return value
 
     def createOriginal(self, instance, value, **kwargs):
@@ -1443,7 +1443,7 @@ class ImageField(ObjectField):
         elif original_mode == 'P':
             image = image.convert('RGBA')
         image.thumbnail(size, pilfilter)
-        # XXX: tweak to make the unit test 
+        # XXX: tweak to make the unit test
         #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or 'PNG'
         # decided to only preserve palletted mode

@@ -16,4 +16,3 @@ class SimpleFile(BaseContent):
     archetype_name = "Simple File Type"
 
 registerType(SimpleFile)
-

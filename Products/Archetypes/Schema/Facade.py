@@ -177,4 +177,3 @@ class FacadeMetadataSchema(BasicSchema):
         set = pm.getMetadataSet(self.set_id)
         set.validate(self.set_id, field_data, errors)
         return errors
-

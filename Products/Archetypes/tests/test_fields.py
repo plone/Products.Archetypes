@@ -80,7 +80,7 @@ schema = Schema(tuple(field_instances))# + BaseDummy.schema.copy()
 class Dummy(BaseDummy):
     schema = schema
     def Title(self): return 'Spam' # required for ImageField
-    
+
 del schema
 
 class FakeRequest:
@@ -98,7 +98,7 @@ class ProcessingTest(ArchetypesTestCase):
         txt_file.seek(0)
         img_file.seek(0)
         self.makeDummy()
-        
+
     def makeDummy(self):
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()

@@ -18,5 +18,5 @@ for f in fields:
         # I love list comprehension ;)
         [order.append(item) for item in helper
          if item not in order]
-        
+
 return order

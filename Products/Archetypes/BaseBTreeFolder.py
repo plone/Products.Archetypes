@@ -68,7 +68,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declareProtected(ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents
-    
+
     security.declareProtected(AccessContentsInformation,
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents

@@ -53,4 +53,3 @@ class FacadeMetadataStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         pass
-

@@ -252,7 +252,7 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-# DM (avoid persistency bug): 
+# DM (avoid persistency bug):
 ##_types_callback = []
 
 def _guessPackage(base):
@@ -287,7 +287,7 @@ def registerType(klass, package=None):
     key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
 
-    # DM (avoid persistency bug): 
+    # DM (avoid persistency bug):
 ##    for tc in _types_callback:
 ##        tc(klass, package)
 
@@ -869,7 +869,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not o._isSchemaCurrent():
             o._updateSchema()
 
-# DM (avoid persistency bug): 
+# DM (avoid persistency bug):
 ##    def __setstate__(self, v):
 ##        """Add a callback to track product registrations"""
 ##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
@@ -892,7 +892,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 ##                self.last_types_update = DateTime()
 
 
-# DM (avoid persistency bug): 
+# DM (avoid persistency bug):
 ##    security.declareProtected(CMFCorePermissions.ManagePortal,
 ##                              'registerType')
 ##    def registerType(self, klass, package):

@@ -30,7 +30,7 @@ class Dummy(BaseContent):
             firstname = lastname = ''
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
- 
+
 registerType(Dummy)
 
 tests = []
@@ -43,9 +43,9 @@ class AggregatedStorageTestsNoCache(unittest.TestCase):
         self._storage = AggregatedStorage(caching=self.caching)
         self._storage.registerAggregator('whole_name', 'get_name')
         self._storage.registerDisaggregator('whole_name', 'set_name')
-        
+
         schema = Schema( (StringField('whole_name', storage=self._storage),
-                         )) 
+                         ))
 
         self._instance = Dummy('dummy')
         self._instance.schema = schema
@@ -53,13 +53,13 @@ class AggregatedStorageTestsNoCache(unittest.TestCase):
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']
-        
+
         self.assertEqual(field.get(self._instance).strip(), '')
         field.set(self._instance, 'Donald Duck')
         self.assertEqual(self._instance.firstname, 'Donald')
         self.assertEqual(self._instance.lastname, 'Duck')
         self.assertEqual(field.get(self._instance).strip(), 'Donald Duck')
-        
+
         self._instance.firstname = 'Daniel'
         self._instance.lastname = 'Dosentrieb'
         self.assertEqual(field.get(self._instance).strip(), 'Daniel Dosentrieb')

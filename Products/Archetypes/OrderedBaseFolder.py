@@ -138,7 +138,7 @@ class OrderedContainer:
     security.declareProtected(ModifyPortalContent, 'moveObjectsByDelta')
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
-        
+
         XXX zope 2.7 has a new argument subset_ids which isn't handled by this
         implementation
         """
@@ -243,7 +243,7 @@ class OrderedContainer:
     security.declareProtected(ModifyPortalContent, 'orderObjects')
     def orderObjects(self, key, reverse=None):
         """ Order sub-objects by key and direction.
-        
+
         Key can be an attribute or a method
         """
         ids = [ id for id, obj in sequence.sort( self.objectItems(),

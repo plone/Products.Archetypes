@@ -189,4 +189,3 @@ InitializeClass(BaseUnit)
 
 # Backward-compatibility. Should eventually go away after 1.3-final.
 newBaseUnit = BaseUnit
-

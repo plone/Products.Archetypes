@@ -16,7 +16,7 @@ class MyValidator:
     def __init__(self, name, fun):
         self.name = name
         self.fun = fun
-    
+
     def __call__(self, value, instance, field, *args, **kwargs):
         return self.fun(value)
 
@@ -31,7 +31,7 @@ settings = [
     {'field': {}, # this is the dict of field properties
      'value': None,
      'assertion': lambda result:result is None, # result of field.validate()
-     }, 
+     },
 
     {'field': {'required': 1}, # required
      'value': None,            # ... but no value given
@@ -40,7 +40,7 @@ settings = [
     ]
 
 for req in 0,1: # 0 == not required, 1 == required
-    
+
     for validator in (('v2', 'v1'), ('v1',)):
         # Make sure that for both sets of validators, v1 returns an error.
         settings.append(
@@ -88,7 +88,7 @@ class TestSettings(ArchetypesTestCase):
             result = field.validate(setting['value'], self.instance, errors={})
             msg = 'Assertion failed for setting:\n%s.\nResult was "%s".' % \
                   (setting, result)
-            
+
             self.assert_(setting['assertion'](result),
                          setting.get('failmsg', msg))
 

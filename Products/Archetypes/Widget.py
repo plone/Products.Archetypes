@@ -615,16 +615,16 @@ registerWidget(EpozWidget,
                )
 
 registerWidget(InAndOutWidget,
-	       title='In & Out',
-	       description=('Renders a widget for moving items '
+               title='In & Out',
+               description=('Renders a widget for moving items '
                             'from one list to another. Items are '
                             'removed from the first list.'),
-	       used_for=('Products.Archetypes.Field.LinesField',)
-	       )
+               used_for=('Products.Archetypes.Field.LinesField',)
+               )
 
 registerWidget(PicklistWidget,
-	       title='Picklist',
-	       description=('Render a widget to pick from one '
+               title='Picklist',
+               description=('Render a widget to pick from one '
                             'list to populate another.  Items '
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
