@@ -829,7 +829,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self, REQUEST=None):
+    def manage_updateSchema(self, REQUEST=None, update_all=None):
         """Make sure all objects' schema are up to date"""
 
         out = StringIO()
@@ -839,7 +839,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if REQUEST is None:
             # DM (avoid persistency bug): avoid code duplication
             update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
-            update_all = 0
         else:
             # DM (avoid persistency bug):
             for t in self._listAllTypes():
