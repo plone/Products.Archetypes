@@ -1,3 +1,11 @@
+2004-03-14  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Changed import behavior of the generator and validation packages. They are
+      loaded from the Zope Products directory only to ease up the installation.
+
+    * Updated README to reflect the install location changes for newer releases
+      of Archetypes
+
 2004-03-02  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): field_name
