@@ -37,6 +37,7 @@ def install_tools(self, out):
     if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
+        at = getToolByName(self, 'archetype_tool', None)
 
         ##Test some of the templating code
         at.registerTemplate('base_view', "Normal View")
