@@ -30,6 +30,8 @@ from ZODB.PersistentMapping import PersistentMapping
 from ComputedAttribute import ComputedAttribute
 from Products.PortalTransforms.interfaces import idatastream
 
+import config
+
 try:
     from validation import validation
 except ImportError:
@@ -802,7 +804,7 @@ class ReferenceField(ObjectField):
             return value
         results = []
         if self.allowed_types:
-            catalog = getToolByName(content_instance, 'portal_catalog')
+            catalog = getToolByName(content_instance, config.UID_CATALOG)
             results = catalog(Type=self.allowed_types)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
