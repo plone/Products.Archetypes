@@ -235,8 +235,6 @@ def install_indexes(self, out, types):
 
         for field in cls.schema.fields():
             if field.index:
-                if field.type == 'reference':
-                    raise SyntaxError('Index on reference fields aren\'t supported yet.')
 
                 if type(field.index) is StringType:
                     index = (field.index,)

@@ -21,6 +21,10 @@
    'base_view' as fallback.
    [runyan, tiran]
 
+ * Removed warning when trying to apply an index on a reference field from
+   install_indexes. Indexes on reference fields are fully supported again.
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
