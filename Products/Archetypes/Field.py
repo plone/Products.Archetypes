@@ -1350,6 +1350,7 @@ class ReferenceField(ObjectField):
         abs_paths = {}
         def assign(x, y): abs_paths[x]=y
         [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
+        #[assign("%s" %(b.getPath()), b) for b in brains]
 
         pc_brains = pc(path=abs_paths.keys(), **skw)
 
@@ -1365,7 +1366,10 @@ class ReferenceField(ObjectField):
                path.find(config.REFERENCE_ANNOTATION) != -1:
                 continue
 
-            pairs.append((abs_paths[b.getPath()].UID, label(b)))
+            # now check if the results from the pc is the same as in uc.
+            # so we verify that b is a result that was also returned by uc, hence the check in abs_paths.            if abs_paths.has_key(b.getPath()):
+                pairs.append((abs_paths[b.getPath()].UID, label(b)))
+
 
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
