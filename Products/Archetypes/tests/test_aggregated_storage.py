@@ -2,6 +2,7 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+import unittest
 from common import *
 from utils import *
 from Products.Archetypes.AggregatedStorage import AggregatedStorage
@@ -60,8 +61,8 @@ class AggregatedStorageTestsNoCache(unittest.TestCase):
         self.assertEqual(field.get(self._instance).strip(), 'Donald Duck')
         
         self._instance.firstname = 'Daniel'
-        self._instance.lastname = 'Düsentrieb'
-        self.assertEqual(field.get(self._instance).strip(), 'Daniel Düsentrieb')
+        self._instance.lastname = 'Dosentrieb'
+        self.assertEqual(field.get(self._instance).strip(), 'Daniel Dosentrieb')
 
         field.set(self._instance, 'Bingo Gringo')
         self.assertEqual(self._instance.firstname, 'Bingo')
