@@ -32,14 +32,14 @@
                            filename unit/filename | nothing"
                    condition="python:size &gt; 0">
 
-        <label>
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
-        Current image:
-        </label>
+        Current image
+        
+        <span class="discreet">
+          <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
           <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
-          <span class="discreet" tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
-
+        </span>
         </tal:block>
       </tal:define>
     </div>
