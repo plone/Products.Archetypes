@@ -1,5 +1,5 @@
 from __future__ import nested_scopes
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
@@ -128,7 +128,16 @@ class Field(DefaultLayerContainer):
                 log("Unhandled type in Vocab")
                 log(value)
 
-        return value 
+        return value
+
+    def checkPermission(self, mode, instance):
+        if mode in ('w', 'write', 'edit', 'set'):
+            perm = self.write_permission
+        elif mode in ('w', 'write', 'edit', 'set'):
+            perm = self.read_permission
+        else:
+            return None
+        return getSecurityManager().checkPermission( perm, instance )
 
 
 class ObjectField(Field):
