@@ -223,7 +223,7 @@ class DisplayList:
         v = self._values.get(value, None)
         if v: return v[1]
         for k, v in self._values.items():
-            if str(value) == str(k):
+            if repr(value) == repr(k):
                 return v[1]
         return default
 
@@ -232,7 +232,7 @@ class DisplayList:
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
-            if str(key) == str(k):
+            if repr(key) == repr(k):
                 return v[1]
         return default
 
