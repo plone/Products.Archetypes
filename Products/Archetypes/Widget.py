@@ -71,7 +71,8 @@ class TypesWidget(macrowidget):
     def process_form(self, instance, field, form, empty_marker=None):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
-        if value is empty_marker: return empty_marker
+        if value is empty_marker or value == '':
+            return empty_marker
         return value, {}
 
 class StringWidget(TypesWidget):
@@ -193,7 +194,8 @@ class TextAreaWidget(TypesWidget):
         # text field with formatting
         value = form.get(field.getName(), empty_marker)
 
-        if value is empty_marker: return empty_marker
+        if value is empty_marker or value is '':
+            return empty_marker
 
         if hasattr(field, 'allowable_content_types') and \
                field.allowable_content_types:
