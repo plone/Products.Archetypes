@@ -51,7 +51,7 @@
 		<td>
 		  <table class="detail">
 		    <tr class="row" tal:repeat="field type/type/fields">
-		      <td tal:content="string: ${field/name}::${field/type}"/> 
+		      <td tal:content="string: ${field/getName}::${field/type}"/> 
 		      <td tal:content="field/required"/>
 		  </tr>
 		</table>
