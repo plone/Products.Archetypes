@@ -95,9 +95,9 @@ def gen_dummy(storage_class):
                        widget = ReferenceWidget(label = 'areferencefield',
                                                 description = 'Just a reference field for the testing')),
 
-        #BooleanField('abooleanfield',
-        #             widget = StringWidget(label = 'abooleanfield',
-        #                                   description = 'Just a boolean field for the testing')),
+        BooleanField('abooleanfield',
+                     widget = StringWidget(label = 'abooleanfield',
+                                           description = 'Just a boolean field for the testing')),
 
         #ImageField('aimagefield',
         #           original_size = (600,600),
@@ -125,6 +125,7 @@ class DummyTool:
         setattr(instance, connection_id, self.connection)
 
 class SQLStorageTest(unittest.TestCase):
+    # abstract base class for the tests
     db_name = ''
 
     def setUp(self):
@@ -139,13 +140,13 @@ class SQLStorageTest(unittest.TestCase):
         db = getattr(self._dummy, connection_id)()
         db.tpc_abort()
 
+
     def test_objectfield(self):
         dummy = self._dummy
         dummy.setAobjectfield('Bla')
         value = dummy.getAobjectfield()
         __traceback_info__ = repr(value)
         self.failUnless(str(value) == 'Bla')
-
 
     def test_textfield(self):
         dummy = self._dummy
@@ -169,7 +170,6 @@ class SQLStorageTest(unittest.TestCase):
         __traceback_info__ = repr(value)
         self.failUnless(value == 23)
 
-
     def test_fixedpointfield(self):
         dummy = self._dummy
         dummy.setAfixedpointfield('2.3')
@@ -177,13 +177,19 @@ class SQLStorageTest(unittest.TestCase):
         __traceback_info__ = repr(value)
         self.failUnless(value == '2.30')
 
-
     def test_referencefield(self):
         dummy = self._dummy
         dummy.setAreferencefield('Bla')
         value = dummy.getAreferencefield()
         __traceback_info__ = repr(value)
         self.failUnless(str(value) == 'Bla')
+
+    def test_booleanfield(self):
+        dummy = self._dummy
+        dummy.setAbooleanfield(1)
+        value = dummy.getAbooleanfield()
+        __traceback_info__ = repr(value)
+        self.failUnless(value == 1)
 
 
 
