@@ -12,7 +12,7 @@
     <metal:use use-macro="here/widgets/field/macros/view">
     <metal:fill fill-slot="widget_view" 
 	   tal:define="vocab python:field.Vocabulary(here);
-	               display python: vocab.getValue(accessor())"> 
+	               display python: vocab.getValue(unicode(str(accessor())))"> 
         <span tal:replace="structure display"/>
 	</metal:fill>
     </metal:use>
@@ -41,7 +41,7 @@
                 <br />
 		    </tal:radios>
         </tal:shortVocab>
-        <tal:longVocab condition="python: (vlen >= 4 and format=='flex') or (format == 'select')">
+        <tal:longVocab condition="python: (vlen >= 4 and format=='flex') or (format in ('select','pulldown'))">
         <!-- Pulldown when longer -->
 	        <select tal:attributes="name fieldName; id fieldName;
                     tabindex tabindex/next;
