@@ -137,9 +137,8 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        """XXX dummy method
-        """
-##        Referenceable.manage_afterClone(self, item)
+        __traceback_info__ = (self, item)
+        Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):

@@ -27,7 +27,8 @@ from AccessControl import ClassSecurityInfo
 from ref_graph import get_cmapx, get_png
 
 
-class Referenceable(CopySource):
+class Referenceable(Base):
+##class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
@@ -197,10 +198,10 @@ class Referenceable(CopySource):
         Get a UID
         (Called when the object is created or moved.)
         """
-        isCopy = getattr(item, '_v_is_cp', None)
-        if isCopy:
-            setattr(self, config.UUID_ATTR, None)
-            self._delReferenceAnnotations()
+##        isCopy = getattr(item, '_v_is_cp', None)
+##        if isCopy:
+##            setattr(self, config.UUID_ATTR, None)
+##            self._delReferenceAnnotations()
 
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
@@ -208,8 +209,23 @@ class Referenceable(CopySource):
         self._referenceApply('manage_afterAdd', item, container)
 
     def manage_afterClone(self, item):
-        """XXX dummy method
         """
+        Get a new UID (effectivly dropping reference)
+        (Called when the object is cloned.)
+        """
+        uc = getToolByName(self, config.UID_CATALOG)
+
+        if not shasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
+            #if the object has no UID or the UID already exists, get a new one
+            setattr(self, config.UUID_ATTR, None)
+        
+        # remove annotations from current object
+        # It's required because we want to loose all references on a copy/clone
+        # operation but an annotation object would resurrect the references.
+        self._delReferenceAnnotations()
+
+        self._register()
+        self._updateCatalog(self)
 
     def manage_beforeDelete(self, item, container):
         """
@@ -291,11 +307,11 @@ class Referenceable(CopySource):
                 uc.uncatalog_object(url)
                 rc.uncatalog_object(url)
 
-    # CopyPaste hack
-    def _getCopy(self, container):
-        ob = CopySource._getCopy(self, container)
-        ob._v_is_cp = 1
-        return ob
+##    # CopyPaste hack
+##    def _getCopy(self, container):
+##        ob = CopySource._getCopy(self, container)
+##        ob._v_is_cp = 1
+##        return ob
 
     def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
