@@ -120,7 +120,9 @@ class BaseObject(Implicit):
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
         mimetype = self.getContentType(key)
-        if mimetype and mimetype.find('text') >= 0:
+        if mimetype and hasattr(aq_base(mimetype), 'binary'):
+            return mimetype.binary
+        elif mimetype and mimetype.find('text') >= 0:
             return 0
         return 1
 
@@ -254,16 +256,18 @@ class BaseObject(Implicit):
         """full indexable text"""
         data = []
         for field in self.Schema().fields():
-            if field.searchable != 1: continue
-            try:
-                method = getattr(self, field.accessor)
-                datum = method()
-                #if hasattr(dataum, 'isUnit'):
-                #    data.append(datum.transform('text/plain').getData()
-                #else:
-                data.append(datum)
-            except:
-                pass
+            if field.searchable != 1:
+                continue
+            method = getattr(self, field.accessor)
+            if field.hasI18NContent():
+                for lang_id in field.getDefinedLanguages(self):
+                    datum = text_data(method, lang_id)
+                    if datum:
+                        data.append(datum)
+            else:
+                datum = text_data(method)
+                if datum:
+                    data.append(datum)
 
         data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
@@ -304,6 +308,10 @@ class BaseObject(Implicit):
             if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
+        base_lang = self.getLanguage()
+        lang = form.get('new_lang', form.get('lang', base_lang))
+        if lang != base_lang:
+            self.setI18NCookie(lang)
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
                 text_format = None
@@ -330,10 +338,14 @@ class BaseObject(Implicit):
                 if value is None: continue
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
-                if text_format and not isFile:
-                    mutator(value, mimetype=text_format)
+                if field.hasI18NContent():
+                    kwargs = {'lang': lang}
                 else:
-                    mutator(value)
+                    kwargs = {}
+                if text_format and not isFile:
+                    mutator(value, mimetype=text_format, **kwargs)
+                else:
+                    mutator(value, **kwargs)
 
         self.reindexObject()
 
@@ -347,5 +359,51 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
+
+    security.declarePublic("hasI18NContent")
+    def hasI18NContent(self):
+        """return true it the schema contains at least one I18N field"""
+        for field in self.Schema().values():
+            if field.hasI18NContent():
+                return 1
+        return 0
+
+    security.declarePublic("getFilteredLanguages")
+    def getFilteredLanguages(self, REQUEST=None):
+        """ return a list of all existant languages for this instance
+        each language is a tupe (id, label)
+        """
+        langs = {}
+        for field in self.Schema().values():
+            if field.hasI18NContent():
+                for lang in field.getDefinedLanguages(self):
+                    langs[lang] = 1
+        return [(lang_id, self.languageDescription(lang_id)) for lang_id in langs.keys()]
+
+    security.declarePublic("getLanguage")
+    def getLanguage(self, lang=None):
+        """ return the id for the current language"""
+        if lang:
+            return lang
+        REQUEST = self.REQUEST
+        if REQUEST is not None and hasattr(REQUEST, 'cookies'):
+            language = REQUEST.cookies.get('I18N_CONTENT_LANGUAGE', 'en')
+        else:
+            language = 'en'
+        return language
+
+
+def text_data(accessor, lang_id=None):
+    if lang_id is not None:
+        try:
+            return accessor(lang=lang_id, mimetype="text/plain")
+        except TypeError:
+            try:
+                return method(lang=lang_id)
+            except:
+                return ''
+        except:
+            return ''
+    
 InitializeClass(BaseObject)
 
