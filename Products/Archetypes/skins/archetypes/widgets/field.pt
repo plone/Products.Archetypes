@@ -103,9 +103,10 @@
             </a>
           </span>
 
-          <span tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
-                tal:omit-tag="">
-            Content Type: <span tal:replace="python:field.getContentType(here)" />
+          <span tal:define="content_type python: field.getContentType(here)"
+                tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and content_type"
+                tal:omit-tag=""
+                tal:content="string:Content Type: ${content_type}">
           </span>
 
           <span tal:omit-tag=""
