@@ -93,7 +93,7 @@
       <div metal:use-macro="here/widgets/reference/macros/edit">
       </div>
     </div>
-
+  </div>
   </body>
 
 </html>

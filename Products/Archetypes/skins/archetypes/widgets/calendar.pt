@@ -27,7 +27,7 @@
 		 inputname  fieldName;
 		 formname   string:edit_form;
 		 inputvalue python: test(value, value, '');
-		 tabindex tabindex/next;
+		 tabindex tabindex/next;"
 		 tal:omit-tag="">
 		 <div metal:use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		   a calendar, hopefully
@@ -44,7 +44,7 @@
 		      inputname  fieldName;
 		      formname   string:search_form;
 		      inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
-		      tabindex tabindex/next;
+		      tabindex tabindex/next;"
 		      tal:omit-tag="">
 	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully
@@ -56,7 +56,7 @@
 		    formname   string:search_form;
 		    inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
 		    tabindex tabindex/next;"
-		    />
+		    >
 	    tal:omit-tag="">
 	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully

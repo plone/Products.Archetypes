@@ -3,6 +3,7 @@ from Acquisition import aq_base
 from debug import log
 from utils import className, unique, capitalize
 from types import FileType
+from types import DictType # needed for ugly hack in class TypesWidget def isVisible
 
 try:
     from generator.widget import macrowidget
@@ -46,13 +47,16 @@ class TypesWidget(macrowidget):
         return None
 
     def isVisible(self, instance, mode='view'):
-        """decide if a field is visible in a given mode -> 'state' visible, hidden, invisible"""
+        """decide if a field is visible in a given mode -> 'state'
+        visible, hidden, invisible"""
         # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
         vis_dic = getattr(aq_base(self), 'visible', None)
         state = 'visible'
         if not vis_dic:
             return state
-        state = vis_dic.get(mode, state)
+        # ugly hack ...
+        if type(vis_dic)==DictType:
+            state = vis_dic.get(mode, state)
         return state
 
     def process_form(self, instance, field, form, empty_marker=None):
@@ -174,13 +178,16 @@ class KeywordWidget(TypesWidget):
         name = field.getName()
         existing_keywords = form.get('%s_existing_keywords' % name, empty_marker)
         if existing_keywords is empty_marker:
-            return empty_marker
+            existing_keywords = []
         new_keywords = form.get('%s_keywords' % name, empty_marker)
         if new_keywords is empty_marker:
-            return empty_marker
+            new_keywords = []
 
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
+
+        if not value: return empty_marker
+
         return value, {}
 
 

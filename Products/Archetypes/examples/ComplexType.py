@@ -24,7 +24,15 @@ schema = Schema(tuple(field_instances) + (
                vocabulary='_get_selection_vocab',
                widget=SelectionWidget(label='Selection'),
                ),
-    ))
+    TextField('richtextfield',
+              allowable_content_types=('text/plain',
+                                       'text/structured',
+                                       'text/restructured',
+                                       'text/html',
+                                       'application/msword'),
+              widget=RichWidget(label='rich'),
+              ),
+    )) + ExtensibleMetadata.schema
 
 class ComplexType(SimpleType):
     """A simple archetype"""
