@@ -25,4 +25,3 @@ def uninstall(portal):
     prod = getattr(portal.portal_quickinstaller, PKG_NAME)
     prod.portalobjects = [po for po in prod.portalobjects
                           if po[-8:] != '_catalog']
-
