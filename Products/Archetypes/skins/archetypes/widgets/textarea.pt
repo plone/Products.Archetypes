@@ -28,7 +28,8 @@
     <metal:define define-macro="area_format">
       <tal:define define="field_text_format string:${fieldName}_text_format;
 		  contentType python:request.get(field_text_format, here.getContentType(fieldName));
-		  mimetypes python: [t for t in getattr(field, 'allowable_content_types', ()) if t.startswith('text/')];">
+		  mimetypes python: [t for t in getattr(field, 'allowable_content_types', ()) if t.startswith('text/')];
+		  contenttype python: field.getContentType(here);">
 	<tal:condition condition="python: len(mimetypes) &gt; 1">
 	  <div class="label"
 	  i18n:translate="label_format">Text Format</div>
@@ -37,13 +38,15 @@
 		  name string:${fieldName}_text_format;
 		  tabindex tabindex/next;">
 	    <option selected="selected" value=""
-		    tal:attributes="value contentType">
+		    tal:attributes="value contentType"
+		    tal:condition="python: contenttype not in mimetypes">
 	      (no change)
 	    </option>
 	    <option tal:repeat="item mimetypes"
-		    tal:attributes="value item"
 		    tal:content="item"
-		    />
+		    tal:attributes="value item;
+		                    selected python:test(here.checkSelected(item, contenttype, contenttypes=1),
+		                    'selected', None);" />
 	  </select>
 	</tal:condition>
 	<tal:condition condition="python: len(mimetypes) == 1">
