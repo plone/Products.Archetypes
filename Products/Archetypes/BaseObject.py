@@ -469,6 +469,9 @@ class BaseObject(Implicit):
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)
+            # required for ComputedField et al
+            if mutator is None:
+                continue
             __traceback_info__ = (self, field, mutator)
             result[1]['field'] = field.__name__
             mapply(mutator, result[0], **result[1])
