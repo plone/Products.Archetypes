@@ -402,6 +402,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     ## Reference Engine Support
     def lookupObject(self, uid):
+        if not uid:
+            return None
         object = None
         catalog = getToolByName(self, 'portal_catalog')
         result  = catalog({'UID' : uid})

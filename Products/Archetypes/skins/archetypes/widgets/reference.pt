@@ -12,36 +12,36 @@
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
           <a href="#"
-             tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor())" 
-             tal:attributes="href obj/getURL"
-             tal:content="python:obj.Title or obj.getURL(relative=1)"
-             tal:condition="obj"></a>
+             tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor())"
+             tal:attributes="href obj/absolute_url"
+             tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+             tal:condition="python:obj is not None"></a>
 	</div>
       </div>
     </div>
 
     <div metal:define-macro="edit">
       <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body" 
-	  tal:define="	  
+	<div metal:fill-slot="widget_body"
+	  tal:define="
 	  vocab python:field.Vocabulary(here);
 	  vlen  python: len(vocab);
 	  ">
 	  <div tal:condition="python: vlen < 4">
 	    <!-- Radio when the vocab is short < 4 -->
-	    <span tal:repeat="item vocab" 
+	    <span tal:repeat="item vocab"
 	      tal:omit-tag="">
 	      <input  class="noborder"
 		     tabindex=""
 		     type="radio"
-		     tal:attributes="name fieldName; 
-		checked python: str(value) == str(item); 
+		     tal:attributes="name fieldName;
+		checked python: str(value) == str(item);
 		value item;
 		tabindex tabindex/next;"
 		/><span tal:content="python: vocab.getValue(item)"/>
 		&nbsp;
 	     </span>
-		
+
 	    <span tal:condition="field/addable|nothing" tal:omit-tag="">
               <span tal:repeat="addable field/allowed_types" tal:omit-tag="">
 	      <a href="#" tal:define="create string:createObject?type_name=${addable};
@@ -57,12 +57,12 @@
 	  <div tal:condition="python: vlen >= 4">
 	    <select tal:attributes="name fieldName; id fieldName;
 	      tabindex tabindex/next;">
-	      <option 
+	      <option
 		      selected=""
 		      tal:repeat="item vocab"
 		tal:attributes="selected python:test(str(value) == str(item), 'selected', None); value item;"
 		tal:content="python: vocab.getValue(item)"
-		/> 
+		/>
 	    </select>
 	    <span tal:condition="field/addable|nothing">
 	      <a href="#" tal:repeat="addable field/allowed_types"
@@ -70,7 +70,7 @@
 	                  tal:content="string:Add New ${addable}">Add new foo</a>
 	    </span>
 	  </div>
-	  
+
 	</div>
       </div>
     </div>
@@ -81,6 +81,6 @@
     </div>
 
   </body>
-  
+
 </html>
 

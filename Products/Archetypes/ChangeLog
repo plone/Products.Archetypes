@@ -1,3 +1,8 @@
+2003-06-04  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
+
+	* ArchetypeTool.py (ArchetypeTool.lookupObject): Return None if an
+	empty uid was passed.
+
 2003-06-02  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* TransformTool.py (Transform.reload): Got TransformTool and
