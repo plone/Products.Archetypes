@@ -1,6 +1,14 @@
 unreleased
 =====================
 
+ * Changed warnings.warn(...) to deprecated(..) from Archetypes.debug
+   [yenzenz]
+
+ * Fixed [ 1171059 ] Archetypes should not set language explicitly on content. 
+   Default is set to None by default. For backward compatibility reasons, I 
+   added a switch in config to enable old behaviour.
+   [yenzenz]
+
  * Added subject to SearchableText.
    [tiran]
  

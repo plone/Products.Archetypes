@@ -8,7 +8,6 @@ from md5 import md5
 from types import TupleType, ListType, ClassType, IntType, NoneType
 from types import UnicodeType, StringType, MethodType
 from UserDict import UserDict as BaseDict
-import warnings
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
@@ -18,6 +17,7 @@ from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
 import Products.generator.i18n as i18n
 
@@ -259,7 +259,7 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-    
+
     >>> dl = DisplayList()
 
     Add some keys
@@ -301,7 +301,7 @@ class DisplayList:
 
     Using ints as DisplayList keys works but will raise an deprecation warning
     You should use IntDisplayList for int keys
-    
+
     >>> idl = DisplayList()
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
@@ -311,7 +311,7 @@ class DisplayList:
 
     >>> idl.getMsgId(1)
     'number one'
-    
+
     Remove warning hook
     >>> w.uninstall(); del w
     """
@@ -365,8 +365,7 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (add)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (add)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -398,8 +397,7 @@ class DisplayList:
     def getValue(self, key, default=None):
         "get value"
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -413,8 +411,7 @@ class DisplayList:
     def getMsgId(self, key):
         "get i18n msgid"
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (msgid)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (msgid)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -615,8 +612,7 @@ class Vocabulary(DisplayList):
         Get i18n value
         """
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -766,9 +762,9 @@ def shasattr(obj, attr, acquire=False):
                     Py_INCREF(Py_False);
                     return Py_False;
             }
-    	Py_DECREF(v);
-    	Py_INCREF(Py_True);
-    	return Py_True;
+        Py_DECREF(v);
+        Py_INCREF(Py_True);
+        return Py_True;
 
     It should not swallow all errors, especially now that descriptors make
     computed attributes quite common.  getattr() only recently started catching

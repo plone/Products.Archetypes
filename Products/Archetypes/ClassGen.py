@@ -5,6 +5,7 @@ from types import FunctionType as function
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.utils import _getSecurity
 from Products.Archetypes.debug import warn
+from Products.Archetypes.debug import deprecated
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -121,11 +122,8 @@ class ClassGenerator:
         # backward compatibility, should be removed later on
         if klass.__dict__.has_key('type') and \
            not klass.__dict__.has_key('schema'):
-            import warnings
-            warnings.warn('Class %s has type attribute, should be schema' % \
-                          klass.__name__,
-                          DeprecationWarning,
-                          stacklevel = 4)
+            deprecated('Class %s has type attribute, should be schema' % \
+                       klass.__name__, level = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
             def Schema(self):

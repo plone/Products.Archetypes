@@ -44,6 +44,7 @@ from Products.Archetypes.tests.test_classgen import schema
 from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes import config
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME
 from DateTime import DateTime
@@ -97,9 +98,9 @@ def compareMetadataOf(test, obj, data='default', mimetype='application/octet-str
     test.failUnless(obj.Contributors() == l_data, 'Contributors')
     test.failUnless(obj.EffectiveDate() == DateTime(time, 0).ISO(),
                     'effective date')
-    test.failUnlessEqual(str(obj.effective_date), str(DateTime(time, 0)))
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
                     'expiration date')
+    test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 0)))
     test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
     # XXX BROKEN! test.failUnless(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
@@ -219,7 +220,10 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
         # then, its not a runtime fallback to the property
-        language = 'no'
+        if config.LANGUAGE_DEFAULT is None:
+            language = None
+        else:
+            language = 'no'
 
         portal = self.getPortal()
         try:

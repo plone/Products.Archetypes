@@ -38,7 +38,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE
@@ -63,10 +63,10 @@ class BaseSchemaTest(ATSiteTestCase):
         # put dummy in context of portal
         dummy = dummy.__of__(portal)
         portal.dummy = dummy
-        
+
         dummy.initializeArchetype()
         self._dummy = dummy
-        
+
 
     def test_id(self):
         dummy = self._dummy
@@ -306,12 +306,13 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(tuple(vocab) == ())
 
     def test_language(self):
+        default=LANGUAGE_DEFAULT
         dummy = self._dummy
         field = dummy.getField('language')
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == 'en')
+        self.failUnless(field.default == LANGUAGE_DEFAULT)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == 'languages')
