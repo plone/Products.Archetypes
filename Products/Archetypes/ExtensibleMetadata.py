@@ -155,11 +155,12 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
         """Retrieve the default language, or fall back to the default setting"""
+        default = self.getField('language').default
         try:
             properties = getToolByName(self, 'portal_properties')
-            return getattr(properties.site_properties, 'default_language', self.schema['language'].default)
+            return getattr(properties.site_properties, 'default_language', default)
         except AttributeError:
-            return self.schema['language'].default
+            return default
 
     security.declareProtected(CMFCorePermissions.View,
                               'isDiscussable')
