@@ -652,170 +652,283 @@ class CMFObjectField(ObjectField):
         # but just change instead.
         # ObjectField.set(self, instance, obj, **kwargs)
 
+InitializeClass(Field)
 
-# ImageField.py
-# Written in 2003 by Christian Scholz (cs@comlounge.net)
-# version: 1.0 (26/02/2002)
-from OFS.Image import Image as BaseImage
+# new image field implementation, derived from CMFPhoto by Magnus Heino
+
+from cgi import escape
 from cStringIO import StringIO
-try:
-    import PIL.Image
-    has_pil=1
-except:
-    # no PIL, no scaled versions!
-    has_pil=None
+import sys
+from zLOG import LOG, ERROR
+from BTrees.OOBTree import OOBTree
+from ExtensionClass import Base
+from Acquisition import Implicit, aq_parent
+from OFS.Traversable import Traversable
+from OFS.Image import Image as BaseImage
 
-class Image(BaseImage):
-    def isBinary(self):
-        return 1
+try: 
+    import PIL.Image
+    isPilAvailable = 1
+except ImportError: 
+    isPilAvailable = 0
+
+class DynVariantWrapper(Base):
+    """
+        Provide a transparent wrapper from image to dynvariant
+        call it with url ${image_url}/variant/${variant}
+    """
+
+    def __of__(self, parent):
+        return parent.Variants()
+
+class DynVariant(Implicit, Traversable):
+    """
+        Provide access to the variants.
+    """
+
+    def __init__(self):
+        pass
+
+    def __getitem__(self, name):
+        if self.checkForVariant(name):
+            return self.getPhoto(name).__of__(aq_parent(self))
+        else:
+            return aq_parent(self)
+
+class ScalableImage(BaseImage):
+    """
+        A scalable image class.
+    """
+
+    __implements__ = BaseImage.__implements__
+
+    meta_type = 'Scalable Image'
+
+    isBinary = lambda self: 1
+
+    def __init__(self, id, title='', file='', displays={}):
+        BaseImage.__init__(self, id, title, file)
+        self._photos = OOBTree()
+        self.displays = displays
+
+    security = ClassSecurityInfo()
+
+    # make image variants accesable via url
+    variant=DynVariantWrapper()
+
+    security.declareProtected(CMFCorePermissions.View, 'Variants')
+    def Variants(self):
+        # Returns a variants wrapper instance
+        return DynVariant().__of__(self) 
+
+    security.declareProtected(CMFCorePermissions.View, 'getPhoto')
+    def getPhoto(self,size):
+        '''returns the Photo of the specified size'''
+        return self._photos[size]
+
+    security.declareProtected(CMFCorePermissions.View, 'getDisplays')
+    def getDisplays(self):
+        result = []
+        for name, size in self.displays.items():
+            result.append({'name':name, 'label':'%s (%dx%d)' % (
+                name, size[0], size[1]),'size':size}
+                )
+
+        #sort ascending by size
+        result.sort(lambda d1,d2: cmp(
+            d1['size'][0]*d1['size'][0],
+            d2['size'][1]*d2['size'][1])
+            )
+        return result
+
+    security.declarePrivate('checkForVariant')
+    def checkForVariant(self, size):
+	"""Create variant if not there."""
+        if size in self.displays.keys():
+	    # Create resized copy, if it doesnt already exist
+            if not self._photos.has_key(size):
+                self._photos[size] = BaseImage(
+                    size, size, self._resize(self.displays.get(size, (0,0)))
+                    )
+            # a copy with a content type other than image/* exists, this
+            # probably means that the last resize process failed. retry
+            elif not self._photos[size].getContentType().startswith('image'):
+                self._photos[size] = BaseImage(
+                    size, size, self._resize(self.displays.get(size, (0,0)))
+                    )
+            return 1
+        else: 
+            return 0
+
+    security.declareProtected(CMFCorePermissions.View, 'index_html')
+    def index_html(self, REQUEST, RESPONSE, size=None):
+        """Return the image data."""
+        if self.checkForVariant(size):
+            return self.getPhoto(size).index_html(REQUEST, RESPONSE)
+        return BaseImage.index_html(self, REQUEST, RESPONSE)
+
+    security.declareProtected(CMFCorePermissions.View, 'tag')
+    def tag(self, height=None, width=None, alt=None,
+            scale=0, xscale=0, yscale=0, css_class=None, 
+            title=None, size='original', **args):
+        """ Return an HTML img tag (See OFS.Image)"""
+
+        # Default values
+        w=self.width
+        h=self.height
+
+        if height is None or width is None:
+
+            if size in self.displays.keys():
+                if not self._photos.has_key(size):
+                    # This resized image isn't created yet.
+                    # Calculate a size for it
+                    x,y = self.displays.get(size)
+                    try:
+                        if self.width > self.height:
+                            w=x
+                            h=int(round(1.0/(float(self.width)/w/self.height)))
+                        else:
+                            h=y
+                            w=int(round(1.0/(float(self.height)/x/self.width)))
+                    except ValueError:
+                        # OFS.Image only knows about png, jpeg and gif.
+                        # Other images like bmp will not have height and
+                        # width set, and will generate a ValueError here.
+                        # Everything will work, but the image-tag will render 
+                        # with height and width attributes.
+                        w=None
+                        h=None
+                else:
+                    # The resized image exist, get it's size
+                    photo = self._photos.get(size)
+                    w=photo.width
+                    h=photo.height
+
+        if height is None: height=h
+        if width is None:  width=w
+
+        # Auto-scaling support
+        xdelta = xscale or scale
+        ydelta = yscale or scale
+
+        if xdelta and width:
+            width =  str(int(round(int(width) * xdelta)))
+        if ydelta and height:
+            height = str(int(round(int(height) * ydelta)))
+
+        result='<img src="%s/variant/%s"' % (self.absolute_url(), escape(size))
+
+        if alt is None:
+            alt=getattr(self, 'title', '')
+        result = '%s alt="%s"' % (result, escape(alt, 1))
+
+        if title is None:
+            title=getattr(self, 'title', '')
+        result = '%s title="%s"' % (result, escape(title, 1))
+
+        if height:
+            result = '%s height="%s"' % (result, height)
+
+        if width:
+            result = '%s width="%s"' % (result, width)
+
+        if not 'border' in [ x.lower() for x in args.keys()]:
+            result = '%s border="0"' % result
+
+        if css_class is not None:
+            result = '%s class="%s"' % (result, css_class)
+
+        for key in args.keys():
+            value = args.get(key)
+            result = '%s %s="%s"' % (result, key, value)
+
+        return '%s />' % result
+
+    security.declarePrivate('update_data')
+    def update_data(self, data, content_type=None, size=None):
+        """
+            Update/upload image -> remove all copies
+        """
+        BaseImage.update_data(self, data, content_type, size)
+        self._photos = OOBTree()
+        
+    def _resize(self, size, quality=100):
+        """Resize and resample photo."""
+        image = StringIO()
+
+        width, height = size
+
+        try:
+            if isPilAvailable:
+                img = PIL.Image.open(StringIO(str(self.data)))
+                fmt = img.format
+                # Resize photo
+                img.thumbnail((width, height))
+                # Store copy in image buffer
+                img.save(image, fmt, quality=quality)
+            else:
+                if sys.platform == 'win32':
+                    from win32pipe import popen2
+                    imgin, imgout = popen2('convert -quality %s -geometry %sx%s - -'
+                                           % (quality, width, height), 'b')
+                else:
+                    from popen2 import Popen3
+                    convert=Popen3('convert -quality %s -geometry %sx%s - -'
+                                           % (quality, width, height))
+                    imgout=convert.fromchild
+                    imgin=convert.tochild
+
+                imgin.write(str(self.data))
+                imgin.close()
+                image.write(imgout.read())
+                imgout.close()
+
+                #Wait for process to close if unix. Should check returnvalue for wait
+                if sys.platform !='win32':
+                    convert.wait()
+
+                image.seek(0)
+                
+        except Exception, e:
+            LOG('Archetypes.ScallableField', ERROR, 'Error while resizing image', e)
+                
+        return image
+
+InitializeClass(ScalableImage)
 
 class ImageField(ObjectField):
-    """ implements an image attribute. it stores
-        it's data in an image sub-object
-
-        sizes is an dictionary containing the sizes to
-        scale the image to. PIL is required for that.
-
-        Format:
-        sizes={'mini': (50,50),
-               'normal' : (100,100), ... }
-        syntax: {'name': (width,height), ... }
-
-        the scaled versions can then be accessed as
-        object/<imagename>_<scalename>
-
-        e.g. object/image_mini
-
-        where <imagename> is the fieldname and <scalename>
-        is the name from the dictionary
-
-        original_size -- this parameter gives the size in (w,h)
-        to which the original image will be scaled. If it's None,
-        then no scaling will take place.
-        This is important if you don't want to store megabytes of
-        imagedata if you only need a max. of 100x100 ;-)
-
-        example:
-
-        ImageField('image',
-            original_size=(600,600),
-            sizes={ 'mini' : (80,80),
-                    'normal' : (200,200),
-                    'big' : (300,300),
-                    'maxi' : (500,500)})
-
-        will create an attribute called "image"
-        with the sizes mini, normal, big, maxi as given
-        and a original sized image of max 600x600.
-        This will be accessible as
-        object/image
-
-        and the sizes as
-
-        object/image_mini
-        object/image_normal
-        object/image_big
-        object/image_maxi
-
-        Scaling will only be available if PIL is installed!
-
-        If 'DELETE_IMAGE' will be given as value, then all the images
-        will be deleted (None is understood as no-op)
-        """
+    """
+        An image field class.
+    """
 
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'image',
         'default' : '',
-        'original_size': (600,600),
-        'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
+        'displays': {
+            'thumbnail': (128,128),
+            'xsmall': (200,200),
+            'small': (320,320),
+            'medium': (480,480),
+            'large': (768,768),
+            'xlarge': (1024,1024)
+            },
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         })
 
     default_view = "view"
 
-    def set(self, instance, value, **kwargs):
-        # do we have to delete the image?
-        if value=="DELETE_IMAGE":
-            ObjectField.set(self, instance, None, **kwargs)
-            return
+    def set(self, instance, value, **kw):
+        if isinstance(value, StringType):
+            value = StringIO(value)
+        image = ScalableImage(self.name, file=value, displays=self.displays)
+        ObjectField.set(self, instance, image, **kw)
 
-        if value == '' or type(value) != StringType:
-            image = None
-            try:
-                image = ObjectField.get(self, instance, **kwargs)
-            except AttributeError:
-                pass
-
-            # just keep stuff if nothing was uploaded
-            if not value: return
-
-            # check for file
-            if not ((isinstance(value, FileUpload) and value.filename != '') or
-                    (isinstance(value, FileType) and value.name != '')):
-                return
-
-            if image:
-                #OK, its a file, is it empty?
-                value.seek(-1, 2)
-                size = value.tell()
-                value.seek(0)
-                if size == 0:
-                 # This new file has no length, so we keep
-                 # the orig
-                 return
-
-        ###
-        ### store the original
-        ###
-
-        # test for scaling it.
-        if self.original_size and has_pil:
-            mime_type = kwargs.get('mime_type', 'image/png')
-            image = Image(self.name, self.name, value, mime_type)
-            data=str(image.data)
-            w,h=self.original_size
-            imgdata=self.scale(data,w,h)
-        else:
-            mime_type = kwargs.get('mime_type', 'image/png')
-            imgdata=value
-
-        image = Image(self.name, self.name, imgdata, mime_type)
-        image.filename = hasattr(value, 'filename') and value.filename or ''
-        ObjectField.set(self, instance, image, **kwargs)
-
-        # now create the scaled versions
-        if not has_pil or not self.sizes:
-            return
-
-        data=str(image.data)
-        for n,size in self.sizes.items():
-            w,h=size
-            id=self.name+"_"+n
-            imgdata=self.scale(data,w,h)
-            image2=Image(id, self.name, imgdata, 'image/jpeg')
-            # manually use storage
-            self.storage.set(id,instance,image2)
-
-
-    def scale(self,data,w,h):
-        """ scale image (with material from ImageTag_Hotfix)"""
-        #make sure we have valid int's
-        keys = {'height':int(w or h), 'width':int(h or w)}
-
-        original_file=StringIO(data)
-        image=PIL.Image.open(original_file)
-        image=image.convert('RGB')
-        image.thumbnail((keys['width'],keys['height']))
-        thumbnail_file=StringIO()
-        image.save(thumbnail_file, "JPEG")
-        thumbnail_file.seek(0)
-        return thumbnail_file.read()
-
-InitializeClass(Field)
+InitializeClass(ImageField)
 
 __all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
            'FileField', 'TextField', 'DateTimeField', 'LinesField', \
@@ -825,3 +938,4 @@ __all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
            'FieldList', 'MetadataFieldList', # Those two should go
                                              # away after 1.0
            )
+
