@@ -417,7 +417,7 @@ class TextField(ObjectField):
         value = ''
         accessor = self.getEditAccessor(instance)
         if accessor is not None:
-            value = accessor()
+            value = accessor(maybe_baseunit=1)
         mimetype = getattr(aq_base(value), 'mimetype', None)
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(value), None)
@@ -426,7 +426,10 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, **kwargs):
         kwargs['raw'] = 1
-        return self.get(instance, **kwargs)
+        value = self.get(instance, **kwargs)
+        if not kwargs.get('maybe_baseunit', 0) and IBaseUnit.isImplementedBy(value):
+            return value.getRaw()
+        return value
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         try:

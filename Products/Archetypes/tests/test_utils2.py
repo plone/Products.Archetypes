@@ -43,7 +43,7 @@ class OrderedDictTest( unittest.TestCase ):
         self.failUnless(self.d.items() == [('a','1'),('c','3')])
         self.failIf(self.d.has_key('b'))
         self.failUnless(self.d.get('b',None) == None)
-        
+
     def test_clear(self):
         self.d.clear()
         self.failUnless(self.d.keys() == [])

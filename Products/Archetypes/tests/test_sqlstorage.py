@@ -12,7 +12,11 @@ from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__, etc
 def pretty_exc(self, exc):
     t, e, tb = exc
-    return ''.join(format_exception(t, e, tb, format_src=1))
+    try:
+        return ''.join(format_exception(t, e, tb, format_src=1))
+    except:
+        return ''.join(format_exception(t, e, tb))
+
 unittest.TestResult._exc_info_to_string = pretty_exc
 
 from Products.Archetypes.public import *
