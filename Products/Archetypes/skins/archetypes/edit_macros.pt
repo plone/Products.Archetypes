@@ -21,10 +21,10 @@
 
       <div tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
-          <div tal:condition="python: set == fieldset and fieldsets != ['default']" tal:omit-tag="">
+          <div tal:condition="python:set == fieldset and fieldsets != ['default']" tal:omit-tag="">
             <b>[<span tal:content="set" />]</b>
           </div>
-          <div tal:condition="python: set != fieldset" tal:omit-tag="">
+          <div tal:condition="python:set != fieldset" tal:omit-tag="">
             <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
             [<span tal:content="set" />]</a>
           </div>
@@ -44,7 +44,8 @@
 
           <legend
             i18n:translate=""
-            tal:content="python:(len(fieldsets) > 1 and fieldset != 'default') and fieldset or here.archetype_name"
+            tal:content="python:(len(fieldsets) &gt; 1 and fieldset != 'default')
+                                and fieldset or here.archetype_name"
             />
 
           <!--
@@ -128,7 +129,7 @@
                  tal:define="fieldset_index python:fieldsets.index(fieldset);
                  n_fieldsets python:len(fieldsets);">
               <label>&nbsp;</label>
-              <input tal:condition="python:fieldset_index > 0"
+              <input tal:condition="python:fieldset_index &gt; 0"
                      class="context"
                      tabindex=""
                      type="submit"
