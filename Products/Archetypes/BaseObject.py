@@ -31,18 +31,22 @@ _marker = []
 
 content_type = Schema((
     StringField('id',
-                required=0, ## Still actually required, but
-                            ## the widget will supply the missing value
-                            ## on non-submits
-                mode="rw",
-                accessor="getId",
-                mutator="setId",
-                default=None,
-                widget=IdWidget(label_msgid="label_name",
-                                description_msgid="help_name",
-                                visible={'view' : 'invisible'},
-                                i18n_domain="plone"),
-                ),
+        required=0, ## Still actually required, but
+                    ## the widget will supply the missing value
+                    ## on non-submits
+        mode="rw",
+        accessor="getId",
+        mutator="setId",
+        default=None,
+        widget=IdWidget(label="Short Name",
+            label_msgid="label_short_name",
+            description="Short Name is part of the item's web address. "
+                        "Should not contain spaces, upper case, underscores "
+                        "or other special characters.",
+            description_msgid="help_shortname",
+            visible={'view' : 'invisible'},
+            i18n_domain="plone"),
+        ),
 
     StringField('title',
                 required=1,
