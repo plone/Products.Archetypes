@@ -1,14 +1,10 @@
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
-from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.utils import className
 
 from Acquisition import aq_base
 from Globals import PersistentMapping
-from Products.CMFCore.utils import getToolByName
 
-from Products.CMFCore import CMFCorePermissions
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage

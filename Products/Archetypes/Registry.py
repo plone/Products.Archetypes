@@ -5,9 +5,8 @@ from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
 from AccessControl import ClassSecurityInfo
-from AccessControl.SecurityInfo import ACCESS_PRIVATE, ACCESS_PUBLIC
+from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Globals import InitializeClass
-from Products.CMFCore import CMFCorePermissions
 
 from config import DEBUG_SECURITY
 

@@ -1,4 +1,4 @@
-import sys, traceback, os
+import traceback, os
 from os.path import isdir, join
 from types import *
 
@@ -8,13 +8,9 @@ from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, createDirectoryView, manage_listAvailableDirectories
+     registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
-from Products.CMFCore.ActionInformation import ActionInformation
-from Products.CMFCore.Expression import Expression
 from Products.Archetypes.ArchetypeTool import fixActionsForType
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.config import *
@@ -24,7 +20,6 @@ from Products.PortalTransforms.Extensions.Install \
 from Products.MimetypesRegistry.Extensions.Install \
      import install as install_mimetypes_registry
 
-from Products.ZCatalog.ZCatalog import manage_addZCatalog
 from Products.Archetypes.ReferenceEngine import \
      manage_addReferenceCatalog, manage_addUIDCatalog
 

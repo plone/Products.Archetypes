@@ -1,4 +1,3 @@
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
@@ -7,7 +6,7 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical

@@ -2,12 +2,10 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Storage import StorageLayer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.Field import encode, decode
+from Products.Archetypes.Field import encode
 
-from Products.CMFCore import CMFCorePermissions
-from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.Registry import setSecurity, registerStorage
+from Products.Archetypes.Registry import registerStorage
 
 class FacadeMetadataStorage(StorageLayer):
     """A Facade Storage which delegates to

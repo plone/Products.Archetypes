@@ -2,7 +2,6 @@ import sys
 
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
-from Products.Archetypes.debug import log, log_exc
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 

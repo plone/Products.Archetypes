@@ -1,9 +1,7 @@
 from __future__ import nested_scopes
-import os, os.path
 import re
 
-from Products.Archetypes.debug import log
-from Products.Archetypes.utils import pathFor, unique, capitalize
+from Products.Archetypes.utils import capitalize
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo

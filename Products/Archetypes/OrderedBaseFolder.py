@@ -9,7 +9,6 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -17,14 +16,14 @@ from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from Products.Archetypes.config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
 from DocumentTemplate import sequence
 
-from AccessControl import ClassSecurityInfo, Permissions
+from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
-     AddPortalContent, ModifyPortalContent, ManageProperties
+from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
+    ManageProperties
 
 # this import can change with Zope 2.7 to
 try:

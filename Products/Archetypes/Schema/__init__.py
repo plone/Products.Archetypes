@@ -1,30 +1,22 @@
 from __future__ import nested_scopes
-from types import ListType, TupleType, ClassType, FileType
+from types import ListType, TupleType
 
-from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.interfaces.field import IField, IObjectField, \
-     IImageField
+from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
 from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
-from Products.Archetypes.exceptions import ObjectFieldException
-from Products.Archetypes.utils import capitalize, DisplayList, \
-     OrderedDict, mapply
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import OrderedDict, mapply
+from Products.Archetypes.debug import log
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from DateTime import DateTime
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
-from ZPublisher.HTTPRequest import FileUpload
 
 __docformat__ = 'reStructuredText'
 

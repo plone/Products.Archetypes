@@ -6,14 +6,11 @@ from inspect import getargs
 from types import TupleType, ListType
 from UserDict import UserDict as BaseDict
 
-from Products.Archetypes.debug import log
-
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
+from Products.CMFCore.utils import getToolByName
 
 try:
     _v_network = socket.gethostbyname(socket.gethostname())

@@ -20,12 +20,11 @@
 #  all ape_config and the serializer/gateway stuff is generated for you
 
 
-from AccessControl import ClassSecurityInfo
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.public import *
-from types import InstanceType, ClassType
+from types import ClassType
 
-from apelib.core.interfaces import IGateway, ISerializer
+from apelib.core.interfaces import ISerializer
 from apelib.sql.sqlbase import SQLGatewayBase
 from apelib.sql.structure import RowSequenceSchema
 from apelib.zodb3.serializers import RemainingState as RemainingBase
@@ -35,7 +34,7 @@ from apelib.core.interfaces \
      import ISerializer, IFullSerializationEvent, IFullDeserializationEvent
 from Persistence import Persistent, PersistentMapping
 from StringIO import StringIO
-from cPickle import Pickler, Unpickler, UnpickleableError
+from cPickle import Pickler, UnpickleableError
 import os
 
 

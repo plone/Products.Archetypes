@@ -1,4 +1,4 @@
-from types import StringType, ListType, TupleType
+from types import ListType, TupleType
 
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer

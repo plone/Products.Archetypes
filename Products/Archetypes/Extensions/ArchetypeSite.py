@@ -1,8 +1,4 @@
 from Products.CMFPlone.Portal import addPolicy
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression
-from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory
 from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 from Products.Archetypes.Extensions.Install import install as installArchetypes
 

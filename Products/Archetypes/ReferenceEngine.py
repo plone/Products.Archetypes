@@ -3,19 +3,17 @@ from types import StringType, UnicodeType
 
 from Acquisition import aq_base
 
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
     IReference, IContentReference
 
-from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
+from Products.Archetypes.utils import make_uuid, getRelURL
 from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
+     REFERENCE_CATALOG,UUID_ATTR
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager

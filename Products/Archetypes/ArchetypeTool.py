@@ -4,21 +4,19 @@ import os.path
 import sys
 from copy import deepcopy
 from types import StringType
-from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
 
-from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
+from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
 from Products.Archetypes.ClassGen import generateClass, generateCtor, \
      generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config import PKG_NAME, TOOL_NAME, UID_CATALOG
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.utils import capitalize, findDict, DisplayList, \
-     unique, mapply
+from Products.Archetypes.config import TOOL_NAME, UID_CATALOG
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import findDict, DisplayList, mapply
 from Products.Archetypes.Renderer import renderer
 
 from AccessControl import ClassSecurityInfo

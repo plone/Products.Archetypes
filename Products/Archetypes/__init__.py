@@ -1,13 +1,10 @@
 from Products.Archetypes.config import *
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import DisplayList
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
-from Products.CMFCore.TypesTool import TypesTool, typeClasses
 
 ###
 ## security
@@ -35,7 +32,7 @@ allow_class(DisplayList)
 registerDirectory('skins', globals())
 
 from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     registerType, process_types, listTypes
+     process_types, listTypes
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
 
 tools = (

@@ -1,15 +1,12 @@
-from types import DictType, FileType, StringType, UnicodeType, ListType
+from types import DictType, FileType, ListType
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, createExprContext
-from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
 
-from Products.CMFCore import CMFCorePermissions
-from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 
 try:
     True

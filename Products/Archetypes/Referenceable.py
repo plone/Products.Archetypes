@@ -1,18 +1,16 @@
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 
 
-from Acquisition import aq_base, aq_chain, aq_parent
-from AccessControl import getSecurityManager,Unauthorized
+from Acquisition import aq_base, aq_parent
 from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
+from utils import getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo

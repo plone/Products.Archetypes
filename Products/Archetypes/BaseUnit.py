@@ -1,6 +1,5 @@
 from types import StringType
 
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
 
@@ -10,8 +9,8 @@ from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
 from Products.MimetypesRegistry.common import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-from Products.MimetypesRegistry.mime_types import text_plain, \
-     application_octet_stream
+#from Products.MimetypesRegistry.mime_types import text_plain, \
+#     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
 class BaseUnit(File):

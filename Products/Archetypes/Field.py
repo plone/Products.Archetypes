@@ -1,18 +1,16 @@
 from __future__ import nested_scopes
-from copy import copy, deepcopy
+from copy import deepcopy
 from types import ListType, TupleType, ClassType, FileType, DictType
 from types import StringType, UnicodeType
-from UserDict import UserDict
 
 from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
+from Products.Archetypes.config import REFERENCE_CATALOG
 
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField, IObjectField, \
-     IFileField, IImageField
-from Products.Archetypes.interfaces.layer import ILayerContainer, \
-     ILayerRuntime, ILayer
+     IFileField
+from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 
 from Products.Archetypes.exceptions import ObjectFieldException, \
@@ -20,20 +18,17 @@ from Products.Archetypes.exceptions import ObjectFieldException, \
 from Products.Archetypes.Widget import *
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
-from Products.Archetypes.utils import capitalize, DisplayList, \
-     className, mapply
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import DisplayList, className, mapply
+from Products.Archetypes.debug import log
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
-     MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
+     ObjectManagedStorage, ReadOnlyStorage
 from Products.Archetypes.Registry import setSecurity, registerField, registerPropertyType
 
-from Products.validation import validation as validationService
 from Products.validation import ValidationChain, UnknowValidatorError, FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 import Products.generator.i18n as i18n
-from Products.PortalTransforms.interfaces import idatastream
 
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base, aq_parent, aq_inner

@@ -1,10 +1,9 @@
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.debug import log_exc
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
-from Products.Archetypes.Schema import Schema, Schemata
+from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
