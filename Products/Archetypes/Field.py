@@ -1740,7 +1740,7 @@ class PhotoField(ObjectField):
     default_view = "view"
 
     def set(self, instance, value, **kw):
-        if isinstance(value, StringType):
+        if type(value) is StringType:
             value = StringIO(value)
         image = ScalableImage(self.getName(), file=value,
                               displays=self.displays)
