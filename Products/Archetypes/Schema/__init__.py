@@ -392,9 +392,10 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                msg = 'You are passing in positional arguements.\n' \
-                      'Please consult the docstring for %s.%s' % \
-                      (self.__class__.__module__, self.__class__.__name__)
+                msg = 'You are passing positional arguments to the ' \
+                      'Schema constructor. ' \
+                      'Please consult the docstring for %s.BasicSchema.__init__' % \
+                      (self.__class__.__module__,)
                 warnings.warn(msg, UserWarning)
                 for field in args:
                     self.addField(args[0])
