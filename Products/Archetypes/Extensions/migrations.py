@@ -196,6 +196,23 @@ def migrateSchemas(portal, out):
     else:
         get_transaction().commit(1)
     print >>out, msg
+
+def migrateCatalogIndexes(portal, out):
+    def addIndex(catalog, indexName, indexType):
+        # copy of code in utils.py:install_referenceCatalog
+        try:
+            catalog.addIndex(indexName, indexType, extra=None)
+        except:
+            pass
+        try:
+            if not indexName in catalog.schema():
+                catalog.addColumn(indexName)
+        except:
+            pass
+    
+    rc = getToolByName(portal, REFERENCE_CATALOG)
+    add_indexes = ('targetId', 'FieldIndex'),
+    [addIndex(rc, n, t) for n, t in add_indexes]
     
 def refreshCatalogs(portal, out):
     uc = getToolByName(portal, UID_CATALOG)
@@ -224,6 +241,7 @@ def migrate(self):
     migrateUIDs(portal, out)
     migrateReferences(portal,out)
     removeOldUIDs(portal, out)
+    migrateCatalogIndexes(portal, out)
     refreshCatalogs(portal, out)
     print >>out, "Archetypes Migration Successful"
     return out.getvalue()

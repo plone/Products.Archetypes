@@ -1,6 +1,11 @@
 1.3.0-rc2
 ======================
 
+ * Added targetId index to reference_catalog. It was removed earlier to make
+   the ref catalog more lightweight. However, it broke
+   ReferenceCatalog._queryFor.
+   [dpunktnpunkt]
+
  * Removed class="error" from field.pt error message. It caused some ui
    glitches.
    [tiran]
