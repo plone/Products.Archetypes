@@ -99,6 +99,8 @@ class BaseUnit(File):
     def __str__(self):
         return self.getRaw()
 
+    __call__ = __str__
+
     def __len__(self):
         return self.get_size()
 
