@@ -762,7 +762,7 @@ class FileField(ObjectField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
-        obj = self.content_class(self.getName(), '', value, mimetype) 
+        obj = self.content_class(self.getName(), '', str(value), mimetype) 
         setattr(obj, 'filename', filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         ObjectField.set(self, instance, obj, **kwargs)
@@ -848,7 +848,7 @@ class TextField(FileField):
     def defaultView(self):
         return self.default_output_type
 
-    def _process_input(self, value, default=None, **kwargs):
+    def _process_input(self, value, default=None, mimetype=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
@@ -1626,7 +1626,7 @@ class ImageField(FileField):
         filename = kwargs.get('filename', '')
         
         image = self.content_class(self.getName(), self.getName(),
-                                 value, mimetype)
+                                 str(value), mimetype)
         image.filename = filename
         image.content_type = mimetype
         delattr(image, 'title')

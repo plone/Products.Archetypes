@@ -91,7 +91,7 @@ class IField(Interface):
         instance -- The object being accessed according to the permission
         """
 
-    def checkExternalEditor(self, instance):
+    def checkExternalEditor(instance):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance
         """

@@ -35,6 +35,7 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('afilefield',
+              primary=1,
               widget=RichWidget(description="Just a file field for the testing",
                                   label="A File Field",
                                   )),

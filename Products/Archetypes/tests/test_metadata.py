@@ -138,25 +138,26 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
         self._parent = DummyFolder(oid='parent')
         self._parent.initializeArchetype()
         # create dummy in context of a plone folder
-        self._dummy = Dummy(oid='dummy').__of__(self._parent)
-        self._dummy.initializeArchetype()
+        dummy = Dummy(oid='dummy').__of__(self._parent)
+        dummy.initializeArchetype()
+        self._parent.dummy = dummy
 
     def testContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
 
         compareMetadataOf(self, self._parent, data='parent', time=1001)
-        compareMetadataOf(self, self._dummy, data='dummy', time=9998)
+        compareMetadataOf(self, self._parent.dummy, data='dummy', time=9998)
 
     def testUnwrappedContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
 
         compareMetadataOf(self, aq_base(self._parent), data='parent', time=1001)
-        compareMetadataOf(self, aq_base(self._dummy), data='dummy', time=9998)
+        compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
-        dummy_parent = aq_base(aq_parent(self._dummy))
+        dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
         self.failUnless(dummy_parent is parent,
                         ('Parent is not the parent of dummy! '
@@ -173,6 +174,82 @@ class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
         self._dummy.initializeArchetype()
         self.failUnlessEqual(self._dummy.Language(), language)
 
+class ExtMetadataSetFormatTest( ArchetypesTestCase ):
+    
+    value = "fooooo"
+    filename = 'foo.txt'
+
+    def afterSetUp(self):
+        gen_dummy()
+        gen_class(DummyFolder)
+        self._parent = DummyFolder(oid='parent')
+        self._parent.initializeArchetype()
+        # create dummy in context of a plone folder
+        dummy = Dummy(oid='dummy').__of__(self._parent)
+        dummy.initializeArchetype()
+
+        pfield = dummy.getPrimaryField()
+        # tests do need afilefield
+        self.failUnlessEqual(pfield.getName(), 'afilefield')
+        pfield.set(dummy, self.value, filename=self.filename, mimetype='text/plain')
+
+        self._parent.dummy = dummy
+
+    def testSetFormat(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+       
+        self.failUnlessEqual(dummy.Format(), 'text/plain')
+        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
+        self.failUnlessEqual(dummy.content_type, 'text/plain')
+        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        
+        dummy.setFormat('image/gif')
+        self.failUnlessEqual(dummy.Format(), 'image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        self.failUnlessEqual(dummy.content_type, 'image/gif')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+
+    def testSetContentType(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+
+        dummy.setContentType('text/plain')
+        self.failUnlessEqual(dummy.Format(), 'text/plain')
+        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
+        self.failUnlessEqual(dummy.content_type, 'text/plain')
+        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        
+        dummy.setContentType('image/gif')
+        self.failUnlessEqual(dummy.Format(), 'image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        self.failUnlessEqual(dummy.content_type, 'image/gif')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+
+    def testMultipleChanges(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+        
+        dummy.setContentType('image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        dummy.setFormat('application/pdf')
+        self.failUnlessEqual(dummy.Format(), 'application/pdf')
+        dummy.setContentType('image/jpeg')
+        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
+        
+        self.failUnlessEqual(pfield.get(dummy).filename, self.filename)
+        self.failUnlessEqual(pfield.get(dummy).data, self.value)
+
+    def testChangesOnFieldChangesObject(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+        
+        self.fail('Test is not implemented and Tiran thinks it will fail')
+        
 
 def test_suite():
     from unittest import TestSuite, makeSuite
@@ -180,6 +257,7 @@ def test_suite():
     suite.addTest(makeSuite(ExtensibleMetadataTest))
     suite.addTest(makeSuite(ExtMetadataContextTest))
     suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
+    suite.addTest(makeSuite(ExtMetadataSetFormatTest))
     return suite
 
 if __name__ == '__main__':

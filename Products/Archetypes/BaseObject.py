@@ -16,6 +16,7 @@ from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
+from ComputedAttribute import ComputedAttribute
 
 from types import TupleType, ListType, UnicodeType
 
@@ -217,6 +218,14 @@ class BaseObject(Implicit):
             return element.getContentType()
         return value
 
+    content_type = ComputedAttribute(getContentType, 1)
+
+    security.declareProtected(CMFCorePermissions.View, 'get_content_type')
+    def get_content_type(self):
+        """CMF compatibility method
+        """
+        return self.getContentType()
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setContentType')
     def setContentType(self, value):
         """Sets the content type of the primary field
@@ -226,8 +235,6 @@ class BaseObject(Implicit):
             bu = pfield.getBaseUnit(self)
             bu.setContentType(value)
             pfield.set(self, bu)
-            #assert value == bu.getContentType()
-            #assert value == pfield.getContentType(self)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
