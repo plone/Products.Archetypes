@@ -200,6 +200,15 @@ class Schemata(UserDict):
         del self[name]
         self._order_fields = None
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'updateField')
+    def updateField(self, field):
+        """ update a field """
+        old_field  = self[field.getName()]
+        field._index = old_field._index
+        self[field.getName()] = field
+        self._order_fields = None
+        
 
     security.declareProtected(CMFCorePermissions.View,
                               'searchable')
@@ -577,7 +586,7 @@ class Schema(Schemata, DefaultLayerContainer):
         from md5 import md5
         return md5(self.toString()).digest()
 
-
+    security.declareProtected(CMFCorePermissions.View, 'getSchemataNames')
     def getSchemataNames(self):
         """ return list of schemata names in order of appearing """
         lst = list()
@@ -586,18 +595,21 @@ class Schema(Schemata, DefaultLayerContainer):
                 lst.append(f.schemata)
         return lst
 
+    security.declareProtected(CMFCorePermissions.View, 'getSchemataFields')
     def getSchemataFields(self, name):
         """ return list of fields belong to schema 'name' in order 
             of appearing 
         """
         return [f for f in self.fields()  if f.schemata == name]
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'delSchemata')
     def delSchemata(self, name):
         """ remove all fields belong to schemata 'name' """
         for f in self.fields():
             if f.schemata == name:
                 self.delField(f.getName())
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'addSchemata')
     def addSchemata(self, name):
         """ create a new schema by adding a new field with schemata 'name' """
         from Field import StringField 
@@ -606,6 +618,7 @@ class Schema(Schemata, DefaultLayerContainer):
             raise ValueError('Schemata "%s" already exists' % name)
         self.addField(StringField('%s_default' % name, schemata=name))
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'changeSchemataForField')
     def changeSchemataForField(self, fieldname, schemataname):
         """ change the schemata for a field """
         field = self[fieldname]
@@ -613,6 +626,7 @@ class Schema(Schemata, DefaultLayerContainer):
         field.schemata = schemataname
         self.addField(field)
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveSchemata')
     def moveSchemata(self, name, direction):
         """ move a schemata to left (direction=-1) or to right
             (direction=1)
