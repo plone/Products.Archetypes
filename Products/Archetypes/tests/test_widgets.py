@@ -49,6 +49,8 @@ class WidgetTests(ArcheSiteTestCase):
         stub_bin_file = file(join(_prefix, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
+        # Make SESSION var available
+        self.app.REQUEST['SESSION'] = {}
 
     def test_subject_keyword_widget(self):
         site = self.getPortal()
