@@ -1,3 +1,5 @@
+DO NOT USE CHANGELOG, USE HISTORY.TXT!
+
 2005-01-22  Dorneles Treméa  <deo@plonesolutions.com>
 
 	* SQLMethod.py (__call__): Fixed to, when db_encoding isn't defined,
