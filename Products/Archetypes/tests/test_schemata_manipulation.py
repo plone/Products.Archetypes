@@ -40,7 +40,6 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.schema.addField(StringField('hello_world', schemata='helloworld'))
         self.schema.addField(StringField('hello_world1', schemata='helloworld1'))
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar', 'helloworld', 'helloworld1'])
-    
 
     def testSchemataFields(self):
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')),
@@ -49,7 +48,6 @@ class SchemataManipulationTest( ArchetypesTestCase ):
                         ['d', 'e', 'f'])
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('edgar')),
                         ['x', 'y', 'z'])
-
     def testDelField(self):
         self.schema.delField('x')
         self.schema.delField('b')
@@ -85,7 +83,6 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.schema.changeSchemataForField('z','waldi')
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar']) 
 
-
     def testMoveSchemata1(self):
         self.schema.moveSchemata('waldi', -1)
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
@@ -105,7 +102,15 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.assertEqual(self.schema.getSchemataNames(), ['edgar', 'waldi', 'nasbaer'])
         self.schema.moveSchemata('edgar', -1)
         self.assertEqual(self.schema.getSchemataNames(), ['edgar', 'waldi', 'nasbaer'])
-      
+
+    def testMoveField(self):      
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a','b','c'])
+        self.schema.moveField('a', -1)
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a','b','c'])
+        self.schema.moveField('a', 1)
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b','a','c'])
+        self.schema.moveField('a', 1)
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b','c','a'])
         
 
 if __name__ == '__main__':

@@ -641,7 +641,6 @@ class Schema(Schemata, DefaultLayerContainer):
         d = {}
         for s_name in self.getSchemataNames():
             d[s_name] = self.getSchemataFields(s_name)
-        for f in fieldnames: self.delField(f)
 
         pos = schemata_names.index(name)
         if direction == -1:
@@ -653,10 +652,52 @@ class Schema(Schemata, DefaultLayerContainer):
                 schemata_names.remove(name)
                 schemata_names.insert(pos+1, name)
                 
+        # remove and re-add
+        for f in fieldnames: self.delField(f)
         for s_name in schemata_names:
             for f in fields:
                 if f.schemata == s_name:
                     self.addField(f)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveField')
+    def moveField(self, name, direction):
+        """ move a field inside a schema to left (direction=-1) or to right
+            (direction=1)
+        """
+        if not direction in (-1, 1):
+            raise ValueError('direction must be either -1 or 1')
+
+        fields = self.fields()
+        fieldnames = [f.getName() for f in fields]
+        schemata_names = self.getSchemataNames()
+
+        field = self[name]
+        field_schemata_name = self[name].schemata
+
+        d = {}
+        for s_name in self.getSchemataNames():
+            d[s_name] = self.getSchemataFields(s_name)
+
+        lst = d[field_schemata_name]  # list of fields of schemata
+        pos = lst.index(field)
+        if direction == -1:
+            if pos > 0:
+                lst.remove(field)
+                lst.insert(pos-1, field)
+        if direction == 1:
+            if pos < len(lst):
+                lst.remove(field)
+                lst.insert(pos+1, field)
+
+        d[field_schemata_name] = lst
+                
+        # remove and re-add
+        for f in fieldnames: self.delField(f)
+        for s_name in schemata_names:
+            for f in d[s_name]:
+                self.addField(f)
+
+    
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
