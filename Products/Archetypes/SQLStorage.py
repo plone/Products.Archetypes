@@ -3,7 +3,6 @@ from SQLMethod import SQLMethod
 from interfaces.storage import IStorage, ISQLStorage
 from interfaces.field import IObjectField
 from interfaces.layer import ILayer
-from exceptions import SQLInitException
 from debug import log
 from config import TOOL_NAME
 from Storage import *
