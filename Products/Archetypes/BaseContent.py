@@ -77,8 +77,11 @@ class BaseContentMixin(CatalogMultiplex,
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
-                                      filename=filename)
+        ddata = marshaller.demarshall(self, data,
+                                      mimetype=mimetype,
+                                      filename=filename,
+                                      REQUEST=REQUEST,
+                                      RESPONSE=RESPONSE)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
@@ -103,7 +106,7 @@ class BaseContentMixin(CatalogMultiplex,
             return RESPONSE
 
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.marshall(self)
+        ddata = marshaller.marshall(self, REQUEST=REQUEST, RESPONSE=RESPONSE)
         if hasattr(aq_base(self), 'marshall_hook') \
            and self.marshall_hook:
             ddata = self.marshall_hook(ddata)

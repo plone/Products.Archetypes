@@ -1257,7 +1257,7 @@ class ReferenceField(ObjectField):
                     relationship=self.relationship)
         return [b.targetUID for b in brains]
 
-    security.declarePrivate('Vocabulary')
+    security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
         if self.vocabulary:

@@ -1,7 +1,8 @@
 from Interface import Interface, Attribute
 
 class IBaseObject(Interface):
-    """ Base Object """
+    """ The most basic Archetypes-based implementation
+    """
 
     #XXX windows is strange
     #schema = Attribute('schema', 'Schema of the object')
@@ -10,16 +11,13 @@ class IBaseObject(Interface):
     #typeDescription = Attribute('Type description used for base_edit')
     #typeDescMsgId = Attribute('I18N message id for type description')
 
-    # CMFCorePermissions.ModifyPortalContent
-    def initializeLayers(item=None, container=None):
-        """ Layer initialization. Performed on __init__ """
-
     def getId():
-        """get the objects id"""
+        """Get the object id
+        """
 
-    # CMFCorePermissions.ModifyPortalContent
     def setId(value):
-        """set the object id"""
+        """Set the object id
+        """
 
     def Type():
         """Dublin Core element - Object type
@@ -29,15 +27,17 @@ class IBaseObject(Interface):
         with the uid catalog
         """
 
-    # CMFCorePermissions.ModifyPortalContent
     def getField(key):
-        """get a field by id"""
+        """Get a field by id
+        """
 
     def getDefault(field):
-        """get default value for a field by id"""
+        """Get default value for a field by id
+        """
 
     def isBinary(key):
-        """check if an element is binary"""
+        """Check if an element is binary
+        """
 
     def isTransformable(name):
         """Returns wether a field is transformable
@@ -48,9 +48,9 @@ class IBaseObject(Interface):
         """
 
     def getContentType(key):
-        """content type for a field by key"""
+        """Content type for a field by key
+        """
 
-    # CMFCorePermissions.ModifyPortalContent
     def setContentType(value):
         """Sets the content type of the primary field
         """
@@ -65,71 +65,64 @@ class IBaseObject(Interface):
         """
 
     def Vocabulary(key):
-        """vocabulary for a field by key"""
+        """Vocabulary for a field by key
+        """
 
-    # CMFCorePermissions.ModifyPortalContent
-    def edit(**kwargs):
-        """edit"""
-
-    # CMFCorePermissions.ModifyPortalContent
     def setDefaults():
-        """set default values for the fields. called on __init__"""
+        """Set default values for the fields
+        """
 
-    # CMFCorePermissions.ModifyPortalContent
     def update(**kwargs):
-        """update all fields and reindexObject"""
+        """Update all fields and reindexObject
+        """
 
-    # CMFCorePermissions.ModifyPortalContent
     def edit(**kwargs):
         """Alias for update(**kwargs*)
         """
 
     def validate_field(name, value, errors):
-        """
-        write a method: validate_foo(new_value) -> "error" or None
+        """Write a method: validate_foo(new_value) -> "error" or None
+
         If there is a validate method defined for a given field invoke it by name
         name -- the name to register errors under
         value -- the proposed new value
         errors -- dict to record errors in
         """
-        methodName = "validate_%s" % name
-
-        base = aq_base()
-        if hasattr(base, methodName):
-            method = getattr(base, methodName)
-            result = method(value)
-            if result is not None:
-                errors[name] = result
-
 
     def pre_validate(REQUEST, errors):
-        """pre-validation hook"""
+        """Pre-validation hook
+        """
 
     def post_validate(REQUEST, errors):
-        """post-validation hook"""
+        """Post-validation hook
+        """
 
     def validate(REQUEST, errors):
-        """validate fields"""
+        """Validate fields
+        """
 
     def SearchableText():
-        """full indexable text"""
+        """Full indexable text
+        """
 
     def getCharset():
         """ Return site default charset, or utf-8
         """
 
     def get_size():
-        """ Used for FTP and apparently the ZMI now too """
+        """Used for FTP and apparently the ZMI now too
+        """
 
     def processForm(data=1, metadata=0, REQUEST=None, values=None):
-        """Process the schema looking for data in the form"""
+        """Process the schema looking for data in the form
+        """
 
     def Schemata():
         """Returns the Schemata for the Object
         """
 
     def addSubObjects(objects, REQUEST=None):
-        """add a dictionary of objects to the session
+        """Add a dictionary of objects to the session
         """
 
     def getSubObject(name, REQUEST, RESPONSE=None):
@@ -159,7 +152,7 @@ class IBaseFolder(IBaseObject):
 
     def listFolderContents(spec=None, contentFilter=None, suppressHiddenFiles=0):
         """
-        Optionally you can suppress "hidden" files, or files that begin with .
+        Optionally you can suppress 'hidden' files, or files that begin with '.'
         """
 
     def folderlistingFolderContents(spec=None, contentFilter=None,
@@ -192,18 +185,17 @@ class IBaseUnit(Interface):
         """
         """
 
-
     def getRaw(encoding=None, instance=None):
-        """return encoded raw value
+        """Return encoded raw value
         """
 
     def portalEncoding(instance):
-        """return the default portal encoding, using an external python script
+        """Return the default portal encoding, using an external python script
         (look the archetypes skin directory for the default implementation)
         """
 
     def getContentType():
-        """return the imimetype object for this BU
+        """Return the imimetype object for this BU
         """
 
     def setContentType(value):

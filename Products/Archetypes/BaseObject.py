@@ -258,7 +258,8 @@ class BaseObject(Referenceable):
         """
         return self.getContentType()
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setContentType')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setContentType')
     def setContentType(self, value):
         """Sets the content type of the primary field
         """
