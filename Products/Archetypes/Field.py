@@ -86,6 +86,7 @@ def decode(value, instance, **kwargs):
         value = unicode(value, encoding)
     return value
 
+_field_count = 0
 
 class Field(DefaultLayerContainer):
     """
@@ -130,12 +131,17 @@ class Field(DefaultLayerContainer):
         'languageIndependent' : False,
         }
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name=None, **kwargs):
         """
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
+
+        if name is None:
+            global _field_count
+            _field_count += 1
+            name = 'field.%s' % _field_count
 
         self.__name__ = name
 
@@ -546,7 +552,7 @@ class ObjectField(Field):
 
     security  = ClassSecurityInfo()
 
-    security.declarePrivate('get')
+    security.declarePublic('get')
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
         try:
@@ -642,21 +648,6 @@ class ObjectField(Field):
         if mimetype is None:
             mimetype = getattr(self, 'default_content_type', 'application/octet')
         return mimetype
-
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        
-        Should be overwritte by special fields like FileField. It's safe for
-        fields which are storing strings, ints and BaseUnits but it won't return
-        the right results for fields containing OFS.Image.File instances or
-        lists/tuples/dicts.
-        """
-        data = self.getRaw(instance)
-        try:
-            return len(data)
-        except (TypeError, AttributeError):
-            return len(str(data))
 
 #InitializeClass(ObjectField)
 setSecurity(ObjectField)
@@ -869,12 +860,6 @@ class FileField(ObjectField):
         RESPONSE = REQUEST.RESPONSE
         return bu.index_html(REQUEST, RESPONSE)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return len(str(self.get(instance)))
-
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -1004,13 +989,6 @@ class TextField(FileField):
 
         ObjectField.set(self, instance, value, **kwargs)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return len(self.getBaseUnit(instance))
-
-
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
     __implements__ = ObjectField.__implements__
@@ -1077,16 +1055,6 @@ class LinesField(ObjectField):
             return tuple([encode(v, instance, **kwargs) for v in value])
         else:
             return [encode(v, instance, **kwargs) for v in value]
-
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        size=0
-        for line in self.get(instance):
-            size+=len(str(line))
-        return size
-
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -1362,13 +1330,6 @@ class ReferenceField(ObjectField):
 
         return DisplayList(pairs)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return 0
-
-
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
     __implements__ = ObjectField.__implements__
@@ -1393,12 +1354,6 @@ class ComputedField(ObjectField):
         """Return computed value"""
         return eval(self.expression, {'context': instance, 'here' : instance})
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return 0
-
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
     __implements__ = ObjectField.__implements__
@@ -1421,12 +1376,6 @@ class BooleanField(ObjectField):
             value = 1
 
         ObjectField.set(self, instance, value, **kwargs)
-
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return 1
 
 class CMFObjectField(ObjectField):
     """
@@ -1840,53 +1789,7 @@ class ImageField(FileField):
         image.save(thumbnail_file, format, quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
-    
-    security.declareProtected(CMFCorePermissions.View, 'getSize')
-    def getSize(self, instance, scale=None):
-        """get size of scale or original
-        """
-        if scale is None:
-            img = self.get(instance)
-            return img.width, img.height
-        else:
-            sizes = self.getAvailableSizes(instance)
-            size = sizes.get(scale)
-            return size[0], size[1]
-        
-    security.declareProtected(CMFCorePermissions.View, 'getScale')
-    def getScale(self, instance, scale=None, **kwargs):
-        """Get scale by name or original
-        """
-        if scale is None:
-            return self.get(instance, **kwargs)
-        else:
-            assert(scale in self.getAvailableSizes(instance).keys(),
-                   'Unknown scale %s for %s' % (scale, self.getName()))
-            id = self.getName() + "_" + scale
-            image = self.getStorage(instance).get(id, instance, **kwargs)
-            if hasattr(image, '__of__') and not kwargs.get('unwrapped', False):
-                return image.__of__(instance)
-            else:
-                return image
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        sizes = self.getAvailableSizes(instance)
-        size=0
-        size+=len(str(self.get(instance)))
-        
-        if sizes:
-            for name in sizes.keys():
-                id = self.getName() + "_" + name        
-                try:
-                    data = self.getStorage(instance).get(id, instance)
-                except AttributeError:
-                    pass
-                else:
-                    size+=len(str(data))
-        return size
 
 # photo field implementation, derived from CMFPhoto by Magnus Heino
 
