@@ -87,7 +87,7 @@ class Referenceable(Base):
     #aliases
     getReferences=getRefs
     getBackReferences=getBRefs
-    
+
     def getReferenceImpl(self, relationship=None):
         """get all the reference objects for this object    """
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -104,7 +104,6 @@ class Referenceable(Base):
             return refs
         return []
 
-
     def _register(self, reference_manager=None):
         """register with the archetype tool for a unique id"""
         if self.UID() is not None:
@@ -113,6 +112,7 @@ class Referenceable(Base):
         if reference_manager is None:
             reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.registerObject(self)
+
 
     def _unregister(self):
         """unregister with the archetype tool, remove all references"""
@@ -136,7 +136,6 @@ class Referenceable(Base):
         """
         # the UID index needs to be updated for any annotations we
         # carry
-        
         try:
             uc = getToolByName(container, config.UID_CATALOG)
         except AttributeError:
@@ -146,13 +145,12 @@ class Referenceable(Base):
             container = aq_parent(self)
             uc = getToolByName(container, config.UID_CATALOG)
 
-        rc = getToolByName(container, config.REFERENCE_CATALOG)
-        
+        rc = getToolByName(uc, config.REFERENCE_CATALOG)
+
         self._catalogUID(container, uc=uc)
         self._catalogRefs(container, uc=uc, rc=rc)
-            
 
-    ## Hooks
+    ## OFS Hooks
     def manage_afterAdd(self, item, container):
         """
         Get a UID
@@ -161,6 +159,7 @@ class Referenceable(Base):
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
         self._updateCatalog(container)
+        self._referenceApply('manage_afterAdd', item, container)
 
     def manage_afterClone(self, item):
         """
@@ -176,13 +175,19 @@ class Referenceable(Base):
         self._register()
         self._updateCatalog(self)
 
+
     def manage_beforeDelete(self, item, container):
         """
             Remove self from the catalog.
             (Called when the object is deleted or moved.)
         """
-        storeRefs = getattr(self, '_v_cp_refs', None)
+
+        # Change this to be "item", this is the root of this recursive
+        # chain and it will be flagged in the correct mode
+        storeRefs = getattr(item, '_v_cp_refs', None)
         if storeRefs is None:
+            # The object is really going away, we want to remove
+            # its references
             rc = getToolByName(container, config.REFERENCE_CATALOG)
             references = rc.getReferences(self)
             back_references = rc.getBackReferences(self)
@@ -200,13 +205,17 @@ class Referenceable(Base):
             except ReferenceException, E:
                 raise BeforeDeleteException(E)
 
+        self._referenceApply('manage_beforeDelete', item, container)
 
         # Track the UUID
+        # The object has either gone away, moved or is being
+        # renamed, we still need to remove all UID/child refs
         self._uncatalogUID(container)
         self._uncatalogRefs(container)
 
         #and reset the flag
         self._v_cp_refs = None
+
 
     ## Catalog Helper methods
     def _catalogUID(self, aq, uc=None):
@@ -221,7 +230,8 @@ class Referenceable(Base):
         url = self.getURL()
         uc.uncatalog_object(url)
 
-    def _catalogRefs(self, aq, uc=None, rc=None, ignoreExceptions=1):
+
+    def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
             if not uc:
@@ -229,18 +239,10 @@ class Referenceable(Base):
             if not rc:
                 rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
-                url = ref.getURL()
+                url = getRelURL(uc, ref.getPhysicalPath())
                 uc.catalog_object(ref, url)
-                try:
-                    rc.catalog_object(ref, url)
-                except AttributeError:
-                    #the AttributeError occurs after importing from a .zexp
-                    #file when at the moment of this call the target object has 
-                    #not yet been imported
-                    #for this case the restoring of references will happen in
-                    #a seperate run in the manage_afterAdd of BaseObject
-                    if not ignoreExceptions:
-                        raise
+                rc.catalog_object(ref, url)
+                ref._catalogRefs(uc, uc, rc)
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
@@ -250,7 +252,7 @@ class Referenceable(Base):
             if not rc:
                 rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
-                url = ref.getURL()
+                url = getRelURL(uc, ref.getPhysicalPath())
                 uc.uncatalog_object(url)
                 rc.uncatalog_object(url)
 
@@ -262,5 +264,22 @@ class Referenceable(Base):
         ## worse case is not that bad and could be fixed with a reindex
         ## on the archetype tool
         if op==1: self._v_cp_refs =  1
+
+    # Recursion Mgmt
+    def _referenceApply(self, methodName, *args, **kwargs):
+        # We always apply commands to our reference children
+        # and if we are folderish we need to get those too
+        # where as references are concerned
+        children = []
+        if hasattr(aq_base(self), 'objectValues'):
+            children.extend(self.objectValues())
+        children.extend(self._getReferenceAnnotations().objectValues())
+        if children:
+            for child in children:
+                if hasattr(aq_base(child), methodName):
+                    method = getattr(child, methodName)
+                    method(*args, **kwargs)
+
+
 
 InitializeClass(Referenceable)

@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.16.4 2004/05/13 16:26:26 dpunktnpunkt Exp $
+$Id: test_referenceCatalog.py,v 1.8.16.5 2004/06/22 03:43:37 bcsaller Exp $
 """
 
 import os, sys
@@ -30,6 +30,9 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         brains = uc()
         objects = [b.getObject() for b in brains]
         self.failIf(None in objects, """bad uid resolution""")
+        for b in brains:
+            if b.getPath().startswith('/'):
+                print "Bad Brain", b, b.getObject()
 
         #Verify all references resolve
         brains = rc()

@@ -37,8 +37,6 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 
 STRING_TYPES = (StringType, UnicodeType)
 
-REF_PREFIX = "ref__"
-PATH_REF_PREFIX = "/%s" % REF_PREFIX
 
 from Referenceable import Referenceable
 
@@ -50,12 +48,12 @@ class Reference(Referenceable, SimpleItem):
     ## reference objects and expect them to work, but you can't
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
-    
+
     __implements__ = Referenceable.__implements__ + (IReference,)
-    
+
     security = ClassSecurityInfo()
     portal_type = 'Reference'
-    
+
     # XXX FIXME more security
 
     manage_options = (
@@ -91,13 +89,15 @@ class Reference(Referenceable, SimpleItem):
     # Convenience methods
     def getSourceObject(self):
         tool = getToolByName(self, UID_CATALOG)
+        if not tool: return ''
         brains = tool(UID=self.sourceUID)
         if brains:
             return brains[0].getObject()
         raise AttributeError('sourceObject')
 
     def getTargetObject(self):
-        tool = getToolByName(self, UID_CATALOG)
+        tool = getToolByName(self, UID_CATALOG, None)
+        if not tool: return ''
         brains = tool(UID=self.targetUID)
         if brains:
             return brains[0].getObject()
@@ -144,24 +144,20 @@ class Reference(Referenceable, SimpleItem):
         pass
 
     def manage_afterAdd(self, item, container):
-        #Referenceable.manage_afterAdd(self, item, container)
-        uc = getToolByName(container, UID_CATALOG)
-        rc = getToolByName(container, REFERENCE_CATALOG)
-        url = getRelURL(self, self.getPhysicalPath())
+        Referenceable.manage_afterAdd(self, item, container)
 
-        uc.catalog_object(self, url)
+        rc = getToolByName(container, REFERENCE_CATALOG)
+        url = getRelURL(container, self.getPhysicalPath())
         rc.catalog_object(self, url)
+
 
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
-        # Make sure to uncatalog self as well
-        rc = getToolByName(container, REFERENCE_CATALOG)
-        url=  getRelURL(self, self.getPhysicalPath())
+        rc  = getToolByName(container, REFERENCE_CATALOG)
+        url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
-    def getURL(self):
-        """the url used as the relative path based uid in the catalogs"""
-        return getRelURL(self, self.getPhysicalPath())
+
 
 InitializeClass(Reference)
 
@@ -171,12 +167,12 @@ class ContentReference(Reference, ObjectManager):
     '''Subclass of Reference to support contentish objects inside references '''
 
     __implements__ = Reference.__implements__ + (IContentReference,)
-    
+
     security = ClassSecurityInfo()
     # XXX FIXME more security
-    
+
     def addHook(self, *args, **kw):
-        #creates the content instance 
+        #creates the content instance
         if type(self.contentType) in (type(''),type(u'')):
             #type given as string
             tt=getToolByName(self,'portal_types')
@@ -185,26 +181,26 @@ class ContentReference(Reference, ObjectManager):
             #type given as class
             setattr(self.REFERENCE_CONTENT_INSTANCE_NAME,self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
             getattr(self.REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
-        
+
     def getContentObject(self):
         return getattr(self,REFERENCE_CONTENT_INSTANCE_NAME)
 
 InitializeClass(ContentReference)
-        
+
 class ContentReferenceCreator:
-    '''Helper class to construct ContentReference instances based 
+    '''Helper class to construct ContentReference instances based
        on a certain content type '''
 
     security = ClassSecurityInfo()
-       
+
     def __init__(self,contentType):
         self.contentType=contentType
-        
+
     def __call__(self,*args,**kw):
         #simulates the constructor call to the reference class in addReference
         res=ContentReference(*args,**kw)
         res.contentType=self.contentType
-        
+
         return res
 
 InitializeClass(ContentReferenceCreator)
@@ -212,7 +208,7 @@ InitializeClass(ContentReferenceCreator)
 # The brains we want to use
 class UIDCatalogBrains(AbstractCatalogBrain):
     """fried my little brains"""
-    
+
     security = ClassSecurityInfo()
 
     def getObject(self, REQUEST=None):
@@ -228,15 +224,12 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         obj = None
         try:
             path = self.getPath()
-            is_ref_path = path.find('REF_PREFIX') != -1
-
-            if not is_ref_path:
-                try:
-                    portal = getToolByName(self, 'portal_url').getPortalObject()
-                    obj = portal.unrestrictedTraverse(self.getPath())
-                    obj = aq_inner( obj )
-                except: #NotFound
-                    pass
+            try:
+                portal = getToolByName(self, 'portal_url').getPortalObject()
+                obj = portal.unrestrictedTraverse(self.getPath())
+                obj = aq_inner( obj )
+            except: #NotFound
+                pass
 
             if not obj:
                 if REQUEST is None:
@@ -260,10 +253,10 @@ class ReferenceCatalogBrains(UIDCatalogBrains):
 class PluggableCatalog(Catalog):
     # Catalog overrides
     # smarter brains, squirrely traversal
-    
+
     security = ClassSecurityInfo()
     # XXX FIXME more security
-    
+
     def useBrains(self, brains):
         """Tricky brains overrides, we need to use our own class here
         with annotation support
@@ -292,10 +285,10 @@ class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
 
 class ReferenceResolver(Base):
-    
+
     security = ClassSecurityInfo()
     # XXX FIXME more security
-    
+
     def resolve_url(self, path, REQUEST):
         """Strip path prefix during resolution, This interacts with
         the default brains.getObject model and allows and fakes the
@@ -320,7 +313,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         self._catalog = UIDBaseCatalog()
 
 
-class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
+class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
 
@@ -330,7 +323,6 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
-        BTreeFolder2.__init__(self, id)
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = ReferenceBaseCatalog()
 
@@ -367,6 +359,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             pass
         else:
             annotation = sobj._getReferenceAnnotations()
+            # This should call manage_afterAdd
             annotation._setObject(rID, referenceObject)
             return referenceObject
 
@@ -547,26 +540,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
     def __nonzero__(self):
         return 1
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'catalogReferences')
-    def catalogReferences(self, ob=None):
-        '''
-        catalogs references for an object and all its 
-        subobjects. it uses portal_catalog to query all
-        objects within the specified object
-        '''
-        if not ob:
-            ob=getToolByName(self,'portal_url').getPortalObject()
-            
-        cat=getToolByName(self,'portal_catalog')
-        path='/'.join(ob.getPhysicalPath())
-        
-        rs=cat(path=path)
-        
-        for r in rs:
-            o=r.getObject()
-            if IReferenceable.isImplementedBy(o):
-                o._catalogRefs(self, ignoreExceptions=0)
-                
+
 
 InitializeClass(ReferenceCatalog)
 

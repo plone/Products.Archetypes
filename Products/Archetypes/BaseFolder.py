@@ -14,9 +14,8 @@ from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Products.CMFCore.utils import getToolByName
 from OFS.Folder import Folder
 
-class BaseFolderMixin(BaseObject,
-                      Referenceable,
-                      CatalogMultiplex,
+class BaseFolderMixin(CatalogMultiplex,
+                      BaseObject,
                       SkinnedFolder,
                       Folder
                       ):
@@ -39,30 +38,23 @@ class BaseFolderMixin(BaseObject,
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
         Folder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
-        
-        if self==item:
-            # we can assume that this object is the root of the imported
-            # object tree
-            getToolByName(self,'reference_catalog').catalogReferences(self)
-            
+
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        Folder.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
+        Folder.manage_afterClone(self, item)
+
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        Folder.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
+        Folder.manage_beforeDelete(self, item, container)
 
     security.declareProtected(CMFCorePermissions.ListFolderContents,
                               'listFolderContents')

@@ -17,6 +17,7 @@ from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 from ComputedAttribute import ComputedAttribute
 
+from Referenceable import Referenceable
 from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
@@ -55,7 +56,7 @@ content_type = Schema((
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Implicit):
+class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
 
@@ -63,7 +64,7 @@ class BaseObject(Implicit):
     _signature = None
 
     installMode = ['type', 'actions', 'indexes']
-    
+
     typeDescMsgId = ''
     typeDescription = ''
 
@@ -90,14 +91,16 @@ class BaseObject(Implicit):
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
+        Referenceable.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        pass
+        Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.cleanupLayers(item, container)
+        Referenceable.manage_beforeDelete(self, item, container)
 
     security.declarePrivate('initializeLayers')
     def initializeLayers(self, item=None, container=None):
@@ -131,6 +134,8 @@ class BaseObject(Implicit):
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
+                self._v_cp_refs = 1 # See Referenceable, keep refs on
+                                    # what is a move/rename
                 parent.manage_renameObject(
                     self.id, value,
                     )
@@ -303,17 +308,18 @@ class BaseObject(Implicit):
 
         return value
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
-    def edit(self, **kwargs):
-        """Alias for update()
-        """
-        self.update(**kwargs)
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
         """Set field values to the default values
         """
         self.Schema().setDefaults(self)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
+    def edit(self, **kwargs):
+        """Alias for update()
+        """
+        self.update(**kwargs)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):

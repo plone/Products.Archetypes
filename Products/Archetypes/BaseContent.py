@@ -14,9 +14,8 @@ from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from OFS.PropertyManager import PropertyManager
 
-class BaseContentMixin(BaseObject,
-                       Referenceable,
-                       CatalogMultiplex,
+class BaseContentMixin(CatalogMultiplex,
+                       BaseObject,
                        PortalContent,
                        Historical):
     """A not-so-basic CMF Content implementation that doesn't
@@ -31,21 +30,20 @@ class BaseContentMixin(BaseObject,
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
-        PortalContent.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
+
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        PortalContent.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        PortalContent.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
+
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')

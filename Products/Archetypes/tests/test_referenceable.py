@@ -11,8 +11,29 @@ if not hasArcheSiteTestCase:
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 
+import sys
+import inspect
+from pprint import pprint, pformat
+import textwrap
+
+from debug import chat, quiet
 
 class ReferenceableTests(ArcheSiteTestCase):
+
+    def verifyBrains(self):
+        uc = getattr(self.portal, UID_CATALOG)
+        rc = getattr(self.portal, REFERENCE_CATALOG)
+
+        #Verify all UIDs resolve
+        brains = uc()
+        uobjects = [b.getObject() for b in brains]
+        self.failIf(None in uobjects, """bad uid resolution""")
+
+        #Verify all references resolve
+        brains = rc()
+        robjects = [b.getObject() for b in brains]
+        self.failIf(None in robjects, """bad ref catalog resolution""")
+        return uobjects, robjects
 
     def test_hasUID( self ):
         doc = makeContent( self.folder
@@ -42,6 +63,33 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
         self.failUnless(doc.UID() == UID)
 
+
+    def test_renameKeepsReferences(self):
+        container = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='container')
+
+        obj1 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='obj1')
+        obj2 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Foo',
+                           id='obj2')
+
+        obj1.addReference(obj2)
+
+        self.verifyBrains()
+        get_transaction().commit(1)
+        obj1.setId('foo')
+        get_transaction().commit(1)
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
+
     def test_renamecontainerKeepsReferences( self ):
         # test for #956677: renaming the container causes contained objects
         #                   to lose their refs
@@ -59,10 +107,17 @@ class ReferenceableTests(ArcheSiteTestCase):
                            id='obj2')
 
         obj1.addReference(obj2)
-        self.assertEquals(obj2.getBRefs(), [obj1])
 
+        a,b = self.verifyBrains()
         get_transaction().commit(1)
-        self.folder.manage_renameObject(id='container', new_id='cont4iner')
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
+        self.folder.manage_renameObject(id='container',
+                                        new_id='cont4iner')
+        c, d = self.verifyBrains()
+
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
@@ -246,9 +301,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         doc = makeContent(self.folder,
                           portal_type='DDocument',
                           id='demodoc')
-        doc.setTitle('sometitle')
-        doc.update() # reindex
-        
+        doc.update(title="sometitle")
         brain = catalog(UID=doc.UID())[0]
         self.assertEquals(brain.Title, doc.Title())
 
@@ -266,20 +319,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         c.addReference(ref)
         ref.addReference(c)
         self.verifyBrains()
-        
-    def verifyBrains(self):
-        uc = getattr(self.portal, UID_CATALOG)
-        rc = getattr(self.portal, REFERENCE_CATALOG)
 
-        #Verify all UIDs resolve
-        brains = uc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad uid resolution""")
-
-        #Verify all references resolve
-        brains = rc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad ref catalog resolution""")
 
 
 def test_suite():
