@@ -6,12 +6,14 @@ from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.transform import transformer, registry
+from Products.transform.interfaces import idatastream
 from Products.transform.sourceAdapter import sourceAdapter
 from StringIO import StringIO
 from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
 from debug import log, log_exc
 from interfaces.base import IBaseUnit
+from adapters import TransformCache
 from types import DictType
 from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
@@ -27,28 +29,21 @@ class newBaseUnit(File):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, parent, data='', mimetype=None):
+    def __init__(self, name, file='', mime_type=None):
         self.id = name
-        self.parent = parent
-        self._transforms = {}
-        self.update(data, mimetype)
+        self.update(file, mime_type)
 
     def update(self, data, mimetype=None):
         #Convert from file/str to str/unicode as needed
         data, filename, mimetype = sourceAdapter()(data, mimetype=mimetype)
 
         self.mimetype = mimetype
-        self.raw  = data
+        self.raw  = data and str(data) or ''
         self.size = len(data)
         self.filename = filename
 
         ##force default transform policy, this needs to come out
         str(self)
-
-    def _mimetype2key(self, mt):
-        mt = mt.replace('/', '_')
-        mt = mt.replace('+', '_')
-        return mt.replace('-', '_')
 
     def __getitem__(self, key):
         return self.transform(key)
@@ -57,19 +52,19 @@ class newBaseUnit(File):
         """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
         """
-        key = self._mimetype2key(mt)
-        mt  = mt.replace('_', '/', 1)
+        cache = TransformCache(self)
+        data = cache.getCache(mt)
         #Do we have a cached transform for this key?
-        if key in self._transforms.keys():
-            data = self._transforms[key]
-        else:
-            #data = transformer.convertTo(mt, self.mimetype,
-            #                             self.raw,
-            #                             usedby=self.id)
-            
+        if data is None:
+            data = transformer.convertTo(mt,
+                                         self.raw,
+                                         usedby=self.id,
+                                         mimetype=self.mimetype,
+                                         filename=self.filename)
+
             ## XXX the transform tool should keep the cache policy
             if cache:
-                self._transforms[key] = data
+                cache.setCache(mt, data)
 
         if data:
             data = data.getData()
@@ -92,15 +87,14 @@ class newBaseUnit(File):
         if not data:
             return ''
 
-        data = data.getData()
+        if idatastream.isImplementedBy(data):
+            data = data.getData()
         if type(data) == DictType and data.has_key('html'):
             return data['html']
         return data
 
-
     # Hook needed for catalog
     __call__ = __str__
-
 
     def isBinary(self):
         mt = registry.lookup(self.getContentType())

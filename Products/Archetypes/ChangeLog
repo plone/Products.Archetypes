@@ -1,3 +1,9 @@
+2003-04-21  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* tests/test_baseunit.py (BaseUnitTest.testSame): Added the same
+	tests here as on the transform package, to confirm it works with
+	the new BaseUnit.
+
 2003-04-20  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* content_driver/html4zope.py: Fixed Subtitle.
