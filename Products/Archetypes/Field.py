@@ -75,7 +75,7 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     def copy(self):
-        return self.__class__(self.name, **self.__dict__)
+        return self.__class__(**self.__dict__)
     
     def __repr__(self):
         return "<Field %s(%s:%s)>" %(self.name, self.type, self.mode)
