@@ -1,56 +1,47 @@
-1.3.2-svn - Unreleased CMF1_5 integration
-=========================================
-
-* Added fixes for http://www.zope.org/Collectors/CMF/49/ so generated fti would work normally
-[whit]
-
-1.3.2-svn - Unreleased
-======================
-=======
 after 1.3.2-final
-==================
-
- * Fixed[ 1118780 ] Bad validation for required IntegerFields with value zero
-   Also the default values for IntegerField and FloatField are None instead of
-   0.
-  [tiran]
-
- * Applied patch from [ 1076738 ] PrimaryFieldMarshaller: wrong length
-   [dmaurer]
- 
- * Changed the reference tab permission to modify or review according to
-   [ 1087990 ] 'References' action visible for everyone.
-   [tiran]
+=================
 
  * Fixed [ 1160362 ] AT 1.3.2-final bug on PrimaryFieldMarshaller by adding the
-   missing import of shasattr in Marshall. 
+   missing import of shasattr in Marshall.
    [tiran]
 
  * textarea.pt and image.pt were broken under 2.7.2 (newline in python
-   expression)
+   expression).
    [gotcha]
 
  * Correct getMsgId on DisplayList (when using int keys) and IntDisplayList
-   Fixes [ 1159248 ] IntDisplayList.getValue triggers DeprecationWarning
+   Fixes [ 1159248 ] IntDisplayList.getValue triggers DeprecationWarning.
    [gotcha]
+
+ * Made ComputedFiled inherits from Field instead of ObjectField (which
+   should only be used with fields that handle storages).
+   [dtremea]
 
 1.3.2-final - 2005-03-05
 ========================
 
- * Made deprecation warnings less verbose. If someone wants them, switch 
+ * Made deprecation warnings less verbose. If someone wants them, switch
    DEBUG in config.py to True.
    [yenzenz]
 
+ * Added IntDisplayList to the public module
+   [tiran]
+
+ * Added Sidney's AttributeValidator to BaseObject. It's disabled for now
+   because it might break third party software which relies on a broken
+   behavior. You can enable it by setting ATTRIBUTE_SECURITY to True.
+   [tiran]
+
 1.3.2-rc1 - 2005-02-26
 ======================
 
- * Using registerType w/o a package name is deprecated. Explict is better
+ * Using registerType without a package name is deprecated. Explict is better
    than implicit!
    [tiran]
 
  * Fixed DisplayList for int keys. The warning module was missing *blush*
    [tiran]
-   
+
  * Added IntDisplayList to utils.py. Also I've coded some nice doc tests for
    DisplayList and IntDisplayList.
    [tiran]
@@ -58,37 +49,11 @@ after 1.3.2-final
  * Fixed[ 1118780 ] Bad validation for required IntegerFields with value zero
    Also the default values for IntegerField and FloatField are None instead of
    0.
-  [tiran]
+   [tiran]
 
  * Applied patch from [ 1076738 ] PrimaryFieldMarshaller: wrong length
    [dmaurer]
- 
- * Changed the reference tab permission to modify or review according to
-   [ 1087990 ] 'References' action visible for everyone.
-   [tiran]
 
-1.3.2-rc1 - 2005-02-26
-======================
-
- * Using registerType w/o a package name is deprecated. Explict is better
-   than implicit!
-   [tiran]
-
- * Fixed DisplayList for int keys. The warning module was missing *blush*
-   [tiran]
-   
- * Added IntDisplayList to utils.py. Also I've coded some nice doc tests for
-   DisplayList and IntDisplayList.
-   [tiran]
-
- * Fixed[ 1118780 ] Bad validation for required IntegerFields with value zero
-   Also the default values for IntegerField and FloatField are None instead of
-   0.
-  [tiran]
-
- * Applied patch from [ 1076738 ] PrimaryFieldMarshaller: wrong length
-   [dmaurer]
- 
  * Changed the reference tab permission to modify or review according to
    [ 1087990 ] 'References' action visible for everyone.
    [tiran]

@@ -1519,9 +1519,9 @@ class ReferenceField(ObjectField):
         return 0
 
 
-class ComputedField(ObjectField):
-    """A field that stores a read-only computation"""
-    __implements__ = ObjectField.__implements__
+class ComputedField(Field):
+    """A field that stores a read-only computation."""
+    __implements__ = Field.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1532,7 +1532,7 @@ class ComputedField(ObjectField):
         'storage': ReadOnlyStorage(),
         })
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('set')
     def set(self, *ignored, **kwargs):
@@ -1540,12 +1540,14 @@ class ComputedField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        """Return computed value"""
+        """Return the computed value."""
         return eval(self.expression, {'context': instance, 'here' : instance})
 
     security.declarePublic('get_size')
     def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
+        """Get size of the stored data.
+        
+        Used for get_size in BaseObject.
         """
         return 0
 
