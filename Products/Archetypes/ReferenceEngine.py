@@ -458,8 +458,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
     def lookupObject(self, uuid, REQUEST=None):
         """Lookup an object by its uuid"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        obj = tool.lookupObject(uuid)
+        obj = self._objectByUUID(uuid)
         if REQUEST:
             return REQUEST.RESPONSE.redirect(obj.absolute_url())
         else:
