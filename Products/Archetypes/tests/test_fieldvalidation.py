@@ -44,7 +44,7 @@ for req in 0,1:
         settings.append(
             {'field': {'required': req, 'validators': validator},
              'value': 'bass',
-             'assertion': lambda result:result == 'bass'}
+             'assertion': lambda result:result == 'v1: bass'}
             )
 
     settings.append(
