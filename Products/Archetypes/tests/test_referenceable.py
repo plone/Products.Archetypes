@@ -10,7 +10,7 @@ if not hasArcheSiteTestCase:
 
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
-
+from Products.Archetypes.utils import DisplayList
 
 class ReferenceableTests(ArcheSiteTestCase):
 
@@ -317,7 +317,35 @@ class ReferenceableTests(ArcheSiteTestCase):
         ref.addReference(c)
         self.verifyBrains()
 
+    def test_referenceFieldVocab(self):
+        dummy = makeContent(self.folder, portal_type="Refnode", id="dummy")
+        test123 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test123")
+        test124 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test124")
+        test125 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test125")
 
+        expected = DisplayList([
+            (test123.UID(), test123.getId()),
+            (test124.UID(), test124.getId()),
+            (test125.UID(), test125.getId()),
+            (dummy.UID(), dummy.getId()),
+            ])
+        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+
+        # We should have the option of nothing
+        dummy.Schema()['adds'].required = 0
+        dummy.Schema()['adds'].multiValued = 0
+
+        expected = DisplayList([
+            ('', '<no reference>'),
+            (test123.UID(), test123.getId()),
+            (test124.UID(), test124.getId()),
+            (test125.UID(), test125.getId()),
+            (dummy.UID(), dummy.getId()),
+            ])
+        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
 
 def test_suite():
     from unittest import TestSuite, makeSuite
