@@ -9,25 +9,48 @@
   <body>
 
     <metal:view_macro define-macro="view">
-      <tal:define define="targets python:here.getRefs(field.relationship)"
-                  condition="targets">
+      <tal:define define="refs python:here.getReferenceImpl(field.relationship)"
+                  condition="refs">
 
-        <a href="#"
-           tal:define="obj python:targets[0]"
-           tal:condition="not:field/multiValued"
-           tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
-           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
-          Sole target object's title
-        </a>
+        <tal:block tal:condition="not:field/multiValued"
+               tal:define="ref python:refs[0]; obj python:ref.getTargetObject()"
+            >
 
-
-        <ul tal:condition="field/multiValued">
-          <li tal:repeat="obj targets">
             <a href="#"
                tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
                tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
-              Target Title
+              Sole target object's title
             </a>
+
+            <a href="#"
+               tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+               tal:attributes="href python:ref.getContentObject().absolute_url(); class python:obj.portal_type.replace(' ', '_')"
+               tal:content="python:field.relationship"
+             >
+              reference object link
+            </a>
+            
+        </tal:block>
+
+        
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="ref refs">
+             <tal:block tal:define="obj ref/getTargetObject">
+                <a href="#"
+                   tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+                   tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+                  Target Title
+                </a>
+    
+                <a href="#"
+                   tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+                   tal:attributes="href python:ref.getContentObject().absolute_url(); class python:obj.portal_type.replace(' ', '_')"
+                   tal:content="python:field.relationship"
+                 >
+                  reference object link
+                </a>
+             </tal:block>
           </li>
         </ul>
 
