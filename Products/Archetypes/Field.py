@@ -1,7 +1,7 @@
 from __future__ import nested_scopes
 from copy import deepcopy
 from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
@@ -27,6 +27,7 @@ from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
+from ComputedAttribute import ComputedAttribute
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
@@ -919,6 +920,17 @@ except:
     has_pil=None
 
 class Image(BaseImage):
+
+    def title(self):
+        parent = aq_parent(aq_inner(self))
+        if parent is not None:
+            return parent.Title() or parent.getId()
+        return self.getId()
+
+    title = ComputedAttribute(title, 1)
+
+    alt = title_or_id = title
+    
     def isBinary(self):
         return 1
 
@@ -997,6 +1009,12 @@ class ImageField(ObjectField):
 
     default_view = "view"
 
+    def get(self, instance, **kwargs):
+        image = ObjectField.get(self, instance, **kwargs)
+        if kwargs.get('unwrapped', 0):
+            return image
+        return image.__of__(instance)
+
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
         if value=="DELETE_IMAGE":
@@ -1052,6 +1070,7 @@ class ImageField(ObjectField):
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
+        delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
@@ -1065,6 +1084,7 @@ class ImageField(ObjectField):
             imgdata = self.scale(data, w, h)
             image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
             # manually use storage
+            delattr(image2, 'title')
             self.storage.set(id, instance, image2)
 
 

@@ -1,3 +1,16 @@
+2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Field.py (Image.isBinary): Use return wrapped image in the
+	instance context, and use the instance Title where
+	possible. Existing images must be re-saved to get this
+	functionality. If you want a non-wrapped image, you must pass the
+	keyword argument 'unwrapped=1'.
+
+2003-07-26  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Extensions/utils.py (filterTypes): Also check base classes to
+	see if they implement IBaseObject.
+
 2003-07-23  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* Field.py (Field.copy): Do a deepcopy, so we don't get references

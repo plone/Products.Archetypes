@@ -275,7 +275,16 @@ def filterTypes(self, out, types, package_name):
             print >> out, '%s is not a registered Type Information' % typeinfo_name
             continue
 
+        isBaseObject = 0
         if IBaseObject.isImplementedByInstancesOf(t):
+            isBaseObject = 1
+        else:
+            for k in t.__bases__:
+                if IBaseObject.isImplementedByInstancesOf(k):
+                    isBaseObject = 1
+                    break
+        
+        if isBaseObject:
             filtered_types.append(t)
         else:
             print >> out, """%s doesnt implements IBaseObject. Possible misconfiguration.""" % repr(t) + \
