@@ -278,8 +278,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
             if v != 0: return v
-            c = cmp(a['type'].__class__.__name__,
-                    b['type'].__class__.__name__)
+            c = cmp(a['klass'].__class__.__name__,
+                    b['klass'].__class__.__name__)
 
             if c == 0:
                 return cmp(a['package'], b['package'])

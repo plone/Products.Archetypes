@@ -12,7 +12,7 @@
 ##############################################################################
 """ SQL Storage Configuration for Archetypes.
 
-$Id: SQLStorageConfig.py,v 1.1 2003/03/06 20:28:28 bcsaller Exp $
+$Id: SQLStorageConfig.py,v 1.2 2003/03/15 13:00:18 dreamcatcher Exp $
 """
 
 from OFS.SimpleItem import SimpleItem
@@ -152,9 +152,9 @@ class SQLStorageConfig (SimpleItem):
         pt = pt.listTypeInfo()
         pt = [t.getId() for t in pt]
 
-        ti = at.listTypes()
+        ti = at.listRegisteredTypes()
 
-        installed_types = [t for t in ti if t in pt]
+        installed_types = [t for t in ti if t['name'] in pt]
         return installed_types
 
                 
