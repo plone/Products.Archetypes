@@ -44,6 +44,14 @@ class DummyBrain:
     def getURL(self):
         return self.path
 
+class DummyArchTool:
+
+    def lookupObject(self, uid):
+        return Dummy(uid)
+
+    def deleteReferences(self, obj, reference):
+        pass
+
 class DummyCatalog:
 
     def __init__(self, brains=None):
