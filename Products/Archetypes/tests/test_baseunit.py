@@ -27,13 +27,19 @@ else:
     # Test was called by another test.
     _prefix = abspath(dirname(__file__))
 
-class BaseUnitTest( unittest.TestCase ):
+class BaseUnitTest(unittest.TestCase):
 
     def testSame(self):
         gen_dummy()
-        dummy = Dummy(oid='dummy', init_transforms=1)
+        # The new BaseUnit expects 'instance' to be
+        # acquisition wrapped, or else it does return
+        # the untransformed text -- this was introduced
+        # for compatibility with APE.
+        parent = Dummy(oid='parent')
+        dummy = Dummy(oid='dummy', init_transforms=1).__of__(parent)
         input = open(self.input)
-        bu = BaseUnit(name='test', file=input, mimetype='text/restructured',
+        bu = BaseUnit(name='test', file=input,
+                      mimetype='text/restructured',
                       instance=dummy)
         input.close()
         if USE_NEW_BASEUNIT:

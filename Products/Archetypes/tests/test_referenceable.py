@@ -21,7 +21,8 @@ class CatalogAwareAnonymousUser(AnonymousUser):
         # need this method for user to interact with the catalog
         return ('Anonymous',)
 
-class ReferenceableTests( SecurityRequestTest ):
+class ReferenceableTests(SecurityRequestTest):
+
     def setUp(self):
         SecurityRequestTest.setUp(self)
         self.root.id = 'trucmuche'
@@ -30,7 +31,6 @@ class ReferenceableTests( SecurityRequestTest ):
         # FIXME: there must be a cleaner way to do this
         user.aq_inner.aq_parent.aq_inner.aq_parent.id = 1
         newSecurityManager( None, user )
-        #newSecurityManager(None, MemberData(None, 'Anonymous').__of__(self.root).__of__(AnonymousUser()) )
         manage_addSite( self.root, 'testsite', \
                         custom_policy='Archetypes Site' )
 
@@ -148,8 +148,10 @@ class ReferenceableTests( SecurityRequestTest ):
         site = self.root.testsite
         at = site.archetype_tool
 
-        folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
-        nonRef = makeContent( folder, portal_type='DDocument',title='Foo', id='nonRef')
+        folder = makeContent( site, portal_type='SimpleFolder',
+                              title='Foo', id='folder')
+        nonRef = makeContent( folder, portal_type='DDocument',
+                              title='Foo', id='nonRef')
 
         ## This is really broken and I can't easily fix it
         assert folder.UID() == 'folder'

@@ -86,7 +86,7 @@ class newBaseUnit(File):
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
         #being used with APE
-        if not hasattr(instance,'aq_parent'):
+        if not hasattr(instance, 'aq_parent'):
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')

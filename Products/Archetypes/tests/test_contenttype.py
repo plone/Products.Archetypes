@@ -26,52 +26,60 @@ class ContentTypeTest( unittest.TestCase ):
     def test_textfieldwithmime(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/x-rst')
-        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/x-rst')
+        self.assertEqual(obj.getField('atextfield').getContentType(obj),
+                         'text/x-rst')
         self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
 
     def test_textfieldwithmime2(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/structured')
         self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
-        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/structured')
+        self.assertEqual(obj.getField('atextfield').getContentType(obj),
+                         'text/structured')
 
     def test_textfieldwithoutmime(self):
         obj = self._dummy
         obj.setAtextfield('Bla')
         self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
-        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/plain')
+        self.assertEqual(obj.getField('atextfield').getContentType(obj),
+                         'text/plain')
 
     def test_textfielduploadwithoutmime(self):
         file = open(join(_prefix, "input", "rest1.tgz"), 'r')
         obj = self._dummy
         obj.setAtextfield(file)
         file.close()
-        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'application/x-tar')
+        self.assertEqual(obj.getField('atextfield').getContentType(obj),
+                         'application/x-tar')
 
     def test_filefieldwithmime(self):
         obj = self._dummy
         obj.setAfilefield('Bla', mimetype='text/x-rst')
         self.assertEqual(str(obj.getAfilefield()), 'Bla')
-        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'text/x-rst')
+        self.assertEqual(obj.getField('afilefield').getContentType(obj),
+                         'text/x-rst')
 
     def test_filefieldwithmime2(self):
         obj = self._dummy
         obj.setAfilefield('Bla', mimetype='text/structured')
         self.assertEqual(str(obj.getAfilefield()), 'Bla')
-        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'text/structured')
+        self.assertEqual(obj.getField('afilefield').getContentType(obj),
+                         'text/structured')
 
     def test_filefieldwithoutmime(self):
         obj = self._dummy
         obj.setAfilefield('Bla')
         self.assertEqual(str(obj.getAfilefield()), 'Bla')
-        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'text/plain')
+        self.assertEqual(obj.getField('afilefield').getContentType(obj),
+                         'text/plain')
 
     def test_filefielduploadwithoutmime(self):
         file = open(join(_prefix, "input", "rest1.tgz"), 'r')
         obj = self._dummy
         obj.setAfilefield(file)
         file.close()
-        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'application/x-tar')
+        self.assertEqual(obj.getField('afilefield').getContentType(obj),
+                         'application/x-tar')
 
     def tearDown(self):
         del self._dummy
