@@ -19,6 +19,10 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
+try:
+    from generator.i18n import translate
+except ImportError:
+    from Products.generator.i18n import translate
 
 __docformat__ = 'reStructuredText'
 
@@ -455,7 +459,12 @@ class Schema(Schemata, DefaultLayerContainer):
                         value = None
 
                 if not value:
-                    errors[name] =  "%s is required, please correct" % capitalize(name)
+                    errors[name] =  translate(
+                        'archetypes', 'error_required',
+                        {'name': capitalize(name)}, instance,
+                        default = "%s is required, please correct."
+                        % capitalize(name),
+                        )
                     error = 1
                     continue
 
@@ -492,9 +501,12 @@ class Schema(Schemata, DefaultLayerContainer):
                                 break
 
                     if error == 1:
-                        errors[name] = ("Value %s is not allowed for vocabulary"
-                                        " of element: %s") % (val,
-                                                              capitalize(name))
+                        errors[name] = translate(
+                            'archetypes', 'error_vocabulary',
+                            {'val': val, 'name': capitalize(name)}, instance,
+                            default = "Value %s is not allowed for vocabulary "
+                            "of element %s." % (val, capitalize(name)),
+                            )
 
             # Call any field level validation
             if error == 0 and value:
