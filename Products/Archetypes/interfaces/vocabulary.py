@@ -27,7 +27,7 @@
 from Interface import Interface, Attribute
 
 class IVocabulary(Interface):
-    """ interface for vocabularies used in fields """
+    """ interface for vocabularies used i.e. in fields """
 
     def getDisplayList(self, instance):
         """ returns an object of class DisplayList as defined in
@@ -51,6 +51,16 @@ class IVocabulary(Interface):
             The instance of the content is given as parameter.
         """
 
+    def getTermByKey(self, key):
+        """ returns a term object implementing IVocabularyTerm
+            The instance of the content is given as parameter.
+        """
+
+    def createTerm(self, key, **kwargs):
+        """ creates a new empty term obj, append it to the vocabulary and
+            returns the IVocabularyTerm implementing object.
+        """
+
     def isFlat(self):
         """ returns true if the underlying vocabulary is flat, otherwise
             if its hierachical (tree-like) it returns false.
@@ -60,4 +70,22 @@ class IVocabulary(Interface):
         """ returns true for flat vocabularies. In hierachical (tree-like)
             vocabularies it defines if only leafs should be displayed/selectable,
             or knots and leafs.
+        """
+
+    def isOrderSignificant(self):
+        """ returns a Boolean whether the ordering of terms is significant.
+            Defaults to False
+        """
+
+class IVocabularyTerm(Interface):
+    """ interface for terms of a vocabulary """
+
+    def getTermKey(self):
+        """ returns the key inside the vocabulary.
+            this might differ from the Zope-id!
+        """
+
+    def getTermValue(self, **kwargs):
+        """ returns the string-value of the vocabulary. This might be language
+            sensitive.
         """
