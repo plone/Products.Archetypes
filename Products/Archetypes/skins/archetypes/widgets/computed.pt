@@ -17,7 +17,9 @@
     </div>
 
     <div metal:define-macro="edit">
-      Does this ever appear?
+        <div metal:use-macro="here/widgets/computed/macros/view">
+	It doesn't make any sense to "edit" a computed field
+	</div>
     </div>
   </body>
   
