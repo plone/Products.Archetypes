@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.1 2004/03/30 23:38:33 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.2 2004/03/30 23:54:08 bcsaller Exp $
 """
 
 import os, sys
@@ -96,8 +96,53 @@ class SchemaProviderTests(ArcheSiteTestCase):
         assert schema.fields()[-2] is a
         assert schema.fields()[-1] is b
         
+
+    def testChainedProviders(self):
+        site = self.getPortal()
+        at = site.archetype_tool
+        # The torture test
+        # Build a tree
+        # x (p ref s,t) -> y(p aq SchemaY) -> z(p aq Schema Z) -> Document(i aq)
+        # s (p - SchemaS)
+        # t (p - SchemaT)
         
+        x = makeContent(site, "SimpleFolder", 'x')
+        y = makeContent(x, "SimpleFolder", 'y')
+        z = makeContent(y, "SimpleFolder", 'z')
+        i = makeContent(z, "DDocument", 'i')
+        s = makeContent(site, "DDocument", 's')
+        t = makeContent(site, "DDocument", 't')
         
+        x.addReference(s, relationship="schema_provider")
+        x.addReference(t, relationship="schema_provider")
+        
+        SchemaS = Schema((TextField('FieldS'),))
+        SchemaT = Schema((TextField('FieldT'),))
+        at.provideSchema(s, SchemaS)
+        at.provideSchema(t, SchemaT)
+
+        SchemaY = Schema((TextField('FieldY'),))
+        at.provideSchema(y, SchemaY)
+
+        SchemaZ = Schema((TextField('FieldZ'),))
+        at.provideSchema(z, SchemaZ)
+
+        x.setSchemaCollector('reference')
+        y.setSchemaCollector('acquisition')
+        z.setSchemaCollector('acquisition')
+        i.setSchemaCollector('acquisition')
+
+        i.setSchemaPriority(1)
+        z.setSchemaPriority(2)
+        y.setSchemaPriority(3)
+        x.setSchemaPriority(4)
+        s.setSchemaPriority(5)
+        t.setSchemaPriority(6)
+        
+        # then assert that schema == i + z + y + s + t
+        schema = i.Schema()
+        expected = DDocumentSchema + SchemaZ + SchemaY + SchemaS + SchemaT
+        assert schema == expected
         
         
 
