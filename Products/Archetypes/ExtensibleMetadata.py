@@ -9,6 +9,8 @@ from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from types import StringType
 
+from interfaces.metadata import IExtensibleMetadata
+
 from debug import log, log_exc
 import Persistence
 
@@ -16,9 +18,15 @@ from utils import DisplayList
 
 ## MIXIN
 class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
+
+    # XXX This is not completely true. We need to review this later
+    # and make sure it is true.
+    __implements__ = IExtensibleMetadata
+    
     security = ClassSecurityInfo()
-    security.declareObjectPublic()
-    security.setDefaultAccess('allow')
+    # XXX GAAK! We should avoid this.
+    # security.declareObjectPublic()
+    # security.setDefaultAccess('allow')
     
     schema = type = MetadataSchema((
         ObjectField('allowDiscussion',
@@ -137,6 +145,5 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
         if callable(available_langs):
             available_langs = available_langs()
         return DisplayList(available_langs)
-
 
 InitializeClass(ExtensibleMetadata)

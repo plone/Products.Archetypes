@@ -48,7 +48,7 @@ class BaseObject(Implicit):
     schema = type = content_type
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
 
-    __implements__ = (IBaseObject, IReferenceable)
+    __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid

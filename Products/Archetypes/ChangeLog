@@ -1,5 +1,28 @@
 2003-04-16  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* BaseFolder.py (BaseFolder.manage_afterAdd): SkinnedFolder
+	subclasses CMFCatalogAware, so, now that Referenceable doenst
+	subclasses it anymore, we call SkinnedFolder.manage_afterAdd.
+
+	* BaseContent.py (BaseContent.manage_afterAdd): PortalContent
+	subclasses CMFCatalogAware, so, now that Referenceable doenst
+	subclasses it anymore, we call PortalContent.manage_afterAdd.
+
+	* Referenceable.py (Referenceable.manage_afterAdd): Dont subclass
+	CMFCatalogAware anymore. Some methods were being called twice,
+	because of this, and some initialization couldnt be performed
+	because it tried to catalog fields that were not being
+	initialized, and you couldnt make initialization happen first
+	because it could depend on UID being set.
+
+	* ArchetypeTool.py (modify_fti): Setting category to Folder was
+	causing bad things. We need to fix plone, because a portal_type
+	that is marked as 'use_folder_tabs' dont get tabs of the object category.
+	(modify_fti): Hide references if IReferenceable is not implemented
+	by the class.
+	(modify_fti): Hide metadata if IExtensibleMetadata is not
+	implemented by the class.
+
 	* BaseContent.py: Assert that we implement IReferenceable
 
 	* BaseFolder.py: Assert that we implement IReferenceable

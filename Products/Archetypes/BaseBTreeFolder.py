@@ -24,18 +24,18 @@ if has_btree:
 
         security.declarePrivate('manage_afterAdd')
         def manage_afterAdd(self, item, container):
-            CMFBTreeFolder.manage_afterAdd(self, item, container)
             BaseFolder.manage_afterAdd(self, item, container)
+            CMFBTreeFolder.manage_afterAdd(self, item, container)
 
         security.declarePrivate('manage_afterClone')
         def manage_afterClone(self, item):
-            CMFBTreeFolder.manage_afterClone(self, item)
             BaseFolder.manage_afterClone(self, item)
+            CMFBTreeFolder.manage_afterClone(self, item)
 
         security.declarePrivate('manage_beforeDelete')
         def manage_beforeDelete(self, item, container):
-            BaseFolder.manage_beforeDelete(self, item, container)
             CMFBTreeFolder.manage_beforeDelete(self, item, container)
+            BaseFolder.manage_beforeDelete(self, item, container)
 
         security.declareProtected(ModifyPortalContent, 'indexObject')
         indexObject = BaseFolder.indexObject

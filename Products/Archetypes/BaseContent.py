@@ -6,14 +6,21 @@ from debug import log, log_exc
 from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
+
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
+from interfaces.metadata import IExtensibleMetadata
 
-class BaseContent(BaseObject, Referenceable, PortalContent, \
+class BaseContent(BaseObject, Referenceable, 
+                  PortalContent, 
                   ExtensibleMetadata):
     """ A not-so-basic CMF Content implementation """
 
-    __implements__ = (IBaseContent, IReferenceable, PortalContent.__implements__)
+    __implements__ = (IBaseContent, IReferenceable, \
+                      PortalContent.__implements__, \
+                      IExtensibleMetadata)
+
+    schema = BaseObject.schema + ExtensibleMetadata.schema
     
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options
@@ -28,16 +35,19 @@ class BaseContent(BaseObject, Referenceable, PortalContent, \
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
+        PortalContent.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
+        PortalContent.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
+        PortalContent.manage_beforeDelete(self, item, container)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):

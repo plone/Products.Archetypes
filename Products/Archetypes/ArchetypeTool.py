@@ -16,6 +16,9 @@ import time
 from ZODB.PersistentMapping import PersistentMapping
 
 from interfaces.base import IBaseObject, IBaseFolder
+from interfaces.referenceable import IReferenceable
+from interfaces.metadata import IExtensibleMetadata
+
 from ClassGen import generateClass
 from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
@@ -80,9 +83,13 @@ def modify_fti(fti, klass, pkg_name):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed
 
-    if IBaseFolder.isImplementedByInstancesOf(klass):
-        for action in fti[0]['actions']:
-            action['category'] = 'folder'
+    if not IReferenceable.isImplementedByInstancesOf(klass):
+        refs = findDict(fti[0]['actions'], 'id', 'references')
+        refs['visible'] = 0
+
+    if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
+        refs = findDict(fti[0]['actions'], 'id', 'metadata')
+        refs['visible'] = 0
 
 def generateCtor(type, module):
     name = capitalize(type)
