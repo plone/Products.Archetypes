@@ -6,6 +6,7 @@ from Globals import InitializeClass
 from content_driver import selectPlugin, lookupContentType
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from OFS.Image import File
+from webdav.WriteLockInterface import WriteLockInterface
 import re
 from debug import log, log_exc
 import os.path
@@ -20,7 +21,9 @@ from types import DictType
 
 from interfaces.base import IBaseUnit
 
-class BaseUnit(File):
+class xxBaseUnit(File):
+    __implements__ = (WriteLockInterface)
+
     security = ClassSecurityInfo()
 
     def __init__(self, name, parent, data='', mime_type=None):
@@ -159,11 +162,11 @@ class BaseUnit(File):
         return ''
 
         
-class BaseUnit(File, ObjectManager):
+class BaseUnit(File):
     """ """
     security = ClassSecurityInfo()
     __replaceable__ = REPLACEABLE
-    __implements__ = IBaseUnit
+    __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
     
     def __init__(self, name, file='', mime_type=None):
