@@ -41,3 +41,7 @@ option {
    margin: .5em 0em;
 
 }
+
+form {
+  margin: 0em .8em;
+}

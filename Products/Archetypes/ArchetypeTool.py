@@ -12,7 +12,8 @@ from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
-from Products.Archetypes.ClassGen import generateClass, generateCtor
+from Products.Archetypes.ClassGen import generateClass, generateCtor, \
+     generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from Products.Archetypes.debug import log, log_exc
@@ -38,17 +39,14 @@ from Products.CMFCore.Expression import Expression
 class BoundPageTemplateFile(PageTemplateFile):
 
     def __init__(self, *args, **kw):
-        self._portal_type = kw['portal_type']
-        self._type = kw['type']
-        self._package = kw['package']
+        self._extra = kw['extra']
+        del kw['extra']
         args = (self,) + args
         mapply(PageTemplateFile.__init__, *args, **kw)
 
     def pt_render(self, source=0, extra_context={}):
         options = extra_context.get('options', {})
-        options['portal_type'] = self._portal_type
-        options['type'] = self._type
-        options['package'] = self._package
+        options.update(self._extra)
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
@@ -112,7 +110,7 @@ base_factory_type_information = (
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.__name__)
+        typeInfo = getattr(typesTool, portal_type.portal_type)
         if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
@@ -291,16 +289,39 @@ def registerClasses(context, package, types=None):
         registered = filter(lambda t: t['meta_type'] in types, registered)
     for t in registered:
         module = t['module']
-        typeName = t['identifier']
-        ctorName = "add%s" % typeName
-        constructor = getattr(module, ctorName)
-        formName = "add%sForm" % typeName
-        setattr(module, formName,
+        typeName = t['name']
+        meta_type = t['meta_type']
+        portal_type = t['portal_type']
+        klass = t['klass']
+        ctorName = "manage_add%s" % typeName
+        constructor = getattr(module, ctorName, None)
+        if constructor is None:
+            constructor = generateZMICtor(typeName, module)
+        addFormName = "manage_add%sForm" % typeName
+        setattr(module, addFormName,
                 BoundPageTemplateFile('base_add.pt', _zmi,
-                                      type=typeName,
-                                      package=package,
-                                      portal_type=portal_type))
-        generatedForm = getattr(module, formName)
+                                      __name__=addFormName,
+                                      extra={'constructor':ctorName,
+                                             'type':meta_type,
+                                             'package':package,
+                                             'portal_type':portal_type}
+                                      ))
+        editFormName = "manage_edit%sForm" % typeName
+        setattr(klass, editFormName,
+                BoundPageTemplateFile('base_edit.pt', _zmi,
+                                      __name__=editFormName,
+                                      extra={'handler':'processForm',
+                                             'type':meta_type,
+                                             'package':package,
+                                             'portal_type':portal_type}
+                                      ))
+
+        klass.manage_options = (({'label' : 'Edit',
+                                  'action' : editFormName
+                                  },) +
+                                klass.manage_options)
+
+        generatedForm = getattr(module, addFormName)
         context.registerClass(
             t['klass'],
             constructors=(generatedForm,

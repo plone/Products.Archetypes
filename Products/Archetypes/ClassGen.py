@@ -173,7 +173,6 @@ class ClassGenerator:
 def generateCtor(name, module):
     ctor = """
 def add%(name)s(self, id, **kwargs):
-    ''' Constructor for %(name)s '''
     o = %(name)s(id)
     self._setObject(id, o)
     o = getattr(self, id)
@@ -183,6 +182,28 @@ def add%(name)s(self, id, **kwargs):
 
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
+
+def generateZMICtor(name, module):
+    zmi_ctor = """
+def manage_add%(name)s(self, id, REQUEST=None):
+    ''' Constructor for %(name)s '''
+    kwargs = {}
+    if REQUEST is not None:
+        kwargs = REQUEST.form.copy()
+        del kwargs['id']
+    id = add%(name)s(self, id, **kwargs)
+    obj = self._getOb(id)
+    manage_tabs_message = 'Successfully added %(name)s'
+    if REQUEST is not None:
+        return obj.manage_edit%(name)sForm(
+            REQUEST,
+            management_view='Edit',
+            manage_tabs_message=manage_tabs_message)
+    return id
+""" % {'name':name}
+
+    exec zmi_ctor in module.__dict__
+    return getattr(module, "manage_add%s" % name)
 
 
 _cg = ClassGenerator()
