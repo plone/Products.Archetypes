@@ -45,10 +45,11 @@ from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.utils import findDict
+from Products.Archetypes.lib.utils import unique
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.render import renderService
-from Products.Archetypes.registries.typeregistry import typeRegistry
+from Products.Archetypes.registry import getRegistry
 from Products.Archetypes.lib.register import listTypes
 
 from Products.CMFCore import CMFCorePermissions
@@ -85,10 +86,7 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-
-_www = os.path.join(os.path.dirname(__file__), 'www')
-_skins = os.path.join(os.path.dirname(__file__), 'skins')
-_zmi = os.path.join(_www, 'zmi')
+from Products.Archetypes.config import _www, _skins, _zmi
 document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
 folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
@@ -547,8 +545,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _listAllTypes(self):
         """List all types -- either currently known or known to us.
         """
-        allTypes = typeRegistry.copy(); allTypes.update(self._types)
-        return allTypes.keys()
+        typeRegistry = getRegistry(IBaseObject)
+        keys = typeRegistry.keys()
+        keys.extend(self._types.keys())
+        return unique(keys)
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
@@ -558,6 +558,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         Tuples have the form (schema, changed).
         """
         list = []
+        typeRegistry = getRegistry(IBaseObject)
         currentTypes = typeRegistry
         ourTypes = self._types
         modified = False
@@ -587,6 +588,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def manage_updateSchema(self, REQUEST=None, update_all=None):
         """Make sure all objects' schema are up to date.
         """
+        typeRegistry = getRegistry(IBaseObject)
         out = StringIO()
         print >> out, 'Updating schema...'
 

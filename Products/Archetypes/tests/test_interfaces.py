@@ -176,9 +176,10 @@ class FieldInterfaceTest(InterfaceTest):
         from Products.Archetypes.registries import availableFields
         for fieldname, fielddescription in availableFields():
             klass = fielddescription.klass
+            instance = klass()
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
-            for iface in self.getImplementsOfInstanceOf(klass):
-                self.interfaceImplementedByInstanceOf(klass, iface)
+            for iface in self.getImplementsOf(instance):
+                self.interfaceImplementedBy(instance, iface)
 
 tests.append(FieldInterfaceTest)
 
@@ -196,8 +197,8 @@ testClasses = [
 ]
 
 PROJECTNAME = 'Archetypes.tests'
-class EM(ExtensibleMetadata): pass
-registerType(EM, PROJECTNAME)
+#class EM(ExtensibleMetadata): pass
+#registerType(EM, PROJECTNAME)
 class BC(BaseContent): pass
 registerType(BC, PROJECTNAME)
 class BF(BaseFolder): pass

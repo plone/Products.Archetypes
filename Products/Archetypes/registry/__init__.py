@@ -26,15 +26,25 @@
 """Registry package
 """
 
+# public methods
+from Products.Archetypes.registry.base import registerComponent
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.base import getRegistry
+from Products.Archetypes.registry.property import registerProperty
+
+# registries
+#from Products.Archetypes.registry.attype import typeRegistry
+#from Products.Archetypes.registry.field import fieldRegistry
+#from Products.Archetypes.registry.property import propertyRegistry
+#from Products.Archetypes.registry.storage import storageRegistry
+#from Products.Archetypes.registry.validator import validatorRegistry
+#from Products.Archetypes.registry.widget import widgetRegistry
+
 import Products.Archetypes.registry.attype
 import Products.Archetypes.registry.field
 import Products.Archetypes.registry.property
 import Products.Archetypes.registry.storage
-import Products.Archetypes.registry.widget
 import Products.Archetypes.registry.validator
+import Products.Archetypes.registry.widget
 
-from Products.Archetypes.registry.base import register
-from Products.Archetypes.registry.base import registerRegistry
-from Products.Archetypes.registry.property import registerProperty
-
-__all__ = ('register', 'registerRegistry', 'registerProperty')
+__all__ = ('registerComponent', 'registerRegistry', 'getRegistry', 'registerProperty')

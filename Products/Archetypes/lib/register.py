@@ -48,7 +48,9 @@ from Products.Archetypes.lib.utils import findDict
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.render import renderService
-from Products.Archetypes.registries.typeregistry import typeRegistry
+from Products.Archetypes.registry import registerComponent
+from Products.Archetypes.registry import getRegistry
+from Products.Archetypes.lib.utils import getDottedName
 
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
@@ -304,36 +306,16 @@ def _guessPackage(base):
     return base
 
 def registerType(klass, package=None):
+    assert IBaseObject.isImplementedByInstancesOf(klass), getDottedName(klass)
     if not package:
         package = _guessPackage(klass.__module__)
 
     # Registering a class results in classgen doing its thing
     # Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)
+    
+    registerComponent(klass, package=package)
 
-    data = {
-        'klass' : klass,
-        'name' : klass.__name__,
-        'identifier': klass.meta_type.capitalize().replace(' ', '_'),
-        'meta_type': klass.meta_type,
-        'portal_type': klass.portal_type,
-        'package' : package,
-        'module' : sys.modules[klass.__module__],
-        'schema' : klass.schema,
-        'signature' : klass.schema.signature(),
-        # backward compatibility, remove later
-        'type' : klass.schema,
-        }
-
-    key = '%s.%s' % (package, data['meta_type'])
-    if key in typeRegistry.keys():
-        existing = typeRegistry[key]
-        existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
-        override_name = '%s.%s' % (data['module'].__name__, data['name'])
-        log('ArchetypesTool: Trying to register "%s" which ' \
-            'has already been registered.  The new type %s ' \
-            'is going to override %s' % (key, override_name, existing_name))
-    typeRegistry[key] = data
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
     """Helper method to fix some vars after renaming a type in portal_types
@@ -343,6 +325,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     code and do NOT 'fix' this method.
     """
     at_tool = getToolByName(context, TOOL_NAME)
+    typeRegistry = getRegistry(IBaseObject)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in typeRegistry.values()])
     # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
@@ -417,6 +400,7 @@ def registerClasses(context, package, types=None):
             )
 
 def listTypes(package=None):
+    typeRegistry = getRegistry(IBaseObject)
     values = typeRegistry.values()
     if package:
         values = [v for v in values if v['package'] == package]
@@ -425,4 +409,5 @@ def listTypes(package=None):
 
 def getType(name, package):
     key = "%s.%s" % (package, name)
+    typeRegistry = getRegistry(IBaseObject)
     return typeRegistry[key]

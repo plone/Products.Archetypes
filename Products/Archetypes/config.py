@@ -25,8 +25,6 @@
 ################################################################################
 """
 """
-from Products.PortalTransforms.libtransforms import utils as transform_utils
-from Products.Archetypes.lib.logging import log
 
 PKG_NAME = "Archetypes"
 SKIN_NAME = "archetypes"
@@ -62,7 +60,9 @@ DEBUG_SECURITY=False
 ## and its frontend "dot" installed on your system set this to True
 ## You need dot version > 1.10 with cmapx support.
 try:
+    from Products.PortalTransforms.libtransforms import utils as transform_utils
     GRAPHVIZ_BINARY = transform_utils.bin_search('dot')
+    del transform_utils
 except transform_utils.MissingBinary:
     # graphviz not found
     GRAPHVIZ_BINARY = None
@@ -81,9 +81,17 @@ try:
     import PIL.Image
 except ImportError:
     # no PIL, no scaled versions!
+    from Products.Archetypes.lib.logging import log
     log("Warning: no Python Imaging Libraries (PIL) found."+\
         "Archetypes based ImageField's don't scale if neccessary.")
+    del log
     HAS_PIL=False
 else:
+    del PIL.Image
     HAS_PIL=True
 
+import os
+_www = os.path.join(os.path.dirname(__file__), 'www')
+_skins = os.path.join(os.path.dirname(__file__), 'skins')
+_zmi = os.path.join(_www, 'zmi')
+del os

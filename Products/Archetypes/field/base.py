@@ -39,6 +39,7 @@ from Acquisition import aq_parent
 from Acquisition import aq_inner
 from OFS.content_types import guess_content_type
 from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.validation import ValidationChain
 from Products.Archetypes.interfaces.validation import IValidator
 from Products.Archetypes.interfaces.validation import IValidationChain
@@ -83,6 +84,9 @@ registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
 registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
+
+# field counter
+_field_count = 0
 
 class Field(DefaultLayerContainer):
     """

@@ -70,6 +70,8 @@ class DDocument(TemplateMixin, BaseContent):
     schema = schema
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
+    
+    __implements__ = (TemplateMixin.__implements__,) + BaseContent.__implements__
 
 
 registerType(DDocument, PKG_NAME)

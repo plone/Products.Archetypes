@@ -94,14 +94,20 @@ class RegistryEntry(dict):
     __used_for__ = None
     __slots__ = ()
     required = ('name', 'description', 'registry_key', )
+    __allow_access_to_unprotected_subobjects__ = 1
 
     def __init__(self, klass, **kw):
         self._checkClass(klass)
         self['klass'] = klass
+        kw = self.process(**kw)
         for req in self.required:
             if req not in kw:
                 raise ValueError, '%s is required' % req
-        self.update(self.process(**kw))
+        self.update(kw)
+
+    def __guarded_getattr__(self, name):
+        print self, name
+        return getattr(self, name)
 
     def _checkClass(self, klass):
         """Chech if the class matches the constrains for the entry
@@ -260,5 +266,6 @@ class RegistryMultiplexer(dict):
         registry.register(klass, **kw)
 
 mainRegistry = RegistryMultiplexer()
-register = mainRegistry.register
+registerComponent = mainRegistry.register
 registerRegistry = mainRegistry.registerRegistry
+getRegistry = mainRegistry.__getitem__

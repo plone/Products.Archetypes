@@ -47,7 +47,7 @@ class IField(ILayerContainer):
                                  'Permission to use to protect writing to the field')
 
     storage = Attribute('storage', 'Storage class to use for this field')
-    form_info = Attribute('form_info', 'Form Info (?)')
+    # XXX form_info = Attribute('form_info', 'Form Info (?)')
     generateMode = Attribute('generateMode', 'Generate Mode (?)')
     force = Attribute('force', 'Force (?)')
     type = Attribute('type', 'Type of the field')
