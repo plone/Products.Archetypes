@@ -49,10 +49,13 @@ schema = BaseSchema + Schema((
 
 class Dummy(BaseContent):
 
-    def __init__(self, oid, **kwargs):
+    def __init__(self, oid, init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.mimetypes_registry = MimeTypesTool()
         self.portal_transforms = TransformTool()
+        if init_transforms:
+            from transform import transforms
+            transforms.initialize(self.portal_transforms)
 
 def gen_dummy():
     Dummy.schema = deepcopy(schema)
