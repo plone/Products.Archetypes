@@ -31,24 +31,24 @@ from Products.Archetypes.lib.register import process_types
 from Products.Archetypes.lib.register import listTypes
 from Products.Archetypes.lib.register import registerClasses
 # base classes
-from Products.Archetypes.bases.baseobject import BaseObject
-from Products.Archetypes.bases.basecontent import BaseContent
-from Products.Archetypes.bases.basecontent import BaseContentMixin
-from Products.Archetypes.bases.basefolder import BaseFolder
-from Products.Archetypes.bases.basefolder import BaseFolderMixin
-from Products.Archetypes.bases.basetool import BaseTool
-from Products.Archetypes.bases.basetool import BaseFolderishTool
-from Products.Archetypes.bases.basebtreefolder import BaseBTreeFolder
-from Products.Archetypes.bases.baseorderedfolder import OrderedBaseFolder
-from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadata
-from Products.Archetypes.bases.templatemixin import TemplateMixin
+from Products.Archetypes.bases import BaseObject
+from Products.Archetypes.bases import BaseContent
+from Products.Archetypes.bases import BaseContentMixin
+from Products.Archetypes.bases import BaseFolder
+from Products.Archetypes.bases import BaseFolderMixin
+from Products.Archetypes.bases import BaseTool
+from Products.Archetypes.bases import BaseFolderishTool
+from Products.Archetypes.bases import BaseBTreeFolder
+from Products.Archetypes.bases import OrderedBaseFolder
+from Products.Archetypes.bases import ExtensibleMetadata
+from Products.Archetypes.bases import TemplateMixin
 # base class schemata instances
-from Products.Archetypes.bases.baseobject import MinimalSchema
-from Products.Archetypes.bases.basecontent import BaseSchema
-from Products.Archetypes.bases.basefolder import BaseFolderSchema
-from Products.Archetypes.bases.basebtreefolder import BaseBTreeFolderSchema
-from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadataSchema
-from Products.Archetypes.bases.baseorderedfolder import OrderedBaseFolderSchema
+from Products.Archetypes.bases import MinimalSchema
+from Products.Archetypes.bases import BaseSchema
+from Products.Archetypes.bases import BaseFolderSchema
+from Products.Archetypes.bases import BaseBTreeFolderSchema
+from Products.Archetypes.bases import ExtensibleMetadataSchema
+from Products.Archetypes.bases import OrderedBaseFolderSchema
 # schemata classes
 from Products.Archetypes.schemata import *
 #from Products.Archetypes.schemata import BasicSchema

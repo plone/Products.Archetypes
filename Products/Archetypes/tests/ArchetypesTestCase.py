@@ -75,6 +75,19 @@ class ArcheSiteTestCase(CMFTestCase.CMFTestCase):
             user = user.__of__(uf)
         newSecurityManager(None, user)
 
+def _installProduct(portal, product, user, quiet=False):
+    qi = getToolByName(portal, 'portal_quickinstaller')
+    start = time.time()
+    if not quiet: ZopeTestCase._print('Adding %s ... ' % product)
+    # Login as portal owner
+    newSecurityManager(None, user)
+    # Install Archetypes
+    qi.installProduct(product)
+    # Log out
+    noSecurityManager()
+    get_transaction().commit()
+    if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
+    
 
 def setupArchetypes(app, id=portal_name, quiet=0):
     '''Installs the Archetypes product into the portal.'''
@@ -94,17 +107,10 @@ def setupArchetypes(app, id=portal_name, quiet=0):
 
     qi = getToolByName(portal, 'portal_quickinstaller')
     installed = qi.listInstallableProducts(skipInstalled=True)
-    if 'CMFFormController' not in installed:
-        start = time.time()
-        if not quiet: ZopeTestCase._print('Adding CMFFormController ... ')
-        # Login as portal owner
-        newSecurityManager(None, user)
-        # Install Archetypes
-        qi.installProduct('CMFFormController')
-        # Log out
-        noSecurityManager()
-        get_transaction().commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
+    for product in ('CMFFormController', 'Marshall', 'MimetypesRegistry', 
+      'PortalTransforms', ):
+        if product not in installed:
+            _installProduct(portal, product, user, quiet)
 
     if 'Archetypes' not in installed:
         start = time.time()

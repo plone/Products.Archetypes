@@ -23,3 +23,23 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+
+# base classes
+from Products.Archetypes.bases.baseobject import BaseObject
+from Products.Archetypes.bases.basecontent import BaseContent
+from Products.Archetypes.bases.basecontent import BaseContentMixin
+from Products.Archetypes.bases.basefolder import BaseFolder
+from Products.Archetypes.bases.basefolder import BaseFolderMixin
+from Products.Archetypes.bases.basetool import BaseTool
+from Products.Archetypes.bases.basetool import BaseFolderishTool
+from Products.Archetypes.bases.basebtreefolder import BaseBTreeFolder
+from Products.Archetypes.bases.baseorderedfolder import OrderedBaseFolder
+from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.bases.templatemixin import TemplateMixin
+# base class schemata instances
+from Products.Archetypes.bases.baseobject import MinimalSchema
+from Products.Archetypes.bases.basecontent import BaseSchema
+from Products.Archetypes.bases.basefolder import BaseFolderSchema
+from Products.Archetypes.bases.basebtreefolder import BaseBTreeFolderSchema
+from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadataSchema
+from Products.Archetypes.bases.baseorderedfolder import OrderedBaseFolderSchema

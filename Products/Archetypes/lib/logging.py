@@ -32,9 +32,6 @@ import pprint
 from zLOG import LOG, INFO, ERROR
 import warnings
 
-from Products.Archetypes.config import PKG_NAME
-
-
 if os.name == 'posix':
     COLOR = 1
 else:
@@ -182,13 +179,17 @@ class ZPTLogger(ClassLog):
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
         level = kwargs.get('level', INFO)
+        package = kwargs.get('package', 'Archetypes')
         msg = "%s\n" % (self.munge_message(msg, **kwargs))
         for arg in args:
             msg += "%s\n" % pprint.pformat(arg)
-        LOG(PKG_NAME, level, msg)
+        LOG(package, level, msg)
 
     def log_exc(self, msg=None, *args, **kwargs):
-        LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
+        level = kwargs.get('level', ERROR)
+        package = kwargs.get('package', 'Archetypes')
+        reraise = kwargs.get('reraise', None)
+        LOG(package, level, msg, error = sys.exc_info(), reraise = reraise)
 
 def warn(msg, level=3):
     # level is the stack level

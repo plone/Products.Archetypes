@@ -26,6 +26,7 @@
 """
 """
 from Products.PortalTransforms.libtransforms import utils as transform_utils
+from Products.Archetypes.lib.logging import log
 
 PKG_NAME = "Archetypes"
 SKIN_NAME = "archetypes"
@@ -85,13 +86,3 @@ except ImportError:
     HAS_PIL=False
 else:
     HAS_PIL=True
-
-## set default marshaller
-## if the Marshall product is available, use it!
-try:
-    from Products.Marshall import ControlledMarshaller
-except:
-    from marshallers import RFC822Marshaller
-    DEFAULT_MARSHALLER = RFC822Marshaller
-else:
-    DEFAULT_MARSHALLER = ControlledMarshaller

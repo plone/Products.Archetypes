@@ -51,6 +51,8 @@ from Products.MimetypesRegistry.Extensions.Install \
      import install as install_mimetypes_registry
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
+from Products.Marshall.Extensions.Install \
+     import install as install_marshall
 
 
 from Products.Archetypes.refengine.referencecatalog import manage_addReferenceCatalog
@@ -72,6 +74,7 @@ def install_dependencies(self, out, required=1):
             print >>out, install_formcontroller(self)
             print >>out, install_mimetypes_registry(self)
             print >>out, install_portal_transforms(self)
+            print >>out, install_marshall(self)
 
     if not qi.isProductInstalled('CMFFormController'):
         qi.installProduct('CMFFormController',locked=1)
@@ -82,6 +85,9 @@ def install_dependencies(self, out, required=1):
     if not qi.isProductInstalled('PortalTransforms'):
         qi.installProduct('PortalTransforms')
         print >>out, 'Installing PortalTransforms'
+    if not qi.isProductInstalled('Marshall'):
+        qi.installProduct('Marshall')
+        print >>out, 'Installing Marshall'
 
 def install_archetypetool(self, out):
     at = getToolByName(self, 'archetype_tool', None)

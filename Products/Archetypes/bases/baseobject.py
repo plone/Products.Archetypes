@@ -28,7 +28,6 @@ from Products.Archetypes.lib.annotations import ATAnnotatableMixin
 from Products.Archetypes.lib.logging import log_exc, log
 from Products.Archetypes.fields import StringField
 from Products.Archetypes.fields import TextField
-from Products.Archetypes.config import DEFAULT_MARSHALLER
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
@@ -42,6 +41,8 @@ from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import fixSchema
 from Products.Archetypes.lib.utils import mapply
+
+from Products.Marshall import ControlledMarshaller
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -89,7 +90,7 @@ content_type = Schema((
     i18n_domain="plone"),
                 )),
 
-    marshall = DEFAULT_MARSHALLER()
+    marshall = ControlledMarshaller()
                       )
 
 class BaseObject(Referenceable, ATAnnotatableMixin):

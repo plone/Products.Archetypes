@@ -34,7 +34,7 @@ Requires
 
   * CMF 1.4.7+
 
-  * Zope 2.7.0+
+  * Zope 2.7.4+
 
   * CMFFormController 1.0.3-beta+
 
@@ -44,23 +44,13 @@ Requires
   
   * PortalTransforms
 
-  * generator
-
-  * validation
-
   * MimetypesRegistry
 
-  * docutils > 0.3.3 (see notes)
+  * Marshall
 
-  **Note:** Installing generator and validation as Python packages is no
-  longer supported by Archetypes. If they are installed as Python packages,
-  they will be silently ignored.
+  * For unit testing: ZopeTestCase and CMFTestCase from collective's cvs.
 
-  Note to docutils: You have to install a new version of docutils for Zope 2.7.0!
-  Zope 2.7.1+ will be shipped with docutils 0.3.3. You can download docutils at
-  http://docutils.sf.net/. Either you have to remove
-  ZOPE_HOME/lib/python/docutils after installing docutils or you have to replace
-  Zope's version by docutils 0.3.3+.
+  **Note:** You should remove the deprecated generator and validation products.
 
 Quickstart
 

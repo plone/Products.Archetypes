@@ -27,7 +27,7 @@
 """
 import os.path
 try:
-    __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+    __version__ = open(os.path.join(__path__[0], 'version.txt')).readline().strip()
 except NameError:
     __version__ = 'unknown'
 
@@ -76,6 +76,7 @@ registerDirectory('skins', globals())
 from Products.Archetypes.lib.utils import getPkgInfo
 import Products.MimetypesRegistry
 import Products.PortalTransforms
+import Products.Marshall
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
 
