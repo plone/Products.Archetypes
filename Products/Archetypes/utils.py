@@ -463,6 +463,11 @@ class OrderedDict(BaseDict):
         del self.data[k]
         return (k, v)
 
+    def pop(self, key):
+        v = self.data.pop(key) # will raise KeyError if needed
+        self._keys.remove(key)
+        return v
+
 InitializeClass(OrderedDict)
 
 
