@@ -1271,6 +1271,7 @@ class ImageField(ObjectField):
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
         imgdata = self.rescaleOriginal(value, **kwargs)
+        # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
         self.createScales(instance)
         
@@ -1347,20 +1348,19 @@ class ImageField(ObjectField):
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
-            imgdata = self.scale(data, w, h)
-            pimage = PIL.Image.open(imgdata)
+            imgdata, format = self.scale(data, w, h)
             image = self.image_class(id, self.getName(),
                                      imgdata,
-                                     'image/%s' % lower(pimage.format)
+                                     'image/%s' % format
                                      )
             # manually use storage
             delattr(image, 'title')
             self.storage.set(id, instance, image)
 
-    def scale(self,data,w,h):
+    def scale(self, data, w, h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(h), 'width':int(w)}
+        size = int(w), int(h)
 
         pilfilter = PIL.Image.NEAREST
         #check for the pil version and enable antialias if > 1.1.3
@@ -1380,16 +1380,19 @@ class ImageField(ObjectField):
             image = image.convert('L')
         elif original_mode == 'P':
             image = image.convert('RGBA')
-        image.thumbnail((keys['width'],keys['height']), pilfilter)
+        image.thumbnail(size, pilfilter)
+        # XXX: tweak to make the unit test 
+        #      test_fields.ProcessingTest.test_processing_fieldset run
+        format = image.format and image.format or 'PNG'
         # decided to only preserve palletted mode
         # for GIF, could also use   image.format in ('GIF','PNG')
-        if original_mode == 'P' and image.format == 'GIF':
+        if original_mode == 'P' and format == 'GIF':
             image = image.convert('P')
         thumbnail_file = StringIO()
         # quality parameter doesn't affect lossless formats
-        image.save(thumbnail_file, image.format, quality=88)
+        image.save(thumbnail_file, format, quality=88)
         thumbnail_file.seek(0)
-        return thumbnail_file.read()
+        return thumbnail_file, format.lower()
 
     def getContentType(self, instance):
         img = self.getRaw(instance)
