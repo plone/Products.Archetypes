@@ -25,6 +25,7 @@ from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
+from Acquisition import Explicit
 from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
@@ -862,7 +863,7 @@ class BaseObject(Referenceable):
 
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, str(mt) or 'application/octet')
+        return Wrapper(data, name, str(mt) or 'application/octet').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
@@ -896,7 +897,7 @@ class BaseObject(Referenceable):
 
 InitializeClass(BaseObject)
 
-class Wrapper:
+class Wrapper(Explicit):
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1
 
@@ -916,7 +917,6 @@ class Wrapper:
                                'inline;filename=%s' % name)
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
-
 
 MinimalSchema = BaseObject.schema
 
