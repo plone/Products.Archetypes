@@ -261,9 +261,10 @@ class FileLike:
     def read(self, chunk=None):
         if chunk == None:
             return self.data
-        next = self.pos + chunk
+        cur = self.pos
+        next = cur + chunk
         self.pos = next
-        return self.data[self.pos:next]
+        return self.data[cur:next]
 
     def seek(self, pos, start=0):
         if start == 0:
@@ -271,24 +272,24 @@ class FileLike:
         if start == 1:
             self.pos += pos
         if start == 2:
-            self.pos = len(data) - pos
+            self.pos = len(self.data) - pos
 
     def tell(self):
         return self.pos
-
 
 
 class FileFieldTest(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
         self.field = Field.FileField('file')
+        self.factory = self.field.content_class
 
     def test_stringio_text(self):
         from cStringIO import StringIO
         f = StringIO('x' * (1 << 19))
         f.seek(0)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
@@ -297,7 +298,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = StringIO('\x00' + 'x' * (1 << 19))
         f.seek(0)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
@@ -305,7 +306,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = FileLike('x' * (1 << 19))
         f.seek(0)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
@@ -313,7 +314,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = FileLike('\x00' + 'x' * (1 << 19))
         f.seek(0)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
@@ -331,7 +332,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.assertEquals(f, 'test.txt')
 
@@ -349,7 +350,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.assertEquals(f, 'test.bin')
 
@@ -359,7 +360,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         fd.write('x' * (1 << 19))
         fd.seek(0)
         v, m, f = self.field._process_input(fd)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.assertEquals(f, fd.name)
 
@@ -369,7 +370,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         fd.write('\x00' + 'x' * (1 << 19))
         fd.seek(0)
         v, m, f = self.field._process_input(fd)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.assertEquals(f, fd.name)
 
@@ -381,8 +382,10 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = File('f', '', '')
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
+        self.folder.f.content_type = 'text/plain'
         v, m, f = self.field._process_input(self.folder.f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
+        # Should retain content type.
         self.assertEquals(m, 'text/plain')
         self.assertEquals(f, self.folder.f.getId())
 
@@ -395,7 +398,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
         v, m, f = self.field._process_input(self.folder.f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.assertEquals(f, self.folder.f.getId())
 
@@ -408,7 +411,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
         v, m, f = self.field._process_input(self.folder.f.data)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
@@ -421,21 +424,21 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
         v, m, f = self.field._process_input(self.folder.f.data)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
     def test_string_text(self):
         f = 'x' * (1 << 19)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
     def test_string_binary(self):
         f = '\x00' + 'x' * (1 << 19)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
@@ -445,7 +448,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder.mimetypes_registry = MimeTypesRegistry()
         f = BaseUnit('f', 'x' * (1 << 19), instance=self.folder)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
@@ -455,7 +458,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder.mimetypes_registry = MimeTypesRegistry()
         f = BaseUnit('f', '\x00' + 'x' * (1 << 19), instance=self.folder)
         v, m, f = self.field._process_input(f)
-        self.failUnless(isinstance(v, basestring))
+        self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 

@@ -745,24 +745,16 @@ class FileField(ObjectField):
 
     security  = ClassSecurityInfo()
 
-    def _process_input(self, value, default=None,
-                       mimetype=None, **kwargs):
-        # We also need to handle the case where there is a baseUnit
-        # for this field containing a valid set of data that would
-        # not be reuploaded in a subsequent edit, this is basically
-        # migrated from the old BaseObject.set method
-        if not (isinstance(value, FileUpload) or type(value) is FileType) \
-          and shasattr(value, 'read') and shasattr(value, 'seek'):
-            # support StringIO and other file like things that aren't either
-            # files or FileUploads
-            value.seek(0) # rewind
-            kwargs['filename'] = getattr(value, 'filename', '')
-            mimetype = getattr(value, 'mimetype', None)
-            value = value.read()
-        if isinstance(value, Pdata):
-            # Pdata is a chain of Pdata objects but we can easily use str()
-            # to get the whole string from a chain of Pdata objects
-            value = str(value)
+    security.declarePrivate('get')
+    def get(self, instance, **kwargs):
+        value = ObjectField.get(self, instance, **kwargs)
+        if (shasattr(value, '__of__', acquire=True)
+            and not kwargs.get('unwrapped', False)):
+            return value.__of__(instance)
+        else:
+            return value
+
+    def _migrate_old(self, value, default=None, mimetype=None, **kwargs):
         if type(value) in STRING_TYPES:
             filename = kwargs.get('filename', '')
             if mimetype is None:
@@ -775,26 +767,6 @@ class FileField(ObjectField):
 
         value = aq_base(value)
 
-        if ((isinstance(value, FileUpload) and value.filename != '') or
-              (type(value) is FileType and value.name != '')):
-            filename = ''
-            if isinstance(value, FileUpload) or shasattr(value, 'filename'):
-                filename = value.filename
-            if isinstance(value, FileType) or shasattr(value, 'name'):
-                filename = value.name
-            # Get only last part from a 'c:\\folder\\file.ext'
-            filename = filename.split('\\')[-1]
-            value.seek(0) # rewind
-            value = value.read()
-            if mimetype is None:
-                mimetype, enc = guess_content_type(filename, value, mimetype)
-            size = len(value)
-            if size == 0:
-                # This new file has no length, so we keep the orig
-                return default, mimetype, filename
-            else:
-                return value, mimetype, filename
-
         if isinstance(value, File):
             # OFS.Image.File based
             filename = getattr(value, 'filename', value.getId())
@@ -805,17 +777,48 @@ class FileField(ObjectField):
             else:
                 return data, mimetype, filename
 
-        klass = getattr(value, '__class__', None)
-        raise FileFieldException('Value is not File or String (%s - %s)' %
-                                 (type(value), klass))
+        return '', mimetype, filename
 
-    security.declarePrivate('get')
-    def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs)
-        if shasattr(value, '__of__', acquire=True) and not kwargs.get('unwrapped', False):
-            return value.__of__(instance)
+    def _process_input(self, value, file=None, default=None,
+                       mimetype=None, **kwargs):
+        if file is None:
+            file = self.content_class(self.getName(), '', '')
+        filename = kwargs.get('filename', '')
+        if IBaseUnit.isImplementedBy(value):
+            mimetype = value.getContentType() or mimetype
+            filename = value.getFilename() or filename
+            value = value.getRaw()
+        elif isinstance(value, self.content_class):
+            filename = getattr(value, 'filename', value.getId())
+            mimetype = getattr(value, 'content_type', mimetype)
+            return value, mimetype, filename
+        elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
+            filename = value.filename
+        elif isinstance(value, FileType) or shasattr(value, 'name'):
+            filename = value.name
+        elif isinstance(value, basestring):
+            if mimetype is None:
+                mimetype, enc = guess_content_type(filename, value, mimetype)
+        elif (isinstance(value, Pdata) or (shasattr(value, 'read') and
+                                           shasattr(value, 'seek'))):
+            # Can't get filename from those.
+            pass
         else:
-            return value
+            klass = getattr(value, '__class__', None)
+            raise FileFieldException('Value is not File or String (%s - %s)' %
+                                     (type(value), klass))
+        filename = filename[max(filename.rfind('/'),
+                                filename.rfind('\\'),
+                                filename.rfind(':'),
+                                )+1:]
+        file.manage_upload(value)
+        if mimetype is None:
+            body = file.data
+            if not isinstance(body, basestring):
+                body = body.data
+            mimetype, enc = guess_content_type(filename, body, mimetype)
+            file.content_type = mimetype
+        return file, mimetype, filename
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -830,9 +833,28 @@ class FileField(ObjectField):
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
-        value, mimetype, filename = self._process_input(value,
-                                                      default=self.getDefault(instance),
-                                                      **kwargs)
+        kwargs['default'] = self.getDefault(instance)
+
+        file = self.get(instance)
+        factory = self.content_class
+        if not isinstance(file, factory):
+            # Convert to same type as factory
+            # This is here mostly for backwards compatibility
+            value, mimetype, filename = self._migrate_old(file, **kwargs)
+            kwargs['mimetype'] = mimetype
+            kwargs['filename'] = filename
+            obj = self._wrapValue(instance, value, **kwargs)
+            # Store so the object gets a _p_jar,
+            # if we are using a persistent storage, that is.
+            ObjectField.set(self, instance, obj, **kwargs)
+            # Should be same as factory now
+            file = self.get(instance)
+            assert isinstance(file, factory)
+
+        kwargs['file'] = file
+
+        value, mimetype, filename = self._process_input(value, **kwargs)
+
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 

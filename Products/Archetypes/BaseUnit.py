@@ -45,9 +45,11 @@ class BaseUnit(File):
 
         adapter = getToolByName(context, 'mimetypes_registry')
         if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError, \
-                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
-                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
+            raise RuntimeError, ('%s(%s) is not a valid mimetype '
+                                 'registry: %s(%s)' %
+                                 (repr(adapter), adapter.__class__,
+                                  repr(instance), aq_parent(instance)))
+
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
