@@ -14,4 +14,4 @@ if context.hasI18NContent():
       context.setCurrentLanguage(lang=oldLang)
       
 portal_status_message = REQUEST.get('portal_status_message', 'Content changes saved.')
-return ('success', context, {'portal_status_message':portal_status_message})
+return state.set(status='success', context=context, portal_status_message=portal_status_message)

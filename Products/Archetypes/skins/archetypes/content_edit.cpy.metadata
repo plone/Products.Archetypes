@@ -1,0 +1,10 @@
+[default]
+title = Edit content
+
+[validators]
+validators = validate_base
+
+[actions]
+action.success = traverse_to:string:change_lang
+action.failure = traverse_to_action:string:edit
+action.next_schemata = redirect_to_action:string:edit

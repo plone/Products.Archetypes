@@ -54,12 +54,12 @@ class I18NMixin(Base):
     schema = i18n_schema
     actions = ({ 'id': 'translate',
                  'name': 'Translate',
-                 'action': 'portal_form/base_translation',
+                 'action': 'base_translation',
                  'permissions': (CMFCorePermissions.ModifyPortalContent,),
                  },
                { 'id': 'translations',
                  'name': 'Translations',
-                 'action': 'portal_form/manage_translations_form',
+                 'action': 'manage_translations_form',
                  'permissions': (CMFCorePermissions.ModifyPortalContent,),
                  },
                )
@@ -163,12 +163,8 @@ class I18NMixin(Base):
         """delete given translations or set the master translation"""
         if not kwargs:
             kwargs = REQUEST.form
-        try:
-            del kwargs["form_submitted"]
-        except:
-            pass
-        if kwargs.has_key("setmaster"):
-            del kwargs["setmaster"]
+        if kwargs.has_key('setmaster'):
+            del kwargs['setmaster']
             if len(kwargs) != 1:
                 raise Exception('You must select one language to set it as the master translation')
             lang = kwargs.keys()[0]

@@ -75,7 +75,7 @@ class WidgetTests( SecurityRequestTest ):
         site = self.root.testsite
         doc = makeContent(site, portal_type='ComplexType', id='demodoc')
         get_transaction().commit()
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
+        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)
@@ -86,7 +86,7 @@ class WidgetTests( SecurityRequestTest ):
                 control.readonly = 0
             form[k] = v
         response = urllib2.urlopen(form.click("form_submit"))
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
+        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)

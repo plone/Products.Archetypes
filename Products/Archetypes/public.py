@@ -27,12 +27,12 @@ I18NBaseSchema = I18NBaseContent.schema
 
 I18NCONTENT_ACTIONS = ({ 'id': 'translate',
                        'name': 'Translate',
-                       'action': 'portal_form/base_translation',
+                       'action': 'base_translation',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
                      { 'id': 'translations',
                        'name': 'Translations',
-                       'action': 'portal_form/manage_translations_form',
+                       'action': 'manage_translations_form',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
                      )

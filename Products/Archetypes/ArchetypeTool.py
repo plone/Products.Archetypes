@@ -46,7 +46,7 @@ base_factory_type_information = (
       , 'description': ( 'Archetype for flexible types')
       , 'product': 'Unknown Package'
       , 'factory': 'addContent'
-      , 'immediate_view': 'portal_form/base_edit'
+      , 'immediate_view': 'base_edit'
       , 'global_allow': 1
       , 'filter_content_types': 0
       , 'actions': (
@@ -58,19 +58,19 @@ base_factory_type_information = (
 
                      { 'id': 'edit',
                        'name': 'Edit',
-                       'action': 'portal_form/base_edit',
+                       'action': 'base_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
                        'name': 'Properties',
-                       'action': 'portal_form/base_metadata',
+                       'action': 'base_metadata',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'references',
                        'name': 'References',
-                       'action': 'portal_form/reference_edit',
+                       'action': 'reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 

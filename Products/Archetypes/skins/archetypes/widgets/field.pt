@@ -20,7 +20,7 @@
                     lang master_language | nothing;
                     obj python:lang and accessor(lang=lang) or accessor();
                     review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-        tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
+        tal:attributes="href string:${obj/absolute_url}/content_status_history;
                         class python:test(review_state, review_state, 'private')"
         tal:content="review_state">
         review_state
@@ -60,7 +60,7 @@
                  tal:define="wf_tool here/portal_workflow;
                              obj python:accessor();
                              review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-                 tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
+                 tal:attributes="href string:${obj/absolute_url}/content_status_history;
                                  class python:test(review_state, review_state, 'private')"
                  tal:content="review_state">review_state</a>)
              </span>

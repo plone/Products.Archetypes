@@ -1,0 +1,8 @@
+[default]
+title = Manage Translations
+
+[validators]
+validators=validate_translations
+
+[actions]
+action.success=redirect_to:string:manage_translations_form

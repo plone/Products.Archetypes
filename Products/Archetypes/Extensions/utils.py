@@ -123,44 +123,6 @@ def install_types(self, out, types, package_name):
         if t:
             t.title = type.archetype_name
 
-def install_validation(self, out, types):
-    form_tool = getToolByName(self, 'portal_form')
-    type_tool = getToolByName(self, 'portal_types')
-
-    # No validation on references
-    form_tool.setValidators('reference_edit', [])
-
-    # Default validation for types
-    form_tool.setValidators("base_edit", ["validate_base"])
-    form_tool.setValidators("base_metadata", ["validate_base"])
-    form_tool.setValidators("base_translation", ["validate_base"])
-    form_tool.setValidators("manage_translations_form", ["validate_translations"])
-
-
-def install_navigation(self, out, types):
-    nav_tool = getToolByName(self, 'portal_navigation')
-    type_tool = getToolByName(self, 'portal_types')
-
-    #Generic Edit
-    script = "content_edit"
-    nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
-    nav_tool.addTransitionFor('default', "content_edit", 'success', 'script:change_lang')
-    nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
-
-    nav_tool.addTransitionFor('default', "change_lang", 'success', 'action:view')
-
-    nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
-    nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
-
-    nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
-    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
-
-    #And References
-    nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')
-    nav_tool.addTransitionFor('default', 'reference_edit', 'failure', 'url:reference_edit')
-
-
-
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
@@ -326,10 +288,6 @@ def setupEnvironment(self, out, types,
     install_actions(self, out, types)
 
     install_portal_transforms(self)
-
-    if isPloneSite(self):
-        install_validation(self, out, types)
-        install_navigation(self, out, types)
 
 
 ## The master installer
