@@ -1,5 +1,11 @@
 2003-04-21  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* BaseContent.py (BaseContent): No ObjectManager here please.
+
+	* Field.py (ImageField): Theres no reason why this coudlnt use
+	AttributeStorage by default. Using ObjectManagedStorage breaks it
+	when using with BaseContent objects.
+
 	* tests/test_baseunit.py (BaseUnitTest.testSame): Added the same
 	tests here as on the transform package, to confirm it works with
 	the new BaseUnit.

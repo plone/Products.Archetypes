@@ -2,7 +2,6 @@ from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
-from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from debug import log, log_exc
@@ -14,9 +13,8 @@ from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-class BaseContent(BaseObject, Referenceable, 
+class BaseContent(BaseObject, Referenceable,
                   PortalContent,
-                  ObjectManager,
                   Historical,
                   ExtensibleMetadata):
     """ A not-so-basic CMF Content implementation """
@@ -29,7 +27,7 @@ class BaseContent(BaseObject, Referenceable,
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
-    
+
 
     security = ClassSecurityInfo()
 
@@ -80,7 +78,7 @@ class BaseContent(BaseObject, Referenceable,
         data = file.read()
         file.seek(0)
         filename = REQUEST._steps[0] #XXX fixme, use a real name
-        
+
         #transformer = getToolByName(self, 'transform_tool')
         #mime_type   = transformer.classify(data, mime_type=type)
 
@@ -99,7 +97,7 @@ class BaseContent(BaseObject, Referenceable,
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST, RESPONSE):
         "Get the raw content for this object (also used for the WebDAV SRC)"
-        
+
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE

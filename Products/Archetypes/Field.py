@@ -665,7 +665,7 @@ class ImageField(ObjectField):
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
         'widget': ImageWidget,
-        'storage': ObjectManagedStorage(),
+        'storage': AttributeStorage(),
         })
 
     default_view = "view"
