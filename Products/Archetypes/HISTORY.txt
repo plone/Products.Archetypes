@@ -30,6 +30,10 @@
  * Support unqualified references in reference graph tool
    [bcsaller]
    
+ * Added a test for mimetypes registry before adapter call in BaseUnit.update()
+   with a more verbose error in the case the user hasn't updated MTR properly.
+   [tiran]
+   
 1.3.0-beta4 - 2004-07-09
 
  * Fix bug on image deletion [clebeaupin]
