@@ -7,6 +7,7 @@ from Products.Archetypes.config import *
 from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
@@ -153,6 +154,11 @@ class BaseUnit(File):
     def getRaw(self, encoding=None, instance=None):
         """Return the file encoded raw value.
         """
+        # fix AT 1.0 backward problems
+        if not hasattr(aq_base(self),'raw'):
+            self.raw = self.data
+            self.size = len(self.raw)
+
         if self.isBinary():
             return self.raw
         # FIXME: backward compat, non binary data
