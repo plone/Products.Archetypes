@@ -87,9 +87,12 @@ meths = {'manage_afterAdd':manage_afterAdd,
          }
 
 class RenameTests(ArcheSiteTestCase):
+    KEEP_REFERENCES = False
 
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
+        at = self.portal.archetype_tool
+        at.manage_keepreferences(self.KEEP_REFERENCES)
         for c in counts:
             c.reset()
         for name, meth in meths.items():
@@ -180,10 +183,14 @@ class RenameTests(ArcheSiteTestCase):
         # the *new* object.
         self.assertEquals(got, (1, 0, 1))
 
+class PreservingRenameTests(RenameTests):
+    KEEP_REFERENCES = True
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(RenameTests))
+    suite.addTest(makeSuite(PreservingRenameTests))
     return suite
 
 if __name__ == '__main__':
