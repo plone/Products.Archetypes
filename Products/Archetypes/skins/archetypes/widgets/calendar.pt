@@ -50,9 +50,7 @@
           <tal:to define="id fieldName;
                           inputname fieldName;
                           formname string:search_form;
-                          inputvalue python:max(request.form.get(fieldName, None) or
-                                            request.other.get(fieldName, None) or
-                                            ('2975-05-26',)).strip();
+                          inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
                           tabindex tabindex/next">
             <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
               a calendar, hopefully
