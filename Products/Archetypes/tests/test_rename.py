@@ -1,28 +1,3 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
 """
 Unittests for a renaming archetypes objects.
 
@@ -36,15 +11,13 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
+from Products.Archetypes.tests.common import *
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import makeContent
-from Products.Archetypes.tests.utils import populateFolder
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
-from Products.Archetypes.tests.utils import wrap_method
-from Products.Archetypes.tests.utils import unwrap_method
-from Products.Archetypes.lib.utils import shasattr
-from Products.Archetypes.atapi import BaseContent
+from Products.Archetypes.utils import wrap_method, unwrap_method, shasattr
+from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
 class Counter:
@@ -113,17 +86,17 @@ meths = {'manage_afterAdd':manage_afterAdd,
          'manage_afterClone':manage_afterClone
          }
 
-class RenameTests(ATSiteTestCase):
+class RenameTests(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ArcheSiteTestCase.afterSetUp(self)
         for c in counts:
             c.reset()
         for name, meth in meths.items():
             wrap_method(BaseContent, name, meth, pattern='__test_%s__')
 
     def beforeTearDown(self):
-        ATSiteTestCase.beforeTearDown(self)
+        ArcheSiteTestCase.beforeTearDown(self)
         for name in meths.keys():
             unwrap_method(BaseContent, name)
 

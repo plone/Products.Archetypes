@@ -1,49 +1,21 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-"""
-"""
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
+from Products.Archetypes.tests.common import *
 
-from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.tests.utils import gen_class
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.tests.test_classgen import ClassGenTest
-from Products.Archetypes.tests.test_classgen import Dummy
-from Products.Archetypes.tests.test_classgen import gen_dummy
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
+from Products.Archetypes import listTypes
+from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from test_classgen import ClassGenTest, Dummy, gen_dummy
 
 from DateTime import DateTime
 
 
-class ChangeStorageTest(ATTestCase):
+class ChangeStorageTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
         gen_dummy()
@@ -58,7 +30,10 @@ class ChangeStorageTest(ATTestCase):
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        out = ('bla','bla','bla')
+        if ZOPE_LINES_IS_TUPLE_TYPE:
+            out = ('bla','bla','bla')
+        else:
+            out = ['bla','bla','bla']
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
         self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
@@ -92,7 +67,7 @@ class ChangeStorageTest(ATTestCase):
         self.failUnless(hasattr(dummy, 'atextfield'))
 
 
-class MetadataStorageTest( ATTestCase ):
+class MetadataStorageTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
         gen_dummy()
@@ -103,7 +78,7 @@ class MetadataStorageTest( ATTestCase ):
                 field.setStorage(dummy, MetadataStorage())
 
 
-class AttributeStorageTest( ATTestCase ):
+class AttributeStorageTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
         gen_dummy()

@@ -1,53 +1,19 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-"""
-"""
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
-
-from Acquisition import aq_base
-from Acquisition import aq_parent
-
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import mkDummyInContext
-from Products.Archetypes.tests.utils import gen_class
-from Products.Archetypes.tests.test_classgen import Dummy
-from Products.Archetypes.tests.test_classgen import schema
+from Products.Archetypes.tests.common import *
 
 from types import FunctionType, ListType, TupleType
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime
-from Products.CMFCore.utils import getToolByName
+
+from test_classgen import Dummy, schema
+
 
 fieldList = [
     # (accessor, mutator, field),
@@ -89,7 +55,9 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
     obj.setRights(data)
 
 def compareMetadataOf(test, obj, data='default', mimetype='application/octet-stream', time=1000):
-    l_data = (data,)
+    l_data = [data]
+    if ZOPE_LINES_IS_TUPLE_TYPE:
+        l_data = tuple(l_data)
     test.failUnless(obj.Title() == data, 'Title')
     test.failUnless(obj.Subject() == l_data,
                     'Subject: %s, %s' % (obj.Subject(), l_data))
@@ -110,10 +78,10 @@ class DummyFolder(BaseFolder):
     portal_membership = DummyPortalMembership()
 
 
-class ExtensibleMetadataTest(ATSiteTestCase):
+class ExtensibleMetadataTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ArcheSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.getPortal(), schema=schema)
         # to enable overrideDiscussionFor
@@ -168,10 +136,10 @@ class ExtensibleMetadataTest(ATSiteTestCase):
                             'isMetadata not set correctly for field %s.' % meta)
 
 
-class ExtMetadataContextTest(ATSiteTestCase):
+class ExtMetadataContextTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ArcheSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.getPortal(), schema=schema)
         gen_class(DummyFolder)
@@ -212,7 +180,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
                          'Some tests will give you false results!'))
 
 
-class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
+class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
 
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
@@ -220,13 +188,7 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
         language = 'no'
 
         portal = self.getPortal()
-        try:
-            sp = getToolByName(portal, 'portal_properties').site_properties
-        except AttributeError:
-            # XXX CMF doesn't have site properties
-            pass
-        else:
-            sp._updateProperty('default_language', language)
+        portal.portal_properties.site_properties._updateProperty('default_language', language)
 
         #Create a proper object
         self.folder.invokeFactory(id="dummy",
@@ -234,7 +196,7 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
         dummy = getattr(self.folder, 'dummy')
         self.failUnlessEqual(dummy.Language(), language)
 
-class ExtMetadataSetFormatTest(ATSiteTestCase):
+class ExtMetadataSetFormatTest(ArcheSiteTestCase):
 
     value = "fooooo"
     filename = 'foo.txt'
