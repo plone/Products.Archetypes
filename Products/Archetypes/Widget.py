@@ -133,15 +133,13 @@ class ReferenceWidget(TypesWidget):
                             destinations.append(purl.getRelativeUrl(obj))
             else:
                 for registeredType in tool.listTypeInfo():
-                    if not registeredType.globalAllow() and \
-                        typeinfo.getId() in registeredType.allowed_content_types:
-                            for brain in instance.portal_catalog(
-                                portal_type=registeredType.getId(),
-                                ):
-                                obj = brain.getObject()
-                                if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
-                                    break
-                                destinations.append(purl.getRelativeUrl(obj))
+                    if typeinfo.getId() in registeredType.allowed_content_types:
+                        for brain in instance.portal_catalog(
+                                         portal_type=registeredType.getId()):
+                            obj = brain.getObject()
+                            if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
+                                break
+                            destinations.append(purl.getRelativeUrl(obj))
             return destinations
 
         tool = instance.portal_types
