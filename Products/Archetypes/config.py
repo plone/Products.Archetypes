@@ -8,18 +8,13 @@ UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True ##Initialize the demo types
 INSTALL_DEMO_TYPES = False ##Install the demo types
-#INSTALL_DEMO_TYPES = True
+INSTALL_DEMO_TYPES = True
 DEBUG = True  ## See debug messages
 
 ##Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
 REFERENCE_ANNOTATION = "at_references"
-
-##ordered folder handling
-##implement the old style ordered folder?
-##for backward compatibility reasons only
-USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = False
 
 ## In zope 2.6.3+ and 2.7.0b4+ a lines field returns a tuple not a list. Per
 ## default archetypes returns a tuple, too. If this breaks your software you
