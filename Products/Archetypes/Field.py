@@ -22,7 +22,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, FileFieldException
 from Products.validation import validation
-from config import TOOL_NAME
+from config import TOOL_NAME, USE_NEW_BASEUNIT
 
 
 #For Backcompat and re-export
@@ -110,7 +110,7 @@ class Field(DefaultLayerContainer):
         value = self.vocabulary
         if not isinstance(value, DisplayList):
             if content_instance is not None and type(value) is StringType:
-                method = getattr(content_instance, self.vocabulary, None)
+                method = getattr(content_instance, value, None)
                 if method and callable(method):
                     value = method()
 
@@ -316,7 +316,7 @@ class TextField(ObjectField):
                 if size == 0:
                     # This new file has no length, so we keep
                     # the orig
-                    return default
+                    return default #XXX missing mimetype
                 return value, mime_type
 
             elif IBaseUnit.isImplementedBy(value):
@@ -337,8 +337,11 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.name, value, mime_type)
-            #bu = BaseUnit(self.name, instance, value, mime_type)
+            if USE_NEW_BASEUNIT:
+                bu = BaseUnit(self.name, instance, value, mimetype=mime_type)
+            else:
+                bu = BaseUnit(self.name, value, mime_type)
+
         ObjectField.set(self, instance, bu, **kwargs)
 
         #Invoke the default Transforms, hey, its policy
@@ -467,6 +470,12 @@ class ReferenceField(ObjectField):
         })
 
     def Vocabulary(self, content_instance=None):
+        #If we have a method providing the list of types go with it,
+        #it can always pull allowed_types if it needs to (not that we
+        #pass the field name)
+        value = ObjectField.Vocabulary(self, content_instance)
+        if value:
+            return value
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
             value = [(obj.UID, str(obj.Title).strip() or \
