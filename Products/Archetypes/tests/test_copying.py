@@ -1,7 +1,7 @@
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 
-$Id: test_copying.py,v 1.1.2.3 2004/07/04 18:32:31 tiran Exp $
+$Id: test_copying.py,v 1.1.2.4 2004/07/04 22:00:26 shh42 Exp $
 """
 
 import os, sys
@@ -52,7 +52,7 @@ class PortalCopyTests(ArcheSiteTestCase):
         ArcheSiteTestCase.afterSetUp(self)
         self.setRoles(['Manager',])
         
-        imgpath = os.path.join(os.path.pardir, 'tool.gif')
+        imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')
         self._image = open(imgpath).read()
 
         self.portal.invokeFactory('DDocument', id='document')
