@@ -1351,7 +1351,8 @@ class ImageField(ObjectField):
             pimage = PIL.Image.open(imgdata)
             image = self.image_class(id, self.getName(),
                                      imgdata,
-                                     'image/" + lower(pimage.format))
+                                     'image/%s' % lower(pimage.format)
+                                     )
             # manually use storage
             delattr(image, 'title')
             self.storage.set(id, instance, image)
