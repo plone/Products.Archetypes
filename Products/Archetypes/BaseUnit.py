@@ -33,6 +33,7 @@ except ImportError:
 
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
+    isUnit = 1
 
     security = ClassSecurityInfo()
 
