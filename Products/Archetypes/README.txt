@@ -28,6 +28,8 @@ Quickstart
     1) Edit config.py and change INCLUDE_DEMO_TYPES to 1
     2) Install a new Plone site and use the Archetype customization
        policy.
+    3) Create an external method, module Archetypes.Install, function: install
+    4) Run it
 
 
 Documentation
