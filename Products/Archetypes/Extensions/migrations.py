@@ -40,6 +40,15 @@ def toReferenceCatalog(portal, out):
         # and then we can delete the old '_uid' attr
         allbrains = portal.portal_catalog()
         for brain in allbrains:
+            #Get a uid for each thingie
+            sourceObj = brain.getObject()
+            sourceUID = getattr(sourceObj.aq_base, '_uid', None)
+            if not sourceUID: continue
+            rc.registerObject(sourceObj)
+
+        uc.manage_reindexIndex()
+            
+        for brain in allbrains:
             sourceObj = brain.getObject()
             sourceUID = getattr(sourceObj.aq_base, '_uid', None)
             if not sourceUID: continue
