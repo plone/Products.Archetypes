@@ -1,6 +1,6 @@
-zope-cmfarchetypes (1.2.3+1.2.4-rc4) unstable; urgency=low
+zope-cmfarchetypes (1.2.4+1.2.5-rc4) unstable; urgency=low
 
-  * New upstream release 1.2.4 release candidate 4 
+  * New upstream release 1.2.5 release candidate 4 
 
  -- Christian Heimes <heimes@faho.rwth-aachen.de>  Sun, 21 Mar 2004 17:06:58 +0100
 
