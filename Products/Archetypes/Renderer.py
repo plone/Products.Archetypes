@@ -1,8 +1,7 @@
 from interfaces.layer import ILayer
 try:
     from generator.renderer import renderer as base
-except:
-    # backward compat
+except ImportError:
     from Products.generator.renderer import renderer as base
 from debug import log, log_exc
 import sys

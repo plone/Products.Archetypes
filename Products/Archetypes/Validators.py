@@ -1,5 +1,9 @@
-from validation.interfaces import ivalidator
-from validation import validation
+try:
+    from validation.interfaces import ivalidator
+    from validation import validation
+except ImportError:
+    from Products.validation.interfaces import ivalidator
+    from Products.validation import validation
 from DateTime import DateTime
 
 class DateValidator:
