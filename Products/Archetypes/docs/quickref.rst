@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/16 16:36:17 $
-:Version: $Revision: 1.4 $
+:Date: $Date: 2003/05/19 12:07:14 $
+:Version: $Revision: 1.5 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -134,8 +134,16 @@ default
   Sets the default value of the field upon initialization.
 
 vocabulary
-  A set of values (usually a ``DisplayList``) which can be
+  This parameter specifies a vocabulary. It can be given either
+  as a static instance of DisplayList or as a method name (it has to
+  be the name as a string). This method is then called and the result
+  is taken as vocabulary. Thus it should be a ``DisplayList``, too.
+
+  The contents of the vocabulary are then the ones which can be
   choosen from to fill this field.
+
+  An example for a ``DisplayList`` usage can be found in the 
+  ``ArchExample`` directory in ``config.py``.
 
 enforceVocabulary
   If set, checks if the value is within the range
