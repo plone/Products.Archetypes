@@ -581,7 +581,8 @@ class ObjectField(Field):
         value = ''
         if fromBaseUnit and hasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
-            return str(bu.getContentType())
+            if IBaseUnit.isImplementedBy(bu):
+                return str(bu.getContentType())
         raw = self.getRaw(instance)
         mimetype = getattr(aq_base(value), 'mimetype', None)
         # some instances like OFS.Image have a getContentType method
