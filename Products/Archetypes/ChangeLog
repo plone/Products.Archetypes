@@ -1,3 +1,11 @@
+2003-11-14  Sidnei da Silva  <sidnei@plone.org>
+
+	* Field.py (ImageField.scale): Mini-patch by Gabriel Wicke.
+	- scaling is done with the ANTIALIAS filter instead of
+	NEAREST. Disadvantage: slower.
+	- jpg compression is 88 instead of the 75 default (maybe 85 would
+	be enough, makes some difference for file size). Less Artifacts.
+
 2003-11-10  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.get_size): Better get_size
