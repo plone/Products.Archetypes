@@ -1,6 +1,11 @@
 1.4-devel
 =========
 
+ * Fixed utils.OrderedDict problems:
+   -  constructor was failing w/ non-empty argument
+   -  infinite loop when copy() was called
+   [rafrombrc]
+
  * The validation product was integrated into the Archetypes product.
    [tiran]
 

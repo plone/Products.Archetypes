@@ -250,11 +250,10 @@ class OrderedDict(BaseDict):
     security.setDefaultAccess('allow')
 
     def __init__(self, dict=None):
+        self._keys = []
         BaseDict.__init__(self, dict)
         if dict is not None:
             self._keys = self.data.keys()
-        else:
-            self._keys = []
 
     def __setitem__(self, key, item):
         if not self.data.has_key(key):
@@ -288,6 +287,13 @@ class OrderedDict(BaseDict):
             if not self.data.has_key(k):
                 self._keys.append(k)
         return BaseDict.update(self, dict)
+
+    def copy(self):
+        if self.__class__ is OrderedDict:
+            return OrderedDict(self.data)
+        import copy
+        c = copy.copy(self)
+        return c        
 
     def setdefault(self, key, failobj=None):
         if not self.data.has_key(key):
