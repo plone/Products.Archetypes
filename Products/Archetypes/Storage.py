@@ -82,9 +82,8 @@ class MetadataStorage(StorageLayer):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
-            
     def initalizeField(self, instance, field):
-        pass
+        self.set(field.name, instance, field.default)
 
     def get(self, name, instance, **kwargs):
         try:

@@ -275,13 +275,13 @@ class Schema(UserDict, DefaultLayerContainer):
                 layers = field.registeredLayers()
                 for layer, object in layers:
                     if ILayer.isImplementedBy(object):
-                        object.initalizeField(instance, field)
                         if not called((layer, object)):
                             object.initalizeInstance(instance)
                             # Some layers may have the same name, but different classes,
                             # so, they may still need to be initialized
                             initalizedLayers.append((layer, object))
-
+                        object.initalizeField(instance, field)
+                        
 
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
