@@ -1,15 +1,24 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType
+
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression, createExprContext
-from Products.Archetypes.utils import className, unique, capitalize
+from Products.CMFCore.Expression import Expression
+from Products.CMFCore.Expression import createExprContext
+
+from Products.Archetypes.utils import className
+from Products.Archetypes.utils import unique
+from Products.Archetypes.utils import capitalize
 from Products.generator.widget import macrowidget
 from Products.Archetypes.debug import log
+from Products.Archetypes.Registry import registerPropertyType
+from Products.Archetypes.Registry import registerWidget
+
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from Acquisition import aq_base
+from Acquisition import Implicit
 
-from Acquisition import aq_base, Implicit
 
 class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
@@ -107,26 +116,6 @@ class TypesWidget(macrowidget, Base):
         return self.__class__(**properties)
 
 InitializeClass(TypesWidget)
-
-##class VocabularyWidget(TypesWidget):
-##
-##    security = ClassSecurityInfo()
-##
-##    security.declarePublic('process_form')
-##    def process_form(self, instance, field, form, empty_marker=None,
-##                     emptyReturnsMarker=False):
-##        """Vocabulary impl for form processing in a widget"""
-##        value = form.get(field.getName(), empty_marker)
-##        value = field.Vocabulary(instance).getKeysFromIndexes(value)
-##
-##        if value is empty_marker:
-##            return empty_marker
-##        if emptyReturnsMarker and value == '':
-##            return empty_marker
-##
-##        return value, {}
-##
-##InitializeClass(VocabularyWidget)
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -652,8 +641,6 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'InAndOutWidget', 'PicklistWidget',
            'RequiredIdWidget',)
 
-from Registry import registerWidget
-
 registerWidget(StringWidget,
                title='String',
                description=('Renders a HTML text input box which '
@@ -811,8 +798,6 @@ registerWidget(PicklistWidget,
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
-
-from Registry import registerPropertyType
 
 registerPropertyType('maxlength', 'integer', StringWidget)
 registerPropertyType('populate', 'boolean')

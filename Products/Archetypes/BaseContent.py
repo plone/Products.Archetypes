@@ -12,7 +12,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.PortalContent  import PortalContent
+from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
 
@@ -142,3 +142,8 @@ class BaseContent(BaseContentMixin,
         ExtensibleMetadata.__init__(self)
 
 InitializeClass(BaseContent)
+
+
+BaseSchema = BaseContent.schema
+
+__all__ = ('BaseContent', 'BaseContentMixin', 'BaseSchema', )

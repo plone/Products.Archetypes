@@ -1,17 +1,28 @@
 from Products.Archetypes.debug import log_exc, log, _default_logger
-from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
-    getRelURL, getRelPath, shasattr
-from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
+from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import mapply
+from Products.Archetypes.utils import fixSchema
+from Products.Archetypes.utils import getRelURL
+from Products.Archetypes.utils import getRelPath
+from Products.Archetypes.utils import shasattr
+from Products.Archetypes.Field import StringField
+from Products.Archetypes.Field import TextField
+from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Widget import IdWidget, StringWidget
+from Products.Archetypes.Widget import IdWidget
+from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
-from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
+from Acquisition import aq_base
+from Acquisition import aq_acquire
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
@@ -837,4 +848,9 @@ class Wrapper:
                                'inline;filename=%s' % name)
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
+
+
+MinimalSchema = BaseObject.schema
+
+__all__ = ('BaseObject', 'MinimalSchema', )
 

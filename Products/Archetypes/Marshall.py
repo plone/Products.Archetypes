@@ -148,3 +148,5 @@ class RFC822Marshaller(Marshaller):
         return (content_type, length, data)
 
 InitializeClass(RFC822Marshaller)
+
+__all__ = ('PrimaryFieldMarshaller', 'RFC822Marshaller', )

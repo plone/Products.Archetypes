@@ -1,11 +1,10 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.public import BaseFolder
+from Products.CMFCore import CMFCorePermissions
+from Products.CMFDefault.SkinnedFolder import SkinnedFolder
+from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
-     AccessContentsInformation, View, ListFolderContents
-from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
-from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
 # to keep backward compatibility
 has_btree = 1
@@ -46,58 +45,63 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
                 return accessor()
         return CMFBTreeFolder.__getitem__(self, key)
 
-    security.declareProtected(ModifyPortalContent, 'indexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject
 
-    security.declareProtected(ModifyPortalContent, 'unindexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unindexObject')
     unindexObject = BaseFolder.unindexObject
 
-    security.declareProtected(ModifyPortalContent, 'reindexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObject')
     reindexObject = BaseFolder.reindexObject
 
-    security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObjectSecurity')
     reindexObjectSecurity = BaseFolder.reindexObjectSecurity
 
     security.declarePrivate('notifyWorkflowCreated')
     notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated
 
-    security.declareProtected(AccessContentsInformation, 'opaqueItems')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems
 
-    security.declareProtected(AccessContentsInformation, 'opaqueIds')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueIds')
     opaqueIds = BaseFolder.opaqueIds
 
-    security.declareProtected(AccessContentsInformation, 'opaqueValues')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues
 
-    security.declareProtected(ListFolderContents, 'listFolderContents')
+    security.declareProtected(CMFCorePermissions.ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents
 
-    security.declareProtected(AccessContentsInformation,
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents
 
     __call__ = SkinnedFolder.__call__
 
-    security.declareProtected(View, 'view')
+    security.declareProtected(CMFCorePermissions.View, 'view')
     view = SkinnedFolder.view
 
-    security.declareProtected(View, 'index_html')
+    security.declareProtected(CMFCorePermissions.View, 'index_html')
     index_html = SkinnedFolder.index_html
 
-    security.declareProtected(View, 'Title')
+    security.declareProtected(CMFCorePermissions.View, 'Title')
     Title = BaseFolder.Title
 
-    security.declareProtected(ModifyPortalContent, 'setTitle')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
     setTitle = BaseFolder.setTitle
 
-    security.declareProtected(View, 'title_or_id')
+    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     title_or_id = BaseFolder.title_or_id
 
-    security.declareProtected(View, 'Description')
+    security.declareProtected(CMFCorePermissions.View, 'Description')
     Description = BaseFolder.Description
 
-    security.declareProtected(ModifyPortalContent, 'setDescription')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription
 
 InitializeClass(BaseBTreeFolder)
+
+
+BaseBTreeFolderSchema = BaseBTreeFolder.schema
+
+__all__ = ('BaseBTreeFolder', 'BaseBTreeFolderSchema', )

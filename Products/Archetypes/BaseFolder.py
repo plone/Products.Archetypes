@@ -6,7 +6,8 @@ from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
-from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl import ClassSecurityInfo
+from AccessControl import Unauthorized
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
@@ -198,6 +199,9 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
 
-
-
 InitializeClass(BaseFolder)
+
+
+BaseFolderSchema = BaseFolder.schema
+
+__all__ = ('BaseFolder', 'BaseFolderMixin', 'BaseFolderSchema', )

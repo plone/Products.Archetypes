@@ -10,31 +10,38 @@ from StringIO import StringIO
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-
-from Products.Archetypes.ClassGen import generateClass, generateCtor, \
-     generateZMICtor
+from Products.Archetypes.ClassGen import generateClass
+from Products.Archetypes.ClassGen import generateCtor
+from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config import TOOL_NAME, UID_CATALOG, HAS_GRAPHVIZ
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
-from Products.Archetypes.utils import findDict, DisplayList, mapply
+from Products.Archetypes.utils import findDict
+from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import mapply
 from Products.Archetypes.Renderer import renderer
 
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass, PersistentMapping
-from OFS.Folder import Folder
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
-from Products.ZCatalog.IZCatalog import IZCatalog
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-from ZODB.POSException import ConflictError
+
+from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
+from Globals import InitializeClass
+from Globals import PersistentMapping
+from OFS.Folder import Folder
+from Products.ZCatalog.IZCatalog import IZCatalog
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from ZODB.POSException import ConflictError
+
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -1031,4 +1038,5 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def has_graphviz(self):
         """runtime check for graphviz, used in condition on tab"""
         return HAS_GRAPHVIZ
+
 InitializeClass(ArchetypeTool)
