@@ -456,10 +456,14 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         sID, sobj = self._uidFor(object)
         return "%s/lookupObject?uuid=%s" % (self.absolute_url(), sID)
 
-    def lookupObject(self, uuid):
+    def lookupObject(self, uuid, REQUEST=None):
         """Lookup an object by its uuid"""
-        return self._objectByUUID(uuid)
-
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        obj = tool.lookupObject(uuid)
+        if REQUEST:
+            return REQUEST.RESPONSE.redirect(obj.absolute_url())
+        else:
+            return obj
 
     #####
     ## UID register/unregister
