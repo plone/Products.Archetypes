@@ -56,15 +56,6 @@ class BaseContent(BaseObject,
         BaseObject.manage_beforeDelete(self, item, container)
         PortalContent.manage_beforeDelete(self, item, container)
 
-    security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
-    def getPrimaryField(self):
-        """The primary field is some object that responds to
-        PUT/manage_FTPget events.
-        """
-        fields = self.Schema().filterFields(primary=1)
-        if fields: return fields[0]
-        return None
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
     def PUT(self, REQUEST, RESPONSE):
