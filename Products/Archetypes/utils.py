@@ -232,6 +232,7 @@ class DisplayList:
         self._itor.append(key)
         if msgid: self._i18n_msgids[key] = msgid
 
+
     def getKey(self, value, default=None):
         """get key"""
         v = self._values.get(value, None)
@@ -283,7 +284,7 @@ class DisplayList:
         return DisplayList(values)
 
     def sortedByKey(self):
-        """return a new display list sorted by value"""
+        """return a new display list sorted by key"""
         def _cmp(a, b):
             return cmp(a[0], b[0])
         values = list(self.items())

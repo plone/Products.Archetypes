@@ -1033,7 +1033,9 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
-        brains = pc.searchResults(portal_type=self.allowed_types)
+
+        skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
+        brains = pc.searchResults(**skw)
 
         if len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
@@ -1046,8 +1048,7 @@ class ReferenceField(ObjectField):
         for b in brains:
             #translate abs path to rel path since uid_cat stores paths relative now
             path=b.getPath()[len(getToolByName(content_instance,'portal_url').getPortalPath())+1:]
-            uid = uc.getMetadataForUID(path)['UID']
-            pairs.append((uid, label(b)))
+            pairs.append((b.UID, label(b)))
 
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
@@ -1055,6 +1056,7 @@ class ReferenceField(ObjectField):
                                           context=content_instance,
                                           default='<no reference>')
             pairs.insert(0, ('', no_reference))
+
 
         return DisplayList(pairs)
 
@@ -1370,8 +1372,7 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    value = self.scale(data,w,h)
-
+                    value, format = self.scale(data,w,h)
         return value
 
     def createOriginal(self, instance, value, **kwargs):
