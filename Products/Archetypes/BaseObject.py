@@ -370,10 +370,21 @@ class BaseObject(Implicit):
     def _datify( self, attrib ):
         """FIXME: overriden from DublinCore to deal with blank value..."""
         if attrib == 'None' or not attrib:
-            attrib = None
-        elif not isinstance( attrib, DateTime ) and attrib is not None:
+            attrib = ''
+        elif not isinstance( attrib, DateTime ):
             attrib = DateTime( attrib )
         return attrib
+
+    security.declarePublic( 'Date' )
+    def Date( self ):
+        """FIXME: overriden from DublinCore to deal with blank value...
+        Dublin Core element - default date
+        """
+        # Return effective_date if set, modification date otherwise
+        date = getattr(self, 'effective_date', None )
+        if not date:
+            date = self.modified()
+        return date.ISO()
 
 
     # Handle schema updates ####################################################
