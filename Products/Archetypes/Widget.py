@@ -1,4 +1,6 @@
 from debug import log
+from utils import className
+
 try:
     from generator.widget import macrowidget
 except:
@@ -16,6 +18,10 @@ class TypesWidget(macrowidget):
 
     def getName(self):
         return self.__class__.__name__
+
+    def getType(self):
+        """Return the type of this field as a string"""
+        return className(self)
 
     def bootstrap(self, instance):
         if not self.description or not self.label:
@@ -45,7 +51,7 @@ class TypesWidget(macrowidget):
         if not vis_dic: return state
         state = vis_dic.get(mode, state)
         return state
-    
+
 
 
 class StringWidget(TypesWidget):
@@ -205,3 +211,127 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget')
+
+from Registry import registerWidget
+
+registerWidget(StringWidget,
+               title='String',
+               description='Renders a HTML text input box which accepts a single line of text',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(DecimalWidget,
+               title='Decimal',
+               description='Renders a HTML text input box which accepts a fixed point value',
+               used_for=('Products.Archetypes.Field.FixedPointField',)
+               )
+
+registerWidget(IntegerWidget,
+               title='Integer',
+               description='Renders a HTML text input box which accepts a integer value',
+               used_for=('Products.Archetypes.Field.IntegerField',)
+               )
+
+registerWidget(ReferenceWidget,
+               title='Reference',
+               description='Renders a HTML text input box which accepts a reference value',
+               used_for=('Products.Archetypes.Field.IntegerField',)
+               )
+
+registerWidget(ComputedWidget,
+               title='Computed',
+               description='Renders the computed value as HTML',
+               used_for=('Products.Archetypes.Field.ComputedField',)
+               )
+
+registerWidget(TextAreaWidget,
+               title='Text Area',
+               description='Renders a HTML Text Area for typing a few lines of text',
+               used_for=('Products.Archetypes.Field.StringField',
+                         'Products.Archetypes.Field.TextField')
+               )
+
+registerWidget(LinesWidget,
+               title='Lines',
+               description='Renders a HTML textarea for a list of values, one per line',
+               used_for=('Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(BooleanWidget,
+               title='Boolean',
+               description='Renders a HTML checkbox',
+               used_for=('Products.Archetypes.Field.BooleanField',)
+               )
+
+registerWidget(CalendarWidget,
+               title='Calendar',
+               description='Renders a HTML input box with a helper popup box for choosing dates',
+               used_for=('Products.Archetypes.Field.DateTimeField',)
+               )
+
+registerWidget(SelectionWidget,
+               title='Selection',
+               description='Renders a HTML selection widget, which can be represented as a dropdown, or as a group of radio buttons',
+               used_for=('Products.Archetypes.Field.StringField',
+                         'Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(MultiSelectionWidget,
+               title='Multi Selection',
+               description='Renders a HTML selection widget, where you can be choose more than one value',
+               used_for=('Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(KeywordWidget,
+               title='Keyword',
+               description='Renders a HTML widget for choosing keywords',
+               used_for=('Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(RichWidget,
+               title='Rich Widget',
+               description='Renders a HTML widget that allows you to type some content, choose formatting and/or upload a file',
+               used_for=('Products.Archetypes.Field.TextField',)
+               )
+
+registerWidget(FileWidget,
+               title='File',
+               description='Renders a HTML widget upload a file',
+               used_for=('Products.Archetypes.Field.FileField',)
+               )
+
+registerWidget(IdWidget,
+               title='ID',
+               description='Renders a HTML widget for typing an Id',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(ImageWidget,
+               title='Image',
+               description='Renders a HTML widget for uploading/displaying an image',
+               used_for=('Products.Archetypes.Field.ImageField',)
+               )
+
+registerWidget(LabelWidget,
+               title='Label',
+               description='Renders a HTML widget that only displays the label',
+               used_for=None
+               )
+
+registerWidget(PasswordWidget,
+               title='Password',
+               description='Renders a HTML password widget',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(VisualWidget,
+               title='Visual',
+               description='Renders a HTML visual editing widget widget',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(EpozWidget,
+               title='Epoz',
+               description='Renders a HTML Epoz widget',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )

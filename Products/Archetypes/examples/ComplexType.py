@@ -1,5 +1,6 @@
 from Products.Archetypes.public import *
 from Products.Archetypes import Field
+from SimpleType import SimpleType
 
 fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
@@ -25,9 +26,9 @@ schema = Schema(tuple(field_instances) + (
                ),
     ))
 
-class ComplexType(BaseContent):
+class ComplexType(SimpleType):
     """A simple archetype"""
-    schema = BaseContent.schema + schema
+    schema = SimpleType.schema + schema
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'),))

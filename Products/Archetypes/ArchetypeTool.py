@@ -319,9 +319,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self.catalog_map = PersistentMapping() # meta_type -> [names of CatalogTools]
-                
+
         self._types = {}
-        
+
         for t in _types.values():
             self._types[t['klass'].meta_type] = \
                 {'signature':t['signature'], 'update':1}
@@ -373,8 +373,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def listCatalogs(self):
         """show the catalog mapping"""
         return self.catalog_map
-    
-        
+
+
 
     ## Type/Schema Management
     def listRegisteredTypes(self, inProject=None):
@@ -400,7 +400,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return values
 
-        
+
     def getTypeSpec(self, package, type):
         t = self.lookupType(package, type)
         module = t['klass'].__module__
@@ -734,9 +734,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     v = v.split('\n')
                 v = [i.strip() for i in v if i.strip()]
                 self.catalog_map[k] = v
-        
+
         return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_catalogs")
-    
+
     def getCatalogsByType(self, meta_type):
         """Return the catalog objects assoicated with a given type"""
         catalogs = []
@@ -748,7 +748,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log("No tool", name, E)
                 pass
         return catalogs
-    
-        
+
+
 
 InitializeClass(ArchetypeTool)

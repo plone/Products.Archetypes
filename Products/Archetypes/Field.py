@@ -8,7 +8,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import *
-from utils import capitalize, DisplayList
+from utils import capitalize, DisplayList, className
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -21,21 +21,19 @@ from interfaces.field import IField, IObjectField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException, FileFieldException
-try:
-    from validation import validation
-except ImportError:
-    from Products.validation import validation
+from exceptions import ObjectFieldException, TextFieldException, \
+     FileFieldException
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
 from ComputedAttribute import ComputedAttribute
-
-#For Backcompat and re-export
-from Schema import FieldList, MetadataFieldList
-
 from Products.PortalTransforms.interfaces import idatastream
+
+try:
+    from validation import validation
+except ImportError:
+    from Products.validation import validation
 
 STRING_TYPES = [StringType, UnicodeType]
 """Mime-types currently supported"""
@@ -260,6 +258,11 @@ class Field(DefaultLayerContainer):
         """Return the name of this field as a string"""
         return self.__name__
 
+    security.declarePublic('getType')
+    def getType(self):
+        """Return the type of this field as a string"""
+        return className(self)
+
     security.declarePublic('getDefault')
     def getDefault(self):
         """Return the default value to be used for initializing this field"""
@@ -384,7 +387,6 @@ class StringField(ObjectField):
         # Remove acquisition wrappers
         value = decode(aq_base(value), instance, **kwargs)
         self.storage.set(self.getName(), instance, value, **kwargs)
-
 
 class FileField(StringField):
     """Something that may be a file, but is not an image and doesn't
@@ -1549,3 +1551,56 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'I18NImageField',
            )
 
+from Registry import registerField
+
+registerField(StringField,
+              title='String',
+              description='Used for storing simple strings')
+
+registerField(FileField,
+              title='File',
+              description='Used for storing files')
+
+registerField(TextField,
+              title='Text',
+              description='Used for storing text which can be used in transformations')
+
+registerField(DateTimeField,
+              title='Date Time',
+              description='Used for storing date/time')
+
+registerField(LinesField,
+              title='LinesField',
+              description='Used for storing text which can be used in transformations')
+
+registerField(IntegerField,
+              title='Integer',
+              description='Used for storing integer values')
+
+registerField(FloatField,
+              title='Float',
+              description='Used for storing float values')
+
+registerField(FixedPointField,
+              title='Fixed Point',
+              description='Used for storing fixed point values')
+
+registerField(ReferenceField,
+              title='Reference',
+              description='Used for storing references to other Archetypes Objects')
+
+registerField(ComputedField,
+              title='Computed',
+              description='Read-only field, which value is computed from a python expression')
+
+registerField(BooleanField,
+              title='Boolean',
+              description='Used for storing boolean values')
+
+registerField(CMFObjectField,
+              title='CMF Object',
+              description='Used for storing value inside a CMF Object, which can have workflow. Can only be used for BaseFolder-based content objects')
+
+registerField(ImageField,
+              title='Image',
+              description='Used for storing images. Images can then be retrieved in different thumbnail sizes')

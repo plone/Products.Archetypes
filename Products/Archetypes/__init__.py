@@ -32,9 +32,11 @@ from ArchetypeTool import ArchetypeTool, \
                           registerType, \
                           process_types, \
                           listTypes
+from ArchTTWTool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
+    ArchTTWTool,
     )
 
 ###

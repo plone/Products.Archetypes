@@ -1,0 +1,211 @@
+import types
+
+from utils import className
+
+from Products.Archetypes.ArchetypeTool import listTypes
+from Products.Archetypes.Schema import getSchemata
+from Products.Archetypes.interfaces.base import IBaseObject
+
+class Registry:
+
+    def __init__(self, allowed_class):
+        self.__registry = {}
+        self.__allowed_class = allowed_class
+
+    def register(self, name, item):
+        if not isinstance(item, self.__allowed_class):
+            raise TypeError, "Invalid value for item: %r (should be %r)" % \
+                  (item, self.__allowed_class)
+        self.__registry[name] = item
+
+    def unregister(self, name):
+        if self.__registry.has_key(name):
+            del self.__registry[name]
+
+    def keys(self):
+        return [k for k, v in self.items()]
+
+    def values(self):
+        return [v for k, v in self.items()]
+
+    def items(self):
+        return self.__registry.items()
+
+    def __getitem__(self, name):
+        return self.__registry[name]
+
+    def get(self, name, default=None):
+        return self.__registry.get(name, default)
+
+class FieldDescription:
+
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, klass, default_widget=None,
+                 title='', description=''):
+        self.id = className(klass)
+        self.klass = klass
+        default_widget = default_widget or klass._properties.get('widget', None)
+        if default_widget is None:
+            raise ValueError, '%r Must have a default_widget' % klass
+        if type(default_widget) not in [types.StringType, types.UnicodeType]:
+            default_widget = className(default_widget)
+        self.default_widget = default_widget
+        self.title = title
+        self.description = description
+
+    def allowed_widgets(self):
+        from Products.Archetypes.Registry import availableWidgets
+        widgets = []
+        for k, v in availableWidgets():
+            if v.used_for is None or \
+               self.id in v.used_for:
+                widgets.append(k)
+        return widgets
+
+    def properties(self):
+        props = []
+        for k, v in self.klass._properties.items():
+            prop = {}
+            prop['name'] = k
+            prop['type'] = 'string'
+            prop['default'] = str(v)
+            props.append(prop)
+
+        return props
+
+class WidgetDescription:
+
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, klass, title='', description='', used_for=()):
+        self.id = className(klass)
+        self.klass = klass
+        self.title = title
+        self.description = description
+        self.used_for = used_for
+
+    def properties(self):
+        props = []
+        for k, v in self.klass._properties.items():
+            prop = {}
+            prop['name'] = k
+            prop['type'] = 'string'
+            prop['default'] = str(v)
+            props.append(prop)
+
+        return props
+
+class ValidatorDescription:
+
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, klass, title='', description=''):
+        self.id = className(klass)
+        self.klass = klass
+        self.title = title
+        self.description = description
+
+def findBaseTypes(klass):
+    bases = []
+    if hasattr(klass, '__bases__'):
+        for b in klass.__bases__:
+            if IBaseObject.isImplementedByInstancesOf(b):
+                bases.append(className(b))
+    return bases
+
+class TypeDescription:
+
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, klass, title='', description=''):
+        self.id = className(klass)
+        self.klass = klass
+        self.title = title
+        self.description = description
+
+    def schemata(self):
+        return getSchemata(self.klass)
+
+    def portal_type(self):
+        return self.klass.portal_type
+
+    def basetypes(self):
+        return findBaseTypes(self.klass)
+
+fieldDescriptionRegistry = Registry(FieldDescription)
+availableFields = fieldDescriptionRegistry.items
+def registerField(klass, **kw):
+    field = FieldDescription(klass, **kw)
+    fieldDescriptionRegistry.register(field.id, field)
+
+widgetDescriptionRegistry = Registry(WidgetDescription)
+availableWidgets = widgetDescriptionRegistry.items
+def registerWidget(klass, **kw):
+    widget = WidgetDescription(klass, **kw)
+    widgetDescriptionRegistry.register(widget.id, widget)
+
+class ValidatorRegistry:
+
+    def __init__(self):
+        from validation import validation
+        self.validation = validation
+
+    def register(self,  name, item):
+        self.validation.register(item)
+
+    def unregister(self, name):
+        self.validation.unregister(name)
+
+    def items(self):
+        return [(k, ValidatorDescription(v,
+                                         title=v.title,
+                                         description=v.description))
+                for k, v in self.validation.items()]
+
+    def keys(self):
+        return [k for k, v in self.items()]
+
+    def values(self):
+        return [v for k, v in self.items()]
+
+class TypeRegistry:
+
+    def __init__(self):
+        pass
+
+    def items(self):
+        return [(className(t['klass']),
+                 TypeDescription(t['klass'],
+                                  title=t['name'],
+                                  description=getattr(t['klass'], '__doc__')))
+                 for t in listTypes()]
+
+    def keys(self):
+        return [k for k, v in self.items()]
+
+    def values(self):
+        return [v for k, v in self.items()]
+
+    def __getitem__(self, name):
+        items = self.items()
+        for k, v in items:
+            if k == name:
+                return v
+        raise KeyError, name
+
+    def get(self, name, default=None):
+        items = self.items()
+        for k, v in items:
+            if k == name:
+                return v
+        return default
+
+validatorDescriptionRegistry = ValidatorRegistry()
+availableValidators = validatorDescriptionRegistry.items
+def registerValidator(item, name=''):
+    name = name or item.name
+    validatorDescriptionRegistry.register(name, item)
+
+typeDescriptionRegistry = TypeRegistry()
+availableTypes = typeDescriptionRegistry.items

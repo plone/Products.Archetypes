@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        tal:define="types options/types"
+        metal:define-macro="body">
+
+<types>
+
+   <tal:block repeat="type types">
+   <type id="Products.Archetypes.Widgets.IntegerWidget"
+         tal:attributes="id type/id">
+    <url tal:content="string:${container/absolute_url}/type_xml?type=${type/id}">http://archetypes/archetype_ttw_tool/type_xml?type=Article</url>
+    </type>
+   </tal:block>
+
+</types>
+
+</tal:block>
