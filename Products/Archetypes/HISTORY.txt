@@ -93,6 +93,11 @@
    Archetypes is playing nice again with portal factory
    [tiran]
 
+ * Raise SchemaException when trying to add two or more primary fields to one
+   content type. Adding more than one primary field can lead to unexpected
+   behaviors.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

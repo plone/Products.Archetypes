@@ -11,6 +11,7 @@ from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
 from Products.Archetypes.debug import log
+from Products.Archetypes.exceptions import SchemaException
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base, Explicit
@@ -166,6 +167,13 @@ class Schemata(Base):
         """Adds a given field to my dictionary of fields."""
         field = aq_base(field)
         if IField.isImplementedBy(field):
+            if getattr(field, 'primary', False):
+                res = self.hasPrimary()
+                if res is not False:
+                    raise SchemaException("Tried to add '%s' as primary field "\
+                             "but %s already has the primary field '%s'." % \
+                             (field.getName(), repr(self), res.getName())
+                         )
             name = field.getName()
             if name not in self._names:
                 self._names.append(name)
@@ -211,6 +219,13 @@ class Schemata(Base):
         """Returns a list containing names of all searchable fields."""
 
         return [f.getName() for f in self.fields() if f.searchable]
+    
+    def hasPrimary(self):
+        """Returns the first primary field or False"""
+        for f in self.fields():
+            if getattr(f, 'primary', False):
+                return f
+        return False
 
 InitializeClass(Schemata)
 
