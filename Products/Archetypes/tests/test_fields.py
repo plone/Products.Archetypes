@@ -143,7 +143,7 @@ class ProcessingTest(ArchetypesTestCase):
 
     def test_required(self):
         dummy = self.makeDummy()
-        dummy.REQUEST = request = FakeRequest()
+        request = FakeRequest()
         request.form['fieldset'] = 'default'
         f_names = []
 
@@ -153,7 +153,7 @@ class ProcessingTest(ArchetypesTestCase):
             f.required = 1
             f_names.append(name)
         errors = {}
-        dummy.validate(errors=errors)
+        dummy.validate(REQUEST=request, errors=errors)
         self.failUnless(errors, "Errors dictionary is empty.")
         err_fields = errors.keys()
         failures = []

@@ -1,3 +1,8 @@
+2004-04-07  Daniel Nouri  <daniel.nouri@con-fuse.org>
+
+	* BaseObject.py (BaseObject.validate): BaseObject.validate() needs
+	explicit REQUEST argument now. (Sid made this change actually.)
+
 2004-04-06  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (BoundPageTemplateFile.__init__): Created a
