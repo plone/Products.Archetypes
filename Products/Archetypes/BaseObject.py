@@ -254,46 +254,76 @@ class BaseObject(Referenceable):
         return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
+    security.declareProtected(CMFCorePermissions.View, 'getFilename')
+    def getFilename(self, key=None):
+        """Returns the filename from a field.
+        """
+        value = None
+
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and shasattr(field, 'getFilename'):
+            return field.getFilename(self)
+
+        return value
+
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
-        """Returns the Content Type of a field or the primary field if available
+        """Returns the content type from a field.
         """
         value = 'text/plain'
 
-        # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
-            pfield = self.getPrimaryField()
-            if pfield and shasattr(pfield, 'getContentType'):
-                return pfield.getContentType(self)
-            else:
-                return value
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
 
-        field = self.getField(key)
         if field and shasattr(field, 'getContentType'):
             return field.getContentType(self)
-        element = getattr(self, key, None)
-        if element and shasattr(element, 'getContentType'):
-            return element.getContentType()
+
         return value
 
+    # Backward compatibility
+    security.declareProtected(CMFCorePermissions.View, 'content_type')
     content_type = ComputedAttribute(getContentType, 1)
 
+    # XXX Where's get_content_type comes from??? There's no trace at both
+    # Zope and CMF. It should be removed ASAP!
     security.declareProtected(CMFCorePermissions.View, 'get_content_type')
-    def get_content_type(self):
-        """CMF compatibility method
-        """
-        return self.getContentType()
+    get_content_type = getContentType
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setContentType')
-    def setContentType(self, value):
-        """Sets the content type of the primary field
+    def setContentType(self, value, key=None):
+        """Sets the content type of a field.
         """
-        pfield = self.getPrimaryField()
-        if pfield and IFileField.isImplementedBy(pfield):
-            bu = pfield.getBaseUnit(self)
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and IFileField.isImplementedBy(field):
+            bu = field.getBaseUnit(self)
             bu.setContentType(self, value)
-            pfield.set(self, bu)
+            field.set(self, bu)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setFilename')
+    def setFilename(self, value, key=None):
+        """Sets the filename of a field.
+        """
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and IFileField.isImplementedBy(field):
+            bu = field.getBaseUnit(self)
+            bu.setFilename(self, value)
+            field.set(self, bu)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
@@ -301,7 +331,8 @@ class BaseObject(Referenceable):
         PUT/manage_FTPget events.
         """
         fields = self.Schema().filterFields(primary=1)
-        if fields: return fields[0]
+        if fields:
+            return fields[0]
         return None
 
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
