@@ -44,3 +44,16 @@ else:
 
 ## comment out the following line to enable the reference graph tool
 HAS_GRAPHVIZ = False
+
+## backward compatibility:
+from types import StringTypes as STRING_TYPES
+
+## detect Python Imaging Libraries
+try:
+    import PIL.Image
+    HAS_PIL=True
+except ImportError:
+    # no PIL, no scaled versions!
+    log("Warning: no Python Imaging Libraries (PIL) found."+\
+        "Archetypes based ImageField's don't scale if neccessary.")
+    HAS_PIL=False
