@@ -38,12 +38,12 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.CMFCore import CMFCorePermissions
-from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE
-from Products.Archetypes.ExtensibleMetadata import CEILING_DATE
-from Products.validation import ValidationChain
+from Products.Archetypes.base.extensiblemetadata import FLOOR_DATE
+from Products.Archetypes.base.extensiblemetadata import CEILING_DATE
+from Products.Archetypes.validation import ValidationChain
 
 from DateTime import DateTime
 
@@ -56,7 +56,7 @@ class BaseSchemaTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        registerType(Dummy, 'Archetypes')
+        registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         portal = self.portal
         dummy = Dummy(oid='dummy')
@@ -167,7 +167,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == ())
-        self.failUnless(field.searchable == 1)
+        self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
         self.failUnless(field.enforceVocabulary == 0)
@@ -306,13 +306,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(tuple(vocab) == ())
 
     def test_language(self):
-        default=LANGUAGE_DEFAULT
         dummy = self._dummy
         field = dummy.getField('language')
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == LANGUAGE_DEFAULT)
+        self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == 'languages')
