@@ -1,6 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed customizationpolicy.py not to break if CMFPlone isn't available.
+   [tiran]
+
  * Updated the requirements to Zope 2.7.4+. It may work with older versions of
    Zope 2.7.4 but due some serious memory leaks and some important bug fixes
    you should really use Zope 2.7.4!
