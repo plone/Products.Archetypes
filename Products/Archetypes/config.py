@@ -5,3 +5,7 @@ TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
 REGISTER_DEMO_TYPES = 1 ##Initialize the demo types
 INSTALL_DEMO_TYPES = 0 ##Install the demo types
 DEBUG = 1  ## See debug messages
+
+
+#XXX activate experimental baseunit
+USE_NEW_BASEUNIT = None

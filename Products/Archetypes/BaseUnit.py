@@ -1,53 +1,49 @@
 from AccessControl import ClassSecurityInfo
+from Acquisition import Explicit
+from Globals import InitializeClass
+from OFS.Image import File
+from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-from content_driver import getDefaultPlugin, lookupContentType, getConverter
-from Globals import InitializeClass
-from content_driver import selectPlugin, lookupContentType
-from OFS.ObjectManager import ObjectManager, REPLACEABLE
-from OFS.Image import File
-from webdav.WriteLockInterface import WriteLockInterface
-import re
-from debug import log, log_exc
-import os.path
-from StringIO import StringIO
-import urllib
-from utils import basename
-
-from Acquisition import Explicit
-from Products.transform.sourceAdapter import sourceAdapter
 from Products.transform import transformer, registry
-from types import DictType
-
+from Products.transform.sourceAdapter import sourceAdapter
+from StringIO import StringIO
+from content_driver import getDefaultPlugin, lookupContentType, getConverter
+from content_driver import selectPlugin, lookupContentType
+from debug import log, log_exc
 from interfaces.base import IBaseUnit
+from types import DictType
+from utils import basename
+from webdav.WriteLockInterface import WriteLockInterface
+import os.path
+import re
+import urllib
 
-class xxBaseUnit(File):
-    __implements__ = (WriteLockInterface)
+from config import *
+
+
+class newBaseUnit(File):
+    __implements__ = (WriteLockInterface,)
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, parent, data='', mime_type=None):
+    def __init__(self, name, parent, data='', mimetype=None):
         self.id = name
         self.parent = parent
         self._transforms = {}
-        self.update(data, mime_type)
+        self.update(data, mimetype)
 
     def update(self, data, mimetype=None):
         #Convert from file/str to str/unicode as needed
-        data, filename, mimetype = sourceAdapter()(data)
-
-        if mimetype:
-            mts = registry.lookup(mimetype)
-            if mts:
-                mimetype = str(mts[0])
-        else:
-            mimetype =  str(transformer.classify(data))
+        data, filename, mimetype = sourceAdapter()(data, mimetype=mimetype)
 
         self.mimetype = mimetype
         self.raw  = data
         self.size = len(data)
         self.filename = filename
-        log(self.mimetype, self.filename, self.size)
+
+        ##force default transform policy, this needs to come out
+        str(self)
 
     def _mimetype2key(self, mt):
         mt = mt.replace('/', '_')
@@ -67,15 +63,13 @@ class xxBaseUnit(File):
         if key in self._transforms.keys():
             data = self._transforms[key]
         else:
-            #See if we can run the transform and return the results
-            #transformer = getToolByName(self.parent, 'transform_tool')
-            data = transformer.convertTo(mt, self.raw,
-                                         mimetype=self.mimetype,
-                                         usedby=self.id)
+            #data = transformer.convertTo(mt, self.mimetype,
+            #                             self.raw,
+            #                             usedby=self.id)
+            
             ## XXX the transform tool should keep the cache policy
             if cache:
                 self._transforms[key] = data
-
 
         if data:
             data = data.getData()
@@ -84,7 +78,7 @@ class xxBaseUnit(File):
             return data
 
         #XXX debug
-        mt = registry.lookup(self.mimetype)
+        mt = registry.lookup(mt)
         if mt and mt[0].binary:
             return self.raw
 
@@ -92,22 +86,26 @@ class xxBaseUnit(File):
 
     def __str__(self):
         ## XXX make sure default view points to a RFC-2046 name
-        v =self.transform(self.parent.Schema()[self.id].defaultView(),
-                              cache=1)
-        log("%s: cvt %s to %s" % (self.id,
-                                  self.mimetype,
-                                  self.parent.Schema()[self.id].defaultView()), v)
-        return v
+        data = self.transform('text/html', cache=1)
+        if not data:
+            data = self.transform('text/plain', cache=1)
+        if not data:
+            return ''
+
+        data = data.getData()
+        if type(data) == DictType and data.has_key('html'):
+            return data['html']
+        return data
+
 
     # Hook needed for catalog
     __call__ = __str__
 
 
     def isBinary(self):
-        mt = registry.lookup(self.mimetype)
-        if not mt: return 1
-        mt = mt[0]
-        return mt.binary
+        mt = registry.lookup(self.getContentType())
+        if not mt: return 1 #if we don't hear otherwise its binary
+        return mt[0].binary
 
     # File handling
     def get_size(self):
@@ -162,7 +160,7 @@ class xxBaseUnit(File):
         return ''
 
 
-class BaseUnit(File, ObjectManager):
+class oldBaseUnit(File, ObjectManager):
     """ """
     security = ClassSecurityInfo()
     __replaceable__ = REPLACEABLE
@@ -335,5 +333,10 @@ class BaseUnit(File, ObjectManager):
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)
         return RESPONSE
+
+if USE_NEW_BASEUNIT:
+    BaseUnit = newBaseUnit
+else:
+    BaseUnit = oldBaseUnit
 
 InitializeClass(BaseUnit)
