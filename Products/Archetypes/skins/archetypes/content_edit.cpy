@@ -14,7 +14,7 @@ try:
     new_context = context.portal_factory.doCreate(context, id)
 except AttributeError:
     # Fallback for AT + plain CMF where we don't have a portal_factory
-    new_content = context
+    new_context = context
 new_context.processForm()
 
 portal_status_message = context.translate(
