@@ -1,3 +1,9 @@
+2003-06-25  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* utils.py (OrderedDict.reverse): Implemented 'reverse' operation
+	on OrderedDict. Returns a reversed copy of the items list without
+	modifying the object. Fixes bug #755622 on sf.
+
 2003-06-23  Sylvain Thénault  <syt@logilab.fr>
 
 	* BaseObject.py: add methods to handle a master translation and

@@ -183,8 +183,8 @@ def registerType(klass, package=None):
     _types[klass.meta_type] = data
     for tc in _types_callback:
         tc(klass, package)
-   
-        
+
+
 def listTypes(package=None):
     values = _types.values()
     if package:
@@ -403,6 +403,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         widgets = {}
         for t in self.listTypes(package):
             instance = t('fake')
+            from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
+            DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
             instance.schema = instance.schema.copy()
             instance = instance.__of__(self)
@@ -619,7 +621,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if self._types[t]['update']:
                 list.append(t)
         return list
-        
+
 
     security.declareProtected('Manage portal', 'manage_updateSchema')
     def manage_updateSchema(self):
@@ -627,7 +629,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         from StringIO import StringIO
         out = StringIO()
         print >> out, 'Updating schema...'
-    
+
         for t in self._types.keys():
             if not self._types[t]['update']:
                 continue
@@ -684,6 +686,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 update = 1
         self._types[klass.meta_type] = {'signature':sig, 'update':update}
         self._p_changed = 1
-            
+
 
 InitializeClass(ArchetypeTool)
