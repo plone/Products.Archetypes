@@ -1,4 +1,4 @@
-1.3.0-rc1 - unreleased
+1.3.0-rc1 - 2004-08-16
 ======================
 
  * Try to use BaseUnit for schema migration to keep the mimetype and the 
