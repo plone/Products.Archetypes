@@ -192,7 +192,8 @@ class Field(DefaultLayerContainer):
             if content_instance is not None and type(value) in STRING_TYPES:
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
-                    value = method()
+                    args = (content_instance,)
+                    value = mapply(method, *args)
 
             # Post process value into a DisplayList, templates will use
             # this interface
