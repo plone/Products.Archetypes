@@ -151,8 +151,15 @@ class newBaseUnit(File):
         return self.raw.encode(encoding)
 
     def portalEncoding(self, instance):
-        site_props = instance.portal_properties.site_properties
-        return site_props.getProperty('default_charset', 'UTF-8')
+        """return the default portal encoding, using an external python script
+        (look the archetypes skin directory for the default implementation)
+        """
+        try:
+            return instance.getCharset()
+        except AttributeError:
+            # that occurs during object initialization
+            # (no acquisition wrapper)
+            return 'UTF8'
 
     def getContentType(self):
         """return the imimetype object for this BU"""
