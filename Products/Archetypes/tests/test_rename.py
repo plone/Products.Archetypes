@@ -1,7 +1,7 @@
 """ 
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.1 2003/03/28 15:28:43 dreamcatcher Exp $
+$Id: test_rename.py,v 1.2 2003/03/28 19:03:46 dreamcatcher Exp $
 """
 
 import unittest
@@ -23,7 +23,7 @@ class RenameTests( SecurityRequestTest ):
         self.root.manage_addProduct[ 'CMFPlone' ].manage_addSite( 'testsite', \
                                                                   custom_policy='Archetypes Site' )
 
-    def test_renameattributestorage(self):
+    def test_rename(self):
         site = self.root.testsite
         obj_id = 'demodoc'
         new_id = 'new_demodoc'

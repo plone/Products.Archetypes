@@ -144,7 +144,8 @@ class SQLMethod(Aqueduct.BaseQuery):
                 self.connection_id))
 
         try: DB__=dbc()
-        except: raise 'Database Error', (
+        except:
+            raise 'Database Error', (
             '%s is not connected to a database' % self.id)
 
         return dbc, DB__

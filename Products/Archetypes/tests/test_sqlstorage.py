@@ -19,7 +19,9 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, TOOL_NAME
 from Products.Archetypes import listTypes
 from Products.Archetypes import SQLStorage
+from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
+from Products.CMFCore.TypesTool import FactoryTypeInformation
 
 from DateTime import DateTime
 
@@ -30,59 +32,59 @@ connection_id = 'sql_connection'
 connectors = {}
 cleanup = {}
 
-try:
-  # gadfly storage is currently b0rked, we don't want to test it yet
-  if 0:
-    from Products.ZGadflyDA.DA import Connection
-    connectors['Gadfly'] = Connection(id=connection_id,
-                                      title='connection',
-                                      connection_string='demo', # default connection
-                                      check=1, # connect immediatly
-                                      )
-except ImportError:
-    pass
-
-try:
-    from Products.ZPsycopgDA.DA import Connection
-    connectors['Postgre'] = Connection(id=connection_id,
-                                       title='connection',
-                                       connection_string='dbname=demo user=demo',
-                                       zdatetime=1, # use Zope's DateTime, not mxDateTime
-                                       check=1, # connect immediatly
-                                       )
-except ImportError:
-    pass
-
-try:
-    import _mysql
-    from _mysql_exceptions import OperationalError, NotSupportedError
-    from Products.ZMySQLDA.DA import Connection
-    from Products.Archetypes.SQLMethod import SQLMethod
+def setupConnectors():
     try:
-        connectors['MySQL'] = Connection(id=connection_id,
-                                         title='connection',
-                                         connection_string='+demo@localhost demo demo',
-                                         check=1, # connect immediatly
-                                         )
-    except NotSupportedError:
-        connectors['MySQL'] = Connection(id=connection_id,
-                                         title='connection',
-                                         connection_string='-demo@localhost demo demo',
-                                         check=1, # connect immediatly
-                                         )
-        def cleanupMySQL(self):
-            instance = self._dummy
-            args = {}
-            args['table'] = 'Dummy'
-            storage = self._storage_class
-            method = SQLMethod(instance)
-            method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
-            query, result = method(test__=1, **args)
-        
-        cleanup['MySQL'] = cleanupMySQL
+      # gadfly storage is currently b0rked, we don't want to test it yet
+      if 0:
+        from Products.ZGadflyDA.DA import Connection
+        connectors['Gadfly'] = Connection(id=connection_id,
+                                          title='connection',
+                                          connection_string='demo', # default connection
+                                          check=1, # connect immediatly
+                                          )
+    except ImportError:
+        pass
 
-except ImportError:
-    pass
+    try:
+        from Products.ZPsycopgDA.DA import Connection
+        connectors['Postgre'] = Connection(id=connection_id,
+                                           title='connection',
+                                           connection_string='dbname=demo user=demo',
+                                           zdatetime=1, # use Zope's DateTime, not mxDateTime
+                                           check=1, # connect immediatly
+                                           )
+    except ImportError:
+        pass
+
+    try:
+        import _mysql
+        from _mysql_exceptions import OperationalError, NotSupportedError
+        from Products.ZMySQLDA.DA import Connection
+        try:
+            connectors['MySQL'] = Connection(id=connection_id,
+                                             title='connection',
+                                             connection_string='+demo@localhost demo demo',
+                                             check=1, # connect immediatly
+                                             )
+        except NotSupportedError:
+            connectors['MySQL'] = Connection(id=connection_id,
+                                             title='connection',
+                                             connection_string='-demo@localhost demo demo',
+                                             check=1, # connect immediatly
+                                             )
+            def cleanupMySQL(self):
+                instance = self._dummy
+                args = {}
+                args['table'] = 'Dummy'
+                storage = self._storage_class
+                method = SQLMethod(instance)
+                method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
+                query, result = method(test__=1, **args)
+
+            cleanup['MySQL'] = cleanupMySQL
+
+    except ImportError:
+        pass
 
 
 class Dummy(BaseContent):
@@ -230,6 +232,7 @@ class SQLStorageTest(unittest.TestCase):
         self.failUnless(value == 1)
 
 tests = []
+setupConnectors()
 
 #################################################################
 # test each db
@@ -251,24 +254,50 @@ for db_name in connectors.keys():
 
 for db_name in connectors.keys():
 
-    class StorageTestRenameSubclass(RenameTests, SQLStorageTest):
+    class StorageTestRenameSubclass(RenameTests):
 
-        def setup(self):
-            RenameTests.setup(self)
-            SQLStorageTest.setup(self)
+        def setUp(self):
+            RenameTests.setUp(self)
+            storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
+            gen_dummy(storage_class)
+            self._storage_class = storage_class
+            self._dummy = dummy = Dummy(oid='dummy')
+            dummy_tool = DummyTool(self.db_name)
+            dummy_tool.setup(dummy)
+            dummy.initalizeArchetype()
+            site = self.root.testsite
+            typesTool = site.portal_types
+            typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
+                                                id='Dummy',
+                                                typeinfo_name='CMFDefault: Document')
+            dummy.__factory_meta_type__ = 'ArchExample Content'
             
+        def test_rename(self):
+            site = self.root.testsite
+            obj_id = 'demodoc'
+            new_id = 'new_demodoc'
+            site._setObject(obj_id, self._dummy)
+            doc = getattr(site, obj_id)
+            content = 'The book is on the table!'
+            doc.setAtextfield(content)
+            self.failUnless(str(doc.getAtextfield()) == content)
+            #make sure we have _p_jar
+            get_transaction().commit(1)
+            site.manage_renameObject(obj_id, new_id)
+            doc = getattr(site, new_id)
+            self.failUnless(str(doc.getAtextfield()) == content)
+
         def tearDown(self):
-            RenameTests.tearDown(self)
             SQLStorageTest.tearDown(self)
+            RenameTests.tearDown(self)
 
         db_name = db_name
 
     customclean = cleanup.get(db_name, None)
     if customclean is not None:
-        oldtearDown = StorageTestRenameSubclass.tearDown
         def tearDown(self):
-            oldtearDown(self)
             customclean(self)
+            RenameTests.tearDown(self)
         StorageTestRenameSubclass.tearDown = tearDown
         
     tests.append(StorageTestRenameSubclass)

@@ -1,3 +1,4 @@
+from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from SQLMethod import SQLMethod
 from interfaces.storage import IStorage, ISQLStorage
@@ -49,7 +50,13 @@ class BaseSQLStorage(StorageLayer):
 
     def is_initialized(self, instance):
         try:
-            return self.__class__.__name__ in instance.__initialized
+            return self.getName() in instance.__initialized
+        except AttributeError:
+            return None
+
+    def is_cleaned(self, instance):
+        try:
+            return self.getName() in instance.__cleaned
         except AttributeError:
             return None
 
@@ -89,9 +96,24 @@ class BaseSQLStorage(StorageLayer):
             # raise SQLInitException(msg)
             pass
         try:
-            instance.__initialized += (self.__class__.__name__,)
+            instance.__initialized += (self.getName(),)
         except AttributeError:
-            instance.__initialized = (self.__class__.__name__,)
+            instance.__initialized = (self.getName(),)
+
+        # now, if we find an attribute called _v_$classname_temps,
+        # it means the object was moved and we can initialize the fields
+        # with those values
+        temps_var = '_v_%s_temps' % self.getName()
+        if hasattr(aq_base(instance), temps_var):
+            temps = getattr(instance, temps_var)
+            for key, value in temps.items():
+                instance.Schema()[key].set(instance, value)
+            delattr(instance, temps_var)
+
+        try:
+            del instance.__cleaned
+        except (AttributeError, KeyError):
+            pass
 
     def get(self, name, instance, **kwargs):
         if not self.is_initialized(instance):
@@ -146,7 +168,20 @@ class BaseSQLStorage(StorageLayer):
     cleanupField = unset
     
     def cleanupInstance(self, instance):
+        if self.is_cleaned(instance) or getattr(instance, '_is_fake_instance', None):
+            # duh, we don't need to be cleaned twice
+            return
         # the object is being deleted. remove data from sql.
+        # but first, made a temporary copy of the field values
+        # in case we are being moved
+        fields = instance.Schema().fields()
+        fields = [f for f in fields if IObjectField.isImplementedBy(f) \
+                  and f.getStorage().__class__ is self.__class__]
+        temps = {}
+        for f in fields:
+            temps[f.name] = f.get(instance)
+        setattr(instance, '_v_%s_temps' % self.getName(), temps)
+        # now, remove data from sql
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
         args = {}
@@ -159,6 +194,14 @@ class BaseSQLStorage(StorageLayer):
         except:
             # dunno what could happen here
             # raise SQLCleanupException(msg)
+            pass
+        try:
+            instance.__cleaned += (self.getName(),)
+        except AttributeError:
+            instance.__cleaned = (self.getName(),)
+        try:
+            del instance.__initialized
+        except (AttributeError, KeyError):
             pass
 
     def initalizeField(self, instance, field):
