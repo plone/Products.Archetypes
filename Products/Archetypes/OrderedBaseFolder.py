@@ -1,7 +1,7 @@
 """
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 
-$Id: OrderedBaseFolder.py,v 1.1 2003/05/12 11:04:00 vladoi Exp $
+$Id: OrderedBaseFolder.py,v 1.2 2003/05/13 10:07:25 vladoi Exp $
 """
 
 from AccessControl import ClassSecurityInfo
@@ -71,14 +71,12 @@ class OrderedFolder( SkinnedFolder ):
         # Since OFS.CopySupport.CopyContainer::manage_renameObject uses
         #_setObject manually, we have to take care of the order after it is done.
         oldpos = self.get_object_position(id)
-        res = OrderedSkinnedFolder.inheritedAttribute(
-            'manage_renameObject')(self, id, new_id, REQUEST)
+        res = SkinnedFolder.manage_renameObject(self, id, new_id, REQUEST)
         self.move_object_to_position(new_id, oldpos)
         return res
 
     def _setObject(self, id, object, roles=None, user=None, set_owner=1, position=None):
-        res = OrderedSkinnedFolder.inheritedAttribute(
-            '_setObject')(self, id, object, roles, user, set_owner)
+        res = SkinnedFolder._setObject(self, id, object, roles, user, set_owner)
         if position is not None:
             self.move_object_to_position(id, position)
         # otherwise it was inserted at the end
@@ -102,7 +100,7 @@ class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMeta
     def __init__(self, oid, **kwargs):
         #call skinned first cause baseobject will set new defaults on
         #those attributes anyway
-        SkinnedFolder.__init__(self, oid, self.Title())
+        OrderedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
@@ -110,19 +108,18 @@ class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMeta
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
-        SkinnedFolder.manage_afterAdd(self, item, container)
+        OrderedFolder.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        SkinnedFolder.manage_afterClone(self, item)
+        OrderedFolder.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        SkinnedFolder.manage_beforeDelete(self, item, container)
+        OrderedFolder.manage_beforeDelete(self, item, container)
 
 InitializeClass(OrderedBaseFolder)
-
