@@ -1,6 +1,8 @@
 from Products.Archetypes.public import *
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, AccessContentsInformation
+from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
+     AccessContentsInformation, View
+from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 try:
     from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
     has_btree = 1
@@ -55,6 +57,14 @@ if has_btree:
 
         security.declareProtected(AccessContentsInformation, 'opaqueValues')
         opaqueValues = BaseFolder.opaqueValues
+
+        __call__ = SkinnedFolder.__call__
+
+        security.declareProtected(View, 'view')
+        view = SkinnedFolder.view
+
+        security.declareProtected(View, 'index_html')
+        index_html = SkinnedFolder.index_html
 
 if not has_btree:
     BaseBTreeFolder = BaseFolder
