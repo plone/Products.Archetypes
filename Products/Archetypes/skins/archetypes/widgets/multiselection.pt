@@ -53,7 +53,8 @@
 		    tal:repeat="item vocab"
 		    tal:attributes="value item;
 		    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
-		    tal:content="python: vocab.getValue(item)"/>
+		    tal:content="python: vocab.getValue(item)"
+		    i18n:translate="" />
 	  </select>
 	</metal:fill>
       </metal:use>
