@@ -1,32 +1,6 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 ##############################################################################
 #
-# ZopeTestCase
+# ZopeTestCase 
 #
 # COPY THIS FILE TO YOUR 'tests' DIRECTORY.
 #
@@ -38,14 +12,14 @@
 # instance's Products and lib/python directories respectively.
 #
 # If you explicitly set INSTANCE_HOME prior to running the tests,
-# auto-detection is disabled and the specified path will be used
+# auto-detection is disabled and the specified path will be used 
 # instead.
 #
 # If the 'tests' directory contains a custom_zodb.py file, INSTANCE_HOME
 # will be adjusted to use it.
 #
-# If you set the ZEO_INSTANCE_HOME environment variable a ZEO setup
-# is assumed, and you can attach to a running ZEO server (via the
+# If you set the ZEO_INSTANCE_HOME environment variable a ZEO setup 
+# is assumed, and you can attach to a running ZEO server (via the 
 # instance's custom_zodb.py).
 #
 ##############################################################################
@@ -127,7 +101,7 @@ if 1:   # Create a new scope
 
 # Debug
 #
-# print 'SOFTWARE_HOME: %s' % os.environ.get('SOFTWARE_HOME', 'Not set')
-# print 'INSTANCE_HOME: %s' % os.environ.get('INSTANCE_HOME', 'Not set')
+print 'SOFTWARE_HOME: %s' % os.environ.get('SOFTWARE_HOME', 'Not set')
+print 'INSTANCE_HOME: %s' % os.environ.get('INSTANCE_HOME', 'Not set')
 sys.stdout.flush()
 

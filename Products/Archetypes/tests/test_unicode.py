@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: ISO-8859-1 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
@@ -23,8 +23,6 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-
-# -*- coding: iso8859-1 -*-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
