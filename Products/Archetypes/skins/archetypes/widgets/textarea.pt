@@ -71,7 +71,12 @@
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/textarea/macros/edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<metal:fill fill-slot="widget_body" >
+	  <metal:block
+	   metal:use-macro="here/widgets/textarea/macros/area_edit"
+	   />
+	</metal:fill>
       </div>
     </div>
 

@@ -31,6 +31,7 @@ from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
 from ClassGen import generateClass, generateCtor
+from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from debug import log, log_exc
@@ -94,7 +95,6 @@ base_factory_type_information = (
                        'name': 'References',
                        'action': 'string:${object_url}/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       'visible' : 0,
                        },
                      )
       }, )
@@ -248,6 +248,7 @@ def _guessPackage(base):
             base = base[:idx]
     return base
 
+
 def registerType(klass, package=None):
     if not package: package = _guessPackage(klass.__module__)
 
@@ -271,6 +272,7 @@ def registerType(klass, package=None):
 
     for tc in _types_callback:
         tc(klass, package)
+
 
 def listTypes(package=None):
     values = _types.values()
@@ -299,8 +301,9 @@ class WidgetWrapper:
 last_load = DateTime()
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
-                    SQLStorageConfig, Folder):
+                    SQLStorageConfig, Folder, ReferenceEngine):
     """ Archetypes tool, manage aspects of Archetype instances """
+
     id        = TOOL_NAME
 
     meta_type = TOOL_NAME.title().replace('_', ' ')
@@ -355,9 +358,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'manage_catalogs')
     manage_catalogs = PageTemplateFile('manage_catalogs', _www)
 
-
-
     def __init__(self):
+        ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
@@ -560,14 +562,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # possible problem: assumes fields with same name can be
         # searched with the same widget
         widgets = {}
-        context = context is None and context or self
+        context = context is not None and context or self
         for t in self.listTypes(package, type):
             instance = t('fake')
             instance = instance.__of__(context)
             if isinstance(instance, DefaultDublinCoreImpl):
                 DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
-            schema = instance.Schema().copy()
+            schema = instance.schema = instance.Schema().copy()
             fields = [f for f in schema.fields()
                       if (not widgets.has_key(f.getName()) and f.index)]
             for field in fields:
@@ -590,6 +592,38 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         widgets = widgets.items()
         widgets.sort()
         return [widget for name, widget in widgets]
+
+    ## Reference Engine Support
+    security.declarePublic('lookupObject')
+    def lookupObject(self, uid):
+        if not uid:
+            return None
+        object = None
+        catalog = getToolByName(self, UID_CATALOG)
+        result  = catalog({'UID' : uid})
+        if result:
+            # This is an awful workaround for the UID under
+            # containment problem. NonRefs will aq there parents UID
+            # which is so awful I am having trouble putting it into
+            # words.
+            for object in result:
+                o = object.getObject()
+                if o is not None:
+                    if IReferenceable.isImplementedBy(o):
+                        return o
+        return None
+
+    security.declarePublic('getObject')
+    def getObject(self, uid):
+        return self.lookupObject(uid)
+
+
+    security.declarePublic('reference_url')
+    def reference_url(self, object):
+        """Return a link to the object by reference"""
+        uid = object.UID()
+        return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
+
 
     security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
@@ -617,6 +651,57 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log("no object for %s" % uid)
 
+    security.declarePrivate('_genId')
+    def _genId(self, object):
+        catalog = getToolByName(self, UID_CATALOG)
+        keys = catalog.uniqueValuesFor('UID')
+
+        cid = object.getId()
+        i = 0
+        counter = 0
+        postfix = ''
+        while cid in keys:
+            if counter > 0:
+                g = random.Random(time.time())
+                postfix = g.random() * 10000
+            cid = "%s-%s%s" % (object.getId(),
+                               i, postfix)
+            i = int((time.time() % 1.0) * 10000)
+            counter += 1
+
+        return cid
+
+    security.declarePrivate('registerContent')
+    def registerContent(self, object):
+        """register a content object and set its unique id"""
+        cid = self.getUidFrom(object)
+        if cid is None:
+            cid = self._genId(object)
+            self.setUidOn(object, cid)
+
+        return cid
+
+    security.declarePrivate('unregisterContent')
+    def unregisterContent(self, object):
+        """remove all refs/backrefs from an object"""
+        cid = self.getUidFrom(object)
+        self._delReferences(cid)
+        return cid
+
+    security.declarePublic('getUidFrom')
+    def getUidFrom(self, object):
+        """return the UID for an object or None"""
+        value = None
+
+        if hasattr(object, "_getUID"):
+            value = object._getUID()
+
+        return value
+
+    security.declarePrivate('setUidOn')
+    def setUidOn(self, object, cid):
+        if hasattr(object, "_setUID"):
+            object._setUID(cid)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Content')
@@ -650,6 +735,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """dump some things about an object hook in the debugger for
         now"""
         object = self.getObject(UID)
+        #if object:
+        #    import pdb;pdb.set_trace()
         log(object, object.Schema(), dir(object))
 
 
@@ -814,8 +901,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         catalogs = []
         catalog_map=getattr(self,'catalog_map',None)
         if catalog_map:
-            names = self.catalog_map.get(meta_type, ['portal_catalog',
-                                                     UID_CATALOG])
+            names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
         else:
             names = ['portal_catalog', UID_CATALOG]
         for name in names:
@@ -844,12 +930,5 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return res
 
-    def lookupObject(self,uid):
-        import warnings
-        warnings.warn('ArchetypeTool.lookupObject is dreprecated',
-                      DeprecationWarning)
-        return self.reference_catalog.lookupObject(uid)
-
-    getObject=lookupObject
 
 InitializeClass(ArchetypeTool)

@@ -17,6 +17,7 @@ class TypesWidget(macrowidget):
         'modes' : ('view', 'edit'),
         'populate' : 1,  # should this field be populated in edit and view?
         'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
+        'show_content_type' : 0,
         })
 
     def getName(self):
@@ -27,16 +28,23 @@ class TypesWidget(macrowidget):
         return className(self)
 
     def bootstrap(self, instance):
-        """Override if your widget needs data from the instance."""
-        return
+        if not self.description or not self.label:
+            field = self.findField(instance)
+            name = field.getName()
+            if not self.label:
+                self.label = capitalize(name)
+            if not self.description:
+                self.description = "Enter a value for %s" % self.label
 
-    def populateProps(self, field):
-        """This is called when the field is created."""
-        name = field.getName()
-        if not self.label:
-            self.label = capitalize(name)
-        if self.description == '':
-            self.description = 'Enter a value for %s.' % self.label
+    def findField(self, instance):
+        # This is a sad hack, I don't want widgets to have to take a
+        # reference to a field or its own name
+        for field in instance.Schema().fields():
+            if not hasattr(field, 'widget'):
+                continue
+            if field.widget is self:
+                return field
+        return None
 
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
@@ -193,6 +201,7 @@ class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/file",
+        'show_content_type' : 1,
         })
 
     def process_form(self, instance, field, form, empty_marker=None):
