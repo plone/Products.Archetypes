@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="i18nlayer">
+
+<body>
+
+<div class="box" metal:define-macro="i18nContentBox" 
+     tal:condition="python:hasattr(here, 'hasI18NContent') and here.hasI18NContent()">
+
+   <!-- The I18NContent box -->
+   <h5 i18n:translate="box_contentlanguages">Languages</h5>
+
+        <div class="body">
+
+            <div class="content odd">
+
+             <metal:block metal:define-macro="i18nContentChooser">
+              <form name="i18ncontentselector" method="POST" action="setI18NCookie" 
+                    tal:attributes="action string:${here/absolute_url}/setI18NCookie"
+                    tal:define="languages languages | here/getFilteredLanguages;
+                                current   lang | here/getLanguage;
+                                form_name string:i18ncontentselector;
+                                attr_name string:lang">
+
+                <div metal:define-macro="i18nLangSelect" class="lang_selector" align="right">
+		  <select name="lang"
+                          tal:define="form_name form_name | nothing"
+                          tal:attributes="name attr_name;
+                                          onChange python:form_name and (form_name+'.submit()');">
+		    <option value="" i18n:domain="plone" i18n:translate="label_choose_language">Choose Language</option>
+		    <tal:block tal:repeat="lang python:languages">
+		      <option value="" 
+                              tal:attributes="value python:lang[0]; 
+                                              selected python:current == lang[0]" 
+                              tal:content="python:lang[1]+' ('+lang[0]+')'" />
+		    </tal:block>
+		  </select>
+                </div>
+
+	      </form>
+             </metal:block>
+
+            </div>
+<!--
+            <div class="content even" tal:condition="python:here.portal_membership.checkPermission('Modify portal content', here.retrieveI18NContentLayerOb()) or here.portal_membership.checkPermission('Add portal content', here.retrieveI18NContentLayerOb())">
+              <a href="#" tal:attributes="href string:${here/retrieveI18NContentLayerURL}/i18nlayer_languages_form" i18n:translate="label_manage_languages">Manage languages</a>
+            </div>
+ -->
+
+        </div>
+</div>
+
+</body>
+
+</html>
+

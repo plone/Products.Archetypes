@@ -1,4 +1,21 @@
+2003-06-19  Sylvain Thénault  <syt@logilab.fr>
+	
+	* Field.py: add the I18NMixin and create I18N fields for String, 
+	  Metadata, File, Text, Lines and Image.
+
+	* interfaces/fields.py: added the hasI18NContent method
+
+	* BaseObject.py: add a few methods for I18N content:
+	hasI18NContent, getFilteredLanguages and getLanguage
+
+	* skins/archetypes/base_view.py: add a language selector if object
+	has I18N content
+
+	* skins/archetypes/base_edit.py: add a language selector if object
+	has I18N content
+	
 2003-06-18  Sylvain Thénault  <syt@logilab.fr>
+	
 	* always use mimetype (and not mime_type) as variable / argument,
 	for consistency.
 	
@@ -7,8 +24,7 @@
 	transforms'configuration.
 
 	* www/configureTransform.pt: use some simple widgets according to
-	config metadata.
-	
+	config metadata.	
 
 2003-06-10  Geoff Davis <geoff@geoffdavis.net>
 

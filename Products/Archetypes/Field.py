@@ -1,4 +1,5 @@
 from __future__ import nested_scopes
+from copy import copy
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
@@ -25,6 +26,7 @@ from Products.validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
+from ZODB.PersistentMapping import PersistentMapping
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
@@ -189,6 +191,9 @@ class Field(DefaultLayerContainer):
     def getMutator(self, instance):
         return getattr(instance, self.mutator, None)
 
+    def hasI18NContent(self):
+        """return true it the field has I18N content"""
+        return 0
 
 
 class ObjectField(Field):
@@ -240,6 +245,7 @@ class ObjectField(Field):
 
     def getStorage(self):
         return self.storage
+
 
 class StringField(ObjectField):
     """A string field"""
@@ -332,7 +338,6 @@ class FileField(StringField):
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
-
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -648,12 +653,12 @@ class ReferenceField(ObjectField):
             return value
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, str(obj.Title).strip() or \
+            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
                       str(obj.getId).strip()) \
                      for obj in catalog(Type=self.allowed_types)]
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, str(obj.Title).strip() or \
+            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
                       str(obj.getId).strip()) \
                      for obj in archetype_tool.Content()]
         if not self.required:
@@ -935,13 +940,131 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
+
+class I18NMixIn(ObjectField):
+    """ I18N MixIn to allow internationalized content
+
+    this mix in is a litle bit tricky to allow it's use with any other fields.
+    You should use it with care !
+    class inheriting from this mixin should not be subclassed.
+
+
+    XXXFIXME for i18n content fields:
+       _ Catalog indexation
+       _ vocabulary
+       _ default value
+    """
+    def __init__(self, name, **kwargs):
+        ObjectField.__init__(self, name, **kwargs)
+        assert len(self.__class__.__bases__) == 2
+        # wrapped field class
+        self._wrapped_class = self.__class__.__bases__[-1]
+        # this is to avoid the definition of the __init__ method in the
+        # subclass just to call the __init__ of the two bases classes. So we
+        # call the mixed class __init__ here
+        # I know i'm lazy ;)
+        self._wrapped_class.__init__(self, name, **kwargs)
+        # always store language mapping using the attribute storage
+        self._i18n_storage = self.storage
+        self.storage = AttributeStorage()
+        self._i18n_default = self.default or self._wrapped_class._properties['default']
+        self.default = None
+        
+    def getI18NFieldId(self, lang):
+        return '%s__%s'  % (self.__name__, lang)
+
+    def hasI18NContent(self):
+        """return true it the field has I18N content"""
+        return 1
+
+    def getDefinedLanguages(self, instance):
+        """return a list of defined language ids for the giveninstance """
+        return self._get_mapping(instance).keys()
+
+
+    def get(self, instance, lang=None, **kwargs):
+        lang = instance.getLanguage(lang)
+        mapping = self._get_mapping(instance)
+        #log('I18Nget %s with %s %s %s from %r at %s' % (self.__name__, instance,
+        #                                                lang, kwargs, mapping,
+        #                                                id(mapping)))
+        try:
+            return mapping[lang].get(instance, **kwargs)
+        except KeyError:
+            langs = mapping.keys()
+            if langs:
+                return mapping[langs[0]].get(instance, **kwargs)
+            return self._i18n_default
+        
+    def getRaw(self, instance, **kwargs):
+        return self.getAccessor(instance)(**kwargs)
+
+    def set(self, instance, value, lang=None, **kwargs):
+        value = value or self._i18n_default
+        lang = instance.getLanguage(lang)
+        #log('I18Nset %s with %s %s %s %s' % (self.__name__, instance, lang, value, kwargs))
+        mapping = self._get_mapping(instance)
+        field = self._build_lang_field(instance, lang)
+        field.set(instance, value, **kwargs)
+        mapping[lang] = field
+        self.storage.set(self.getName(), instance, mapping)
+
+    def unset(self, instance, lang=None, **kwargs):
+        mapping = self._get_mapping(instance)
+        field = mapping.get(lang, None)
+        if field:
+            field.unset(instance, **kwargs)
+        try:
+            del mapping[lang]
+        except:
+            pass
+        
+
+    def _get_mapping(self, instance):
+        try:
+            mapping = self.storage.get(self.getName(), instance)
+        except AttributeError:
+            mapping = None
+        if not mapping:
+            mapping = PersistentMapping()
+            self.storage.set(self.getName(), instance, mapping)
+        return mapping
+    
+    def _build_lang_field(self, instance, lang):
+        dict = copy(self.__dict__)
+        dict["storage"] = self._i18n_storage
+        dict["default"] = self._i18n_default
+        del dict['__name__']
+        del dict['_i18n_storage']
+        del dict['_i18n_default']
+        del dict['storage']
+        del dict['_wrapped_class']
+        del dict['accessor']
+        del dict['edit_accessor']
+        del dict['mutator']
+        return self._wrapped_class(self.getI18NFieldId(lang), **dict)
+    
+
+class I18NStringField(I18NMixIn, StringField): pass        
+class I18NMetadataField(I18NMixIn, MetadataField): pass        
+class I18NFileField(I18NMixIn, FileField): pass        
+class I18NTextField(I18NMixIn, TextField): pass        
+class I18NLinesField(I18NMixIn, LinesField): pass        
+class I18NImageField(I18NMixIn, ImageField): pass
+
+
 InitializeClass(Field)
 
-__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', \
-           'FileField', 'TextField', 'DateTimeField', 'LinesField', \
-           'IntegerField', 'FloatField', 'FixedPointField', \
-           'ReferenceField', 'ComputedField', 'BooleanField', \
-           'CMFObjectField', 'ImageField', \
+__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField', 
+           'FileField', 'TextField', 'DateTimeField', 'LinesField', 
+           'IntegerField', 'FloatField', 'FixedPointField', 
+           'ReferenceField', 'ComputedField', 'BooleanField', 
+           'CMFObjectField', 'ImageField', 
+           
+           'I18NStringField', 'I18NMetadataField', 
+           'I18NFileField', 'I18NTextField', 'I18NLinesField', 
+           'I18NImageField',
+
            'FieldList', 'MetadataFieldList', # Those two should go
                                              # away after 1.0
            )

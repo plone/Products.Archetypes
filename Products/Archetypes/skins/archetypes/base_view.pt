@@ -13,6 +13,9 @@
 
 	   <h1 tal:content="here/title_or_id" metal:use-macro="view_macros/header|default" />
 
+	   <div tal:condition="python:here.hasI18NContent()"> 
+	     <metal:block use-macro="here/i18n_slot/macros/i18nContentChooser"/>
+  	   </div>
 
 	   <div tal:condition="not:body_macro"
                 tal:repeat="field python: here.Schema().filterFields(isMetadata=0)">
