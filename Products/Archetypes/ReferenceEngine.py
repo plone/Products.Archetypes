@@ -433,7 +433,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             uuid = obj
             #and we look up the object
             uid_catalog = getToolByName(self, UID_CATALOG)
-            brains = uid_catalog(UUID=uuid)
+            brains = uid_catalog(UID=uuid)
             obj = brains[0].getObject()
 
         return uuid, obj
