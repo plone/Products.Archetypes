@@ -16,7 +16,6 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.utils import capitalize, DisplayList, \
      OrderedDict, mapply
 from Products.Archetypes.debug import log, log_exc
-from Products.generator.i18n import translate
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo

@@ -25,7 +25,7 @@ from Products.Archetypes.Storage import AttributeStorage, \
      MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
 from Products.validation import validation
-from Products.generator.i18n import translate
+import Products.generator.i18n as i18n
 from Products.PortalTransforms.interfaces import idatastream
 
 from AccessControl import ClassSecurityInfo, getSecurityManager
@@ -211,7 +211,7 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            error = translate(
+            error = i18n.translate(
                 'archetypes', 'error_required',
                 {'name': label}, instance,
                 default = "%s is required, please correct."
@@ -256,7 +256,7 @@ class Field(DefaultLayerContainer):
 
         if error == 1:
             label = self.widget.Label(instance)
-            error = translate(
+            error = i18n.translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
                 default = "Value %s is not allowed for vocabulary "
