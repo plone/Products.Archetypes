@@ -50,7 +50,7 @@ class DummyDiscussionTool:
 MULTIPLEFIELD_LIST = DisplayList(
     (
     ('1', 'Option 1 : printemps'),
-    ('2', 'Option 2 : été'),
+    ('2', 'Option 2 : Ã©tÃ©'),
     ('3', 'Option 3 : automne'),
     ('4', 'Option 3 : hiver'),
     ))
@@ -99,7 +99,7 @@ class BaseObjectTest(ArcheSiteTestCase):
         self.assertEquals(type(searchable), StringType)
 
         # Test searchable value
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : Ã©tÃ©')
 
 
 def test_suite():
