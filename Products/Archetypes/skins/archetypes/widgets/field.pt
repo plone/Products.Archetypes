@@ -50,7 +50,10 @@
 	     tal:define="error python:errors.get(fieldName);
 	                 value python:request.get(fieldName, accessor())"
 	     tal:attributes="class python:test(error, 'field error', 'field')" >
-	     <span tal:condition="error" tal:replace="error" />
+             <div tal:condition="error">
+                 <tal:block i18n:translate="" content="error">Error</tal:block>
+                 <br />
+             </div>
              <div metal:define-slot="widget_body"></div>
         </div>
     </div>
