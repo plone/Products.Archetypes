@@ -956,12 +956,8 @@ class ReferenceField(ObjectField):
         return DisplayList(value)
 
     def addableTypes(self, instance):
-        # XXX This needs to be fixed so it works with allowed_types being
-        # a list of Type Titles (which is the default way of specifying
-        # allowed_types).
-        # Currently, you need to set 'allowed_type_column' property to
-        # 'portal_type' and set 'allowed_types' accordingly to have the
-        # addable=1 feature work.
+        # addable=1 won't work if allowed_type_column is not the default
+        # 'portal_type'.
         """Returns a dictionary that maps portal_type to its human readable
         form."""
         tool = getToolByName(instance, 'portal_types')
