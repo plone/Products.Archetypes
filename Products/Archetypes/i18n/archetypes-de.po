@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Archetypes 1.3\n"
 "POT-Creation-Date: 2004-01-18 16:00 +0100\n"
-"PO-Revision-Date: 2004-01-18 16:00 +0100\n"
+"PO-Revision-Date: 2004-04-07 16:00 +0100\n"
 "Last-Translator: Daniel Nouri <daniel.nouri@con-fuse.org>\n"
 "Language-Team: Archetypes Framework <archetypes-devel@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -21,13 +21,13 @@ msgstr ""
 #. <input i18n:attributes="value" value="Add" type="submit" />
 ## 1 more: skins/archetypes/widgets/reference.pt
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 
 #: skins/archetypes/reference_edit.cpt
 #. <a href="" i18n:attributes="title" title="Delete reference">
 msgid "Delete reference"
-msgstr ""
+msgstr "Referenz löschen"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -39,7 +39,7 @@ msgstr "Referenz"
 #: skins/zmi/base_edit.pt
 #. <input i18n:attributes="value" value="Save" type="submit" />
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 
 #: Field.py
@@ -59,7 +59,7 @@ msgstr "Der Wert ${val} ist für das Vokabular von ${name} nicht erlaubt."
 #.  Select what content type you wish to create.
 #. </div>
 msgid "help_select_content_to_create"
-msgstr ""
+msgstr "Wählen Sie aus, welchen Content- Typen Sie erstellen wollen."
 
 
 #: widgets/reference.pt
@@ -67,13 +67,13 @@ msgstr ""
 #.  Select where you want to create that.
 #. </div>
 msgid "help_select_where_to_create"
-msgstr ""
+msgstr "Wählen Sie aus, wo sie das Objekt erstellen wollen."
 
 
 #: Field.py
 #. at
 msgid "label_at"
-msgstr ""
+msgstr "in"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -90,13 +90,13 @@ msgstr "Kopieren Sie Objekte und klicken Sie Referenz, um eine Referenz herzuste
 #.  hide add form
 #. </a>
 msgid "label_hide_add_form"
-msgstr ""
+msgstr "Hinzufügen- Formular ausblenden"
 
 
 #: Field.py
 #. <no reference>
 msgid "label_no_reference"
-msgstr ""
+msgstr "Keine Referenz"
 
 
 #: skins/archetypes/reference_edit.cpt
@@ -120,7 +120,7 @@ msgstr "Referenziert"
 #.  What
 #. </label>
 msgid "label_what"
-msgstr ""
+msgstr "Was"
 
 
 #: widgets/reference.pt
@@ -128,7 +128,7 @@ msgstr ""
 #.  Where
 #. </label>
 msgid "label_where"
-msgstr ""
+msgstr "Wo"
 
 
 #: widgets/reference.pt
@@ -136,25 +136,25 @@ msgstr ""
 #.  add new
 #. </legend>
 msgid "legend_add_new"
-msgstr ""
+msgstr "Hinzufügen"
 
 
 #: skins/archetypes/content_edit.cpy
 #. Add New Item operation was cancelled.
 msgid "message_add_new_item_cancelled"
-msgstr ""
+msgstr "Hinzufügen- Vorgang unterbrochen."
 
 
 #: skins/archetypes/content_edit.cpy
 #. Content changes saved.
 msgid "message_content_changes_saved"
-msgstr ""
+msgstr "Änderungen gespeichert."
 
 
 #: skins/archetypes/content_edit.cpy
 #. Reference Added.
 msgid "message_reference_added"
-msgstr ""
+msgstr "Referenz erzeugt."
 
 
 #: skins/archetypes/reference_edit.cpt
