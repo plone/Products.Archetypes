@@ -71,6 +71,9 @@ class DecimalWidget(TypesWidget):
         'macro' : "widgets/decimal",
         'size' : '5',
         'maxlength' : '255',
+        'dollars_and_cents' : 0,
+        'whole_dollars' : 0,
+        'thousands_commas' : 0,
         })
 
 class IntegerWidget(TypesWidget):
@@ -140,6 +143,7 @@ class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/calendar",
+        'format' : '', # time.strftime string
         })
 
 class SelectionWidget(TypesWidget):

@@ -1,81 +1,85 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xml:lang="en-US"
       lang="en-US"
       metal:use-macro="here/main_template/macros/master"
-      i18n:domain="cmftypes">
-<body>
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="archetypes">
+  <head><title></title></head>
+  <body>
 
-   <div metal:fill-slot="main"
-        tal:define="rejection here/rejectAnonymous;
-                    errors options/state/getErrors|nothing;
-                    Iterator python:modules['Products.Archetypes'].IndexIterator;
-                    ct here/archetype_tool;
-                    tabindex python:Iterator();">
+    <div metal:fill-slot="main"
+	 tal:define="rejection here/rejectAnonymous;
+	 errors options/state/getErrors|nothing;
+	 Iterator python:modules['Products.Archetypes'].IndexIterator;
+	 ct here/archetype_tool;
+	 tabindex python:Iterator();">
 
-    <form class="group"
-          name="edit_form"
-          action="content_edit"
-          method="post"
-          enctype="multipart/form-data"
-          tal:attributes="action python:here.absolute_url()+'/'+template.id">
+      <form class="group"
+	    name="edit_form"
+	    action="content_edit"
+	    method="post"
+	    enctype="multipart/form-data"
+	    tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
-        <table i18n:attributes="summary"
-               class="listing"
-               summary="table_summary"
-               cellpadding="0" cellspacing="0" width="100%">
+	<table i18n:attributes="summary"
+	       class="listing"
+	       summary="table_summary"
+	       cellpadding="0" cellspacing="0" width="100%">
 
-          <thead>
-            <tr>
-              <th>
-                <span class="header" i18n:translate="label_referencing">Referencing</span>
-              </th>
-              <th>
-                <span class="header" i18n:translate="label_referenced">Referenced By</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody tal:define="refs python: ct.getRefs(here);
-	    brefs python: ct.getBRefs(here);"
-	    >
-            <tr tal:condition="python: refs or brefs">
-              <td width="65%">
-                <table border="0" width="100%">
-                  <tbody>
-                <tr tal:repeat="ref refs">
-                    <td><a href="#" tal:attributes="href python:ct.getObject(ref).absolute_url() + '/reference_edit';"
-                    tal:content="python: ct.getObject(ref).Title()"/>
-                    </td>
-                    <td>
-                        <a href="#" title="Delete reference" i18n:attributes="title" tal:attributes="href string:${here/absolute_url}/deleteRef?oid=${here/UID}&tid=${ref};">X</a>
-                    </td>
-                  </tr>
-                    </tbody>
-                </table>
-              </td>
-              <td>
-                <span tal:repeat="ref brefs">
-                  <a href="#" tal:attributes="href python:ct.getObject(ref).absolute_url() + '/reference_edit';"
-                    tal:content="python: ct.getObject(ref).Title()"/><br/>
-                </span>
-              </td>
-            </tr>
-          </tbody>
+	  <thead>
+	    <tr>
+	      <th>
+		<span class="header" i18n:translate="label_referencing">Referencing</span>
+	      </th>
+	      <th>
+		<span class="header" i18n:translate="label_referenced">Referenced By</span>
+	      </th>
+	    </tr>
+	  </thead>
+	  <tbody tal:define="refs python: ct.getRefs(here);
+		 brefs python: ct.getBRefs(here);"
+		 >
+	    <tr tal:condition="python: refs or brefs">
+	      <td width="65%">
+		<table border="0" width="100%">
+		  <tbody>
+		    <tr tal:repeat="ref refs">
+		      <td><a href="#" tal:attributes="href python:ct.getObject(ref).absolute_url() + '/reference_edit';"
+		      tal:content="python: ct.getObject(ref).Title()"/>
+		      </td>
+		      <td>
+			<a href="#" title="Delete reference" i18n:attributes="title" tal:attributes="href string:${here/absolute_url}/deleteRef?oid=${here/UID}&tid=${ref};">X</a>
+		      </td>
+		    </tr>
+		  </tbody>
+		</table>
+	      </td>
+	      <td>
+		<span tal:repeat="ref brefs">
+		  <a href="#" tal:attributes="href python:ct.getObject(ref).absolute_url() + '/reference_edit';"
+		     tal:content="python: ct.getObject(ref).Title()"/><br/>
+		</span>
+	      </td>
+	    </tr>
+	  </tbody>
 
-        </table>
+	</table>
 
-        <div class="row" tal:condition="here/cb_dataValid">
-            <input class="context"
-                   type="submit"
-                   name="pasteReference"
-                   value="reference"
-                   tabindex=""
-                   i18n:attributes="value"
-            tal:attributes="tabindex tabindex/next;" />
-          </div>
+	<div class="row" tal:condition="here/cb_dataValid">
+	  <input class="context"
+		 type="submit"
+		 name="pasteReference"
+		 value="reference"
+		 tabindex=""
+		 i18n:attributes="value"
+		 tal:attributes="tabindex tabindex/next;" />
+	</div>
 
-        <p i18n:translate="label_copy">Copy objects from folders and then click the reference button. This will create references.</p>
+	<p i18n:translate="label_copy">Copy objects from folders and then click the reference button. This will create references.</p>
 
-        <input type="hidden" name="form.submitted" value="1" />
+	<input type="hidden" name="form.submitted" value="1" />
 
       </form>
 
