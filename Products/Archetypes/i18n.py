@@ -1,5 +1,14 @@
-from Products.PageTemplates.GlobalTranslationService import getGlobalTranslationService, \
-                                                            DummyTranslationService
+try:
+    # XXX Depends on 2.6
+    from Products.PageTemplates.GlobalTranslationService import getGlobalTranslationService, \
+         DummyTranslationService
+except ImportError:
+    class DummyTranslationService:
+        """ A very very dummy translation service """
+        pass
+
+    def getGlobalTranslationService():
+        return DummyTranslationService
 
 service = None
 translate = None
