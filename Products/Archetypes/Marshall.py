@@ -1,5 +1,6 @@
 from interfaces.marshall import IMarshall
 from interfaces.layer import ILayer
+from interfaces.base import IBaseUnit
 from StringIO import StringIO
 from types import StringType, ListType, TupleType
 
@@ -11,9 +12,18 @@ class Marshaller:
         self.marshall_hook = marshall_hook
 
     def initializeInstance(self, instance, item=None, container=None):
-        self.instance.demarshall_hook = getattr(instance, self.demarshall_hook)
-        self.instance.marshall_hook = getattr(instance, self.marshall_hook)
+        dm_hook = None
+        m_hook = None
+        if self.demarshall_hook is not None:
+            dm_hook = getattr(instance, self.demarshall_hook, None)
+        if self.marshall_hook is not None:
+            m_hook = getattr(instance, self.marshall_hook, None)
+        instance.demarshall_hook = dm_hook
+        instance.marshall_hook = m_hook
 
+    def cleanupInstance(self, instance, item=None, container=None):
+        delattr(instance, 'demarshall_hook')
+        delattr(instance, 'marshall_hook')
 
 class DublinCoreMarshaller(Marshaller):
     ## XXX TODO -- based on CMFCore.Document
@@ -35,7 +45,7 @@ class PrimaryFieldMarshaller(Marshaller):
         data = p.get(instance)
         content_type = length = None
         # Gather/Guess content type
-        if hasattr(data, 'isUnit'):
+        if IBaseUnit.isImplementedBy(data):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
@@ -73,8 +83,8 @@ class RFC822Marshaller(Marshaller):
         body = p.get(instance)
         content_type = length = None
         # Gather/Guess content type
-        if hasattr(body, 'isUnit'):
-            content_type = body.getContentType()
+        if IBaseUnit.isImplementedBy(body):
+            content_type = str(body.getContentType())
             body   = body.getRaw()
 
         headers = {}
@@ -88,7 +98,7 @@ class RFC822Marshaller(Marshaller):
         headers['Content-Type'] = content_type or 'text/plain'
 
         header = formatRFC822Headers(headers.items())
-        data = '%s\r\n\r\n%s' % (header, body)
+        data = '%s\n%s' % (header, body)
         length = len(data)
 
         return (content_type, length, data)

@@ -25,7 +25,7 @@ from config import *
 
 
 class newBaseUnit(File):
-    __implements__ = (WriteLockInterface,)
+    __implements__ = (WriteLockInterface, IBaseUnit)
 
     security = ClassSecurityInfo()
 

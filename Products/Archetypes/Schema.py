@@ -412,7 +412,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             for layer, object in self.registeredLayers():
                 if not queued((layer, object)) and ILayer.isImplementedBy(object):
                     object.cleanupInstance(instance, item, container)
-                    cleanedLayers.append((layer, object))
+                    queuedLayers.append((layer, object))
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

@@ -2,6 +2,8 @@
 
 	* Marshall.py (Marshaller.initializeInstance): Method was not
 	matching the interface.
+	(RFC822Marshaller.marshall): Check by interface, instead of attribute.
+	(Marshaller.initializeInstance): Better initialization/cleanup.
 
 	* interfaces/layer.py (ILayerRuntime.initializeLayers): Update
 	interfaces to match the real implementation.
