@@ -145,9 +145,9 @@ def fixActionsForType(portal_type, typesTool):
                     #Custom views might need to reguess the aliases
 		    if hasattr(typeInfo,'_guessMethodAliases'):
                        typeInfo._guessMethodAliases()
-                    
-                    
-            
+
+
+
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = 1
 
@@ -233,6 +233,7 @@ def process_types(types, pkg_name):
 
 _types = {}
 _types_callback = []
+
 def _guessPackage(base):
     if base.startswith('Products'):
         base = base[9:]
@@ -260,7 +261,9 @@ def registerType(klass, package=None):
         'type' : klass.schema,
         }
 
-    _types[klass.meta_type] = data
+    key = "%s.%s" % (package, klass.meta_type)
+    _types[key] = data
+
     for tc in _types_callback:
         tc(klass, package)
 
@@ -272,8 +275,9 @@ def listTypes(package=None):
 
     return values
 
-def getType(name):
-    return _types[name]
+def getType(name, package):
+    key = "%s.%s" % (package, name)
+    return _types[key]
 
 class WidgetWrapper:
     """ Wrapper used for drawing widgets without an instance (for ex.,
@@ -311,7 +315,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         {  'label'  : 'Catalogs',
            'action' : 'manage_catalogs',
            },
-        
+
         { 'label'  : 'Templates',
           'action' : 'manage_templateForm',
           },
@@ -327,11 +331,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         )  + SQLStorageConfig.manage_options
         )
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_uids')
     manage_uids = PageTemplateFile('viewContents', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_templateForm')
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_debugForm')
     manage_debugForm = PageTemplateFile('generateDebug', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_updateSchemaForm')
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_dumpSchemaForm')
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_catalogs')
     manage_catalogs = PageTemplateFile('manage_catalogs', _www)
 
 
@@ -345,13 +361,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         self._types = {}
 
-        for t in _types.values():
-            self._types[t['klass'].meta_type] = \
-                {'signature':t['signature'], 'update':1}
-        _types_callback.append(lambda klass, package:self.registerType(klass, package))
+        for k, t in _types.items():
+            self._types[k] = {'signature':t['signature'], 'update':1}
+        cb = lambda klass, package:self.registerType(klass, package)
+        _types_callback.append(cb)
         self.last_types_update = DateTime()
 
-
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_dumpSchema')
     def manage_dumpSchema(self, REQUEST=None):
         """XML Dump Schema of passed in class"""
         from Products.Archetypes.Schema import getSchemata
@@ -372,7 +389,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     ##
     ## we keep two lists, all register templates and their names/titles
     ## and the mapping of type to template bindings
-    ## both are persistent 
+    ## both are persistent
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'registerTemplate')
     def registerTemplate(self, template, name=None):
         #lookup the template by name
         obj = self.unrestrictedTraverse(template, None)
@@ -381,10 +400,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 name = obj.title_or_id()
         else:
             name = template
-            
-        self._registeredTemplates[template] = name
-    
 
+        self._registeredTemplates[template] = name
+
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'lookupTemplates')
     def lookupTemplates(self, instance=None):
         results = []
         if type(instance) is not StringType:
@@ -396,20 +417,26 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             #XXX look this up in the types tool later
             #self._templates[instance] = ['base_view',]
             #templates = self._templates[instance]
-            
+
         for t in templates:
             results.append((t, self._registeredTemplates[t]))
-        
+
         return DisplayList(results).sortedByValue()
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'listTemplates')
     def listTemplates(self):
         """list all the templates"""
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'bindTemplate')
     def bindTemplate(self, meta_type, templateList):
         """create binding between a type and its associated views"""
         self._templates[meta_type] = templateList
-        
+
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_templates')
     def manage_templates(self, REQUEST=None):
         """set all the template/type mappings"""
         prefix = 'template_names_'
@@ -423,13 +450,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         name = REQUEST.get('newTemplate')
         if add and name:
             self.registerTemplate(name)
-            
+
         return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_templateForm")
 
 
 
 
     ## Type/Schema Management
+    security.declareProtected(CMFCorePermissions.View,
+                              'listRegisteredTypes')
     def listRegisteredTypes(self, inProject=None):
         """Return the list of sorted types"""
         tt = getToolByName(self, "portal_types")
@@ -454,17 +483,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return values
 
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'getTypeSpec')
     def getTypeSpec(self, package, type):
         t = self.lookupType(package, type)
         module = t['klass'].__module__
         klass = t['name']
         return '%s.%s' % (module, klass)
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'listTypes')
     def listTypes(self, package=None):
         """just the class"""
         return [t['klass'] for t in listTypes(package)]
 
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'lookupType')
     def lookupType(self, package, type):
         types = self.listRegisteredTypes()
         for t in types:
@@ -473,11 +508,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 return t
         return None
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'getSchema')
     def getSchema(self, sid):
         return self._schemas[sid]
-    
-    security.declareProtected('manage_installType', CMFCorePermissions.ManagePortal)
-    def manage_installType(self, typeName, package=None, uninstall=None, REQUEST=None):
+
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_installType')
+    def manage_installType(self, typeName, package=None,
+                           uninstall=None, REQUEST=None):
         """un/install a type ttw"""
         typesTool = getToolByName(self, 'portal_types')
         try:
@@ -488,13 +527,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if REQUEST:
                 return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_debugForm")
             return
-        
+
         typeinfo_name="%s: %s" % (package, typeName)
 
         #We want to run the process/modify_fti code which might not have been called
         typeDesc = getType(typeName)
         process_types([typeDesc], package)
-        
+
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                             id=typeName,
                                             typeinfo_name=typeinfo_name)
@@ -505,12 +544,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         #and update the actions as needed
         fixActionsForType(typeDesc['klass'], typesTool)
-        
+
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_debugForm")
 
 
 
+    security.declarePublic('getSearchWidgets')
     def getSearchWidgets(self, package=None):
         """empty widgets for searching"""
 
@@ -545,6 +585,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return [widget for name, widget in widgets]
 
     ## Reference Engine Support
+    security.declarePublic('lookupObject')
     def lookupObject(self, uid):
         if not uid:
             return None
@@ -562,16 +603,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                         return o
         return None
 
+    security.declarePublic('getObject')
     def getObject(self, uid):
         return self.lookupObject(uid)
 
 
+    security.declarePublic('reference_url')
     def reference_url(self, object):
         """Return a link to the object by reference"""
         uid = object.UID()
         return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
 
 
+    security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'"""
         catalog = getToolByName(self, 'portal_catalog')
@@ -585,6 +629,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log("no object for brain: %s:%s" % (b,b.getURL()))
 
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'enum')
     def enum(self, callback, *args, **kwargs):
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
@@ -595,6 +641,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log("no object for %s" % uid)
 
+    security.declarePrivate('_genId')
     def _genId(self, object):
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
@@ -614,6 +661,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return cid
 
+    security.declarePrivate('registerContent')
     def registerContent(self, object):
         """register a content object and set its unique id"""
         cid = self.getUidFrom(object)
@@ -623,13 +671,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return cid
 
+    security.declarePrivate('unregisterContent')
     def unregisterContent(self, object):
         """remove all refs/backrefs from an object"""
         cid = self.getUidFrom(object)
         self._delReferences(cid)
         return cid
 
-
+    security.declarePublic('getUidFrom')
     def getUidFrom(self, object):
         """return the UID for an object or None"""
         value = None
@@ -639,11 +688,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return value
 
+    security.declarePrivate('setUidOn')
     def setUidOn(self, object, cid):
         if hasattr(object, "_setUID"):
             object._setUID(cid)
 
-
+    security.declareProtected(CMFCorePermissions.View,
+                              'Content')
     def Content(self):
         """Return a list of all the content ids"""
         catalog = getToolByName(self, UID_CATALOG)
@@ -653,6 +704,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     ## Management Forms
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_doGenerate')
     def manage_doGenerate(self, sids=(), REQUEST=None):
         """(Re)generate types """
         schemas = []
@@ -666,6 +719,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return REQUEST.RESPONSE.redirect(self.absolute_url() + \
                                              "/manage_workspace")
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_inspect')
     def manage_inspect(self, UID, REQUEST=None):
         """dump some things about an object hook in the debugger for
         now"""
@@ -679,6 +734,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                                          "/manage_uids"
                                          )
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_reindex')
     def manage_reindex(self, REQUEST=None):
         """assign UIDs to all basecontent objects"""
 
@@ -692,9 +749,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                                          )
 
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'index')
     index = manage_reindex
 
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'getChangedSchema')
     def getChangedSchema(self):
         """Get a list of schema that have changed"""
         list = []
@@ -704,7 +765,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return list
 
 
-    security.declareProtected('Manage portal', 'manage_updateSchema')
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_updateSchema')
     def manage_updateSchema(self):
         """Make sure all objects' schema are up to date"""
         from StringIO import StringIO
@@ -738,41 +800,51 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         global _types_callback
         import sys
         if hasattr(self, '_types'):
-            if not hasattr(self, 'last_types_update') or self.last_types_update.lessThan(last_load):
-                for t in _types.values():
-                    meta_type = t['klass'].meta_type
-                    if self._types.has_key(meta_type):
-                        update = (t['signature'] != self._types[meta_type]['signature'])
+            if not hasattr(self, 'last_types_update') or \
+                   self.last_types_update.lessThan(last_load):
+                for k, t in _types.items():
+                    if self._types.has_key(k):
+                        update = (t['signature'] !=
+                                  self._types[k]['signature'])
                     else:
                         update = 1
-                    self._types[meta_type] = {'signature':t['signature'], 'update':update}
-                _types_callback.append(lambda klass, package:self.registerType(klass, package))
+                    self._types[k] = {'signature':t['signature'],
+                                      'update':update}
+                cb = lambda klass, package:self.registerType(klass, package)
+                _types_callback.append(cb)
                 self.last_types_update = DateTime()
 
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'registerType')
     def registerType(self, klass, package):
         """This gets called every time registerType is called as soon as the
         hook is installed by setstate"""
         # See if the schema has changed.  If it has, flag it
         update = 0
         sig = klass.schema.signature()
-        old_data = self._types.get(klass.meta_type, None)
+        key = "%s.%s" % (package, klass.meta_type)
+        old_data = self._types.get(key, None)
         if old_data:
             update = old_data.get('update', 0)
             old_sig = old_data.get('signature', None)
             if sig != old_sig:
                 update = 1
-        self._types[klass.meta_type] = {'signature':sig, 'update':update}
+        self._types[key] = {'signature':sig, 'update':update}
         self._p_changed = 1
 
 
 
     #Catalog management
+    security.declareProtected(CMFCorePermissions.View,
+                              'listCatalogs')
     def listCatalogs(self):
         """show the catalog mapping"""
         return self.catalog_map
 
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_updateCatalogs')
     def manage_updateCatalogs(self, REQUEST=None):
         """set the catalog map for meta_type to include the list catalog_names"""
         prefix = 'catalog_names_'
@@ -784,10 +856,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_catalogs")
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'setCatalogsByType')
     def setCatalogsByType(self, meta_type, catalogList):
         self.catalog_map[meta_type] = catalogList
-        
-    
+
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'getCatalogsByType')
     def getCatalogsByType(self, meta_type):
         """Return the catalog objects assoicated with a given type"""
         catalogs = []
@@ -795,7 +871,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if catalog_map:
             names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
         else:
-            names = ['portal_catalog', UID_CATALOG]            
+            names = ['portal_catalog', UID_CATALOG]
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
@@ -804,6 +880,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 pass
         return catalogs
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'getCatalogsInSite')
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog"""
         root_objects = self.portal_url.getPortalObject().objectValues()
@@ -817,8 +895,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 continue
 
         res.sort()
-        
+
         return res
-        
+
 
 InitializeClass(ArchetypeTool)

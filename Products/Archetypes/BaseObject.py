@@ -51,10 +51,12 @@ content_type = Schema((
                       )
 
 class BaseObject(Implicit):
+
     security = ClassSecurityInfo()
 
     schema = type = content_type
     _signature = None
+
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
 
     __implements__ = IBaseObject
@@ -62,6 +64,8 @@ class BaseObject(Implicit):
     def __init__(self, oid, **kwargs):
         self.id = oid
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'initializeArchetype')
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -75,22 +79,29 @@ class BaseObject(Implicit):
             import sys
             sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
 
+
+    security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
 
+    security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         pass
 
+    security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.cleanupLayers(item, container)
 
+    security.declarePrivate('initializeLayers')
     def initializeLayers(self, item=None, container=None):
         self.Schema().initializeLayers(self, item, container)
 
+    security.declarePrivate('cleanupLayers')
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)
 
-    security.declarePublic("title_or_id")
+    security.declareProtected(CMFCorePermissions.View,
+                              'title_or_id')
     def title_or_id(self):
         """
         Utility that returns the title if it is not blank and the id
@@ -102,12 +113,14 @@ class BaseObject(Implicit):
 
         return self.getId()
 
-    security.declarePublic("getId")
+    security.declareProtected(CMFCorePermissions.View,
+                              'getId')
     def getId(self):
         """get the objects id"""
         return self.id
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setId')
     def setId(self, value):
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
@@ -230,17 +243,24 @@ class BaseObject(Implicit):
 ##         mutator = getattr(self, self.Schema()[key].mutator)
 ##         mutator(value, **kw)
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'edit')
     def edit(self, **kwargs):
         self.update(**kwargs)
 
+    security.declarePrivate('setDefaults')
     def setDefaults(self):
         self.Schema().setDefaults(self)
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'update')
     def update(self, **kwargs):
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'validate_field')
     def validate_field(self, name, value, errors):
 
         """
@@ -334,8 +354,7 @@ class BaseObject(Implicit):
 
         return size
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              '_processForm')
+    security.declarePrivate('_processForm')
     def _processForm(self, data=1, metadata=None, REQUEST=None):
         request = REQUEST or self.REQUEST
         form = request.form
@@ -380,13 +399,16 @@ class BaseObject(Implicit):
         """Process the schema looking for data in the form"""
         self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'Schemata')
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
     # I18N content management #################################################
 
-    security.declarePublic("hasI18NContent")
+    security.declareProtected(CMFCorePermissions.View,
+                              'hasI18NContent')
     def hasI18NContent(self):
         """return true it the schema contains at least one I18N field"""
         return self.Schema().hasI18NContent()
@@ -408,12 +430,14 @@ class BaseObject(Implicit):
 #        for k in keys:
 #            sys.stdout.write('%s: %s, %s\n' % (k, str(values[k][0]), str(values[k][1])))
 
+    security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determine whether the current object's schema is up to date."""
         from Products.Archetypes.ArchetypeTool import getType
         return getType(self.meta_type)['signature'] == self._signature
 
 
+    security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
         For each field we use the existing accessor to get its value, then we
@@ -474,6 +498,7 @@ class BaseObject(Implicit):
             return out
 
 
+    security.declarePrivate('_migrateGetValue')
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
@@ -504,6 +529,7 @@ class BaseObject(Implicit):
         raise ValueError, 'name = %s' % (name)
 
 
+    security.declarePrivate('_migrateSetValue')
     def _migrateSetValue(self, name, value, old_schema=None):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
@@ -528,6 +554,8 @@ class BaseObject(Implicit):
     #
     # those objects are specific to a session
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
@@ -540,6 +568,8 @@ class BaseObject(Implicit):
             defined.update(objects)
             session[key] = defined
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """add a dictionnary of objects to session variable
         """
@@ -567,7 +597,7 @@ class BaseObject(Implicit):
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
-        
+
 class Wrapper:
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1

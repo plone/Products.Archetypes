@@ -66,7 +66,7 @@ class BaseContent(BaseObject,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        
+
         file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)

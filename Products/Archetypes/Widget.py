@@ -112,7 +112,7 @@ class TextAreaWidget(TypesWidget):
         value = form.get(field.getName())
         if not value:
             return None
-        
+
         if hasattr(field, 'allowable_content_types') and \
                field.allowable_content_types:
             text_format = form.get("%s_text_format" % field.getName())
@@ -122,7 +122,7 @@ class TextAreaWidget(TypesWidget):
             kwargs['mimetype'] = text_format
 
         return value, kwargs
-        
+
 class LinesWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -195,9 +195,9 @@ class FileWidget(TypesWidget):
 
         if not value: return None
         return value, {}
-                
-        
-        
+
+
+
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -240,7 +240,7 @@ class RichWidget(TypesWidget):
             return None
 
         return value, kwargs
-    
+
 
 class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -270,7 +270,7 @@ class ImageWidget(FileWidget):
         ## check to see if the delete hidden was selected
         delete = form.get('%s_delete' % field.getName())
         if delete is not None: return "DELETE_IMAGE", {}
-        
+
         fileobj = form.get('%s_file' % field.getName())
         if fileobj:
             filename = getattr(fileobj, 'filename', '')

@@ -66,7 +66,7 @@ class I18NBaseFolder(I18NMixin, BaseFolder):
     """ override BaseFolder to have I18N title and description,
     plus I18N related actions
     """
-    
+
     schema = BaseFolder.schema + I18NMixin.schema
 
     def __init__(self, *args, **kwargs):

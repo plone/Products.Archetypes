@@ -20,35 +20,47 @@ from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
 
-# Used in fields() method
-def index_sort(a, b): return  a._index - b._index
+
+__docformat__ = 'reStructuredText'
+
 
 def getNames(schema):
+    """Returns a list of all fieldnames in the given schema."""
+
     return [f.getName() for f in schema.fields()]
 
+
 def getSchemata(klass):
+    """Returns an ordered dictionary, which maps all Schemata names to fields
+    that belong to the Schemata."""
+
     schema = klass.schema
     schemata = OrderedDict()
     for f in schema.fields():
         sub = schemata.get(f.schemata, Schemata(name=f.schemata))
         sub.addField(f)
         schemata[f.schemata] = sub
+
     return schemata
 
+
 class Schemata(UserDict):
-    """Manage a list of fields by grouping them together"""
+    """Manage a list of fields by grouping them together.
+
+    Schematas are identified by their names.
+    """
 
     security = ClassSecurityInfo()
-    security.declareObjectPublic()
-    security.setDefaultAccess("allow")
-    __allow_access_to_unprotected_subobjects__ = 1
-
-    order_fields = None
-    index = 0
+    security.setDefaultAccess('allow')
 
     def __init__(self, name='default', fields=None):
+        """Initialize Schemata and add optional fields."""
+
         self.__name__ = name
         UserDict.__init__(self)
+
+        self._order_fields = None
+        self._index = 0
 
         if fields is not None:
             if type(fields) not in [ListType, TupleType]:
@@ -57,11 +69,20 @@ class Schemata(UserDict):
             for field in fields:
                 self.addField(field)
 
-    security.declarePublic('getName')
+    security.declareProtected(CMFCorePermissions.View,
+                              'getName')
     def getName(self):
+        """Returns the Schemata's name."""
         return self.__name__
 
+
     def __add__(self, other):
+        """Returns a new Schemata object that contains all fields and layers
+        from ``self`` and ``other``.
+
+        *FIXME*: Why do we add layers when we're not even inheriting from
+        DefaultLayerContainer?"""
+
         c = Schemata()
         #We can't use update and keep the order so we do it manually
         for field in self.fields():
@@ -75,91 +96,129 @@ class Schemata(UserDict):
         return c
 
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'copy')
     def copy(self):
+        """Returns a deep copy of this Schemata.
+
+        *FIXME*: Why does this return a Schema and not a Schemata object?"""
+
         c = Schema()
         for field in self.fields():
             c.addField(field.copy())
         return c
 
 
-    security.declarePublic('fields')
+    security.declareProtected(CMFCorePermissions.View,
+                              'fields')
     def fields(self):
-        """list all the fields in order"""
-        if self.order_fields is None:
+        """Returns a list of my fields in order of their indices."""
+
+        if self._order_fields is None:
             f = self.values()
-            f.sort(index_sort)
-            self.order_fields = f
+            f.sort(lambda a, b: a._index - b._index)
+            self._order_fields = f
 
-        return self.order_fields
+        return self._order_fields
 
-    security.declarePublic('widgets')
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'widgets')
     def widgets(self):
-        """list all the widgets in order, keyed by field name"""
+        """Returns a dictionary that contains a widget for each field, keyed
+        by field name."""
+
         widgets = {}
         for f in self.fields():
             widgets[f.getName()] = f.widget
         return widgets
 
-    def filterFields(self, *args, **kwargs):
-        """Args is a list of callable conditions
-        arg(field) -> 0, omit field, 1 keep field
-        kwargs is a list of attribute -> valid value mappings
-        if the field doesn't match the rhs then its ommited
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'filterFields')
+    def filterFields(self, *predicates, **values):
+        """Returns a subset of self.fields(), containing only fields that
+        satisfy the given conditions.
+
+        You can either specify predicates or values or both. If you provide
+        both, all conditions must be satisfied.
+
+        For each ``predicate`` (positional argument), ``predicate(field)`` must
+        return 1 for a Field ``field`` to be returned as part of the result.
+
+        Each ``attr=val`` function argument defines an additional predicate:
+        A field must have the attribute ``attr`` and field.attr must be equal
+        to value ``val`` for it to be in the returned list.
         """
+
         results = []
-        fields = self.fields()
 
-        for field in fields:
-            skip = 0
-            for arg in args:
-                if arg(field) == 0:
-                    skip = 1
-                    break
+        for field in self.fields(): # step through each of my fields
 
-            for k, v in kwargs.items():
-                if not hasattr(field, k):
-                    skip = 1
-                    break
-                else:
-                    fv = getattr(field, k)
-                    if fv != v:
-                        skip = 1
-                        break
+            # predicate failed:
+            failed = [pred for pred in predicates if not pred(field)]
+            if failed: continue
 
-            if not skip:
-                results.append(field)
+            # attribute missing:
+            missing_attrs = [attr for attr in values.keys() \
+                             if not hasattr(field, attr)]
+            if missing_attrs: continue
+
+            # attribute value unequal:
+            diff_values = [attr for attr in values.keys() \
+                           if getattr(field, attr) != values[attr]]
+            if diff_values: continue
+
+            results.append(field)
 
         return results
 
-    security.declarePrivate('addField')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addField')
     def addField(self, field):
+        """Adds a given field to my dictionary of fields."""
+
         if IField.isImplementedBy(field):
             self[field.getName()] = field
-            field._index = self.index
-            self.index +=1
+            field._index = self._index
+            self._index +=1
         else:
-            log_exc('Object doesnt implements IField: %s' % field)
+            log_exc('Object doesnt implement IField: %s' % field)
 
-    security.declarePublic('searchable')
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'searchable')
     def searchable(self):
-        """return the names of all the searchable fields"""
+        """Returns a list containing names of all searchable fields."""
+
         return [f.getName() for f in self.values() if f.searchable]
 
-class Schema(Schemata, UserDict, DefaultLayerContainer):
-    """Manage a list of fields and run methods over them"""
+
+
+class Schema(Schemata, DefaultLayerContainer):
+    """Manage a list of fields and run methods over them."""
 
     __implements__ = (ILayerRuntime, ILayerContainer)
 
     security = ClassSecurityInfo()
-    security.declareObjectPublic()
-    security.setDefaultAccess("allow")
+    security.setDefaultAccess('allow')
 
     _properties = {
         'marshall' : None
         }
 
+
     def __init__(self, *args, **kwargs):
-        UserDict.__init__(self)
+        """
+        Initialize a Schema.
+
+        The first positional argument may be a sequence of Fields which will be
+        stored inside my UserDict dict. (All further positional arguments are
+        ignored.)
+
+        Keyword arguments are added to my properties.
+        """
+        Schemata.__init__(self)
         DefaultLayerContainer.__init__(self)
 
         self._props = self._properties.copy()
@@ -200,6 +259,8 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         if self.allow(name):
             instance[name] = value
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setDefaults')
     def setDefaults(self, instance):
         """Only call during object initialization. Sets fields to
         schema defaults
@@ -220,8 +281,19 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         default = method()
                 mutator(default)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'updateAll')
     def updateAll(self, instance, **kwargs):
+        """This method mutates fields in the given instance.
+
+        For each keyword argument k, the key indicates the name of the
+        field to mutate while the value is used to call the mutator.
+
+        E.g. updateAll(instance, id='123', amount=500) will, depending on the
+        actual mutators set, result in two calls: ``instance.setId(123)`` and
+        ``instance.setAmount(500)``.
+        """
+
         keys = kwargs.keys()
 
         for field in self.values():
@@ -240,14 +312,29 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
             method(kwargs[field.getName()])
 
-    security.declarePublic("allow")
+    security.declareProtected(CMFCorePermissions.View,
+                              'allow')
     def allow(self, key):
-        """Allow update to keys of this name (must be a valid field)"""
+        """This returns 1 for any field that I contain, where key is the
+        field's name."""
+
         return self.get(key) != None
 
-    security.declarePublic('validate')
-    def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
-        """Validate the state of the entire object"""
+    security.declareProtected(CMFCorePermissions.View,
+                              'validate')
+    def validate(self, instance,
+                 REQUEST=None, errors=None, data=None, metadata=None):
+        """Validate the state of the entire object.
+
+        The passed dictionary ``errors`` will be filled with human readable
+        error messages as values and the corresponding fields' names as
+        keys.
+
+        *FIXME*: What's data and metadata arguments?
+        """
+        # *TODO*: This method is approx. 130 lines long and has up to 7 nesting
+        #         levels!
+
         if REQUEST:
             fieldset = REQUEST.form.get('fieldset', None)
         else:
@@ -256,12 +343,15 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
         if fieldset is not None:
             schemata = instance.Schemata()
-            fields = [(field.getName(), field) for field in schemata[fieldset].fields()]
+            fields = [(field.getName(), field)
+                      for field in schemata[fieldset].fields()]
         else:
             if data:
-                fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=0)])
+                fields.extend([(field.getName(), field)
+                               for field in self.filterFields(isMetadata=0)])
             if metadata:
-                fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=1)])
+                fields.extend([(field.getName(), field)
+                               for field in self.filterFields(isMetadata=1)])
 
         for name, field in fields:
             if name == 'id':
@@ -269,7 +359,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 if not member.getProperty('visible_ids', None) and \
                    not (REQUEST and REQUEST.form.get('id', None)):
                     continue
-            if errors and errors.has_key(name): 
+            if errors and errors.has_key(name):
                 continue
             error = 0
             value = None
@@ -279,15 +369,15 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     value = form.get("%s%s" % (name, postfix), None)
                     if type(value) != type(''):
                         if isinstance(value, FileUpload):
-                            if value.filename == '': 
+                            if value.filename == '':
                                 continue
-                            else: 
+                            else:
                                 break
                         else:
                             #Do other types need special handling here
                             pass
 
-                    if value is not None and value != '': 
+                    if value is not None and value != '':
                         break
 
             # if no REQUEST, validate existing value
@@ -305,18 +395,16 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     ## The only time a field would not be resubmitted with the form is if
                     ## was a file object from a previous edit. That will not come back.
                     ## We have to check to see that the field is populated in that case
-                    try:
-                        accessor = getattr(instance, field.accessor)
+                    accessor = field.getAccessor(instance)
+                    if accessor is not None:
                         unit = accessor()
                         if IBaseUnit.isImplementedBy(unit):
-                            if unit.filename != '' or unit.get_size():
-                                value = 1 #value doesn't matter
+                            if hasattr(aq_base(unit), 'get_size'):
+                                if unit.filename != '' or unit.get_size():
+                                    value = 1 #value doesn't matter
+                                elif unit.get_size():
+                                    value = unit
 
-                        elif hasattr(aq_base(unit), 'get_size') and \
-                                 unit.get_size():
-                            value = unit
-                    except:
-                        pass
                 if ((isinstance(value, FileUpload) and value.filename != '') or
                     (isinstance(value, FileType) and value.name != '')):
                     #OK, its a file, is it empty?
@@ -361,8 +449,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                                 break
 
                     if error == 1:
-                        errors[name] = "Value %s is not allowed for vocabulary " \
-                                       "of element: %s" %(val, capitalize(name))
+                        errors[name] = ("Value %s is not allowed for vocabulary"
+                                        " of element: %s") % (val,
+                                                              capitalize(name))
 
             #Call any field level validation
             if error == 0 and value:
@@ -384,7 +473,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     log_exc()
                     errors[name] = E
 
+
     #ILayerRuntime
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'initializeLayers')
     def initializeLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
         # optionally call its initializeInstance method and
@@ -412,6 +504,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     object.initializeInstance(instance, item, container)
                     initializedLayers.append((layer, object))
 
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'cleanupLayers')
     def cleanupLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
         # optionally call its cleanupInstance method and
@@ -444,19 +539,25 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     # comparing schema.  This comparison is used for determining whether a
     # schema has changed in the auto update function.  Right now it's pretty
     # crude.  XXX fixme
+    security.declareProtected(CMFCorePermissions.View,
+                              'toString')
     def toString(self):
         s = '%s: {' % self.__class__.__name__
         for f in self.fields():
             s = s + '%s,' % (f.toString())
         s = s + '}'
         return s
-    
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'signature')
     def signature(self):
         from md5 import md5
         return md5(self.toString()).digest()
-    
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'hasI18NContent')
     def hasI18NContent(self):
-        """return true it the schema contains at least one I18N field"""
+        """Return true it the schema contains at least one I18N field."""
         for field in self.values():
             if field.hasI18NContent():
                 return 1
@@ -467,8 +568,12 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 MDS = MetadataStorage()
 
 class MetadataSchema(Schema):
-    """ Schema that enforces MetadataStorage """
+    """Schema that enforces MetadataStorage."""
 
+    security = ClassSecurityInfo()
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addField')
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
         markup and make sure each field is marked as such for
@@ -484,7 +589,10 @@ class MetadataSchema(Schema):
 
         Schema.addField(self, field)
 
+
 InitializeClass(Schema)
+InitializeClass(Schemata)
+InitializeClass(MetadataSchema)
 
 FieldList = Schema
 MetadataFieldList = MetadataSchema
