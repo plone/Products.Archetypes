@@ -611,10 +611,10 @@ class Wrapper:
         if RESPONSE is not None:
             mt = self._mimetype
             name =self._filename
-            print 'SET HEADERS !!', mt,name
             RESPONSE.setHeader('Content-type', str(mt))
             RESPONSE.setHeader('Content-Disposition',
                                'inline;filename=%s' % name)
+            RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
 InitializeClass(BaseObject)
