@@ -5,7 +5,7 @@ AggregatedStorage for Archetypes
 
 Released as open-source under the current Archetypes license
 
-$Id: AggregatedStorage.py,v 1.1.2.3 2004/02/23 18:59:13 ajung Exp $
+$Id: AggregatedStorage.py,v 1.1.2.4 2004/02/25 14:24:35 ajung Exp $
 """
 
 from time import time
@@ -85,6 +85,9 @@ class AggregatedStorage(Storage):
         if self._caching:
             self._cache_remove(instance.getId(), methodname)
         method(name, instance, value, **kwargs)
+
+    def unset(self, name, instance, **kwargs):
+        pass
 
     ######################################################################
     # A very basic cache implementation to cache the result dictionaries
