@@ -7,20 +7,20 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import StringWidget, LinesWidget, DecimalWidget, \
-     BooleanWidget, CalendarWidget, ImageWidget, ReferenceWidget
+     BooleanWidget, CalendarWidget, ImageWidget, ReferenceWidget, FileWidget
 from utils import capitalize, DisplayList
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
 from types import StringType
-from Storage import AttributeStorage, MetadataStorage
+from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
 from interfaces.field import IField, IObjectField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException
+from exceptions import ObjectFieldException, TextFieldException
 from Products.validation import validation
 from config import TOOL_NAME
 
@@ -207,38 +207,44 @@ class TextField(ObjectField):
     def defaultView(self):
         return self.default_output_type
     
-    def set(self, instance, value, **kwargs):
+    def _process_input(self, value, default=None, mime_type='text/plain', **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
-        if not IBaseUnit.isImplementedBy(value):
-            if value == '' or type(value) != StringType:
-                unit = None
-                try:
-                    unit = ObjectField.get(self, instance)
-                except AttributeError:
-                    pass
-                if unit and hasattr(aq_base(unit), 'filename') \
-                   and getattr(unit, 'filename') != '':
-                    if ((isinstance(value, FileUpload) and value.filename != '') or
-                        (isinstance(value, FileType) and value.name != '')):
-                        #OK, its a file, is it empty?
-                        value.seek(-1, 2)
-                        size = value.tell()
-                        value.seek(0)
-                        if size == 0:
-                            # This new file has no length, so we keep
-                            # the orig
-                            return
-                    elif value == '':
-                        return #Empty strings don't overwrite either
+        if type(value) != StringType:
+            if ((isinstance(value, FileUpload) and value.filename != '') or
+                (isinstance(value, FileType) and value.name != '')):
+                #OK, its a file, is it empty?
+                value.seek(-1, 2)
+                size = value.tell()
+                value.seek(0)
+                if size == 0:
+                    # This new file has no length, so we keep
+                    # the orig
+                    return default
+                mime_type = kwargs.get('mime_type', mime_type)
+                return value, mime_type
 
-            mime_type = kwargs.get('mime_type', 'text/plain')
-            bu = BaseUnit(self.name, value, mime_type)
-            #XXX bu = BaseUnit(self.name, instance, value, mime_type)
+            elif IBaseUnit.isImplementedBy(value):
+                return value, getattr(aq_base(value), 'mimetype', mime_type)
         else:
+            if value == '':
+                return default, mime_type
+            return value, mime_type
+        raise TextFieldException('Value is not File, String or BaseUnit')
+
+    def set(self, instance, value, **kwargs):
+        value, mime_type = self._process_input(value, default=self.default, \
+                                               mime_type=self.default_content_type, \
+                                               **kwargs)
+        if value == self.default:
+            # do nothing
+            return
+        if IBaseUnit.isImplementedBy(value):
             bu = value
+        else:
+            bu = BaseUnit(self.name, value, mime_type)
         ObjectField.set(self, instance, bu, **kwargs)
 
         #Invoke the default Transforms, hey, its policy
@@ -372,6 +378,69 @@ class BooleanField(ObjectField):
         
         ObjectField.set(self, instance, value, **kwargs)
             
+class CMFObjectField(ObjectField):
+    __implements__ = ObjectField.__implements__
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'object',
+        'portal_type': 'File',
+        'default': None,
+        'default_mime_type': 'application/octet-stream',
+        'widget' : FileWidget(),
+        'storage': ObjectManagedStorage(),
+        'workflowable': 1,
+        })
+
+    def _process_input(self, value, default=None, **kwargs):
+        __traceback_info__ = (value, type(value))
+        if type(value) != StringType:
+            if ((isinstance(value, FileUpload) and value.filename != '') or
+                (isinstance(value, FileType) and value.name != '')):
+                #OK, its a file, is it empty?
+                value.seek(-1, 2)
+                size = value.tell()
+                value.seek(0)
+                if size == 0:
+                    # This new file has no length, so we keep
+                    # the orig
+                    return default
+                return value
+        else:
+            if value == '':
+                return default
+            return value
+        
+        raise ObjectFieldException('Value is not File or String')
+
+    def get(self, instance, **kwargs):
+        try:
+            return self.storage.get(self.name, instance, **kwargs)
+        except AttributeError:
+            # object doesnt exists
+            tt = getToolByName(instance, 'portal_types', None)
+            if tt is None:
+                msg = "Coudln't get portal_types tool from this context"
+                raise AttributeError(msg)
+            type_name = self.portal_type
+            info = tt.getTypeInfo(type_name)
+            if info is None:
+                raise ValueError('No such content type: %s' % type_name)
+            if not hasattr(aq_base(info), 'constructInstance'):
+                raise ValueError('Cannot construct content type: %s' % type_name)
+            return info.constructInstance(instance, self.name, **kwargs)
+
+    def set(self, instance, value, **kwargs):
+        obj = self.get(instance, **kwargs)
+        value = self._process_input(value, default=self.default, \
+                                    **kwargs)
+        if value is None or value == '':
+            # do nothing
+            return
+
+        obj.edit(file=value)
+        # The object should be already stored, so we dont 'set' it,
+        # but just change instead.
+        # ObjectField.set(self, instance, obj, **kwargs)
 
 
 # ImageField.py 

@@ -88,10 +88,10 @@ class BaseSchemaTest( unittest.TestCase ):
 
     def test_allowdiscussion(self):
         dummy = self._dummy
-        field = dummy.getField('allowDiscussion')
+        field = dummy.getField('allow_discussion')
 
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == 0)
+        self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
         self.failUnless(field.vocabulary == DisplayList(((0, 'off'), (1, 'on'),
                                               (None, 'default'))))
@@ -108,7 +108,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.type == 'object')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.validators == ())
-        self.failUnless(isinstance(field.widget, BooleanWidget))
+        self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(vocab == DisplayList(((0, 'off'), (1, 'on'),

@@ -22,14 +22,11 @@ from interfaces.base import IBaseUnit
 
 class BaseUnit(File):
     security = ClassSecurityInfo()
-    
+
     def __init__(self, name, parent, data='', mime_type=None):
         self.id = name
         self.parent = parent
-
-        
         self._transforms = {}
-
         self.update(data, mime_type)
 
     def update(self, data, mimetype=None):
@@ -53,7 +50,6 @@ class BaseUnit(File):
         mt = mt.replace('/', '_')
         mt = mt.replace('+', '_')
         return mt.replace('-', '_')
-
     
     def __getitem__(self, key):
         return self.transform(key)
