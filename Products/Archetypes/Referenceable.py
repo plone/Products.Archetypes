@@ -219,11 +219,6 @@ class Referenceable(Base):
         if not shasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
             #if the object has no UID or the UID already exists, get a new one
             setattr(self, config.UUID_ATTR, None)
-        
-        # remove annotations from current object
-        # It's required because we want to loose all references on a copy/clone
-        # operation but an annotation object would resurrect the references.
-        self._delReferenceAnnotations()
 
         self._register()
         self._updateCatalog(self)

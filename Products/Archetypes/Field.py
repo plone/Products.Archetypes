@@ -1288,6 +1288,7 @@ class ReferenceField(ObjectField):
 
     security  = ClassSecurityInfo()
 
+
     security.declarePrivate('get')
     def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
