@@ -570,6 +570,9 @@ class BasicSchema(Schemata):
             raise ValueError, "Object doesn't implement IField: %r" % field
 
 class Schema(BasicSchema, SchemaLayerContainer):
+    """
+    Schema
+    """
 
     __implements__ = (ILayerRuntime, ILayerContainer, ISchema)
 
@@ -615,6 +618,9 @@ class Schema(BasicSchema, SchemaLayerContainer):
         return c
 
 class ManagedSchema(Schema):
+    """
+    Managed Schema
+    """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
