@@ -794,7 +794,7 @@ class BaseObject(Referenceable):
                 # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
                 # to check whether this is a browser request
                 method == 'GET'
-                or method == 'POST' and not isinstance(response, xmlrpc.Response)
+                or method == 'POST' and not isinstance(RESPONSE, xmlrpc.Response)
                 )
             ):
             if shasattr(self, name):
