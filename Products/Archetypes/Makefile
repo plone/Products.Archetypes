@@ -1,6 +1,6 @@
 NAME=archetypes
-MAJOR_VERSION=1.3
-MINOR_VERSION=2
+MAJOR_VERSION=1.4
+MINOR_VERSION=0
 RELEASE_TAG=_dev_
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
 #CVSTAG=release-1_4_0-a1
@@ -8,11 +8,10 @@ PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
 PYTHON=/usr/local/bin/python2.3
 TMPDIR=/tmp
 
-CURDIR=~/dev/zope2/archetypes/Archetypes/branches/release-1_3-branch
+CURDIR=~/dev/zope2/archetypes/Archetypes/branches/release-1_4-branch
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=/opt/zope/releases/Zope-2_7-branch/lib/python
-INSTANCE_HOME=/opt/zope/instances/plone21
-
+INSTANCE_HOME=/opt/zope/instances/at14
 #ZOPE_CONFIG=~/src/instance/shellex/etc/zope.conf.test
 PACKAGES=Archetype
 

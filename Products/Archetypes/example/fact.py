@@ -23,33 +23,41 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
 
-__author__ = 'Christian Heimes'
-__docformat__ = 'restructuredtext'
+from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+from DateTime import DateTime
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+schema = BaseSchema + Schema((
+    TextField('quote',
+              searchable=1,
+              required=1,
+              ),
 
-from Testing import ZopeTestCase
+    LinesField('sources',
+               widget=LinesWidget,
+               ),
 
-# a list of dotted paths to modules which contains doc tests
-PORTALDOCTEST_MODULES = (
-    'Products.Archetypes.lib.utils',
-    )
+    TextField('footnote',
+              required=1,
+              widget=TextAreaWidget,
+              ),
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
-from Products.CMFCore.utils import getToolByName
+    DateTimeField('fact_date',
+                  default=DateTime(),
+                  widget=CalendarWidget(label="Date"),
+                  ),
 
-def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
-                             extraglobs={'getToolByName' : getToolByName},
-                             *PORTALDOCTEST_MODULES
-                             )
-    return suite
+    StringField('url',
+                widget=StringWidget(description="A URL citing the fact",
+                                  label="URL"),
+                validators=('isURL',),
+                ),
+    ))
 
-if __name__ == '__main__':
-    framework()
+class Fact(BaseContent):
+    """A quoteable fact or tidbit"""
+    schema = schema
+
+
+registerType(Fact, PKG_NAME)

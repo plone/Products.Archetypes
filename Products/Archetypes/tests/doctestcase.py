@@ -23,22 +23,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""Doc test suite for doc tests inside Zope 2 or Portal
-
-Example:
-DOCTESTS = (
-    'dotted.path.to.a.module.as.string',
-    'another.module.path',
-    )
-
-def test_suite():
-    suite = ZopeDocTestSuite(test_class=TestClass,
-                             extraglobs={},
-                             *DOCTESTS
-                             )
-    return suite
-
-
+"""
 """
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
@@ -56,8 +41,8 @@ from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
-ExtensionClass.Base.__module__ = ExtensionClass
-ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+ExtensionClass.Base.__module__ = ExtensionClass.__name__
+ExtensionClass.ExtensionClass.__module__ = ExtensionClass.__name__
 
 def ZopeDocTestSuite(*modules, **kw):
     """Based on Sid's FunctionalDocFileSuite
