@@ -325,7 +325,7 @@ class KeywordWidget(TypesWidget):
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
 
-        if not value: return empty_marker
+        if not value and emptyReturnsMarker: return empty_marker
 
         return value, {}
 
