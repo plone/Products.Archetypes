@@ -1,6 +1,5 @@
 <tal:block define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
-                   
                    schematas here/Schemata;
                    fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
