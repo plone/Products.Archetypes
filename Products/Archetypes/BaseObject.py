@@ -286,6 +286,8 @@ class BaseObject(Implicit):
                 except:
                     datum =  ''
             if datum:
+                if type(datum) is type([]) or type(datum) is type(()):
+                    datum = ' '.join(datum) 
                 data.append(datum)
 
         data = [str(d) for d in data if d is not None]
@@ -536,7 +538,7 @@ class BaseObject(Implicit):
     def _datify( self, attrib ):
         """FIXME: overriden from DublinCore to deal with blank value..."""
         if attrib == 'None' or not attrib:
-            attrib = ''
+            attrib = None
         elif not isinstance( attrib, DateTime ):
             attrib = DateTime( attrib )
         return attrib
