@@ -612,8 +612,8 @@ class EpozWidget(TextAreaWidget):
 
     security = ClassSecurityInfo()
 
-class InAndOutWidget(TypesWidget):
-    _properties = TypesWidget._properties.copy()
+class InAndOutWidget(ReferenceWidget):
+    _properties = ReferenceWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/inandout",
         'size' : '6',
@@ -638,8 +638,8 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           'InAndOutWidget', 'PicklistWidget',
-           'RequiredIdWidget',)
+           'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           )
 
 registerWidget(StringWidget,
                title='String',
@@ -666,7 +666,7 @@ registerWidget(ReferenceWidget,
                title='Reference',
                description=('Renders a HTML text input box which '
                             'accepts a reference value'),
-               used_for=('Products.Archetypes.Field.IntegerField',)
+               used_for=('Products.Archetypes.Field.ReferenceField',)
                )
 
 registerWidget(ComputedWidget,
@@ -788,7 +788,8 @@ registerWidget(InAndOutWidget,
                description=('Renders a widget for moving items '
                             'from one list to another. Items are '
                             'removed from the first list.'),
-               used_for=('Products.Archetypes.Field.LinesField',)
+               used_for=('Products.Archetypes.Field.LinesField',
+                         'Products.Archetypes.Field.ReferenceField',)
                )
 
 registerWidget(PicklistWidget,
