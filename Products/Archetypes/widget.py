@@ -79,9 +79,9 @@ class widget:
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated"""
-        value = self.label
-        method = value and getattr(instance.aq_inner, value, None)
-        if method and callable(method):
+        methodName = getattr(instance.aq_base, 'label_method', None)
+        if methodName:
+            method = value and getattr(instance.aq_inner, methodName)
             ## Label methods can be called with kwargs and should
             ## return the i18n version of the description
             value = method(**kwargs)
