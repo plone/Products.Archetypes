@@ -203,6 +203,7 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
+                       i18n:attributes="value"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
