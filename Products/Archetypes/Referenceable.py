@@ -4,7 +4,7 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 
 
-from Acquisition import aq_base, aq_chain
+from Acquisition import aq_base, aq_chain, aq_parent
 from AccessControl import getSecurityManager,Unauthorized
 from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
@@ -123,6 +123,27 @@ class Referenceable(Base):
     def UID(self):
         return getattr(self, config.UUID_ATTR, None)
 
+    def _updateCatalog(self, container):
+        """Update catalog after copy, rename ...
+        """
+        # the UID index needs to be updated for any annotations we
+        # carry
+        
+        try:
+            uc = getToolByName(container, config.UID_CATALOG)
+        except AttributeError:
+            # XXX when trying to rename or copy a whole site than container is
+            # the object "under" the portal so we can NEVER ever find the catalog
+            # which is bad ...
+            container = aq_parent(self)
+            uc = getToolByName(container, config.UID_CATALOG)
+
+        rc = getToolByName(container, config.REFERENCE_CATALOG)
+        
+        self._catalogUID(container, uc=uc)
+        self._catalogRefs(container, uc=uc, rc=rc)
+            
+
     ## Hooks
     def manage_afterAdd(self, item, container):
         """
@@ -131,11 +152,7 @@ class Referenceable(Base):
         """
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
-
-        # the UID index needs to be updated for any annotations we
-        # carry
-        self._catalogUID(container)
-        self._catalogRefs(container)
+        self._updateCatalog(container)
 
     def manage_afterClone(self, item):
         """
@@ -149,10 +166,7 @@ class Referenceable(Base):
             setattr(self, config.UUID_ATTR, None)
 
         self._register()
-        # the UID index needs to be updated for any annotations we
-        # carry
-        self._catalogUID(self)
-        self._catalogRefs(self)
+        self._updateCatalog(container)
 
     def manage_beforeDelete(self, item, container):
         """
@@ -187,31 +201,37 @@ class Referenceable(Base):
         self._v_cp_refs = None
 
     ## Catalog Helper methods
-    def _catalogUID(self, aq):
-        uc = getToolByName(aq, config.UID_CATALOG)
+    def _catalogUID(self, aq, uc=None):
+        if not uc:
+            uc = getToolByName(aq, config.UID_CATALOG)
         url = getRelURL(aq, self.getPhysicalPath())
         uc.catalog_object(self, url)
 
-    def _uncatalogUID(self, aq):
-        uc = getToolByName(aq, config.UID_CATALOG)
+    def _uncatalogUID(self, aq, uc=None):
+        if not uc:
+            uc = getToolByName(aq, config.UID_CATALOG)
         url = getRelURL(aq, self.getPhysicalPath())
         uc.uncatalog_object(url)
 
-    def _catalogRefs(self, aq):
+    def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            uc = getToolByName(aq, config.UID_CATALOG)
-            rc = getToolByName(aq, config.REFERENCE_CATALOG)
+            if not uc:
+                uc = getToolByName(aq, config.UID_CATALOG)
+            if not rc:
+                rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
                 url = '/'.join(ref.getPhysicalPath())
                 uc.catalog_object(ref, url)
                 rc.catalog_object(ref, url)
 
-    def _uncatalogRefs(self, aq):
+    def _uncatalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            uc = getToolByName(aq, config.UID_CATALOG)
-            rc = getToolByName(aq, config.REFERENCE_CATALOG)
+            if not uc:
+                uc = getToolByName(aq, config.UID_CATALOG)
+            if not rc:
+                rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
                 url = ref.getURL()
                 uc.uncatalog_object(url)
