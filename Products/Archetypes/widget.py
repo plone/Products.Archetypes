@@ -64,6 +64,8 @@ class widget:
 
     def _translate_attribute(self, instance, name):
         value = getattr(self, name)
+        if not value:
+            return ''
         domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
         if domain is None:
             return value
