@@ -109,7 +109,7 @@ class ReferenceWidget(TypesWidget):
     def getDestination(self, instance):
         purl = getToolByName(instance, 'portal_url')
         if not self.destination:
-            return purl.getRelativeUrl(aq_parent(instance))
+            return '.'
         else:
             value = getattr(aq_base(instance), self.destination,
                             self.destination)
