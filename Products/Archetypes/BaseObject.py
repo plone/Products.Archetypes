@@ -60,8 +60,6 @@ class BaseObject(Implicit):
 
     def __init__(self, oid, **kwargs):
         self.id = oid
-        self._master_language = None
-        self._translations_states = PersistentMapping()
 
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
