@@ -19,7 +19,7 @@ from Products.CMFDefault.utils import _dtmldir
 _marker=[]
 
 
-FLOOR_DATE = DateTime( 1000, 0 ) # alwasy effective
+FLOOR_DATE = DateTime( 1000, 0 ) # always effective
 CEILING_DATE = DateTime( 9999, 0 ) # never expires
 
 ## MIXIN
@@ -230,7 +230,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             Dublin Core element - date resource becomes effective,
               returned as DateTime.
         """
-        return self.EffectiveDate()
+        return self.EffectiveDate() or FLOOR_DATE
 
     security.declarePublic( 'expires' )
     def expires( self ):
@@ -238,7 +238,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             Dublin Core element - date resource expires,
               returned as DateTime.
         """
-        return self.ExpirationDate()
+        return self.ExpirationDate() or CEILING_DATE
 
 
     ## code below come from CMFDefault.DublinCore.DefaultDublinCoreImpl #######
