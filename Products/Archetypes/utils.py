@@ -305,6 +305,9 @@ class DisplayList:
 
     >>> idl.items()
     ((1, 'number one'), (2, 'just the second'))
+
+    >>> idl.getMsgId(1)
+    'number one'
     
     Remove warning hook
     >>> w.uninstall(); del w
@@ -406,8 +409,11 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) not in (StringType, UnicodeType):
-            raise TypeError('DisplayList msgids must be strings, got %s' %
+        if type(key) is IntType:
+            warnings.warn('Using ints as DisplayList keys is deprecated',
+                          DeprecationWarning, stacklevel=2)
+        if type(key) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
@@ -530,6 +536,8 @@ class IntDisplayList(DisplayList):
     'number one'
     >>> idl.getValue(u"1")
     'number one'
+    >>> idl.getMsgId(1)
+    'number one'
     """
 
     security = ClassSecurityInfo()
@@ -568,6 +576,19 @@ class IntDisplayList(DisplayList):
             if repr(key) == repr(k):
                 return v[1]
         return default
+
+    def getMsgId(self, key):
+        "get i18n msgid"
+        if type(key) in (StringType, UnicodeType):
+            key = int(key)
+        elif type(key) is IntType:
+            pass
+        else:
+            raise TypeError("Key must be string or int")
+        if self._i18n_msgids.has_key(key):
+            return self._i18n_msgids[key]
+        else:
+            return self._keys[key][1]
 
 class Vocabulary(DisplayList):
     """
