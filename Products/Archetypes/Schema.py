@@ -199,13 +199,13 @@ class Schema(UserDict, DefaultLayerContainer):
                     ## was a file object from a previous edit. That will not come back. 
                     ## We have to check to see that the field is populated in that case
                     try:
-                        accessor = getattr(instance, self.accessor)
+                        accessor = getattr(instance, field.accessor)
                         unit = accessor()
                         if IBaseUnit.isImplementedBy(unit):
                             if unit.filename != '':
                                 value = unit.filename #doesn't matter what it is
-                        elif hasattr(aq_base(unit), 'isBinary') and \
-                             unit.isBinary():
+                        elif hasattr(aq_base(unit), 'getSize') and \
+                             unit.getSize():
                             value = unit
                     except:
                         pass
