@@ -166,7 +166,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(CMFCorePermissions.View,
                               'isDiscussable')
     def isDiscussable(self, encoding=None):
-         return getattr(self, 'allow_discussion', None)
+        dtool = getToolByName(self, 'portal_discussion')
+        return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'allowDiscussion')
