@@ -28,6 +28,7 @@ class BaseFolderMixin(BaseObject,
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
+    use_folder_tabs = 1
 
     security = ClassSecurityInfo()
 

@@ -162,6 +162,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
+    folderish = []
     for type in types:
         try:
             typesTool._delObject(type.portal_type)
@@ -173,10 +174,32 @@ def install_types(self, out, types, package_name):
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
-        # set the human readable title explicitly
+        # Set the human readable title explicitly
         t = getattr(typesTool, type.portal_type, None)
         if t:
             t.title = type.archetype_name
+
+        # If the class appears folderish and the 'use_folder_tabs' is
+        # not set to a false value, then we add the portal_type to
+        # Plone's 'use_folder_tabs' property
+        use_folder_tabs = type.isPrincipiaFolderish and getattr(type, 'use_folder_tabs', 1)
+        if use_folder_tabs:
+            folderish.append(type.portal_type)
+    if folderish:
+        pt = getToolByName(self, 'portal_properties', None)
+        if pt is None:
+            return
+        sp = getattr(pt, 'site_properties', None)
+        if sp is None:
+            return
+        folders = sp.getProperty('use_folder_tabs', None)
+        if folders is None:
+            return
+        folders = list(folders)
+        folders.extend(folderish)
+        folders = tuple(dict(zip(folders, folders)).keys())
+        sp._updateProperty('use_folder_tabs', folders)
+
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
@@ -184,7 +207,7 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    
+
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
@@ -192,18 +215,18 @@ def install_indexes(self, out, types):
         for field in cls.schema.fields():
             if field.index:
                 portal_catalog = catalog = getToolByName(self, 'portal_catalog')
-                
+
                 if type(field.index) is StringType:
                     index = (field.index,)
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
                 else:
                     raise SyntaxError("Invalid Index Specification %r"%field.index)
-                
+
                 for alternative in index:
                     installed = None
                     index_spec = alternative.split(':', 1)
-                    use_column  = 0 
+                    use_column  = 0
                     if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
                         use_column = 1
                     index_spec = index_spec[0]
@@ -218,7 +241,7 @@ def install_indexes(self, out, types):
                         catalog_name = parts[0][:str_idx]
                         parts[0] = parts[0][str_idx+1:]
                         catalog = getToolByName(self, catalog_name)
-                    
+
                     if use_column:
                         try:
                             if field.accessor not in catalog.schema():
@@ -230,7 +253,7 @@ def install_indexes(self, out, types):
                     # if you want to add a schema field without an index
                     #if not parts[0]:
                     #    continue
-                        
+
                     for itype in parts:
                         extras = itype.split(',')
                         if len(extras) > 1:
