@@ -1124,10 +1124,15 @@ class ImageField(ObjectField):
         #make sure we have valid int's
         keys = {'height':int(h), 'width':int(w)}
 
+        pilfilter = 0 # NEAREST
+        #check for the pil version and enable antialias if > 1.1.3
+        if PIL.Image.VERSION >= "1.1.3":
+            pilfilter = 1 # ANTIALIAS
+
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
         image = image.convert('RGB')
-        image.thumbnail((keys['width'],keys['height']), 1)
+        image.thumbnail((keys['width'],keys['height']), pilfilter)
         thumbnail_file = StringIO()
         image.save(thumbnail_file, "JPEG", quality=88)
         thumbnail_file.seek(0)
