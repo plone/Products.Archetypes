@@ -43,6 +43,11 @@
    method a little bit more efficient.
    [tiran]
 
+ * Added a test for unqualified references to Schema to prevent user errors. A
+   relationship must be a non empty string. Also moved all field tests in Schema
+   to a new method _validateOnAdd().
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
