@@ -1454,7 +1454,8 @@ class ReferenceField(ObjectField):
 
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
-        elif len(brains) > self.vocabulary_display_path_bound:
+        #elif len(brains) > self.vocabulary_display_path_bound:
+        elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
             label = lambda b:'%s %s %s' % (b.Title or b.id, at,
