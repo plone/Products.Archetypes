@@ -25,7 +25,7 @@
     <div metal:define-macro="edit">
       <div metal:use-macro="here/widgets/field/macros/edit">
 	<div metal:fill-slot="widget_body"
-	     tal:define="vocab python:field.Vocabulary(here);
+	     tal:define="vocab python:field.Vocabulary(here).sortedByValue();
 	     fieldName python:test(field.multiValued,fieldName+':list',fieldName);
 	     vlen python: len(vocab);">
 	  <input type="hidden"
