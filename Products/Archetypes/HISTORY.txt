@@ -69,6 +69,11 @@
    initializeArchetype() on the wrapped dummy instance.
    [tiran]
 
+ * Update catalog on reference catalog has raised a KeyError when trying to
+   access an object that was already removed. Now ReferenceResolver is fetching
+   the KeyError in resolve_url() and returns None instead.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

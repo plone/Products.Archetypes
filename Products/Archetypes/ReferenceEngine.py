@@ -332,7 +332,11 @@ class ReferenceResolver(Base):
 
         portal_object = self.portal_url.getPortalObject()
 
-        return portal_object.unrestrictedTraverse(path)
+        try:
+            return portal_object.unrestrictedTraverse(path)
+        except KeyError:
+            # ObjectManager may raise a KeyError when the object isn't there
+            return None
 
     def catalog_object(self, obj, uid=None, **kwargs):
         """Use the relative path from the portal root as uid
