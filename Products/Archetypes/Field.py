@@ -143,7 +143,7 @@ class Field(DefaultLayerContainer):
         """
         Return a string representation consisting of name, type and permissions.
         """
-        return "<Field %s(%s:%s)>" %(self.getName(), self.type, self.mode)
+        return "<Field %s(%s:%s)>" % (self.getName(), self.type, self.mode)
 
     def _widgetLayer(self):
         """
@@ -722,6 +722,7 @@ class FixedPointField(ObjectField):
         if not value:
             value = self.default # Does this sounds right?
         value = value.split('.')
+        __traceback_info__ = (self, value)
         if len(value) < 2:
             value = (int(value[0]), 0)
         else:

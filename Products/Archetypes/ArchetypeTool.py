@@ -19,7 +19,8 @@ from Products.CMFCore.ActionProviderBase import ActionProviderBase
 
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
-from Products.CMFCore.interfaces.portal_catalog import portal_catalog as ICatalogTool
+from Products.CMFCore.interfaces.portal_catalog \
+     import portal_catalog as ICatalogTool
 from Products.ZCatalog.IZCatalog import IZCatalog
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -563,13 +564,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         widgets = {}
         for t in self.listTypes(package):
             instance = t('fake')
+            instance = instance.__of__(self)
             from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 	    if isinstance(instance, DefaultDublinCoreImpl):
 		DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
-            instance.schema = instance.schema.copy()
+            instance.schema = instance.Schema().copy()
             instance = instance.__of__(self)
-            for field in instance.schema.fields():
+            for field in instance.Schema().fields():
                 if field.index and not widgets.has_key(field.getName()):
                     field.required = 0
                     field.addable = 0 # for ReferenceField
@@ -578,13 +580,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if '' not in field.vocabulary.keys():
                         field.vocabulary = DisplayList([('', '<any>')]) + \
                                            field.vocabulary
-                        field.default = ''
-                    widgets[field.getName()] = WidgetWrapper(field_name=field.getName(),
-                                                        mode='search',
-                                                        widget=field.widget,
-                                                        instance=instance,
-                                                        field=field,
-                                                        accessor=field.getDefault)
+                    widget = field.widget
+                    widget.populate = 0
+                    widgets[field.getName()] = WidgetWrapper(
+                        field_name=field.getName(),
+                        mode='search',
+                        widget=field.widget,
+                        instance=instance,
+                        field=field,
+                        accessor=field.getDefault)
         widgets = widgets.items()
         widgets.sort()
         return [widget for name, widget in widgets]
