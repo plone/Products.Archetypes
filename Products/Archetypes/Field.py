@@ -276,7 +276,9 @@ class DateTimeField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
-        if not isinstance(value, DateTime):
+        if not value:
+            value = None
+        elif not isinstance(value, DateTime):
             try:
                 value = DateTime(value)
             except:
