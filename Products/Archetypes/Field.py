@@ -551,11 +551,14 @@ class Field(DefaultLayerContainer):
         determining whether a schema has changed in the auto update
         function.  Right now it's pretty crude."""
         # XXX fixme
-        s = '%s: {' % self.__class__.__name__
+        s = '%s(%s): {' % ( self.__class__.__name__, self.__name__ )
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
         for k in sorted_keys:
-            s = s + '%s:%s,' % (k, self._properties[k])
+            value = getattr( self, k, self._properties[k] )
+            if k == 'widget':
+                value = value.__class__.__name__
+            s = s + '%s:%s,' % (k, value )
         s = s + '}'
         return s
 
@@ -1181,7 +1184,7 @@ class IntegerField(ObjectField):
         })
 
     security  = ClassSecurityInfo()
-    
+
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
         try:
@@ -1189,7 +1192,7 @@ class IntegerField(ObjectField):
         except (ValueError, TypeError):
             result = False
         else:
-            result = True            
+            result = True
         return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
@@ -1220,7 +1223,7 @@ class FloatField(ObjectField):
         except (ValueError, TypeError):
             result = False
         else:
-            result = True            
+            result = True
         return ObjectField.validate_required(self, instance, result, errors)
 
 
@@ -1258,7 +1261,7 @@ class FixedPointField(ObjectField):
 #        except ValueError:
 #            result = False
 #        else:
-#            result = True            
+#            result = True
 #        return ObjectField.validate_required(self, instance, result, errors)
 
 
@@ -1547,7 +1550,7 @@ class ComputedField(Field):
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data.
-        
+
         Used for get_size in BaseObject.
         """
         return 0

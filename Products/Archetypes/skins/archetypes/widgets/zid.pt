@@ -34,7 +34,8 @@
       <tal:block tal:condition="python:not visible_ids">
 	<input type="hidden"
 	       name="id"
-	       tal:attributes="value python:request.get('id', here.getId())"
+	       tal:attributes="name fieldName; 
+                           value python:field.getEditAccessor(here)()"
 	       />
       </tal:block>
 
