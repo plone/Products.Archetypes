@@ -2,10 +2,11 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.1 2003/10/20 17:09:17 tiran Exp $
+# $Id: common.py,v 1.1.2.2 2003/10/20 17:34:49 tiran Exp $
 
 from Testing import ZopeTestCase
 from ArchetypesTestCase import ArchetypesTestCase
+from ArcheSiteTestCase import ArcheSiteTestCase
 
 # enable nice names for True and False from newer python versions
 try:
@@ -42,9 +43,9 @@ def Xprint(s):
     """
     ZopeTestCase._print(str(s))
 
-__all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'Xprint', 'verifyClass',
-           'verifyObject', 'BrokenImplementation', 'DoesNotImplement',
-           'BrokenMethodImplementation') \
+__all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
+           'verifyClass', 'verifyObject', 'BrokenImplementation',
+           'DoesNotImplement', 'BrokenMethodImplementation') \
            + __all__Boolean
 
 
