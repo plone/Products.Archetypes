@@ -41,7 +41,7 @@
       <metal:field use-macro="here/widgets/field/macros/edit">
 	<metal:slot fill-slot="widget_body">
 	    <tal:from define="id fieldName;
-	      inputname  fieldName;
+	      inputname  string:$fieldName:list;
 	      formname   string:search_form;
 	      inputvalue python: request.get(fieldName + '_from', '');
 	      tabindex tabindex/next; 
@@ -65,6 +65,8 @@
 		a calendar, hopefully
 	      </metal:box>
 	    </tal:to>
+	   <input type="hidden" name="field_usage" value="range:min:max" 
+                  tal:attributes="name string:${fieldName}_usage" />
 	</metal:slot>
       </metal:field>
     </metal:define>
