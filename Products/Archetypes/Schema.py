@@ -700,6 +700,18 @@ class Schema(Schemata, DefaultLayerContainer):
                 self.addField(f)
 
     
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'replaceField')
+    def replaceField(self, name, field):
+        """ replace field with name 'name' in-place with 'field' """
+                                            
+        if IField.isImplementedBy(field):
+            oldfield = self[name]
+            field._index = oldfield._index
+            UserDict.__setitem__(self, name, field)
+            self._order_fields = None
+        else:
+            raise ValueError('wrong field: %s' % field)
+        
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
