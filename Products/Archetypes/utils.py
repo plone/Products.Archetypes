@@ -309,9 +309,9 @@ class DisplayList:
         "get i18n msgid"
         if type(key) is not StringType:
             raise TypeError('DisplayList keys must be strings')
-        try:
+        if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
-        except (KeyError, AttributeError):
+        else:
             return self._keys[key][1]
 
     def keys(self):
