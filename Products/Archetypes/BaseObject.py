@@ -287,6 +287,8 @@ class BaseObject(Implicit):
                 try:
                     datum =  method()
                 except:
+                    if type(datum) is type([]) or type(datum) is type(()):
+                        datum = ' '.join(datum) 
                     datum =  ''
             if datum:
                 data.append(datum)
