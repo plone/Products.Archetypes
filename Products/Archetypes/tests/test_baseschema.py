@@ -204,7 +204,8 @@ class BaseSchemaTest( unittest.TestCase ):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnlessEqual(field.default, FLOOR_DATE)
+        self.failUnlessEqual(field.default, None)
+        self.failUnlessEqual(dummy.effective(), FLOOR_DATE)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -232,7 +233,8 @@ class BaseSchemaTest( unittest.TestCase ):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnlessEqual(field.default, CEILING_DATE)
+        self.failUnlessEqual(field.default, None)
+        self.failUnlessEqual(dummy.expires(), CEILING_DATE)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
