@@ -27,6 +27,7 @@ connection_id = 'sql_connection'
 
 # the db names and Connection objects
 connectors = {}
+cleanup = {}
 
 try:
   # gadfly storage is currently b0rked, we don't want to test it yet
@@ -51,9 +52,41 @@ try:
 except ImportError:
     pass
 
+try:
+    import _mysql
+    from _mysql_exceptions import OperationalError, NotSupportedError
+    from Products.ZMySQLDA.DA import Connection
+    from Products.Archetypes.SQLMethod import SQLMethod
+    try:
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='+demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
+    except NotSupportedError:
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='-demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
+        def cleanupMySQL(self):
+            instance = self._dummy
+            args = {}
+            args['table'] = 'Dummy'
+            storage = self._storage_class
+            method = SQLMethod(instance)
+            method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
+            query, result = method(test__=1, **args)
+        
+        cleanup['MySQL'] = cleanupMySQL
+
+except ImportError:
+    pass
+
 
 class Dummy(BaseContent):
-    pass
+    """ A dummy content object for testing """
+    _uid = 'Dummy.2002-01-01.2302'
 
 def gen_dummy(storage_class):
     Dummy.schema = Schema((
@@ -115,7 +148,8 @@ class DummyTool:
     def __init__(self, db_name):
         self.connection = connectors[db_name]
         # to ensure test atomicity
-        self.connection().tpc_abort()
+        # XXX Need a way to make this work with MySQL when non-transactional
+        # self.connection().tpc_abort()
 
     def getConnFor(self, instance=None):
         return connection_id
@@ -131,6 +165,7 @@ class SQLStorageTest(unittest.TestCase):
     def setUp(self):
         storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
         gen_dummy(storage_class)
+        self._storage_class = storage_class
         self._dummy = dummy = Dummy(oid='dummy')
         dummy_tool = DummyTool(self.db_name)
         dummy_tool.setup(dummy)
@@ -191,8 +226,6 @@ class SQLStorageTest(unittest.TestCase):
         __traceback_info__ = repr(value)
         self.failUnless(value == 1)
 
-
-
 tests = []
 
 #################################################################
@@ -203,6 +236,10 @@ for db_name in connectors.keys():
     class StorageTestSubclass(SQLStorageTest):
         db_name = db_name
 
+    teardown = cleanup.get(db_name, None)
+    if teardown is not None:
+        StorageTestSubclass.tearDown = teardown
+        
     tests.append(StorageTestSubclass)
 
 #################################################################

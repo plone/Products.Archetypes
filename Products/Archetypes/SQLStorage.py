@@ -22,6 +22,7 @@ class BaseSQLStorage(StorageLayer):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {'fixedpoint': 'integer'}
@@ -165,6 +166,7 @@ class GadflySQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {'text': 'varchar',
@@ -172,7 +174,7 @@ class GadflySQLStorage(BaseSQLStorage):
                    'string': 'varchar'}
 
 
-class MySQLStorage(BaseSQLStorage):
+class MySQLSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
@@ -185,6 +187,7 @@ class MySQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {
@@ -209,6 +212,7 @@ class OracleSQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {}
@@ -227,6 +231,7 @@ class PostgreSQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer': 'int'}
     db_type_map = {

@@ -50,8 +50,6 @@ class Referenceable(CMFCatalogAware, Base):
     def _getUID(self):
         return getattr(self, '_uid', None)
 
-    
-
     def _setUID(self, id):
         tid =  self._getUID()
         if not tid:
