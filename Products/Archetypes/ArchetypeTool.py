@@ -275,6 +275,13 @@ def registerType(klass, package=None):
         }
 
     key = "%s.%s" % (package, data['meta_type'])
+    if key in _types.keys():
+        existing = _types[key]
+        existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
+        override_name = '%s.%s' % (data['module'].__name__, data['name'])
+        zLOG.LOG('ArchetypesTool', zLOG.WARNING, ('Trying to register "%s" which ' 
+                 'has already been registered.  The new type %s ' 
+                 'is going to override %s') % (key, override_name, existing_name))
     _types[key] = data
 
     # DM (avoid persistency bug): 
@@ -463,10 +470,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def registerTemplate(self, template, name=None):
         # Lookup the template by name
         obj = self.unrestrictedTraverse(template, None)
-        if obj:
-            if not name:
+        try:
+            if name is None:
                 name = obj.title_or_id()
-        else:
+        except AttributeError:
             name = template
 
         self._registeredTemplates[template] = name
