@@ -74,11 +74,15 @@ class RFC822Marshaller(Marshaller):
         for k, v in headers.items():
             field = instance.getField(k)
             if field is not None:
-                field.set(instance, v, **kwargs)
+                mutator = getattr(instance, field.mutator, None)
+                if mutator is not None:
+                    mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
         kwargs.update({'mime_type': content_type})
         p = instance.getPrimaryField()
-        p.set(instance, body, **kwargs)
+        mutator = getattr(instance, p.mutator, None)
+        if mutator is not None:
+            mutator(body, **kwargs)
 
     def marshall(self, instance, **kwargs):
         from Products.CMFDefault.utils import formatRFC822Headers
@@ -101,7 +105,7 @@ class RFC822Marshaller(Marshaller):
         headers['Content-Type'] = content_type or 'text/plain'
 
         header = formatRFC822Headers(headers.items())
-        data = '%s\n%s' % (header, body)
+        data = '%s\n\n%s' % (header, body)
         length = len(data)
 
         return (content_type, length, data)

@@ -1,3 +1,9 @@
+2003-04-27  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (RFC822Marshaller.demarshall): Use the mutator
+	instead of field.set(). 
+	(RFC822Marshaller.marshall): Add a new line.
+
 2003-04-25  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* tests/test_all.py (test_suite): Was missing a test on the test suite.
