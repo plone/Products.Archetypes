@@ -35,6 +35,8 @@ from ComputedAttribute import ComputedAttribute
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
+from sys import exc_info
+
 try:
     from Products.PortalTransforms.interfaces import idatastream
 except ImportError:
@@ -506,6 +508,7 @@ class TextField(ObjectField):
     def getContentType(self, instance):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
+        log ("called getContentType of TextField")
         value = ''
         accessor = self.getEditAccessor(instance)
         if accessor is not None:
@@ -1032,6 +1035,45 @@ class ImageField(ObjectField):
         if hasattr(image, '__of__') and not kwargs.get('unwrapped', 0):
             return image.__of__(instance)
         return image
+
+    def getRaw(self, instance, **kwargs):
+        """ returns the binary data of the original sized image 
+            (as it was uploaded). """
+        if self.accessor is not None:
+            accessor = self.getAccessor(instance)
+        else:
+            # self.accessor is None for fields wrapped by an I18NMixIn
+            accessor = None
+        if accessor is None:
+            return self.get(instance)
+        image=accessor()
+
+        data=None
+        if hasattr(image, 'data'):
+            data=image.data
+
+        return data
+
+    def getContentType(self, instance, **kwargs):
+        """ returns the content-type as it was stored while uploading """
+        if self.accessor is not None:
+            accessor = self.getAccessor(instance)
+        else:
+            # self.accessor is None for fields wrapped by an I18NMixIn
+            accessor = None
+            
+        if accessor is None:
+            return self.get(instance)
+        
+        image=accessor()
+        
+        if hasattr(image,'getContentType'):
+            data = image.getContentType()
+        else:
+            data = ''
+                
+        return data
+    
 
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
