@@ -12,7 +12,8 @@ class SchemaEditor(object):
     Setting the storage on an entire schema is important
     
     """
-
+    __allow_access_to_unprotected_subobjects__ = 1
+    
     def __init__(self, schema, context):
         self.schema = schema
         self.context = context
@@ -88,3 +89,41 @@ class SchemaEditor(object):
         self.enum(setProvider)
         
     
+    # Form interaction
+    def process_form(self, data):
+        """Process form data,
+        this method is tied to the skin and you will need to subclass to change this
+        """
+        from Products.Archetypes.Registry import widgetDescriptionRegistry as widgets
+        from Products.Archetypes.Registry import fieldDescriptionRegistry as fields
+        diff_set = {}
+        for field in self.schema.fields():
+            name = field.getName()
+            try:
+                fv = data["%s_ftype" % name]
+                fw = data["%s_wtype" % name]
+                if fv != field.type or fw != field.widget.getType():
+                    diff_set[name] = (field, fv, fw)
+            except KeyError:
+                pass
+
+        ## Apply the diffset
+        #import pdb;pdb.set_trace()        
+        for name, data in diff_set.iteritems():
+            field, fv, fw = data
+            widget = field.widget
+            f = None
+            w = None
+            # Lets just blindly mutate this for now
+            wd = widgets.get(fw)
+            if wd:
+                w = wd.klass(label=widget.Label(self.context),
+                             description=widget.Description(self.context))
+                fd = fields.get(fv)
+                if fd:
+                    f = fd.klass(field.getName(), widget=w, schemata=field.schemata)
+                    # We might want to get the value and call the new mutator here
+                    # but this could trigger too much
+                    self.schema.replaceField(field.getName(), f)
+                    
+        self.regen(self.context)
