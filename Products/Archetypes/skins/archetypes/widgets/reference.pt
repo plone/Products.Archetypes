@@ -123,7 +123,7 @@
                       tabindex=""
                       type="submit"
                       name="form.button.form_add"
-                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;alert(this.form['add_reference.field:record'].value);;this.form['add_reference.type:record'].value=document.getElementById('${field/getName}_types').options[document.getElementById('${field/getName}_types').selectedIndex].value;;alert(this.form['add_reference.type:record'].value);;this.form['add_info.field:record'].value='';
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value=document.getElementById('${field/getName}_types').options[document.getElementById('${field/getName}_types').selectedIndex].value;;this.form['add_info.field:record'].value='';
                         tabindex tabindex/next;"
                       i18n:attributes="value"
                       value="Add"
