@@ -2,6 +2,8 @@
 
 	* BaseObject.py (content_type): Make the RFC822Marshaller the
 	default one. Pending tests.
+	(BaseObject.SearchableText): Misplaced piece of code, for handling
+	LinesField and SearchableText.
 
 	* Marshall.py (RFC822Marshaller.marshall): Small fixes to deal
 	with objects without PrimaryField set.
