@@ -99,6 +99,8 @@
    (note to myself: addable option on ReferenceField still needs lots of tests)
    [dtremea]
 
+ * Fixed [ 1013265 ] last changes to Widget.py is highly inefficient.
+   [dtremea]
 
 1.3.0-rc1 - 2004-08-16
 ======================
