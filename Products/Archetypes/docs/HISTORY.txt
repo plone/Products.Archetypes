@@ -1,6 +1,9 @@
 1.4-devel
 =========
 
+ * The validation product was integrated into the Archetypes product.
+   [tiran]
+
  * Sepearted the long fields-module file into several files grouped by function.
    Seperated Marshallers-module into a file per marshaller.
    Made the default marshaller configureable. It defaults now to the 

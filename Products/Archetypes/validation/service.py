@@ -1,12 +1,14 @@
-try:
-    from Products.Archetypes.validation.interfaces.IValidationService import IValidationService
-    from Products.Archetypes.validation.interfaces.IValidator import IValidator
-except ImportError:
-    from validation.interfaces.IValidationService import IValidationService
-    from validation.interfaces.IValidator import IValidator
-
-from exceptions import UnknowValidatorError, FalseValidatorError, AlreadyRegisteredValidatorError
 from types import StringType
+
+from Products.Archetypes.interfaces.IValidationService import IValidationService
+from Products.Archetypes.interfaces.IValidator import IValidator
+from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import FalseValidatorError
+from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
+
+from Acquisition import Implicit
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
 
 class Service:
     __implements__ = IValidationService
@@ -56,3 +58,19 @@ class Service:
             name = name_or_validator.name
         if self._validator.has_key(name):
             del self._validator[name]
+
+class ZService(Service, Implicit):
+    """Service running in a zope site - exposes some methods""" 
+
+    security = ClassSecurityInfo()
+    __implements__ = IValidationService
+
+    security.declarePublic('validate')
+    security.declarePublic('__call__')
+    security.declarePublic('validatorFor')
+
+InitializeClass(ZService) 
+
+from Products.Archetypes.validation.validators import initialize
+service = ZService()
+initialize(service)

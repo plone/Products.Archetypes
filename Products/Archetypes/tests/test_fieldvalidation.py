@@ -9,10 +9,11 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
 from Products.Archetypes.bases.baseobject import BaseObject
 
-from Products.Archetypes.validation import validation, interfaces
+from Products.Archetypes.validation import validation
+from Products.Archetypes.interfaces.IValidator import IValidator
 
 class MyValidator:
-    __implements__ = (interfaces.ivalidator,)
+    __implements__ = (IValidator,)
 
     def __init__(self, name, fun):
         self.name = name

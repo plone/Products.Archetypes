@@ -14,7 +14,7 @@ from Acquisition import aq_inner
 from OFS.content_types import guess_content_type
 from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes.validation import ValidationChain
-from Products.Archetypes.validation.interfaces.IValidator import IValidator, IValidationChain
+from Products.Archetypes.interfaces.IValidator import IValidator, IValidationChain
 from Products.Archetypes.registries import registerField
 from Products.Archetypes.registries import registerPropertyType
 from Products.Archetypes.storages import AttributeStorage

@@ -1,11 +1,5 @@
-try:
-    from Products.Archetypes.validation.interfaces.IValidator import IValidator
-    from Acquisition import aq_base
-except ImportError:
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
-    from interfaces.IValidator import IValidator
-    del sys, os
+from Products.Archetypes.interfaces.IValidator import IValidator
+from Acquisition import aq_base
 
 _marker = []
 
@@ -16,10 +10,7 @@ except NameError:
     False=0
 
 from types import FileType
-try:
-    from ZPublisher.HTTPRequest import FileUpload
-except ImportError:
-    FileUpload = FileType
+from ZPublisher.HTTPRequest import FileUpload
 
 class MaxSizeValidator:
     """Tests if an upload, file or something supporting len() is smaller than a 
@@ -80,11 +71,7 @@ class MaxSizeValidator:
             return True
 
 
-try:
-    from DateTime import DateTime
-except ImportError:
-    # XXX use python datetime?
-    DateTime = lambda date: None
+from DateTime import DateTime
 
 class DateValidator:
 

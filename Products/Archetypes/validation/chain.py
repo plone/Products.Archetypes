@@ -1,18 +1,14 @@
 """
 """
-try:
-    from Products.Archetypes.validation.interfaces.IValidator import IValidator, IValidationChain
-except ImportError:
-    from interfaces.IValidator import IValidator, IValidationChain
+from Products.Archetypes.interfaces.IValidator import IValidator, IValidationChain
 
 from types import StringType, TupleType, ListType, UnicodeType
-from config import validation as validationService
-from exceptions import UnknowValidatorError, FalseValidatorError, AlreadyRegisteredValidatorError
+from Products.Archetypes.validation.service import service as validationService
+from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import FalseValidatorError
+from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
 
-try:
-    from types import StringTypes
-except ImportError:
-    StringTypes = (UnicodeType, StringType)
+from types import StringTypes
 
 V_REQUIRED   = 1
 V_SUFFICIENT = 2

@@ -1,10 +1,4 @@
-try:
-    from Products.Archetypes.validation.interfaces.IValidator import IValidator
-except ImportError:
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.pardir))
-    from interfaces.IValidator import IValidator
-    del sys, os
+from Products.Archetypes.interfaces.IValidator import IValidator
 
 import re
 from types import StringType

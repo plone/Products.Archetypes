@@ -1,4 +1,5 @@
-from interface import Interface, Attribute
+from Interface import Interface
+from Interface import Attribute
 
 class IValidator(Interface):
 

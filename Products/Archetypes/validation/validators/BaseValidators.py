@@ -1,5 +1,5 @@
-from RegexValidator import RegexValidator
-from RangeValidator import RangeValidator
+from Products.Archetypes.validation.validators.RegexValidator import RegexValidator
+from Products.Archetypes.validation.validators.RangeValidator import RangeValidator
 
 baseValidators = [
     RangeValidator('inNumericRange', title='', description=''),

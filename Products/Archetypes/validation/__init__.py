@@ -1,5 +1,15 @@
-from config import validation
-from chain import ValidationChain, V_REQUIRED, V_SUFFICIENT
-from exceptions import UnknowValidatorError, FalseValidatorError, AlreadyRegisteredValidatorError
-import os.path
-__version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+from Products.Archetypes.validation.chain import ValidationChain
+from Products.Archetypes.validation.chain import V_REQUIRED
+from Products.Archetypes.validation.chain import V_SUFFICIENT
+from Products.Archetypes.validation.service import service as validation
+from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import FalseValidatorError
+from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
+
+from AccessControl import ModuleSecurityInfo
+
+# make validator service public
+security = ModuleSecurityInfo('Products.Archetypes.validation')
+security.declarePublic('validation')
+
+
