@@ -27,6 +27,8 @@
 	    value value;
 	    size widget/size;
 	    tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
 	    "
 	    />
 	</div>
