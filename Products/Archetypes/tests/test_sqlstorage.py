@@ -26,7 +26,6 @@ from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
 from Products.Archetypes.tests.test_sitepolicy import makeContent
-from Products.Archetypes.ReferenceEngine import ReferenceEngine
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 
 from DateTime import DateTime
@@ -158,11 +157,10 @@ def gen_dummy(storage_class):
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
-class DummyTool(ReferenceEngine):
+class DummyTool:
 
     def __init__(self, db_name):
         self.sql_connection = connectors[db_name]
-        ReferenceEngine.__init__(self)
         # to ensure test atomicity
         # XXX Need a way to make this work with MySQL when non-transactional
         # self.sql_connection().tpc_abort()
@@ -173,7 +171,6 @@ class DummyTool(ReferenceEngine):
     def setup(self, instance):
         setattr(instance, TOOL_NAME, self)
         setattr(instance, connection_id, self.sql_connection)
-
 
 class SQLStorageTest(unittest.TestCase):
     # abstract base class for the tests
@@ -236,14 +233,6 @@ class SQLStorageTest(unittest.TestCase):
         __traceback_info__ = repr(value)
         self.failUnless(value == '2.30')
 
-    def test_referencefield(self):
-        dummy = self._dummy
-        self.failUnless(dummy.getAreferencefield() is None)
-        dummy.setAreferencefield('Bla')
-        value = dummy.getAreferencefield()
-        __traceback_info__ = repr(value)
-        self.failUnless(str(value) == 'Bla')
-
     def test_booleanfield(self):
         dummy = self._dummy
         self.failUnless(dummy.getAbooleanfield() is None)
@@ -295,6 +284,14 @@ for db_name in connectors.keys():
                                                 id='Dummy',
                                                 typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
+
+	def test_referencefield(self):
+            dummy = self._dummy
+            self.failUnless(dummy.getAreferencefield() is None)
+            dummy.setAreferencefield('Bla')
+            value = dummy.getAreferencefield()
+            __traceback_info__ = repr(value)
+            self.failUnless(str(value) == 'Bla')
 
         def test_rename(self):
             site = self.root.testsite
