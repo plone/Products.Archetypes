@@ -24,7 +24,7 @@
                 <vbox flex="2">
                     <groupbox>
                         <caption label="Properties" style="font-size: large"/>
-                        <xsl:apply-templates mode="propertyview" select="/registry/types/type[@selected]/schema/schemata/field[@selected]/properties/property"/>
+                        <xsl:apply-templates mode="propertyview" select="/registry/types/type[@selected]/schema/schemata/field[@selected]/properties/*"/>
                     </groupbox>
                 </vbox>
             </hbox>
@@ -77,35 +77,48 @@
             </hbox>
         </groupbox>
     </xsl:template>
-    <xsl:template match="property" mode="propertyview">
-        <xsl:variable name="thistype" select="type"/>
-        <xsl:apply-templates mode="listproperty" select="/registry/fieldelements/fieldelement[@id=$thistype]/properties/property"/>
+    <xsl:template match="properties/*" mode="propertyview">
+        <xsl:variable name="thistype" select="../../type"/>
+        <xsl:variable name="propertyname" select="local-name()"/>
+        <xsl:variable name="propertyelement" select="/registry/fieldelements/fieldelement[@id=$thistype]/properties/property[name=$propertyname]"/>
+        <xsl:variable name="allowedwidgets" select="/registry/fieldelements/fieldelement[@id=$thistype]/allowedwidgetelements/*"/>
+        <label value="{$propertyname}"/>
+        <xsl:choose>
+            <xsl:when test="$propertyelement/type='boolean'">
+                <checkbox id="case-sensitive">
+                    <xsl:attribute name="checked">
+                        <xsl:choose>
+                            <xsl:when test=". = 1">true</xsl:when>
+                            <xsl:otherwise>false</xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                </checkbox>
+            </xsl:when>
+            <xsl:when test="$propertyelement/type='widget'">
+                <hbox>
+                    <menulist>
+                        <menupopup>
+                            <xsl:variable name="widgettype" select="./type"/>
+                            <xsl:for-each select="$allowedwidgets">
+                                <menuitem label="{.}">
+                                    <xsl:if test=". = $widgettype">
+                                        <xsl:attribute name="selected">true</xsl:attribute>
+                                    </xsl:if>
+                                </menuitem>
+                            </xsl:for-each>
+                        </menupopup>
+                    </menulist>
+                    <spacer flex="1"/>
+                </hbox>
+            </xsl:when>
+            <xsl:otherwise>
+                <label value="otherwidget"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     <xsl:template match="field">
         <listitem>
             <listcell label="{name}"/>
         </listitem>
-    </xsl:template>
-    <xsl:template match="property" mode="listproperty">
-        <xsl:call-template name="propertyrow">
-            <xsl:with-param name="field" select="."/>
-            <xsl:with-param name="property" select="."/>
-        </xsl:call-template>
-        <!--        <xsl:choose>
-            <xsl:when test="type='boolean'"><checkbox id="case-sensitive"/><xsl:attribute name="checked">
-            <xsl:choose>
-                <xsl:when test=""></xsl:when>
-            </xsl:choose>
-            </xsl:attribute></xsl:when>
-        </xsl:choose>
-        
-        <label value="{type}"/>
--->
-    </xsl:template>
-    <xsl:template name="propertyrow">
-        <xsl:param name="field"/>
-        <xsl:param name="property"/>
-        <xsl:variable name="propertyname" select="property/name"/>
-        <label value="{$propertyname}"/>
     </xsl:template>
 </xsl:stylesheet>

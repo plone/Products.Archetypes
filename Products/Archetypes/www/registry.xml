@@ -17,6 +17,10 @@
                     <type>boolean</type>
                 </property>
                 <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
                     <name>searchable</name>
                     <type>boolean</type>
                 </property>
@@ -25,7 +29,7 @@
                     <type>string</type>
                 </property>
                 <property>
-                    <name>validator</name>
+                    <name>validators</name>
                     <type>lines</type>
                 </property>
             </properties>
@@ -39,6 +43,10 @@
             </allowedwidgetelements>
             <properties>
                 <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
                     <name>required</name>
                     <type>boolean</type>
                 </property>
@@ -51,7 +59,7 @@
                     <type>string</type>
                 </property>
                 <property>
-                    <name>validator</name>
+                    <name>validators</name>
                     <type>lines</type>
                 </property>
             </properties>
@@ -70,6 +78,10 @@
                     <type>boolean</type>
                 </property>
                 <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
                     <name>searchable</name>
                     <type>boolean</type>
                 </property>
@@ -78,7 +90,7 @@
                     <type>string</type>
                 </property>
                 <property>
-                    <name>validator</name>
+                    <name>validators</name>
                     <type>lines</type>
                 </property>
             </properties>
@@ -96,6 +108,10 @@
                     <type>boolean</type>
                 </property>
                 <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
                     <name>searchable</name>
                     <type>boolean</type>
                 </property>
@@ -104,7 +120,7 @@
                     <type>string</type>
                 </property>
                 <property>
-                    <name>validator</name>
+                    <name>validators</name>
                     <type>lines</type>
                 </property>
             </properties>
@@ -209,7 +225,7 @@
                                 <description xml:lang="en">Provide a first name</description>
                             </widget>
                             <required>1</required>
-                            <searchable>1</searchable>
+                            <searchable>0</searchable>
                         </properties>
                     </field>
                     <field id="Products.Archetypes.TTWTypes.Customer.default.lastname">
