@@ -71,7 +71,7 @@ class CompositeSchema(Implicit):
             result.extend(s.fields())
         return result
 
-    security.declareProtected(View, 'fields')
+    security.declareProtected(View, 'widgets')
     def widgets(self):
         """Return a dictionary that contains a widget for
         each field, using the field name as key.
@@ -135,7 +135,7 @@ class CompositeSchema(Implicit):
                 return
         del self.getSchemas()[0][name]
 
-    security.declareProtected(ModifyPortalContent, 'fields')
+    security.declareProtected(ModifyPortalContent, 'delField')
     delField = __delitem__
 
     def __getitem__(self, name):
