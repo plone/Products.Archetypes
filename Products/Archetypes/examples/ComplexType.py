@@ -5,8 +5,8 @@ from SimpleType import SimpleType
 fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
-          'BooleanField', 'ReferenceField', 'ImageField'
-          # 'ComputedField', 'CMFObjectField'
+          'BooleanField', 'ImageField'
+          # 'ComputedField', 'CMFObjectField', 'ReferenceField'
           ]
 
 field_instances = []
@@ -40,6 +40,9 @@ schema = Schema(tuple(field_instances) + (
                                        'application/msword'),
               widget=RichWidget(label='rich'),
               ),
+    ReferenceField('referencefield',
+                   relationship='complextype',
+                  ),
     #ReferenceField('reffield1',
     #               relationship='myref1',
     #               widget=InAndOutWidget(label='Ref1')
