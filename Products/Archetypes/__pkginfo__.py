@@ -27,6 +27,7 @@ at_versions = (
     '1.3.1-rc3',
     '1.3.1-rc4',
     '1.3.1-final',
+    '1.3.2-rc1',
     ###MARKERFORATRELEASESCRIPT###
     )
 license = 'GPL'
