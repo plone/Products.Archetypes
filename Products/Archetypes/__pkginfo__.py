@@ -1,7 +1,7 @@
 
 modname = 'Archetypes'
-version = '1.3.0-beta5'
-numversion = (1, 3, 0, -45)
+version = '1.3.0-beta4'
+numversion = (1, 4, -1, -99)
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003 Benjamin Saller <bcsaller@yahoo.com>'''
