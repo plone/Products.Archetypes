@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.6 2003/10/21 15:22:36 tiran Exp $
+# $Id: common.py,v 1.1.2.7 2003/10/22 17:27:39 tiran Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -45,9 +45,9 @@ except ImportError:
     def verifyObject(iface, candidate, tentative=0):
         return True
     def getImplementsOfInstances(object):
-        return []
+        return ()
     def flattenInterfaces(interfaces, remove_duplicates=1):
-        return []
+        return ()
     class BrokenImplementation(Execption): pass
     class DoesNotImplement(Execption): pass
     class BrokenMethodImplementation(Execption): pass
