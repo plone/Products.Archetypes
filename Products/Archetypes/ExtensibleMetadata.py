@@ -195,8 +195,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         return eff_date <= date and not self.isExpired()
 
     security.declarePublic( 'isExpired' )
-    def isExpired( self, date ):
+    def isExpired( self, date=None ):
         """ Is the date after resource's expiration """
+        if not date:
+            # XXX we need some unittesting for this
+            date = DateTime()
         exp_date = self.ExpirationDate()
         if not exp_date:
             exp_date = CEILING_DATE
