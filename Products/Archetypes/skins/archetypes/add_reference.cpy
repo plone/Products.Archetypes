@@ -40,12 +40,10 @@ fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference['field']]
 
-destination = field.widget.getDestination(context)
-if hasattr(add_reference, 'destination'):
-    destination = add_reference.destination
-
-mutator = field.getMutator(context)
-accessor = field.getAccessor(context)
+destination = add_reference.destination
+#destination = field.widget.getDestination(context)
+#if hasattr(add_reference, 'destination'):
+#    destination = add_reference.destination
 
 # get the portal object
 portal = context.portal_url.getPortalObject()
@@ -63,6 +61,7 @@ if context.portal_factory.getFactoryTypes().has_key(add_reference.type):
 else:
     destination_context.invokeFactory(add_reference.type, new_id)
     reference_object = getattr(destination_context, new_id)
+    reference_object.mark_creation_flag()
 
 info = {'reference_source_field':add_reference['field'],
         'reference_source_url':portal.portal_url.getRelativeUrl(context),

@@ -158,7 +158,7 @@
             </tal:comment>
             <input type="hidden"
                    name="lastest_referer"
-                   tal:define="referer request/form/HTTP_REFERER | request/HTTP_REFERER"
+                   tal:define="referer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
                    tal:attributes="value python:referer and referer or here.aq_parent.absolute_url()"
                    />
 
@@ -194,8 +194,7 @@
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
-                <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
-                       class="standalone"
+                <input class="standalone"
                        tabindex=""
                        type="submit"
                        name="form.button.cancel"

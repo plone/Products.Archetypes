@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.18.2 2004/05/05 16:54:06 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.8.16.1 2004/05/07 04:43:28 andrecamargo Exp $
 """
 
 import os, sys
@@ -28,21 +28,6 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         user = self.getManagerUser()
         newSecurityManager(None, user)
 
-    def verifyBrains(self):
-        site = self.getPortal()
-        uc = getattr(site, config.UID_CATALOG)
-        rc = getattr(site, config.REFERENCE_CATALOG)
-
-        #Verify all UIDs resolve
-        brains = uc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad uid resolution""")
-
-        #Verify all references resolve
-        brains = rc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad ref catalog resolution""")
-
     def test_create(self):
         site = self.getPortal()
         rc = getattr(site, config.REFERENCE_CATALOG)
@@ -60,9 +45,8 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         id2 = "secondObject"
         obj2 = makeContent(site, portal_type='Fact', id=id2)
 
-        self.verifyBrains()
         obj.addReference(obj2, 'testRelationship', foo="bar")
-        self.verifyBrains()
+
         uid1 = obj.UID()
         uid2 = obj2.UID()
 
@@ -95,11 +79,8 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         obj2._p_oid = new_oid()
         # /MAGIC
 
-        #Rename can't invalidate UID or references
-        self.verifyBrains()
+        #Rename can't invalidate UID or refernces
         obj.setId('new1')
-        self.verifyBrains()
-
         self.failUnless(obj.getId() == 'new1')
         self.failUnless(obj.UID() == uid1)
 
@@ -124,7 +105,6 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         refs = rc.getBackReferences(obj, 'betaRelationship')
         # objs back ref should be obj2
         self.failUnless(refs[0].sourceUID == b[0].UID() == uid2)
-        self.verifyBrains()
 
 
     def test_holdingref(self):
@@ -159,6 +139,20 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         items = site.contentIds()
         self.failIf(obj3.id in items)
         self.failIf(obj4.id in items)
+
+    def test_cascaderef(self):
+        site = self.getPortal()
+
+        my1stfolder = makeContent(site, portal_type='SimpleFolder', id='my1stfolder')
+        obj5 = makeContent(my1stfolder, portal_type='Fact', id='obj5')
+        my2ndfolder = makeContent(site, portal_type='SimpleFolder', id='my2ndfolder')
+        obj6 = makeContent(my2ndfolder, portal_type='Fact', id='obj6')
+        obj5.addReference(obj6, relationship="uses", referenceClass=CascadeReference)
+        site.my1stfolder.manage_delObjects(['obj5'])
+        items = site.my1stfolder.contentIds()
+        self.failIf('obj5' in items)
+        items = site.my2ndfolder.contentIds()
+        self.failIf('obj6' in items)
 
     def test_delete(self):
         site = self.getPortal()

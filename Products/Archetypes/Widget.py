@@ -1,4 +1,4 @@
-from types import DictType, FileType, StringType, UnicodeType
+from types import DictType, FileType, StringType, UnicodeType, ListType
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.debug import log
@@ -118,19 +118,27 @@ class ReferenceWidget(TypesWidget):
         'macro' : "widgets/reference",
 
         'addable' : 0, # create createObject link for every addable type
-        'destination' : None, # may be name of method on instance or string.
+        'destination' : None, # may be:
+                              # - ".", context object;
+                              # - None, any place where 
+                              #   Field.allowed_types can be added;
+                              # - string path;
+                              # - name of method on instance
+                              #   (it can be a combination list);
+                              # - a list, combining all item above;
+                              # - a dict, where
+                              #   {portal_type:<combination of the items above>}
                               # destination is relative to portal root
         'helper_css' : ('content_types.css',),
         })
 
     def addableTypes(self, instance, field):
-        """Returns a dictionary which maps portal_type to its human readable
+        """Returns a list of dictionaries which maps portal_type to its human readable
         form."""
-        def lookupDestinationsFor(typeinfo, tool):
+        def lookupDestinationsFor(typeinfo, tool, purl):
             """
             search where the user can add a typeid instance
             """
-            purl = getToolByName(instance, 'portal_url')
             # first, discover who can contain the type
             searchFor = []
             for regType in tool.listTypeInfo():
@@ -152,7 +160,26 @@ class ReferenceWidget(TypesWidget):
             return containers
 
         tool = getToolByName(instance, 'portal_types')
+        purl = getToolByName(instance, 'portal_url')
         types = []
+
+        options = {}
+        for typeid in field.allowed_types:
+            if self.destination == None:
+                options[typeid]=[None]
+            elif isinstance(self.destination, DictType):
+                options[typeid]=self.destination.get(typeid, [None])
+            elif isinstance(self.destination, ListType):
+                options[typeid]=self.destination
+            else:
+                place = getattr(aq_base(instance), self.destination,
+                    self.destination)
+                if callable(place):
+                    place = place()
+                if isinstance(place, ListType):
+                    options[typeid] = place
+                else:
+                    options[typeid] = [place]
 
         for typeid in field.allowed_types:
             info = tool.getTypeInfo(typeid)
@@ -162,25 +189,29 @@ class ReferenceWidget(TypesWidget):
             value = {}
             value['id'] = typeid
             value['name'] = info.Title()
-            if self.destination == None:
-                value['destinations'] = lookupDestinationsFor(info,tool)
-            else:
-                value['destinations'] = [self.getDestination(instance)]
+            value['destinations'] = []
+                
+            for option in options.get(typeid):
+                if option == None:
+                    value['destinations'] = value['destinations'] + \
+                        lookupDestinationsFor(info, tool, purl)
+                elif option == '.':
+                    value['destinations'].append(
+                        purl.getRelativeContentURL(instance) )
+                else:
+                    place = getattr(aq_base(instance), self.destination,
+                        self.destination)
+                    if callable(place):
+                        place = place()
+                    if isinstance(place, ListType):
+                        value['destinations'] = place + \
+                             value['destinations']
+                    else:
+                        value['destinations'].append(place)
+
             types.append(value)
 
         return types
-
-    def getDestination(self, instance):
-        """ Destination for adding references """
-        purl = getToolByName(instance, 'portal_url')
-        if not self.destination:
-            return '.'
-        else:
-            value = getattr(aq_base(instance), self.destination,
-                            self.destination)
-            if callable(value):
-                value = value()
-        return purl.getPortalPath() + value
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()

@@ -9,6 +9,9 @@
 ##parameters=id=''
 ##
 REQUEST = context.REQUEST
+SESSION = REQUEST.SESSION
+
+old_id = context.getId()
 
 new_context = context.portal_factory.doCreate(context, id)
 new_context.processForm()
@@ -92,12 +95,15 @@ if reference_source_url is not None:
         saved_dic[reference_source_field] = saved_value
         SESSION.set(reference_obj.getId(), saved_dic)
     
+    context.remove_creation_mark(old_id)
+
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
         'portal_status_message':portal_status_message,
         'fieldset':reference_source_fieldset,
         'field':reference_source_field,
+        'reference_focus':reference_source_field,
         }
     return state.set(**kwargs)
 
@@ -115,6 +121,8 @@ if state.errors:
                 status='failure',
                 context=new_context,
                 portal_status_message=portal_status_message)
+
+context.remove_creation_mark(old_id)
 
 return state.set(status='success',
                  context=new_context,
