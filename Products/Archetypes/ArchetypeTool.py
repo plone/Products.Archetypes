@@ -305,7 +305,7 @@ def _guessPackage(base):
 def registerType(klass, package=None):
     if not package:
         warnings.warn("registerType without a package name is deprecated. "
-                      "Please apply a package name for klas %s" % repr(klass),
+                      "Please apply a package name for class %s" % repr(klass),
                       DeprecationWarning, stacklevel=2)
         package = _guessPackage(klass.__module__)
 
