@@ -15,10 +15,16 @@
       </div>
     </div>
 
+    <metal:define define-macro="edit_area">
+      <tal:define define="inputname fieldName;inputvalue accessor">
+	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
+      </tal:define>
+    </metal:define>
+
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
-	<metal:fill  metal:fill-slot="widget_body" tal:define="inputname fieldName;inputvalue value">
-	  <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
+	<metal:fill  metal:fill-slot="widget_body">
+	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
 	</metal:fill>
       </metal:use>
     </metal:define>
