@@ -97,8 +97,10 @@ def compareMetadataOf(test, obj, data='default', mimetype='application/octet-str
     test.failUnless(obj.Contributors() == l_data, 'Contributors')
     test.failUnless(obj.EffectiveDate() == DateTime(time, 0).ISO(),
                     'effective date')
+    test.failUnlessEqual(str(obj.effective_date), str(DateTime(time, 0)))
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
                     'expiration date')
+    test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
     # XXX BROKEN! test.failUnless(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
     test.failUnless(obj.Language() == data, 'Language')

@@ -318,7 +318,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX None? CEILING_DATE
         return expires is None and 'None' or expires.ISO()
 
-    def _expiratione_date(self):
+    def _expiration_date(self):
         """Computed attribute accessor
         """
         return self.getField('expirationDate').get(self)
