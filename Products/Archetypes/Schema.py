@@ -338,8 +338,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         values = [value]
                     elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
                         raise TypeError("Field value type error")
-#                    values = field.multiValued == 1  and value or [value]
                     vocab = field.Vocabulary(instance)
+                    # filter empty
+                    values = [v for v in values if v.strip()]
                     for val in values:
                         error = 1
                         for v in vocab:

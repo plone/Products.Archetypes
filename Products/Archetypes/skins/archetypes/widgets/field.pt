@@ -23,11 +23,15 @@
         review_state
         </a>)
         </span>
+        <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
+              tal:omit-tag="">
+             (<span tal:replace="python:field.getContentType(here)" />)
+        </span>
 	      <div metal:define-slot="widget_view"/>
 	      <br/>
       </div>
     </div>
-    
+
     <metal:define define-macro="edit">
     <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">
         <div tal:attributes="class python:test(field.required, 'required label', 'label')">
@@ -35,7 +39,7 @@
              <div id="title_help" class="help" style="visibility: hidden;"
                   tal:content="structure python:widget.Description(here)"
                   tal:attributes="id string:${fieldName}_help">Help tooltip</div>
-        
+
              <span tal:condition="field/workflowable|nothing"
                    tal:omit-tag="">
              (<a href="#"
@@ -46,7 +50,11 @@
                                  class python:test(review_state, review_state, 'private')"
                  tal:content="review_state">review_state</a>)
              </span>
-        </div> 
+             <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
+                   tal:omit-tag="">
+             (<span tal:replace="python:field.getContentType(here)" />)
+             </span>
+        </div>
         <div class="field"
 	           tal:define="error python:errors.get(fieldName);
                                value python:widget.populate and field.getEditAccessor(here)() or '';
@@ -59,7 +67,7 @@
              <div metal:define-slot="widget_body"></div>
         </div>
     </div>
-    </metal:define>    
+    </metal:define>
 
    </body>
 </html>

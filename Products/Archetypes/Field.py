@@ -565,6 +565,7 @@ class TextField(ObjectField):
             import site
             encoding = site.encoding
 
+        kwargs['encoding'] = encoding
         value, mimetype = self._process_input(value,
                                               default=self.default,
                                               **kwargs)

@@ -18,17 +18,23 @@ previous = not REQUEST.get('form_previous',None) is None
 if next or previous:
     fieldset = REQUEST.get('fieldset', None)
 
-    schematas = context.Schemata().keys()
-    if next:
+    schematas = [s for s in context.Schemata().keys() if s != 'metadata']
+
+    if previous:
         schematas.reverse()
 
     next_schemata = None
-    for fs in schematas:
-        if fs != 'metadata':
-            if fieldset == fs:
-                if next_schemata == None:
-                    raise 'Unable to find next field set after %s' % fieldset
-                return ('next_schemata', context, {'fieldset':next_schemata, 'portal_status_message':portal_status_message})
-            next_schemata = fs
+    try:
+        index = schematas.index(fieldset)
+    except ValueError:
+        raise 'Non-existing fieldset: %s' % fieldset
+    else:
+        index += 1
+        if index < len(schematas):
+            next_schemata = schematas[index]
+            return ('next_schemata', context, {'fieldset':next_schemata, 'portal_status_message':portal_status_message})
+
+    if next_schemata == None:
+        raise 'Unable to find next field set after %s' % fieldset
 
 return ('success', context, {'portal_status_message':portal_status_message})

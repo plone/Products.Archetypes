@@ -11,6 +11,7 @@ from ZPublisher.HTTPRequest import FileUpload
 from ZODB.PersistentMapping import PersistentMapping
 from debug import log, log_exc
 from types import FileType
+from DateTime import DateTime
 import operator
 
 from Schema import Schema, Schemata
@@ -21,6 +22,8 @@ from interfaces.base import IBaseObject
 from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
+
+from Products.Archetypes.Marshall import RFC822Marshaller
 
 content_type = Schema((
     StringField('id',
@@ -42,8 +45,9 @@ content_type = Schema((
                 widget=StringWidget(label_msgid="label_title",
                                     description_msgid="help_title",
                                     i18n_domain="plone"),
-                ),
-    ))
+                )),
+    marshall = RFC822Marshaller()
+                      )
 
 class BaseObject(Implicit):
     security = ClassSecurityInfo()
@@ -395,6 +399,28 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
+    # misc... #################################################################
+
+    security.declarePrivate( '_datify' )
+    def _datify( self, attrib ):
+        """FIXME: overriden from DublinCore to deal with blank value..."""
+        if attrib == 'None' or not attrib:
+            attrib = None
+        elif not isinstance( attrib, DateTime ):
+            attrib = DateTime( attrib )
+        return attrib
+
+    security.declarePublic( 'Date' )
+    def Date( self ):
+        """FIXME: overriden from DublinCore to deal with blank value...
+        Dublin Core element - default date
+        """
+        # Return effective_date if set, modification date otherwise
+        date = getattr(self, 'effective_date', None )
+        if not date:
+            date = self.modified()
+        return date.ISO()
+
     # I18N content management #################################################
 
     security.declarePublic("hasI18NContent")
@@ -531,28 +557,6 @@ class BaseObject(Implicit):
             return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
-
-    # misc... #################################################################
-
-    security.declarePrivate( '_datify' )
-    def _datify( self, attrib ):
-        """FIXME: overriden from DublinCore to deal with blank value..."""
-        if attrib == 'None' or not attrib:
-            attrib = None
-        elif not isinstance( attrib, DateTime ):
-            attrib = DateTime( attrib )
-        return attrib
-
-    security.declarePublic( 'Date' )
-    def Date( self ):
-        """FIXME: overriden from DublinCore to deal with blank value...
-        Dublin Core element - default date
-        """
-        # Return effective_date if set, modification date otherwise
-        date = getattr(self, 'effective_date', None )
-        if not date:
-            date = self.modified()
-        return date.ISO()
 
     # subobject access ########################################################
     #
