@@ -303,14 +303,20 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return self._schemas[sid]
 
     ## Reference Engine Support
-    def getObject(self, uid):
+    def lookupObject(self, uid):
         object = None
         catalog = getToolByName(self, 'portal_catalog')
         result  = catalog({'UID' : uid})
         if result:
-            object = result[0].getObject()
+            object = result[0]
 
         return object
+
+    def getObject(self, uid):
+        object = self.lookupObject(uid)
+        if object:
+            return object.getObject()
+        return None
 
 
     def _rawEnum(self, callback, *args, **kwargs):

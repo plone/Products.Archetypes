@@ -49,6 +49,12 @@ class IntegerWidget(TypesWidget):
         'size' : '5',
         })
 
+class ReferenceWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/reference",
+        })
+
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

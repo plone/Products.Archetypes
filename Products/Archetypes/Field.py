@@ -3,10 +3,11 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import StringWidget, LinesWidget, \
-     BooleanWidget, CalendarWidget, ImageWidget
+     BooleanWidget, CalendarWidget, ImageWidget, ReferenceWidget
 from utils import capitalize, DisplayList
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
@@ -21,6 +22,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.validation import validation
+from config import TOOL_NAME
 
 
 #For Backcompat and re-export
@@ -298,6 +300,30 @@ class IntegerField(ObjectField):
             value = None
         
         ObjectField.set(self, instance, value, **kwargs)
+
+class ReferenceField(ObjectField):
+    __implements__ = ObjectField.__implements__
+
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'reference',
+        'default': None,
+        'widget' : ReferenceWidget,
+        'allowed_types' : (),
+        })
+
+    def Vocabulary(self, content_instance=None):
+        if self.allowed_types:
+            catalog = getToolByName(content_instance, 'portal_catalog')
+            value = [(obj.UID, obj.Title)
+                     for obj in catalog(Type=self.allowed_types)]
+        else:
+            archetype_tool = getToolByName(content_instance, TOOL_NAME)
+            value = [(obj.UID, obj.Title)
+                     for obj in archetype_tool.Content()]
+        if not self.required:
+            value.insert(0, (None, '<no reference>'))
+        return DisplayList(value)
 
 class BooleanField(ObjectField):
     __implements__ = ObjectField.__implements__
