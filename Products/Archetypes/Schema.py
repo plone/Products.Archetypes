@@ -343,16 +343,20 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         raise TypeError("Field value type error")
                     vocab = field.Vocabulary(instance)
                     # filter empty
-                    values = [v for v in values if v.strip()]
+                    values = [instance.unicodeEncode(v) for v in values if v.strip()]
+                    # extract valid values from vocabulary
+                    valids = []
+                    for v in vocab:
+                        if type(v) in [type(()), type([])]:
+                            v = v[0]
+                        if not type(v) in [type(''), type(u'')]:
+                            v = str(v)
+                        valids.append(instance.unicodeEncode(v))
+                    # check field values
                     for val in values:
                         error = 1
-                        for v in vocab:
-                            if type(v) in [type(()), type([])]:
-                                valid = v[0]
-                            else:
-                                valid = v
-                            # XXX do we need to do unicode casting here?
-                            if val == valid or str(val) == str(valid):
+                        for v in valids:
+                            if val == v:
                                 error = 0
                                 break
 

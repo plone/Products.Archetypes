@@ -8,14 +8,20 @@
 ##parameters=value
 
 charset = context.portal_properties.site_properties.default_charset
-charsets = [charset, 'ascii', 'latin-1', 'utf-8']
 
-for charset in charsets:
-    try:
-        value = unicode(value, charset).encode(charset)
-    except UnicodeError:
-        pass
+if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
+    value = str(value)
+    
+if hasattr(value, 'decode'): # type(value) is type('')
+    for charset in [site_charset, 'latin-1', 'utf-8']:
+        try:
+            value = unicode(value, charset)
+            break
+        except UnicodeError:
+            pass
     else:
-        break
+        raise UnicodeError('Unable to decode %s' % value)
 
-return value
+# don't try to catch unicode error here
+# if one occurs, that means the site charset must be changed !
+return value.encode(site_charset)
