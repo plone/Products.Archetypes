@@ -30,6 +30,7 @@ from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
 from ClassGen import generateClass, generateCtor
+from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from debug import log, log_exc
@@ -93,7 +94,6 @@ base_factory_type_information = (
                        'name': 'References',
                        'action': 'string:${object_url}/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       'visible' : 0,
                        },
                      )
       }, )
@@ -144,7 +144,7 @@ def fixActionsForType(portal_type, typesTool):
 
             #Update Aliases
             if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
-                if hasattr(portal_type,'aliases'):
+                if hasattr(portal_type,'aliases') and hasattr(typeInfo, 'setMethodAliases'):
                     typeInfo.setMethodAliases(portal_type.aliases)
                 else:
                     #Custom views might need to reguess the aliases
@@ -301,7 +301,7 @@ last_load = DateTime()
 
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
-                    SQLStorageConfig, Folder):
+                    SQLStorageConfig, Folder, ReferenceEngine):
     """ Archetypes tool, manage aspects of Archetype instances """
     id        = TOOL_NAME
     meta_type = TOOL_NAME.title().replace('_', ' ')
@@ -358,6 +358,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     def __init__(self):
+        ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
@@ -588,6 +589,37 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         widgets.sort()
         return [widget for name, widget in widgets]
 
+    ## Reference Engine Support
+    security.declarePublic('lookupObject')
+    def lookupObject(self, uid):
+        if not uid:
+            return None
+        object = None
+        catalog = getToolByName(self, UID_CATALOG)
+        result  = catalog({'UID' : uid})
+        if result:
+            #This is an awful workaround for the UID under containment
+            #problem. NonRefs will aq there parents UID which is so
+            #awful I am having trouble putting it into words.
+            for object in result:
+                o = object.getObject()
+                if o is not None:
+                    if IReferenceable.isImplementedBy(o):
+                        return o
+        return None
+
+    security.declarePublic('getObject')
+    def getObject(self, uid):
+        return self.lookupObject(uid)
+
+
+    security.declarePublic('reference_url')
+    def reference_url(self, object):
+        """Return a link to the object by reference"""
+        uid = object.UID()
+        return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
+
+
     security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'"""
@@ -614,6 +646,57 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log("no object for %s" % uid)
 
+    security.declarePrivate('_genId')
+    def _genId(self, object):
+        catalog = getToolByName(self, UID_CATALOG)
+        keys = catalog.uniqueValuesFor('UID')
+
+        cid = object.getId()
+        i = 0
+        counter = 0
+        postfix = ''
+        while cid in keys:
+            if counter > 0:
+                g = random.Random(time.time())
+                postfix = g.random() * 10000
+            cid = "%s-%s%s" % (object.getId(),
+                               i, postfix)
+            i = int((time.time() % 1.0) * 10000)
+            counter += 1
+
+        return cid
+
+    security.declarePrivate('registerContent')
+    def registerContent(self, object):
+        """register a content object and set its unique id"""
+        cid = self.getUidFrom(object)
+        if cid is None:
+            cid = self._genId(object)
+            self.setUidOn(object, cid)
+
+        return cid
+
+    security.declarePrivate('unregisterContent')
+    def unregisterContent(self, object):
+        """remove all refs/backrefs from an object"""
+        cid = self.getUidFrom(object)
+        self._delReferences(cid)
+        return cid
+
+    security.declarePublic('getUidFrom')
+    def getUidFrom(self, object):
+        """return the UID for an object or None"""
+        value = None
+
+        if hasattr(object, "_getUID"):
+            value = object._getUID()
+
+        return value
+
+    security.declarePrivate('setUidOn')
+    def setUidOn(self, object, cid):
+        if hasattr(object, "_setUID"):
+            object._setUID(cid)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Content')
@@ -679,39 +762,64 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
-        """Get a list of schema that have changed"""
+        """Returns a list of tuples indicating which schema have changed.  
+           Tuples have the form (schema, changed)"""
         list = []
-        for t in self._types.keys():
-            if self._types[t]['update']:
-                list.append(t)
+        keys = self._types.keys()
+        keys.sort()
+        for t in keys:
+            list.append((t, self._types[t]['update']))
         return list
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self):
+    def manage_updateSchema(self, REQUEST=None):
         """Make sure all objects' schema are up to date"""
+        
         out = StringIO()
         print >> out, 'Updating schema...'
 
-        for t in self._types.keys():
-            if not self._types[t]['update']:
-                continue
-            catalog = getToolByName(self, UID_CATALOG)
-            result = catalog._catalog.searchResults({'meta_type' : t})
+        update_types = []
+        if REQUEST is None:
+            for t in self._types.keys():
+                if self._types[t]['update']:
+                    update_types.append(t)
+            update_all = 0
+        else:
+            for t in self._types.keys():
+                if REQUEST.form.get(t, 0):
+                    update_types.append(t)
+            update_all = REQUEST.form.get('update_all', 0)
 
-            classes = {}
-            for r in result:
-                try:
-                    o = r.getObject()
-                    if hasattr(o, '_updateSchema'):
-                        if not o._isSchemaCurrent():
-                            o._updateSchema(out=out)
-                except KeyError:
-                    pass
+        # Use the catalog's ZopeFindAndApply method to walk through all
+        # objects in the portal.  This works much better than relying on
+        # the catalog to find objects, because an object may be uncatalogable
+        # because of its schema, and then you can't update it if you require
+        # that it be in the catalog.
+        catalog = getToolByName(self, 'portal_catalog')
+        portal = getToolByName(self, 'portal_url').getPortalObject()
+        meta_types = [_types[t]['name'] for t in update_types]
+        if update_all:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateObject)
+        else:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateChangedObject)
+        for t in update_types:
             self._types[t]['update'] = 0
-            self._p_changed = 1
+        self._p_changed = 1
         return out.getvalue()
+
+    def _updateObject(self, o, path):
+        import sys
+        sys.stdout.write('updating %s\n' % o.getId())
+        o._updateSchema()
+
+    def _updateChangedObject(self, o, path):
+        if not o._isSchemaCurrent():
+            o._updateSchema()
+        
 
 
     def __setstate__(self, v):
@@ -819,12 +927,5 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return res
 
-
-    def lookupObject(self,uid):
-        import warnings
-        warnings.warn('ArchetypeTool.lookupObject is dreprecated',DeprecationWarning)
-        return self.reference_catalog.lookupObject(uid)
-    
-    getObject=lookupObject
 
 InitializeClass(ArchetypeTool)
