@@ -59,20 +59,20 @@ class TypesWidget(macrowidget, Base):
     security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
-        
+
         Return values are visible, hidden, invisible
-        
-        The value for the attribute on the field may either be a dict with a 
+
+        The value for the attribute on the field may either be a dict with a
         mapping for edit and view::
-        
+
             visible = { 'edit' :'hidden', 'view' : 'invisible' }
-        
+
         Or a single value for all modes::
-            
+
             True/1:  'visible'
             False/0: 'invisible'
             -1:      'hidden'
-            
+
         The default state is 'visible'.
         """
         vis_dic = getattr(aq_base(self), 'visible', _marker)
@@ -200,9 +200,8 @@ class ReferenceWidget(TypesWidget):
         search where the user can add a typeid instance
         """
         searchFor = []
-        
+
         # first, discover who can contain the type
-        print 'lookup', destination_types
         if destination_types is not None:
             if type(destination_types) in (type(()), type([])):
                 searchFor += list(destination_types[:])
@@ -216,19 +215,18 @@ class ReferenceWidget(TypesWidget):
                     typeinfo.getId() in regType.allowed_content_types:
                     searchFor.append(regType.getId())
 
-        #pid = purl.getPortalObject().getId()
         catalog = getToolByName(purl, 'portal_catalog')
         containers = []
-        print searchFor
         for wanted in searchFor:
             for brain in catalog(portal_type=wanted):
-                containers.append(brain.relative_url)
+                rel = purl.getRelativeUrl(brain.getObject())
+                containers.append(rel)
 
         return containers
 
     security.declarePublic('addableTypes')
     def addableTypes(self, instance, field):
-        """ Returns a list of dictionaries which maps portal_type 
+        """ Returns a list of dictionaries which maps portal_type
             to a human readable form.
         """
         tool = getToolByName(instance, 'portal_types')
@@ -271,7 +269,6 @@ class ReferenceWidget(TypesWidget):
             value['destinations'] = []
 
             for option in options.get(typeid):
-                print option, 'going to search'
                 if option == None:
                     value['destinations'] = value['destinations'] + \
                         lookupDestinationsFor(_info, tool, purl,
@@ -284,9 +281,9 @@ class ReferenceWidget(TypesWidget):
                         place = place()
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
-                    else:  
+                    else:
                         #XXX Might as well check for type, doing it everywhere else
-                        value['destinations'].append(place) 
+                        value['destinations'].append(place)
 
             if value['destinations']:
                 types.append(value)
