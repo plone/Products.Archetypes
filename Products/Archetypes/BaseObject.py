@@ -162,7 +162,8 @@ class BaseObject(Implicit):
         ## Also play nice with aq again... doh!
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key)
-        return self.get(key)
+        accessor = getattr(self, self.Schema()[key].accessor)
+        return accessor()
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):
