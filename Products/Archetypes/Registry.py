@@ -207,7 +207,8 @@ def registerField(klass, **kw):
     # XXX iiiiiigggghhh!
     # the root of evil security breaches but currently required
     # FIXME 
-    setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
@@ -218,7 +219,8 @@ def registerWidget(klass, **kw):
     # XXX iiiiiigggghhh!
     # the root of evil security breaches but currently required
     # FIXME 
-    setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
