@@ -9,6 +9,10 @@
    reinstall. Under some circumstances the skins aren't properly registered.
    [tiran]
 
+ * Fixed [ 1011533 ] AT CEILING date for expires will break DateIndex. Changed
+   CEILING_DATE from year 9999 to year 2500.
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
