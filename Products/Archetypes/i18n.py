@@ -21,7 +21,7 @@ def translate_wrapper(domain, msgid, mapping=None, context=None, target_language
     except TypeError:
         #Localizer does not take a default param
         res = service.translate(domain, msgid, mapping=mapping, context=context, target_language=target_language)
-        
+
     if res is None or res is msgid:
         return default
     return res
