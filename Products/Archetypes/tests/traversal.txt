@@ -12,9 +12,13 @@ correctly accross the many use cases that must co-exist.
 First, we are going to setup an environment so we can test that stuff
 is acquired or not acquired at the right times.
 
-  >>> from Testing.ZopeTestCase import user_name, user_password
-  >>> from Products.CMFTestCase.setup import portal_name
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
   >>> self.setRoles(['Manager'])
+
+  CMF and Plone sites may have different default titles so we set one
+  >>> self.portal.setTitle('Portal Title')
 
   >>> self.portal.invokeFactory('DDocument', 'test_document',
   ...                           title='Root Document')
@@ -45,7 +49,7 @@ be allowed to acquire content from higher-level hierarchies:
   ... </methodCall>
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
-  ...portal...
+  ...Portal Title...
 
   >>> print self.portal.test_document.getPortalTypeName()
   DDocument
@@ -114,14 +118,14 @@ For testing Browser access, we are going to just try using the ``GET``
 method instead.
 
   >>> print self.portal.title_or_id()
-  Portal
+  Portal Title
 
   >>> print http(r"""
   ... GET /%s/title_or_id HTTP/1.0
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
-  ...portal...
+  ...Portal Title...
 
   >>> print self.portal.test_document.getPortalTypeName()
   DDocument

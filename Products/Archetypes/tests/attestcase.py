@@ -30,11 +30,21 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
+# the output of some tests may differ when CMFPlone is installed
+try:
+    import Products.CMFPlone
+except ImportError:
+    HAS_PLONE = False
+else:
+    HAS_PLONE = True
+
 # Use either plain CMF or Plone to run the portal tests
 # You have to install:
 #  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
 #  * Plone and PloneTestCase for Plone tests
+#USE_PLONETESTCASE = True
 USE_PLONETESTCASE = False
+#USE_PLONETESTCASE = HAS_PLONE
 
 if not USE_PLONETESTCASE:
     # setup is installing some required products
@@ -81,8 +91,12 @@ class ATFunctionalTestCase(Functional, ATTestCase):
     """
     __implements__ = Functional.__implements__ + ATTestCase.__implements__ 
 
-default_user = ZopeTestCase.user_name
+from Testing.ZopeTestCase import user_name
+from Testing.ZopeTestCase import user_password
+default_user = user_name
 default_role = 'Member'
+
     
-__all__ = ('USE_PLONETESTCASE', 'default_user', 'default_role', 'ATTestCase',
-           'ATFunctionalTestCase', )
+__all__ = ('USE_PLONETESTCASE', 'HAS_PLONE',
+           'default_user', 'default_role', 'user_name', 'user_password',
+           'ATTestCase', 'ATFunctionalTestCase', )

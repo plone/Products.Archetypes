@@ -30,13 +30,12 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 
 from Testing.ZopeTestCase.functional import Functional
-from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.tests.attestcase import USE_PLONETESTCASE
+from Products.Archetypes.tests import attestcase
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 
-if not USE_PLONETESTCASE:
+if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
     from Products.CMFTestCase.setup import portal_name
     from Products.CMFTestCase.setup import portal_owner
@@ -51,12 +50,12 @@ else:
     PloneTestCase.setupPloneSite()
     PortalTestClass = PloneTestCase.PloneTestCase
 
-class ATSiteTestCase(PortalTestClass, ATTestCase):
+class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     """AT test case inside a CMF site
     """
     
     __implements__ = PortalTestClass.__implements__ + \
-                     ATTestCase.__implements__
+                     attestcase.ATTestCase.__implements__
     
     def login(self, name=ZopeTestCase.user_name):
         '''Logs in.'''
