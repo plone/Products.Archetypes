@@ -90,7 +90,8 @@
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:vocab.getValue(item)" />
+                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item)) />
+
 
                 <br/>
               </tal:block>
@@ -108,7 +109,7 @@
                       tal:repeat="item vocab"
                       tal:attributes="value item;
                                       selected python:test((item in uids), 'selected', '')"
-                      tal:content="python:vocab.getValue(item)"></option>
+                      tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
             </select>
           </div>
 

@@ -36,9 +36,8 @@
 	       checked python:test(here.unicodeTestIn(item, value), 'checked', None);
 	       value nocall:item;"
 	       />
-	      <label for="field"
-		     tal:attributes="for string:${fieldName}_${tabindex}"
-		     tal:content="python:vocab.getValue(item)" />
+          <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
+                 tal:attributes="for string:${fieldName}_${tabindex}" />
 	      <br />
 	    </tal:block>
 	  </span>
@@ -53,7 +52,7 @@
 		    tal:repeat="item vocab"
 		    tal:attributes="value nocall:item;
 		    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
-		    tal:content="python: vocab.getValue(item)"
+		    tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
 		    i18n:translate="" />
 	  </select>
 	</metal:fill>

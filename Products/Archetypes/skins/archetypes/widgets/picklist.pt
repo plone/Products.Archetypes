@@ -40,7 +40,7 @@
                   <option
                     tal:repeat="item vocab"
                     tal:attributes="value item;"
-                    tal:content="python:vocab.getValue(item)">
+                    tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))">
                     option
                   </option>
                 </select>
@@ -67,7 +67,7 @@
 
                   <tal:block tal:repeat="vocab_item vocab">
                     <option
-                      tal:define="label python:vocab.getValue(vocab_item)"
+                      tal:define="label python:here.translate(vocab.getMsgId(vocab_item), default=vocab.getValue(vocab_item))"
                       tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 1, 0)"
                       tal:attributes="value vocab_item;"
                       tal:content="label" 
