@@ -4,6 +4,7 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
+from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -21,20 +22,6 @@ from Products.PortalTransforms.Extensions.Install import install  as install_por
 
 from Products.Archetypes.config import *
 
-try:
-    from Products.CMFPlone.Configuration import getCMFVersion
-except ImportError:
-    # Configuration and getCMFVersion come with Plone 1.1
-    def getCMFVersion():
-        from os.path import join
-        from Globals import package_home
-        from Products.CMFCore import cmfcore_globals
-
-        path=join(package_home(cmfcore_globals),'version.txt')
-        file=open(path, 'r')
-        _version=file.read()
-        file.close()
-        return _version.strip()
 
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
@@ -123,57 +110,13 @@ def install_types(self, out, types, package_name):
         if t:
             t.title = type.archetype_name
 
+    
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
-        if 'actions' in portal_type.installMode:
-            typeInfo = getattr(typesTool, portal_type.__name__)
-            if hasattr(portal_type,'actions'):
-                #Look for each action we define in portal_type.actions
-                #in typeInfo.action replacing it if its there and
-                #just adding it if not
-                if getattr(portal_type,'include_default_actions',1):
-                    new = list(typeInfo._actions)
-                else:
-                    # if no standard actions are wished - dont display them
-                    new=[]
-
-                cmfver=getCMFVersion()
-
-                for action in portal_type.actions:
-                    if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
-                        #then we know actions are defined new style as ActionInformations
-                        hits = [a for a in new if a.id==action['id']]
-
-                        #change action and condition into expressions,
-                        #if they are still strings
-                        if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
-                            action['action']=Expression(action['action'])
-                        if action.has_key('condition') and type(action['condition']) in (type(''), type(u'')):
-                            action['condition']=Expression(action['condition'])
-                        if hits:
-                            hits[0].__dict__.update(action)
-                        else:
-                            if action.has_key('name'):
-                                action['title']=action['name']
-                                del action['name']
-
-                            new.append (ActionInformation(**action))
-                    else:
-                        hit = findDict(new, 'id', action['id'])
-                        if hit:
-                            hit.update(action)
-                        else:
-                            new.append(action)
-
-                typeInfo._actions = tuple(new)
-                typeInfo._p_changed = 1
-
-            if hasattr(portal_type,'factory_type_information'):
-                typeInfo.__dict__.update(portal_type.factory_type_information)
-                typeInfo._p_changed = 1
-
+        fixActionsForType(portal_type, typesTool)
+        
 def install_indexes(self, out, types):
     catalog = getToolByName(self, 'portal_catalog')
 

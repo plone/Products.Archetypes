@@ -11,7 +11,9 @@ type_mixin = Schema((
                 mutator="setLayout",
                 default="base_view",
                 vocabulary="templates",
-                widget=SelectionWidget(modes=('edit',),)
+                widget=SelectionWidget(
+                                       visible={'view' : 'invisible'},
+                                       )
                 ),
         ))
 
@@ -23,9 +25,16 @@ class TemplateMixin:
           'name': 'View',
           'action': 'view',
           'permissions': (CMFCorePermissions.View,),
-          },
-        )
+        }, )
+    
+    aliases = {
+        '(Default)':'',
+        'index_html': '',
+        'view':'',
+        'gethtml':'source_html'}
 
+
+    index_html = None
     def __call__(self):
         """return a view based on layout"""
         v = getTemplateFor(self, self.getLayout())

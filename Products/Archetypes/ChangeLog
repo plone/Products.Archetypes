@@ -1,3 +1,18 @@
+2003-10-08  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ArchetypeTool.py (fixActionsForType): Added CMF1.4 support for
+	method aliases by defining an aliases dict on the class
+	object. This is needed to make TemplateMixin work again as
+	_guessMethodAliases would break the view delegate before.
+
+	Refactored the actions code ever so slightly and moved it out of
+	extensions and into the archetypes tool.
+
+	Made the TTW type installer call process types and the actions
+	code to be sure that modify_fti was called and the correct actions
+	installed.
+
+	
 2003-10-03    <demo@bazil.runyaga.org>
 
 	* BaseContent.py (BaseContent.PUT): Dont Trust Content-Type Sent

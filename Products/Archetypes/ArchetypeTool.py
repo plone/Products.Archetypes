@@ -35,6 +35,25 @@ from debug import log, log_exc
 from utils import capitalize, findDict, DisplayList, unique
 from Renderer import renderer
 
+from Products.CMFCore.ActionInformation import ActionInformation
+from Products.CMFCore.Expression import Expression
+
+try:
+    from Products.CMFPlone.Configuration import getCMFVersion
+except ImportError:
+    # Configuration and getCMFVersion come with Plone 1.1
+    def getCMFVersion():
+        from os.path import join
+        from Globals import package_home
+        from Products.CMFCore import cmfcore_globals
+
+        path=join(package_home(cmfcore_globals),'version.txt')
+        file=open(path, 'r')
+        _version=file.read()
+        file.close()
+        return _version.strip()
+
+
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
 # This is the template that we produce our custom types from
@@ -76,6 +95,59 @@ base_factory_type_information = (
 
                      )
       }, )
+
+def fixActionsForType(portal_type, typesTool):
+    if 'actions' in portal_type.installMode:
+        typeInfo = getattr(typesTool, portal_type.__name__)
+        if hasattr(portal_type,'actions'):
+            #Look for each action we define in portal_type.actions
+            #in typeInfo.action replacing it if its there and
+            #just adding it if not
+            if getattr(portal_type,'include_default_actions',1):
+                new = list(typeInfo._actions)
+            else:
+                # if no standard actions are wished - dont display them
+                new=[]
+
+            cmfver=getCMFVersion()
+
+            for action in portal_type.actions:
+                if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
+                    #then we know actions are defined new style as ActionInformations
+                    hits = [a for a in new if a.id==action['id']]
+
+                    #change action and condition into expressions,
+                    #if they are still strings
+                    if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
+                        action['action']=Expression(action['action'])
+                    if action.has_key('condition') and type(action['condition']) in (type(''), type(u'')):
+                        action['condition']=Expression(action['condition'])
+                    if hits:
+                        hits[0].__dict__.update(action)
+                    else:
+                        if action.has_key('name'):
+                            action['title']=action['name']
+                            del action['name']
+
+                        new.append (ActionInformation(**action))
+                else:
+                    hit = findDict(new, 'id', action['id'])
+                    if hit:
+                        hit.update(action)
+                    else:
+                        new.append(action)
+
+            #Update Aliases
+            if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
+                if hasattr(portal_type,'aliases'):
+                    typeInfo.setMethodAliases(portal_type.aliases)
+            
+            typeInfo._actions = tuple(new)
+            typeInfo._p_changed = 1
+
+        if hasattr(portal_type,'factory_type_information'):
+            typeInfo.__dict__.update(portal_type.factory_type_information)
+            typeInfo._p_changed = 1
 
 
 def modify_fti(fti, klass, pkg_name):
@@ -465,14 +537,21 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         
         typeinfo_name="%s: %s" % (package, typeName)
 
+        #We want to run the process/modify_fti code which might not have been called
+        typeDesc = getType(typeName)
+        process_types([typeDesc], package)
+        
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                             id=typeName,
                                             typeinfo_name=typeinfo_name)
-        # set the human readable title explicitly
-        #t = getattr(typesTool, typeName, None)
-        #if t:
-        #    t.title = type.archetype_name
+        t = getattr(typesTool, typeName, None)
+        if t:
+            t.title = getattr(typeDesc['klass'], 'archetype_name', typeDesc['name'])
 
+
+        #and update the actions as needed
+        fixActionsForType(typeDesc['klass'], typesTool)
+        
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_debugForm")
 
