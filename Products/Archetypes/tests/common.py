@@ -2,7 +2,7 @@
 # ArchetypesTestCase and ArcheSiteTestCase classes
 #
 
-# $Id: common.py,v 1.3.24.3 2004/05/13 15:59:16 shh42 Exp $
+# $Id: common.py,v 1.3.24.4 2004/05/31 17:17:38 shh42 Exp $
 
 from Testing import ZopeTestCase
 
@@ -88,3 +88,6 @@ else:
     from ArchetypesTestCase import portal_name
     from ArchetypesTestCase import portal_owner
     hasArcheSiteTestCase = True
+
+from Products.Archetypes.tests import PACKAGE_HOME
+
