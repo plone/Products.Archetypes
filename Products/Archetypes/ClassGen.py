@@ -87,7 +87,7 @@ class Generator:
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
-        if not hasattr(klass, "security"):
+        if not klass.__dict__.has_key('security'):
             security = klass.security = ClassSecurityInfo()
         else:
             security = klass.security
@@ -95,6 +95,7 @@ class ClassGenerator:
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
         security.declareProtected(perm, methodName)
+        #security.setDefaultAccess("deny")
 
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)

@@ -5,6 +5,7 @@ from AccessControl import ClassSecurityInfo
 from Products.CMFCore.CMFCorePermissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
+from Globals import InitializeClass
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -70,3 +71,5 @@ class CatalogMultiplex(CMFCatalogAware):
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.unindexObject()
+
+InitializeClass(CatalogMultiplex)
