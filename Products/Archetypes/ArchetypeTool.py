@@ -384,12 +384,20 @@ def registerClasses(context, package, types=None):
                                   })
         klass.manage_options = tuple(options)
         generatedForm = getattr(module, addFormName)
+        icon=folderish and folder_icon or document_icon
+        if klass.__dict__.has_key('content_icon'):
+            icon = klass.content_icon
+        elif hasattr(klass, 'factory_type_information'):
+            factory_type_information = klass.factory_type_information
+            if factory_type_information.has_key('content_icon'):
+                icon = factory_type_information['content_icon']
+
         context.registerClass(
             t['klass'],
             constructors=(generatedForm,
                           constructor),
             visibility=None,
-            icon=folderish and folder_icon or document_icon,
+            icon=icon
             )
 
 def listTypes(package=None):

@@ -547,3 +547,24 @@ def unwrap_method(klass, name):
     new_method = getattr(klass, orig_name)
     delattr(klass, orig_name)
     setattr(klass, name, new_method)
+
+
+def _get_position_after(label, options):
+    position = 0 
+    for item in options:
+        if item['label'] != label:
+            continue
+        position += 1
+    return position
+
+def insert_zmi_tab_before(label, new_option, options):
+    _options = list(options)
+    position = _get_position_after(label, options)
+    _options.insert(position-1, new_option)
+    return tuple(_options)
+
+def insert_zmi_tab_after(label, new_option, options):
+    _options = list(options)
+    position = _get_position_after(label, options)
+    _options.insert(position, new_option)
+    return tuple(_options)
