@@ -7,7 +7,6 @@ from types import TupleType, ListType
 from UserDict import UserDict as BaseDict
 
 from Products.Archetypes.debug import log
-from Products.Archetypes.Schema import Schemata
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -24,6 +23,7 @@ except:
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
     to work with the new fixed order schema."""
+    from Products.Archetypes.Schema import Schemata
     if not hasattr(aq_base(schema), '_fields'):
         fields = schema.data.values()
         Schemata.__init__(schema, fields)
