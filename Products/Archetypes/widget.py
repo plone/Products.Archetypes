@@ -31,7 +31,8 @@ class widget:
 
     description -- tooltip
     label       -- textual label
-    visible     -- 1[default] visible 0 hidden -1 skipped
+    visible     -- visible[default] | invisible | hidden
+    condition   -- TALES expression to control the widget display
     """
 
     __implements__ = (iwidget,)
@@ -44,10 +45,12 @@ class widget:
         'description' : '',
         'label' : '',
         'visible' : {'edit':'visible', 'view':'visible'},
-        'attributes' : ''
+    #   'attributes' : '',
+        'condition': '',
         }
 
     def __init__(self, **kwargs):
+        # Hey, where's _processed used?!?
         self._processed  = 0
         self._process_args(**kwargs)
 
@@ -64,23 +67,35 @@ class widget:
 
     def _translate_attribute(self, instance, name):
         value = getattr(self, name)
-        domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
+        if not value:
+            return ''
+        domain = (getattr(self, 'i18n_domain', None) or
+                  getattr(instance, 'i18n_domain', None))
         if domain is None:
             return value
         msgid = getattr(self, name+'_msgid', None) or value
-        return i18n.translate(domain, msgid, mapping=instance.REQUEST, context=instance, default=value)
+        return i18n.translate(domain, msgid, mapping=instance.REQUEST,
+                              context=instance, default=value)
 
-    def Label(self, instance):
+    def Label(self, instance, **kwargs):
         """Returns the label, possibly translated"""
+        value = self.label
+        method = value and getattr(instance.aq_inner, value, None)
+        if method and callable(method):
+            ## Label methods can be called with kwargs and should
+            ## return the i18n version of the description
+            value = method(**kwargs)
+            return value
+
         return self._translate_attribute(instance, 'label')
 
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated"""
         value = self.description
-        method = getattr(instance.aq_explicit, value, None)
+        method = value and getattr(instance.aq_inner, value, None)
         if method and callable(method):
-            ##Description methods can be called with kwargs and should
-            ##return the i18n version of the description
+            ## Description methods can be called with kwargs and should
+            ## return the i18n version of the description
             value = method(**kwargs)
             return value
 

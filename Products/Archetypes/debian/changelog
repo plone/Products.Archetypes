@@ -1,3 +1,10 @@
+generator (1.0.2-1) unstable; urgency=low
+
+  * New upstream release
+  * generator was moved from python site-packages to zope Products
+
+ -- Christian Heimes <heimes@faho.rwth-aachen.de>  Sun, 21 Mar 2004 16:47:10 +0100
+
 generator (1.0-1) unstable; urgency=low
 
   * Initial Release. 

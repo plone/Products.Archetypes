@@ -1,3 +1,8 @@
+2004-03-14  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Updated README to reflect the install location changes for newer releases
+      of Archetypes
+
 2003-08-04 Sylvain Thénault <syt@logilab.fr>
 
     * added minimal README file
