@@ -16,6 +16,9 @@
 	
 	* Extensions/utils.py (install_tools): install the transforms tool
 	and the mimetypes registry.
+
+	* TransformTool.py: new TransformsChain classe, simple policy
+	handling
 	
 2003-06-04  Sidnei da Silva  <sidnei@x3ng.com>
 
