@@ -100,6 +100,7 @@ class Reference(Referenceable, SimpleItem):
             obj = brain.getObject()
             if obj is not None:
                 return obj
+        raise AttributeError('sourceObject')
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG, None)
@@ -109,6 +110,7 @@ class Reference(Referenceable, SimpleItem):
             obj = brain.getObject()
             if obj is not None:
                 return obj
+        raise AttributeError('targetObject')
 
     ###
     # Catalog support
