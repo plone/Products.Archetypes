@@ -1,4 +1,5 @@
-from Interface import Interface
+
+from Products.Archetypes.interfaces.interface import Interface
 
 class IOrderedFolder( Interface ):
 
