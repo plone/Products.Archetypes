@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.3 2003/04/22 21:27:48 bcsaller Exp $
+$Id: test_referenceable.py,v 1.4 2003/04/28 15:53:31 bcsaller Exp $
 """
 
 import unittest
@@ -16,8 +16,10 @@ from Acquisition import aq_base
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 
-class ReferenceableTests( SecurityRequestTest ):
 
+site = None
+
+class ReferenceableTests( SecurityRequestTest ):
     def setUp(self):
         SecurityRequestTest.setUp(self)
         self.root.manage_addProduct[ 'CMFPlone' ].manage_addSite( 'testsite', \
@@ -109,6 +111,9 @@ class ReferenceableTests( SecurityRequestTest ):
         assert c in a.getRefs()
         assert a.getRefs('Owns') == [c]
         assert c.getBRefs('Owns')== [a]
+        rels = a.getRelationships()
+        assert "KnowsAbout" in rels
+        assert "Owns" in rels
 
         a.deleteReference(c)
 
