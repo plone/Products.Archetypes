@@ -1154,8 +1154,12 @@ class TextField(FileField):
         """Set mimetype in the base unit.
         """
         bu = self.get(instance)
-        bu.setContentType(value)
-        self.set(instance, bu)
+        if shasattr(bu, 'setContentType'):
+            bu.setContentType(value)
+            self.set(instance, bu)
+        else:
+            log('Did not get a BaseUnit to set the content type',
+                level=ERROR)
 
     getContentType = ObjectField.getContentType.im_func
 
@@ -2521,8 +2525,7 @@ class ScalableImage(BaseImage):
         except ConflictError:
             raise
         except Exception, e:
-            LOG('Archetypes.ScallableField', ERROR,
-                'Error while resizing image', e)
+            log_exc('Error while resizing image')
 
         return image
 
