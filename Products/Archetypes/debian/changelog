@@ -1,4 +1,4 @@
-zope-cmfarchetypes (1.1pre-1) unstable; urgency=low
+zope-cmfarchetypes (1.1+20030813-1) unstable; urgency=low
 
   * Initial debian packaging. 
 

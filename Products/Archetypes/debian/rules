@@ -22,7 +22,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	rm -rf build
-	rm -rf debian/python?.?-tmp*
+	rm -rf debian/zope-cmfarchetypes/
 	find . -name "*.pyc" | xargs rm -f
 	rm -f changelog.gz
 	dh_clean
@@ -36,11 +36,13 @@ install: build
 	
 	find . -type f -not \( \
 			-path '*/debian/*' -or \
+			-path '*/build/*' -or \
 			-name 'build-stamp' -or \
 			-iname 'license*' -or \
 			-iname 'changelog*' -or \
 			-iname 'authors*' -or \
 			-name 'README*' -or \
+			-name 'INSTALL**' -or \
 			-name 'TODO*' -or \
 			-name 'COPYING*' -or \
 			-name 'MANIFEST*' -or \
