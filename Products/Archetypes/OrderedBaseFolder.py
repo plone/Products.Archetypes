@@ -21,6 +21,7 @@ from AccessControl import ClassSecurityInfo, Permissions
 from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
      AddPortalContent, ModifyPortalContent, ManageProperties
@@ -257,7 +258,7 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
     __implements__ = OrderedContainer.__implements__ + \
-                     BaseFolder.__implements__
+                     BaseFolder.__implements__ + (DynamicType,)
 
     security = ClassSecurityInfo()
 
