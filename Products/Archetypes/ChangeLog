@@ -3,6 +3,8 @@
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): Applied Joel
 	Burton's fixes from head, plus a few more changes to make it work
 	even better.
+	(ArchetypeTool.getSearchWidgets): Allow passing type and context
+	(for Andreas Jung's PloneCollectorNG -- untested)
 
 	* Extensions/utils.py (install_tools): Fixed migration from 1.0
 
