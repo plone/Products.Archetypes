@@ -33,26 +33,23 @@ settings = [
      'assertion': lambda result:result is None, # result of field.validate()
      }, 
 
-    {'field': {'required': 1},
-     'value': None,
+    {'field': {'required': 1}, # required
+     'value': None,            # ... but no value given
      'assertion': lambda result:result is not None},
 
     ]
 
-for req in 0,1:
+for req in 0,1: # 0 == not required, 1 == required
+    
     for validator in (('v2', 'v1'), ('v1',)):
+        # Make sure that for both sets of validators, v1 returns an error.
         settings.append(
             {'field': {'required': req, 'validators': validator},
              'value': 'bass',
              'assertion': lambda result:result == 'v1: bass'}
             )
 
-    settings.append(
-        {'field': {'required': req, 'enforceVocabulary': 1},
-         'value': 'cello',
-         'assertion': lambda result:result is not None}
-        )
-
+    # the trombone is in the vocabulary
     settings.append(
         {'field': {'required': req, 'enforceVocabulary': 1,
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
@@ -60,12 +57,21 @@ for req in 0,1:
          'assertion': lambda result:result is None}
         )
 
+    # tuba is not in vocabulary, so this must fail
     settings.append(
         {'field': {'required': req, 'enforceVocabulary': 1,
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': 'tuba',
          'assertion': lambda result:result is not None}
         )
+
+    # enforceVocabulary, but no vocabulary given
+    settings.append(
+        {'field': {'required': req, 'enforceVocabulary': 1},
+         'value': 'cello',
+         'assertion': lambda result:result is not None}
+        )
+
 
 class FakeType(BaseObject):
     def unicodeEncode(self, v): return v # don't
@@ -76,6 +82,7 @@ class TestSettings(ArchetypesTestCase):
         self.instance = FakeType('fake')
 
     def testSettings(self):
+        # tests every setting in global "settings"
         for setting in settings:
             field = Field('orchestra', **setting['field'])
             result = field.validate(setting['value'], self.instance, errors={})
