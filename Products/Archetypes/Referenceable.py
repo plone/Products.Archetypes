@@ -166,7 +166,7 @@ class Referenceable(Base):
             setattr(self, config.UUID_ATTR, None)
 
         self._register()
-        self._updateCatalog(container)
+        self._updateCatalog(self)
 
     def manage_beforeDelete(self, item, container):
         """
