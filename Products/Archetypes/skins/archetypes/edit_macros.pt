@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xml:lang="en-US"
-      lang="en-US"
+      xml:lang="en"
+      lang="en"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
@@ -21,13 +21,13 @@
 
       <div tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
-          <div tal:condition="python:set == fieldset and fieldsets != ['default']" tal:omit-tag="">
+          <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <b>[<span tal:content="set" />]</b>
-          </div>
-          <div tal:condition="python:set != fieldset" tal:omit-tag="">
+          </tal:current>
+          <tal:others condition="python:set != fieldset">
             <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
             [<span tal:content="set" />]</a>
-          </div>
+          </tal:others>
         </tal:block>
       </div>
       <metal:block define-slot="extra_info" />
@@ -56,15 +56,17 @@
             </strong>:<span tal:replace="python:errors[error]" />
             </div>
             </div>
+          -->
             <pre tal:content="structure request/controller_state" />
             <pre tal:content="structure request" />
-          -->
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
             <tal:fields repeat="field fields">
-              <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')" />
+              <tal:condition tal:define="visCondition python:field.widget.testCondition(here, portal, template)">
+                <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+              </tal:condition>
             </tal:fields>
           </metal:block>
 
@@ -75,10 +77,9 @@
           <input type="hidden" name="add_reference.type:record" value="" />
 
           <tal:env define="env request/controller_state/kwargs">
-            <tal:loop repeat="varname python:(
-                      'reference_source_url',
-                      'reference_source_field',
-                      'reference_source_fieldset')">
+            <tal:loop repeat="varname python:('reference_source_url',
+                                              'reference_source_field',
+                                              'reference_source_fieldset')">
               <tal:reference define="items python:env.get(varname, request.get(varname))"
                              condition="items">
                 <input tal:repeat="item items"
@@ -86,7 +87,7 @@
                        name="form_env.reference_source_url:list:record"
                        value="value"
                        tal:attributes="value item;
-                       name string:form_env.${varname}:list:record"
+                                       name string:form_env.${varname}:list:record"
                        />
               </tal:reference>
             </tal:loop>
@@ -99,10 +100,10 @@
             <input type="hidden" name="key"
                    value="value"
                    tal:define="key python:env[0];
-                   value python:env[1]"
+                               value python:env[1]"
                    tal:condition="python:key.startswith('persistent_')"
                    tal:attributes="name string:form_env.${key}:record;
-                   value value"
+                                   value value"
                    />
           </tal:env>
 
@@ -113,10 +114,10 @@
             <input type="hidden" name="key"
                    value="value"
                    tal:define="key env;
-                   value request/?env"
+                               value request/?env"
                    tal:condition="python:key.startswith('persistent_')"
                    tal:attributes="name string:form_env.${key}:record;
-                   value value"
+                                   value value"
                    />
           </tal:env>
 
@@ -127,32 +128,32 @@
           <metal:block define-slot="buttons">
             <div class="field"
                  tal:define="fieldset_index python:fieldsets.index(fieldset);
-                 n_fieldsets python:len(fieldsets);">
+                             n_fieldsets python:len(fieldsets);">
               <label>&nbsp;</label>
               <input tal:condition="python:fieldset_index &gt; 0"
                      class="context"
                      tabindex=""
                      type="submit"
                      name="form_previous"
-                     i18n:attributes="value"
                      value="Previous"
+                     i18n:attributes="value"
                      tal:attributes="tabindex tabindex/next;"
                      />
-              <input tal:condition="python:fieldset_index &lt; n_fieldsets-1"
+              <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1"
                      class="context"
                      tabindex=""
                      type="submit"
                      name="form_next"
-                     i18n:attributes="value"
                      value="Next"
+                     i18n:attributes="value"
                      tal:attributes="tabindex tabindex/next;"
                      />
               <input class="context"
                      tabindex=""
                      type="submit"
                      name="form_submit"
-                     i18n:attributes="value"
                      value="Finish"
+                     i18n:attributes="value"
                      tal:attributes="tabindex tabindex/next;"
                      />
             </div>
