@@ -379,11 +379,11 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
     #####
     ## UID register/unregister
-    protect('registerObject', CMFCorePermissions.ModifyPortalContent)
+    protect(CMFCorePermissions.ModifyPortalContent, 'registerObject')
     def registerObject(self, object):
         self._uidFor(object)
 
-    protect('unregisterObject', CMFCorePermissions.ModifyPortalContent)
+    protect(CMFCorePermissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
