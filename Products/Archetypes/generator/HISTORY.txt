@@ -1,0 +1,21 @@
+1.3.0-5 - 2004-09-04
+====================
+
+ * Fixed support for dynamic labels.
+   [dtremea]
+
+1.3.0-4 - 2004-08-16
+====================
+
+ * nothing changed
+
+1.3.0-3 - 2004-08-06
+====================
+
+ * nothing changed
+
+1.3.0-2 - 2004-07-29
+====================
+
+ * Catch KeyError if your in a object manager and using __getitem__
+   [runyan]
