@@ -1,32 +1,20 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.7 2004/07/07 15:53:44 shh42 Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.8 2004/07/22 17:42:28 dpunktnpunkt Exp $
 
 from Testing import ZopeTestCase
 
-ZopeTestCase.installProduct('CMFCore', 1)
-ZopeTestCase.installProduct('CMFDefault', 1)
-ZopeTestCase.installProduct('CMFCalendar', 1)
-ZopeTestCase.installProduct('CMFTopic', 1)
-ZopeTestCase.installProduct('DCWorkflow', 1)
-ZopeTestCase.installProduct('CMFActionIcons', 1)
-ZopeTestCase.installProduct('CMFQuickInstallerTool', 1)
-ZopeTestCase.installProduct('CMFFormController', 1)
-ZopeTestCase.installProduct('GroupUserFolder', 1)
-ZopeTestCase.installProduct('ZCTextIndex', 1)
-ZopeTestCase.installProduct('TextIndexNG2', 1)
-ZopeTestCase.installProduct('SecureMailHost', 1)
-ZopeTestCase.installProduct('CMFPlone', 1)
-ZopeTestCase.installProduct('MailHost', 1)
-ZopeTestCase.installProduct('PageTemplates', 1)
-ZopeTestCase.installProduct('PythonScripts', 1)
-ZopeTestCase.installProduct('ExternalMethod', 1)
-# Archetypes dependencies
-ZopeTestCase.installProduct('MimetypesRegistry', 1)
-ZopeTestCase.installProduct('PortalTransforms', 1)
-ZopeTestCase.installProduct('Archetypes', 1)
-ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
+DEPS = ('CMFCore', 'CMFDefault', 'CMFCalendar', 'CMFTopic',
+        'DCWorkflow', 'CMFActionIcons', 'CMFQuickInstallerTool',
+        'CMFFormController', 'GroupUserFolder', 'ZCTextIndex',
+        'TextIndexNG2', 'SecureMailHost', 'CMFPlone', 'MailHost',
+        'PageTemplates', 'PythonScripts', 'ExternalMethod',)
+DEPS_OWN = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
+            'ArchetypesTestUpdateSchema',)
+
+for product in DEPS + DEPS_OWN:
+    ZopeTestCase.installProduct(product, 1)
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
