@@ -1,3 +1,7 @@
+2003-04-20  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* content_driver/html4zope.py: Fixed Subtitle.
+
 2003-04-19  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Marshall.py (RFC822Marshaller.demarshall): Adding a bare RFC822

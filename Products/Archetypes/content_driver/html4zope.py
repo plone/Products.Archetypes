@@ -3,8 +3,8 @@
 #
 # Author: Andreas Jung
 # Contact: andreas@andreas-jung.com
-# Revision: $Revision: 1.1 $
-# Date: $Date: 2003/03/06 20:28:29 $
+# Revision: $Revision: 1.2 $
+# Date: $Date: 2003/04/20 15:31:46 $
 # Copyright: This module has been placed in the public domain.
 
 """
@@ -62,3 +62,13 @@ class HTMLTranslator(CSS1HTMLTranslator):
                 atts['href'] = '#' + node['refid']
             self.body.append(self.starttag({}, 'a', '', **atts))
             self.context.append('</a></h%s>\n' % ((default_level+self.section_level-1)))
+
+    def visit_subtitle(self, node):
+        if isinstance(node.parent, nodes.sidebar):
+            self.body.append(self.starttag(node, 'p', '',
+                                           CLASS='sidebar-subtitle'))
+            self.context.append('</p>\n')
+        else:
+            self.body.append(
+                  self.starttag(node, 'h%s' % (default_level+1), '', CLASS='subtitle'))
+            self.context.append('</h%s>\n' % (default_level+1))
