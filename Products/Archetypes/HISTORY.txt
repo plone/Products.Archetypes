@@ -66,6 +66,15 @@
  * Added Catalan translation file. Thanks to Albert Lombarte.
    [dtremea]
 
+ * Added viewableFields() and editableFields() to Schema. The methods are
+   returning only those fields that the current user is allowed to see/edit in
+   the current context.
+   [tiran]
+
+ * Archetypes edit form is raising unauthorized if no editable fields are
+   available.
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
 
