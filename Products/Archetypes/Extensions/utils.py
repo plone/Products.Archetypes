@@ -84,7 +84,8 @@ def install_uidcatalog(self, out, rebuild=False):
     catalog = getToolByName(self, UID_CATALOG, None)
     if catalog and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
-        aq_parent(catalog).manage_delObjects([UID_CATALOG,])
+        parent = getToolByName(self, "portal_url").getPortalObject()
+        parent.manage_delObjects([UID_CATALOG,])
         catalog = None
         rebuild = 1
 
