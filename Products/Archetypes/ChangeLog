@@ -1,0 +1,10 @@
+2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* i18n.py (initialize): Removing dependency on Zope2.6 GlobalTranslationService.
+
+2003-05-12  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* widget.py (macrowidget.__call__): Allow for widget.macro_view
+	and _edit, etc. These take precedence over the top level 'macro'
+	allowing projects to override smaller parts of the widgets
+

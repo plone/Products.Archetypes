@@ -25,10 +25,10 @@ class iwidget:
 class widget:
     """
     Base class for widgets
-    
+
     A dynamic widget with a reference to a macro that can be used to
     render it
-    
+
     description -- tooltip
     label       -- textual label
     visible     -- 1[default] visible 0 hidden -1 skipped
@@ -46,11 +46,11 @@ class widget:
         'visible' : 1, ##XXX Remove for modes
         'attributes' : ''
         }
-    
+
     def __init__(self, **kwargs):
         self._processed  = 0
         self._process_args(**kwargs)
-        
+
     def _process_args(self, **kwargs):
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
@@ -68,7 +68,7 @@ class widget:
         if domain is None:
             return value
         msgid = getattr(self, name+'_msgid', None) or value
-        return i18n.translate(domain, msgid, None, instance.REQUEST, None, value)
+        return i18n.translate(domain, msgid, mapping=instance.REQUEST, context=instance, default=value)
 
     def Label(self, instance):
         """Returns the label, possibly translated"""
@@ -83,7 +83,7 @@ class widget:
             ##return the i18n version of the description
             value = method(**kwargs)
             return value
-            
+
         return self._translate_attribute(instance, 'description')
 
 
@@ -91,7 +91,7 @@ class macrowidget(widget):
     """macro is the file containing the macros, the mode/view is the
     name of the macro in that file
     """
-    
+
     _properties = widget._properties.copy()
     _properties.update({
         'macro' : None,
@@ -103,7 +103,11 @@ class macrowidget(widget):
 
     def __call__(self, mode, instance, context=None):
         self.bootstrap(instance)
-        template = instance.restrictedTraverse(path = self.macro)
+        #If an attribute called macro_<mode> exists resolve that
+        #before the generic macro, this lets other projects
+        #create more partial widgets
+        macro = getattr(self, "macro_%s" % mode, self.macro)
+        template = instance.restrictedTraverse(path = macro)
         return template.macros[mode]
-    
+
 InitializeClass(widget)

@@ -1,17 +1,32 @@
-from Products.PageTemplates.GlobalTranslationService import getGlobalTranslationService, \
-                                                            DummyTranslationService
+try:
+    # XXX Depends on 2.6
+    from Products.PageTemplates.GlobalTranslationService import getGlobalTranslationService, \
+         DummyTranslationService
+except ImportError:
+    class DummyTranslationService:
+        """ A very very dummy translation service """
+        pass
+
+    def getGlobalTranslationService():
+        return DummyTranslationService
 
 service = None
 translate = None
 
-def translate_wrapper(domain, msgid, data, request, target, default):
+def translate_wrapper(domain, msgid, mapping=None, context=None, target_language=None, default=None):
     # wrapper for calling the translate() method with a fallback value
-    res = service.translate(domain, msgid, data, request, target)
+
+    try:
+        res = service.translate(domain, msgid, mapping=mapping, context=context, target_language=target_language, default=default)
+    except TypeError:
+        #Localizer does not take a default param
+        res = service.translate(domain, msgid, mapping=mapping, context=context, target_language=target_language)
+        
     if res is None or res is msgid:
         return default
     return res
 
-def null_translate(domain, msgid, data, request, target, default):
+def null_translate(domain, msgid, mapping=None, context=None, target_language=None, default=None):
     return default
 
 def initialize():
@@ -29,8 +44,8 @@ def initialize():
     else:
         translate = translate_wrapper
 
-def initial_translate(domain, msgid, data, request, target, default):
+def initial_translate(domain, msgid, mapping=None, context=None, target_language=None, default=None):
     initialize()
-    return translate(domain, msgid, data, request, target, default)
+    return translate(domain, msgid, mapping, context, target_language, default)
 
 translate = initial_translate
