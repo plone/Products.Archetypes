@@ -72,6 +72,9 @@ class macrowidget(widget):
 
     def __call__(self, mode, instance, context=None):
         self.bootstrap(instance)
-        return instance.restrictedTraverse(self.macro).macros[mode]
+        template = instance.restrictedTraverse(self.macro)
+        if template is None:
+            raise NameError, self.macro
+        return template.macros[mode]
     
 InitializeClass(widget)
