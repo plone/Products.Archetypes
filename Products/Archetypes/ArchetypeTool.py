@@ -99,6 +99,13 @@ base_factory_type_information = (
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
+                     { 'id': 'references',
+                       'name': 'References',
+                       'action': 'string:${object_url}/reference_graph',
+                       'condition': 'object/archetype_tool/has_graphviz',
+                       'permissions': (CMFCorePermissions.View,),
+                       'visible' : 1,
+                       },
                      )
       }, )
 
@@ -194,6 +201,10 @@ def modify_fti(fti, klass, pkg_name):
 
     if hasattr(klass, "immediate_view"):
         fti[0]['immediate_view'] = klass.immediate_view
+
+    if not IReferenceable.isImplementedByInstancesOf(klass):
+        refs = findDict(fti[0]['actions'], 'id', 'references')
+        refs['visible'] = 0
 
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
