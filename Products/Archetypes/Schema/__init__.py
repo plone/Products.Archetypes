@@ -612,6 +612,9 @@ InitializeClass(BasicSchema)
 
 
 class Schema(BasicSchema, SchemaLayerContainer):
+    """
+    Schema
+    """
 
     __implements__ = ILayerRuntime, ILayerContainer, ISchema
 
