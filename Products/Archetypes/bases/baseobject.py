@@ -51,6 +51,7 @@ from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
+from Acquisition import Explicit
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
@@ -890,7 +891,7 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
 
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, str(mt) or 'application/octet')
+        return Wrapper(data, name, str(mt) or 'application/octet').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
@@ -924,8 +925,9 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
 
 InitializeClass(BaseObject)
 
-class Wrapper:
-    """wrapper object for access to sub objects """
+class Wrapper(Explicit):
+    """Wrapper object for access to sub objects.
+    """
     __allow_access_to_unprotected_subobjects__ = 1
 
     def __init__(self, data, filename, mimetype):
@@ -941,7 +943,7 @@ class Wrapper:
             name =self._filename
             RESPONSE.setHeader('Content-type', str(mt))
             RESPONSE.setHeader('Content-Disposition',
-                               'inline;filename=%s' % name)
+                               'inline;filename="%s"' % name)
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
@@ -949,4 +951,3 @@ class Wrapper:
 MinimalSchema = BaseObject.schema
 
 __all__ = ('BaseObject', 'MinimalSchema', )
-
