@@ -70,6 +70,15 @@ class Schemata(UserDict):
             c.addField(field)
         return c
 
+
+    def copy(self):
+        # UserDict's copy() loses the order, we don't want that
+        c = Schema()
+        for field in self.fields():
+            c.addField(field)
+        return c
+
+
     security.declarePublic('fields')
     def fields(self):
         """list all the fields in order"""

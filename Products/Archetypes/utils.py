@@ -141,7 +141,7 @@ class DisplayList:
     def __add__(self, other):
         a = tuple(self.items())
         if hasattr(other, 'items'):
-            b = other.items
+            b = other.items()
         else: #assume a seq
             b = tuple(zip(other, other))
 
@@ -187,7 +187,7 @@ class DisplayList:
     def items(self):
         """items"""
         keys = self.keys()
-        return [(key, self.getValue(key)) for key in keys]
+        return tuple([(key, self.getValue(key)) for key in keys])
 
     def sortedByValue(self):
         """return a new display list sorted by value"""

@@ -62,7 +62,7 @@ class BaseSQLStorage(StorageLayer):
         return result
     
     def initalizeInstance(self, instance):
-        if self.is_initialized(instance):
+        if self.is_initialized(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be initialized twice
             return
         fields = instance.Schema().fields()

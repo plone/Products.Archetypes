@@ -24,6 +24,7 @@ from debug import log, log_exc
 from utils import capitalize, findDict, DisplayList, unique
 import BaseContent
 import ExtensibleMetadata
+from Renderer import renderer
 
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
@@ -202,7 +203,16 @@ class Schema(SimpleItem):
         if t:
             process_types((t,), PKG_NAME)
             
-    
+
+class WidgetWrapper:
+    """ Wrapper used for drawing widgets without an instance (for ex., for a search form) """
+    security = ClassSecurityInfo()
+    security.declareObjectPublic()
+    def __init__(self, **args):
+        self._args = args
+
+    def __call__(self):
+        return renderer.render(**self._args)
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     SQLStorageConfig, Folder, ReferenceEngine):
@@ -269,7 +279,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def lookupTemplates(self, instance=None):
         results = []
-        if type(instance) != type(''):
+        if type(instance) is not StringType:
             instance = instance.portal_type
 
         results += self._templates.get(instance, {}).items()
@@ -324,6 +334,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getSchema(self, sid):
         return self._schemas[sid]
 
+    def getSearchWidgets(self, package=None):
+        """empty widgets for searching"""
+        # possible problem: assumes fields with same name can be searched with the same widget
+        widgets = {}
+        for t in self.listTypes(package):
+            instance = t('fake')
+            instance._is_fake_instance = 1
+            instance.schema = instance.schema.copy()
+            instance = instance.__of__(self)
+            for field in instance.schema.fields():
+                if field.index and not widgets.has_key(field.name):
+                    field.required = 0
+                    field.addable = 0 # for ReferenceField
+                    if not isinstance(field.vocabulary, DisplayList):
+                        field.vocabulary = field.Vocabulary(instance)
+                    if None not in field.vocabulary.keys():
+                        field.vocabulary = DisplayList([(None, '<any>')]) + field.vocabulary
+                        field.default = None
+                    def accessor(*a, **kw):
+                        # thanks 2.1 for lexical scopes!
+                        return field.default
+                    widgets[field.name] = WidgetWrapper(field_name=field.name, mode='edit',
+                                                        widget=field.widget, instance=instance, field=field,
+                                                        accessor=accessor)
+        widgets = widgets.items()
+        widgets.sort()
+        return [widget for name, widget in widgets]
+    
     ## Reference Engine Support
     def lookupObject(self, uid):
         object = None
