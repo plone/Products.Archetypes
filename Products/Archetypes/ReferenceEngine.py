@@ -260,11 +260,9 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 
     def _getUUIDFor(self, object):
         """generate and attach a new uid to the object returning it"""
-        uuid = make_uuid(object.title_and_id())
+        uuid = make_uuid(object.getId())
         setattr(object, UUID_ATTR, uuid)
 
-        #uid_catalog = getToolByName(self, UID_CATALOG)
-        #uid_catalog.catalog_object(object, self._makeName(uuid))
         return uuid
 
     def _deleteReference(self, referenceObject):
