@@ -52,6 +52,9 @@ class MalformedPathException(SkinException):
 
 
 def _getTuple(items):
+    """Converts list or comma seperated string to a tuple.
+    """
+    
     tuple_ = None
 
     if isinstance(items, list):
@@ -68,6 +71,9 @@ def _getTuple(items):
    
 
 def _getPathList(skinsTool, skinName):
+    """Returns the normally comma-separated path of a skin as a list instead.
+    """
+    
     path = skinsTool.getSkinPath(skinName)
     return [i.strip() for i in path.split(',')]
 
@@ -79,10 +85,7 @@ class SkinManager(object):
     acquired.
     """
 
-    _skinsTool = None
-
     def __init__(self, context):
-        object.__init__(self)
         self._skinsTool = getToolByName(context, "portal_skins")
     
     def getSkinPaths(self, skinName=None):
