@@ -45,6 +45,7 @@ REFERENCE_ANNOTATION = "at_references"
 ## default archetypes returns a tuple, too. If this breaks your software you
 ## can disable the change.
 ## See http://zope.org/Collectors/Zope/924
+## BBB
 ZOPE_LINES_IS_TUPLE_TYPE = True
 
 ## MYSQL SQLStorage Table Type
@@ -74,7 +75,8 @@ else:
 HAS_GRAPHVIZ = False
 
 ## backward compatibility:
-#from types import StringTypes as STRING_TYPES
+## BBB
+from types import StringTypes as STRING_TYPES
 
 ## detect Python Imaging Libraries
 try:
@@ -89,6 +91,10 @@ except ImportError:
 else:
     HAS_PIL=True
     del Image
+
+## kernel uuid interface
+## used by Products.Archetypes.lib.utils.make_kernel_uuid()
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
 
 import os
 _www = os.path.join(os.path.dirname(__file__), 'www')

@@ -23,6 +23,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Module with misc useful utility methods for Archetypes
+"""
 
 import sys
 import os, os.path
@@ -39,9 +41,16 @@ from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.config import KERNEL_UUID
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.translate import translate
 from Products.Archetypes.interfaces.base import IBaseObject
+
+from Interface.Implements import getImplementsOfInstances
+from Interface.Implements import flattenInterfaces
+from Interface import Interface
+
+_marker = []
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))
@@ -49,6 +58,16 @@ except:
     _v_network = str(random() * 100000000000000000L)
 
 def make_uuid(*args):
+    """Generate a universal unique id
+    
+    The make_uuid methods generates a unique id using the following data:
+        * the current time
+        * a random value
+        * the hostname of the server (or if not available more random data)
+        * additional arguments converted to a string
+
+    The random data is converted to a MD5 hexdigest
+    """
     t = str(time() * 1000L)
     r = str(random()*100000000000000000L)
     data = t +' '+ r +' '+ _v_network +' '+ str(args)
@@ -56,8 +75,6 @@ def make_uuid(*args):
     return uid
 
 # linux kernel uid generator. It's a little bit slower but a little bit better
-KERNEL_UUID = '/proc/sys/kernel/random/uuid'
-
 if os.path.isfile(KERNEL_UUID):
     HAS_KERNEL_UUID = True
     def uuid_gen():
@@ -69,11 +86,18 @@ if os.path.isfile(KERNEL_UUID):
     uid_gen = uuid_gen()
 
     def kernel_make_uuid(*args):
+        """Linux kernel based uuid generator using %s
+        """ % KERNEL_UUID
         return uid_gen.next()
 else:
     HAS_KERNEL_UUID = False
-    kernel_make_uuid = make_uuid
-
+    def kernel_make_uuid(*args):
+        """Fallback kernel uuid generator
+        
+        Using the standard make_uuid method because %s wasn't available on this
+        system
+        """ % KERNEL_UUID
+        return make_uuid(*args)
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -85,9 +109,11 @@ def fixSchema(schema):
         del schema.data
     return schema
 
-_marker = []
-
 def mapply(method, *args, **kw):
+    """Magic apply method
+    
+    XXX explain me :)
+    """
     m = method
     if hasattr(m, 'im_func'):
         m = m.im_func
@@ -111,7 +137,6 @@ def mapply(method, *args, **kw):
         return method(*call_args)
     return method()
 
-
 def className(klass):
     """Returns the dotted path to an object's clsas
     """
@@ -134,9 +159,53 @@ def getDoc(klass):
 
     >>> getDoc(getDoc).startswith("Return the doc string of an object")
     True
-
     """
     return klass.__doc__ or ''
+
+def getBaseClasses(class_, bases=None):
+    """Get a list of super classes
+    
+    NOTE: This functions does NOT return the class tree also know as MRO!
+    
+    >>> from Products.Archetypes.base import BaseObject
+    >>> bases = getBaseClasses(BaseObject)
+    >>> base_names = [getDottedName(class_) for class_ in bases]
+    >>> base_names.sort()
+    >>> base_names
+    ['ExtensionClass.Base', 'OFS.CopySupport.CopySource',
+    'Products.Archetypes.lib.annotations.ATAnnotatableMixin',
+    'Products.Archetypes.refengine.referenceable.Referenceable']
+    """
+    if bases is None:
+        bases = []
+    for base in class_.__bases__:
+        bases.append(base)
+        getBaseClasses(base, bases)
+    return unique(bases)
+
+def getInterfaces(class_):
+    """Get a list of all interfaces which are implemented by a class
+
+    >>> from Products.Archetypes.base import BaseObject
+    >>> interfaces = getInterfaces(BaseObject)
+    >>> interface_names = [getDottedName(interface) for interface in interfaces]
+    >>> interface_names.sort()
+    >>> interface_names
+    ['Products.Archetypes.interfaces.annotations.IATAnnotatable',
+    'Products.Archetypes.interfaces.base.IBaseObject',
+    'Products.Archetypes.interfaces.referenceable.IReferenceable']
+    """
+    interfaces = getImplementsOfInstances(class_)
+    if not isinstance(interfaces, tuple):
+        interfaces = (interfaces,)
+    if interfaces:
+        interfaces = flattenInterfaces(interfaces)
+        interfaces = unique(interfaces)
+        if Interface in interfaces:
+            interfaces.remove(Interface)
+        return interfaces
+    else:
+        return ()
 
 def findBaseTypes(klass):
     """XXX
@@ -148,34 +217,41 @@ def findBaseTypes(klass):
                 bases.append(className(b))
     return bases
 
-def productDir():
-    module = sys.modules[__name__]
-    return os.path.dirname(module.__file__)
-
-def pathFor(path=None, file=None):
-    base = productDir()
-    if path:
-        base = os.path.join(base, path)
-    if file:
-        base = os.path.join(base, file)
-
-    return base
-
-def capitalize(string):
-    if string[0].islower():
-        string = string[0].upper() + string[1:]
-    return string
+def capitalize(s):
+    """Capitalize the first letter of a string
+    
+    >>> capitalize('foo')
+    'Foo'
+    >>> capitalize('Foo')
+    'Foo'
+    """
+    if s[0].islower():
+        s = s[0].upper() + s[1:]
+    return s
 
 def findDict(listofDicts, key, value):
-    #Look at a list of dicts for one where key == value
+    """Look at a list of dicts for one where key == value
+    
+    >>> d1 = {'foo'  : 'bar'}
+    >>> d2 = {'egg'  : 'spam'}
+    >>> d3 = {'here' : 'there'}
+    
+    >>> findDict((d1, d2, d3), 'foo', 'bar') is d1
+    True
+    >>> findDict((d1, d2, d3), 'egg', 'spam') is d2
+    True
+    >>> findDict((d1, d2, d3), 'foo', 'spam') is None
+    True
+    """
     for d in listofDicts:
         if d.has_key(key):
             if d[key] == value:
                 return d
     return None
 
-
 def basename(path):
+    """XXX
+    """
     return path[max(path.rfind('\\'), path.rfind('/'))+1:]
 
 def unique(s):
@@ -248,16 +324,32 @@ def unique(s):
             u.append(x)
     return u
 
-
 def getRelPath(self, ppath):
-    """take something with context (self) and a physical path as a
-    tuple, return the relative path for the portal"""
+    """Calculate the relative path to the root of the portal
+    
+    Take something with context (self) and a physical path as a
+    tuple, return the relative path for the portal
+    
+    >>> portal.getPhysicalPath()
+    ('', 'cmf')
+    >>> itemPhysicalPath = ('', 'cmf', 'folder', 'item')
+    >>> getRelPath(portal, itemPhysicalPath)
+    ('folder', 'item')
+    """
     urlTool = getToolByName(self, 'portal_url')
     portal_path = urlTool.getPortalObject().getPhysicalPath()
     ppath = ppath[len(portal_path):]
     return ppath
 
 def getRelURL(self, ppath):
+    """Calculate the relative url to the root of the portal
+    
+    >>> portal.getPhysicalPath()
+    ('', 'cmf')
+    >>> itemPhysicalPath = ('', 'cmf', 'folder', 'item')
+    >>> getRelURL(portal, itemPhysicalPath)
+    'folder/item'
+    """
     return '/'.join(getRelPath(self, ppath))
 
 def getPkgInfo(product):
@@ -314,50 +406,22 @@ def shasattr(obj, attr, acquire=False):
         obj = aq_base(obj)
     return getattr(obj, attr, _marker) is not _marker
 
-
-WRAPPER = '__at_is_wrapper_method__'
-ORIG_NAME = '__at_original_method_name__'
-def isWrapperMethod(meth):
-    return getattr(meth, WRAPPER, False)
-
-def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
-    old_method = getattr(klass, name)
-    if isWrapperMethod(old_method):
-        log('Wrapping already wrapped method at %s.%s' %
-            (klass.__name__, name))
-    new_name = pattern % name
-    setattr(klass, new_name, old_method)
-    setattr(method, ORIG_NAME, new_name)
-    setattr(method, WRAPPER, True)
-    setattr(klass, name, method)
-
-def unwrap_method(klass, name):
-    old_method = getattr(klass, name)
-    if not isWrapperMethod(old_method):
-        raise ValueError, ('Trying to unwrap non-wrapped '
-                           'method at %s.%s' % (klass.__name__, name))
-    orig_name = getattr(old_method, ORIG_NAME)
-    new_method = getattr(klass, orig_name)
-    delattr(klass, orig_name)
-    setattr(klass, name, new_method)
-
-
-def _get_position_after(label, options):
-    position = 0
-    for item in options:
-        if item['label'] != label:
-            continue
-        position += 1
-    return position
-
-def insert_zmi_tab_before(label, new_option, options):
-    _options = list(options)
-    position = _get_position_after(label, options)
-    _options.insert(position-1, new_option)
-    return tuple(_options)
-
-def insert_zmi_tab_after(label, new_option, options):
-    _options = list(options)
-    position = _get_position_after(label, options)
-    _options.insert(position, new_option)
-    return tuple(_options)
+##def _get_position_after(label, options):
+##    position = 0
+##    for item in options:
+##        if item['label'] != label:
+##            continue
+##        position += 1
+##    return position
+##
+##def insert_zmi_tab_before(label, new_option, options):
+##    _options = list(options)
+##    position = _get_position_after(label, options)
+##    _options.insert(position-1, new_option)
+##    return tuple(_options)
+##
+##def insert_zmi_tab_after(label, new_option, options):
+##    _options = list(options)
+##    position = _get_position_after(label, options)
+##    _options.insert(position, new_option)
+##    return tuple(_options)

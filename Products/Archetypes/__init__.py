@@ -77,19 +77,19 @@ from Products.Archetypes.lib.utils import getPkgInfo
 import Products.MimetypesRegistry
 import Products.PortalTransforms
 import Products.Marshall
-mtr_info = getPkgInfo(Products.MimetypesRegistry)
-pt_info = getPkgInfo(Products.PortalTransforms)
-
-at_version = __version__
-for info in (mtr_info, pt_info ):
-    if not hasattr(info, 'at_versions'):
-        raise RuntimeError('The product %s has no at_versions assigend. ' \
-                           'Please update to a newer version.' % info.modname)
-#    if at_version not in info.at_versions:
-#        raise RuntimeError('The current Archetypes version %s is not in list ' \
-#                           'of compatible versions for %s!\nList: %s' % \
-#                           (at_version, info.modname, info.at_versions)
-#                          )
+##mtr_info = getPkgInfo(Products.MimetypesRegistry)
+##pt_info = getPkgInfo(Products.PortalTransforms)
+##
+##at_version = __version__
+##for info in (mtr_info, pt_info ):
+##    if not hasattr(info, 'at_versions'):
+##        raise RuntimeError('The product %s has no at_versions assigend. ' \
+##                           'Please update to a newer version.' % info.modname)
+##    if at_version not in info.at_versions:
+##        raise RuntimeError('The current Archetypes version %s is not in list ' \
+##                           'of compatible versions for %s!\nList: %s' % \
+##                           (at_version, info.modname, info.at_versions)
+##                          )
 
 from Products.Archetypes.lib.logging import log
 try:

@@ -36,6 +36,8 @@ from Products.Archetypes.interfaces.registry import IRegistry
 from Products.Archetypes.interfaces.registry import IRegistryMultiplexer
 from Products.Archetypes.interfaces.registry import IRegistryEntry
 from Products.Archetypes.lib.utils import getDottedName
+from Products.Archetypes.lib.utils import getBaseClasses
+from Products.Archetypes.lib.utils import getInterfaces
 
 _marker = object()
 
@@ -141,6 +143,16 @@ class RegistryEntry(dict):
         """Return the dotted name of the class
         """
         return getDottedName(self['klass'])
+
+    def getBaseClasses(self):
+        """Return a list of all super classes of the class
+        """
+        return getBaseClasses(self['klass'])
+    
+    def getInterfaces(self):
+        """Return a list of all interfaces which are implemented by the class
+        """
+        return getInterfaces(self['klass'])
 
 
 class _MetaRegistry(type):

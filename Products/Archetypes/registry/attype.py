@@ -79,7 +79,7 @@ class TypeEntry(RegistryEntry):
             
             # remove the old entry from the registry
             del registry[key]
-            
+        
 
 class TypeRegistry(Registry):
     _entry_class = TypeEntry

@@ -33,7 +33,6 @@ from utils import *
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes.storage import AttributeStorage, MetadataStorage
 from test_classgen import ClassGenTest, Dummy, gen_dummy
 
@@ -55,10 +54,7 @@ class ChangeStorageTest( ArchetypesTestCase ):
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        if ZOPE_LINES_IS_TUPLE_TYPE:
-            out = ('bla','bla','bla')
-        else:
-            out = ['bla','bla','bla']
+        out = ('bla','bla','bla')
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
         self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))

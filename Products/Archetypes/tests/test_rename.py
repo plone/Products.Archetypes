@@ -23,7 +23,6 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-
 """
 Unittests for a renaming archetypes objects.
 
@@ -39,7 +38,9 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.lib.utils import wrap_method, unwrap_method, shasattr
+from Products.Archetypes.tests.utils import wrap_method
+from Products.Archetypes.tests.utils import unwrap_method
+from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.base.basecontent import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 

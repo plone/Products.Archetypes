@@ -52,8 +52,8 @@ from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
-ExtensionClass.Base.__module__ = ExtensionClass
-ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+ExtensionClass.Base.__module__ = ExtensionClass.__name__
+ExtensionClass.ExtensionClass.__module__ = ExtensionClass.__name__
 
 def ZopeDocTestSuite(*modules, **kw):
     """Based on Sid's FunctionalDocFileSuite

@@ -32,13 +32,13 @@ from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Globals import InitializeClass
 
 from Products.Archetypes.lib.utils import className
+from Products.Archetypes.lib.utils import getDoc
+from Products.Archetypes.lib.utils import findBaseTypes
+from Products.Archetypes.lib.security import setSecurity
+from Products.Archetypes.lib.security import mergeSecurity
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.Archetypes.interfaces.base import IBaseObject
 
-from Products.Archetypes.registries.baseregistry import getDoc
-from Products.Archetypes.registries.baseregistry import findBaseTypes
-from Products.Archetypes.registries.baseregistry import setSecurity
-from Products.Archetypes.registries.baseregistry import mergeSecurity
 from Products.Archetypes.registries.baseregistry import Registry
 
 class FieldDescription:

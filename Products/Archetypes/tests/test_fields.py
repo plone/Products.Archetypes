@@ -36,7 +36,6 @@ from os.path import join, abspath, dirname, split
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes import field as at_fields
@@ -115,10 +114,6 @@ empty_values = {'objectfield':None,
                    #XXX'imagefield':"DELETE_IMAGE",
                    #XXX'photofield':"DELETE_IMAGE",
                }
-
-if not ZOPE_LINES_IS_TUPLE_TYPE:
-    expected_values['linesfield'] = list(expected_values['linesfield'])
-
 
 schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])

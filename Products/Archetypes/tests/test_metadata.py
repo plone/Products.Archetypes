@@ -35,7 +35,7 @@ from types import FunctionType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
+from Products.Archetypes.config import PKG_NAME
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 
@@ -82,9 +82,7 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
     obj.setRights(data)
 
 def compareMetadataOf(test, obj, data='default', mimetype='application/octet-stream', time=1000):
-    l_data = [data]
-    if ZOPE_LINES_IS_TUPLE_TYPE:
-        l_data = tuple(l_data)
+    l_data = (data,)
     test.failUnless(obj.Title() == data, 'Title')
     test.failUnless(obj.Subject() == l_data,
                     'Subject: %s, %s' % (obj.Subject(), l_data))
