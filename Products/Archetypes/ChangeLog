@@ -1,18 +1,32 @@
+2004-12-04  Dorneles Treméa  <deo@plonesolutions.com>
+
+	* Field.py (getBaseUnit): Remove unnecessary code to give precedence
+	to storage when getting filename/mimetype.
+
+	* BaseUnit.py: Cleaned up code and reformated/added missing docstrings.
+
+	* BaseObject.py, Field.py (setFilename, setContentType): Moved specific
+	code from BaseObject.py to Field.py. Fixed to always save the new
+	base unit.
+
+	* tests/test_classgen.py: Added 'anotherfilefield' FileField.
+
+	* tests/test_contenttype.py (SetContentTypeTest): Added SetContentType
+	TestSuite for testing setContentType via Mutator/BaseObject/Field.
+
+	* tests/test_filename.py (SetFilenameTest): Added Get/SetFilename
+	TestSuite for testing get/setFilename via Mutator/BaseObject/Field.
+
 2004-12-02  Dorneles Treméa  <deo@plonesolutions.com>
 
-	* Field.py (getBaseUnit): Gave precedence to storage when getting
-	filename/mimetype.
-
-	* Field.py (getFilename): Fixed security declaration. Revised
-	docstrings and coments.
+	* Field.py (getFilename): Fixed security declaration. Revised docstrings
+	and coments.
+	(getBaseUnit): Gave precedence to storage when getting filename/mimetype.
 
 	* BaseObject.py (getFilename, setFilename): Added.
-
-	* BaseObject.py (setContentType): Generalized to work with any field.
-
-	* BaseObject.py (getContentType): Updated to use a better logic.
-
-	* BaseObject.py (content_type): Added missing security declaration.
+	(setContentType): Generalized to work with any field.
+	(getContentType): Updated to use a better logic.
+	(content_type): Added missing security declaration.
 
 	* ChangeLog: Reformated. Now it looks more like a Changelog file... ;-)
 

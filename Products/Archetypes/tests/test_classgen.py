@@ -40,6 +40,8 @@ schema = BaseSchema + Schema((
                                   label="A File Field",
                                   )),
 
+    FileField('anotherfilefield', widget=FileWidget),
+
     LinesField('alinesfield', widget=LinesWidget),
 
     DateTimeField('adatefield',
@@ -172,7 +174,7 @@ class ClassGenTest(ArcheSiteTestCase):
             bu = field.getBaseUnit(obj)
             self.failUnless(IBaseUnit.isImplementedBy(bu),
                'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
-            
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
