@@ -163,6 +163,8 @@ class KeywordWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/keyword",
         'size'  : 5,
+        'vocab_source' : 'portal_catalog',
+        'roleBasedAdd' : 1,
         })
 
     def process_form(self, instance, field, form):
@@ -174,7 +176,7 @@ class KeywordWidget(TypesWidget):
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
         return value, {}
-        
+
 
 class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -232,9 +234,6 @@ class RichWidget(TypesWidget):
 
         if value is None: return None
         kwargs = {}
-        #        if text_format and not isFile:
-        # XXX I think we'd want to take the input incase we can't guess the file type down the line?
-        # if I am outta line with this tell me, but on unix many files don't have extensions so this is a win.
         kwargs['mimetype'] = text_format
         if instance.isBinary(field.getName()) and not isFile:
             # file field with content, no new content uploaded
@@ -264,6 +263,23 @@ class ImageWidget(FileWidget):
         'macro' : "widgets/image",
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
+
+    def process_form(self, instance, field, form):
+        """form processing that deals with image data (and its delete case)"""
+        value = None
+        ## check to see if the delete hidden was selected
+        delete = form.get('%s_delete' % field.getName())
+        if delete is not None: return "DELETE_IMAGE", {}
+        
+        fileobj = form.get('%s_file' % field.getName())
+        if fileobj:
+            filename = getattr(fileobj, 'filename', '')
+            if filename != '':
+                value  =  fileobj
+
+        if not value: return None
+        return value, {}
+
 
 # LabelWidgets are used to display instructions on a form.  The widget only
 # displays the label for a value -- no values and no form elements.
@@ -306,7 +322,8 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
-           'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget')
+           'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
+           )
 
 from Registry import registerWidget
 
