@@ -26,11 +26,11 @@
             <div metal:use-macro="here/widgets/textarea/macros/area_format" />
             
             <div class="field">
-                <strong>OR</strong>
+                <strong i18n:translate="uppercase_or">OR</strong>
             </div>
             
             <div class="field">
-                <label>Upload a File</label>
+                <label i18n:translate="upload_a_file">Upload a File</label>
                 <metal:use use-macro="here/widgets/file/macros/file_upload"/>
                 <metal:use use-macro="here/widgets/file/macros/file_view"/>
             </div>
