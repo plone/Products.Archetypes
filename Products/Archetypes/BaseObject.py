@@ -609,7 +609,9 @@ class BaseObject(Referenceable):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                kw['mimetype'] = f.getContentType(self)
+                # XXX commented out because we are trying to directly use
+                # the new base unit
+                # kw['mimetype'] = f.getContentType(self)
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
@@ -635,6 +637,15 @@ class BaseObject(Referenceable):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
+            # at very first try to use the BaseUnit itself
+            try:
+                if IFileField.isImplementedBy(field):
+                    print "BaseUnit for %s" % self
+                    return field.getBaseUnit(self)
+            except ConflictError:
+                raise
+            except:
+                pass
             # first try the edit accessor
             try:
                 editAccessor = field.getEditAccessor(self)
