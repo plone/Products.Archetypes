@@ -58,9 +58,7 @@
                        tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
-                                       checked python:test(value and multiVal and
-                                                           item in value or
-                                                           item==value, value, '');
+                                       checked python:test(value and multiVal and item in value or item==value, value, '');
                                        tabindex item_tabindex;
                                        value item;
                                        id item_id;
@@ -85,9 +83,7 @@
               <option selected="selected"
                       tal:repeat="item vocab"
                       tal:attributes="value item;
-                                      selected python:test(value and multiVal and
-                                                           item in value or
-                                                           item==value, 'selected', '')"
+                                      selected python:test(value and multiVal and item in value or item==value, 'selected', '')"
                       tal:content="python:vocab.getValue(item)"></option>
             </select>
           </div>
