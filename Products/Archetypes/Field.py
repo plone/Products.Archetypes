@@ -1046,7 +1046,7 @@ class ImageField(ObjectField):
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
-        'widget': ImageWidget(),
+        'widget': ImageWidget,
         'storage': AttributeStorage(),
         'image_class': Image,
         })
@@ -1062,7 +1062,13 @@ class ImageField(ObjectField):
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            ObjectField.set(self, instance, None, **kwargs)
+            # unset different sizes
+            for n, size in self.sizes.items():
+                id = self.getName() + "_" + n
+                print "unset img", id
+                self.storage.unset(id, instance, **kwargs) 
+            # set field to none               
+            ObjectField.unset(self, instance, **kwargs)
             return
 
         if value == '' or type(value) != StringType:
