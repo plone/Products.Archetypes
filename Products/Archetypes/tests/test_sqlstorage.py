@@ -374,7 +374,7 @@ for db_name in connectors.keys():
             doc = getattr(folder1, obj_id)
             doc.initializeArchetype()
             PUID1 = folder1.UID()
-            f = ObjectField('PARENTUID',
+            f = StringField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
@@ -389,6 +389,7 @@ for db_name in connectors.keys():
             PUID2 = folder2.UID()
             doc = getattr(folder2, obj_id)
             PUID = f.get(doc)
+            __traceback_info__ = (self.db_name, str(PUID2), str(PUID))
             self.failUnless(str(PUID2) == str(PUID))
 
         def test_emptyPUID(self):
@@ -397,10 +398,11 @@ for db_name in connectors.keys():
             site._setObject(obj_id, self._nwdummy)
             doc = getattr(site, obj_id)
             doc.initializeArchetype()
-            f = ObjectField('PARENTUID',
+            f = StringField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
-            self.failUnless(PUID is None)
+            __traceback_info__ = (self.db_name, str(PUID), 'None')
+            self.failUnless(PUID == 'None')
 
         def test_nomoreparentUID(self):
             site = self.getPortal()
@@ -411,7 +413,7 @@ for db_name in connectors.keys():
             doc = getattr(folder1, obj_id)
             doc.initializeArchetype()
             PUID1 = folder1.UID()
-            f = ObjectField('PARENTUID',
+            f = StringField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
@@ -425,7 +427,8 @@ for db_name in connectors.keys():
             site.manage_pasteObjects(cb)
             doc = getattr(site, obj_id)
             PUID = f.get(doc)
-            self.failUnless(PUID is None)
+            __traceback_info__ = (self.db_name, str(PUID), 'None')
+            self.failUnless(PUID == 'None')
 
     def beforeTearDown(self):
         cleanup = self.cleanup.get(self.db_name, None)
