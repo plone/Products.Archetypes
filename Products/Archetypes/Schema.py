@@ -1,34 +1,35 @@
-from __future__ import nested_scopes
-from Acquisition import ImplicitAcquisitionWrapper
+"""
+PloneCollectorNG - A Plone-based bugtracking system
+
+(C) by Andreas Jung, andreas@andreas-jung.com & others
+
+License: see LICENSE.txt
+
+$Id: Schema.py,v 1.53.2.1 2004/01/31 17:16:39 ajung Exp $
+"""
+
+from types import FileType, ListType, TupleType
+
+from Globals import Persistent, InitializeClass
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
-from types import ListType, TupleType, ClassType, FileType
-from UserDict import UserDict
-from Products.CMFCore  import CMFCorePermissions
-from Globals import InitializeClass
-from utils import capitalize, DisplayList, OrderedDict, mapply
-from debug import log, log_exc
+from Acquisition import ImplicitAcquisitionWrapper
+from Products.CMFCore.CMFCorePermissions import *
 from ZPublisher.HTTPRequest import FileUpload
-from BaseUnit import BaseUnit
-from Storage import AttributeStorage, MetadataStorage
-from DateTime import DateTime
-from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField, IImageField
-from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
-from interfaces.storage import IStorage
-from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.utils import mapply, OrderedDict
+from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.interfaces.layer import ILayerContainer, ILayerRuntime, ILayer 
+from Products.Archetypes.interfaces.field import IField, IObjectField, IImageField
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+
 try:
     from generator.i18n import translate
 except ImportError:
     from Products.generator.i18n import translate
 
-__docformat__ = 'reStructuredText'
-
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""
-
     return [f.getName() for f in schema.fields()]
 
 
@@ -44,40 +45,27 @@ def getSchemata(obj):
         schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
 
     return schemata
+# Some replacement classes for Archetypes
 
-
-class Schemata(UserDict):
-    """Manage a list of fields by grouping them together.
-
-    Schematas are identified by their names.
-    """
+class Schemata(Persistent):
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    _order_fields = None # cached index-ordered list of fields
-
-    def __init__(self, name='default', fields=None):
-        """Initialize Schemata and add optional fields."""
-
+    def __init__(self, name='default', fields=()):
+        self.clear()
         self.__name__ = name
-        UserDict.__init__(self)
+        for f in fields: self.addField(f)
 
-        self._index = 0
+    security.declareProtected(ModifyPortalContent, 'clear')
+    def clear(self):
+        self._names = []
+        self._fields = {}
 
-        if fields is not None:
-            if type(fields) not in [ListType, TupleType]:
-                fields = (fields, )
-
-            for field in fields:
-                self.addField(field)
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'getName')
+    security.declareProtected(View, 'getName')
     def getName(self):
         """Returns the Schemata's name."""
         return self.__name__
-
 
     def __add__(self, other):
         """Returns a new Schemata object that contains all fields and layers
@@ -98,141 +86,74 @@ class Schemata(UserDict):
         c._layers.update(other._layers)
         return c
 
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'copy')
-    def copy(self):
-        """Returns a deep copy of this Schemata.
-
-        *FIXME*: Why does this return a Schema and not a Schemata object?"""
-
-        c = Schema()
-        for field in self.fields():
-            c.addField(field.copy())
-        return c
-
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'fields')
-    def fields(self):
-        """Returns a list of my fields in order of their indices."""
-
-        if self._order_fields is None:
-            f = self.values()
-            f.sort(lambda a, b: a._index - b._index)
-            self._order_fields = f
-
-        return self._order_fields
-
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'widgets')
-    def widgets(self):
-        """Returns a dictionary that contains a widget for each field, keyed
-        by field name."""
-
-        widgets = {}
-        for f in self.fields():
-            widgets[f.getName()] = f.widget
-        return widgets
-
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'filterFields')
-    def filterFields(self, *predicates, **values):
-        """Returns a subset of self.fields(), containing only fields that
-        satisfy the given conditions.
-
-        You can either specify predicates or values or both. If you provide
-        both, all conditions must be satisfied.
-
-        For each ``predicate`` (positional argument), ``predicate(field)`` must
-        return 1 for a Field ``field`` to be returned as part of the result.
-
-        Each ``attr=val`` function argument defines an additional predicate:
-        A field must have the attribute ``attr`` and field.attr must be equal
-        to value ``val`` for it to be in the returned list.
-        """
-
-        results = []
-
-        for field in self.fields(): # step through each of my fields
-
-            # predicate failed:
-            failed = [pred for pred in predicates if not pred(field)]
-            if failed: continue
-
-            # attribute missing:
-            missing_attrs = [attr for attr in values.keys() \
-                             if not hasattr(field, attr)]
-            if missing_attrs: continue
-
-            # attribute value unequal:
-            diff_values = [attr for attr in values.keys() \
-                           if getattr(field, attr) != values[attr]]
-            if diff_values: continue
-
-            results.append(field)
-
-        return results
-
-    def __setitem__(self, name, field):
-        assert name == field.getName()
-
-        if IField.isImplementedBy(field):
-            UserDict.__setitem__(self, name, field)
-            field._index = self._index
-            self._index +=1
-            self._order_fields = None
-        else:
-            log_exc('Object doesnt implement IField: %s' % field)
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'addField')
+    security.declareProtected(ModifyPortalContent, 'addField')
     def addField(self, field):
-        """Adds a given field to my dictionary of fields."""
-        if IField.isImplementedBy(field):
-            self[field.getName()] = field
-            field._index = self._index
-            self._index +=1
-            self._order_fields = None
-        else:
-            log_exc('Object doesnt implement IField: %s' % field)
+        """ add a field """
+#        if field.getName() in self._names:
+#            raise KeyError("Field '%s' already exists" % field.getName())
+        self._names.append(field.getName())
+        self._fields[field.getName()] = field
+        self._p_changed = 1
 
-    def __delitem__(self, name):
-        if not self.has_key(name):
-            raise KeyError("Schema has no field '%s'" % name)
+    security.declareProtected(ModifyPortalContent, 'delField')
+    def delField(self, field_id):
+        """ remove a field """
 
-        UserDict.__delitem__(self, name)
-        self._order_fields = None
+        if not field_id in self._names:
+            raise KeyError("Field '%s' does not exists" % field_id)
+        self._names.remove(field_id)
+        del self._fields[field_id]
+        self._p_changed = 1
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'delField')
-    delField = __delitem__
+    __delitem__ = delField
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'updateField')
-    def updateField(self, field):
-        """ update a field """
-        old_field  = self[field.getName()]
-        field._index = old_field._index
-        self[field.getName()] = field
-        self._order_fields = None
+    security.declareProtected(View, 'getField')
+    def getField(self, field_id, default=None):
+        """ return a field """
+        try:
+            return self._fields[field_id]
+        except KeyError:
+            return default
 
+    __getitem__ = get = getField
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'searchable')
+    def hasField(self, field_id):
+        """ do we have a field with this id?"""
+        return field_id in self._names
+
+    has_key = hasField
+
+    security.declareProtected(View, 'searchable')
     def searchable(self):
-        """Returns a list containing names of all searchable fields."""
+        """ Return a list containing names of all searchable fields """
+        return [f.getName() for f in self._fields.values()  if f.searchable]
+        
+            
+#    security.declareProtected(View, 'fields')
+    def fields(self):
+        """ return the fields """
+        return [self._fields[k] for k in self._names]
 
-        return [f.getName() for f in self.values() if f.searchable]
+    security.declareProtected(View, 'toString')
+    def toString(self):
+        s = '%s: {' % self.__class__.__name__
+        for f in self.fields():
+            s = s + '%s,' % (f.toString())
+        s = s + '}'
+        return s
 
+    security.declareProtected(View, 'signature')
+    def signature(self):
+        from md5 import md5
+        return md5(self.toString()).digest()
+
+InitializeClass(Schemata)
 
 
 class Schema(Schemata, DefaultLayerContainer):
-    """Manage a list of fields and run methods over them."""
+    """ The Schema """
 
-    __implements__ = (ILayerRuntime, ILayerContainer)
+    __implement__ = (ILayerRuntime, ILayerContainer)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -241,17 +162,7 @@ class Schema(Schemata, DefaultLayerContainer):
         'marshall' : None
         }
 
-
     def __init__(self, *args, **kwargs):
-        """
-        Initialize a Schema.
-
-        The first positional argument may be a sequence of Fields which will be
-        stored inside my UserDict dict. (All further positional arguments are
-        ignored.)
-
-        Keyword arguments are added to my properties.
-        """
         Schemata.__init__(self)
         DefaultLayerContainer.__init__(self)
 
@@ -270,37 +181,22 @@ class Schema(Schemata, DefaultLayerContainer):
         if marshall:
             self.registerLayer('marshall', marshall)
 
-    def __add__(self, other):
-        c = Schema()
-        # We can't use update and keep the order so we do it manually
-        for field in self.fields():
-            c.addField(field)
-        for field in other.fields():
-            c.addField(field)
-        # Need to be smarter when joining layers
-        # and internal props
-        layers = {}
-        for k, v in self.registeredLayers():
-            layers[k] = v
-        for k, v in other.registeredLayers():
-            layers[k] = v
-        for k, v in layers.items():
-            c.registerLayer(k, v)
-        return c
+    security.declareProtected(ModifyPortalContent, 'copy')
+    def copy(self):
+        """ copy """
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
-    def edit(self, instance, name, value):
-        if self.allow(name):
-            instance[name] = value
+        s = Schema()
+        for name in self._names:
+            s.addField(self._fields[name])
+        return s
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'setDefaults')
+    security.declareProtected(ModifyPortalContent, 'setDefaults')
     def setDefaults(self, instance):
         """Only call during object initialization. Sets fields to
         schema defaults
         """
         ## XXX think about layout/vs dyn defaults
-        for field in self.values():
+        for field in self._fields.values():
             if field.getName().lower() != 'id':
                 # always set defaults on writable fields
                 mutator = field.getMutator(instance)
@@ -320,49 +216,58 @@ class Schema(Schemata, DefaultLayerContainer):
                     kw['mimetype'] = field.default_content_type
                 mapply(mutator, *args, **kw)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'updateAll')
-    def updateAll(self, instance, **kwargs):
-        """This method mutates fields in the given instance.
+    security.declareProtected(ModifyPortalContent, 'initializeLayers')
+    def initializeLayers(self, instance, item=None, container=None):
+        # scan each field looking for registered layers optionally
+        # call its initializeInstance method and then the
+        # initializeField method
+        initializedLayers = []
+        called = lambda x: x in initializedLayers
 
-        For each keyword argument k, the key indicates the name of the
-        field to mutate while the value is used to call the mutator.
+        for field in self.fields():
+            if ILayerContainer.isImplementedBy(field):
+                layers = field.registeredLayers()
+                for layer, object in layers:
+                    if ILayer.isImplementedBy(object):
+                        if not called((layer, object)):
+                            object.initializeInstance(instance, item, container)
+                            # Some layers may have the same name, but
+                            # different classes, so, they may still
+                            # need to be initialized
+                            initializedLayers.append((layer, object))
+                        object.initializeField(instance, field)
 
-        E.g. updateAll(instance, id='123', amount=500) will, depending on the
-        actual mutators set, result in two calls: ``instance.setId('123')`` and
-        ``instance.setAmount(500)``.
-        """
+        # Now do the same for objects registered at this level
+        if ILayerContainer.isImplementedBy(self):
+            for layer, object in self.registeredLayers():
+                if not called((layer, object)) \
+                   and ILayer.isImplementedBy(object):
+                    object.initializeInstance(instance, item, container)
+                    initializedLayers.append((layer, object))
 
-        keys = kwargs.keys()
+#    security.declareProtected(View, 'getSchemataNames')
+    def getSchemataNames(self):
+        """ return name of schematas """
+        l = []
+        for name in self._names:
+            field = self._fields[name]
+            if not field.schemata in l:
+                l.append(field.schemata)
+        return l
 
-        for field in self.values():
-            if field.getName() not in keys:
-                continue
+#    security.declareProtected(View, 'getSchemataFields')
+    def getSchemataFields(self, schemata_name):
+        """ return fields of a given schemata """
 
-            if 'w' not in field.mode:
-                log("tried to update %s:%s which is not writeable" % \
-                    (instance.portal_type, field.getName()))
-                continue
-
-            method = field.getMutator(instance)
-            if not method:
-                log("No method %s on %s" % (field.mutator, instance))
-                continue
-
-            method(kwargs[field.getName()])
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'allow')
-    def allow(self, key):
-        """This returns 1 for any field that I contain, where key is the
-        field's name."""
-
-        return self.get(key) != None
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'validate')
-    def validate(self, instance,
-                 REQUEST=None, errors=None, data=None, metadata=None):
+        l = []
+        for name in self._names:
+            field = self._fields[name]
+            if field.schemata == schemata_name:
+                l.append(field)
+        return l
+        
+    security.declareProtected(View, 'validate')
+    def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
         """Validate the state of the entire object.
 
         The passed dictionary ``errors`` will be filled with human readable
@@ -529,130 +434,33 @@ class Schema(Schemata, DefaultLayerContainer):
                     log_exc()
                     errors[name] = E
 
+    ######################################################################
+    # Schema manipulation methods 
+    ######################################################################
 
-    # ILayerRuntime
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'initializeLayers')
-    def initializeLayers(self, instance, item=None, container=None):
-        # scan each field looking for registered layers optionally
-        # call its initializeInstance method and then the
-        # initializeField method
-        initializedLayers = []
-        called = lambda x: x in initializedLayers
+    security.declareProtected(ModifyPortalContent, 'delSchemata')
+    def delSchemata(self, schemata_name):
+        names = [f.getName() for f in self._fields.values()  if f.schemata==schemata_name]
+        for name in names: self.delField(name)
 
-        for field in self.fields():
-            if ILayerContainer.isImplementedBy(field):
-                layers = field.registeredLayers()
-                for layer, object in layers:
-                    if ILayer.isImplementedBy(object):
-                        if not called((layer, object)):
-                            object.initializeInstance(instance, item, container)
-                            # Some layers may have the same name, but
-                            # different classes, so, they may still
-                            # need to be initialized
-                            initializedLayers.append((layer, object))
-                        object.initializeField(instance, field)
-
-        # Now do the same for objects registered at this level
-        if ILayerContainer.isImplementedBy(self):
-            for layer, object in self.registeredLayers():
-                if not called((layer, object)) \
-                   and ILayer.isImplementedBy(object):
-                    object.initializeInstance(instance, item, container)
-                    initializedLayers.append((layer, object))
-
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'cleanupLayers')
-    def cleanupLayers(self, instance, item=None, container=None):
-        # scan each field looking for registered layers optionally
-        # call its cleanupInstance method and then the cleanupField
-        # method
-        queuedLayers = []
-        queued = lambda x: x in queuedLayers
-
-        for field in self.fields():
-            if ILayerContainer.isImplementedBy(field):
-                layers = field.registeredLayers()
-                for layer, object in layers:
-                    if not queued((layer, object)):
-                        queuedLayers.append((layer, object))
-                    if ILayer.isImplementedBy(object):
-                        object.cleanupField(instance, field)
-
-        for layer, object in queuedLayers:
-            if ILayer.isImplementedBy(object):
-                object.cleanupInstance(instance, item, container)
-
-        # Now do the same for objects registered at this level
-
-        if ILayerContainer.isImplementedBy(self):
-            for layer, object in self.registeredLayers():
-                if not queued((layer, object)) and ILayer.isImplementedBy(object):
-                    object.cleanupInstance(instance, item, container)
-                    queuedLayers.append((layer, object))
-
-    # Utility method for converting a Schema to a string for the
-    # purpose of comparing schema.  This comparison is used for
-    # determining whether a schema has changed in the auto update
-    # function.  Right now it's pretty crude.
-    # XXX FIXME!
-    security.declareProtected(CMFCorePermissions.View,
-                              'toString')
-    def toString(self):
-        s = '%s: {' % self.__class__.__name__
-        for f in self.fields():
-            s = s + '%s,' % (f.toString())
-        s = s + '}'
-        return s
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'signature')
-    def signature(self):
-        from md5 import md5
-        return md5(self.toString()).digest()
-
-    security.declareProtected(CMFCorePermissions.View, 'getSchemataNames')
-    def getSchemataNames(self):
-        """ return list of schemata names in order of appearing """
-        lst = []
-        for f in self.fields():
-            if not f.schemata in lst:
-                lst.append(f.schemata)
-        return lst
-
-    security.declareProtected(CMFCorePermissions.View, 'getSchemataFields')
-    def getSchemataFields(self, name):
-        """ return list of fields belong to schema 'name' in order
-            of appearing
-        """
-        return [f for f in self.fields()  if f.schemata == name]
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'delSchemata')
-    def delSchemata(self, name):
-        """ remove all fields belonging to schemata 'name' """
-        for f in self.fields():
-            if f.schemata == name:
-                self.delField(f.getName())
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'addSchemata')
+    security.declareProtected(ModifyPortalContent, 'addSchemata')
     def addSchemata(self, name):
         """ create a new schema by adding a new field with schemata 'name' """
-        from Field import StringField
+        from Products.Archetypes.Field import StringField
 
         if name in self.getSchemataNames():
             raise ValueError('Schemata "%s" already exists' % name)
         self.addField(StringField('%s_default' % name, schemata=name))
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'changeSchemataForField')
+    security.declareProtected(ModifyPortalContent, 'changeSchemataForField')
     def changeSchemataForField(self, fieldname, schemataname):
         """ change the schemata for a field """
-        field = self[fieldname]
+        field = self._fields[fieldname]
         self.delField(fieldname)
         field.schemata = schemataname
         self.addField(field)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveSchemata')
+    security.declareProtected(ModifyPortalContent, 'moveSchemata')
     def moveSchemata(self, name, direction):
         """ move a schemata to left (direction=-1) or to right
             (direction=1)
@@ -678,15 +486,14 @@ class Schema(Schemata, DefaultLayerContainer):
                 schemata_names.remove(name)
                 schemata_names.insert(pos+1, name)
 
-        # remove and re-add
-        self.__init__()
+        self.clear()
 
         for s_name in schemata_names:
             for f in fields:
                 if f.schemata == s_name:
                     self.addField(f)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveField')
+    security.declareProtected(ModifyPortalContent, 'moveField')
     def moveField(self, name, direction):
         """ move a field inside a schema to left (direction=-1) or to right
             (direction=1)
@@ -719,23 +526,24 @@ class Schema(Schemata, DefaultLayerContainer):
 
         d[field_schemata_name] = lst
 
-        # remove and re-add
-        self.__init__()
+        self.clear()
         for s_name in schemata_names:
             for f in d[s_name]:
                 self.addField(f)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'replaceField')
+    security.declareProtected(ModifyPortalContent, 'replaceField')
     def replaceField(self, name, field):
         """ replace field with name 'name' in-place with 'field' """
 
         if IField.isImplementedBy(field):
-            oldfield = self[name]
-            field._index = oldfield._index
-            UserDict.__setitem__(self, name, field)
-            self._order_fields = None
+            if not name in self._names:
+                raise ValueError("Field '%s' does not exist" % field.getName())
+            self._fields[name] = field
         else:
             raise ValueError('wrong field: %s' % field)
+
+InitializeClass(Schema)
+
 
 
 # Reusable instance for MetadataFieldList
@@ -746,7 +554,7 @@ class MetadataSchema(Schema):
 
     security = ClassSecurityInfo()
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(ModifyPortalContent,
                               'addField')
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
@@ -764,8 +572,6 @@ class MetadataSchema(Schema):
         Schema.addField(self, field)
 
 
-InitializeClass(Schema)
-InitializeClass(Schemata)
 InitializeClass(MetadataSchema)
 
 FieldList = Schema
