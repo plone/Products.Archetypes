@@ -1,10 +1,22 @@
 2003-11-11  Sylvain Thénault  <syt@logilab.fr>
-    * BaseUnit.py: NewBaseUnit.portalEncoding now use the getCharset script to
-    be consistent
+
+	* BaseContent.py: BaseContentMixin without Extensible metadata
+	
+	* BaseFolder.py: BaseFolderMixin without Extensible metadata. Fix
+	the Description method and add Title / setTitle
+
+	* BaseObject.py (BaseObject.SearchableText): now use the
+	getCharset script to be consistent
+
+2003-11-11  Sylvain Thénault  <syt@logilab.fr>
+
+	* BaseUnit.py (NewBaseUnit.portalEncoding): now use the getCharset
+	script to be consistent
 
 2003-11-07  Sylvain Thénault  <syt@logilab.fr>
-    * BaseFolder.py: added the Description method to not fallback to
-    the PortalFolder's one
+
+	* BaseFolder.py: added the Description method to not fallback to
+	the PortalFolder's one
 
 	* __init__.py: make DisplayList public
 
