@@ -827,7 +827,7 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            results = catalog(Type=self.allowed_types)
+            results = catalog(meta_type=self.allowed_types)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
@@ -840,6 +840,24 @@ class ReferenceField(ObjectField):
         if not self.required:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
+
+    def allowedTypesReadable(self, instance):
+        """Returns a dictionary that maps meta_type to its human readable
+        form."""
+        tool = getToolByName(instance, 'portal_types')
+        if tool is None:
+            msg = "Coudln't get portal_types tool from this context"
+            raise AttributeError(msg)
+            
+        d = {}
+        for typeid in self.allowed_types:
+            info = tool.getTypeInfo(typeid)
+            if info is None:
+                raise ValueError('No such content type: %s' % type_name)
+            d[typeid] = info.Title()
+
+        return d
+        
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""

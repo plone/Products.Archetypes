@@ -1,3 +1,22 @@
+2003-11-21  Daniel Nouri <daniel.nouri@con-fuse.org>
+
+	* Field.py (ReferenceField): The Vocabulary method of ReferenceField
+	searches by meta_type now, which I added to be an index of
+	uuid_catalog.
+
+	This means that the allowed_types property of ReferenceField is now a
+	tuple of strings in the form of meta_type and not
+	TypeInformation.Title() (i.e. human readable) as it used to be.
+
+	(ReferenceField.allowedTypesReadable): Added this method that allows
+	reference.pt to conveniently iterate over meta_types and their
+	readable forms.
+
+	* Extensions/utils.py: Added 'meta_type' as a FieldIndex of
+	uid_catalog.
+
+	* skins/archetypes/widgets/reference.pt: Fixed 'addable' feature.
+
 2003-11-17  Jens Klein <jens.klein@jensquadrat.de>
         * OrderderBaseFolder.py and interfaces/orderdfolder.py  adapted 
 	  to Zope 2.7 style interface and implementation. This is needed

@@ -50,13 +50,15 @@
 
                     <!-- handle "addable" option -->
                     <div tal:condition="field/addable|nothing">
-                        <span tal:repeat="addable field/allowed_types"
+                        <span tal:define="types python:field.allowedTypesReadable(here)"
+                              tal:repeat="typename python:types.keys()"
                               tal:omit-tag="">
                             <a href="#"
-                               tal:define="create string:createObject?type_name=${addable}; 
-                                           dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url())"
+                               tal:define="create string:createObject?type_name=${typename}; 
+                                           dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url());
+                                           readable_name python:types[typename]"
                                tal:attributes="href string:${dest}/${create}"
-                               tal:content="string:Add New ${addable}">
+                               tal:content="string:Add New ${readable_name}">
                                 Add new foo
                             </a>
                         </span>
