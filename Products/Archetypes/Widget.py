@@ -232,9 +232,11 @@ class RichWidget(TypesWidget):
 
         if value is None: return None
         kwargs = {}
-        if text_format and not isFile:
-            kwargs['mimetype'] = text_format
-        elif instance.isBinary(field.getName()) and not isFile:
+        #        if text_format and not isFile:
+        # XXX I think we'd want to take the input incase we can't guess the file type down the line?
+        # if I am outta line with this tell me, but on unix many files don't have extensions so this is a win.
+        kwargs['mimetype'] = text_format
+        if instance.isBinary(field.getName()) and not isFile:
             # file field with content, no new content uploaded
             return None
 

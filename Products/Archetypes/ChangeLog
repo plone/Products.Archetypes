@@ -1,5 +1,11 @@
 2003-10-09  Benjamin Saller  <bcsaller@yahoo.com>
 
+	* Widget.py (RichWidget.process_form): I think we'd want to take
+	the mime_type input incase we can't guess the file type down the
+	line?  if I am outta line with this tell me, but on unix many
+	files don't have extensions so this is a win.
+
+
 	* BaseObject.py (BaseObject._processForm): MAJOR CHANGE, minor
 	expected impact. Unless I missed something (and I might have)
 	normal users should notice no changes, however form processing has
