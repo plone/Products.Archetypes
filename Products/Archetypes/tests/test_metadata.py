@@ -8,8 +8,7 @@ from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT, \
-     ZOPE_LINES_IS_TUPLE_TYPE
+from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from DateTime import DateTime
 from Acquisition import aq_base, aq_parent
 
@@ -55,14 +54,11 @@ def addMetadataTo(obj, data='default', time=1000):
     obj.setRights(data)
 
 def compareMetadataOf(test, obj, data='default', time=1000):
-    l_data = [data]
-    if ZOPE_LINES_IS_TUPLE_TYPE:
-        l_data = tuple(l_data)
     test.failUnless(obj.Title() == data, 'Title')
-    test.failUnless(obj.Subject() == l_data,
-                    'Subject: %s, %s' % (obj.Subject(), l_data))
+    test.failUnless(obj.Subject() == [data],
+                    'Subject: %s, %s' % (obj.Subject(), [data]))
     test.failUnless(obj.Description() == data, 'Description')
-    test.failUnless(obj.Contributors() == l_data, 'Contributors')
+    test.failUnless(obj.Contributors() == [data], 'Contributors')
     test.failUnless(obj.EffectiveDate() == DateTime(time, 0).ISO(),
                     'effective date')
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),

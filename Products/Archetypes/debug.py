@@ -109,11 +109,7 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        try: return inspect.stack()[start:end]
-        except TypeError:
-            # NOTE: this is required for psyco compatibility
-            #       since inspect.stack is broken after psyco is imported
-            return []
+        return inspect.stack()[start:end]
 
     def munge_message(self, msg, **kwargs):
         deep = kwargs.get("deep", 1)

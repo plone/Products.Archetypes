@@ -4,8 +4,8 @@
 
 :Author: Joel Burton
 :Contact: joel@joelburton.com
-:Date: $Date: 2003/12/16 21:02:04 $
-:Version: $Revision: 1.2 $
+:Date: $Date: 2003/12/13 13:20:38 $
+:Version: $Revision: 1.1.2.1 $
 :Web site: http://sourceforge.net/projects/archetypes
 :Covers: Archetypes 1.2.1
 
@@ -74,15 +74,6 @@ This skin now, when viewed, will show the search widgets. You can wrap
 this in an HTML form that calls your searching script, and unless you
 have special needs, this could just call the standard CMF/Plone script
 "search", giving you back results in a tabular list.
-
-
-Example
-=======
-
-A good example of a product using this idea (and a good example for
-advanced Archetypes examples in general) is PublisherInventory_.
-
-.. _PublisherInventory: http://plone.org/newsitems/publisher-inventory-1.0
 
 
 Notes

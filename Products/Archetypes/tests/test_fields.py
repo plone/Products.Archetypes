@@ -4,7 +4,6 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 
 from test_classgen import Dummy as BaseDummy
 
@@ -58,14 +57,11 @@ expected_values = {'objectfield':'objectfield',
                    'filefield':stub_content,
                    'textfield':'textfield',
                    'datetimefield':DateTime('2003-01-01'),
-                   'linesfield':('bla', 'bla'),
+                   'linesfield':['bla', 'bla'],
                    'integerfield': 1,
                    'floatfield': 1.5,
                    'fixedpointfield': '1.50',
                    'booleanfield': 1}
-
-if not ZOPE_LINES_IS_TUPLE_TYPE:
-    expected_values['linesfield'] = list(expected_values['linesfield'])
 
 
 schema = Schema(tuple(field_instances))

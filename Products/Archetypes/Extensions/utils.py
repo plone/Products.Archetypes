@@ -23,7 +23,6 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
-from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 
 class Extra:
     """indexes extra properties holder"""
@@ -38,8 +37,8 @@ def install_tools(self, out):
     if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
-
         at = getToolByName(self, 'archetype_tool', None)
+
         ##Test some of the templating code
         at.registerTemplate('base_view', "Normal View")
     else:
@@ -64,73 +63,43 @@ def install_catalog(self, out):
         #Add a zcatalog for uids
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
+        catalog = getToolByName(self, UID_CATALOG)
 
-    catalog = getToolByName(self, UID_CATALOG)
-    schema = catalog.schema()
-    indexes = catalog.indexes()
-    schemaFields = []
-
-    for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                  ('Type', 'FieldIndex'),
-                                  ('id', 'FieldIndex'),
-                                  ('Title', 'FieldIndex'),
-                                  ('portal_type', 'FieldIndex'),
-                                  ):
-        try:
-            if indexName not in indexes:
+        for indexName, indexType in index_defs:
+            try:
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in schema:
-                catalog.addColumn(indexName)
-                schemaFields.append(indexName)
+            except:
+                pass
+
+        try:
+            if not 'UID' in catalog.schema():
+                catalog.addColumn('UID')
         except:
             pass
 
-    catalog.manage_reindexIndex(ids=schemaFields)
+
+        catalog.manage_reindexIndex(ids=('UID',))
+    else:
+        #add the indexes if not in the catalog (in the case that
+        #the index has been added within an Archetypes update)
+        catalog=getattr(self,UID_CATALOG)
+        for indexName, indexType in index_defs:
+            if indexName not in catalog.indexes():
+                catalog.addIndex(indexName, indexType, extra=None)
 
 def install_templates(self, out):
     at = self.archetype_tool
     at.registerTemplate('base_view')
 
-
-def install_referenceCatalog(self, out):
-    if not hasattr(self, REFERENCE_CATALOG):
-        #Add a zcatalog for uids
-        addCatalog = manage_addReferenceCatalog
-        addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
-        catalog = getToolByName(self, REFERENCE_CATALOG)
-        schema = catalog.schema()
-        for indexName, indexType in ( ('sourceUID', 'FieldIndex'),
-                                      ('targetUID', 'FieldIndex'),
-                                      ('relationship', 'FieldIndex'),
-                                      ('targetId', 'FieldIndex'),
-                                      ('targetTitle', 'FieldIndex'),
-                                      ):
-            try:
-                catalog.addIndex(indexName, indexType, extra=None)
-            except:
-                pass
-            try:
-                if not indexName in schema:
-                    catalog.addColumn(indexName)
-            except:
-                pass
-
-        #catalog.manage_reindexIndex()
-
-
-def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
+def install_subskin(self, out, globals=types_globals,
+                    product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
 
-    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
+    fullProductSkinsPath = join(package_home(globals), product_skins_dir)
     productSkinsPath = minimalpath(fullProductSkinsPath)
     registered_directories = manage_listAvailableDirectories()
     if productSkinsPath not in registered_directories:
-        try:
-            registerDirectory(product_skins_dir, globals)
-        except OSError, ex:
-            if ex.errno == 2: # No such file or directory
-                return
-            raise
+        registerDirectory(product_skins_dir, globals)
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
@@ -200,8 +169,7 @@ def install_indexes(self, out, types):
                             if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
                         except:
-                            import traceback
-                            traceback.print_exc(file=out)
+                            pass
 
                     # we may want to add a field to metadata without
                     # indexing it
@@ -303,7 +271,6 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-    install_referenceCatalog(self, out)
 
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)

@@ -24,8 +24,8 @@ Features
 
 Requires
 
-	Plone 2.0+
-	CMF 1.4+
+  Plone 2.0+
+  CMF 1.4+
   Zope 2.6.1+
 
   CMFFormController (from collective CVS)

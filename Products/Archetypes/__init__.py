@@ -93,6 +93,7 @@ def initialize(context):
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
+
     try:
         from Products.CMFCore.FSFile import FSFile
         from Products.CMFCore.DirectoryView import registerFileExtension
