@@ -1,5 +1,7 @@
 1.3.2-svn - Unreleased
 ======================
+ * Changed UI for Image/File widgets. Should be a lot better now.
+   [_ender_]
 
  * BaseUnit backward compability on very old bad migrated Archetypes 1.0
    sites. Thanks to Brent M Hendricks <brentmh@rice.edu>.
