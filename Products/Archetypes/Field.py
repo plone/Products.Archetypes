@@ -34,6 +34,9 @@ from Schema import FieldList, MetadataFieldList
 from Products.PortalTransforms.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
+"""Mime-types currently supported"""
+
+__docformat__ = 'reStructuredText'
 
 def getLanguage(instance, lang):
     try:
@@ -44,6 +47,14 @@ def getLanguage(instance, lang):
         return 'en'
     
 class Field(DefaultLayerContainer):
+    """
+    Extend `DefaultLayerContainer`. 
+    Implements `IField` and `ILayerContainer` interfaces. 
+    Class security = public with default access = allow.
+    Class attribute _properties is a dictionary containing all of a
+    field's property values.
+    """
+
     __implements__ = (IField, ILayerContainer)
 
     security  = ClassSecurityInfo()
@@ -80,6 +91,10 @@ class Field(DefaultLayerContainer):
         }
 
     def __init__(self, name, **kwargs):
+        """
+        Assign name to __name__. Add properties and passed-in 
+        keyword args to __dict__. Validate assigned validator(s).
+        """
         DefaultLayerContainer.__init__(self)
 
         self.__name__ = name
@@ -93,21 +108,35 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     def copy(self):
+        """
+        Return a copy of field instance, consisting of field name and
+        properties dictionary.
+        """
         return self.__class__(self.getName(), **self.__dict__)
 
     def __repr__(self):
+        """
+        Return a string representation consisting of name, type and permissions.
+        """
         return "<Field %s(%s:%s)>" %(self.getName(), self.type, self.mode)
 
     def _widgetLayer(self):
+        """
+        instantiate the widget if a class was given
+        """
         if hasattr(self, 'widget') and type(self.widget) == ClassType:
             self.widget = self.widget()
 
     def _validationLayer(self):
-        # resolve that each validator is in the service
-        # we could replace strings with class refs and keep
-        # things impl the ivalidator in the list
-        # XXX this is not compat with aq_ things like scripts with
-        # __call__
+        """
+        Resolve that each validator is in the service. If validator is
+        not, log a warning.
+        
+        We could replace strings with class refs and keep things impl 
+        the ivalidator in the list.
+        
+        Note: XXX this is not compat with aq_ things like scripts with __call__
+        """
         if type(self.validators) not in [type(()), type([])]:
             self.validators = (self.validators,)
 
@@ -117,6 +146,11 @@ class Field(DefaultLayerContainer):
                 self.getName()))
 
     def validate(self, value):
+        """
+        Validate passed-in value using all field validators. 
+        Return None if all validations pass; otherwise, return failed 
+        result returned by validator
+        """
         for v in self.validators:
             res = validation.validate(v, value)
             if res != 1:
@@ -152,6 +186,15 @@ class Field(DefaultLayerContainer):
         return value
 
     def checkPermission(self, mode, instance):
+        """
+        Check whether the security context allows the given permission on
+        the given object.
+
+        Arguments:
+
+        permission -- A permission name
+        instance -- The object being accessed according to the permission
+        """
         if mode in ('w', 'write', 'edit', 'set'):
             perm = self.write_permission
         elif mode in ('r', 'read', 'view', 'get'):
@@ -173,42 +216,51 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getStorageName')
     def getStorageName(self):
+        """Return the storage name that is configured for this field as a string"""
         return self.storage.getName()
 
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
+        """Return the widget name that is configured for this field as a string"""
         return self.widget.getName()
 
     security.declarePublic('getName')
     def getName(self):
+        """Return the name of this field as a string"""
         return self.__name__
 
     security.declarePublic('getDefault')
     def getDefault(self):
+        """Return the default value to be used for initializing this field"""
         return self.default
 
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
-#        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
+        """Return the accessor method for getting data out of this field"""
         return getattr(instance, self.accessor, None)
 
     security.declarePrivate('getEditAccessor')
     def getEditAccessor(self, instance):
+        """Return the accessor method for getting raw data out of this
+        field e.g.: for editing
+        """
         return getattr(instance, self.edit_accessor, None)
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
+        """Return the mutator method used for changing the value of this field"""
         return getattr(instance, self.mutator, None)
 
     def hasI18NContent(self):
         """return true it the field has I18N content"""
         return 0
 
-    # Utility method for converting a Field to a string for the purpose of
-    # comparing fields.  This comparison is used for determining whether a
-    # schema has changed in the auto update function.  Right now it's pretty
-    # crude.  XXX fixme
     def toString(self):
+        """Utility method for converting a Field to a string for the purpose of
+        comparing fields.  This comparison is used for determining whether a
+        schema has changed in the auto update function.  Right now it's pretty
+        crude."""
+        # XXX fixme
         s = '%s: {' % self.__class__.__name__
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
@@ -277,7 +329,7 @@ class ObjectField(Field):
 
 
 class StringField(ObjectField):
-    """A string field"""
+    """A field that stores strings"""
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'string',
@@ -345,11 +397,18 @@ class FileField(StringField):
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
+        """Return the type of file of this object if known; otherwise,
+        return None."""       
         if hasattr(aq_base(instance), '_FileField_types'):
             return instance._FileField_types.get(self.getName(), None)
         return None
 
     def set(self, instance, value, **kwargs):
+        """
+        Assign input value to object. If mimetype is not specified, 
+        pass to processing method without one and add mimetype returned
+        to kwargs. Assign kwargs to instance.
+        """
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -429,6 +488,8 @@ class TextField(ObjectField):
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
 
     def getContentType(self, instance):
+        """Return the mime type of object if known or can be guessed; 
+        otherwise, return None."""
         value = ''
         accessor = self.getEditAccessor(instance)
         if accessor is not None:
@@ -440,6 +501,7 @@ class TextField(ObjectField):
 
 
     def getRaw(self, instance, **kwargs):
+        """Return raw data of object."""
         kwargs['raw'] = 1
         value = self.get(instance, **kwargs)
         if not kwargs.get('maybe_baseunit', 0) and IBaseUnit.isImplementedBy(value):
@@ -447,6 +509,13 @@ class TextField(ObjectField):
         return value
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
+        """
+        Return value of object, transformed into requested mime type.
+        If no requested type, then return value in default type. If raw 
+        format is specified, try to transform data into the default output type
+        or to plain text. If we are unable to transform data, return an empty
+        string.
+        """
         try:
             kwargs['field'] = self
             value = self.storage.get(self.getName(), instance, **kwargs)
@@ -481,6 +550,11 @@ class TextField(ObjectField):
 
 
     def set(self, instance, value, **kwargs):
+        """
+        Assign input value to object. If mimetype is not specified, 
+        pass to processing method without one and add mimetype returned
+        to kwargs. Assign kwargs to instance.
+        """
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
         try:
@@ -515,6 +589,7 @@ class TextField(ObjectField):
 
 
 class DateTimeField(ObjectField):
+    """A field that stores dates and times"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -524,6 +599,11 @@ class DateTimeField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        """
+        Check if value is an actual date/time value. If not, attempt
+        to convert it to one; otherwise, set to None. Assign all 
+        properties passed as kwargs to object.
+        """
         if not value:
             value = None
         elif not isinstance(value, DateTime):
@@ -535,6 +615,7 @@ class DateTimeField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class LinesField(ObjectField):
+    """For creating lines objects"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -545,6 +626,11 @@ class LinesField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
+        """
+        If passed-in value is a string, split at line breaks and 
+        remove leading and trailing white space before storing in object
+        with rest of properties.
+        """
         if type(value) == type(''):
             value =  value.split('\n')
         value = [v.strip() for v in value if v.strip()]
@@ -552,6 +638,7 @@ class LinesField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class IntegerField(ObjectField):
+    """A field that stores an integer"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -572,12 +659,15 @@ class IntegerField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class FloatField(ObjectField):
+    """A field that stores floats"""
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'float'
         })
 
     def set(self, instance, value, **kwargs):
+        """Convert passed-in value to a float. If failure, set value to
+        None."""
         if value=='':
             value=None
         try:
@@ -588,6 +678,7 @@ class FloatField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class FixedPointField(ObjectField):
+    """A field for storing numerical data with fixed points"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -622,6 +713,7 @@ class FixedPointField(ObjectField):
         return template % value
 
 class ReferenceField(ObjectField):
+    """A field for containing a reference"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -647,9 +739,10 @@ class ReferenceField(ObjectField):
             return str(value) == str(attrval)
 
     def set(self, instance, value, **kwargs):
-        ''' before setting the value the reference gets also be established
-            in the reference tool
-        '''
+        """ Add one or more passed in references to the object. 
+        Before setting the value the reference gets also be established
+        in the reference tool
+        """
 
         if not value:
             value=None
@@ -699,6 +792,7 @@ class ReferenceField(ObjectField):
         return DisplayList(value)
 
 class ComputedField(ObjectField):
+    """A field that stores a read-only computation"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -714,9 +808,11 @@ class ComputedField(ObjectField):
         pass
 
     def get(self, instance, **kwargs):
+        """Return computed value"""
         return eval(self.expression, {'context': instance})
 
 class BooleanField(ObjectField):
+    """A field that stores boolean values."""
     __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
@@ -726,7 +822,8 @@ class BooleanField(ObjectField):
         })
 
     def set(self, instance, value, **kwargs):
-
+        """If value is not defined or equal to 0, set field to false; 
+        otherwise, set to true."""
         if not value or value == '0':
             value = None ## False
         else:
