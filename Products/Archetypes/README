@@ -13,7 +13,9 @@ Installation
 
 EITHER:
 
-* Drop it in your Zope Products directory
+* Add it to you Zope Products Directory. As of Archetypes 1.2.5+ and Archetypes
+  1.3 the generator and validator packages are expected to be installed as Zope
+  Products, not Python Packages.
 
 OR:
 
