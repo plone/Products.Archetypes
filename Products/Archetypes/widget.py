@@ -74,8 +74,16 @@ class widget:
         """Returns the label, possibly translated"""
         return self._translate_attribute(instance, 'label')
 
-    def Description(self, instance):
+    def Description(self, instance, **kwargs):
         """Returns the description, possibly translated"""
+        value = self.description
+        method = getattr(instance, value, None)
+        if method and callable(method):
+            ##Description methods can be called with kwargs and should
+            ##return the i18n version of the description
+            value = method(**kwargs)
+            return value
+            
         return self._translate_attribute(instance, 'description')
 
 
