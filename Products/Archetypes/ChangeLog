@@ -1,5 +1,7 @@
 2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* Schema.py (Schema.validate): Filter empty values on vocabulary lookup.
+
 	* skins/archetypes/widgets/string.pt: Whitespace.
 
 	* skins/archetypes/widgets/keyword.pt: Fill from request if available.
