@@ -48,7 +48,7 @@ class newBaseUnit(File):
         #Convert from str to unicode as needed
         try:
             adapter = getToolByName(instance, 'mimetypes_registry')
-        except AttributeError:
+        except AttributeError, e:
             # this occurs on object creation
             data = data and unicode(data) or u''
             filename = None
@@ -79,9 +79,9 @@ class newBaseUnit(File):
         """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
         """
-        #Do we have a cached transform for this key?
+        encoding = self.original_encoding
+        orig = self.getRaw(encoding)
         transformer = getToolByName(instance, 'portal_transforms')
-        orig = self.getRaw()
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
@@ -90,12 +90,18 @@ class newBaseUnit(File):
             assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
+            portal_encoding = self.portalEncoding()
+            if portal_encoding != encoding:
+                _data = unicode(_data, encoding).encode(portal_encoding)
             return _data
 
         # we have not been able to transform data
         # return the raw data if it's not binary data
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
+            portal_encoding = self.portalEncoding()
+            if portal_encoding != encoding:
+                orig = self.getRaw(portal_encoding)
             return orig
         
         return None
@@ -128,8 +134,12 @@ class newBaseUnit(File):
             return self.raw
         if encoding is None:
             # FIXME: fallback to portal encoding or original encoding ?
-            encoding = self.portal_properties.site_properties.getProperty('default_charset')
+            encoding = self.portalEncoding()
         return self.raw.encode(encoding)
+    
+    def portalEncoding(self):
+        site_props = self.portal_properties.site_properties
+        return site_props.getProperty('default_charset', 'UTF-8')
     
     def getContentType(self):
         """return the imimetype object for this BU"""

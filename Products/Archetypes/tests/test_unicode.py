@@ -7,9 +7,20 @@ from test_classgen import Dummy
 from Products.Archetypes.Field import *
 from Products.PortalTransforms.MimeTypesRegistry import MimeTypesRegistry
 from Products.Archetypes.BaseUnit import BaseUnit
-
+from Products.PortalTransforms.data import datastream
 instance = Dummy()
 
+class FakeTransformer:
+    def __init__(self, expected):
+        self.expected = expected
+        
+    def convertTo(self, target_mimetype, orig, data=None, object=None, **kwargs):
+        assert orig == self.expected
+        if data is None:
+            data = datastream('test')
+        data.setData(orig)
+        return data
+    
 class UnicodeStringFieldTest( unittest.TestCase ):
     
     def test_set(self):
@@ -64,11 +75,30 @@ class UnicodeTextFieldTest( unittest.TestCase ):
         self.failUnlessEqual(f.getRaw(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
             
-            
+
+class UnicodeBaseUnitTest(unittest.TestCase):
+    def setUp(self):
+        self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
+        
+    def test_store(self):
+        self.failUnless(type(self.bu.raw is type(u'')))
+        
+    def test_getRaw(self):
+        self.failUnlessEqual(self.bu.getRaw(), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        self.failUnlessEqual(self.bu.getRaw('ISO-8859-1'), 'héhéhé')
+        
+    def test_transform(self):
+        instance = Dummy()
+        instance.portal_transforms = FakeTransformer('héhéhé')
+        transformed = self.bu.transform(instance, 'text/plain')
+        self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        
+    
 def test_suite():
     return unittest.TestSuite([unittest.makeSuite(UnicodeStringFieldTest),
                                unittest.makeSuite(UnicodeLinesFieldTest),
                                unittest.makeSuite(UnicodeTextFieldTest),
+                               unittest.makeSuite(UnicodeBaseUnitTest),
                                ])
 
 if __name__=='__main__':
