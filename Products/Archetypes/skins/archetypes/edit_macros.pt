@@ -149,7 +149,7 @@
             </tal:env>
 
             <tal:comment replace="nothing">
-              Stores lastests referer to remmber where to go back
+              Stores lastests referer to remember where to go back
             </tal:comment>
             <input type="hidden"
                    name="lastest_referer"
@@ -185,7 +185,7 @@
                        tabindex=""
                        type="submit"
                        name="form_submit"
-                       value="Finish"
+                       value="Save"
                        i18n:attributes="value"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
