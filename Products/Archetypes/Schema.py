@@ -209,6 +209,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     def updateAll(self, instance, **kwargs):
         keys = kwargs.keys()
         for field in self.values():
+            if field.name not in keys:
+                continue
+
             if 'w' not in field.mode:
                 log("tried to update %s:%s which is not writeable" % \
                     (instance.portal_type, field.name))
@@ -219,8 +222,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
 
-            if field.name in keys:
-                method(kwargs[field.name])
+            method(kwargs[field.name])
             
     security.declarePublic("allow")
     def allow(self, key):

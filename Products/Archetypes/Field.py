@@ -411,6 +411,7 @@ class FixedPointField(ObjectField):
         template = '%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
+        if value is None: return self.default
         return template % value
 
 class ReferenceField(ObjectField):
@@ -436,7 +437,7 @@ class ReferenceField(ObjectField):
             value = [(obj.UID, str(obj.Title).strip() or str(obj.getId).strip())
                      for obj in archetype_tool.Content()]
         if not self.required:
-            value.insert(0, (None, '<no reference>'))
+            value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
 
 class ComputedField(ObjectField):

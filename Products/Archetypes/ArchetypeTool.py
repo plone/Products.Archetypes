@@ -349,9 +349,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     field.addable = 0 # for ReferenceField
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
-                    if None not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([(None, '<any>')]) + field.vocabulary
-                        field.default = None
+                    if '' not in field.vocabulary.keys():
+                        field.vocabulary = DisplayList([('', '<any>')]) + field.vocabulary
+                        field.default = ''
                     def accessor(*a, **kw):
                         # thanks 2.1 for lexical scopes!
                         return field.default
