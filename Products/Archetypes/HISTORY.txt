@@ -17,6 +17,9 @@
  * Added Archetypes Site customization policy
    [tiran]
 
+ * Fixed [ 1042076 ] missing import in SQLMethod.py: atoi and time were missing
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
 
