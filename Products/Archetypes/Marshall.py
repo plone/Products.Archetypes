@@ -4,6 +4,8 @@ from interfaces.layer import ILayer
 from interfaces.base import IBaseUnit
 from StringIO import StringIO
 from types import StringType, ListType, TupleType
+from debug import log
+from OFS.content_types import guess_content_type
 
 class Marshaller:
     __implements__ = (IMarshall, ILayer)
@@ -28,24 +30,15 @@ class Marshaller:
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
 
-class DublinCoreMarshaller(Marshaller):
-    ## XXX TODO -- based on CMFCore.Document
-    def marshall(self, instance, **kwargs):
-        pass
-
-    def demarshall(self, instance, data, **kwargs):
-        pass
-
-
 class PrimaryFieldMarshaller(Marshaller):
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
 
-
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        data = p.get(instance)
+        data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(data):
@@ -87,7 +80,7 @@ class RFC822Marshaller(Marshaller):
     def marshall(self, instance, **kwargs):
         from Products.CMFDefault.utils import formatRFC822Headers
         p = instance.getPrimaryField()
-        body = p and p.get(instance) or ''
+        body = p and instance[p.getName()] or ''
         pname = p and p.getName() or None
         content_type = length = None
         # Gather/Guess content type

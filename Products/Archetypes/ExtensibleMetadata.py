@@ -27,7 +27,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
     """
 
-    
+
     # XXX This is not completely true. We need to review this later
     # and make sure it is true.
     __implements__ = IExtensibleMetadata
@@ -61,20 +61,20 @@ class ExtensibleMetadata(Persistence.Persistent):
                    ),
 
         TextField('description',
-                  default='',
-                  searchable=1,
-                  accessor="Description",
-                  default_content_type = 'text/plain',
-                  default_output_type = 'text/html',
-                  widget=TextAreaWidget(description="An administrative summary of the content",
-                                        label_msgid="label_description",
-                                        description_msgid="help_description",
-                                        i18n_domain="plone"),
+                      default='',
+                      searchable=1,
+                      accessor="Description",
+                      widget=TextAreaWidget(label='Description',
+                                            description="An administrative summary of the content",
+                                            label_msgid="label_description",
+                                            description_msgid="help_description",
+                                            i18n_domain="plone"),
                       ),
 
         LinesField('contributors',
                    accessor="Contributors",
-                   widget=LinesWidget(label_msgid="label_contributors",
+                   widget=LinesWidget(label='Contributors',
+                                      label_msgid="label_contributors",
                                       description_msgid="help_contributors",
                                       i18n_domain="plone"),
                    ),
@@ -98,23 +98,23 @@ class ExtensibleMetadata(Persistence.Persistent):
                                             i18n_domain="plone")),
 
         StringField('language',
-                    accessor="Language",
-                    default="en",
-                    vocabulary='languages',
-                    widget=SelectionWidget(label_msgid="label_language",
-                                           description_msgid="help_language",
-                                           i18n_domain="plone"),
-                    ),
+                      accessor="Language",
+                      default="en",
+                      vocabulary='languages',
+                      widget=SelectionWidget(label='Language',
+                                             label_msgid="label_language",
+                                             description_msgid="help_language",
+                                             i18n_domain="plone"),
+                      ),
 
         StringField('rights',
-                    accessor="Rights",
-                    widget=TextAreaWidget(description="A list of copyright info for this content",
-                                          label_msgid="label_copyrights",
-                                          description_msgid="help_copyrights",
-                                          i18n_domain="plone")),
-        
+                      accessor="Rights",
+                      widget=TextAreaWidget(label='Copyright',
+                                            description="A list of copyright info for this content",
+                                            label_msgid="label_copyrights",
+                                            description_msgid="help_copyrights",
+                                            i18n_domain="plone")),
         ))
-    
 
     def __init__(self):
         now = DateTime()
@@ -138,22 +138,22 @@ class ExtensibleMetadata(Persistence.Persistent):
                 allowDiscussion = {'on' : 1, 'off': 0,
                                    'none':None, '':None}.get(allowDiscussion, None)
         getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)
-            
-    
+
+
     # Vocabulary methods ######################################################
-            
+
     def languages(self):
         available_langs = getattr(self, 'availableLanguages', None)
         if available_langs is None:
-            return DisplayList((('en','English'), ('fr','French'), ('es','Spanish'), 
+            return DisplayList((('en','English'), ('fr','French'), ('es','Spanish'),
                                 ('pt','Portuguese'), ('ru','Russian')))
         if callable(available_langs):
             available_langs = available_langs()
         return DisplayList(available_langs)
 
-    
+
     #  DublinCore interface query methods #####################################
-    
+
     security.declarePublic( 'CreationDate' )
     def CreationDate( self ):
         """
@@ -168,7 +168,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         Dublin Core element - default date
         """
         # Return effective_date if specificall set, modification date otherwise
-        date = self.EffectiveDate()        
+        date = self.EffectiveDate()
         if date is None or date == CEILING_DATE:
             date = self.modified()
         return date.ISO()
@@ -179,15 +179,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         Dublin Core element - resource format
         """
         # FIXME: get content type from marschaller
-        return 
-    
+        return
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setFormat')
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
         pass
 
     #  DublinCore utility methods #############################################
-    
+
     security.declarePublic( 'isEffective' )
     def isEffective( self, date ):
         """ Is the date within the resource's effective range? """
@@ -242,7 +242,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
 
     ## code below come from CMFDefault.DublinCore.DefaultDublinCoreImpl #######
-    
+
     ###########################################################################
     #
     # Copyright (c) 2001 Zope Corporation and Contributors. All Rights Reserved
@@ -297,7 +297,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         if hasattr( owner, 'getUserName' ):
             return owner.getUserName()
         return 'No owner'
-    
+
     security.declarePublic( 'Publisher' )
     def Publisher( self ):
         "Dublin Core element - resource publisher"
@@ -330,7 +330,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
     #  DublinCore utility methods
     #
-    
+
     def content_type( self ):
         """
             WebDAV needs this to do the Right Thing (TM).
@@ -359,7 +359,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         hdrlist.append( ( 'Language', self.Language() ) )
         hdrlist.append( ( 'Rights', self.Rights() ) )
         return hdrlist
-    
+
     #
     #  Management tab methods
     #
@@ -456,6 +456,6 @@ class ExtensibleMetadata(Persistence.Persistent):
                      , rights=rights
                      )
         self.reindexObject()
-    
+
 
 InitializeClass(ExtensibleMetadata)

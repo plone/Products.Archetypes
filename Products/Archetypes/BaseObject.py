@@ -328,8 +328,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               '_processForm')
-    def _processForm(self, data=1, metadata=None):
-        request = self.REQUEST
+    def _processForm(self, data=1, metadata=None, REQUEST=None):
+        request = REQUEST or self.REQUEST
         form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
@@ -381,14 +381,13 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0):
+    def processForm(self, data=1, metadata=0, REQUEST=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata)
+        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
 
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
-
 
     # I18N content management #################################################
 

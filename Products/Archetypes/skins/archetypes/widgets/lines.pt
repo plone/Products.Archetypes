@@ -8,14 +8,16 @@
 
 <!-- Lines Widgets -->
 
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-	  <div tal:repeat="item accessor">
+    <div class="field" metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <metal:block use-macro="here/widgets/field/macros/view">
+	<metal:block fill-slot="widget_view">
+	  <tal:block repeat="item accessor">
 	    <span tal:content="item"/><br/>
-	  </div>
-	</div>
-      </div>
+	  </tal:block>
+	</metal:block>
+     </metal:block>
     </div>
 
     <div metal:define-macro="edit">

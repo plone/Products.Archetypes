@@ -54,8 +54,10 @@ class newBaseUnit(File):
             filename = None
             mimetype = INITIAL_MIMETYPE
         else:
-            data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
-            
+            data, filename, mimetype = adapter(data,
+                                               mimetype=mimetype,
+                                               encoding=encoding)
+
         assert mimetype
         self.mimetype = mimetype
         if not mimetype.binary:
@@ -86,7 +88,7 @@ class newBaseUnit(File):
         orig = self.getRaw(encoding)
         if not orig:
             return None
-        
+
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      mimetype=self.mimetype,
@@ -110,7 +112,7 @@ class newBaseUnit(File):
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
-        
+
         return None
 
     def __str__(self):
@@ -127,7 +129,7 @@ class newBaseUnit(File):
             # FIXME: backward compat, self.mimetype should not be None anymore
             return 1
 
-            
+
     # File handling
     def get_size(self):
         return self.size
@@ -146,14 +148,17 @@ class newBaseUnit(File):
                 # FIXME: fallback to portal encoding or original encoding ?
                 encoding = self.portalEncoding(instance)
         return self.raw.encode(encoding)
-    
+
     def portalEncoding(self, instance):
         site_props = instance.portal_properties.site_properties
         return site_props.getProperty('default_charset', 'UTF-8')
-    
+
     def getContentType(self):
         """return the imimetype object for this BU"""
         return self.mimetype
+
+    def content_type(self):
+        return self.getContentType()
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
@@ -179,7 +184,7 @@ class newBaseUnit(File):
         file=REQUEST['BODYFILE']
         data = file.read()
 
-        self.update(data, mimetype=mimetype)
+        self.update(data, self.aq_parent, mimetype=mimetype)
 
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)
@@ -190,7 +195,6 @@ class newBaseUnit(File):
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
         return self.getRaw(encoding=self.original_encoding)
-
 
 from OFS.content_types import guess_content_type
 

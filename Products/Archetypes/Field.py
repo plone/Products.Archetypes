@@ -1,7 +1,7 @@
 from __future__ import nested_scopes
-from copy import copy
+from copy import deepcopy
 from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
@@ -22,11 +22,15 @@ from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, FileFieldException
-from validation import validation
+try:
+    from validation import validation
+except ImportError:
+    from Products.validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
+from ComputedAttribute import ComputedAttribute
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
@@ -65,7 +69,7 @@ def decode(value, instance, **kwargs):
             encoding = site_props.getProperty('default_charset')
         value = unicode(value, encoding)
     return value
-    
+
 
 class Field(DefaultLayerContainer):
     """
@@ -133,7 +137,8 @@ class Field(DefaultLayerContainer):
         Return a copy of field instance, consisting of field name and
         properties dictionary.
         """
-        return self.__class__(self.getName(), **self.__dict__)
+        properties = deepcopy(self.__dict__)
+        return self.__class__(self.getName(), **properties)
 
     def __repr__(self):
         """
@@ -166,14 +171,14 @@ class Field(DefaultLayerContainer):
                 log("WARNING: no validator %s for %s" % (v,
                 self.getName()))
 
-    def validate(self, value):
+    def validate(self, value, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
         for v in self.validators:
-            res = validation.validate(v, value)
+            res = validation.validate(v, value, **kwargs)
             if res != 1:
                 return res
             return None
@@ -263,19 +268,26 @@ class Field(DefaultLayerContainer):
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
         """Return the accessor method for getting data out of this field"""
-        return getattr(instance, self.accessor, None)
+        if self.accessor:
+            return getattr(instance, self.accessor, None)
+        return None
 
     security.declarePrivate('getEditAccessor')
     def getEditAccessor(self, instance):
         """Return the accessor method for getting raw data out of this
         field e.g.: for editing
         """
-        return getattr(instance, self.edit_accessor, None)
+        if self.edit_accessor:
+            return getattr(instance, self.edit_accessor, None)
+        return None
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
-        """Return the mutator method used for changing the value of this field"""
-        return getattr(instance, self.mutator, None)
+        """Return the mutator method used for changing the value
+        of this field"""
+        if self.mutator:
+            return getattr(instance, self.mutator, None)
+        return None
 
     def hasI18NContent(self):
         """Return true it the field has I18N content. Currently not
@@ -353,7 +365,7 @@ class ObjectField(Field):
 
     def getStorage(self):
         return self.storage
-    
+
 class StringField(ObjectField):
     """A field that stores strings"""
     _properties = Field._properties.copy()
@@ -366,7 +378,7 @@ class StringField(ObjectField):
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
         return encode(value, instance, **kwargs)
-    
+
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         # Remove acquisition wrappers
@@ -435,7 +447,7 @@ class FileField(StringField):
             kwargs['mimetype'] = None
 
         value, mimetype = self._process_input(value,
-                                               default=self.default, 
+                                               default=self.default,
                                                **kwargs)
         kwargs['mimetype'] = mimetype
 
@@ -484,12 +496,12 @@ class TextField(ObjectField):
 
         if IBaseUnit.isImplementedBy(value):
             return value
-        
+
         if type(value) in STRING_TYPES:
             return value
-        
+
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
-    
+
     def getContentType(self, instance):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
@@ -523,7 +535,7 @@ class TextField(ObjectField):
         """
         if raw, return the base unit object,
         else return value of object transformed into requested mime type.
-        
+
         If no requested type, then return value in default type. If raw
         format is specified, try to transform data into the default output type
         or to plain text.
@@ -564,7 +576,7 @@ class TextField(ObjectField):
         encoding = kwargs.get('encoding')
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
-            
+
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
                              encoding=encoding,
@@ -651,8 +663,10 @@ class IntegerField(ObjectField):
     def set(self, instance, value, **kwargs):
         if value=='':
             value=None
-        # should really blow if value is not valid
-        value = int(value)
+        elif value is not None:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = int(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -669,9 +683,10 @@ class FloatField(ObjectField):
         None."""
         if value=='':
             value=None
-
-        # should really blow if value is not valid
-        value = float(value)
+        elif value is not None:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -690,7 +705,9 @@ class FixedPointField(ObjectField):
 
     def _to_tuple(self, value):
         """ COMMENT TO-DO """
-        value = value.split('.') # FIXME: i18n?
+        if not value:
+            value = self.default # Does this sounds right?
+        value = value.split('.')
         if len(value) < 2:
             value = (int(value[0]), 0)
         else:
@@ -727,11 +744,11 @@ class ReferenceField(ObjectField):
         })
 
     def containsValueAsString(self,value,attrval):
-        '''
+        """
         checks wether the attribute contains a value
            if the field is a scalar -> comparison
            if it is multiValued     -> check for 'in'
-        '''
+        """
         if self.multiValued:
             return str(value) in [str(a) for a in attrval]
         else:
@@ -746,19 +763,21 @@ class ReferenceField(ObjectField):
         if not value:
             value=None
         __traceback_info__ = (instance, self.getName(), value)
-        
+
         #establish the relation through the ReferenceEngine
         tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
         #XXX: thats too cheap, but I need the proof of concept before going on
         instance.deleteReferences(refname)
-        
+
         if self.multiValued:
             if type(value) in (type(()),type([])):
                 for uid in value:
                     if uid:
                         target=tool.lookupObject(uid=uid)
+                        if target is None:
+                            raise ValueError, "Invalid reference %s" % uid
                         instance.addReference(target,refname)
         else:
             if value:
@@ -766,8 +785,6 @@ class ReferenceField(ObjectField):
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
                 instance.addReference(target,refname)
-
-            pass
 
         #and now do the normal assignment
         ObjectField.set(self, instance, value, **kwargs)
@@ -779,16 +796,19 @@ class ReferenceField(ObjectField):
         value = ObjectField.Vocabulary(self, content_instance)
         if value:
             return value
+        results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
-                      str(obj.getId).strip()) \
-                     for obj in catalog(Type=self.allowed_types)]
+            results = catalog(Type=self.allowed_types)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, str(obj.getObject().Title()).strip() or \
-                      str(obj.getId).strip()) \
-                     for obj in archetype_tool.Content()]
+            results = archetype_tool.Content()
+        results = [(r, r.getObject()) for r in results]
+        value = [(r.UID, obj and (str(obj.Title().strip()) or \
+                                  str(obj.getId()).strip())  or \
+                  log('Field %r: Object at %r could not be found' % \
+                      (self.getName(), r.getURL())) or \
+                  r.Title or r.UID) for r, obj in results]
         if not self.required:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
@@ -917,6 +937,17 @@ except:
     has_pil=None
 
 class Image(BaseImage):
+
+    def title(self):
+        parent = aq_parent(aq_inner(self))
+        if parent is not None:
+            return parent.Title() or parent.getId()
+        return self.getId()
+
+    title = ComputedAttribute(title, 1)
+
+    alt = title_or_id = title
+
     def isBinary(self):
         return 1
 
@@ -945,6 +976,12 @@ class ImageField(ObjectField):
         then no scaling will take place.
         This is important if you don't want to store megabytes of
         imagedata if you only need a max. of 100x100 ;-)
+
+	max_size -- similar to max_size but if it's given then the image
+	            is checked to be no bigger than any of the given values
+		    of width or height.
+		    XXX: I think it is, because the one who added it did not
+		    document it ;-) (mrtopf - 2003/07/20)
 
         example:
 
@@ -978,7 +1015,7 @@ class ImageField(ObjectField):
     _properties.update({
         'type' : 'image',
         'default' : '',
-        'original_size': (600,600),
+        'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
@@ -988,6 +1025,12 @@ class ImageField(ObjectField):
         })
 
     default_view = "view"
+
+    def get(self, instance, **kwargs):
+        image = ObjectField.get(self, instance, **kwargs)
+        if hasattr(image, '__of__') and not kwargs.get('unwrapped', 0):
+            return image.__of__(instance)
+        return image
 
     def set(self, instance, value, **kwargs):
 ##         instance = self.fixInstance(instance)
@@ -1045,6 +1088,7 @@ class ImageField(ObjectField):
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
+        delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
@@ -1058,13 +1102,14 @@ class ImageField(ObjectField):
             imgdata = self.scale(data, w, h)
             image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
             # manually use storage
+            delattr(image2, 'title')
             self.storage.set(id, instance, image2)
 
 
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(w or h), 'width':int(h or w)}
+        keys = {'height':int(h), 'width':int(w)}
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
@@ -1080,7 +1125,7 @@ class ImageField(ObjectField):
         if img:
             return img.getContentType()
         return ''
-    
+
 
 class I18NMixIn(ObjectField):
     """ I18N MixIn to allow internationalized content
@@ -1105,7 +1150,7 @@ class I18NMixIn(ObjectField):
         self._i18n_default = self.default or self._wrapped_class._properties['default']
         self.default = None
         self.type = self.__class__.__name__.lower().replace('field', '')
-        
+
     def getI18NFieldId(self, lang):
         return '%s__%s'  % (self.__name__, lang)
 
@@ -1220,10 +1265,10 @@ from OFS.Traversable import Traversable
 from OFS.Image import Image as BaseImage
 from OFS.Cache import ChangeCacheSettingsPermission
 
-try: 
+try:
     import PIL.Image
     isPilAvailable = 1
-except ImportError: 
+except ImportError:
     isPilAvailable = 0
 
 class DynVariantWrapper(Base):
@@ -1273,7 +1318,7 @@ class ScalableImage(BaseImage):
     security.declareProtected(CMFCorePermissions.View, 'Variants')
     def Variants(self):
         # Returns a variants wrapper instance
-        return DynVariant().__of__(self) 
+        return DynVariant().__of__(self)
 
     security.declareProtected(CMFCorePermissions.View, 'getPhoto')
     def getPhoto(self,size):
@@ -1311,7 +1356,7 @@ class ScalableImage(BaseImage):
                     size, size, self._resize(self.displays.get(size, (0,0)))
                     )
             return 1
-        else: 
+        else:
             return 0
 
     security.declareProtected(CMFCorePermissions.View, 'index_html')
@@ -1323,7 +1368,7 @@ class ScalableImage(BaseImage):
 
     security.declareProtected(CMFCorePermissions.View, 'tag')
     def tag(self, height=None, width=None, alt=None,
-            scale=0, xscale=0, yscale=0, css_class=None, 
+            scale=0, xscale=0, yscale=0, css_class=None,
             title=None, size='original', **args):
         """ Return an HTML img tag (See OFS.Image)"""
 
@@ -1349,7 +1394,7 @@ class ScalableImage(BaseImage):
                         # OFS.Image only knows about png, jpeg and gif.
                         # Other images like bmp will not have height and
                         # width set, and will generate a ValueError here.
-                        # Everything will work, but the image-tag will render 
+                        # Everything will work, but the image-tag will render
                         # with height and width attributes.
                         w=None
                         h=None
@@ -1406,7 +1451,7 @@ class ScalableImage(BaseImage):
         """
         BaseImage.update_data(self, data, content_type, size)
         self._photos = OOBTree()
-        
+
     def _resize(self, size, quality=100):
         """Resize and resample photo."""
         image = StringIO()
@@ -1443,17 +1488,17 @@ class ScalableImage(BaseImage):
                     convert.wait()
 
                 image.seek(0)
-                
+
         except Exception, e:
             LOG('Archetypes.ScallableField', ERROR, 'Error while resizing image', e)
-                
+
         return image
 
     security.declareProtected(ChangeCacheSettingsPermission, 'ZCacheable_setManagerId')
     def ZCacheable_setManagerId(self, manager_id, REQUEST=None):
         '''Changes the manager_id for this object.
            overridden because we must propagate the change to all variants'''
-        for size in self._photos.keys(): 
+        for size in self._photos.keys():
             variant = self.getPhoto(size).__of__(self)
             variant.ZCacheable_setManagerId(manager_id)
         return Photo.inheritedAttribute('ZCacheable_setManagerId')(self, manager_id, REQUEST)
@@ -1499,7 +1544,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
            'CMFObjectField', 'ImageField',
-           'I18NStringField', 
+           'I18NStringField',
            'I18NFileField', 'I18NTextField', 'I18NLinesField',
            'I18NImageField',
            )
