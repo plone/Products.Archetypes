@@ -59,7 +59,7 @@ msgstr "Der Wert ${val} ist für das Vokabular von ${name} nicht erlaubt."
 #.  Select what content type you wish to create.
 #. </div>
 msgid "help_select_content_to_create"
-msgstr "Wählen Sie aus, welchen Content- Typen Sie erstellen wollen."
+msgstr "Wählen Sie aus, welchen Content- Typ Sie erstellen wollen."
 
 
 #: widgets/reference.pt
