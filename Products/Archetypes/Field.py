@@ -648,7 +648,7 @@ class LinesField(ObjectField):
         """
         __traceback_info__ = value, type(value)
         if type(value) in STRING_TYPES:
-            value =  value.split('\n')
+            value = value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
