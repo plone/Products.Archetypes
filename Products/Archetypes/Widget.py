@@ -30,7 +30,7 @@ class TypesWidget(macrowidget):
             if not self.label:
                 self.label = capitalize(name)
             if self.description is None: # description == None, don't use default
-                self.description = ''
+                self.description = ' '
             elif self.description == '': 
                 self.description = "Enter a value for %s" % self.label
 
