@@ -5,13 +5,14 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import shasattr, mapply
 
 from Acquisition import aq_base
 from Acquisition import aq_get
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
@@ -97,7 +98,7 @@ class BaseContentMixin(CatalogMultiplex,
         # able to acquire a mimetypes_registry instance
         # This is a hack to avoid the acquisition problem on FTP/WebDAV object
         # creation
-        parents = [self] + REQUEST.get('PARENTS', [])
+        parents = (self,) + tuple(REQUEST.get('PARENTS', ()))
         context = None
         for parent in parents:
             if getToolByName(parent, 'mimetypes_registry', None) is not None:

@@ -132,7 +132,7 @@ class ClassGenTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy',
-                                       context=self.getPortal(),
+                                       context=self.portal,
                                        schema=schema)
 
     def test_methods(self):
@@ -200,10 +200,10 @@ class ClassGenTest(ATSiteTestCase):
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
 
-    def test_getbaseunit(self):
+    def test1_getbaseunit(self):
         obj = self._dummy
         for field in obj.Schema().fields():
-            if not hasattr(field,'getBaseUnit'):
+            if not hasattr(field, 'getBaseUnit'):
                 continue
             bu = field.getBaseUnit(obj)
             self.failUnless(IBaseUnit.isImplementedBy(bu),

@@ -452,7 +452,8 @@ class BasicSchema(Schemata):
             default = field.getDefault(instance)
 
             args = (default,)
-            kw = {'field': field.__name__}
+            kw = {'field': field.__name__,
+                  '_initializing_': True}
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument

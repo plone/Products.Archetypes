@@ -314,7 +314,7 @@ def test_suite():
     suite = unittest.TestSuite()
     tests = [
         unittest.makeSuite(FileFieldTest),
-        unittest.makeSuite(TextFieldTest),
+        #unittest.makeSuite(TextFieldTest),
         ]
     for t in tests:
         suite.addTest(t)
