@@ -5,7 +5,7 @@ from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from utils import capitalize, DisplayList
+from utils import capitalize, DisplayList, OrderedDict
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -29,7 +29,7 @@ def getNames(schema):
 
 def getSchemata(klass):
     schema = klass.schema
-    schemata = {}
+    schemata = OrderedDict()
     for f in schema.fields():
         sub = schemata.get(f.schemata, Schemata(name=f.schemata))
         sub.addField(f)

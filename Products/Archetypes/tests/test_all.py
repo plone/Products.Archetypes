@@ -17,6 +17,7 @@ def test_suite():
         'test_baseschema',
         'test_baseunit',
         'test_utils',
+        'test_utils2',
         'test_sqlstorage',
         'test_schemata', 
         'test_sitepolicy', 
