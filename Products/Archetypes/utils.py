@@ -166,7 +166,7 @@ class DisplayList:
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
-        if msgid: self._i18n_msgids[k] = msgid
+        if msgid: self._i18n_msgids[key] = msgid
 
     def getKey(self, value, default=None):
         """get key"""

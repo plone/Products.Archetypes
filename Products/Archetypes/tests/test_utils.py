@@ -91,6 +91,20 @@ class DisplayListTest( unittest.TestCase ):
         self.failUnless(dl[:] == l)
         self.failUnless(dl()[:] == l)
 
+    def test_getmsgid(self):
+        ta = (('a','a',), ('b','b','bb'), ('c', 'c'))
+        dl = DisplayList(ta)
+        self.failUnless(dl.getMsgId('a') == 'a')
+        self.failUnless(dl.getMsgId('b') == 'bb')
+
+    def test_concat(self):
+        a = (('a','a',), ('b','b','bb'), ('c', 'c'))
+        b = (('a','a','aa'), ('b','b'), ('c', 'c'))
+        bzz, jzz = DisplayList(a), DisplayList(b)
+        wahaaa = bzz + jzz
+        self.failUnless(wahaaa.getMsgId('b') == 'bb')
+        self.failUnless(wahaaa.getMsgId('a') == 'aa')
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(DisplayListTest),
