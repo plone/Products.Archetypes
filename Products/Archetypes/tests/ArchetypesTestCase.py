@@ -2,7 +2,7 @@
 # ArchetypesTestCase
 #
 
-# $Id: ArchetypesTestCase.py,v 1.2 2003/11/03 21:44:22 dreamcatcher Exp $
+# $Id: ArchetypesTestCase.py,v 1.3 2003/11/03 22:05:22 dreamcatcher Exp $
 
 from Testing import ZopeTestCase
 
@@ -20,10 +20,11 @@ ZopeTestCase.installProduct('CMFPlone')
 ZopeTestCase.installProduct('MailHost', quiet=1)
 ZopeTestCase.installProduct('PageTemplates', quiet=1)
 ZopeTestCase.installProduct('PythonScripts', quiet=1)
-ZopeTestCase.installProduct('ExternalMethod', quiet=1) 
+ZopeTestCase.installProduct('ExternalMethod', quiet=1)
 ZopeTestCase.installProduct('ZCatalog')
 ZopeTestCase.installProduct('Archetypes')
+ZopeTestCase.installProduct('ArchetypesTestUpdateSchema')
 ZopeTestCase.installProduct('PortalTransforms')
 
 class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
-    pass    
+    pass
