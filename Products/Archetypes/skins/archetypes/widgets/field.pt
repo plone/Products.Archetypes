@@ -50,7 +50,9 @@
 	    </label>
 	    <span class="fieldRequired"
 		  tal:condition="field/required"
-		  title="Required">
+		  title="Required"
+                  i18n:attributes="title"
+                  i18n:translate="label_required">
 	      (Required)
 	    </span>
 	    <div class="formHelp"
