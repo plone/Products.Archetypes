@@ -125,8 +125,6 @@ def install_validation(self, out, types):
     # Default validation for types
     form_tool.setValidators("base_edit", ["validate_base"])
     form_tool.setValidators("base_metadata", ["validate_base"])
-    form_tool.setValidators("base_translation", ["validate_base"])
-    form_tool.setValidators("manage_translations_form", ["validate_translations"])
 
 
 def install_navigation(self, out, types):
@@ -144,20 +142,6 @@ def install_navigation(self, out, types):
 
     nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
     nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
-    
-    #Translations edit
-    nav_tool.addTransitionFor('default', "content_translate", 'failure', 'action:translate')
-    nav_tool.addTransitionFor('default', "content_translate", 'success', 'action:view')
-    nav_tool.addTransitionFor('default', "content_translate", 'next_schemata', 'action:translate')
-
-    nav_tool.addTransitionFor('default', "base_translation", 'failure', 'base_translation')
-    nav_tool.addTransitionFor('default', "base_translation", 'success', 'script:content_translate')
-
-    nav_tool.addTransitionFor('default', "content_translations", 'failure', 'action:translations')
-    nav_tool.addTransitionFor('default', "content_translations", 'success', 'action:view')
-
-    nav_tool.addTransitionFor('default', "manage_translations_form", 'failure', 'manage_translations_form')
-    nav_tool.addTransitionFor('default', "manage_translations_form", 'success', 'script:content_translations')
 
     #And References
     nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')

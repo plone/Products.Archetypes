@@ -18,7 +18,6 @@
                    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                    tabindex python:Iterator();
                    schematas here/Schemata;
-                   lang here/getMasterLanguage;
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
@@ -58,16 +57,6 @@
 	  </div>
 	</div>
 -->
-<!--
-        <div tal:condition="python:here.hasI18NContent()" 
-             tal:define="attr_name string:new_lang;
-                         current lang;
-                         languages python:here.availableLanguages();">
-          <metal:block use-macro="here/i18n_slot/macros/i18nLangSelect"/>
-        </div>
--->
-        <div align="right" tal:content="string: (${lang})"/>
-        <input type="hidden" name="new_lang" tal:attributes="value lang"/>
 
 
         <span class="legend" 
