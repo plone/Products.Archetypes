@@ -852,140 +852,104 @@ class FixedPointField(ObjectField):
         return ObjectField.validate_required(self, instance, value, errors)
 
 class ReferenceField(ObjectField):
-    """A field for containing a reference"""
     __implements__ = ObjectField.__implements__
+
+    """A field for creating references between objects.
+
+    Values used in get() and set() methods are either string or list
+    depending on multiValued. The strings represent UIDs.
+
+    If no vocabulary is provided by you, one will be assembled based on
+    allowed_types.
+    """
 
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'reference',
-        'default': None,
+        'default' : None,
         'widget' : ReferenceWidget,
-        'allowed_types' : (),
-        'allowed_type_column' : 'portal_type',
-        'addable': 0,
-        'destination': None,
-        'relationship':None,
-        'referenceClass':Reference,
+        
+        'relationship' : None, # required
+        'allowed_types' : (),  # a tuple of portal types, empty means allow all
+
+        'referenceClass' : Reference,
         })
 
-    def containsValueAsString(self, value, attrval):
-        """
-        checks wether the attribute contains a value
-           if the field is a scalar -> comparison
-           if it is multiValued     -> check for 'in'
-        """
-        if self.multiValued:
-            return str(value) in [str(a) for a in attrval]
-        else:
-            return str(value) == str(attrval)
 
+    def get(self, instance, **kwargs):
+        """Not really publicly useful.
+
+        See IReferenceable for more convenient ways."""
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        value = [ref.targetUID for ref in
+                 tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued: # return a string or None if single valued
+            if len(value) > 1:
+                log('%s of %s is single valued but multiple %s relationships '
+                    'exist: %s' %
+                    (self.getName(), instance, self.relationship, value))
+
+            if len(value) == 0:
+                value = None
+            else:
+                value = value[0]
+
+        return value
+    
     def set(self, instance, value, **kwargs):
-        """ Add one or more passed in references to the object.
-        Before setting the value the reference gets also be established
-        in the reference tool
+        """Mutator.
+
+        ``value`` is a list of UIDs or one UID string to which I will add a
+        reference to. None and [] are equal.
+
+        Keyword arguments may be passed directly to addReference(), thereby
+        creating properties on the reference objects.
         """
+
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        targetUIDs = [ref.targetUID for ref in
+                      tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued and value:
+            value = (value,)
 
         if not value:
-            value=None
-        __traceback_info__ = (instance, self.getName(), value)
+            value = ()
+        
+        add = [v for v in value if v and v not in targetUIDs]
+        sub = [t for t in targetUIDs if t not in value]
 
-        kwargs.setdefault('referenceClass', self.referenceClass)
+        # tweak keyword arguments for addReference
+        addRef_kw = kwargs.copy()
+        addRef_kw.setdefault('referenceClass', self.referenceClass)
+        if addRef_kw.has_key('schema'): del addRef_kw['schema']
 
-        # Remove schema added by Accessors/Mutator
-        # It'll cause problems on addReference
-        if kwargs.has_key('schema'): del kwargs['schema']
+        for uid in add:
+            # throws IndexError if uid is invalid
+            tool.addReference(instance, uid, self.relationship, **addRef_kw)
 
-        # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance, REFERENCE_CATALOG)
-        refname=self.relationship
-
-        refs=tool.getReferences(instance,refname)
-        if refs:
-            targetUIDs=[r.targetUID for r in refs]
-        else:
-            targetUIDs=[]
-
-        newValue = []
-
-        if self.multiValued:
-            #add the new refs
-            if value:
-                value=[v for v in value if v]
-                #add new references
-                for uid in value:
-                    if uid not in targetUIDs:
-                        target=tool.lookupObject(uuid=uid)
-                        if target is None:
-                            raise ValueError, "Invalid reference %s" % uid
-
-                        instance.addReference(target,refname, **kwargs)
-                    newValue.append(uid)
-
-                #delete references
-                for uid in targetUIDs:
-                    if uid and uid not in value:
-                        target=tool.lookupObject(uid)
-                        if target:
-                            instance.deleteReference(target,refname)
-        else:
-            if value:
-                target=tool.lookupObject(uuid=value)
-                if target is None:
-                    raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target, refname, **kwargs)
-                newValue = value
-
-        # and now do the normal assignment
-        ObjectField.set(self, instance, newValue, **kwargs)
+        for uid in sub:
+            tool.deleteReference(instance, uid, self.relationship)
 
     def Vocabulary(self, content_instance=None):
-        # If we have a method providing the list of types go with it,
-        # it can always pull allowed_types if it needs to (not that we
-        # pass the field name)
-        value = ObjectField.Vocabulary(self, content_instance)
-        if value:
-            return value
+        """Use vocabulary property if it's been defined."""
+        if self.vocabulary:
+            return ObjectField.Vocabulary(self, content_instance)
         else:
             return self._Vocabulary(content_instance).sortedByValue()
 
-    def _Vocabulary(self, content_instance=None):
-        results = []
-        if self.allowed_types:
-            catalog = getToolByName(content_instance, config.UID_CATALOG)
-            if self.allowed_type_column in catalog.indexes():
-                kw = {self.allowed_type_column:self.allowed_types}
-            else:
-                kw = {'Type':self.allowed_types}
-            results = catalog(**kw)
-        else:
-            archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            results = archetype_tool.Content()
+    def _Vocabulary(self, content_instance):
+        catalog = getToolByName(content_instance, config.UID_CATALOG)
+        # should be obsolete soon:
+        index = 'portal_type' in catalog.indexes() and 'portal_type' or 'Type'
+        brains = catalog.searchResults(**{index: self.allowed_types})
 
-        value = [(r.UID, r.Title and r.Title or r.id) for r in results]
-
+        pairs = [(b.UID, b.Title and b.Title or b.id) for b in brains]
         if not self.required and not self.multiValued:
-            value.insert(0, ('', '<no reference>'))
-        return DisplayList(value)
+            pairs.insert(0, ('', '<no reference>'))
 
-    def addableTypes(self, instance):
-        # addable=1 won't work if allowed_type_column is not the default
-        # 'portal_type'.
-        """Returns a dictionary that maps portal_type to its human readable
-        form."""
-        tool = getToolByName(instance, 'portal_types')
-        if tool is None:
-            msg = "Couldn't get portal_types tool from this context"
-            raise AttributeError(msg)
-
-        d = {}
-        for typeid in self.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                raise ValueError('No such content type: %s' % typeid)
-            d[typeid] = info.Title()
-
-        return d
-
+        return DisplayList(pairs)
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""

@@ -5,7 +5,7 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
 
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent
 
 class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
@@ -86,7 +86,39 @@ class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
+        
+        'addable' : 0, # create createObject link for every addable type
+        'destination' : None, # may be name of method on instance or string.
+                              # destination is where createObject is invoked
         })
+
+    def addableTypes(self, instance, field):
+        """Returns a dictionary which maps portal_type to its human readable
+        form."""
+        tool = instance.portal_types
+        value = {}
+
+        for typeid in field.allowed_types:
+            info = tool.getTypeInfo(typeid)
+            if info is None:
+                raise ValueError, 'No such portal type: %s' % typeid
+
+            value[typeid] = info.Title()
+
+        return value
+
+    def getDestination(self, instance):
+        if not self.destination:
+            return aq_parent(instance).absolute_url()
+        else:
+            portal_url = instance.portal_url()
+            value = getattr(aq_base(instance), self.destination,
+                            self.destination)
+            if callable(value):
+                value = value()
+
+            return portal_url + value
+
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
