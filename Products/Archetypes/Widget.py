@@ -518,6 +518,21 @@ class IdWidget(TypesWidget):
             value = instance.getId()
         return value,  {}
 
+class RequiredIdWidget(IdWidget):
+    _properties = IdWidget._properties.copy()
+    _properties.update({
+        })
+
+    security = ClassSecurityInfo()
+
+    # XXX
+    security.declarePublic('process_form')
+    
+    def process_form(self, instance, field, form, empty_marker=None):
+        """Override IdWidget.process_form to require id."""
+        return TypesWidget.process_form(self, instance, field, form, empty_marker)
+
+
 class ImageWidget(FileWidget):
     __allow_access_to_unprotected_subobjects__ = 0
     _properties = FileWidget._properties.copy()
@@ -628,7 +643,8 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           'InAndOutWidget', 'PicklistWidget',)
+           'InAndOutWidget', 'PicklistWidget',
+           'RequiredIdWidget',)
 
 from Registry import registerWidget
 
@@ -733,6 +749,12 @@ registerWidget(FileWidget,
 registerWidget(IdWidget,
                title='ID',
                description='Renders a HTML widget for typing an Id',
+               used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(RequiredIdWidget,
+               title='ID',
+               description='Renders a HTML widget for typing an required Id',
                used_for=('Products.Archetypes.Field.StringField',)
                )
 
