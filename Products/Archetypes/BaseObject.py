@@ -134,10 +134,12 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
+        __traceback_info__ = (self, item)
         Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
+        __traceback_info__ = (self, item, container)
         self.cleanupLayers(item, container)
         Referenceable.manage_beforeDelete(self, item, container)
 
