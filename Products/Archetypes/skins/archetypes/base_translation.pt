@@ -65,9 +65,7 @@
            <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
 	  </div>
 	</div>
--->
-
-	<input type="hidden" name="id" tal:attributes="value here/getId"/>
+ -->
 
         <span class="legend" 
               i18n:translate="" 
@@ -78,8 +76,11 @@
             <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
             <span metal:use-macro="python: here.widget(field.getName(), mode='view', use_label=0)"/>
           </tal:block>
+          <tal:block tal:condition="python:not field.hasI18NContent() and field.required">
+  	    <input type="hidden" tal:attributes="name field/getName;
+                                                 value python:field.getEditAccessor(here)()"/>
+          </tal:block>
         </tal:fields>
-
 
 	<div class="row">
 	    <div class="label">
