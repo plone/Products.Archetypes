@@ -75,6 +75,8 @@ class AttributeStorage(Storage):
         return getattr(instance, name)
 
     def set(self, name, instance, value, **kwargs):
+        # Remove acquisition wrappers
+        value = aq_base(value)
         setattr(aq_base(instance), name, value)
         instance._p_changed = 1
 
@@ -98,6 +100,8 @@ class ObjectManagedStorage(Storage):
             raise AttributeError(msg)
 
     def set(self, name, instance, value, **kwargs):
+        # Remove acquisition wrappers
+        value = aq_base(value)
         try:
             instance._delObject(name)
         except (AttributeError, KeyError):
@@ -136,7 +140,8 @@ class MetadataStorage(StorageLayer):
 
     def set(self, name, instance, value, **kwargs):
         base = aq_base(instance)
-        base._md[name] = value
+        # Remove acquisition wrappers
+        base._md[name] = aq_base(value)
         base._p_changed = 1
 
     def unset(self, name, instance, **kwargs):
