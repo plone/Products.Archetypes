@@ -491,8 +491,7 @@ class Field(DefaultLayerContainer):
             return getattr(instance, self.mutator, None)
         return None
 
-    security.declarePublic('toString')
-    #XXX
+    security.declarePrivate('toString')
     def toString(self):
         """Utility method for converting a Field to a string for the
         purpose of comparing fields.  This comparison is used for
@@ -783,7 +782,7 @@ class FileField(ObjectField):
                       filename=filename, mimetype=mimetype)
         return bu
         
-    security.declarePrivate('getFileName')
+    security.declarePublic('getFileName') # XXX
     def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
         """
@@ -805,7 +804,7 @@ class FileField(ObjectField):
 
     security.declarePrivate('setFilename')
     def setFilename(self, instance, filename):
-        """
+        """Set file name in the base unit [PRIVATE]
         """
         bu = self.getBaseUnit(instance)
         bu.setFilename(filename)
@@ -817,7 +816,9 @@ class FileField(ObjectField):
     
     security.declarePrivate('download')
     def download(self, instance):
-        """
+        """Kicks download [PRIVATE]
+        
+        Writes data including file name and content type to RESPONSE
         """
         bu = self.getBaseUnit(instance)
         REQUEST = instance.REQUEST

@@ -183,7 +183,7 @@ class BaseObject(Implicit):
         """Returns wether a field is transformable
         """
         field = self.getField(name)
-        return isinstance(field, TextField)  or not self.isBinary(name)
+        return isinstance(field, TextField) or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
@@ -217,8 +217,9 @@ class BaseObject(Implicit):
             return element.getContentType()
         return value
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setContentType')
     def setContentType(self, value):
-        """
+        """Sets the content type of the primary field
         """
         pfield = self.getPrimaryField()
         if pfield and IFileField.isImplementedBy(pfield):
@@ -296,8 +297,7 @@ class BaseObject(Implicit):
 
         return value
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'edit')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, **kwargs):
         """Alias for update()
         """
@@ -309,8 +309,7 @@ class BaseObject(Implicit):
         """
         self.Schema().setDefaults(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'update')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):
         """Change the values of the field and reindex the object
         """
@@ -410,7 +409,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
-        """ Return site default charset, or utf-8 """
+        """ Return site default charset, or utf-8
+        """
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()
         if getattr(container, 'getCharset', None):

@@ -59,21 +59,23 @@ class IField(Interface):
 
         """
 
+    # private
     def copy():
-        """
-        Return a copy of field instance, consisting of field name and
-        properties dictionary.
+        """Return a copy of field instance [PRIVATE]
+        
+        Consisting of field name and properties dictionary.
         """
 
     def validate(value, instance, errors={}, **kwargs):
-        """
-        Validate passed-in value using all field validators.
+        """Validate passed-in value using all field validators.
+        
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
 
+    # private
     def validate_required(instance, value, errors):
-        """Validate the required flag for a field
+        """Validate the required flag for a field [PRIVATE]
         
         Overwrite it in your field for special case handling like empty files
         """
@@ -87,6 +89,11 @@ class IField(Interface):
 
         permission -- A permission name
         instance -- The object being accessed according to the permission
+        """
+
+    def checkExternalEditor(self, instance):
+        """ Checks if the user may edit this field and if
+        external editor is enabled on this instance
         """
 
     def getWidgetName():
@@ -116,9 +123,11 @@ class IField(Interface):
         """Return the mutator method used for changing the value
         of this field"""
 
+    # private
     def toString():
-        """Utility method for converting a Field to a string for the
-        purpose of comparing fields.  This comparison is used for
+        """Utility method for converting a Field to a string [PRIVATE]
+        
+        For the purpose of comparing fields.  This comparison is used for
         determining whether a schema has changed in the auto update
         function.  Right now it's pretty crude."""
 
@@ -130,23 +139,35 @@ class IField(Interface):
 class IObjectField(IField):
     """ Interface for fields that support a storage layer """
 
+    # private
     def get(instance, **kwargs):
-        """ Get the value for this field using the underlying storage """
+        """Get the value for this field using the underlying storage [PRIVATE]
+        """
 
+    # private
     def getRaw(instance, **kwargs):
-        """Get the raw value for this field using the underlying storage """
+        """Get the raw value for this field using the underlying storage [PRIVATE]
+        """
 
+    # private
     def set(instance, value, **kwargs):
-        """ Set the value for this field using the underlying storage """
+        """Set the value for this field using the underlying storage [PRIVATE]
+        """
 
+    # private
     def unset(instance, **kwargs):
-        """ Unset the value for this field using the underlying storage """
+        """Unset the value for this field using the underlying storage [PRIVATE]
+        """
 
+    # private
     def getStorage():
-        """ Return the storage class used in this field """
+        """Return the storage class used in this field [PRIVATE]
+        """
 
+    # private
     def setStorage(instance, storage):
-        """ Set the storage for this field to the give storage.
+        """ Set the storage for this field to the give storage. [PRIVATE]
+
         Values are migrated by doing a get before changing the storage
         and doing a set after changing the storage.
 
@@ -172,12 +193,38 @@ class IFileField(IObjectField):
     #content_class = Attribute("""Class that is used to wrap the data like
     #                              OFS.Image.File for FileField"""
 
+    # private
+    def _process_input(value, default=None, mimetype=None, **kwargs):
+        """Processes user input [PRIVATE]
+       
+        Must take care of:
+            * string
+            * open files
+            * FileUpload
+            * open file like things
+            * BaseUnit
+            * maybe more ...
+        """
+
+    # private
     def getBaseUnit(instance):
-        """Return the value of the field wrapped in a base unit object
+        """Return the value of the field wrapped in a base unit object [PRIVATE]
         """
 
     def getFilename(instance, fromBaseUnit=True):
         """Get file name of underlaying file object
+        """
+
+    # private
+    def setFilename(instance, filename):
+        """Set file name in the base unit [PRIVATE]
+        """
+
+    # private
+    def download(instance):
+        """Kicks download [PRIVATE]
+        
+        Writes data including file name and content type to RESPONSE
         """
 
 class IImageField(IFileField):
