@@ -120,11 +120,10 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
 
     def deleteReferences(self, object, relationship=None):
         """delete all the references held by an object"""
-        sID, sobj = self._uidFor(object)
-        objects = self._resolveBrains(self._queryFor(sid=sID, relationship=relationship))
-        if objects:
-            [self._deleteReference(b) for b in objects]
-
+        [self._deleteReference(b) for b in
+         (self.getReferences(object) or []) +
+         (self.getBackReferences(object) or [])]
+            
     def getReferences(self, object, relationship=None):
         """return a collection of reference objects"""
         sID, sobj = self._uidFor(object)
