@@ -78,10 +78,6 @@ class Reference(SimpleItem):
 class ReferenceCatalog(UniqueObject, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-
-##    def __init__(self, id, title=None, vocab_id=None, container=None):
-##        BTreeFolder2.__init__(self, id)
-##        ZCatalog.__init__(self, id, title, vocab_id, container)
         
     ###
     ## Public API
@@ -246,7 +242,9 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         except ReferenceException:
             pass
         else:
+            self.uncatalog_object(referenceObject.getId())
             self._delObject(referenceObject.getId())
+
 
     def _resolveBrains(self, brains):
         objects = None

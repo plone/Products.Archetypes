@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.3 2003/11/07 18:44:44 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.4 2003/11/10 17:50:38 bcsaller Exp $
 """
 
 import os, sys
@@ -140,6 +140,37 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         self.failIf(obj3.id in items)
         self.failIf(obj4.id in items)
         
+    def test_delete(self):
+        site = self.getPortal()
+        rc = getattr(site, config.REFERENCE_CATALOG)
+        uc = getattr(site, config.UID_CATALOG)
+               
+        obj1 = makeContent(site, portal_type='Fact', id='obj1')
+        obj2 = makeContent(site, portal_type='Fact', id='obj2')
+
+        uid1 = obj1.UID()
+        uid2 = obj2.UID()
+
+
+        #Make a reference 
+        obj1.addReference(obj2, relationship="example")
+
+        #and clean it up
+        site._delObject(obj1.id)
+
+        # Assert that the reference is gone, that the UID is gone and
+        # that the content is gone
+        self.failUnless(obj2.getBRefs() == None)
+        self.failIf(obj1.id in site.contentIds())
+
+        self.failIf(uid1 in uc.uniqueValuesFor('UID'))
+        self.failUnless(uid2 in uc.uniqueValuesFor('UID'))
+
+        sourceRefs = rc(sourceUID = uid1)
+        targetRefs = rc(targetUID = uid1)
+
+        assert len(sourceRefs) == 0
+        assert len(targetRefs) == 0
         
 
 if __name__ == '__main__':
