@@ -1,3 +1,5 @@
+from Products.PortalTransforms.libtransforms import utils as transform_utils
+
 PKG_NAME = "Archetypes"
 SKIN_NAME = "archetypes"
 TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
@@ -33,12 +35,13 @@ MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
 DEBUG_SECURITY=False
 #DEBUG_SECURITY=True
 
-
 ## If you have graphviz http://www.research.att.com/sw/tools/graphviz/
 ## and its frontend "dot" installed on your system set this to True
-GRAPHVIZ_BINARY = "/usr/bin/dot"
-# XXX: add autodetect code?
-HAS_GRAPHVIZ = False
-#HAS_GRAPHVIZ = True
-
-
+try:
+    GRAPHVIZ_BINARY = transform_utils.bin_search('dotxx')
+except transform_utils.MissingBinary:
+    # graphviz not found
+    GRAPHVIZ_BINARY = None
+    HAS_GRAPHVIZ = False
+else:
+    HAS_GRAPHVIZ = True
