@@ -643,7 +643,7 @@ class ObjectField(Field):
             mimetype = getattr(self, 'default_content_type', 'application/octet')
         return mimetype
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         
@@ -869,7 +869,7 @@ class FileField(ObjectField):
         RESPONSE = REQUEST.RESPONSE
         return bu.index_html(REQUEST, RESPONSE)
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1004,7 +1004,7 @@ class TextField(FileField):
 
         ObjectField.set(self, instance, value, **kwargs)
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1078,7 +1078,7 @@ class LinesField(ObjectField):
         else:
             return [encode(v, instance, **kwargs) for v in value]
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1362,7 +1362,7 @@ class ReferenceField(ObjectField):
 
         return DisplayList(pairs)
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1393,7 +1393,7 @@ class ComputedField(ObjectField):
         """Return computed value"""
         return eval(self.expression, {'context': instance, 'here' : instance})
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1422,7 +1422,7 @@ class BooleanField(ObjectField):
 
         ObjectField.set(self, instance, value, **kwargs)
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1843,7 +1843,7 @@ class ImageField(FileField):
     
     security.declareProtected(CMFCorePermissions.View, 'getSize')
     def getSize(self, instance, scale=None):
-        """
+        """get size of scale or original
         """
         if scale is None:
             img = self.get(instance)
@@ -1852,8 +1852,24 @@ class ImageField(FileField):
             sizes = self.getAvailableSizes(instance)
             size = sizes.get(scale)
             return size[0], size[1]
+        
+    security.declareProtected(CMFCorePermissions.View, 'getScale')
+    def getScale(self, instance, scale=None, **kwargs):
+        """Get scale by name or original
+        """
+        if scale is None:
+            return self.get(instance, **kwargs)
+        else:
+            assert(scale in self.getAvailableSizes(instance).keys(),
+                   'Unknown scale %s for %s' % (scale, self.getName()))
+            id = self.getName() + "_" + scale
+            image = self.getStorage(instance).get(id, instance, **kwargs)
+            if hasattr(image, '__of__') and not kwargs.get('unwrapped', False):
+                return image.__of__(instance)
+            else:
+                return image
 
-    security.declarePublic('getSize')
+    security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
