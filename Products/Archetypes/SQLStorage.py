@@ -125,7 +125,7 @@ class BaseSQLStorage(StorageLayer):
 
     def initializeInstance(self, instance, item=None, container=None):
         if (self.is_initialized(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
         fields = instance.Schema().fields()
@@ -226,7 +226,7 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be cleaned twice
             return
         # the object is being deleted. remove data from sql.  but

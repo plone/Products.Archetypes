@@ -138,6 +138,10 @@
    fix the second part of [ 1013363 ].
    [tiran]
 
+ * Fixed [ 1019803 ] Bug in ArchetypeTool.py: getWidgets(), also renamed
+   _is_fake_instance to _at_is_fake_instance.
+   [johtha, tiran]
+
  * Fixed [ 1018300 ] schema defined indexes are not set anymore.
    [dtremea]
 

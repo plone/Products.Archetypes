@@ -713,12 +713,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         f_names = fields
         if not instances:
             for t in self.listTypes(package, type):
-                instance = t('')
+                instance = t('fake_instance')
+                wrapped._at_is_fake_instance = True
                 wrapped = instance.__of__(context)
                 wrapped.initializeArchetype()
                 #if isinstance(wrapped, DefaultDublinCoreImpl):
                 #    DefaultDublinCoreImpl.__init__(wrapped)
-                wrapped._is_fake_instance = True
                 instances.append(wrapped)
         for instance in instances:
             if schemata is not None:
