@@ -19,7 +19,7 @@ class BaseSQLStorage(StorageLayer):
                       set UID=<dtml-sqlvar UID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
-    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
@@ -41,10 +41,28 @@ class BaseSQLStorage(StorageLayer):
     def map_datetime(self, field, value):
         # we don't want to lose even 0.001 second
         return value.ISO()[:-2] + str(value.second())
-    
-    def initalizeInstance(self, instance):
+
+    def table_exists(self, instance):
+        raise NotImplemented
+
+    def is_initialized(self, instance):
+        try:
+            return self.__class__.__name__ in instance.__initialized
+        except AttributeError:
+            return None
+
+    def _query(self, instance, query, args):
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
+        method = SQLMethod(instance)
+        method.edit(connection_id, ' '.join(args.keys()), query)
+        query, result = method(test__=1, **args)
+        return result
+    
+    def initalizeInstance(self, instance):
+        if self.is_initialized(instance):
+            # duh, we don't need to be initialized twice
+            return
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.isImplementedBy(f) \
                   and f.getStorage().__class__ is self.__class__]
@@ -57,56 +75,44 @@ class BaseSQLStorage(StorageLayer):
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['columns'] = ', ' + ', '.join(columns)
-        # print args['columns']
-        method = SQLMethod(instance)
-        method.edit(connection_id, ' '.join(args.keys()), self.query_create)
-        try:
-            query, result = method(test__=1, **args)
-            # print query
-        except:
-            # usually, table already exists
-            msg = exc_info()[1]
-            # yeech... must find a better way to check this
-            if not str(msg).find('exists') > 0:
-                raise
-        log('created table %s' % args['table'])
 
-        method = SQLMethod(instance)
-        method.edit(connection_id, ' '.join(args.keys()), self.query_insert)
+        if not self.table_exists(instance):
+            self._query(instance, self.query_create, args)
+            log('created table %s\n' % args['table'])
+
         try:
-            query, result = method(test__=1, **args)
-            # print query
+            self._query(instance, self.query_insert, args)
         except:
             # usually, duplicate key
             # raise SQLInitException(msg)
             pass
+        try:
+            instance.__initialized += (self.__class__.__name__,)
+        except AttributeError:
+            instance.__initialized = (self.__class__.__name__,)
 
     def get(self, name, instance, **kwargs):
-        c_tool = getToolByName(instance, TOOL_NAME)
-        connection_id = c_tool.getConnFor(instance)
+        if not self.is_initialized(instance):
+            # ignore all calls before we're initialized - some manage_afterAdd() methods
+            # try to get and set fields and we can't allow that to break
+            return None
         field = instance.getField(name)
         default = field.default
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['field'] = name
-        method = SQLMethod(instance)
-        method.edit(connection_id, ' '.join(args.keys()), self.query_select)
-        try:
-            query, result = method(test__=1, **args)
-            result = result[0][0]
-        except:
-            import traceback
-            traceback.print_stack()
-            raise AttributeError(name)
+        result = self._query(instance, self.query_select, args)[0][0]
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
             result = mapper(field, result)
         return result
 
     def set(self, name, instance, value, **kwargs):
-        c_tool = getToolByName(instance, TOOL_NAME)
-        connection_id = c_tool.getConnFor(instance)
+        if not self.is_initialized(instance):
+            # ignore all calls before we're initialized - some manage_afterAdd() methods
+            # try to get and set fields and we can't allow that to break
+            return None
         field = instance.getField(name)
         mapper = getattr(self, 'map_' + field.type, None)
         if mapper is not None:
@@ -124,10 +130,10 @@ class BaseSQLStorage(StorageLayer):
             field_name =  "%s=%s" % (name, default)
         args[field_name] = name
         args['field'] = name
-        args['value'] = value
-        method = SQLMethod(instance)
-        method.edit(connection_id, ' '.join(args.keys()), self.query_update % sql_type)
-        query, result = method(test__=1, **args)
+        if value is not None:
+            # omiting it causes dtml-sqlvar to insert NULL
+            args['value'] = value
+        self._query(instance, self.query_update % sql_type, args)
         
     def unset(self, name, instance, **kwargs):
         # probably use drop column here
@@ -156,7 +162,6 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupField(self, instance, field):
         pass
-    
 
 class GadflySQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
@@ -167,7 +172,7 @@ class GadflySQLStorage(BaseSQLStorage):
                       set UID=<dtml-sqlvar UID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
-    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
@@ -213,7 +218,7 @@ class OracleSQLStorage(BaseSQLStorage):
                       set UID=<dtml-sqlvar UID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
-    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
@@ -232,7 +237,7 @@ class PostgreSQLStorage(BaseSQLStorage):
                       (<dtml-sqlvar UID type="string">)"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
-    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
@@ -247,3 +252,9 @@ class PostgreSQLStorage(BaseSQLStorage):
         'string': 'text',
         'metadata': 'text', # eew
         }
+
+    def table_exists(self, instance):
+        return self._query(instance,
+                           '''select relname from pg_class where
+                           <dtml-sqltest relname op="eq" type="string">''',
+                           {'relname': instance.portal_type.lower()})
