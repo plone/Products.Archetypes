@@ -20,7 +20,8 @@
         </span>
       </h1>
 
-      <div tal:condition="fieldsets">
+      <div id="archetypes-schemata-links" 
+           tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
