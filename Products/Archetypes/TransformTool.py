@@ -29,8 +29,6 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 
 """ TODO:
 
-  _ required transforms configuration (policy)
-  _ user interface for chain construction
   _ use Schema for transform configuration ? that would be nice but may be a weird
     dependency...
   _ allow only one output type for transform ?
@@ -63,13 +61,19 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
     meta_types = all_meta_types = (
         { 'name'   : 'Transform',
           'action' : 'manage_addTransformForm'},
+        { 'name'   : 'TransformsChain',
+          'action' : 'manage_addTransformsChainForm'},
         )
 
     manage_addTransformForm = PageTemplateFile('addTransform', _www)
+    manage_addTransformsChainForm = PageTemplateFile('addTransformsChain', _www)
+    manage_editTransformationPolicyForm = PageTemplateFile('editTransformationPolicy', _www)
     manage_reloadAllTransforms = PageTemplateFile('reloadAllTransforms', _www)
 
     manage_options = ((Folder.manage_options[0],) + Folder.manage_options[2:] +
                       (
+        { 'label'   : 'Policy',
+          'action' : 'manage_editTransformationPolicyForm'},
         { 'label'   : 'Reload transforms',
           'action' : 'manage_reloadAllTransforms'},
         )
@@ -78,7 +82,8 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
     security = ClassSecurityInfo()
 
     def __init__(self):
-        self._mtmap    = PersistentMapping()
+        self._mtmap = PersistentMapping()
+        self._policy = PersistentMapping()
 
     def __call__(self, name, orig, data=None, **kwargs):
         """run a transform returning the raw data product"""
@@ -111,8 +116,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         """
         Folder.manage_renameObject(self, id, new_id, REQUEST)
         tr = getattr(self, new_id)
-        tr._transform.__name__ = new_id
-
+        tr.get_transform().__name__ = new_id
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_addTransform')
     def manage_addTransform(self, id, module, REQUEST=None):
@@ -120,7 +124,15 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         transform = Transform(id, module)
         self._setObject(id, transform)
         self.registerTransform(id, transform)
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_addTransform')
+    def manage_addTransformsChain(self, id, description, REQUEST=None):
+        """ add a new transform to the tool """
+        transform = TransformsChain(id, description)
+        self._setObject(id, transform)
+        self.registerTransform(id, transform)
         if REQUEST is not None:
             REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
@@ -142,12 +154,49 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
             reloaded.append((id, o.module))
         return reloaded
 
-    # mimetype oriented conversions ###########################################
+
+    # Policy handling methods #################################################
+
+    def manage_addPolicy(self, output_mimetype, required_transforms, REQUEST=None):
+        """ add a policy for a given output mime types"""
+        registry = getToolByName(self, 'mimetypes_registry')
+        if not registry.lookup(output_mimetype):
+            raise TransformException('Unknown MIME type')
+        if self._policies.has_key(output_mimetype):
+            msg = 'A policy for output %s is yet defined' % output_mimetype
+            raise TransformException(msg)
+        
+        required_transforms = tuple(required_transforms)
+        self._policies[output_mimetype] = required_transforms
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_editTransformationPolicyForm')
+
+    def manage_delPolicies(self, outputs, REQUEST=None):
+        """ remove policies for given output mime types"""
+        for mimetype in outputs:
+            del self._policies[mimetype]
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_editTransformationPolicyForm')
+            
+    def listPolicies(self):
+        """ return the list of defined policies
+
+        a policy is a 2-uple (output_mime_type, [list of required transforms])
+        """
+        # XXXFIXME: backward compat, should be removed latter
+        if not hasattr(self, '_policies'):
+            self._policies = PersistentMapping()
+        return self._policies.items()
+
+    
+    # mimetype oriented conversions (iengine interface) ########################
 
     def registerTransform(self, name, transform):
         """ register a new transform """
         __traceback_info__ = (name, transform)
-        if name not in self.objectIds():
+        if not name in self.objectIds():
+            # needed when call from transform.transforms.initialize which
+            # register non zope transform
             module = "%s" % transform.__module__
             transform = Transform(name, module)
             self._setObject(name, transform)
@@ -193,16 +242,22 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
             return data
 
 
-        ## Only do single hop right now or None
-        path = self._findPath(orig_mt, target_mt)
-        log('PATH FROM %s TO %s : %s' % (orig_mt, target_mimetype, path))
-        ## create a chain on the fly (sly)
+        ## get a path to output mime type
+        requirements = self._policies.get(target_mt, [])
+        path = self._findPath(orig_mt, target_mt, list(requirements))        
+        if not path and requirements:
+            log('Unable to satisfy requirements %s' % ', '.join(requirements))
+            path = self._findPath(orig_mt, target_mt)        
+            
         if not path:
+            log('NO PATH FROM' % (orig_mt, target_mimetype, path))
             return None #XXX raise TransformError
         
+        log('PATH FROM %s TO %s : %s' % (orig_mt, target_mimetype, path))
+        ## create a chain on the fly (sly)
         c = chain()
         for t in path:
-            c.registerTransform(t.id, t._transform)
+            c.registerTransform(t.id, t.get_transform())
 
         if not data:
             data = self._wrap(target_mimetype)
@@ -216,7 +271,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         if not data:
             data = self._wrap(name)
 
-        transform = getattr(self, name)._transform
+        transform = getattr(self, name).get_transform()
         data = transform.convert(orig, data, **kwargs)
         #bind in the mimetype as metadata
         md = data.getMetadata()
@@ -386,6 +441,11 @@ class Transform(Implicit, Item, RoleManager, Persistent):
             aq_parent(self).unregisterTransform(self.id)
 
 
+    security.declarePublic('get_transform')
+    def get_transform(self):
+        """ return the actual transform """
+        return self._transform
+    
     security.declarePublic('get_documentation')
     def get_documentation(self):
         """ return transform documentation """
@@ -463,14 +523,15 @@ class TransformsChain(Implicit, Item, RoleManager, Persistent):
                       Item.manage_options
                       )
 
-    manage_main = PageTemplateFile('configureTransform', _www)
+    manage_main = PageTemplateFile('editTransformsChain', _www)
     manage_reloadTransform = PageTemplateFile('reloadTransform', _www)
 
     security = ClassSecurityInfo()
 
-    def __init__(self, id, transform_ids):
+    def __init__(self, id, description, ids=()):
         self.id = id
-        self._tr_ids = transform_ids
+        self.description = description
+        self._object_ids = list(ids)
         self._chain_init()
 
     def __setstate__(self, state):
@@ -479,37 +540,82 @@ class TransformsChain(Implicit, Item, RoleManager, Persistent):
             
             We should rebuild the chain at this time
         """
-        Transform.inheritedAttribute('__setstate__')(self, state)
-        self._chain_init()
-
+        TransformsChain.inheritedAttribute('__setstate__')(self, state)
+        self._chain = None
 
     def _chain_init(self):
         """ build the transforms chain """
-        tr_tool = aq_parent(self)
+        tr_tool = getToolByName(self, 'portal_transforms')
         self._chain = c = chain()
-        for id in self._tr_ids:
-            transform = getattr(tr_tool, id)
-            if transform.meta_type == 'Transform':
-                c.registerTransform(transform.id, transform._transform)
-            else:
-                c.registerTransform(transform.id, transform._chain)
+        for id in self._object_ids:
+            object = getattr(tr_tool, id)
+            c.registerTransform(object.id, object.get_transform())
 
+    security.declarePublic('get_transform')
+    def get_transform(self):
+        """ return the actual transform """
+        if self._chain is None:
+            self._chain_init()
+        return self._chain
+    
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Item.manage_beforeDelete(self, item, container)
         if self is item:
             aq_parent(self).unregisterTransform(self.id)
+            
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_addTransform')
+    def manage_addObject(self, id, REQUEST=None):
+        """ add a new transform or chain to the chain """
+        assert id not in self._object_ids
+        self._object_ids.append(id)
+        self._chain_init()
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
-    security.declareProtected(CMFCorePermissions.ManagePortal, 'get_parameters')
-    def get_parameters(self):
-        """ get transform's parameters names """
-        pass        
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_delObjects')
+    def manage_delObjects(self, ids, REQUEST=None):
+        """ delete the selected mime types """
+        for id in ids:
+            self._object_ids.remove(id)
+        self._chain_init()
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
-    security.declareProtected(CMFCorePermissions.ManagePortal, 'set_parameters')
-    def set_parameters(self, REQUEST=None, **kwargs):
-        """ set transform's parameters """
-        pass
-    
+
+    # transforms order handling ###############################################
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'move_object_to_position')
+    def move_object_to_position(self, id, newpos):
+        """ overriden from OrderedFolder to store id instead of objects
+        """
+        oldpos = self._object_ids.index(id)
+        if (newpos < 0 or newpos == oldpos or newpos >= len(self._object_ids)):
+            return 0
+        self._object_ids.pop(oldpos)
+        self._object_ids.insert(newpos, id)
+        self._chain_init()
+        return 1
+
+    security.declareProtected(CMFCorePermissions.ManageProperties, 'move_object_up')
+    def move_object_up(self, id, REQUEST=None):
+        """  move object with the given id up in the list """
+        newpos = self._object_ids.index(id) - 1
+        self.move_object_to_position(id, newpos)
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
+
+    security.declareProtected(CMFCorePermissions.ManageProperties, 'move_object_down')
+    def move_object_down(self, id, REQUEST=None):
+        """  move object with the given id down in the list """
+        newpos = self._object_ids.index(id) + 1
+        self.move_object_to_position(id, newpos)
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
+
+
+    # Z transform interface ###################################################    
+
     security.declareProtected(CMFCorePermissions.ManagePortal, 'inputs')
     def inputs(self):
         """ return a list of input mime types """
@@ -523,9 +629,27 @@ class TransformsChain(Implicit, Item, RoleManager, Persistent):
     security.declareProtected(CMFCorePermissions.ManagePortal, 'reload')
     def reload(self):
         """ reload the module where the transformation class is defined """
+        for tr in self.objectValues():
+            tr.reload()
+
+
+    # utilities ###############################################################
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'listAddableObjects')
+    def listAddableObjectIds(self):
+        """ return a list of addable transform """
         tr_tool = aq_parent(self)
-        for id in self._tr_ids:
-            transform = getattr(tr_tool, id)
-            transform.reload()
+        return [id for id in tr_tool.objectIds() if not id in self._object_ids]
+        
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'listAddableObjects')
+    def objectIds(self):
+        """ return a list of addable transform """
+        return tuple(self._object_ids)
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'listAddableObjects')
+    def objectValues(self):
+        """ return a list of addable transform """
+        tr_tool = aq_parent(self)
+        return [getattr(tr_tool, id) for id in self.objectIds()]
 
 InitializeClass(TransformsChain)
