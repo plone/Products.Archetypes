@@ -64,6 +64,13 @@ else:
     # setup is installing all required products
     import Products.PloneTestCase.setup
 
+    # hack to eliminate fine circular dependency
+    try:
+        import Products.CMFPlone.patches.zserverPatch
+        ZopeTestCase.installProduct('ATContentTypes', quiet=1)
+    except :
+        pass 
+
 DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
 

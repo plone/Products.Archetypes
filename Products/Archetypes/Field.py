@@ -176,7 +176,6 @@ class Field(DefaultLayerContainer):
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
-
         if name is None:
             global _field_count
             _field_count += 1
