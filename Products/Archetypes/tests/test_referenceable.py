@@ -362,6 +362,80 @@ class ReferenceableTests(ArcheSiteTestCase):
             ])
         assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
 
+    def test_noReferenceAfterDelete(self):
+        # Deleting target should delete reference
+        # added by GL
+        a = makeContent(self.folder, portal_type='DDocument', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        self.folder._delObject('b')
+
+        self.failUnlessEqual(a.getRefs(), [])
+
+    def test_noBackReferenceAfterDelete(self):
+        # Deleting source should delete back reference
+        # added by GL
+        a = makeContent(self.folder, portal_type='DDocument', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        self.folder._delObject('a')
+
+        self.failUnlessEqual(b.getBRefs(), [])
+
+    def test_copyPasteSupport(self):
+        # copy/paste behaviour test 
+        # in another folder, pasted object should lose all references
+        # added by GL (for bug #985393)
+        org_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Destination folder',
+                                 id='dst_folder')
+        a = makeContent(org_folder, portal_type='DDocument', id='a')
+        b = makeContent(org_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+
+        cb = org_folder.manage_copyObjects(ids=['a'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_a = getattr(dst_folder, 'a')
+
+        # The copy should'nt have references
+        self.failUnlessEqual(copy_a.getRefs(), [])
+        self.failIf(copy_a in b.getBRefs())
+
+        # Original object should keep references
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+
+    def test_cutPasteSupport(self):
+        # cut/paste behaviour test
+        # in another folder, pasted object should keep the references
+        # added by GL (for bug #985393)
+        org_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Destination folder',
+                                 id='dst_folder')
+        a = makeContent(org_folder, portal_type='DDocument', id='a')
+        b = makeContent(org_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        get_transaction().commit(1)
+        cb = org_folder.manage_cutObjects(ids=['a'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_a = getattr(dst_folder, 'a')
+
+        self.failUnlessEqual(copy_a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [copy_a])
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
