@@ -1204,6 +1204,7 @@ from ExtensionClass import Base
 from Acquisition import Implicit, aq_parent
 from OFS.Traversable import Traversable
 from OFS.Image import Image as BaseImage
+from OFS.Cache import ChangeCacheSettingsPermission
 
 try: 
     import PIL.Image
@@ -1433,6 +1434,16 @@ class ScalableImage(BaseImage):
             LOG('Archetypes.ScallableField', ERROR, 'Error while resizing image', e)
                 
         return image
+
+    security.declareProtected(ChangeCacheSettingsPermission, 'ZCacheable_setManagerId')
+    def ZCacheable_setManagerId(self, manager_id, REQUEST=None):
+        '''Changes the manager_id for this object.
+           overridden because we must propagate the change to all variants'''
+        for size in self._photos.keys(): 
+            variant = self.getPhoto(size).__of__(self)
+            variant.ZCacheable_setManagerId(manager_id)
+        return Photo.inheritedAttribute('ZCacheable_setManagerId')(self, manager_id, REQUEST)
+
 
 InitializeClass(ScalableImage)
 
