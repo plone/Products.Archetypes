@@ -3,33 +3,10 @@
     <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
       <div tal:replace="structure here/manage_tabs"/>
 	<style type="text/css">
-	  div.row {
-	  padding-top: 2px;
+	  td {
+	     vertical-align: top;
 	  }
 	  
-	  .cell {
-	  margin-right:1em;
-	  width: 33%;
-	  }	    
-	  
-	  .content_type {
-	  border: 1px solid black;
-	  margin: 4px;
-	  }
-	    
-	  .main td {
-	    text-align: left;
-	    }
-
-	  th.title {
-	    background-color: #ccf;
-	    }
-
-	  .detail {
-	  background-color: #cdcdcd;
-	  width:100%;
-	  }
-
 	</style>
 	
 	<form action="manage_templates" method="POST" 
@@ -39,7 +16,7 @@
 	                 ">
 
 	
-      <table class="main" width="80%">
+    <table class="main">
 	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
    
 	  <tal:condition condition="python:at.isTemplateEnabled(meta_type)">
@@ -59,17 +36,29 @@
           </td>
 	 </tal:condition>
 	</tr>
-
+    <tr>
+       <td><input type="submit" name="submit" value="Update Bindings"/></td>
+       <td>&nbsp;</td>
+    </tr>
+    <tr>
+       <td>&nbsp;</td>
+       <td>&nbsp;</td>
+    </tr>
 	<tr>
-           <td>Add a new template</td>
+       <td>Add a new template</td>
 	   <td>	
-              <input type="text" name="newTemplate"/>
-           </td>
+           <input type="text" name="newTemplate"/>
+       </td>
 	</tr>
-      </table>
+    <tr>
+       <td><input type="submit" name="addTemplate" value="Add Template"/></td>
+       <td>&nbsp;</td> 
+    </tr>
+    </table>
       
-      <input type="submit" name="submit" value="Update Bindings"/>
-      <input type="submit" name="addTemplate" value="Add Template"/>
+      
+      
+      
       
     </form>
 
