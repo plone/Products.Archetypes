@@ -51,6 +51,7 @@ class Field(DefaultLayerContainer):
         'isMetadata' : 0,
 
         'accessor' : None,
+        'edit_accessor' : None,
         'mutator' : None,
         'mode' : 'rw',
 
@@ -407,7 +408,7 @@ class TextField(ObjectField):
         kwargs['raw'] = 1
         return self.getAccessor(instance)(**kwargs)
     
-    def get(self, instance, mimetype=None, raw=1, **kwargs):
+    def get(self, instance, mimetype=None, raw=0, **kwargs):
         try:
             kwargs['field'] = self
             value = self.storage.get(self.getName(), instance, **kwargs)
