@@ -45,7 +45,10 @@
 
  * Added context to the PortalTransform.convertTo() call in BaseUnit.transform()
    [tiran]
-   
+
+ * Don't fail to install a product which doesn't have any types
+   [spamsch]
+
 1.3.0-beta4 - 2004-07-09
 
  * Fix bug on image deletion [clebeaupin]

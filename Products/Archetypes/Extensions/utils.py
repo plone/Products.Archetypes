@@ -367,7 +367,7 @@ def installTypes(self, out, types, package_name,
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies)
-    if refresh_references:
+    if refresh_references and ftypes:
         refreshReferenceCatalog(self, out, package_name=package_name, 
                                 ftypes=ftypes)
 
@@ -379,10 +379,13 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
     circumstances.
     """
     assert package_name
-    assert types or ftypes
 
-    if not ftypes:
+    if ftypes is None:
         ftypes = filterTypes(self, out, types, package_name)
+
+    if not ftypes and not types:
+        # no types to install
+        return
 
     rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
