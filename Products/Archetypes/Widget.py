@@ -150,6 +150,14 @@ class ImageWidget(TypesWidget):
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
+# LabelWidgets are used to display instructions on a form.  The widget only
+# displays the label for a value -- no values and no form elements.
+class LabelWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/label",
+        })
+
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -175,4 +183,4 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
-           'PasswordWidget', 'VisualWidget')
+           'LabelWidget', 'PasswordWidget', 'VisualWidget')
