@@ -5,6 +5,7 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.debug import log, ERROR
 
 import Persistence
 from Acquisition import aq_base
@@ -180,7 +181,20 @@ class ExtensibleMetadata(Persistence.Persistent):
                 d = {'on' : 1, 'off': 0, 'none':None, '':None}
                 allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
-        dtool.overrideDiscussionFor(self, allowDiscussion)
+        try:
+            dtool.overrideDiscussionFor(self, allowDiscussion)
+        except KeyError, err:
+            if allowDiscussion is None:
+                # work around a bug in CMFDefault.DiscussionTool. It's using
+                # an unsafe hasattr() instead of a more secure getattr() on an
+                # unwrapped object
+                msg = "Unable to set discussion on %s to None. Already " \
+                      "deleted allow_discussion attribute? Message: %s" % ( 
+                       self.getPhysicalPath(), str(err))
+                log(msg, level=ERROR)
+            else:
+                raise
+            
 
     # Vocabulary methods ######################################################
 
