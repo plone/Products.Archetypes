@@ -1,5 +1,9 @@
 2003-07-30  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* Field.py (FloatField.set): Bah, it was still broken
+
+2003-07-30  Sidnei da Silva  <sidnei@redesul.com.br>
+
 	* skins/archetypes/widgets/multiselection.pt: Fix the
 	multiselection widget. It was broken with Zope 2.7.
 
