@@ -11,9 +11,9 @@
 
 	<metal:header_macro define-macro="header">
 	  <h1 tal:content="title_string|here/title_or_id" />
-	  <div metal:use-macro="here/document_actions/macros/document_actions">
-	    Document actions (print, sendto etc)
-	  </div>
+          <div metal:use-macro="here/document_actions/macros/document_actions">
+              Document actions (print, sendto etc)
+          </div>
 	</metal:header_macro>
 
 	<metal:body_macro metal:define-macro="body"

@@ -1,21 +1,14 @@
+from Products.Archetypes.config import *
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes import Validators
+from Products.Archetypes.utils import DisplayList
+
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 from Products.CMFCore.TypesTool import TypesTool, typeClasses
-from config import *
-from debug import log, log_exc
-
-# Bootstrap Zope-dependent validators
-import Validators
-
-# look if BTreeFolder2 is installed, warn if not
-try:
-    import Products.BTreeFolder2
-except ImportError:
-    log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
-
 
 ###
 ## security
@@ -34,7 +27,6 @@ allow_class(IndexIterator)
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
-from utils import DisplayList
 allow_class(DisplayList)
 
 
@@ -43,25 +35,19 @@ allow_class(DisplayList)
 ###
 registerDirectory('skins', globals())
 
-from ArchetypeTool import ArchetypeTool, \
-                          registerType, \
-                          process_types, \
-                          listTypes
-from ArchTTWTool import ArchTTWTool
+from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
+     registerType, process_types, listTypes
+from Products.Archetypes.ArchTTWTool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
     ArchTTWTool,
     )
 
-
 types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
-##    from Extensions import ArchetypeSite
-
-##    ArchetypeSite.register(context, globals())
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,
@@ -81,7 +67,6 @@ def initialize(context):
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
-
     try:
         from Products.CMFCore.FSFile import FSFile
         from Products.CMFCore.DirectoryView import registerFileExtension

@@ -34,7 +34,7 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill metal:fill-slot="widget_body">
 	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
 	</metal:fill>

@@ -1,37 +1,44 @@
 from __future__ import nested_scopes
 from copy import copy, deepcopy
-from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
-from UserDict import UserDict
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore  import CMFCorePermissions
-from Globals import InitializeClass
-from Widget import *
-from utils import capitalize, DisplayList, className, mapply
-from debug import log, log_exc
-from ZPublisher.HTTPRequest import FileUpload
-from BaseUnit import BaseUnit
 from types import StringType, UnicodeType
-from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
-     ReadOnlyStorage
-from DateTime import DateTime
-from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField, IImageField
-from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
-from interfaces.storage import IStorage
-from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException, \
-     FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT
-from OFS.content_types import guess_content_type
-from OFS.Image import File
-from ComputedAttribute import ComputedAttribute
-from Products.PortalTransforms.interfaces import idatastream
+from UserDict import UserDict
 
-import config
+from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
+from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IField, IObjectField, \
+     IImageField
+from Products.Archetypes.interfaces.layer import ILayerContainer, \
+     ILayerRuntime, ILayer
+from Products.Archetypes.exceptions import ObjectFieldException, \
+     TextFieldException, FileFieldException
+from Products.Archetypes.Widget import *
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.ReferenceEngine import Reference
+from Products.Archetypes.utils import capitalize, DisplayList, \
+     className, mapply
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes import config
+from Products.Archetypes.Storage import AttributeStorage, \
+     MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
 from Products.validation import validation
+from Products.generator.i18n import translate
+from Products.PortalTransforms.interfaces import idatastream
+
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from Acquisition import aq_base, aq_parent, aq_inner
+from DateTime import DateTime
+from OFS.content_types import guess_content_type
+from OFS.Image import File
+from Globals import InitializeClass
+from ComputedAttribute import ComputedAttribute
+from ZPublisher.HTTPRequest import FileUpload
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore  import CMFCorePermissions
+
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
@@ -144,10 +151,13 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given
+        instantiate the widget if a class was given and call
+        widget.populateProps
         """
-        if hasattr(self, 'widget') and type(self.widget) == ClassType:
-            self.widget = self.widget()
+        if hasattr(self, 'widget'):
+            if type(self.widget) == ClassType:
+                self.widget = self.widget()
+            self.widget.populateProps(self)
 
     def _validationLayer(self):
         """
@@ -167,17 +177,94 @@ class Field(DefaultLayerContainer):
                 log("WARNING: no validator %s for %s" % (v,
                 self.getName()))
 
-    def validate(self, value, **kwargs):
+    def validate(self, value, instance, errors={}, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-        for v in self.validators:
-            res = validation.validate(v, value, **kwargs)
+        name = self.getName()
+
+        if errors and errors.has_key(name):
+            return 1
+
+        if self.required:
+            res = self.validate_required(instance, value, errors)
             if res != 1:
                 return res
-            return None
+
+        if self.enforceVocabulary:
+            res = self.validate_vocabulary(instance, value, errors)
+            if res != 1:
+                return res
+
+        res = instance.validate_field(name, value, errors)
+        if res != 1:
+            return res
+
+        for v in self.validators:
+            res = validation.validate(v, value, instance=instance,
+                                      errors=errors, **kwargs)
+            if res != 1:
+                return res
+        return None
+
+    def validate_required(self, instance, value, errors):
+        if not value:
+            label = self.widget.Label(instance)
+            name = self.getName()
+            errors[name] =  translate(
+                'archetypes', 'error_required',
+                {'name': label}, instance,
+                default = "%s is required, please correct."
+                % label,
+                )
+            return 1
+        return None
+
+    def validate_vocabulary(self, instance, value, errors):
+        """Make sure value is inside the allowed values
+        for a given vocabulary"""
+        error = 0
+        if value:
+            # coerce value into a list called values
+            values = value
+            if isinstance(value, type('')) or \
+                   isinstance(value, type(u'')):
+                values = [value]
+            elif not (isinstance(value, type((1,))) or \
+                      isinstance(value, type([]))):
+                raise TypeError("Field value type error")
+            vocab = self.Vocabulary(instance)
+            # filter empty
+            values = [instance.unicodeEncode(v)
+                      for v in values if v.strip()]
+            # extract valid values from vocabulary
+            valids = []
+            for v in vocab:
+                if type(v) in [type(()), type([])]:
+                    v = v[0]
+                if not type(v) in [type(''), type(u'')]:
+                    v = str(v)
+                valids.append(instance.unicodeEncode(v))
+            # check field values
+            for val in values:
+                error = 1
+                for v in valids:
+                    if val == v:
+                        error = 0
+                        break
+
+        if error == 1:
+            label = self.widget.Label(instance)
+            errors[name] = translate(
+                'archetypes', 'error_vocabulary',
+                {'val': val, 'name': label}, instance,
+                default = "Value %s is not allowed for vocabulary "
+                "of element %s." % (val, label),
+                )
+
+        return error
 
     def Vocabulary(self, content_instance=None):
         """
@@ -332,13 +419,14 @@ class ObjectField(Field):
         })
 
     def get(self, instance, **kwargs):
+        __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
             return self.storage.get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default,_initializing_=1,**kwargs)
+                self.set(instance, self.default, _initializing_=1, **kwargs)
             return self.default
 
     def getRaw(self, instance, **kwargs):
@@ -347,6 +435,7 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
+        kwargs.update({'field': self.__name__})
         if accessor is None:
             args = [instance,]
             return mapply(self.get, *args, **kwargs)
@@ -356,10 +445,12 @@ class ObjectField(Field):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
+        __traceback_info__ = (self.getName(), instance, value, kwargs)
         self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
+        __traceback_info__ = (self.getName(), instance, kwargs)
         self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
@@ -454,20 +545,20 @@ class FileField(StringField):
 
         if not value:
             return
-
+        
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
+
+        value, mimetype = self._process_input(value,
+                                               default=self.default,
+                                               **kwargs)
+        kwargs['mimetype'] = mimetype
 
         if value=="DELETE_FILE":
             if hasattr(aq_base(instance), '_FileField_types'):
                 delattr(aq_base(instance), '_FileField_types')
             ObjectField.unset(self, instance, **kwargs)
             return
-
-        value, mimetype = self._process_input(value,
-                                               default=self.default,
-                                               **kwargs)
-        kwargs['mimetype'] = mimetype
 
         # FIXME: ugly hack
         try:
@@ -478,6 +569,10 @@ class FileField(StringField):
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -539,7 +634,7 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
-        if raw, return the base unit object, else return encoded raw data
+        If raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
@@ -644,7 +739,7 @@ class LinesField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'lines',
-        'default' : [],
+        'default' : (),
         'widget' : LinesWidget,
         })
 
@@ -656,15 +751,20 @@ class LinesField(ObjectField):
         """
         __traceback_info__ = value, type(value)
         if type(value) in STRING_TYPES:
-            value = value.split('\n')
+            value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        return [encode(v, instance, **kwargs) for v in value]
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            return tuple([encode(v, instance, **kwargs) for v in value])
+        else:
+            return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -716,7 +816,7 @@ class FixedPointField(ObjectField):
     _properties.update({
         'type' : 'fixedpoint',
         'precision' : 2,
-        'default' : '0.0',
+        'default' : '0.00',
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
@@ -747,103 +847,109 @@ class FixedPointField(ObjectField):
         if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
 
+    def validate_required(self, instance, value, errors):
+        value = sum(self._to_tuple(value))
+        return ObjectField.validate_required(self, instance, value, errors)
+
 class ReferenceField(ObjectField):
-    """A field for containing a reference"""
     __implements__ = ObjectField.__implements__
+
+    """A field for creating references between objects.
+
+    Values used in get() and set() methods are either string or list
+    depending on multiValued. The strings represent UIDs.
+
+    If no vocabulary is provided by you, one will be assembled based on
+    allowed_types.
+    """
 
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'reference',
-        'default': None,
+        'default' : None,
         'widget' : ReferenceWidget,
-        'allowed_types' : (),
-        'allowed_type_column' : 'portal_type',
-        'addable': 0,
-        'destination': None,
-        'relationship':None
+        
+        'relationship' : None, # required
+        'allowed_types' : (),  # a tuple of portal types, empty means allow all
+
+        'referenceClass' : Reference,
         })
 
-    def containsValueAsString(self, value, attrval):
-        """
-        checks wether the attribute contains a value
-           if the field is a scalar -> comparison
-           if it is multiValued     -> check for 'in'
-        """
-        if self.multiValued:
-            return str(value) in [str(a) for a in attrval]
-        else:
-            return str(value) == str(attrval)
 
+    def get(self, instance, **kwargs):
+        """Not really publicly useful.
+
+        See IReferenceable for more convenient ways."""
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        value = [ref.targetUID for ref in
+                 tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued: # return a string or None if single valued
+            if len(value) > 1:
+                log('%s of %s is single valued but multiple %s relationships '
+                    'exist: %s' %
+                    (self.getName(), instance, self.relationship, value))
+
+            if len(value) == 0:
+                value = None
+            else:
+                value = value[0]
+
+        return value
+    
     def set(self, instance, value, **kwargs):
-        """ Add one or more passed in references to the object.
-        Before setting the value the reference gets also be established
-        in the reference tool
+        """Mutator.
+
+        ``value`` is a list of UIDs or one UID string to which I will add a
+        reference to. None and [] are equal.
+
+        Keyword arguments may be passed directly to addReference(), thereby
+        creating properties on the reference objects.
         """
+
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        targetUIDs = [ref.targetUID for ref in
+                      tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued and value:
+            value = (value,)
 
         if not value:
-            value=None
-        __traceback_info__ = (instance, self.getName(), value)
+            value = ()
+        
+        add = [v for v in value if v and v not in targetUIDs]
+        sub = [t for t in targetUIDs if t not in value]
 
-        # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance,TOOL_NAME)
-        refname=self.relationship
+        # tweak keyword arguments for addReference
+        addRef_kw = kwargs.copy()
+        addRef_kw.setdefault('referenceClass', self.referenceClass)
+        if addRef_kw.has_key('schema'): del addRef_kw['schema']
 
-        # XXX: thats too cheap, but I need the proof of concept before
-        # going on
-        instance.deleteReferences(refname)
-        newValue = []
-        if self.multiValued:
-            if type(value) in (type(()),type([])):
-                for uid in value:
-                    if uid:
-                        target=tool.lookupObject(uid=uid)
-                        if target is None:
-                            raise ValueError, "Invalid reference %s" % uid
-                        instance.addReference(target, refname)
-                        newValue.append(uid)
-        else:
-            if value:
-                target=tool.lookupObject(uid=value)
-                if target is None:
-                    raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target, refname)
-                newValue = value
+        for uid in add:
+            # throws IndexError if uid is invalid
+            tool.addReference(instance, uid, self.relationship, **addRef_kw)
 
-        # and now do the normal assignment
-        ObjectField.set(self, instance, newValue, **kwargs)
+        for uid in sub:
+            tool.deleteReference(instance, uid, self.relationship)
 
     def Vocabulary(self, content_instance=None):
-        # If we have a method providing the list of types go with it,
-        # it can always pull allowed_types if it needs to (not that we
-        # pass the field name)
-        value = ObjectField.Vocabulary(self, content_instance)
-        if value:
-            return value
-        results = []
-        if self.allowed_types:
-            catalog = getToolByName(content_instance, config.UID_CATALOG)
-
-            # the else branch is for backwards compatibility: we
-            # switched to look up portal_type by default instead of
-            # Type for AT 1.2.4
-            if self.allowed_type_column in catalog.indexes():
-                kw = {self.allowed_type_column:self.allowed_types}
-            else:
-                kw = {'Type':self.allowed_types}
-
-            results = catalog(**kw)
+        """Use vocabulary property if it's been defined."""
+        if self.vocabulary:
+            return ObjectField.Vocabulary(self, content_instance)
         else:
-            archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            results = archetype_tool.Content()
-        results = [(r, r.getObject()) for r in results]
-        value = [(r.UID, obj and (str(obj.Title().strip()) or \
-                                  str(obj.getId()).strip())  or \
-                  log('Field %r: Object at %r could not be found' % \
-                      (self.getName(), r.getURL())) or \
-                  r.Title or r.UID) for r, obj in results]
+            return self._Vocabulary(content_instance).sortedByValue()
+
+    def _Vocabulary(self, content_instance):
+        catalog = getToolByName(content_instance, config.UID_CATALOG)
+        # should be obsolete soon:
+        index = 'portal_type' in catalog.indexes() and 'portal_type' or 'Type'
+        brains = catalog.searchResults(**{index: self.allowed_types})
+
+        pairs = [(b.UID, b.Title and b.Title or b.id) for b in brains]
         if not self.required and not self.multiValued:
-            value.insert(0, ('', '<no reference>'))
-        return DisplayList(value)
+            pairs.insert(0, ('', '<no reference>'))
+
+        return DisplayList(pairs)
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -1176,6 +1282,9 @@ class ImageField(ObjectField):
             return img.getContentType()
         return ''
 
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(Field)
 
@@ -1460,8 +1569,13 @@ class PhotoField(ObjectField):
     def set(self, instance, value, **kw):
         if isinstance(value, StringType):
             value = StringIO(value)
-        image = ScalableImage(self.name, file=value, displays=self.displays)
+        image = ScalableImage(self.getName(), file=value,
+                              displays=self.displays)
         ObjectField.set(self, instance, image, **kw)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(PhotoField)
 
@@ -1469,7 +1583,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField',
+           'CMFObjectField', 'ImageField', 'PhotoField',
            )
 
 from Registry import registerField
