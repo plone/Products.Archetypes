@@ -7,7 +7,9 @@
 ##bind subpath=traverse_subpath
 from Products.CMFCore.utils import getToolByName
 mtr = getToolByName(context, 'mimetypes_registry', None)
-if mtr is None:
+if mtr is not None:
+    mtiList = mtr.lookup(context.getContentType())
+    if len(mtiList):
+        return mti[0].icon_path
+else:
     return context.getIcon()
-mti = mtr.lookup(context.getContentType())[0]
-return mti.icon_path
