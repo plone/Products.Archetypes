@@ -51,13 +51,14 @@ class Schemata(UserDict):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
+    _order_fields = None # cached index-ordered list of fields
+
     def __init__(self, name='default', fields=None):
         """Initialize Schemata and add optional fields."""
 
         self.__name__ = name
         UserDict.__init__(self)
 
-        self._order_fields = None
         self._index = 0
 
         if fields is not None:
@@ -180,6 +181,7 @@ class Schemata(UserDict):
             self[field.getName()] = field
             field._index = self._index
             self._index +=1
+            self._order_fields = None
         else:
             log_exc('Object doesnt implement IField: %s' % field)
 
@@ -288,7 +290,7 @@ class Schema(Schemata, DefaultLayerContainer):
         field to mutate while the value is used to call the mutator.
 
         E.g. updateAll(instance, id='123', amount=500) will, depending on the
-        actual mutators set, result in two calls: ``instance.setId(123)`` and
+        actual mutators set, result in two calls: ``instance.setId('123')`` and
         ``instance.setAmount(500)``.
         """
 

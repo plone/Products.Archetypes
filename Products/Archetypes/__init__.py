@@ -22,18 +22,37 @@ except ImportError:
 # Bootstrap Zope-dependent validators
 import Validators
 
-# Plone compatibility with raw CMF
+# look if BTreeFolder2 is installed, warn if not
+try:
+    import Products.BTreeFolder2
+except ImportError:
+    log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
+
+
+###
+## security
+###
+# make log and log_exc public
+ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
+ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
+
+# Plone compatibility in plain CMF. Templates should use IndexIterator from
+# Archetypes and not from CMFPlone
 try:
     from Products.CMFPlone.PloneUtilities import IndexIterator
 except:
     from PloneCompat import IndexIterator
 allow_class(IndexIterator)
 
-try:
-    import Products.BTreeFolder2
-except ImportError:
-    log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
+# make DisplayList accessible from python scripts and others objects executed
+# in a restricted environment
+from utils import DisplayList
+allow_class(DisplayList)
 
+
+###
+# register tools and content types
+###
 registerDirectory('skins', globals())
 
 from ArchetypeTool import ArchetypeTool, \
@@ -47,11 +66,6 @@ tools = (
     ArchTTWTool,
     )
 
-###
-## security
-###
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
 types_globals=globals()
 
@@ -80,7 +94,7 @@ def initialize(context):
             fti = ftis,
             ).initialize(context)
 
-    from Products.CMFCore.DirectoryView import registerFileExtension
     from Products.CMFCore.FSFile import FSFile
+    from Products.CMFCore.DirectoryView import registerFileExtension
     registerFileExtension('xsl', FSFile)
     registerFileExtension('xul', FSFile)

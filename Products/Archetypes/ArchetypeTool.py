@@ -762,39 +762,64 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
-        """Get a list of schema that have changed"""
+        """Returns a list of tuples indicating which schema have changed.  
+           Tuples have the form (schema, changed)"""
         list = []
-        for t in self._types.keys():
-            if self._types[t]['update']:
-                list.append(t)
+        keys = self._types.keys()
+        keys.sort()
+        for t in keys:
+            list.append((t, self._types[t]['update']))
         return list
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self):
+    def manage_updateSchema(self, REQUEST=None):
         """Make sure all objects' schema are up to date"""
+        
         out = StringIO()
         print >> out, 'Updating schema...'
 
-        for t in self._types.keys():
-            if not self._types[t]['update']:
-                continue
-            catalog = getToolByName(self, UID_CATALOG)
-            result = catalog._catalog.searchResults({'meta_type' : t})
+        update_types = []
+        if REQUEST is None:
+            for t in self._types.keys():
+                if self._types[t]['update']:
+                    update_types.append(t)
+            update_all = 0
+        else:
+            for t in self._types.keys():
+                if REQUEST.form.get(t, 0):
+                    update_types.append(t)
+            update_all = REQUEST.form.get('update_all', 0)
 
-            classes = {}
-            for r in result:
-                try:
-                    o = r.getObject()
-                    if hasattr(o, '_updateSchema'):
-                        if not o._isSchemaCurrent():
-                            o._updateSchema(out=out)
-                except KeyError:
-                    pass
+        # Use the catalog's ZopeFindAndApply method to walk through all
+        # objects in the portal.  This works much better than relying on
+        # the catalog to find objects, because an object may be uncatalogable
+        # because of its schema, and then you can't update it if you require
+        # that it be in the catalog.
+        catalog = getToolByName(self, 'portal_catalog')
+        portal = getToolByName(self, 'portal_url').getPortalObject()
+        meta_types = [_types[t]['name'] for t in update_types]
+        if update_all:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateObject)
+        else:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateChangedObject)
+        for t in update_types:
             self._types[t]['update'] = 0
-            self._p_changed = 1
+        self._p_changed = 1
         return out.getvalue()
+
+    def _updateObject(self, o, path):
+        import sys
+        sys.stdout.write('updating %s\n' % o.getId())
+        o._updateSchema()
+
+    def _updateChangedObject(self, o, path):
+        if not o._isSchemaCurrent():
+            o._updateSchema()
+        
 
 
     def __setstate__(self, v):
@@ -901,8 +926,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         res.sort()
 
         return res
-
-
 
 
 InitializeClass(ArchetypeTool)

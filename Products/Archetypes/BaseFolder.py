@@ -11,16 +11,17 @@ from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
-                 SkinnedFolder, ExtensibleMetadata):
-    """ A not-so-basic Folder implementation """
+class BaseFolderMixin(BaseObject,
+                      Referenceable,
+                      CatalogMultiplex,
+                      SkinnedFolder):
+    """A not-so-basic Folder implementation, with no Dublin Core
+    Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata)
+    __implements__ = (IBaseFolder, IReferenceable)
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
-
-    schema = BaseObject.schema + ExtensibleMetadata.schema
 
     security = ClassSecurityInfo()
 
@@ -29,7 +30,6 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
         # those attributes anyway
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
-        ExtensibleMetadata.__init__(self)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -52,6 +52,48 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
         SkinnedFolder.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
+    security.declareProtected(CMFCorePermissions.View, 'Title')
+    def Title(self, **kwargs):
+        """We have to override Title here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        return self.getField('title').get(self, **kwargs)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setTitle')
+    def setTitle(self, value, **kwargs):
+        """We have to override setTitle here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        self.getField('title').set(self, value, **kwargs)
+
+InitializeClass(BaseFolderMixin)
+
+
+class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
+    """A not-so-basic Folder implementation, with Dublin Core
+    Metadata included"""
+
+    __implements__ = (BaseFolderMixin.__implements__ +
+                      (IExtensibleMetadata,))
+
+    schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
+
+    security = ClassSecurityInfo()
+
+    def __init__(self, oid, **kwargs):
+        # Call skinned first cause baseobject will set new defaults on
+        # those attributes anyway
+        BaseFolderMixin.__init__(self, oid, **kwargs)
+        ExtensibleMetadata.__init__(self)
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'Description')
+    def Description(self, **kwargs):
+        """We have to override Description here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        return self.getField('description').get(self, **kwargs)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setDescription')
     def setDescription(self, value, **kwargs):
         """We have to override setDescription here to handle arbitrary
         arguments since PortalFolder defines it."""

@@ -1,3 +1,43 @@
+2003-11-10  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.get_size): Better get_size
+	implementation. DateTime's raise an AttributeError when using
+	len().
+
+
+2003-11-10  Geoff Davis <geoff@geoffdavis.net>
+
+    * BaseObject.py: Added optional values argument to processForm to allow one
+      to massage incoming form values in a script before passing them along to
+      processForm.  If values is set (should be a dict), processForm takes its
+      values from the dict; otherwise it gets them from REQUEST.form.
+
+2003-11-09  Geoff Davis <geoff@geoffdavis.net>
+
+    * updateSchemaForm.pt: Let user choose which classes should be updated
+      since automatic schema change detection loses change info when Archetypes
+      is reinstalled.  Also let the user choose to update all classes or only
+      classes with an old schema.
+
+    * ArchetypeTool.py: getChangedSchema now returns a tuple consisting of
+      type, changed_flag rather than just a list of changed types.
+      If called from a REQUEST, manage_updateSchema checks to see which
+      classes need to be updated.  Fixed catalog search for objects that need
+      updating (was using incorrect metatype and searching the UID catalog).
+
+    * BaseObject.py: Made automated migrations slightly more robust by handling
+      AttributeErrors gracefully.
+
+2003-11-07  Sylvain Thénault  <syt@logilab.fr>
+
+    * BaseFolder.py: added the Description method to not fallback to
+    the PortalFolder's one
+
+    * __init__.py: make DisplayList public
+
+    * Extensions/utils.py: don't try to add an index when we only want
+    to add the field to metadata
+
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.get_size): Fix for when the value is
@@ -17,11 +57,11 @@
 	charset. This is usefull for non plone site without
 	site_properties.
 
-	* skins/archetypes/unicodeEncode.py: use the new getCharset 
-	script to get the site charset. 
+	* skins/archetypes/unicodeEncode.py: use the new getCharset
+	script to get the site charset.
 
 	* Archetypes should now working as well with plain CMF site :)
-	
+
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
         * skins/archetypes/widgets/*: Removed cruft (onfocus/onblur from
