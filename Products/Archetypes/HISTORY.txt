@@ -1,6 +1,13 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed DisplayList for int keys. The warning module was missing *blush*
+   [tiran]
+   
+ * Added IntDisplayList to utils.py. Also I've coded some nice doc tests for
+   DisplayList and IntDisplayList.
+   [tiran]
+
  * Fixed[ 1118780 ] Bad validation for required IntegerFields with value zero
    Also the default values for IntegerField and FloatField are None instead of
    0.

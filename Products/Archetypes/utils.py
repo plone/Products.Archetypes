@@ -8,6 +8,7 @@ from md5 import md5
 from types import TupleType, ListType, ClassType, IntType, NoneType
 from types import UnicodeType, StringType
 from UserDict import UserDict as BaseDict
+import warnings
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -200,6 +201,51 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
+    
+    >>> dl = DisplayList()
+    
+    Add some keys
+    >>> dl.add('foo', 'bar')
+    >>> dl.add('egg', 'spam')
+    
+    Assert some values
+    >>> dl.index
+    2
+    >>> dl.keys()
+    ['foo', 'egg']
+    >>> dl.values()
+    ['bar', 'spam']
+    >>> dl.items()
+    (('foo', 'bar'), ('egg', 'spam'))
+    
+    You can't use e.g. objects as keys or values
+    >>> dl.add(object(), 'error')
+    Traceback (most recent call last):
+    TypeError: DisplayList keys must be strings or ints, got <type 'object'>
+    
+    >>> dl.add('error', object())
+    Traceback (most recent call last):
+    TypeError: DisplayList values must be strings or ints, got <type 'object'>
+    
+    GOTCHA
+    Adding a value a second time does overwrite the key, too!
+    >>> dl.add('fobar' ,'spam')
+    >>> dl.keys()
+    ['foo', 'fobar']
+    
+    >>> dl.items()
+    (('foo', 'bar'), ('fobar', 'spam'))
+    
+    Using ints as DisplayList keys works but will raise an deprecation warning
+    You should use IntDisplayList for int keys
+    >>> idl = DisplayList()
+    >>> idl.add(1, 'number one')
+    >>> idl.add(2, 'just the second')
+    
+    >>> idl.items()
+    ((1, 'number one'), (2, 'just the second'))
+    
+    
     """
 
     security = ClassSecurityInfo()
@@ -256,6 +302,9 @@ class DisplayList:
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
+        if type(value) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList values must be strings or ints, got %s' %
+                            type(value))
         if type(msgid) not in (StringType, NoneType):
             raise TypeError('DisplayList msg ids must be strings, got %s' %
                             type(msgid))
@@ -359,6 +408,99 @@ class DisplayList:
     slice=__getslice__
 
 InitializeClass(DisplayList)
+
+class IntDisplayList(DisplayList):
+    """Static display lists for integer keys, can look up on
+    either side of the dict, and get them in sorted order
+    
+    The IntDisplayList can be used with integer values only. You should use it
+    in favor of a DisplayList if you want to use ints as keys. The support for
+    ints as keys for the ordinary DisplayList will be dropped in the next
+    release.
+    
+    NOTE: Both keys and values *must* contain unique entries! You can have
+    two times the same value. This is a "feature" not a bug. DisplayLists
+    are meant to be used as a list inside html form entry like a drop down.
+    
+    >>> idl = IntDisplayList()
+    
+    Add some keys
+    >>> idl.add(1, 'number one')
+    >>> idl.add(2, 'just the second')
+    
+    Assert some values
+    >>> idl.index
+    2
+    >>> idl.keys()
+    [1, 2]
+    >>> idl.values()
+    ['number one', 'just the second']
+    >>> idl.items()
+    ((1, 'number one'), (2, 'just the second'))
+    
+    You can use only ints as keys
+    >>> idl.add(object(), 'error')
+    Traceback (most recent call last):
+    TypeError: DisplayList keys must be ints, got <type 'object'>
+    
+    >>> idl.add(42, object())
+    Traceback (most recent call last):
+    TypeError: DisplayList values must be strings or ints, got <type 'object'>
+    
+    >>> idl.add('stringkey', 'error')
+    Traceback (most recent call last):
+    TypeError: DisplayList keys must be ints, got <type 'str'>
+    
+    >>> idl.add(u'unicodekey', 'error')
+    Traceback (most recent call last):
+    TypeError: DisplayList keys must be ints, got <type 'unicode'>
+    
+    GOTCHA
+    Adding a value a second time does overwrite the key, too!
+    >>> idl.add(3 , 'just the second')
+    >>> idl.keys()
+    [1, 3]
+    >>> idl.items()
+    ((1, 'number one'), (3, 'just the second'))
+    
+    It is possible to get the value also by a stringified int
+    >>> idl.getValue("1")
+    'number one'
+    >>> idl.getValue(u"1")
+    'number one'
+    """
+
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+
+    def add(self, key, value, msgid=None):
+        if type(key) is not IntType:
+            raise TypeError('DisplayList keys must be ints, got %s' %
+                            type(key))
+        if type(value) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList values must be strings or ints, got %s' %
+                            type(value))
+        if type(msgid) not in (StringType, NoneType):
+            raise TypeError('DisplayList msg ids must be strings, got %s' %
+                            type(msgid))
+        self.index +=1
+        k = (self.index, key)
+        v = (self.index, value)
+
+        self._keys[key] = v
+        self._values[value] = k
+        self._itor.append(key)
+        if msgid: self._i18n_msgids[key] = msgid
+
+    def getValue(self, key, default=None):
+        """get value"""
+        if type(key) in (StringType, UnicodeType):
+            key = int(key)
+        elif type(key) is IntType:
+            pass
+        else:
+            raise TypeError("Key must be string or int")
+        return DisplayList.getValue(self, key, default)
 
 class Vocabulary(DisplayList):
     """
