@@ -20,7 +20,6 @@
         </tal:if_use_label>
 	<metal:use_data use-macro="data_macro|default" />
       </tal:if_perm>
-
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
