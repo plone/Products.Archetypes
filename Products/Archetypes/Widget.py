@@ -422,6 +422,18 @@ class MultiSelectionWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+    security.declarePublic('process_form')
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
+        """Basic impl for form processing in a widget"""
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        if emptyReturnsMarker and value == '':
+            return empty_marker
+        values = [v.strip() for v in value.split('\n')]
+        return values, {}
+
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
