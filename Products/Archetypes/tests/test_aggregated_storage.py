@@ -14,21 +14,15 @@ class Dummy(BaseContent):
     def __init__(self, oid, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.initializeArchetype()
-
         self.firstname = ''
         self.lastname = ''
 
-
     def get_name(self, name, instance, **kwargs):
         """ aggregator """
-        print 'inside get_name'
-        print 'x'*100
         return {'whole_name' : instance.firstname + " " + instance.lastname }
 
     def set_name(self, name, instance, value, **kwargs):
         """ disaggregator """
-        print 'inside set_name'
-        print 'x'*100
         try:
             firstname, lastname = value.split(' ')
         except:
@@ -54,6 +48,7 @@ class AggregatedStorageTest(unittest.TestCase):
         self._instance = Dummy('dummy')
         self._instance.schema = schema
 
+
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']
         
@@ -62,6 +57,16 @@ class AggregatedStorageTest(unittest.TestCase):
         self.assertEqual(self._instance.firstname, 'Donald')
         self.assertEqual(self._instance.lastname, 'Duck')
         self.assertEqual(field.get(self._instance).strip(), 'Donald Duck')
+        
+        self._instance.firstname = 'Daniel'
+        self._instance.lastname = 'Düsentrieb'
+        self.assertEqual(field.get(self._instance).strip(), 'Daniel Düsentrieb')
+
+        field.set(self._instance, 'Bingo Gringo')
+        self.assertEqual(self._instance.firstname, 'Bingo')
+        self.assertEqual(self._instance.lastname, 'Gringo')
+
+
 
 
 tests.append(AggregatedStorageTest)
