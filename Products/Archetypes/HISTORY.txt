@@ -7,6 +7,23 @@
  * Fixed typo in widgets/reference.pt
    [tiran]
 
+ * Do not depend on plone's document_byline template which is
+   not available in CMF.
+   [ajung, tiran]
+      
+ * Applied patch from [ 997044 ] db_encoding parameter is lost
+   in BaseSQLStorage.set
+   [biza, tiran]
+   
+ * Updated complex type to make it work inside Plone again. It's very
+   usefull to test fields and widgets.
+   [tiran]
+
+ * Applied [ 974846 ] Patch for bug #944343 inandout/picklist values
+   not sticky to make picklist and inandout compatible with reference
+   field again.
+   [alecacct, tiran]
+   
 1.3.0-beta4 - 2004-07-09
 
  * Fix bug on image deletion [clebeaupin]
