@@ -2,6 +2,13 @@ from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory, \
      createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
+
+try:
+    from CMFCore.ActionInformation import ActionInformation
+except ImportError:
+    ActionInformation=None
+    raise
+
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -139,11 +146,24 @@ def install_actions(self, out, types):
                     new=[]
 
                 for action in type.actions:
-                    hit = findDict(new, 'id', action['id'])
-                    if hit:
-                        hit.update(action)
+                    if ActionInformation and type(action) == type(ActionInformation): 
+                        #then we know actions are defined new style as ActionOformations
+                        hits = [a for a in new if a.id==action['id']]
+                        if hits:
+                            hits[0].__dict__.update(action)
+                        else:
+                            if action.has_key('name'):
+                                action['title']=action['name']
+                                del action['name']
+                                
+                            new.append (ActionInformation(**action))
                     else:
-                        new.append(action)
+                        hit = findDict(new, 'id', action['id'])
+                        if hit:
+                            hit.update(action)
+                        else:
+                            new.append(action)
+                            
                 typeInfo._actions = tuple(new)
                 typeInfo._p_changed = 1
 
