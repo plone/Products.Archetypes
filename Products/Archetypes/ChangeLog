@@ -43,37 +43,41 @@
 
 	* skins/archetypes/manage_translations_form.pt: form to delete
 	existant translations or change the master translation.
+
 	
 2003-06-22  Geoff Davis <geoff@geoffdavis.net> (plonista)
 
-	* ArchetypeTool.py: added mechanism for monitoring object schemae.  Schema
-	are signed at registration time, and when a schema signature changes, it is 
-	flagged in ArchetypeTool._types.  Added a new tab on the tool that lets you
-	see which types have schema that have changed and lets you update all the
-	schema in place.  You will need to reinstall Archetypes to make this work.
+	* ArchetypeTool.py: added mechanism for monitoring object schemae.
+	Schema are signed at registration time, and when a schema
+	signature changes, it is flagged in ArchetypeTool._types.  Added a
+	new tab on the tool that lets you see which types have schema that
+	have changed and lets you update all the schema in place.  You
+	will need to reinstall Archetypes to make this work.
 
-	* Schema.py: Added toString and signature methods for use with update
-	detection.  The toString method could use some improving.  Also made a minor
-	fix for the case of validating objects in place.
+	* Schema.py: Added toString and signature methods for use with
+	update detection.  The toString method could use some improving.
+	Also made a minor fix for the case of validating objects in place.
 
-	* Field.py: Added toString and signature methods for use with update
-	detection.  The toString method could use some improving.
+	* Field.py: Added toString and signature methods for use with
+	update detection.  The toString method could use some improving.
 
-	* BaseObject.py: Added an automigration method for handling updated schema.
-	The migration method works fine as long as calling a mutator on the value
-	returned by an object's accessor leaves the object unchanged.  If you have
-	objects for which this simple migration mechanism won't work, you will need
-	to override BaseObject._updateSchema.
+	* BaseObject.py: Added an automigration method for handling
+	updated schema.  The migration method works fine as long as
+	calling a mutator on the value returned by an object's accessor
+	leaves the object unchanged.  If you have objects for which this
+	simple migration mechanism won't work, you will need to override
+	BaseObject._updateSchema.
 
-	* tests/test_update_schema.py: A new test to make sure all the schema updates
-	work.  The individual subtests all work when run individually, but something
-	evil in Archetypes is causing POSKeyErrors to be raised when the suite is
-	run.  You will need to download the test product ArchetypesTestUpdateSchema
-	for this test to run.
+	* tests/test_update_schema.py: A new test to make sure all the
+	schema updates work.  The individual subtests all work when run
+	individually, but something evil in Archetypes is causing
+	POSKeyErrors to be raised when the suite is run.  You will need to
+	download the test product ArchetypesTestUpdateSchema for this test
+	to run.
 
-	* skins/archetypes/widget/label.pt: Added a skin for a Label Widget (a
-	widget used not for data storage, but rather as a kludge for displaying 
-	text on a form)
+	* skins/archetypes/widget/label.pt: Added a skin for a Label
+	Widget (a widget used not for data storage, but rather as a kludge
+	for displaying text on a form)
 
 2003-06-19  Sylvain Thénault  <syt@logilab.fr>
 	
