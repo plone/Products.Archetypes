@@ -33,59 +33,58 @@ connection_id = 'sql_connection'
 connectors = {}
 cleanup = {}
 
-def setupConnectors():
+try:
+  # gadfly storage is currently b0rked, we don't want to test it yet
+  if 0:
+    from Products.ZGadflyDA.DA import Connection
+    connectors['Gadfly'] = Connection(id=connection_id,
+                                      title='connection',
+                                      connection_string='demo', # default connection
+                                      check=1, # connect immediatly
+                                      )
+except ImportError:
+    pass
+
+try:
+    from Products.ZPsycopgDA.DA import Connection
+    connectors['Postgre'] = Connection(id=connection_id,
+                                       title='connection',
+                                       connection_string='dbname=demo user=demo',
+                                       zdatetime=1, # use Zope's DateTime, not mxDateTime
+                                       check=1, # connect immediatly
+                                       )
+except ImportError:
+    pass
+
+try:
+    import _mysql
+    from _mysql_exceptions import OperationalError, NotSupportedError
+    from Products.ZMySQLDA.DA import Connection
     try:
-      # gadfly storage is currently b0rked, we don't want to test it yet
-      if 0:
-        from Products.ZGadflyDA.DA import Connection
-        connectors['Gadfly'] = Connection(id=connection_id,
-                                          title='connection',
-                                          connection_string='demo', # default connection
-                                          check=1, # connect immediatly
-                                          )
-    except ImportError:
-        pass
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='+demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
+    except NotSupportedError:
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='-demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
+        def cleanupMySQL(self):
+            instance = self._dummy
+            args = {}
+            args['table'] = 'Dummy'
+            storage = self._storage_class
+            method = SQLMethod(instance)
+            method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
+            query, result = method(test__=1, **args)
 
-    try:
-        from Products.ZPsycopgDA.DA import Connection
-        connectors['Postgre'] = Connection(id=connection_id,
-                                           title='connection',
-                                           connection_string='dbname=demo user=demo',
-                                           zdatetime=1, # use Zope's DateTime, not mxDateTime
-                                           check=1, # connect immediatly
-                                           )
-    except ImportError:
-        pass
+        cleanup['MySQL'] = cleanupMySQL
 
-    try:
-        import _mysql
-        from _mysql_exceptions import OperationalError, NotSupportedError
-        from Products.ZMySQLDA.DA import Connection
-        try:
-            connectors['MySQL'] = Connection(id=connection_id,
-                                             title='connection',
-                                             connection_string='+demo@localhost demo demo',
-                                             check=1, # connect immediatly
-                                             )
-        except NotSupportedError:
-            connectors['MySQL'] = Connection(id=connection_id,
-                                             title='connection',
-                                             connection_string='-demo@localhost demo demo',
-                                             check=1, # connect immediatly
-                                             )
-            def cleanupMySQL(self):
-                instance = self._dummy
-                args = {}
-                args['table'] = 'Dummy'
-                storage = self._storage_class
-                method = SQLMethod(instance)
-                method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
-                query, result = method(test__=1, **args)
-
-            cleanup['MySQL'] = cleanupMySQL
-
-    except ImportError:
-        pass
+except ImportError:
+    pass
 
 
 class Dummy(BaseContent):
@@ -179,7 +178,6 @@ class SQLStorageTest(unittest.TestCase):
         db = getattr(self._dummy, connection_id)()
         db.tpc_abort()
 
-
     def test_objectfield(self):
         dummy = self._dummy
         dummy.setAobjectfield('Bla')
@@ -233,7 +231,6 @@ class SQLStorageTest(unittest.TestCase):
         self.failUnless(value == 1)
 
 tests = []
-setupConnectors()
 
 #################################################################
 # test each db
@@ -242,20 +239,24 @@ for db_name in connectors.keys():
 
     class StorageTestSubclass(SQLStorageTest):
         db_name = db_name
+        cleanup = cleanup
 
-    teardown = cleanup.get(db_name, None)
-    if teardown is not None:
-        StorageTestSubclass.tearDown = teardown
-        
+        def tearDown(self):
+            clean = self.cleanup.get(self.db_name, None)
+            if clean is None:
+                SQLStorageTest.tearDown(self)
+
     tests.append(StorageTestSubclass)
 
 
 #################################################################
 # test rename with each db
-
 for db_name in connectors.keys():
 
     class StorageTestRenameSubclass(RenameTests):
+
+        db_name = db_name
+        cleanup = cleanup
 
         def setUp(self):
             RenameTests.setUp(self)
@@ -284,7 +285,10 @@ for db_name in connectors.keys():
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
             #make sure we have _p_jar
-            get_transaction().commit(1)
+            doc._p_jar = site._p_jar = self.root._p_jar
+            new_oid = self.root._p_jar.new_oid
+            site._p_oid = new_oid()
+            doc._p_oid = new_oid()
             site.manage_renameObject(obj_id, new_id)
             doc = getattr(site, new_id)
             self.failUnless(str(doc.getAtextfield()) == content)
@@ -302,16 +306,19 @@ for db_name in connectors.keys():
             PUID1 = folder1.UID()
             f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
-            print repr(PUID), repr(PUID1)
-            self.failUnless(PUID == PUID1)
+            self.failUnless(str(PUID) == str(PUID1))
             #make sure we have _p_jar
-            get_transaction().commit(1)
+            doc._p_jar = folder1._p_jar = site._p_jar = self.root._p_jar
+            new_oid = self.root._p_jar.new_oid
+            site._p_oid = new_oid()
+            folder1._p_oid = new_oid()
+            doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))
             folder2.manage_pasteObjects(cb)
             PUID2 = folder2.UID()
             doc = getattr(folder2, obj_id)
             PUID = f.get(doc)
-            self.failUnless(PUID2 == PUID)
+            self.failUnless(str(PUID2) == str(PUID))
 
         def test_emptyPUID(self):
             site = self.root.testsite
@@ -334,9 +341,13 @@ for db_name in connectors.keys():
             PUID1 = folder1.UID()
             f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
-            self.failUnless(PUID == PUID1)
+            self.failUnless(str(PUID) == str(PUID1))
             #make sure we have _p_jar
-            get_transaction().commit(1)
+            doc._p_jar = folder1._p_jar = site._p_jar = self.root._p_jar
+            new_oid = self.root._p_jar.new_oid
+            site._p_oid = new_oid()
+            folder1._p_oid = new_oid()
+            doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))
             site.manage_pasteObjects(cb)
             doc = getattr(site, obj_id)
@@ -344,18 +355,14 @@ for db_name in connectors.keys():
             self.failUnless(PUID is None)
 
         def tearDown(self):
-            SQLStorageTest.tearDown(self)
+            cleanup = self.cleanup.get(self.db_name, None)
+            if cleanup is None:
+                db = getattr(self._dummy, connection_id)()
+                db.tpc_abort()
+            else:
+                cleanup(self)
             RenameTests.tearDown(self)
 
-        db_name = db_name
-
-    customclean = cleanup.get(db_name, None)
-    if customclean is not None:
-        def tearDown(self):
-            customclean(self)
-            RenameTests.tearDown(self)
-        StorageTestRenameSubclass.tearDown = tearDown
-        
     tests.append(StorageTestRenameSubclass)
 
 #################################################################
