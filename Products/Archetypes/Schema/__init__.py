@@ -508,6 +508,8 @@ class BasicSchema(Schemata):
                                  errors=errors,
                                  field=field,
                                  REQUEST=REQUEST)
+            if res:
+                errors[field.getName()] = res
         return errors
 
 
