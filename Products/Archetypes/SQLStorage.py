@@ -7,6 +7,7 @@ from exceptions import SQLInitException
 from debug import log
 from config import TOOL_NAME
 from Storage import *
+from sys import exc_info
 
 class BaseSQLStorage(StorageLayer):
     # SQLStorage that is more or less ISO SQL, should be usable as a base
@@ -62,18 +63,20 @@ class BaseSQLStorage(StorageLayer):
         try:
             query, result = method(test__=1, **args)
             # print query
-        except Exception, msg:
+        except:
             # usually, table already exists
-            method.abort()
+            msg = exc_info()[1]
+            # yeech... must find a better way to check this
             if not str(msg).find('exists') > 0:
                 raise
+        log('created table %s' % args['table'])
 
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), self.query_insert)
         try:
             query, result = method(test__=1, **args)
             # print query
-        except Exception, msg:
+        except:
             # usually, duplicate key
             # raise SQLInitException(msg)
             pass
@@ -92,8 +95,10 @@ class BaseSQLStorage(StorageLayer):
         try:
             query, result = method(test__=1, **args)
             result = result[0][0]
-        except Exception, msg:
-            raise AttributeError(msg)
+        except:
+            import traceback
+            traceback.print_stack()
+            raise AttributeError(name)
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
             result = mapper(field, result)
@@ -141,7 +146,7 @@ class BaseSQLStorage(StorageLayer):
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
             query, result = method(test__=1, **args)
-        except Exception, msg:
+        except:
             # dunno what could happen here
             # raise SQLCleanupException(msg)
             pass
@@ -240,4 +245,5 @@ class PostgreSQLStorage(BaseSQLStorage):
         'reference': 'text',
         'datetime': 'timestamp',
         'string': 'text',
+        'metadata': 'text', # eew
         }
