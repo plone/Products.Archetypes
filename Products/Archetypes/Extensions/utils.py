@@ -387,15 +387,17 @@ def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
                      product_skins_dir='skins',
-                     require_dependencies=True):
+                     require_dependencies=True,
+                     install_deps=1):
 
-    qi=getToolByName(self, 'portal_quickinstaller', None)
-    if qi is None:
-        setupArchetypes(self, out, require_dependencies=require_dependencies)
-    else:
-        if not qi.isProductInstalled('Archetypes'):
-            qi.installProduct('Archetypes')
-            print >>out, 'Installing Archetypes'
+    if install_deps:
+        qi=getToolByName(self, 'portal_quickinstaller', None)
+        if qi is None:
+            setupArchetypes(self, out, require_dependencies=require_dependencies)
+        else:
+            if not qi.isProductInstalled('Archetypes'):
+                qi.installProduct('Archetypes')
+                print >>out, 'Installing Archetypes'
 
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
@@ -409,14 +411,15 @@ def setupEnvironment(self, out, types,
 ## The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1,
-                 refresh_references=1):
+                 require_dependencies=1, refresh_references=1,
+                 install_deps=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir, require_dependencies)
+                     globals, product_skins_dir, require_dependencies,
+                     install_deps)
     if refresh_references and ftypes:
         rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()
