@@ -36,8 +36,11 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
+    
+    install_catalog(self, out)
 
-    #and the tool uses an index
+
+def install_catalog(self, out)
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
         addCatalog = self.manage_addProduct['ZCatalog'].manage_addZCatalog
