@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2003/07/24 12:46:13 $
-:Version: $Revision: 1.6.4.2 $
+:Date: $Date: 2003/07/28 01:29:06 $
+:Version: $Revision: 1.6.4.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -482,7 +482,7 @@ ObjectManagedStorage
 
 ``*SQLStorage``
   Experimental storage layer, which puts the data inside
-  SQL. Available variations are: MySQL and PostGRES. There's an initial
+  SQL. Available variations are: MySQL and PostgreSQL. There's an initial
   implementation of an Oracle storage, but it isn't tested at the
   moment.
 
