@@ -173,8 +173,7 @@
             <input type="hidden"
                    name="last_referer"
                    tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
-                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or here.aq_parent.absolute_url()"
-                   />
+                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or here.aq_parent.absolute_url()"                   />
 
             <metal:block define-slot="buttons"
                    tal:define="fieldset_index python:fieldsets.index(fieldset);

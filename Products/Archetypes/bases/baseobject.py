@@ -254,46 +254,75 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         return renderService.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
-    security.declareProtected(CMFCorePermissions.View, 'getContentType')
-    def getContentType(self, key=None):
-        """Returns the Content Type of a field or the primary field if available
+    security.declareProtected(CMFCorePermissions.View, 'getFilename')
+    def getFilename(self, key=None):
+        """Returns the filename from a field.
         """
-        value = 'text/plain'
+        value = None
 
-        # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
-            pfield = self.getPrimaryField()
-            if pfield and shasattr(pfield, 'getContentType'):
-                return pfield.getContentType(self)
-            else:
-                return value
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
 
-        field = self.getField(key)
-        if field and shasattr(field, 'getContentType'):
-            return field.getContentType(self)
-        element = getattr(self, key, None)
-        if element and shasattr(element, 'getContentType'):
-            return element.getContentType()
+        if field and shasattr(field, 'getFilename'):
+            return field.getFilename(self)
+
         return value
 
+    security.declareProtected(CMFCorePermissions.View, 'getContentType')
+    def getContentType(self, key=None):
+        """Returns the content type from a field.
+        """
+        value = 'text/plain'
+ 
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+ 
+        if field and shasattr(field, 'getContentType'):
+            return field.getContentType(self)
+        return value
+ 
+    # Backward compatibility
+    security.declareProtected(CMFCorePermissions.View, 'content_type')
     content_type = ComputedAttribute(getContentType, 1)
 
+    # XXX Where's get_content_type comes from??? There's no trace at both
+    # Zope and CMF. It should be removed ASAP!
     security.declareProtected(CMFCorePermissions.View, 'get_content_type')
     def get_content_type(self):
         """CMF compatibility method
         """
         return self.getContentType()
+    get_content_type = getContentType
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setContentType')
-    def setContentType(self, value):
-        """Sets the content type of the primary field
+    def setContentType(self, value, key=None):
+        """Sets the content type of a field.
         """
-        pfield = self.getPrimaryField()
-        if pfield and IFileField.isImplementedBy(pfield):
-            bu = pfield.getBaseUnit(self)
-            bu.setContentType(self, value)
-            pfield.set(self, bu)
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key)
+
+        if field and IFileField.isImplementedBy(field):
+            field.setContentType(self, value)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setFilename')
+    def setFilename(self, value, key=None):
+        """Sets the filename of a field.
+        """
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and IFileField.isImplementedBy(field):
+            field.setFilename(self, value)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
@@ -846,39 +875,27 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        # DM 2004-08-10: this breaks FTP/WebDAV's PUT:
-        #  If a new object should be created with an id that can
-        #  be acquired, then the existing object is silently overwritten
-        #  rather than a new one created.
-        ## target = getattr(self, name, None)
+        target = None
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0
-            and not (
-                # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
-                # to check whether this is a browser request
-                method == 'GET'
-                or method == 'POST' and not isinstance(RESPONSE, xmlrpc.Response)
-                )
-            ):
-            if shasattr(self, name):
-                target = getattr(self, name)
-            else:
-                target = None
+        # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+        # to check whether this is a browser request
+        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
+            not (method in ('GET', 'POST') and not
+                 isinstance(RESPONSE, xmlrpc.Response))):
+                if shasattr(self, name):
+                    target = getattr(self, name)
         else:
             # we are allowed to acquire
             target = getattr(self, name, None)
         if target is not None:
             return target
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
+        if (method in ('PUT', 'MKCOL') and not
+            isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
 
-        # Nothing has been found. Though it's not written anywere,
-        # from deep ZPublisher inspection it seems like
-        # we *SHOULD NOT* raise a notFoundError, but instead,
-        # return None and leave acquisition do it's job.
-        return
+        # Nothing has been found. Raise an AttributeError and be done with it.
+        raise AttributeError(name)
 
 InitializeClass(BaseObject)
 

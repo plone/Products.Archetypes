@@ -196,14 +196,14 @@ class ImageField(FileField):
         # set mimetype from kwargs, then from the field itself
         # if no mimetype is available set it to 'image/png'
         kmimetype = kwargs.get('mimetype', None)
-        imimetype = self.getContentType(instance)
         if kmimetype:
             mimetype = kmimetype
-        elif imimetype:
-            mimetype = imimetype
         else:
-            mimetype = 'image/png'
-        kwargs['mimetype'] = mimetype
+            try:
+                mimetype = self.getContentType(instance)
+            except RuntimeError:
+                mimetype = None
+        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
         return kwargs
 
     security.declareProtected(CMFCorePermissions.View, 'getAvailableSizes')
@@ -226,6 +226,8 @@ class ImageField(FileField):
             return data
         elif callable(sizes):
             return sizes()
+        elif sizes is None:
+            return {}
         else:
             raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
 
@@ -397,8 +399,8 @@ class ImageField(FileField):
         """Get size of the stored data used for get_size in BaseObject
         """
         sizes = self.getAvailableSizes(instance)
-        size=0
-        size+=len(str(self.get(instance)))
+        original = self.get(instance)
+        size = original and original.get_size() or 0
 
         if sizes:
             for name in sizes.keys():
@@ -408,7 +410,7 @@ class ImageField(FileField):
                 except AttributeError:
                     pass
                 else:
-                    size+=len(str(data))
+                    size+=data and data.get_size() or 0
         return size
 
     security.declareProtected(CMFCorePermissions.View, 'tag')

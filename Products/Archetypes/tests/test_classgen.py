@@ -5,10 +5,10 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
 from Products.Archetypes.interfaces.base import IBaseUnit
@@ -41,7 +41,7 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('anotherfilefield', widget=FileWidget),
-
+    
     LinesField('alinesfield', widget=LinesWidget),
 
     DateTimeField('adatefield',
@@ -174,7 +174,7 @@ class ClassGenTest(ArcheSiteTestCase):
             bu = field.getBaseUnit(obj)
             self.failUnless(IBaseUnit.isImplementedBy(bu),
                'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
-
+            
 
 def test_suite():
     from unittest import TestSuite, makeSuite

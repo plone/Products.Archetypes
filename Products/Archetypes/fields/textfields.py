@@ -197,19 +197,19 @@ class TextField(FileField):
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
         if type(value) is UnicodeType and encoding is None:
-            encoding = 'UTF-8'
+            kwargs['encoding'] = 'UTF-8'
 
         # fix for external editor support
         # set mimetype to the last state if the mimetype in kwargs is None or 'None'
         mimetype = kwargs.get('mimetype', None)
         if mimetype == 'None':
             kwargs['mimetype'] = self.getContentType(instance)
+        # set filename to '' if not in kwargs
+        kwargs['filename'] = kwargs.get('filename', '')
 
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
-                             encoding=encoding,
-                             mimetype=kwargs.get('mimetype'),
-                             filename=kwargs.get('filename', ''))
+                             **kwargs)
 
         ObjectField.set(self, instance, value, **kwargs)
 

@@ -30,7 +30,7 @@ Features
 
 Requires
 
-  * Plone 2.0.4+
+  * Plone 2.0+
 
   * CMF 1.4.7+
 

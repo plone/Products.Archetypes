@@ -7,10 +7,12 @@ from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base, aq_parent
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName, minimalpath
-from Products.Archetypes.ArchetypeTool import fixActionsForType
+from Products.CMFCore.DirectoryView import addDirectoryViews
+from Products.CMFCore.DirectoryView import registerDirectory
+from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import minimalpath
+from Products.Archetypes.lib.register import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
@@ -24,8 +26,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 
-from Products.Archetypes.ReferenceEngine import \
-     manage_addReferenceCatalog, manage_addUIDCatalog
+from Products.Archetypes.refengine.referencecatalog import manage_addReferenceCatalog
+from Products.Archetypes.refengine.uidcatalog import manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 
@@ -155,7 +157,7 @@ def install_templates(self, out):
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
-    at = self.archetype_tool
+    at = getToolByName(self, 'archetype_tool')
     for t in types:
         klass = t['klass']
         if ITemplateMixin.isImplementedByInstancesOf(klass):
@@ -434,12 +436,12 @@ def setupEnvironment(self, out, types,
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
-    install_additional_templates(self, out, types)
 
+    install_additional_templates(self, out, types)
+ 
     ftypes = filterTypes(self, out, types, package_name)
     install_indexes(self, out, ftypes)
     install_actions(self, out, ftypes)
-
 
 ## The master installer
 def installTypes(self, out, types, package_name,

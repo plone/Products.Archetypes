@@ -11,7 +11,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')

@@ -11,7 +11,7 @@ from os.path import join, abspath, dirname
 # this trigger zope imports
 from test_classgen import Dummy, gen_dummy, default_text
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 
 
 class GetContentTypeTest(ArchetypesTestCase):

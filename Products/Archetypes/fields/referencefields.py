@@ -32,8 +32,6 @@ from Products.Archetypes.config import STRING_TYPES
 __docformat__ = 'reStructuredText'
 
 class ReferenceField(ObjectField):
-    __implements__ = ObjectField.__implements__
-
     """A field for creating references between objects.
 
     get() returns the list of objects referenced under the relationship
@@ -43,6 +41,8 @@ class ReferenceField(ObjectField):
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
     """
+    
+    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({

@@ -29,7 +29,7 @@ def make_uuid(*args):
     return uid
 
 # linux kernel uid generator. It's a little bit slower but a little bit better
-KERNEL_UUID = '/proc/sys/kernel/random/uuids'
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
 
 if os.path.isfile(KERNEL_UUID):
     HAS_KERNEL_UUID = True

@@ -19,20 +19,205 @@
    stored as _at_annotations_ on the object.
    [tiran]
 
- * Updated Catalan translation. Thanks to Albert Lombarte.
-   [dtremea]
+1.3.2-svn - Unreleased
+======================
+ 
+ * Applied ApeSupport changes needed for APE 1.0. Thx to Roché Compaan.
+   Changed comment to doc-string.
+   [yenzenz]
 
  * Added Italian translation. Thanks to Mirto Silvio Busico.
    [dtremea]
 
-1.3.1 - Unreleased
-==================
+ * Change permission of OrderedBaseFolder's manage_renameObject to make
+   FTP works.
+   [panjunyong]
+
+ * Fixed 1053960 Cancel goes back to previous schemata page, thanks to
+   Alec Mitchell.
+   [yenzenz]
+
+ * Fix redirect of ZMI constructor, fix ZMI base_add and base_edit.
+   [__gotcha]
+
+ * Fixed 1058669 Wrong i18n:translate in widgets/field.pt.
+   [yenzenz]
+
+ * Use method getFilename in at_download.pt instead of direct attribute access,
+   which ignores BaseUnit.
+   [yenzenz]
+
+ * Fixed 1084278 In www/generateDebug.zpt error in * getTypeInfo(type['name']).
+   [yenzenz]
+
+ * Applied patch in 1076864 schemata links need css declaration, thanks to
+   David Convent.
+   [yenzenz]
+
+ * Fixed 1067923 Field.py: ImageField.get_size does not work properly.
+   [yenzenz]
+
+ * Fixed bugs in the reference graph feature that was broken for me.
+   [yenzenz]
+
+ * Fixed 1066884 Field.py: getAvailableSizes 1.3.1-rc4. Thanks to Steve McMahon.
+   [yenzenz]
+
+ * Fixed path to kernel uuid pseudo file.
+   [tiran]
+
+ * Don't use the format selector from wysiwyg.
+   [tiran]
+
+ * Fixed __pkginfo__.py: use version.txt instead of coping a string to
+   several places; changed license to the current license "BSD-like".
+   [yenzenz]
+
+ * Fixed reference cataloging when dealing with BTree folders.
+   [brcwhit]
+
+ * Fixed [ 948385 ] Allow wysiwyg editors to override RichWidget format
+   pulldown.
+   [duncanb, ender]
+
+ * Fixed traversal/WebDAV for the nth time, now with tests.
+   [dreamcatcher]
+
+ * Fixed a possible problem when installing uid_catalog.
+   [zopezen]
+
+ * Added multi-field support to getFilename/setFilename and also
+   getContentType/setContentType. Bonus: reformated ChangeLog... ;-)
+   [dtremea]
+
+ * Updated Catalan translation. Thanks to Albert Lombarte.
+   [dtremea]
+
+1.3.1-final - 2004-11-15
+========================
+
+ * Some visual fixes to RichWidget and Field code + removed stray comments.
+   [limi]
+
+ * Fixed field tests.
+   [yenzenz]
+
+1.3.1-rc4 - 2004-11-06
+======================
+
+ * reverted the patch from duncan because of too many bugs :(
+   final decicion for 1.3.x: we keep the 1.3.0-final reference copy
+   behaviour.
+   [hazmat, geoffd, yenzenz]
+
+ * fixed reference_slot, wasnt adapted to the new style reference engine
+   [yenzenz]
+
+1.3.1-rc3 - 2004-11-05
+======================
+
+ * There where lots of discussions about the behaviour of references while
+   copying. it ends up in 1.3.0-final with the default behaviour to do not
+   copy references if a object is copied. now this is for several use-cases
+   a great problem, and it's also difficult to copy them afterwards.
+   finally we decided to make it configureable per reference in 1.4.x. A
+   solution for 1.3 is provided by the patch from duncan booth we applied
+   here. its transparent to the 1.3.0-final behaviour. you now can set
+   in archetypes tool the copying behaviour. it defaults to not copy
+   references.
+   [duncanb, yenzenz]
+
+ * Changed boolean widget so that the checkbox is displayed before
+   the label and not below the help text. Makes more sense UI wise.
+   [_ender_]
+
+ * Fix manage_delObjects of BaseFolderMixin that did not return anything
+   [__gotcha]
+
+ * Allow comma as dezimal delimiter in FixedPointField and convert it
+   immediatly to a point-delimited-value. The whole process needs a rewrite
+   in 1.4, this here is only a quick non-immersive usability enhancement.
+   [yenzenz]
+
+1.3.1-rc1 - 2004-10-17
+======================
 
  * Fixed [ 1037265 ] Bug in ArchetypeTool:getWidgets(). Thanks to Tommy from
    IBAS for the catch.
    [dtremea]
 
- * Added Archetypes Site customization policy
+ * Fixed a bug with TemplateMixin on folderish types: in navtree and on view
+   tab the choosen template has been ignored, cause it felt back to an action
+   folderlisting, which now is set to view instead.
+   [yenzenz]
+
+ * Applied patch contributed in [ 1038107 ] Problems with addable_types
+   handling in ReferenceWidget. Thanks to Alec Mitchell for the patch.
+   [yenzenz]
+
+ * Added Archetypes Site customization policy.
+   [tiran]
+
+ * Changed it so that Title is not shown twice in view mode (once in the headline
+   is fine, thank you ;)
+   [limi]
+
+ * Fixed [ 1042076 ] missing import in SQLMethod.py: atoi and time were missing.
+   [tiran]
+
+ * Fixed [ 1043114 ] WEBDAV folder creation broken.
+   [tiran]
+
+ * Updated quickref. Thanks to Jean Jordaan for his great work!
+   [neaj, tiran]
+
+ * Fixed [ 1037803 ] "AT Document Details" should be "Document Details" in edit
+   Now Archetypes is using the portal type name by default instead of the
+   archetype_name. You can change the new behavior by using a different
+   type_name var in the templates.
+   [tiran]
+
+ * Added some ugly hacks to ship around [ 1040623 ] FTP upload broken. You may
+   say it's fixed for AT 1.3 but for AT 1.4 we will have a much better
+   implementation.
+   [tiran]
+
+ * Fixed [ 1038404 ] BaseFolder.mange_delObjects proteced by wrong permission.
+   Now the method is protected by CMFCorePermissions.DeleteObjects instead of
+   CMFCorePermissions.ModifyPortalContent which is exactly like Plone 2.x.
+   [tiran]
+
+ * Fixed [ 1038428 ] Unicode string in Subjects break base_metadata page.
+   [tiran]
+
+ * Partly fixed [ 1038450 ] Unauthorized due to BaseObject.__bobo_traverse__.
+   Now __bobo_traverse__ is raising an AttributeError instead of returning None
+   when the object can't be traversed.
+   [dmauerer, tiran]
+
+ * Added workaround for [ 1040514 ] AttributeError on some types after migration
+   1.2.4rc5->1.3.0 to BaseUnit. Somehow and sometimes the binary attribute gets
+   lost magically.
+   [tiran]
+
+ * Extensions/utils.py (install_additional_templates): Added a method to
+   automagically register classes that inherit from TemplateMixin.
+   [dtremea]
+
+ * Added Catalan translation file. Thanks to Albert Lombarte.
+   [dtremea]
+
+ * Added viewableFields() and editableFields() to Schema. The methods are
+   returning only those fields that the current user is allowed to see/edit in
+   the current context.
+   [tiran]
+
+ * Archetypes edit form is raising unauthorized if no editable fields are
+   available.
+   [tiran]
+
+ * BaseContent.PUT and BaseUnit.PUT is also trying to get the uploaded data from
+   BODY if BODYFILE is empty.
    [tiran]
 
 1.3.0 - 2004-09-30
@@ -193,6 +378,7 @@
 
  * Applied fix from [ 924832 ] Widget:isVisible always returns 'visible' for not
    DictType which is fixing a broken behavior for Widget.isVisible().
+   [tiran]
 
  * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient.
    [runyan]
@@ -202,6 +388,7 @@
    BaseObject.__getitem__ now throws an Unauthorized exception when trying to
    get an item starting with _ and it throws a KeyError when trying to access
    a nonexisting object. Also it's using explicit acquisition.
+   [tiran]
 
  * Fixed unicodeTestIn.py: return False immediately when the list is None or empty.
    [tiran]
@@ -248,7 +435,7 @@
    [mitchel, dreamcatcher, tiran]
 
  * Corrected icon in ZMI; Added some utils for ZMI setup.
-   [gotcha]
+   [__gotcha]
 
  * Changed unit test to work with an unpatched version of getToolByName to get
    mimetyptes_registry and portal_transform.
@@ -341,7 +528,7 @@
  * Starting from NOW all attributes starting with '_at_' are reserved for
    internal usage. You MUST NEITHER add NOR access any attributes starting
    with '_at_' in your content types.
-  tiran]
+   [tiran]
 
  * Fixed  FTP/WebDAV's PUT in BaseObject:If a new object should be created with
    an id that can be acquired, then the existing object is silently overwritten
@@ -474,7 +661,7 @@
    'error' class.
    [tiran]
 
- * Fixed two bugs in ttw template registration. 1st the registration-tab was 
+ * Fixed two bugs in ttw template registration. 1st the registration-tab was
    broken, and 2cd it can't deal with migrated ATCT.
    [jensens]
 
@@ -590,7 +777,7 @@
    [tiran]
 
  * Don't raise AttributeError when no reference can be found
-   [gotcha]
+   [__gotcha]
 
  * Fixed a problem introduced by getRaw method on ReferenceField class.
    When using a field on 'hidden' mode, field.pt uses field.edit_acessor

@@ -184,7 +184,8 @@ class FileField(ObjectField):
         """
         filename = self.getFilename(instance, fromBaseUnit=False)
         if not filename:
-            filename = '' # self.getName()
+            filename = ''
+
         mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
@@ -193,7 +194,7 @@ class FileField(ObjectField):
                       filename=filename, mimetype=mimetype)
         return bu
 
-    security.declarePublic('getFileName') # XXX
+    security.declarePrivate('getFilename')
     def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
         """
@@ -219,6 +220,7 @@ class FileField(ObjectField):
         """
         bu = self.getBaseUnit(instance)
         bu.setFilename(filename)
+        self.set(instance, bu)
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):

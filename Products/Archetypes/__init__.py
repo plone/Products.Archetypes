@@ -1,10 +1,13 @@
 import os.path
 __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
-
 import sys
 
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList, getPkgInfo
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes.lib.utils import getPkgInfo
+from Products.Archetypes.lib.plonecompat import IndexIterator
+from Products.Archetypes.atapi import process_types
+from Products.Archetypes.atapi import listTypes
 import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
@@ -18,8 +21,8 @@ from zLOG import LOG, PROBLEM
 ## security
 ###
 # make log and log_exc public
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
-ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
+#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
+#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
@@ -28,7 +31,7 @@ try:
 except ImportError:
     from PloneCompat import IndexIterator
 allow_class(IndexIterator)
-
+ 
 try:
     from Products.CMFPlone import transaction_note
 except ImportError:
@@ -45,10 +48,8 @@ allow_class(DisplayList)
 ###
 registerDirectory('skins', globals())
 
-from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     process_types, listTypes, fixAfterRenameType
-ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
-from Products.Archetypes.ArchTTWTool import ArchTTWTool
+from Products.Archetypes.tools.archetypetool import ArchetypeTool
+from Products.Archetypes.tools.ttwtool import ArchTTWTool
 
 
 ###
@@ -57,24 +58,21 @@ from Products.Archetypes.ArchTTWTool import ArchTTWTool
 this_module = sys.modules[__name__]
 import Products.MimetypesRegistry
 import Products.PortalTransforms
-import Products.generator
 import Products.validation
-
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
-gen_info = getPkgInfo(Products.generator)
 val_info = getPkgInfo(Products.validation)
 
 at_version = __version__
-for info in (mtr_info, pt_info, gen_info, val_info, ):
+for info in (mtr_info, pt_info, val_info, ):
     if not hasattr(info, 'at_versions'):
         raise RuntimeError('The product %s has no at_versions assigend. ' \
                            'Please update to a newer version.' % info.modname)
-    if at_version not in info.at_versions:
-        raise RuntimeError('The current Archetypes version %s is not in list ' \
-                           'of compatible versions for %s!\nList: %s' % \
-                           (at_version, info.modname, info.at_versions)
-                          )
+#    if at_version not in info.at_versions:
+#        raise RuntimeError('The current Archetypes version %s is not in list ' \
+#                           'of compatible versions for %s!\nList: %s' % \
+#                           (at_version, info.modname, info.at_versions)
+#                          )
 
 ###
 # Tools
@@ -94,9 +92,6 @@ def initialize(context):
                    product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
-
-    from Products.Archetypes.customizationpolicy import registerPolicy
-    registerPolicy(context)
 
     if REGISTER_DEMO_TYPES:
         import Products.Archetypes.examples
@@ -118,3 +113,4 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
+

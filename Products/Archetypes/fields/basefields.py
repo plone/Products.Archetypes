@@ -1,7 +1,9 @@
 # common imports
+import sys
 from types import ClassType, DictType, TupleType, ListType, StringType
 from copy import deepcopy
 from cStringIO import StringIO
+
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -585,11 +587,20 @@ class ObjectField(Field):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
 
-    #XXX security.declareProtected(CMFCorePermissions.AccessPortalContent, 'getContentType')
+    security.declarePrivate('setContentType')
+    def setContentType(self, instance, value):
+        """Set mimetype in the base unit.
+        """
+        bu = self.getBaseUnit(instance)
+        bu.setContentType(instance, value)
+        self.set(instance, bu)
+
     security.declarePublic('getContentType')
     def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
-        otherwise, return None."""
+        otherwise, return default_content_type value or fallback to
+        'application/octet'.
+        """
         value = ''
         if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
@@ -606,7 +617,7 @@ class ObjectField(Field):
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(raw), None)
         else:
-            # mimetype may be an imimetype object
+            # mimetype may be an mimetype object
             mimetype = str(mimetype)
         # failed
         if mimetype is None:
