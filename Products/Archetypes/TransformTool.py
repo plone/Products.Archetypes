@@ -1,6 +1,10 @@
 import os
 from os.path import exists
 from types import ListType, TupleType
+try:
+    from Products import transform
+except ImportError:
+    pass
 from transform.interfaces import itransform, iengine, implements
 from transform.data import datastream
 from transform.chain import chain
