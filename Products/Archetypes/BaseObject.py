@@ -175,7 +175,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
-        if not field:
+        if field is None:
             field = self.Schema()[field_name]
         widget = field.widget
         return renderer.render(field_name, mode, widget, self, field=field,
