@@ -34,7 +34,7 @@
 
      <div tal:condition="fieldsets">
        <tal:block repeat="set fieldsets">
-         <div tal:condition="python: set == fieldset and set != 'default'" tal:omit-tag="">
+         <div tal:condition="python: set == fieldset and fieldsets != ['default','metadata']" tal:omit-tag="">
            <b>[<span tal:content="set" />]</b>
          </div>
          <div tal:condition="python: set != fieldset" tal:omit-tag="">

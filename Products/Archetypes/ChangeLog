@@ -1,3 +1,15 @@
+2003-07-11  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* skins/archetypes/base_edit.pt: Show 'default' schemata when
+	there is more than one.
+
+	* skins/archetypes/widgets/multiselection.pt: <input> can't have
+	tal:content. I guess it should be value, so changed it to that. It
+	is a 'singleton' (or something like that).
+
+	* ArchetypeTool.py (process_types): I was missing this feature for
+	a loooong time. Lookup modify_fti on the base classes's modules.
+
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Field.py (ImageField.set): Trying to fix 'imgdata referenced

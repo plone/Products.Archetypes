@@ -140,7 +140,17 @@ def process_types(types, pkg_name):
         # Add a callback to modifty the fti
         if hasattr(module, "modify_fti"):
             module.modify_fti(fti[0])
-        ctor   = getattr(module, "add%s" % capitalize(typeName),
+        else:
+            m = None
+            for k in klass.__bases__:
+                base_module = sys.modules[k.__module__]
+                if hasattr(base_module, "modify_fti"):
+                    m = base_module
+                    break
+            if m is not None:
+                m.modify_fti(fti[0])
+
+        ctor = getattr(module, "add%s" % capitalize(typeName),
                          None)
         if ctor is None:
             ctor = generateCtor(typeName, module)

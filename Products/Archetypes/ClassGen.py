@@ -96,15 +96,15 @@ class ClassGenerator:
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
-            
+
             #Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'type')
             for mode in field.mode: #(r, w)
                 self.handle_mode(klass, generator, type, field, mode)
                 if mode == 'w':
-                    self.handle_mode(klass, generator, type, field, 'm')                
-                
+                    self.handle_mode(klass, generator, type, field, 'm')
+
         InitializeClass(klass)
 
     def handle_mode(self, klass, generator, type, field, mode):
@@ -124,7 +124,7 @@ class ClassGenerator:
                     methodName,
                     klass.__name__))
 
-            
+
             #Make a method for this klass/field/mode
             generator.makeMethod(klass, field, mode, methodName)
             self.updateSecurity(klass, field, mode, methodName)
@@ -133,6 +133,6 @@ class ClassGenerator:
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
 
-        
+
 _cg = ClassGenerator()
 generateClass = _cg.generateClass
