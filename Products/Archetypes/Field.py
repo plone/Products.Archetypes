@@ -1056,10 +1056,21 @@ class ReferenceField(ObjectField):
         })
 
 
-    def get(self, instance, **kwargs):
+    def get(self, instance, aslist=0, **kwargs):
         """get() returns the list of objects referenced under the relationship
         """
-        return instance.getRefs(relationship=self.relationship)
+        res=instance.getRefs(relationship=self.relationship)
+        
+        #singlevalued ref fields return only the object, not a list,
+        #unless explicitely specified by the aslist option
+        if not self.multiValued and not aslist:
+            if res:
+                assert len(res) == 1
+                res=res[0]
+            else:
+                res=None
+            
+        return res
 
     def set(self, instance, value, **kwargs):
         """Mutator.
@@ -1074,14 +1085,22 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        #if not self.multiValued and value:
-        #    value = (value,)
+        if not self.multiValued and value and type(value) not in (type(()),type([])):
+            value = (value,)
 
         if not value:
             value = ()
+            
+        #convertobjects to uids if necessary
+        uids=[]
+        for v in value:
+            if type(v) in (type(''),type(u'')):
+                uids.append(v)
+            else:
+                uids.append(v.UID())
 
-        add = [v for v in value if v and v not in targetUIDs]
-        sub = [t for t in targetUIDs if t not in value]
+        add = [v for v in uids if v and v not in targetUIDs]
+        sub = [t for t in targetUIDs if t not in uids]
 
         # tweak keyword arguments for addReference
         addRef_kw = kwargs.copy()

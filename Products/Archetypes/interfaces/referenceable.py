@@ -8,6 +8,17 @@ class IReferenceable(Interface):
     def getBRefs(relationship=None):
         """get all the back referenced objects for this object"""
 
+    def getReferences(relationship=None):
+        """ alias for getRefs """
+
+    def getBReferences(relationship=None):
+        """ alias for getBRefs """
+
+    def getReferenceImpl(relationship=None):
+        """ returns the references as objects for this object """
+
+    def getBReferenceImpl(relationship=None):
+        """ returns the back references as objects for this object """
 
     def UID():
         """ Unique ID """

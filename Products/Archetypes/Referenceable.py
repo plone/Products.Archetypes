@@ -63,12 +63,33 @@ class Referenceable(Base):
             return [ref.getTargetObject() for ref in refs]
         return []
 
+
     def getBRefs(self, relationship=None):
         """get all the back referenced objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship)
         if refs:
             return [ref.getSourceObject() for ref in refs]
+        return []
+
+    #aliases
+    getReferences=getRefs
+    getBReferences=getBRefs
+    
+    def getReferenceImpl(self, relationship=None):
+        """get all the reference objects for this object    """
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        refs = tool.getReferences(self, relationship)
+        if refs:
+            return refs
+        return []
+
+    def getBReferenceImpl(self, relationship=None):
+        """get all the back reference objects for this object"""
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        refs = tool.getBackReferences(self, relationship)
+        if refs:
+            return refs
         return []
 
 
