@@ -16,7 +16,7 @@
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
                            filename unit/filename | nothing"
-                   condition="python:size &gt; 0">
+                   condition="python:size > 0">
           <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/download">
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
