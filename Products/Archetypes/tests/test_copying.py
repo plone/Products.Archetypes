@@ -11,6 +11,7 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 import types
+from Acquisition import aq_base
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager

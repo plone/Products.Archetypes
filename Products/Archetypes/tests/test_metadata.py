@@ -4,6 +4,9 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 
+from Acquisition import aq_base
+from Acquisition import aq_parent
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
