@@ -35,8 +35,8 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        CMFBTreeFolder.manage_beforeDelete(self, item, container)
         BaseFolder.manage_beforeDelete(self, item, container)
+        CMFBTreeFolder.manage_beforeDelete(self, item, container)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """

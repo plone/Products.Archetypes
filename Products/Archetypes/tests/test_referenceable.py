@@ -48,13 +48,16 @@ class ReferenceableTests(ArcheSiteTestCase):
                           , title='Foo'
                           , id=obj_id)
 
+
         UID = doc.UID()
-        self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
+        # This test made an assumption about other UIDs in the system
+        # that are wrong with things like ATCT
+        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         # ensure object has a _p_jar
         get_transaction().commit(1)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
-        self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
+        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         self.failUnless(doc.UID() == UID)
 
 

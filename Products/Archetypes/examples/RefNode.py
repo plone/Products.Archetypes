@@ -10,6 +10,14 @@ schema = BaseSchema + Schema((
                    relationship="B"
                    ),
 
+    ReferenceField('adds',
+                   widget=ReferenceWidget(addable=1),
+                   allowed_types=('Refnode', ),
+                   relationship="C",
+                   multiValued=1,
+                   required=1,
+                   ),
+
     ))
 
 

@@ -188,7 +188,7 @@ class Referenceable(Base):
         if storeRefs is None:
             # The object is really going away, we want to remove
             # its references
-            rc = getToolByName(container, config.REFERENCE_CATALOG)
+            rc = getToolByName(self, config.REFERENCE_CATALOG)
             references = rc.getReferences(self)
             back_references = rc.getBackReferences(self)
             try:
@@ -226,7 +226,7 @@ class Referenceable(Base):
 
     def _uncatalogUID(self, aq, uc=None):
         if not uc:
-            uc = getToolByName(aq, config.UID_CATALOG)
+            uc = getToolByName(self, config.UID_CATALOG)
         url = self.getURL()
         uc.uncatalog_object(url)
 
@@ -248,9 +248,9 @@ class Referenceable(Base):
         annotations = self._getReferenceAnnotations()
         if annotations:
             if not uc:
-                uc = getToolByName(aq, config.UID_CATALOG)
+                uc = getToolByName(self, config.UID_CATALOG)
             if not rc:
-                rc = getToolByName(aq, config.REFERENCE_CATALOG)
+                rc = getToolByName(self, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
                 url = getRelURL(uc, ref.getPhysicalPath())
                 uc.uncatalog_object(url)
