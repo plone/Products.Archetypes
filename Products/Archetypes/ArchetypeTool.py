@@ -881,7 +881,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.subtransactioncounter+=1
         # only every 250 objects a sub-commit, otherwise it eats up all diskspace
         if not self.subtransactioncounter % 250:
-            print "write subtransaction #%s" % self.subtransactioncounter
             get_transaction().commit(1) 
 
     def _updateChangedObject(self, o, path):
