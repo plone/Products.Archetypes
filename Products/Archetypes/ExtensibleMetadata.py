@@ -22,7 +22,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
     security.setDefaultAccess('allow')
     
     schema = type = MetadataFieldList((
-        ObjectField('allow_discussion',
+        ObjectField('allowDiscussion',
                       accessor="isDiscussable",
                       mutator="allowDiscussion",
                       default=None,

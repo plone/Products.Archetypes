@@ -88,7 +88,7 @@ class BaseSchemaTest( unittest.TestCase ):
 
     def test_allowdiscussion(self):
         dummy = self._dummy
-        field = dummy.getField('allow_discussion')
+        field = dummy.getField('allowDiscussion')
 
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
