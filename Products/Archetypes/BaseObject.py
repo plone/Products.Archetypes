@@ -78,6 +78,7 @@ class BaseObject(Implicit):
             if kwargs:
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
+            self.mark_creation_flag()
         except:
             log_exc()
 
