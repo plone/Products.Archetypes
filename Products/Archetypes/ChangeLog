@@ -1,3 +1,17 @@
+2003-06-24  Sylvain Thénault  <syt@logilab.fr>
+
+	* BaseContent.py: add I18NBaseContent
+
+	* BaseFolder.py: add I18NBaseFolder
+
+	* BaseObject.py: fix a bug related to translation state
+
+	* public.py: export I18NBaseFolder and I18NBaseContent
+	
+	* skins/archetypes/base_translation.pt: add an hidden input field
+	for required but no I18N fields
+
+
 2003-06-23  Sylvain Thénault  <syt@logilab.fr>
 
 	* BaseObject.py: add methods to handle a master translation and
