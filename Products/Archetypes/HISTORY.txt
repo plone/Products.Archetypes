@@ -121,6 +121,10 @@
    already subclasses from Folder (over PortalFolder).
    [tiran]
 
+ * Store subobjects inside a volatile attribute instead of using SESSION which
+   1) was broken by design 2) was a possible memory eater.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

@@ -786,30 +786,31 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionary of objects to the session
+        """add a dictionary of objects to a volatile attribute
         """
         if objects:
-            if REQUEST is None:
-                REQUEST = self.REQUEST
-            key = getRelURL(self, self.getPhysicalPath())
-            session = REQUEST.SESSION
-            defined = session.get(key, {})
-            defined.update(objects)
-            session[key] = defined
+            storage = getattr(aq_base(self), '_v_at_subobjects', None)
+            if storage is None:
+                setattr(self, '_v_at_subobjects', {})
+                storage = getattr(aq_base(self), '_v_at_subobjects')
+            for name, obj in objects.items():
+                storage[name] = aq_base(obj)
 
     security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """Get a dictionary of objects from the session
+        """Get a dictionary of objects from a volatile attribute
         """
-        try:
-            data = REQUEST.SESSION[getRelURL(self, self.getPhysicalPath())][name]
-        except AttributeError:
-            return
-        except KeyError:
-            return
+        storage = getattr(aq_base(self), '_v_at_subobjects', None)
+        if storage is None:
+            return None
+
+        data = storage.get(name, None)
+        if data is None:
+            return None
+
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, mt or 'application/octet')
+        return Wrapper(data, name, str(mt) or 'application/octet')
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
