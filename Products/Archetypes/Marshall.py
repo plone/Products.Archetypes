@@ -1,5 +1,7 @@
 from types import ListType, TupleType
 
+from OFS.Image import File
+from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
@@ -61,10 +63,17 @@ class PrimaryFieldMarshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
+        file = kwargs.get('file')
+        # XXX Hardcoding field types is bad. :(
+        if isinstance(p, (FileField, TextField)) and file:
+            data = file
+            del kwargs['file']
         p.set(instance, data, **kwargs)
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
+        if not p:
+            raise TypeError, 'Primary Field could not be found.'
         data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
@@ -72,8 +81,14 @@ class PrimaryFieldMarshaller(Marshaller):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
+        elif isinstance(data, File):
+            content_type = data.content_type
+            length = data.get_size()
+            data = data.data
         else:
-            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
+            log('WARNING: PrimaryFieldMarshaller(%r): '
+                'field %r does not return a IBaseUnit '
+                'instance.' % (instance, p.getName()))
             if hasattr(p, 'getContentType'):
                 content_type = p.getContentType(instance) or 'text/plain'
             else:
@@ -88,6 +103,7 @@ class PrimaryFieldMarshaller(Marshaller):
                 # DM: this almost surely is stupid!
                 length = len(data)
 
+            length = len(data)
             # ObjectField without IBaseUnit?
             if shasattr(data, 'data'):
                 data = data.data
@@ -121,6 +137,9 @@ class RFC822Marshaller(Marshaller):
         if not kwargs.get('mimetype', None):
             kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
+        # We don't want to pass file forward.
+        if kwargs.has_key('file'):
+            del kwargs['file']
         if p is not None:
             mutator = p.getMutator(instance)
             if mutator is not None:
