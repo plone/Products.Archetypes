@@ -51,22 +51,34 @@ class Reference(SimpleItem):
     def getSourceObject(self):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=self.sourceUID)
-        return brains[0].getObject()
+        if brains:
+            return brains[0].getObject()
+        else:
+            self.aq_parent._deleteReferenceId(self.getId())
+            return None
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=self.targetUID)
-        return brains[0].getObject()
+        if brains:
+            return brains[0].getObject()
+        else:
+            self.aq_parent._deleteReferenceId(self.getId())
+            return None
 
     ###
     # Catalog support
     def targetId(self):
         target = self.getTargetObject()
-        return target.getId()
+        if target:
+            return target.getId()
+        return ''
 
     def targetTitle(self):
         target = self.getTargetObject()
-        return target.Title()
+        if target:
+            return target.Title()
+        return ''
 
     ###
     # Policy hooks, subclass away
@@ -137,7 +149,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             referenceObject = getattr(self, rID)
             # XXX should second arg be rID or a pretty name, lets try a name
             self.catalog_object(referenceObject, rID)
-            return referenceObject 
+            return referenceObject
 
     def deleteReference(self, source, target, relationship=None):
         sID, sobj = self._uidFor(source)
@@ -270,6 +282,13 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 
         return uuid
 
+    def _deleteReferenceId(self, id):
+        self.uncatalog_object(id)
+        try:
+            self._delObject(id)
+        except KeyError:
+            pass
+
     def _deleteReference(self, referenceObject):
 
         try:
@@ -278,8 +297,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         except ReferenceException:
             pass
         else:
-            self.uncatalog_object(referenceObject.getId())
-            self._delObject(referenceObject.getId())
+            self._deleteReferenceId(referenceObject.getId())
 
 
     def _resolveBrains(self, brains):
