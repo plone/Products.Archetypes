@@ -312,6 +312,9 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         name = "ref_%s" % name
         return name
 
+    def __nonzero__(self):
+        return 1
+
 def manage_addReferenceCatalog(self, id, title,
                                vocab_id=None, # Deprecated
                                REQUEST=None):
