@@ -153,6 +153,18 @@ msgid "legend_add_new"
 msgstr "add new"
 
 
+#: widgets/rich.pt
+#. <strong i18n:translate="uppercase_or">OR</strong>
+msgid "uppercase_or"
+msgstr "OR"
+
+
+#: widgets/rich.pt
+#. <label i18n:translate="upload_a_file">Upload a File</label> 
+msgid "upload_a_file"
+msgstr "Upload a File"
+
+
 #: skins/archetypes/content_edit.cpy
 #. Add New Item operation was cancelled.
 msgid "message_add_new_item_cancelled"
@@ -169,4 +181,5 @@ msgstr "Reference Added."
 #. Content changes saved.
 msgid "message_content_changes_saved"
 msgstr "Content changes saved."
+
 
