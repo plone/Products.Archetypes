@@ -280,7 +280,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         # allow for non-existent creation_date, existed always
         date = getattr( self, 'creation_date', None )
-        return date is None and self.FLOOR_DATE or date
+        return date is None and FLOOR_DATE or date
 
     security.declareProtected(CMFCorePermissions.View,
                               'modified')
