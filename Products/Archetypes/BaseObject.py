@@ -336,7 +336,8 @@ class BaseObject(Implicit):
             if lang == m_lang:
                 for lang_desc in self.getFilteredLanguages():
                     if lang_desc[0] != m_lang:
-                        self._translations_states[lang_desc[0]] += ' (outdated)'
+                        old_value = self._translations_states.get(lang_desc[0], '')
+                        self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
             # else try to get and set the translation state
             elif form.has_key('_translation_state'):
                 self._translations_states[lang] = form['_translation_state']
