@@ -9,6 +9,7 @@ from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.CMFCorePermissions import View
 
 # XXX Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields
@@ -110,3 +111,64 @@ class FacadeMetadataSchema(BasicSchema):
 
     def bind(self, context):
         self.context = context
+
+    security.declareProtected(View, 'validate')
+    def validate(self, instance=None, REQUEST=None,
+                 errors=None, data=None, metadata=None):
+        """Validate the state of the entire object.
+
+        The passed dictionary ``errors`` will be filled with human readable
+        error messages as values and the corresponding fields' names as
+        keys.
+
+        If a REQUEST object is present, validate the field values in the
+        REQUEST.  Otherwise, validate the values currently in the object.
+        """
+        if REQUEST:
+            fieldset = REQUEST.form.get('fieldset', None)
+        else:
+            fieldset = None
+        fields = []
+
+        if fieldset is not None:
+            schemata = instance.Schemata()
+            fields = [(field.getName(), field)
+                      for field in schemata[fieldset].fields()]
+        else:
+            if data:
+                fields.extend([(field.getName(), field)
+                               for field in self.filterFields(isMetadata=0)])
+            if metadata:
+                fields.extend([(field.getName(), field)
+                               for field in self.filterFields(isMetadata=1)])
+
+        if REQUEST:
+            form = REQUEST.form
+        else:
+            form = None
+        _marker = []
+        field_data = {}
+        for name, field in fields:
+            value = None
+            widget = field.widget
+            if form:
+                result = widget.process_form(instance, field, form,
+                                             empty_marker=_marker)
+            else:
+                result = None
+            if result is None or result is _marker:
+                accessor = field.getAccessor(instance)
+                if accessor is not None:
+                    value = accessor()
+                else:
+                    # can't get value to validate -- bail
+                    continue
+            else:
+                value = result[0]
+            field_data[name] = value
+
+        pm = getToolByName(self.context, 'portal_metadata', None)
+        set = pm.getMetadataSet(self.set_id)
+        set.validate(self.set_id, field_data, errors)
+        return errors
+
