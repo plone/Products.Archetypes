@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/08/04 15:38:43 $
-:Version: $Revision: 1.8 $
+:Date: $Date: 2003/08/04 15:45:35 $
+:Version: $Revision: 1.9 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -327,7 +327,7 @@ If you need custom validation, you can write a new validator in your product.::
 
 Then you need to register it in FooProduct/__init__.py method initialize::
 
-    from Products.validation import validation
+    from validation import validation
     from validator import FooValidator
     validation.register(FooValidator('isFoo'))
 
