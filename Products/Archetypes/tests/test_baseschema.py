@@ -56,7 +56,7 @@ class BaseSchemaTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        registerType(Dummy)
+        registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         portal = self.portal
         dummy = Dummy(oid='dummy')

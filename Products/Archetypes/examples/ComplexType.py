@@ -1,6 +1,7 @@
 from Products.Archetypes.public import *
 from Products.Archetypes import Field
 from SimpleType import SimpleType
+from Products.Archetypes.config import PKG_NAME
 
 fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
@@ -69,4 +70,4 @@ class ComplexType(SimpleType):
         return DisplayList((('Test','Test'),('Test2','Test2'), ))
 
 
-registerType(ComplexType)
+registerType(ComplexType, PKG_NAME)

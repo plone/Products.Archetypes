@@ -1,5 +1,6 @@
 from Products.Archetypes.public import *
 from DateTime import DateTime
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('quote',
@@ -33,4 +34,4 @@ class Fact(BaseContent):
     schema = schema
 
 
-registerType(Fact)
+registerType(Fact, PKG_NAME)

@@ -61,7 +61,7 @@ class Dummy(BaseContent):
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
 
-registerType(Dummy)
+registerType(Dummy, 'Archetypes')
 
 
 class AggregatedStorageTestsNoCache(ATSiteTestCase):

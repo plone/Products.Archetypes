@@ -52,7 +52,7 @@ class Dummy(VariableSchemaSupport,BaseContent):
 class VarSchemataTest( ATTestCase ):
 
     def afterSetUp(self):
-        registerType(Dummy)
+        registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
 

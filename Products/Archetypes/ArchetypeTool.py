@@ -6,6 +6,7 @@ from copy import deepcopy
 from types import StringType
 from DateTime import DateTime
 from StringIO import StringIO
+import warnings
 
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -303,6 +304,9 @@ def _guessPackage(base):
 
 def registerType(klass, package=None):
     if not package:
+        warnings.warn("registerType without a package name is deprecated. "
+                      "Please apply a package name for klas %s" % repr(klass),
+                      DeprecationWarning, stacklevel=2)
         package = _guessPackage(klass.__module__)
 
     # Registering a class results in classgen doing its thing
