@@ -25,10 +25,10 @@ class iwidget:
 class widget:
     """
     Base class for widgets
-    
+
     A dynamic widget with a reference to a macro that can be used to
     render it
-    
+
     description -- tooltip
     label       -- textual label
     visible     -- 1[default] visible 0 hidden -1 skipped
@@ -46,11 +46,11 @@ class widget:
         'visible' : 1, ##XXX Remove for modes
         'attributes' : ''
         }
-    
+
     def __init__(self, **kwargs):
         self._processed  = 0
         self._process_args(**kwargs)
-        
+
     def _process_args(self, **kwargs):
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
@@ -83,7 +83,7 @@ class widget:
             ##return the i18n version of the description
             value = method(**kwargs)
             return value
-            
+
         return self._translate_attribute(instance, 'description')
 
 
@@ -91,7 +91,7 @@ class macrowidget(widget):
     """macro is the file containing the macros, the mode/view is the
     name of the macro in that file
     """
-    
+
     _properties = widget._properties.copy()
     _properties.update({
         'macro' : None,
@@ -109,5 +109,5 @@ class macrowidget(widget):
         macro = getattr(self, "macro_%s" % mode, self.macro)
         template = instance.restrictedTraverse(path = macro)
         return template.macros[mode]
-    
+
 InitializeClass(widget)
