@@ -77,14 +77,22 @@ class widget:
         return i18n.translate(domain, msgid, mapping=instance.REQUEST,
                               context=instance, default=value)
 
-    def Label(self, instance):
+    def Label(self, instance, **kwargs):
         """Returns the label, possibly translated"""
+        value = self.label
+        method = value and getattr(instance.aq_inner, value, None)
+        if method and callable(method):
+            ## Label methods can be called with kwargs and should
+            ## return the i18n version of the description
+            value = method(**kwargs)
+            return value
+
         return self._translate_attribute(instance, 'label')
 
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated"""
         value = self.description
-        method = value and getattr(instance.aq_explicit, value, None)
+        method = value and getattr(instance.aq_inner, value, None)
         if method and callable(method):
             ## Description methods can be called with kwargs and should
             ## return the i18n version of the description
