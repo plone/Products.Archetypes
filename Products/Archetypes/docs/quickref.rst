@@ -52,25 +52,24 @@ Requirements
 Archetypes is currently being tested and run in various environments
 using the following combination:
 
-- Zope 2.6.2+
+- Zope 2.7.0
 
-- CMFPlone 1.0.4
+- Plone 2.x
 
-- CMF 1.3.1
+- CMF 1.4.x
 
-It is also known to work smoothly with Zope 2.5.
-
-You should install the *validation* and *generator* packages available 
-in the archetypes repository (see above) before installing Archetypes itself. 
-The easiest way to get all the necessary packages is to check out a
-*bundle* from the repository, or to download the tarball
-made available upon release. For example, this is tarball containing the
-1.3.0 release: ``Archetypes-1.3.0-final-Bundle.tgz``.
+You should install the *PortalTransforms*, *MimetypeRegistry*, *validation* 
+and *generator* packages available in the archetypes repository (see above) 
+before installing Archetypes itself. 
+The easiest way to get all the necessary packages is to download the tarball 
+made available upon release or check out the *bundle* from the repository to 
+fetch the latest development release. For example, this is tarball containing 
+the 1.3.1 release: ``Archetypes-1.3.1-final-Bundle.tgz``.
 
 Using the tarball
 *****************
 
-1. Download the latest stable version from `SourceForge`_.
+1. Download the latest stable bundled version from `SourceForge`_.
 
 2. Decompress it --- it should contain the following directories::
 
@@ -90,15 +89,12 @@ Using the tarball
 Checking out from SVN
 *********************
 
-Using Windows
-#############
+You'll find recent information about the current state of SVN and 
+instructions how to fetch the files in the 
+`Download and SVN` section of Archetypes documentation on plone.org.
 
-XXX Update for `Subversion repository`.
+.. _Download and SVN: http://plone.org/documentation/archetypes/download
 
-Using ``*nix``
-##############
-
-XXX Update for `Subversion repository`.
 
 Schema
 -------
