@@ -13,8 +13,7 @@
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
                    lockable python:hasattr(here, 'wl_isLocked');
-                   isLocked python:lockable and here.wl_isLocked();
-                  ">
+                   isLocked python:lockable and here.wl_isLocked()">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="en"
@@ -26,41 +25,40 @@
       tal:define="tabindex tabindex|python:Iterator();"
       i18n:domain="plone">
 
-
-  <metal:block fill-slot="javascript_head_slot"
+  <metal:head fill-slot="javascript_head_slot"
                tal:define="css python:here.getUniqueWidgetAttr(fields, 'helper_css');
                            js python:here.getUniqueWidgetAttr(fields, 'helper_js')">
     <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
-    <tal:block condition="css"
-               repeat="item css">
+    <tal:css condition="css"
+             repeat="item css">
       <style type="text/css"
              media="all"
              tal:condition="python:exists('portal/%s' % item)"
              tal:content="string:@import url($portal_url/$item);">
       </style>
-    </tal:block>
-    <tal:block condition="js"
-               repeat="item js">
+    </tal:css>
+    <tal:js condition="js"
+            repeat="item js">
       <script type="text/javascript"
               charset="iso-8859-1"
               tal:condition="python:exists('portal/%s' % item)"
               tal:attributes="src string:$portal_url/$item">
       </script>
-    </tal:block>
-  </metal:block>
+    </tal:js>
+  </metal:head>
 
   <body>
 
-    <div metal:fill-slot="main">
+    <metal:fill fill-slot="main">
       <metal:main define-macro="main">
         <metal:use_header use-macro="header_macro" />
         <metal:use_body use-macro="body_macro" />
         <metal:use_footer use-macro="footer_macro" />
       </metal:main>
-    </div>
+    </metal:fill>
 
   </body>
 
