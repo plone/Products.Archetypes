@@ -320,7 +320,9 @@ class FixedPointField(ObjectField):
         if len(value) < 2:
             value = (int(value[0]), 0)
         else:
-            value = (int(value[0]), int(value[1][:self.precision]))
+            fra = value[1][:self.precision]
+            fra += '0' * (self.precision - len(fra))
+            value = (int(value[0]), int(fra))
         
         ObjectField.set(self, instance, value, **kwargs)
 
