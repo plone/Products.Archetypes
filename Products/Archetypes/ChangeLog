@@ -1,3 +1,7 @@
+2003-04-19  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* tests/test_baseunit.py: Added minimal test for BaseUnit.
+
 2003-04-18  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* public.py: Added BaseBTreeFolderSchema. Fixed BaseFolderSchema

@@ -19,12 +19,12 @@ from Products.CMFCore  import CMFCorePermissions
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema 
+schema = BaseSchema
 
 class Dummy(BaseContent):
     schema = schema
-    
-   
+
+
 class BaseSchemaTest( unittest.TestCase ):
 
     def setUp( self ):
@@ -57,7 +57,7 @@ class BaseSchemaTest( unittest.TestCase ):
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(tuple(vocab) == ())
-                
+
     def test_title(self):
         dummy = self._dummy
         field = dummy.getField('title')
@@ -322,7 +322,7 @@ class BaseSchemaTest( unittest.TestCase ):
 
     def tearDown( self ):
         del self._dummy
-        
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(BaseSchemaTest),

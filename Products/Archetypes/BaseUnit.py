@@ -184,7 +184,6 @@ class BaseUnit(File, ObjectManager):
         #get baseunits
         return self.getHTML()
 
-    ## XXX TEST THIS
     __call__ = __str__
 
     def reConvert(self):
@@ -193,8 +192,6 @@ class BaseUnit(File, ObjectManager):
         self._update_data(self.data, self.content_type, driver)
         self.aq_parent.reindexObject()
         return self.getHTML()
-
-
 
     def update(self, file, mime_type=None):
         if file and (type(file) is not type('')):
@@ -271,7 +268,6 @@ class BaseUnit(File, ObjectManager):
     security.declarePublic('Filename')
     def Filename(self):
         return getattr(self, 'filename', '')
-
 
     security.declareProtected(CMFCorePermissions.View, 'getHTML')
     def getHTML(self):
