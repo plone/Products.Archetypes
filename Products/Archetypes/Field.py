@@ -1073,6 +1073,12 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
+    def getContentType(self, instance):
+        img = self.getRaw(instance)
+        if img:
+            return img.getContentType()
+        return ''
+    
 
 class I18NMixIn(ObjectField):
     """ I18N MixIn to allow internationalized content
