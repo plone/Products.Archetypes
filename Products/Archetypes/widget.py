@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 ##XXX remove dep, report errors properly
+import i18n
 
 class iwidget:
     def __call__(instance, context=None):
@@ -14,6 +15,12 @@ class iwidget:
 
     def getContext(self, mode, instance):
         """returns any prepaired context or and empty {}"""
+
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+
+    def Description(self, instance):
+        """Returns the description, possibly translated"""
 
 class widget:
     """
@@ -55,15 +62,22 @@ class widget:
     def getContext(self, instance):
         return {}
 
+    def _translate_attribute(self, instance, name):
+        value = getattr(self, name)
+        domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
+        if domain is None:
+            return value
+        msgid = getattr(self, name+'_msgid', None) or value
+        return i18n.translate(domain, msgid, None, instance.REQUEST, None, value)
 
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+        return self._translate_attribute(instance, 'label')
 
-from Products.PageTemplates.Expressions import PathExpr
-import Products.CMFCore.Expression as ex
-from TAL.TALInterpreter import TALInterpreter
-from cStringIO import StringIO
+    def Description(self, instance):
+        """Returns the description, possibly translated"""
+        return self._translate_attribute(instance, 'description')
 
-engine  = ex.getEngine()
-_macro_registry = {}
 
 class macrowidget(widget):
     """macro is the file containing the macros, the mode/view is the
@@ -76,37 +90,12 @@ class macrowidget(widget):
         })
 
     def bootstrap(self, instance):
-        if not hasattr(instance, '_v_context'):
-            instance._v_context = engine.getContext(here=instance)
-
-        
-        context = instance._v_context
-        path    = PathExpr("nocall", self.macro, engine)
-        try:
-            pt = context.evaluate(path)
-            ptc  = pt.pt_getContext()
-            macros = pt.pt_macros()
-        except:
-            ### XXX report
-            log_exc(pt.pt_errors())
-            pass
-
-        return macros
-
-    def getContext(self, instance):
-        self.bootstrap(instance)
-        return instance._v_context
+        # do initialization-like thingies that need the instance
+        pass
 
     def __call__(self, mode, instance, context=None):
-        macros = self.bootstrap(instance)
-        output = StringIO()
-        
-        ti = TALInterpreter(macros[mode], {}, context, output,
-                            tal=1, metal=1, strictinsert=0)
-        #ti.debug = 1
-        ti()
-
-        
-        return output.getvalue()
+        self.bootstrap(instance)
+        template = instance.restrictedTraverse(path = self.macro)
+        return template.macros[mode]
     
 InitializeClass(widget)
