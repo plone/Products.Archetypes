@@ -319,8 +319,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
-            if o:
-                if IBaseObject.isImplementedByInstancesOf(o):
+            if o is not None:
+                if IBaseObject.isImplementedBy(o):
                     callback(o, *args, **kwargs)
             else:
                 log("no object for brain: %s:%s" % (b,b.getURL()))
