@@ -749,7 +749,7 @@ class ReferenceField(ObjectField):
         'relationship':None
         })
 
-    def containsValueAsString(self,value,attrval):
+    def containsValueAsString(self, value, attrval):
         """
         checks wether the attribute contains a value
            if the field is a scalar -> comparison
@@ -785,14 +785,14 @@ class ReferenceField(ObjectField):
                         target=tool.lookupObject(uid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
-                        instance.addReference(target,refname)
+                        instance.addReference(target, refname)
                         newValue.append(uid)
         else:
             if value:
                 target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target,refname)
+                instance.addReference(target, refname)
                 newValue = value
 
         # and now do the normal assignment

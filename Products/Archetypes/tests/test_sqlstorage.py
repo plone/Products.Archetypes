@@ -177,7 +177,7 @@ def gen_dummy(storage_class):
 ##             widget = ImageWidget(label='aimagefield',
 ##                                  description=('Just a image field '
 ##                                               'for the testing')))
-    ))
+    )) + ExtensibleMetadata.schema
     registerType(Dummy, PKG_NAME)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
@@ -197,6 +197,12 @@ class DummyTool(ArchetypeTool):
     def setup(self, instance):
         setattr(instance, TOOL_NAME, self)
         setattr(instance, connection_id, self.sql_connection)
+        self._instance = instance
+
+    def lookupObject(self, uid):
+        if uid == self._instance.UID():
+            return self._instance
+        return None
 
 class SQLStorageTest(ArchetypesTestCase):
     # abstract base class for the tests
@@ -219,30 +225,33 @@ class SQLStorageTest(ArchetypesTestCase):
 
     def test_objectfield(self):
         dummy = self._dummy
-        self.failUnless(dummy.getAobjectfield() == None)
+        value = dummy.getAobjectfield()
+        __traceback_info__ = (self.db_name, repr(value), 'Bla')
+        self.failUnless(value == None)
         dummy.setAobjectfield('Bla')
         value = dummy.getAobjectfield()
-        __traceback_info__ = (repr(value), 'Bla')
+        __traceback_info__ = (self.db_name, repr(value), 'Bla')
         self.failUnless(str(value) == 'Bla')
 
     def test_textfield(self):
         dummy = self._dummy
         value = dummy.getAtextfield()
-        __traceback_info__ = (repr(value), '')
+        __traceback_info__ = (self.db_name, repr(value), '')
         self.failUnless(value == '')
         dummy.setAtextfield('Bla')
         value = dummy.getAtextfield()
-        __traceback_info__ = (repr(value), 'Bla')
+        __traceback_info__ = (self.db_name, repr(value), 'Bla')
         self.failUnless(str(value) == 'Bla')
 
     def test_datetimefield(self):
         dummy = self._dummy
         default = dummy.getAdatetimefield()
+        __traceback_info__ = (self.db_name, default, default_time)
         self.failUnless(default.Time() == default_time.Time())
         now = DateTime()
         dummy.setAdatetimefield(now)
         value = dummy.getAdatetimefield()
-        __traceback_info__ = (value, now)
+        __traceback_info__ = (self.db_name, value, now)
         # Precision in seconds is enough for us.
         # Also, MySQL doesnt stores milliseconds AFAIK
         self.failUnless(value.Time() == now.Time())
@@ -250,31 +259,31 @@ class SQLStorageTest(ArchetypesTestCase):
     def test_integerfield(self):
         dummy = self._dummy
         value = dummy.getAintegerfield()
-        __traceback_info__ = (repr(value), 0)
+        __traceback_info__ = (self.db_name, repr(value), 0)
         self.failUnless(value == 0)
         dummy.setAintegerfield(23)
         value = dummy.getAintegerfield()
-        __traceback_info__ = (repr(value), 23)
+        __traceback_info__ = (self.db_name, repr(value), 23)
         self.failUnless(value == 23)
 
     def test_fixedpointfield(self):
         dummy = self._dummy
         value = dummy.getAfixedpointfield()
-        __traceback_info__ = (repr(value), '0.00')
+        __traceback_info__ = (self.db_name, repr(value), '0.00')
         self.failUnless(value == '0.00')
         dummy.setAfixedpointfield('2.3')
         value = dummy.getAfixedpointfield()
-        __traceback_info__ = (repr(value), '2.30')
+        __traceback_info__ = (self.db_name, repr(value), '2.30')
         self.failUnless(value == '2.30')
 
     def test_booleanfield(self):
         dummy = self._dummy
         value = dummy.getAbooleanfield()
-        __traceback_info__ = (repr(value), None)
+        __traceback_info__ = (self.db_name, repr(value), None)
         self.failUnless(value is None)
         dummy.setAbooleanfield(1)
         value = dummy.getAbooleanfield()
-        __traceback_info__ = (repr(value), 1)
+        __traceback_info__ = (self.db_name, repr(value), 1)
         self.failUnless(value == 1)
 
 tests = []
@@ -321,15 +330,19 @@ for db_name in connectors.keys():
                 FactoryTypeInformation.meta_type,
                 id='Dummy',
                 typeinfo_name='CMFDefault: Document')
-            dummy.__factory_meta_type__ = 'ArchExample Content'
+            dummy.__factory_meta_type__ = 'Archetypes Content'
+            dummy.meta_type = 'Archetypes Content'
 
         def test_referencefield(self):
             dummy = self._dummy
-            self.failUnless(dummy.getAreferencefield() is None)
-            dummy.setAreferencefield('Bla')
             value = dummy.getAreferencefield()
-            __traceback_info__ = repr(value)
-            self.failUnless(str(value) == 'Bla')
+            __traceback_info__ = (self.db_name, repr(value), None)
+            self.failUnless(value is None)
+            uid = dummy.UID()
+            dummy.setAreferencefield(uid)
+            value = dummy.getAreferencefield()
+            __traceback_info__ = (self.db_name, repr(value), uid)
+            self.failUnless(str(value) == uid)
 
         def test_rename(self):
             site = self.getPortal()
@@ -342,8 +355,9 @@ for db_name in connectors.keys():
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
             # make sure we have _p_jar
+            assert site._p_jar is not None
             doc._p_jar = site._p_jar
-            new_oid = self.root._p_jar.new_oid
+            new_oid = site._p_jar.new_oid
             doc._p_oid = new_oid()
             site.manage_renameObject(obj_id, new_id)
             doc = getattr(site, new_id)
@@ -363,10 +377,11 @@ for db_name in connectors.keys():
             f = ObjectField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
+            __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
             self.failUnless(str(PUID) == str(PUID1))
             # make sure we have _p_jar
             doc._p_jar = folder1._p_jar = site._p_jar
-            new_oid = self.root._p_jar.new_oid
+            new_oid = site._p_jar.new_oid
             folder1._p_oid = new_oid()
             doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))
@@ -399,10 +414,11 @@ for db_name in connectors.keys():
             f = ObjectField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
+            __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
             self.failUnless(str(PUID) == str(PUID1))
             # make sure we have _p_jar
             doc._p_jar = folder1._p_jar = site._p_jar
-            new_oid = self.root._p_jar.new_oid
+            new_oid = site._p_jar.new_oid
             folder1._p_oid = new_oid()
             doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))

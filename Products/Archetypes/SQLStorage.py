@@ -271,16 +271,6 @@ class GadflySQLStorage(BaseSQLStorage):
                    'fixedpoint': 'float',
                    'reference': 'varchar'}
 
-    def map_object(self, field, value):
-        return repr(value)
-
-    def unmap_object(self, field, value):
-        # XXX dangerous!
-        try:
-            return eval(value, {})
-        except:
-            return None
-
     def unmap_datetime(self, field, value):
         import DateTime
         try:
@@ -291,14 +281,6 @@ class GadflySQLStorage(BaseSQLStorage):
     def unmap_fixedpoint(self, field, value):
         split = 10 ** field.precision
         return (float(value) / split), (float(value) % split)
-
-    def map_reference(self, field, value):
-        if value is None: return ''
-        return value
-
-    def unmap_reference(self, field, value):
-        if value=='': return None
-        return value
 
     def table_exists(self, instance):
         try:
