@@ -46,3 +46,6 @@ except transform_utils.MissingBinary:
     HAS_GRAPHVIZ = False
 else:
     HAS_GRAPHVIZ = True
+
+## comment out the following line to enable the reference graph tool
+HAS_GRAPHVIZ = False
