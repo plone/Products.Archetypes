@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        tal:define="fields options/fields"
+        metal:define-macro="body">
+
+<fieldelements>
+
+   <tal:block repeat="field fields">
+   <fieldelement id="Products.Archetypes.Fields.IntegerField"
+                 tal:attributes="id field/id">
+   <title tal:content="field/title">Integer</title>
+   <description tal:content="field/description">Integer fields hold integer values.</description>
+   <defaultwidget tal:content="field/default_widget">Products.Archetypes.Widgets.IntegerWidget</defaultwidget>
+   <allowedwidgetelements>
+     <tal:block repeat="widget field/allowed_widgets">
+        <widget tal:content="widget">
+        Products.Archetypes.Widgets.IntegerWidget
+       </widget>
+     </tal:block>
+   </allowedwidgetelements>
+   <properties>
+        <tal:block repeat="property field/properties">
+        <property tal:condition="python:property['type'] != 'not-registered'">
+            <name tal:content="property/name">required</name>
+            <type tal:content="property/type">boolean</type>
+            <default tal:content="nocall:property/default"
+                     tal:condition="nocall:property/default">boolean</default>
+        </property>
+        </tal:block>
+    </properties>
+  </fieldelement>
+ </tal:block>
+</fieldelements>
+
+</tal:block>

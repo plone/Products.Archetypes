@@ -1,0 +1,21 @@
+<div id="title">
+     <h3 class="title">Title</h3>
+
+     <h4 class="subtitle" id="subtitle">Subtitle</h4>
+
+     <p>This is a test document to make sure subtitle gets the right
+heading.</p>
+
+  <div class="section" id="now-the-real-heading">
+    <h3><a name="now-the-real-heading">Now the real heading</a></h3>
+
+    <p>The brown fox jumped over the lazy dog.</p>
+
+    <div class="section" id="with-a-subheading">
+     <h4><a name="with-a-subheading">With a subheading</a></h4>
+
+     <p>Some text, bla ble bli blo blu. Yes, i know this is <a
+class="reference" href="http://www.example.com">Stupid</a>.</p>
+   </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<schema xmlns:tal="http://xml.zope.org/namespaces/tal"
+        tal:attributes="for options/classname"
+        tal:define="schematas options/schematas">
+
+  <schemata tal:repeat="schemata schematas/values"
+            tal:attributes="name schemata/getName">
+    <fields tal:define="fields schemata/fields"
+            tal:condition="fields">
+      <tal:block repeat="field fields">
+      <field tal:attributes="name field/name;
+                             required field/required|nothing;
+                             default field/default|nothing;
+                             vocabulary field/vocabulary|nothing;
+                             enforceVocabulary field/enforceVocabulary|nothing; 
+                             multiValued field/multiValued|nothing; 
+                             searchable field/searchable|nothing;
+                             isMetadata field/isMetadata|nothing;
+                             accessor field/accessor|nothing;
+			     mutator field/mutator|nothing;
+ 	                     mode field/mode|nothing;
+ 			     read_permission field/read_permission|nothing;
+			     write_permission field/write_permission|nothing;
+			     storage field/getStorageName|nothing;
+			     form_info field/form_info|nothing;
+                             generateMode field/generateMode|nothing;
+			     force field/force|nothing;
+			     type field/type|nothing;
+			     widget field/getWidgetName|nothing;
+			     validators field/validators|nothing;
+			     index field/index|nothing;
+			     addable field/addable|nothing;
+			     destination field/destination|nothing;
+			     expression field/expression|nothing;
+			     workflowable field/workflowable|nothing;" />
+      </tal:block>
+    </fields>
+    <widgets tal:define="widgets schemata/widgets"
+             tal:condition="widgets">
+      <tal:block repeat="field widgets/keys">
+         <widget tal:define="widget python:widgets[field]"
+                 tal:attributes="for field;
+	                         type widget/getName|nothing;
+                                 modes widget/modes|nothing;
+				 description widget/description|nothing;
+			         label widget/label|nothing;
+				 attributes widget/attributes|nothing;
+				 rows widget/rows|nothing;
+				 cols widget/cols|nothing;
+			         display_threshold widget/display_threshold|nothing;" />
+
+      </tal:block>
+    </widgets>
+   </schemata>
+</schema>

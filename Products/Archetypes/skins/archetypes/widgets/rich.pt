@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- Rich Widgets -->
+
+    <metal:view_macro define-macro="view"
+		      tal:define="transformable python: here.isTransformable(fieldName);">
+      <span tal:condition="transformable"
+	    tal:replace="structure accessor"/>
+      <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
+    </metal:view_macro>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+	<metal:fill fill-slot="widget_body"
+		    tal:define="binary python: here.isBinary(fieldName);">
+	  <div class="group">
+	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
+	    <div class="row">
+	      <metal:use use-macro="here/widgets/epoz/macros/edit_area">
+		<metal:fill fill-slot="text_format"/>
+	      </metal:use>
+	    </div>
+	    <div metal:use-macro="here/widgets/textarea/macros/area_format" />
+	    <div class="row">
+	      <strong>OR</strong>
+	    </div>
+	    <div class="row">
+	      <div class="label">Upload a File</div>
+	      <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+	    </div>
+	  </div>
+	</metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/rich/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

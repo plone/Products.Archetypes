@@ -1,0 +1,101 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+
+  <metal:block fill-slot="javascript_head_slot">
+    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+	       condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:block>
+
+  <body>
+
+    <div metal:fill-slot="main">
+      <div metal:define-macro="main"
+	   tal:define="errors options/state/getErrors|nothing;
+	   Iterator python:modules['Products.Archetypes'].IndexIterator;
+	   tabindex python:Iterator();
+	   schematas here/Schemata;
+	   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
+	   fieldset request/fieldset|options/fieldset|default_fieldset;
+	   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
+	   portal_type python:here.getPortalTypeName().lower();
+	   edit_template python:'%s_edit' % portal_type;
+	   edit_macros python:path('here/%s/macros|here/edit_macros/macros' % edit_template);"
+	   tal:omit-tag="">
+
+	<h1 tal:content="here/title_or_id"
+	    metal:use-macro="edit_macros/header|default"/>
+
+	<form name="edit_form"
+	      method="post"
+	      enctype="multipart/form-data"
+	      tal:attributes="action python:here.absolute_url()+'/'+template.id" >
+
+	  <fieldset>
+
+	    <legend
+	     i18n:translate=""
+	     tal:content="python:(len(fieldsets) > 1 and fieldset != 'default') and fieldset or here.archetype_name" />
+
+	    <!--
+	      <div tal:condition="errors" class="error">
+	      <div tal:repeat="error errors/keys">
+	      <strong tal:content="error">
+	      Field
+	      </strong>:<span tal:replace="python:errors[error]" />
+	      </div>
+	      </div>
+	    -->
+
+	    <tal:fields repeat="field python: schematas[fieldset].fields()">
+	      <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+	    </tal:fields>
+
+	    <input type="hidden" name="form.submitted" value="1" />
+	    <input type="hidden" name="fieldset"
+		   value="default" tal:attributes="value fieldset" />
+
+	    <div class="field"
+		 tal:define="fieldset_index python:fieldsets.index(fieldset);
+		 n_fieldsets python:len(fieldsets);">
+	      <label>&nbsp;</label>
+	      <input tal:condition="python:fieldset_index > 0"
+		     class="context"
+		     tabindex=""
+		     type="submit"
+		     name="form_previous"
+		     i18n:attributes="value"
+		     value="Previous"
+		     tal:attributes="tabindex tabindex/next;" />
+	      <input tal:condition="python:fieldset_index &lt; n_fieldsets-1"
+		     class="context"
+		     tabindex=""
+		     type="submit"
+		     name="form_next"
+		     i18n:attributes="value"
+		     value="Next"
+		     tal:attributes="tabindex tabindex/next;" />
+	      <input tal:condition="python:fieldset_index == n_fieldsets-1"
+		     class="context"
+		     tabindex=""
+		     type="submit"
+		     name="form_submit"
+		     i18n:attributes="value"
+		     value="Save"
+		     tal:attributes="tabindex tabindex/next;" />
+	    </div>
+
+	  </fieldset>
+	</form>
+      </div>
+    </div>
+
+  </body>
+</html>
