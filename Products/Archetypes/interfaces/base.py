@@ -2,7 +2,7 @@ from interface import Interface, Attribute
 
 class IBaseObject(Interface):
     
-    type = Attribute('type', 'FieldList information about the object')
+    schema = Attribute('schema', 'Schema of the object')
     installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
     
     def initalizeLayers():
@@ -29,12 +29,6 @@ class IBaseObject(Interface):
     def Vocabulary(key):
         """vocabulary for a field by key"""
 
-    def get(key, **kwargs):
-        """return editable version of content"""
-
-    def set(key, value, **kw):
-        """set the value for a field"""
-        
     def edit(**kwargs):
         """edit"""
 
