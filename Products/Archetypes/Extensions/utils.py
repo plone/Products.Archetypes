@@ -9,6 +9,9 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
+
+from Products.PortalTransforms.Extensions.Install import install as install_portal_transforms
+
 from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
@@ -37,14 +40,6 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
-        
-    if not hasattr(self, "mimetypes_registry"):
-        addTool = self.manage_addProduct['Archetypes'].manage_addTool
-        addTool('MimeTypes Registry')
-
-    if not hasattr(self, "portal_transforms"):
-        addTool = self.manage_addProduct['Archetypes'].manage_addTool
-        addTool('Portal Transforms')
 
 
     #and the tool uses an index
@@ -313,6 +308,7 @@ def setupEnvironment(self, out, types,
     install_indexes(self, out, types)
     install_actions(self, out, types)
 
+    install_portal_transforms()
     if isPloneSite(self):
         install_validation(self, out, types)
         install_navigation(self, out, types)
