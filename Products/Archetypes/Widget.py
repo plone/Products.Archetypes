@@ -10,8 +10,6 @@ class TypesWidget(macrowidget):
         })
 
     def bootstrap(self, instance):
-        macros = macrowidget.bootstrap(self, instance)
-
         if not self.description or not self.label:
             field = self.findField(instance)
             name = field.name
@@ -19,8 +17,6 @@ class TypesWidget(macrowidget):
                 self.description = "Enter a value for %s" % name
             if not self.label:
                 self.label = capitalize(name)
-
-        return macros
                 
     def findField(self, instance):
         #This is a sad hack, I don't want widgets to have to take a
@@ -36,27 +32,27 @@ class TypesWidget(macrowidget):
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/string"
+        'macro' : "widgets/string"
         })
 
 class FloatWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/float",
+        'macro' : "widgets/float",
         'size' : '5',
         })
 
 class IntegerWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/integer",
+        'macro' : "widgets/integer",
         'size' : '5',
         })
 
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/textarea",
+        'macro' : "widgets/textarea",
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
@@ -65,7 +61,7 @@ class TextAreaWidget(TypesWidget):
 class LinesWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/lines",
+        'macro' : "widgets/lines",
         'rows'  : 5,
         'cols'  : 40,
         })
@@ -73,39 +69,39 @@ class LinesWidget(TypesWidget):
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/boolean",
+        'macro' : "widgets/boolean",
         })
     
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/calendar",
+        'macro' : "widgets/calendar",
         })
 
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/selection",
+        'macro' : "widgets/selection",
         })
 
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/multiselection",
+        'macro' : "widgets/multiselection",
         'size'  : 5,
         })
     
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/keyword",
+        'macro' : "widgets/keyword",
         'size'  : 5,
         })
 
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/rich",
+        'macro' : "widgets/rich",
         'rows'  : 5,
         'cols'  : 40,
         'format': 1,
@@ -114,19 +110,19 @@ class RichWidget(TypesWidget):
 class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/file",
+        'macro' : "widgets/file",
         })
 
 class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/zid",
+        'macro' : "widgets/zid",
         })
 
 class ImageWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "here/widgets/image",
+        'macro' : "widgets/image",
         })
 
 

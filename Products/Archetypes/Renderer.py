@@ -1,6 +1,9 @@
 from interfaces.layer import *
 from Products.generator.renderer import renderer as base
 from debug import log, log_exc
+import sys
+
+_marker = []
 
 class ArchetypesRenderer(base):
     __implements__ = (ILayer,)
@@ -19,10 +22,17 @@ class ArchetypesRenderer(base):
     def setupContext(self, field_name, mode, widget, instance,
                      **kwargs):
 
-        #Were we passed the context to use or create a new one?
-        context = kwargs.get('context')
-        if not context:
-            context = widget.getContext(instance)
+        # look for the context in the stack
+        try:
+            raise RuntimeError
+        except RuntimeError:
+            frame = sys.exc_info()[2].tb_frame
+        context = _marker
+        while context is _marker and frame is not None:
+            context = frame.f_locals.get('econtext', _marker)
+            frame = frame.f_back
+        if context is _marker:
+            raise RuntimeError, 'Context not found'
             
         context.beginScope()
         context.setLocal('here', instance)
