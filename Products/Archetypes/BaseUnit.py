@@ -73,7 +73,7 @@ class BaseUnit(File):
         # taking care of stupid IE
         self.setFilename(filename)
 
-    def transform(self, instance, mt):
+    def transform(self, instance, mt, **kwargs):
         """Takes a mimetype so object.foo.transform('text/plain') should return
         a plain text version of the raw content
 
@@ -81,7 +81,7 @@ class BaseUnit(File):
         mime type
         """
         encoding = self.original_encoding
-        orig = self.getRaw(encoding)
+        orig = self.getRaw(encoding, instance)
         if not orig:
             return None
 
@@ -104,7 +104,8 @@ class BaseUnit(File):
             assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
-            portal_encoding = self.portalEncoding(instance)
+            portal_encoding = kwargs.get('encoding',None) or \
+	                      self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding \
                        or portal_encoding
             if portal_encoding != encoding:
@@ -115,7 +116,8 @@ class BaseUnit(File):
         # return the raw data if it's not binary data
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
-            portal_encoding = self.portalEncoding(instance)
+            portal_encoding = kwargs.get('encoding',None) or \
+	                      self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig

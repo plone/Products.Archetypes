@@ -49,9 +49,9 @@ __docformat__ = 'restructuredtext'
 import warnings
 import unittest
 
-from Testing.ZopeTestCase.base import TestCase
-from Testing.ZopeTestCase.ZopeTestCase import ZopeTestCase
-from Testing.ZopeTestCase.doctest import doctest
+from Testing.ZopeTestCase import TestCase
+from Testing.ZopeTestCase import ZopeTestCase
+from Testing.ZopeTestCase import doctest
 from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail

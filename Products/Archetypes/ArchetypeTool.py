@@ -567,7 +567,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         results = []
         if type(instance) is not StringType:
-            instance = instance.meta_type
+            instance = instance.portal_type
         try:
             templates = self._templates[instance]
         except KeyError:

@@ -551,11 +551,14 @@ class Field(DefaultLayerContainer):
         determining whether a schema has changed in the auto update
         function.  Right now it's pretty crude."""
         # XXX fixme
-        s = '%s: {' % self.__class__.__name__
+        s = '%s(%s): {' % ( self.__class__.__name__, self.__name__ )
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
         for k in sorted_keys:
-            s = s + '%s:%s,' % (k, self._properties[k])
+            value = getattr( self, k, self._properties[k] )
+            if k == 'widget':
+                value = value.__class__.__name__
+            s = s + '%s:%s,' % (k, value )
         s = s + '}'
         return s
 
@@ -1037,9 +1040,9 @@ class TextField(FileField):
 
         if not shasattr(value, 'transform'): # oldBaseUnits have no transform
             return str(value)
-        data = value.transform(instance, mimetype)
+        data = value.transform(instance, mimetype, encoding=kwargs.get('encoding',None))
         if not data and mimetype != 'text/plain':
-            data = value.transform(instance, 'text/plain')
+            data = value.transform(instance, 'text/plain', encoding=kwargs.get('encoding',None))
         return data or ''
 
     security.declarePrivate('getBaseUnit')
@@ -1181,7 +1184,7 @@ class IntegerField(ObjectField):
         })
 
     security  = ClassSecurityInfo()
-    
+
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
         try:
@@ -1189,7 +1192,7 @@ class IntegerField(ObjectField):
         except (ValueError, TypeError):
             result = False
         else:
-            result = True            
+            result = True
         return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
@@ -1220,7 +1223,7 @@ class FloatField(ObjectField):
         except (ValueError, TypeError):
             result = False
         else:
-            result = True            
+            result = True
         return ObjectField.validate_required(self, instance, result, errors)
 
 
@@ -1258,7 +1261,7 @@ class FixedPointField(ObjectField):
 #        except ValueError:
 #            result = False
 #        else:
-#            result = True            
+#            result = True
 #        return ObjectField.validate_required(self, instance, result, errors)
 
 
@@ -1454,7 +1457,8 @@ class ReferenceField(ObjectField):
 
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
-        elif len(brains) > self.vocabulary_display_path_bound:
+        #elif len(brains) > self.vocabulary_display_path_bound:
+        elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
             label = lambda b:'%s %s %s' % (b.Title or b.id, at,
@@ -1519,9 +1523,9 @@ class ReferenceField(ObjectField):
         return 0
 
 
-class ComputedField(ObjectField):
-    """A field that stores a read-only computation"""
-    __implements__ = ObjectField.__implements__
+class ComputedField(Field):
+    """A field that stores a read-only computation."""
+    __implements__ = Field.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1532,7 +1536,7 @@ class ComputedField(ObjectField):
         'storage': ReadOnlyStorage(),
         })
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('set')
     def set(self, *ignored, **kwargs):
@@ -1540,12 +1544,14 @@ class ComputedField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        """Return computed value"""
+        """Return the computed value."""
         return eval(self.expression, {'context': instance, 'here' : instance})
 
     security.declarePublic('get_size')
     def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
+        """Get size of the stored data.
+
+        Used for get_size in BaseObject.
         """
         return 0
 
@@ -1846,7 +1852,7 @@ class ImageField(FileField):
         elif sizes is None:
             return {}
         else:
-            raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
+            raise TypeError, 'Wrong self.sizes has wrong type: %s' % type(sizes)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'rescaleOriginal')
     def rescaleOriginal(self, value, **kwargs):
@@ -1871,6 +1877,7 @@ class ImageField(FileField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
+                    __traceback_info__ = (self, instance, w, h)
                     fvalue, format = self.scale(data,w,h)
                     value = fvalue.read()
         return value
@@ -1912,10 +1919,14 @@ class ImageField(FileField):
         img = self.getRaw(instance)
         if not img:
             return
+        filename = self.getFilename(instance)
+        #dot = filename.rfind('.')
+        #filename, ext = filename[:dot], filename[dot:]
         data = str(img.data)
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
+            __traceback_info__ = (self, instance, id, w, h)
             try:
                 imgdata, format = self.scale(data, w, h)
             except ConflictError:
@@ -1927,13 +1938,19 @@ class ImageField(FileField):
                     log_exc()
                     # scaling failed, don't create a scaled version
                     continue
+            mimetype = 'image/%s' % format
             image = self.content_class(id, self.getName(),
                                      imgdata,
-                                     'image/%s' % format
+                                     mimetype
                                      )
+            # nice filename: filename_sizename.ext
+            #fname = "%s_%s%s" % (filename, n, ext)
+            #image.filename = fname
+            image.filename = filename
             # manually use storage
             delattr(image, 'title')
-            self.getStorage(instance).set(id, instance, image)
+            self.getStorage(instance).set(id, instance, image,
+                                          mimetype=mimetype, filename=filename)
 
     security.declarePrivate('scale')
     def scale(self, data, w, h):
@@ -1964,7 +1981,7 @@ class ImageField(FileField):
         #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or 'PNG'
         # decided to only preserve palletted mode
-        # for GIF, could also use   image.format in ('GIF','PNG')
+        # for GIF, could also use image.format in ('GIF','PNG')
         if original_mode == 'P' and format == 'GIF':
             image = image.convert('P')
         thumbnail_file = StringIO()

@@ -4,6 +4,7 @@ from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type

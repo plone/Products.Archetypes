@@ -134,11 +134,6 @@ class BaseSQLStorage(StorageLayer):
         columns = []
         args = {}
         for field in fields:
-            if field.type=='computed':
-                #computed field must not be persistent (and no database
-                #knows how to deal with a 'computed' datatype
-                continue
-            
             type = self.db_type_map.get(field.type, field.type)
             name = field.getName()
             # MySQL supports escape for columns names!
