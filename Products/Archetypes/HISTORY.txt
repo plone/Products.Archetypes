@@ -1,6 +1,10 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed __pkginfo__.py: use version.txt instead of coping a string to
+   several places; changed license to the current license "BSD-like".
+   [yenzenz]
+
  * Fixed reference cataloging when dealing with BTree folders.
    [brcwhit]
 
