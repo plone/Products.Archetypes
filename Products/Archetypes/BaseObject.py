@@ -180,8 +180,15 @@ class BaseObject(Implicit):
                                **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
-    def getContentType(self, key):
+    def getContentType(self, key=None):
         value = 'text/plain' #this should maybe be octet stream or something?
+
+        # obj.getContentType() returns the mimetype of the first primary field
+        if key is None:
+            pfield = self.getPrimaryField()
+            if pfield and hasattr(pfield, 'getContentType'):
+                return pfield.getContentType()
+
         field = self.getField(key)
         if field and hasattr(field, 'getContentType'):
             return field.getContentType(self)
