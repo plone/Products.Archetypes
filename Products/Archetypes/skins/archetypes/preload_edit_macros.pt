@@ -1,0 +1,277 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <div metal:define-macro="header">
+      <h1 i18n:translate="heading_edit_item"
+          metal:define-slot="title">
+        Edit
+        <span i18n:name="itemtype"
+              tal:define="fti python:here.portal_types.getTypeInfo(here)">
+          <span i18n:translate=""
+                tal:content="fti/title_or_id"
+                tal:omit-tag="">Item type</span>
+        </span>
+      </h1>
+
+      <metal:block define-slot="extra_info" />
+
+      <p class="portalMessage"
+         tal:condition="isLocked"
+         i18n:translate="description_webdav_locked">
+        This item is in use by someone else and cannot be modified
+      </p>
+
+    </div>
+
+    <div metal:define-macro="typedescription">
+        <tal:description tal:define="msgid here/typeDescMsgId | nothing;
+                                     default here/typeDescription| nothing;"
+                         tal:condition="default">
+
+          <p tal:content="python:here.translate(msgid=msgid, default=default)">
+            type description
+          </p>
+
+        </tal:description>
+    </div>
+
+    <div metal:define-macro="body"
+            tal:define="schematas           here/Schemata;
+                        fs_info             python:here.getFieldsetInfo(errors=errors, schematas=schematas, fieldsets=fieldsets);
+                        fieldsetToShow      fs_info/default;
+                        fieldsetsWithErrors fs_info/fieldsets_with_errors">
+
+      <style>
+      .fieldset_label_error_selected {color: red; font-weight: bold}
+      .fieldset_label_error_normal {color: red}
+      .fieldset_label_noerror_selected {font-weight: bold}
+      .fieldset_label_noerror {}
+      .fieldset_box {width:100%; 
+                     clear:right;
+                     }
+      </style>
+
+      <form name="edit_form"
+            style="clear:both"
+            method="post"
+            enctype="multipart/form-data"
+            action=""
+            tal:attributes="action python:here.absolute_url()+'/'+template.id">
+
+        <input type="hidden" id="defaultFieldset" value="" tal:attributes="value   fieldsetToShow" />
+
+        <tal:fieldset tal:repeat="fieldset fieldsets">
+        <fieldset id=""
+            class="fieldset_box"
+            name="at_fieldset"
+            tal:define="fields      python:schematas[fieldset].editableFields(here);"
+            tal:attributes="id      string:fieldset_${fieldset};">
+
+          <legend tal:define="iconname python: here.getIcon(1);
+                              icon python: here.portal_url() + '/' + iconname">
+
+              <img alt="" tal:attributes="src icon" />
+
+            <tal:buttons tal:repeat="button fieldsets">
+            <a onClick="showFieldset" 
+                tal:omit-tag="python:fieldset==button"
+                tal:attributes="onClick     string:return showFieldset('$button');
+                                href        string:javascript:return showFieldset('$button')"
+                href="#">
+                <span tal:define="
+                            is_error      python:test(button in fieldsetsWithErrors,'error','noerror');"
+                      tal:attributes="
+                            class         python:test(button!=fieldset,'fieldset_label_%s_normal' %is_error,'fieldset_label_%s_selected' %is_error)"
+                          class="">
+              <tal:legend >
+                <tal:fieldset i18n:translate="legend_fieldset_details"
+                              tal:condition="python:button!='default'">
+                  <span i18n:name="fieldset">
+                    <span i18n:translate=""
+                          tal:content="button" />
+                  </span>
+                </tal:fieldset>
+                <tal:type i18n:translate="legend_type_details"
+                          tal:condition="python:button=='default'">
+                  <span i18n:name="type" tal:define="fti python:here.portal_types.getTypeInfo(here)">
+
+                    <span i18n:translate=""
+                          tal:content="fti/title_or_id" />
+                  </span>
+                  Details
+                </tal:type>
+              </tal:legend>
+              </span>
+                </a> <span tal:condition="not:repeat/button/end" tal:omit-tag=""> | </span>
+            </tal:buttons>
+          </legend>
+
+          <metal:block define-slot="extra_top" />
+
+          <metal:block define-slot="widgets">
+            <tal:fields repeat="field fields">
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+            </tal:fields>
+          </metal:block>
+
+          <metal:block define-slot="extra_bottom" />
+
+          <div class="formControls">
+
+            <input type="hidden"
+                   name="form.submitted"
+                   value="1"
+                   />
+            <input type="hidden"
+                   name="add_reference.field:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.type:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.destination:record"
+                   value=""
+                   />
+
+            <tal:env define="env request/controller_state/kwargs">
+              <tal:loop repeat="varname python:('reference_source_url', 'reference_source_field', 'reference_source_fieldset')">
+                <tal:reference define="items python:env.get(varname, request.get(varname))"
+                               condition="items">
+                  <input tal:repeat="item items"
+                         type="hidden"
+                         name="form_env.reference_source_url:list:record"
+                         value="value"
+                         tal:attributes="value item;
+                                         name string:form_env.${varname}:list:record"
+                         />
+                </tal:reference>
+              </tal:loop>
+            </tal:env>
+
+            <tal:comment replace="nothing">
+              Turn 'persistent_' variables from controller_state persistent
+            </tal:comment>
+            <tal:env repeat="env request/controller_state/kwargs/items">
+              <input type="hidden"
+                     name="key"
+                     value="value"
+                     tal:define="key python:env[0];
+                                 value python:env[1]"
+                     tal:condition="python:key.startswith('persistent_')"
+                     tal:attributes="name string:form_env.${key}:record;
+                                     value value"
+                     />
+            </tal:env>
+
+            <tal:comment replace="nothing">
+              Turn 'persistent_' variables from forms (GET/POST) persistent
+            </tal:comment>
+            <tal:env repeat="env request/form">
+              <input type="hidden"
+                     name="key"
+                     value="value"
+                     tal:define="key env;
+                                 value request/?env"
+                     tal:condition="python:key.startswith('persistent_')"
+                     tal:attributes="name string:form_env.${key}:record;
+                                     value value"
+                     />
+            </tal:env>
+
+            <tal:comment replace="nothing">
+              Store referrer to remember where to go back
+            </tal:comment>
+            <input type="hidden"
+                   name="last_referer"
+                   tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
+                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or here.aq_parent.absolute_url()"
+                   />
+
+            <metal:block define-slot="buttons"
+                   tal:define="fieldset_index python:fieldsets.index(fieldset);
+                               n_fieldsets python:len(fieldsets)">
+
+                <input class="context"
+                       tabindex=""
+                       type="submit"
+                       name="form_submit"
+                       value="Save"
+                       i18n:attributes="value"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
+                       />
+                <input class="standalone"
+                       tabindex=""
+                       type="submit"
+                       name="form.button.cancel"
+                       value="Cancel"
+                       i18n:attributes="value"
+                       tal:attributes="tabindex tabindex/next"
+                       />
+            </metal:block>
+
+            <metal:block define-slot="extra_buttons" />
+
+          </div>
+
+        </fieldset>
+        </tal:fieldset>
+        <script language="JavaScript">
+        <!--
+
+        // init stuff
+
+        var active;
+
+        elements = document.getElementsByName('at_fieldset')
+
+        // find active element
+        value = document.getElementById('defaultFieldset').value
+        active = document.getElementById('fieldset_'+value)
+
+        // find the active fieldset
+        for (var i=0; i< elements.length; i++) {
+            if (elements[i]==active) {
+                elements[i].style.display='inline'
+            } else {
+                elements[i].style.display='none'
+            }
+        }
+
+        function showFieldset(name) {
+            // switch off active fieldset
+            active.style.display='none';
+            el = document.getElementById('fieldset_'+name)
+            el.style.display="inline"
+            active = el;
+            return True;
+        }
+
+
+        -->
+        </script>
+
+      </form>
+
+    </div>
+
+    <metal:footer_macro define-macro="footer">
+      <tal:has_document_byline tal:condition="exists:here/document_byline">
+        <div metal:use-macro="here/document_byline/macros/byline">
+          Get the byline - contains details about author and modification date.
+        </div>
+      </tal:has_document_byline>
+    </metal:footer_macro>
+        
+  </body>
+
+</html>

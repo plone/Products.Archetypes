@@ -10,6 +10,8 @@
                    portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
                    type_name here/getPortalTypeName|here/archetype_name;
                    base_macros here/edit_macros/macros;
+                   base_macros2 here/preload_edit_macros/macros;
+                   base_macros python:test(getattr(here,'USE_PRELOAD_SCHEMATA_UI',0)==1,base_macros2,base_macros);
                    edit_template python:'%s_edit' % portal_type;
                    edit_macros python:path('here/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;

@@ -133,6 +133,9 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
+    # set this to 1 if you use schematas and want to use the DHTML screen
+    USE_PRELOAD_SCHEMATA_UI=0
+
     __implements__ = (IBaseObject, ) + Referenceable.__implements__
 
     def __init__(self, oid, **kwargs):
