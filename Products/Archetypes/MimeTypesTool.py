@@ -3,7 +3,7 @@ from types import UnicodeType
 
 from transform.interfaces import implements, imimetype, isourceAdapter, imimetypes_registry
 from transform.mime_types import initialize
-from transform.mimetype import mimetype
+from transform.mimetype import mimetype, MimeTypeException
 
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
@@ -101,15 +101,11 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
         mimetype must implement imimetype
         """
         assert implements(mimetype, imimetype)
-#        mimetype = MimeTypeItem(mimetype.name(), mimetype.mimetypes, mimetype.extensions, mimetype.binary)
         mimetype.icon_path = icon_path or guess_icon_path(mimetype)
         for t in mimetype.mimetypes:
-            mt = split(t)
-            if not mt or len(mt) != 2:
-                raise 'Bad mime type %s' % t
-            major, minor = mt
+            major, minor = split(t)
             if not major or not minor or minor == '*':
-                raise 'Bad mime type %s' % t
+                raise MimeTypeException('Can\'t register mime type %s' % t)
             group = self._mimetypes.setdefault(major, PersistentMapping())
             if group.has_key(minor):
                 log('Warning: redefining mime type %s (%s)' % (t, mimetype.__class__))
@@ -131,21 +127,13 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
         """
         assert implements(mimetype, imimetype)
         for t in mimetype.mimetypes:
-            mt = split(t)
-            if not mt or len(mt) != 2:
-                continue
-            major, minor = mt
+            major, minor = split(t)
             group = self._mimetypes.get(major, {})
             if group.get(minor) == mimetype:
                 del group[minor]
-            else:
-                reg = group.get(minor)
-
         for e in mimetype.extensions:
             if self.extensions.get(e) == mimetype:
                 del self.extensions[e]
-            else:
-                reg = self.extensions.get(e)
 
 
     security.declarePublic('mimetypes')
@@ -277,4 +265,8 @@ def guess_icon_path(mimetype, icons_dir=ICONS_DIR, icon_ext='png'):
 
 def split(name):
     """ split a mime type in a (major / minor) 2-uple """
-    return name.split('/', 1)
+    try:
+        major, minor = name.split('/', 1)
+    except:
+        raise MimeTypeException('Malformed MIME type (%s)' % name)
+    return major, minor
