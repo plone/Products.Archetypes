@@ -9,8 +9,6 @@ from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
 
-
-
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
@@ -79,9 +77,11 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
+        typeinfo_name="%s: %s" % (package_name, type.__name__)
+
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                            id=type.__name__,
-                                            typeinfo_name="%s: %s" %(package_name, type.__name__))
+                                                id=type.__name__,
+                                                typeinfo_name=typeinfo_name)
         # set the human readable title explicitly
         t = getattr(typesTool, type.__name__, None)
         if t:
@@ -192,13 +192,30 @@ def installTypes(self,
     """Use this for your site with your types"""
 
     filtered_types = []
+    typesTool = self.portal_types
+
     for t in types:
+        typeinfo_name="%s: %s" % (package_name, t.__name__)
+        info = typesTool.listDefaultTypeInformation()
+        found = 0
+        for (name, ft) in info:
+            if name == typeinfo_name:
+                found = 1
+                break
+
+        if not found:
+            print >> out, '%s is not a registered Type Information' % typeinfo_name
+            continue
+            
         if IBaseObject.isImplementedByInstancesOf(t):
             filtered_types.append(t)
         else:
             print >> out, """%s doesnt implements IBaseObject. Possible misconfiguration.""" % repr(t) + \
                           """ Check if your class has an '__implements__ = IBaseObject'""" + \
                           """ (or IBaseContent, or IBaseFolder)"""
+
+            
+        
 
     types = filtered_types
     install_tools(self, out)

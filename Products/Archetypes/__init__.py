@@ -5,9 +5,6 @@ from Products.CMFCore.DirectoryView import registerDirectory
 from config import *
 from debug import log
 
-
-
-
 registerDirectory('skins', globals())
 
 from ArchetypeTool import ArchetypeTool, \
@@ -18,7 +15,6 @@ from ArchetypeTool import listTypes as baseListTypes
 tools = (
     ArchetypeTool,
     )
-
 
 ###
 ## back compat type registration
@@ -48,7 +44,7 @@ def initialize(context):
                    icon="tool.gif",
                    ).initialize(context)
 
-    if INCLUDE_DEMO_TYPES:
+    if REGISTER_DEMO_TYPES:
         import examples        
 
         content_types, constructors, ftis = process_types(
@@ -61,7 +57,5 @@ def initialize(context):
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
-
-
 
 types_globals=globals()

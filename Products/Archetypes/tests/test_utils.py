@@ -68,7 +68,7 @@ class DisplayListTest( unittest.TestCase ):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(dl.items() == l)
+        self.failUnless(dl.items() == tuple(l))
 
     def test_repr(self):
         ta = ('a', 'b', 'c')

@@ -17,6 +17,9 @@ def test_suite():
         'test_utils',
         'test_sqlstorage',
         'test_schemata', 
+        'test_sitepolicy', 
+        'test_referenceable', 
+        'test_rename', 
         ])
 
 if __name__ == '__main__':

@@ -19,6 +19,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, TOOL_NAME
 from Products.Archetypes import listTypes
 from Products.Archetypes import SQLStorage
+from Products.Archetypes.tests.test_rename import RenameTests
 
 from DateTime import DateTime
 
@@ -243,6 +244,34 @@ for db_name in connectors.keys():
         StorageTestSubclass.tearDown = teardown
         
     tests.append(StorageTestSubclass)
+
+
+#################################################################
+# test rename with each db
+
+for db_name in connectors.keys():
+
+    class StorageTestRenameSubclass(RenameTests, SQLStorageTest):
+
+        def setup(self):
+            RenameTests.setup(self)
+            SQLStorageTest.setup(self)
+            
+        def tearDown(self):
+            RenameTests.tearDown(self)
+            SQLStorageTest.tearDown(self)
+
+        db_name = db_name
+
+    customclean = cleanup.get(db_name, None)
+    if customclean is not None:
+        oldtearDown = StorageTestRenameSubclass.tearDown
+        def tearDown(self):
+            oldtearDown(self)
+            customclean(self)
+        StorageTestRenameSubclass.tearDown = tearDown
+        
+    tests.append(StorageTestRenameSubclass)
 
 #################################################################
 # run tests

@@ -193,7 +193,7 @@ class DisplayList:
         """return a new display list sorted by value"""
         def _cmp(a, b):
             return cmp(a[1], b[1])
-        values = self.items()
+        values = list(self.items())
         values.sort(_cmp)
         return DisplayList(values)
     
@@ -201,7 +201,7 @@ class DisplayList:
         """return a new display list sorted by value"""
         def _cmp(a, b):
             return cmp(a[0], b[0])
-        values = self.items()
+        values = list(self.items())
         values.sort(_cmp)
         return DisplayList(values)
 
