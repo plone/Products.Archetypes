@@ -1,4 +1,8 @@
-2003-09-01  Sidnei da Silva  <sidnei@dreamcatcher.homeunix.org>
+2003-09-01  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.__getitem__): Fixed ExternalEditor
+	with Archetypes, by passing maybe_baseunit, which triggers getRaw
+	to return the BaseUnit instead of it's string value.
 
 	* Marshall.py (PrimaryFieldMarshaller.marshall): Issue a log
 	warning instead of cryptic error if no IBaseUnit returned.

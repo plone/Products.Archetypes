@@ -1,5 +1,4 @@
 import sys
-from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
@@ -202,12 +201,10 @@ class BaseObject(Implicit):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-
-        try:
-            f = self.Schema()[key]
-            return f.get(self, raw=1)
-        except:
-            return self.Schema()[key].getAccessor(self)()
+        accessor = self.Schema()[key].getEditAccessor(self)
+        if not accessor:
+            accessor = self.Schema()[key].getAccessor(self)
+        return accessor(maybe_baseunit=1)
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):
@@ -280,7 +277,6 @@ class BaseObject(Implicit):
     def SearchableText(self):
         """full indexable text"""
         data = []
-        charset = self.portal_properties.site_properties.default_charset
         for field in self.Schema().fields():
             if field.searchable != 1:
                 continue
@@ -297,9 +293,6 @@ class BaseObject(Implicit):
             if datum:
                 if type(datum) is type([]) or type(datum) is type(()):
                     datum = ' '.join(datum)
-                # FIXME: we really need an unicode policy !
-                if type(datum) is type(u''):
-                    datum = datum.encode(charset)
                 data.append(datum)
 
         data = [str(d) for d in data if d is not None]
@@ -325,8 +318,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               '_processForm')
-    def _processForm(self, data=1, metadata=None):
-        request = self.REQUEST
+    def _processForm(self, data=1, metadata=None, REQUEST=None):
+        request = REQUEST or self.REQUEST
         form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
@@ -378,21 +371,34 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0):
+    def processForm(self, data=1, metadata=0, REQUEST=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata)
+        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
 
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
+    security.declarePrivate( '_datify' )
+    def _datify( self, attrib ):
+        """FIXME: overriden from DublinCore to deal with blank value..."""
+        if attrib == 'None' or not attrib:
+            attrib = None
+        elif not isinstance( attrib, DateTime ):
+            attrib = DateTime( attrib )
+        return attrib
 
-    # I18N content management #################################################
+    security.declarePublic( 'Date' )
+    def Date( self ):
+        """FIXME: overriden from DublinCore to deal with blank value...
+        Dublin Core element - default date
+        """
+        # Return effective_date if set, modification date otherwise
+        date = getattr(self, 'effective_date', None )
+        if not date:
+            date = self.modified()
+        return date.ISO()
 
-    security.declarePublic("hasI18NContent")
-    def hasI18NContent(self):
-        """return true it the schema contains at least one I18N field"""
-        return self.Schema().hasI18NContent()
 
     # Handle schema updates ####################################################
 
@@ -524,6 +530,18 @@ class BaseObject(Implicit):
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
 
+    # I18N content management #################################################
+
+    security.declarePublic("hasI18NContent")
+    def hasI18NContent(self):
+        """return true it the schema contains at least one I18N field
+
+        not implemented in this release but we should keep the hasI18NContent
+        methods !
+        """
+        return self.Schema().hasI18NContent()
+
+
     # subobject access ########################################################
     #
     # some temporary objects could be set by fields (for instance additional
@@ -534,14 +552,13 @@ class BaseObject(Implicit):
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
-        if objects:
-            if REQUEST is None:
-                REQUEST = self.REQUEST
-            key = '/'.join(self.getPhysicalPath())
-            session = REQUEST.SESSION
-            defined = session.get(key, {})
-            defined.update(objects)
-            session[key] = defined
+        if REQUEST is None:
+            REQUEST = self.REQUEST
+        key = self.absolute_url()
+        session = REQUEST.SESSION
+        defined = session.get(key, {})
+        defined.update(objects)
+        session[key] = defined
 
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """add a dictionnary of objects to session variable
@@ -570,7 +587,7 @@ class BaseObject(Implicit):
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
-        
+
 class Wrapper:
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1
