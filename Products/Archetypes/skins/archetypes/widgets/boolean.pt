@@ -39,7 +39,7 @@
 		 name string:${fieldName}_visible;
 		 onClick string:toggle_boolean('${fieldName}', '${fieldName}_hidden');; return true;
 		 id fieldName;
-		 checked python:not not value;"
+		 checked python:not not value and value not in ('0', 'False');"
 		 />
 	  <input type="hidden"
 		 tal:attributes="name fieldName;
