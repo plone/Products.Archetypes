@@ -24,7 +24,8 @@ import sys, os, shutil
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class test_update_schema1(ArcheSiteTestCase):
+class test_update_schema1(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
+
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
