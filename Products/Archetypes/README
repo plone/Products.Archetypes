@@ -1,22 +1,21 @@
 generator
 =========
 
-Widget generator package, originaly designed for Archetypes but usable as a 
+Widget generator package, originally designed for Archetypes but usable as a 
 standalone package.
-
-
-WARNING
--------
-
-This package was used to be installed in the Products directory of your Zope 
-installation. It's not the case anymore, you should install it as a regular 
-python package (see instructions below).
 
 
 Installation
 ------------
 
 * Extract the tarball 
+
+
+EITHER:
+
+* Drop it in your Zope Products directory
+
+OR:
 
 * Run "python setup.py install". See "python setup.py install  --help" for
 installation options. If you have multiple python installations and use  
