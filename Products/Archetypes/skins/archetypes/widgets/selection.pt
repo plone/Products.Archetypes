@@ -24,6 +24,7 @@
 
             <metal:fill fill-slot="widget_body"
                         tal:define="vocab python:field.Vocabulary(here);
+                                    indexes python:vocab.getIndexesFromKeys(value);
                                     vlen python:len(vocab);
                                     format python:field.widget.format">
 
@@ -36,11 +37,12 @@
                         <input class="noborder"
                                tabindex=""
                                type="radio"
-                               tal:define="tabindex tabindex/next"
-                               tal:attributes="name fieldName;
+                               tal:define="index python:vocab.getIndex(item);
+                                           tabindex tabindex/next"
+                               tal:attributes="name string:$fieldName:int;
                                                id string:${fieldName}_${tabindex};
                                                checked python:here.checkSelected(item, value);
-                                               value item;
+                                               value index;
                                                tabindex tabindex;"
                                />
 
@@ -58,12 +60,12 @@
 
                     <!-- Pulldown when longer -->
 
-                    <select tal:attributes="name fieldName;
+                    <select tal:attributes="name string:$fieldName:int;
                                             id fieldName;
                                             tabindex tabindex/next;">
 
                         <option tal:repeat="item vocab"
-                                tal:attributes="value item;
+                                tal:attributes="value python:vocab.getIndex(item);
                                                 selected python:test(here.checkSelected(item, value), 'selected', None);"
                                 tal:content="python:vocab.getValue(item)"
                                 i18n:translate=""

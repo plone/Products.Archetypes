@@ -101,6 +101,23 @@ class TypesWidget(macrowidget):
             return empty_marker
         return value, {}
 
+class VocabularyWidget(TypesWidget):
+
+    security = ClassSecurityInfo()
+    
+    security.declarePublic('process_form')
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
+        """Vocabulary impl for form processing in a widget"""
+        value = form.get(field.getName(), empty_marker)
+        value = field.Vocabulary(instance).getKeysFromIndexes(value)
+        
+        if value is empty_marker:
+            return empty_marker
+        if emptyReturnsMarker and value == '':
+            return empty_marker
+        return value, {}
+
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -134,7 +151,7 @@ class IntegerWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-class ReferenceWidget(TypesWidget):
+class ReferenceWidget(VocabularyWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
@@ -329,7 +346,7 @@ class CalendarWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-class SelectionWidget(TypesWidget):
+class SelectionWidget(VocabularyWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'format': "flex", # possible values: flex, select, radio
@@ -338,7 +355,7 @@ class SelectionWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-class MultiSelectionWidget(TypesWidget):
+class MultiSelectionWidget(VocabularyWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'format': "select", # possible values: select, checkbox
@@ -584,7 +601,7 @@ class EpozWidget(TextAreaWidget):
 
     security = ClassSecurityInfo()
 
-class InAndOutWidget(TypesWidget):
+class InAndOutWidget(VocabularyWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/inandout",
@@ -594,7 +611,7 @@ class InAndOutWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-class PicklistWidget(TypesWidget):
+class PicklistWidget(VocabularyWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/picklist",

@@ -63,6 +63,7 @@
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
+                         indexes python:vocab.getIndexesFromKeys(value);
                          fieldName python:fieldName+':list';
                          uids value;
                          vlen python:len(vocab);">
@@ -70,7 +71,7 @@
           <input type="hidden"
                  value=""
                  tal:condition="python:not field.required and multiVal"
-                 tal:attributes="name string:$fieldName:default:list"
+                 tal:attributes="name string:$fieldName:default:list:int"
                  />
 
           <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
@@ -84,7 +85,7 @@
                        tal:attributes="name fieldName;
                                        checked python:test(item in uids, 'checked', nothing);
                                        tabindex item_tabindex;
-                                       value item;
+                                       value python:vocab.getIndex(item);
                                        id item_id;
                                        type python:multiVal and 'checkbox' or 'radio'"
                        />
@@ -99,14 +100,14 @@
 
           <div tal:condition="python:vlen &gt; widget.checkbox_bound">
             <!-- pulldown for longer vocabs -->
-            <select tal:attributes="name fieldName;
+            <select tal:attributes="name string:$fieldName:int;
                                     id fieldName;
                                     multiple python:multiVal and 'multiple' or None;
                                     tabindex tabindex/next;">
 
               <option selected="selected"
                       tal:repeat="item vocab"
-                      tal:attributes="value item;
+                      tal:attributes="value python:vocab.getIndex(item);
                                       selected python:test((item in uids), 'selected', '')"
                       tal:content="python:vocab.getValue(item)"></option>
             </select>

@@ -9,26 +9,27 @@
 <!-- Picklist Widgets -->
 
     <metal:view_macro define-macro="view"
-		      tal:define="vocab python:field.Vocabulary(here);
-		      value python:accessor();
-		      display python:here.displayValue(vocab, value);"
-		      tal:replace="structure display" />
+          tal:define="vocab python:field.Vocabulary(here);
+          value python:accessor();
+          display python:here.displayValue(vocab, value);"
+          tal:replace="structure display" />
 
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
-                    tal:define="vocab python:field.Vocabulary(here);
+                    tal:define="value python:accessor();
+                                vocab python:field.Vocabulary(here);
+                                indexes python:vocab.getIndexesFromKeys(value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"
                  value=""
                  tal:condition="not:field/required|nothing"
-                 tal:attributes="name string:$fieldName:default:list;"
+                 tal:attributes="name string:$fieldName:default:list:int;"
                  />
 
           <table>
-            <tr tal:define="value python:accessor();
-                            vocab python:field.Vocabulary(here);">
+            <tr>
               <td>
                 <select
                   multiple="multiple"
@@ -37,12 +38,16 @@
                                   size widget/size;
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:pick_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
-                  <option
-                    tal:repeat="item vocab"
-                    tal:attributes="value item;"
-                    tal:content="python:vocab.getValue(item)">
-                    option
-                  </option>
+                  
+                  <tal:block tal:repeat="vocab_item vocab">
+                    <option
+                      tal:define="label python:vocab.getValue(vocab_item);
+                                  index python:vocab.getIndex(vocab_item);"
+                      tal:attributes="value index;"
+                      tal:content="label">
+                      option
+                    </option>
+                  </tal:block>
                 </select>
               </td>
 
@@ -59,7 +64,7 @@
               <td>
                 <select
                   multiple="multiple"
-                  tal:attributes="name string:${fieldName}:list;
+                  tal:attributes="name string:${fieldName}:list:int;
                                   id string:${fieldName};
                                   size widget/size;
                                   tabindex tabindex/next;
@@ -67,11 +72,11 @@
 
                   <tal:block tal:repeat="vocab_item vocab">
                     <option
-                      tal:define="label python:vocab.getValue(vocab_item)"
-                      tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 1, 0)"
-                      tal:attributes="value vocab_item;"
-                      tal:content="label" 
-		      selected="selected">
+                      tal:define="label python:vocab.getValue(vocab_item);
+                                  index python:vocab.getIndex(vocab_item);"
+                      tal:condition="python:test(index in indexes, 1, 0)"
+                      tal:attributes="value index;"
+                      tal:content="label">
                       option
                     </option>
                   </tal:block>

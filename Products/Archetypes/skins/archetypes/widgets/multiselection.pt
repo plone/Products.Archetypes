@@ -9,54 +9,60 @@
     <!-- Selection Widgets -->
 
     <metal:view_macro define-macro="view"
-		      tal:define="vocab python:field.Vocabulary(here);
-		      value python:accessor();
-		      display python:here.displayValue(vocab, value);"
-		      tal:replace="structure display" />
+          tal:define="vocab python:field.Vocabulary(here);
+          value python:accessor();
+          display python:here.displayValue(vocab, value);"
+          tal:replace="structure display" />
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-	<metal:fill fill-slot="widget_body"
-		    tal:define="vocab python:field.Vocabulary(here);
-		    format python:test(field.widget.format,field.widget.format,'select');
-		    vlen  python: len(vocab)">
-
-	  <input type="hidden"
-		 value=""
-		 tal:condition="not:field/required|nothing"
-		 tal:attributes="name string:$fieldName:default:list;" />
-	  <span tal:repeat="item vocab" tal:omit-tag=""
-		tal:condition="python:format=='checkbox'">
-	    <tal:block tal:define="tabindex tabindex/next">
-	      <input
-	       tal:attributes="type string:checkbox;
-	       name string:$fieldName:list;
-	       id string:${fieldName}_${tabindex};
-	       tabindex tabindex;
-	       checked python:test(here.unicodeTestIn(item, value), 'checked', None);
-	       value nocall:item;"
-	       />
-	      <label for="field"
-		     tal:attributes="for string:${fieldName}_${tabindex}"
-		     tal:content="python:vocab.getValue(item)" />
-	      <br />
-	    </tal:block>
-	  </span>
-
-	  <select multiple="multiple"
-		  tal:condition="python:format=='select'"
-		  tal:attributes="name string:${fieldName}:list;
-		  id fieldName;
-		  size widget/size;
-		  tabindex tabindex/next;">
-	    <option selected=""
-		    tal:repeat="item vocab"
-		    tal:attributes="value nocall:item;
-		    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
-		    tal:content="python: vocab.getValue(item)"
-		    i18n:translate="" />
-	  </select>
-	</metal:fill>
+        <metal:fill fill-slot="widget_body"
+                    tal:define="vocab python:field.Vocabulary(here);
+                                format python:test(field.widget.format,field.widget.format,'select');
+                                vlen  python: len(vocab);
+                                indexes python:vocab.getIndexesFromKeys(value);">
+      
+          <input type="hidden"
+                 value=""
+                 tal:condition="not:field/required|nothing"
+                 tal:attributes="name string:$fieldName:default:list:int;" />
+          
+          <tal:block tal:condition="python:format=='checkbox'">
+            <tal:block tal:repeat="item vocab">
+              <input tal:define="index python:vocab.getIndex(item);
+                                 tabindex tabindex/next;"
+                     tal:attributes="type string:checkbox;
+                                     name string:$fieldName:list:int;
+                                     id string:${fieldName}_${tabindex};
+                                     tabindex tabindex;
+                                     checked python:test(index in indexes, 'checked', None);
+                                     value index;" />
+              <label for="field"
+                     tal:attributes="for string:${fieldName}_${tabindex}"
+                     tal:content="python:vocab.getValue(item)" />
+              <br />
+            </tal:block>
+          </tal:block>
+      
+          <tal:block tal:condition="python:format=='select'">
+            <select multiple="multiple"
+                    tal:condition="python:format=='select'"
+                    tal:attributes="name string:${fieldName}:list:int;
+                                    id fieldName;
+                                    size widget/size;
+                                    tabindex tabindex/next;">
+                                    
+              <tal:block tal:repeat="item vocab">
+                <option selected=""
+                        tal:define="index python:vocab.getIndex(item);"
+                        tal:attributes="value index;
+                                        selected python:test(index in indexes, 'selected', None);"
+                        tal:content="python:vocab.getValue(item)"
+                        i18n:translate="" />
+              </tal:block>
+            </select>
+          </tal:block>
+        </metal:fill>
       </metal:use>
     </metal:define>
 

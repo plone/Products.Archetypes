@@ -225,9 +225,6 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         self.index +=1
-        # All keys are changed into string
-        # With this you can use None as key
-        key = str(key)
         k = (self.index, key)
         v = (self.index, value)
 
@@ -254,6 +251,55 @@ class DisplayList:
             if repr(key) == repr(k):
                 return v[1]
         return default
+
+    def getIndex(self, key):
+        "get index from key"
+        v = self._keys.get(key, None)
+        if v: return v[0]
+        for k, v in self._keys.items():
+            if repr(key) == repr(k):
+                return v[0]
+                
+        return None
+        
+    def getIndexesFromKeys(self, keys):
+        "get indexes from keys (list or not)"
+        list_type = (type(keys) in (ListType, TupleType))
+        
+        if not list_type:
+            v = self._keys.get(keys, None)
+            if v: 
+               return [v[0]]
+            else:
+               return []
+        
+        indexes = []
+        
+        for k in keys:
+            v = self._keys.get(k, None)
+            if v:
+                indexes.append(v[0])
+                
+        return indexes
+        
+    def getKeysFromIndexes(self, indexes):
+        "get keys from indexes (list or not)"
+        list_type = (type(indexes) in (ListType, TupleType))
+        build_indexes = dict([(v[0], k) for k, v in self._keys.items()])
+        
+        if not list_type:
+            if build_indexes.has_key(indexes):
+                return build_indexes[indexes]
+            else:
+                return None
+            
+        keys = []
+        
+        for i in indexes:
+            if build_indexes.has_key(i):
+                keys.append(build_indexes[i])
+                
+        return keys
 
     def getMsgId(self, key):
         "get i18n msgid"
