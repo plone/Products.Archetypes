@@ -140,7 +140,7 @@ class macrowidget(widget):
                 template = instance.restrictedTraverse(path = path)
                 if template:
                     return template.macros[mode]
-            except (Unauthorized, AttributeError):
+            except (Unauthorized, AttributeError, KeyError):
                 # This means we didn't have access or it doesn't
                 # exit
                 pass
