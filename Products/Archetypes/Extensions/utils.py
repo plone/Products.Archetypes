@@ -366,3 +366,29 @@ def installTypes(self, out, types, package_name,
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies)
+    refreshReferenceCatalog(self, out, types, package_name)
+
+
+def refreshReferenceCatalog(self, out, types, package_name):
+    """refresh the reference catalog to reindex objects after reinstalling a
+    AT based product.
+    
+    This may take a very long time but it seems to be required under some
+    circumstances.
+    """
+    rc = getToolByName(self, REFERENCE_CATALOG)
+    ftypes = filterTypes(self, out, types, package_name)
+    mt = tuple([t.meta_type for t in ftypes])
+    
+    # because manage_catalogFoundItems sucks we have to do it on our own ...
+    func    = rc.catalog_object
+    obj     = self
+    path    = '/'.join(obj.getPhysicalPath())
+    REQUEST = self.REQUEST
+
+    rc.ZopeFindAndApply(obj,
+                        obj_metatypes=mt,
+                        search_sub=1,
+                        REQUEST=REQUEST,
+                        apply_func=func,
+                        apply_path=path)
