@@ -295,8 +295,9 @@ class ReferenceResolver(Base):
         ZCatalog protocol for traversal
         """
         parts = path.split('/')
-        if parts[-1].find(REF_PREFIX) == 0:
-            path = '/'.join(parts[:-1])
+        # XXX REF_PREFIX is undefined
+        #if parts[-1].find(REF_PREFIX) == 0:
+        #    path = '/'.join(parts[:-1])
 
         portal_object = self.portal_url.getPortalObject()
 
