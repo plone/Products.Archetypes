@@ -531,13 +531,14 @@ class FileField(StringField):
                 f_name = value.filename
             if isinstance(value, FileType) or hasattr(value, 'name'):
                 f_name = value.name
+            # Get only last part from a 'c:\\folder\\file.ext'
+            f_name = f_name.split('\\')[-1]
             value = value.read()
             if mimetype is None:
                 mimetype, enc = guess_content_type(f_name, value, mimetype)
             size = len(value)
             if size == 0:
-                # This new file has no length, so we keep
-                # the orig
+                # This new file has no length, so we keep the orig
                 return default, mimetype, f_name
             return value, mimetype, f_name
         raise FileFieldException('Value is not File or String')
