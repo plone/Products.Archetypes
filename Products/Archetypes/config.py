@@ -12,12 +12,7 @@ DEBUG = 1  ## See debug messages
 #XXX activate experimental baseunit
 USE_NEW_BASEUNIT = 1
 
-
-##Reference Engine bits
-REFERENCE_CATALOG = "reference_catalog"
-UUID_ATTR = "_at_uid"
-
 ##ordered folder handling
 ##implement the old style ordered folder?
 ##for backward compatibility reasons only
-USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
+USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 1
