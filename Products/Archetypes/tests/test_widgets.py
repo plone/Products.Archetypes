@@ -94,6 +94,32 @@ class WidgetTests(ArcheSiteTestCase):
         #No exceptions are good, parse the results more if you need to
         #I feel fine...
 
+    def test_appendtextarea_widget(self):
+        site = self.getPortal()
+        request = FakeRequest()
+        
+        mystring = str('<<<<this is a test string>>>>')
+        
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
+        field = doc.Schema()['textarea_appendonly']
+        widget = field.widget
+        
+        form = {'textarea_appendonly':''}
+        result = widget.process_form(doc, field, form)
+        expected = '', {}
+        self.assertEqual(expected, result)
+        
+        form = {'textarea_appendonly': mystring}
+        expected = mystring, {}
+        result = widget.process_form(doc, field, form)
+        self.assertEqual(expected, result)
+
+        doc.Schema()[field.getName()].set(doc, mystring)
+        form = {'textarea_appendonly': mystring}
+        expected = mystring + widget.divider + mystring, {}
+        result = widget.process_form(doc, field, form)
+        self.assertEqual(expected, result)
+
     def test_rich_text_widget(self):
         request = FakeRequest()
         doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
