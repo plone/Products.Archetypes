@@ -11,6 +11,7 @@
    </tal:block>
   </basetypes>
   <portaltype tal:content="type/portal_type">SimpleType</portaltype>
+  <readonly tal:content="type/read_only"></readonly>
   <schema>
     <schemata tal:repeat="subschemata schemata/values"
               tal:attributes="id

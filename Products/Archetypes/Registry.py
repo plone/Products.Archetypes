@@ -132,6 +132,9 @@ class TypeDescription:
     def portal_type(self):
         return self.klass.portal_type
 
+    def read_only(self):
+        return 1
+
     def basetypes(self):
         return findBaseTypes(self.klass)
 
