@@ -276,7 +276,8 @@ class Field(DefaultLayerContainer):
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
-                    kw = {'content_instance' : content_instance}
+                    kw = {'content_instance' : content_instance,
+                          'field' : self}
                     value = mapply(method, *args, **kw)
 
             # Post process value into a DisplayList, templates will use
