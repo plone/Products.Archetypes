@@ -24,10 +24,11 @@ Requires
 	CMF 1.3+
 	Zope 2.5.1+ (Recommending 2.6.0+)
 
-        Zope products "generator", "transform", "validation" (also available on SF Archetypes CVS)
+        Zope products "PortalTransforms", "generator", "validation"
         should also be installed. You should also install the
-        I18NTExtIndexNG products if you want to use the i18n content
-        features of archetypes.
+        I18NTExtIndexNG product if you want to use the i18n content
+        features of archetypes. All that products are also available 
+        on SF Archetypes CVS.
 
 
 Quickstart
