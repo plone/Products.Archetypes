@@ -12,6 +12,7 @@ CURDIR=~/src/archetypes/1_3/Archetypes
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=~/src/zope/2_7/lib/python
 INSTANCE_HOME=~/src/instance/shellex
+ZOPE_CONFIG=~/src/instance/shellex/etc/zope.conf.test
 PACKAGES=Archetypes validation generator ArchExample ArchGenXML
 CVSROOT=-d:ext:dreamcatcher@cvs.sf.net:/cvsroot/archetypes
 
@@ -45,7 +46,9 @@ reindent :
 	~/src/reindent.py -r -v .
 
 test :
-	export INSTANCE_HOME=${INSTANCE_HOME}; export SOFTWARE_HOME=${SOFTWARE_HOME}; \
+	export INSTANCE_HOME=${INSTANCE_HOME}; \
+	export SOFTWARE_HOME=${SOFTWARE_HOME}; \
+	export ZOPE_CONFIG=${ZOPE_CONFIG}; \
 	cd ${CURDIR}/tests && ${PYTHON} runalltests.py
 
 

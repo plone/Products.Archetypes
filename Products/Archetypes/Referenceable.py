@@ -132,7 +132,7 @@ class Referenceable(Base):
             setattr(self, config.REFERENCE_ANNOTATION, Folder(config.REFERENCE_ANNOTATION))
 
         return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
-    
+
     def _delReferenceAnnotations(self):
         """Removes annotation from self
         """

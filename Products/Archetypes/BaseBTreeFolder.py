@@ -22,20 +22,27 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        # call BaseFolder before CMFBTree to initialize the storage first
+        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
         BaseFolder.manage_afterAdd(self, item, container)
-        CMFBTreeFolder.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        # call BaseFolder before CMFBTree to initialize the storage first
+        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
         BaseFolder.manage_afterClone(self, item)
-        CMFBTreeFolder.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
+        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
         BaseFolder.manage_beforeDelete(self, item, container)
-        CMFBTreeFolder.manage_beforeDelete(self, item, container)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """

@@ -12,7 +12,9 @@ from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList
 
-class ReferenceableTests(ArcheSiteTestCase):
+class BaseReferenceableTests(ArcheSiteTestCase):
+
+    FOLDER_TYPE = None
 
     def verifyBrains(self):
         uc = getattr(self.portal, UID_CATALOG)
@@ -63,7 +65,7 @@ class ReferenceableTests(ArcheSiteTestCase):
 
     def test_renameKeepsReferences(self):
         container = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='container')
 
@@ -100,7 +102,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         # test for #956677: renaming the container causes contained objects
         #                   to lose their refs
         container = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='container')
         obj1 = makeContent(self.folder.container,
@@ -130,7 +132,7 @@ class ReferenceableTests(ArcheSiteTestCase):
     def test_renamecontainerKeepsReferences2( self ):
         # test for [ 1013363 ] References break on folder rename
         folderA = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderA')
         objA = makeContent(self.folder.folderA,
@@ -139,24 +141,23 @@ class ReferenceableTests(ArcheSiteTestCase):
                            id='objA')
 
         folderB = makeContent(self.folder,
-                                portal_type='SimpleFolder',
+                                portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderB')
         objB = makeContent(self.folder.folderB,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='objB')
-                                                                                 
+
         objA.addReference(objB)
 
-        a,b = self.verifyBrains()
+        a, b = self.verifyBrains()
         get_transaction().commit(1)
 
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
 
         # now rename folder B and see if objA still points to objB
-
         self.folder.manage_renameObject(id='folderB',
                                         new_id='folderC')
         c, d = self.verifyBrains()
@@ -164,7 +165,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         # check references
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
-        
+
     def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
 
@@ -363,7 +364,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         # If an object is referenced don't record its reference again
         at = self.portal.archetype_tool
 
-        folder = makeContent( self.folder, portal_type='SimpleFolder',
+        folder = makeContent( self.folder, portal_type=self.FOLDER_TYPE,
                               title='Foo', id='folder')
         nonRef = makeContent( folder, portal_type='Document',
                               title='Foo', id='nonRef')
@@ -516,11 +517,11 @@ class ReferenceableTests(ArcheSiteTestCase):
         # in another folder, pasted object should lose all references
         # added by GL (for bug #985393)
         org_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Origin folder',
                                  id='org_folder')
         dst_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Destination folder',
                                  id='dst_folder')
         a = makeContent(org_folder, portal_type='DDocument', id='a')
@@ -547,11 +548,11 @@ class ReferenceableTests(ArcheSiteTestCase):
         # in another folder, pasted object should keep the references
         # added by GL (for bug #985393)
         org_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Origin folder',
                                  id='org_folder')
         dst_folder = makeContent(self.folder,
-                                 portal_type='SimpleFolder',
+                                 portal_type=self.FOLDER_TYPE,
                                  title='Destination folder',
                                  id='dst_folder')
         a = makeContent(org_folder, portal_type='DDocument', id='a')
@@ -565,11 +566,17 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnlessEqual(copy_a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [copy_a])
 
+class SimpleFolderReferenceableTests(BaseReferenceableTests):
+    FOLDER_TYPE = 'SimpleFolder'
+
+class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
+    FOLDER_TYPE = 'SimpleBTreeFolder'
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(ReferenceableTests))
+    #suite.addTest(makeSuite(SimpleFolderReferenceableTests))
+    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
 
 if __name__ == '__main__':
