@@ -9,7 +9,7 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
 from Products.Archetypes.bases.baseobject import BaseObject
 
-from Products.Archetypes.validation import validation
+from Products.Archetypes.validation import validationService
 from Products.Archetypes.interfaces.IValidator import IValidator
 
 class MyValidator:
@@ -23,11 +23,11 @@ class MyValidator:
         return self.fun(value)
 
 # never validates
-validation.register(MyValidator('v1', lambda val:val))
+validationService.register(MyValidator('v1', lambda val:val))
 # always validates
-validation.register(MyValidator('v2', lambda val:1))
+validationService.register(MyValidator('v2', lambda val:1))
 # never validates
-validation.register(MyValidator('v3', lambda val:[]))
+validationService.register(MyValidator('v3', lambda val:[]))
 
 settings = [
     {'field': {}, # this is the dict of field properties

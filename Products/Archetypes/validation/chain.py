@@ -1,9 +1,10 @@
 """
 """
-from Products.Archetypes.interfaces.IValidator import IValidator, IValidationChain
-
 from types import StringType, TupleType, ListType, UnicodeType
-from Products.Archetypes.validation.service import service as validationService
+
+from Products.Archetypes.interfaces.IValidator import IValidator
+from Products.Archetypes.interfaces.IValidator import IValidationChain
+from Products.Archetypes.validation.service import validationService
 from Products.Archetypes.exceptions import UnknowValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
@@ -184,7 +185,7 @@ def test():
 
     isIntOrEmpty = ValidationChain('isIntOrEmpty')
     isIntOrEmpty.appendSufficient('isEmpty')
-    from validators.RegexValidator import RegexValidator
+    from Products.Archetypes.validation.implementation import RegexValidator
     isPosInt = RegexValidator('isInt', r'^([+])?\d+$', title='', description='')
     isIntOrEmpty.appendRequired(isPosInt)
     validationService.register(isIntOrEmpty)

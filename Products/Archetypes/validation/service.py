@@ -71,6 +71,4 @@ class ZService(Service, Implicit):
 
 InitializeClass(ZService) 
 
-from Products.Archetypes.validation.validators import initialize
-service = ZService()
-initialize(service)
+validationService = ZService()

@@ -200,8 +200,8 @@ class TypeRegistry:
 class ValidatorRegistry:
 
     def __init__(self):
-        from Products.Archetypes.validation import validation
-        self.validation = validation
+        from Products.Archetypes.validation import validationService
+        self.validation = validationService
 
     def register(self,  name, item):
         self.validation.register(item)
