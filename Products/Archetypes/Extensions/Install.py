@@ -1,5 +1,5 @@
 from Products.Archetypes.config import *
-from Products.Archetypes import listTypes
+from Products.Archetypes.public import listTypes
 from Products.Archetypes.Extensions.utils import installTypes, setupEnvironment
 from StringIO import StringIO
 

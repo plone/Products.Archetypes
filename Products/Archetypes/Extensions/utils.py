@@ -210,7 +210,8 @@ def filterTypes(self, out, types, package_name):
 
     filtered_types = []
 
-    for t in types:
+    for rti in types:
+        t = rti['klass']
         typeinfo_name="%s: %s" % (package_name, t.__name__)
         info = typesTool.listDefaultTypeInformation()
         found = 0
