@@ -94,6 +94,8 @@ class BaseSQLStorage(StorageLayer):
         pass
 
     def _query(self, instance, query, args):
+        import pdb
+        pdb.set_trace()
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
         method = SQLMethod(instance)
@@ -164,7 +166,6 @@ class BaseSQLStorage(StorageLayer):
         args['UID'] = instance.UID()
         args['field'] = name
         result = self._query(instance, self.query_select, args)
-        result = result[0]
         result = result[0]
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
