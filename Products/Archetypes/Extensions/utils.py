@@ -75,7 +75,7 @@ def install_catalog(self, out, rebuild=0):
         catalog = None
         rebuild = 1
 
-    if not catalog:
+    if catalog is None:
         #Add a zcatalog for uids
         addCatalog = manage_addUIDCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
