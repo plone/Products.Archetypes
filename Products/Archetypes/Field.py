@@ -1070,11 +1070,12 @@ class ImageField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
-        if value=="DELETE_IMAGE" and self.sizes:
-            # unset different sizes
-            for n, size in self.sizes.items():
-                id = self.getName() + "_" + n
-                self.storage.unset(id, instance, **kwargs)
+        if value=="DELETE_IMAGE":
+            if self.sizes:
+                # unset different sizes
+                for n, size in self.sizes.items():
+                    id = self.getName() + "_" + n
+                    self.storage.unset(id, instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
