@@ -176,6 +176,7 @@ class Field(DefaultLayerContainer):
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
+
         if name is None:
             global _field_count
             _field_count += 1
@@ -1456,10 +1457,10 @@ class ReferenceField(ObjectField):
         elif len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.getId, at,
+            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
                                            b.getPath())
         else:
-            label = lambda b:b.Title or b.getId
+            label = lambda b:b.Title or b.id
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
@@ -1911,6 +1912,9 @@ class ImageField(FileField):
         img = self.getRaw(instance)
         if not img:
             return
+        filename = self.getFilename(instance)
+        #dot = filename.rfind('.')
+        #filename, ext = filename[:dot], filename[dot:]
         data = str(img.data)
         for n, size in sizes.items():
             w, h = size
@@ -1926,13 +1930,19 @@ class ImageField(FileField):
                     log_exc()
                     # scaling failed, don't create a scaled version
                     continue
+            mimetype = 'image/%s' % format
             image = self.content_class(id, self.getName(),
                                      imgdata,
-                                     'image/%s' % format
+                                     mimetype
                                      )
+            # nice filename: filename_sizename.ext
+            #fname = "%s_%s%s" % (filename, n, ext)
+            #image.filename = fname
+            image.filename = filename
             # manually use storage
             delattr(image, 'title')
-            self.getStorage(instance).set(id, instance, image)
+            self.getStorage(instance).set(id, instance, image,
+                                          mimetype=mimetype, filename=filename)
 
     security.declarePrivate('scale')
     def scale(self, data, w, h):

@@ -111,7 +111,7 @@
                tal:attributes="name string:${fieldName}_file;
                                id string:${fieldName}_file;
                                tabindex tabindex/next;
-                               disabled python:test(accessor()=='', None, 'disabled')"/>
+                               disabled python:test(accessor(), 'disabled', None)"/>
     </metal:define>
 
     <metal:define define-macro="view">
