@@ -1981,8 +1981,8 @@ class ImageField(FileField):
         """Get size of the stored data used for get_size in BaseObject
         """
         sizes = self.getAvailableSizes(instance)
-        size=0
-        size+=len(str(self.get(instance)))
+        original = self.get(instance)
+        size = original and original.get_size() or 0
 
         if sizes:
             for name in sizes.keys():
@@ -1992,7 +1992,7 @@ class ImageField(FileField):
                 except AttributeError:
                     pass
                 else:
-                    size+=len(str(data))
+                    size+=data and data.get_size() or 0
         return size
 
     security.declareProtected(CMFCorePermissions.View, 'tag')
