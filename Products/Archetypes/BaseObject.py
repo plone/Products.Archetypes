@@ -202,12 +202,15 @@ class BaseObject(Implicit):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-
+        accessor = self.Schema()[key].getEditAccessor(self)
+        if not accessor:
+            accessor = self.Schema()[key].getAccessor(self)
         try:
-            f = self.Schema()[key]
-            return f.get(self, raw=1)
-        except:
-            return self.Schema()[key].getAccessor(self)()
+            value = accessor(maybe_baseunit=1)
+        except TypeError:
+            # Fallback to no params call
+            value = accessor()
+        return value
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):

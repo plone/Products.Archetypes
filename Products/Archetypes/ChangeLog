@@ -1,3 +1,20 @@
+2003-09-06  Sidnei da Silva  <sidnei@plone.org>
+
+	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
+	some cases.
+
+2003-09-04  Sidnei da Silva  <sidnei@plone.org>
+
+	* Marshall.py (RFC822Marshaller.marshall): And more marshalling fixes.
+	(RFC822Marshaller.marshall): Dang. Missing a parameter to
+	getContentType call.
+
+	* BaseObject.py (BaseObject.__getitem__): Avoid breakage when
+	fields dont take **kw.
+
+	* Marshall.py (RFC822Marshaller.demarshall): A couple more
+	marshalling fixes.
+
 2003-09-05  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* CatalogMultiplex.py (CatalogMultiplex.reindexObjectSecurity):
@@ -7,22 +24,22 @@
 	locally. Add a new ZCatalog with a unique id to your Plone site,
 	then in the archetypes tool goto the catalogs tab and add the id
 	of the catalog and it will start getting updates.
-	
+
 2003-09-04  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* skins/archetypes/widgets/field.pt: adding back visiblity handling to widgets
 		widget=Foo(visible={'edit' : 'hidden'}, missing states default to visible
 		states can be visible, hidden, invisible
-	
+
 
 2003-08-08  Sylvain Thénault  <syt@logilab.fr>
 	* BaseObject.py: fix addSubObjects, remove _datify and Date
 
 	* ExtensibleMetada.py: remove inheritance of DefaultDublinCoreImpl:)
 	not more use of the ObjectField.
-	
+
         * I18NMixin.py: stop trying to del the title property. Need to
-	find a clean way to do this 
+	find a clean way to do this
 
 	* examples/ComplexType.py: remove the MetaDataField, use of
 	BaseSchema to avoid buggy metadata. I think we should not make
@@ -30,7 +47,7 @@
 
 	* tests/: make tests working (fix some ones according to new
 	implementation, code cleaning)
-	
+
 2003-08-07  Sylvain Thénault  <syt@logilab.fr>
 	* config.py: make new base unit the default unit :)
 
@@ -39,22 +56,22 @@
 	and I18NMixin.
 
 	* BaseUnit.py: works on unicode, more reliance on the mime types
-	registry 
-	
+	registry
+
 	* tests/test_unicode.py: new unit tests testing unicode behaviour
-	
+
 2003-08-04  Sylvain Thénault  <syt@logilab.fr>
 
 	* use generator and validation as Python package instead of zope
 	products
-	
+
 2003-07-30  Sylvain Thénault  <syt@logilab.fr>
-	
+
 	* Extensions/utils.py: only run install_subskins if
 	product_skins_dir is not None
 
 	* TemplateMixin.py: use StringField instead of Objectfield
-	
+
 2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* skins/archetypes/content_edit.py (previous): Clearer schemata

@@ -763,6 +763,8 @@ class ReferenceField(ObjectField):
         else:
             if value:
                 target=tool.lookupObject(uid=value)
+                if target is None:
+                    raise ValueError, "Invalid reference %s" % value
                 instance.addReference(target,refname)
 
             pass

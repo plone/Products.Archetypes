@@ -52,17 +52,14 @@ class PrimaryFieldMarshaller(Marshaller):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
-
-        #XXX no transform tool
-        #else:
-        #    ## Use instance to get the transform tool
-        #    transformer = getToolByName(instance, 'transform_tool')
-        #    content_type = str(transformer.classify(data))
-        #    length = len(data)
-
-
-        if length is None:
-            return None
+        else:
+            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
+            if hasattr(p, 'getContentType'):
+                content_type = p.getContentType(instance) or 'text/plain'
+            else:
+                content_type = data and guess_content_type(data) or 'text/plain'
+            length = len(data)
+            data = str(data)
 
         return (content_type, length, data)
 
@@ -72,16 +69,18 @@ class RFC822Marshaller(Marshaller):
         from Products.CMFDefault.utils import parseHeadersBody
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
+            if v.strip() == 'None':
+                v = None
             field = instance.getField(k)
             if field is not None:
-                mutator = getattr(instance, field.mutator, None)
+                mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
         kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
         if p is not None:
-            mutator = getattr(instance, p.mutator, None)
+            mutator = p.getMutator(instance)
             if mutator is not None:
                 mutator(body, **kwargs)
 
@@ -95,6 +94,11 @@ class RFC822Marshaller(Marshaller):
         if IBaseUnit.isImplementedBy(body):
             content_type = str(body.getContentType())
             body   = body.getRaw()
+        else:
+            if p and hasattr(p, 'getContentType'):
+                content_type = p.getContentType(instance) or 'text/plain'
+            else:
+                content_type = body and guess_content_type(body) or 'text/plain'
 
         headers = {}
         fields = [f for f in instance.Schema().fields()
