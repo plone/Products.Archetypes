@@ -17,6 +17,7 @@ Features
     * Power and flexibility with lowered incidental complexity.
     * Integration with rich content sources such as Office Product Suites.
     * Full automatic form generation     
+    * i18n content on a field basis
 
 Requires
 	Plone 1.0+
@@ -24,7 +25,9 @@ Requires
 	Zope 2.5.1+ (Recommending 2.6.0+)
 
         Zope products "generator", "transform", "validation" (also available on SF Archetypes CVS)
-        should also be installed.
+        should also be installed. You should also install the
+        I18NTExtIndexNG products if you want to use the i18n content
+        features of archetypes.
 
 
 Quickstart
