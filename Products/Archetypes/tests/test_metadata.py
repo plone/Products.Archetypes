@@ -168,6 +168,16 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
         del self._parent
         ArchetypesTestCase.beforeTearDown(self)
 
+class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
+    def testDefaultLanguage(self):
+        language = 'no'
+        gen_dummy()
+        self._dummy = Dummy(oid='dummy')
+        self._dummy.portal_properties.site_properties.default_language = language
+        self._dummy.initializeArchetype()
+        self.failUnlessEqual(self._dummy.Language(), language)
+
+
 if __name__ == '__main__':
     framework()
 else:
@@ -178,4 +188,5 @@ else:
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(ExtensibleMetadataTest))
         suite.addTest(unittest.makeSuite(ExtMetadataContextTest))
+        suite.addTest(unittest.makeSuite(ExtMetadataDefaultLanguageTest))
         return suite

@@ -128,6 +128,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'language',
             accessor="Language",
             default="en",
+            default_method="defaultLanguage",
             vocabulary='languages',
             widget=SelectionWidget(
                 label='Language',
@@ -150,6 +151,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         now = DateTime()
         self.creation_date = now
         self.modification_date = now
+
+    security.declarePrivate('defaultLanguage')
+    def defaultLanguage(self):
+        """Retrieve the default language, or fall back to the default setting"""
+        try:
+            properties = getToolByName(self, 'portal_properties')
+            return getattr(properties.site_properties, 'default_language', self.schema['language'].default)
+        except AttributeError:
+            return self.schema['language'].default
 
     security.declareProtected(CMFCorePermissions.View,
                               'isDiscussable')
