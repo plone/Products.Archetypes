@@ -167,14 +167,14 @@ class Schemata(Base):
         """Adds a given field to my dictionary of fields."""
         field = aq_base(field)
         if IField.isImplementedBy(field):
+            name = field.getName()
             if getattr(field, 'primary', False):
                 res = self.hasPrimary()
-                if res is not False:
+                if res is not False and name != res.getName():
                     raise SchemaException("Tried to add '%s' as primary field "\
                              "but %s already has the primary field '%s'." % \
-                             (field.getName(), repr(self), res.getName())
+                             (name, repr(self), res.getName())
                          )
-            name = field.getName()
             if name not in self._names:
                 self._names.append(name)
             self._fields[name] = field
