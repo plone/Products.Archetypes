@@ -1058,6 +1058,15 @@ class ReferenceField(ObjectField):
         for uid in sub:
             tool.deleteReference(instance, uid, self.relationship)
 
+    def getRaw(self, instance, **kwargs):
+        """Return the list of UIDs referenced under this fields
+        relationship
+        """
+        rc = getToolByName(instance, REFERENCE_CATALOG)
+        brains = rc(sourceUID=instance.UID(),
+                    relationship=self.relationship)
+        return [b.targetUID for b in brains]
+
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
         if self.vocabulary:

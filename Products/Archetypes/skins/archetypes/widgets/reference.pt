@@ -41,7 +41,7 @@
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
                          fieldName python:fieldName+':list';
-                         uids python: [v.UID() for v in value];
+                         uids value;
                          vlen python:len(vocab);">
 
           <input type="hidden"
