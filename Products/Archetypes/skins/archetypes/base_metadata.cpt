@@ -62,14 +62,6 @@
       <legend i18n:translate=""
         tal:content="type_name|here/archetype_name" />
 
-      <!--
-        <div tal:condition="errors" class="error">
-        <div tal:repeat="error errors/keys">
-        <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
-        </div>
-        </div>
-      -->
-
       <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
@@ -82,9 +74,10 @@
       <input type="hidden" name="current_lang" value=""
        tal:attributes="value request/LANGUAGE|default_language|default" />
 
-       <!-- This comes from edit_macros, which is somehow used by base_edit.  it seems
-            base_metadata and base_edit are NOT generated the same way ;-(
-       -->
+        <tal:comment replace="nothing">
+        This comes from edit_macros, which is somehow used by base_edit.  it seems
+        base_metadata and base_edit are NOT generated the same way ;-(
+        </tal:comment>
             <input type="hidden"
                    name="add_reference.field:record"
                    value=""

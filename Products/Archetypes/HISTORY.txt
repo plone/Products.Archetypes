@@ -1,6 +1,9 @@
 1.3.1-post-rc4 - 2004-11-15
 ===========================
 
+ * Some visual fixes to RichWidget and Field code + removed stray comments.
+   [limi]
+
  * fixed field tests
    [yenzenz]
 

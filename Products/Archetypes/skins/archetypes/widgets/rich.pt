@@ -33,10 +33,6 @@
               <span class="discreet" 
                     i18n:translate="upload_a_file">upload a file</span>
               <metal:use use-macro="here/widgets/file/macros/file_upload" />
-              
-<!-- Is this any use at all in the editing part? ~limi
-              <metal:use use-macro="here/widgets/file/macros/file_view" />
--->
           </div>
         </metal:fill>
       </metal:use>
