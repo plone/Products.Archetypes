@@ -8,4 +8,4 @@ DEBUG = 1  ## See debug messages
 
 
 #XXX activate experimental baseunit
-USE_NEW_BASEUNIT = None
+USE_NEW_BASEUNIT = 1 
