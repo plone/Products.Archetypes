@@ -53,7 +53,7 @@ def migrateReferences(portal, out):
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
                 targetBrains = uc(**{olduididx:targetUID})
-                assert(len(targetBrains) == 1,'catalog query for OLD uid (%s) must returned %d results instead of 1' % (targetUID,len(targetBrains)))
+                assert(len(targetBrains) == 1,'catalog query for OLD uid (%s) returned %d results instead of 1' % (targetUID,len(targetBrains)))
                 targetObj=targetBrains[0].getObject()
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
