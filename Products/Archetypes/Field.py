@@ -333,8 +333,8 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            #bu = BaseUnit(self.name, value, mime_type)
-            bu = BaseUnit(self.name, instance, value, mime_type)
+            bu = BaseUnit(self.name, value, mime_type)
+            #bu = BaseUnit(self.name, instance, value, mime_type)
         ObjectField.set(self, instance, bu, **kwargs)
 
         #Invoke the default Transforms, hey, its policy
