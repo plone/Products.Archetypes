@@ -22,21 +22,21 @@
       <div tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
-            <b>[<span tal:content="set" />]</b>
+            <b>[<span tal:content="set" i18n:translate="" />]</b>
           </tal:current>
           <tal:others condition="python:set != fieldset">
             <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
-            [<span tal:content="set" />]</a>
+            [<span tal:content="set" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
       </div>
       <metal:block define-slot="extra_info" />
 
-      <p class="portalMessage" tal:condition="isLocked"
-         i18n:translate="description_webdav_locked"
-        >
-         This item is in use by someone else and cannot be modified
-      </p>      
+      <p class="portalMessage"
+         tal:condition="isLocked"
+         i18n:translate="description_webdav_locked">
+        This item is in use by someone else and cannot be modified
+      </p>
 
     </div>
 
