@@ -395,7 +395,7 @@ class Field(DefaultLayerContainer):
             elif type(sample) in [TupleType, ListType]:
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
-                if len(sample) != 2:
+                if sample and len(sample[0]) != 2:
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
