@@ -253,6 +253,7 @@ class BaseObject(Implicit):
         # handling provided by BaseUnit when its available
         kw = {'raw':1}
         value = mapply(accessor, **kw)
+
         return value
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -351,6 +352,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
+        """ Return site default charset, or utf-8 """
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()
         if getattr(container, 'getCharset', None):
@@ -364,6 +366,7 @@ class BaseObject(Implicit):
                 encoding = site_props.getProperty('default_charset')
 
         return encoding
+
 
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):

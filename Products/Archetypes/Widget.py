@@ -70,6 +70,7 @@ class DecimalWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/decimal",
         'size' : '5',
+        'maxlength' : '255',
         })
 
 class IntegerWidget(TypesWidget):
@@ -77,6 +78,7 @@ class IntegerWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/integer",
         'size' : '5',
+        'maxlength' : '255',
         })
 
 class ReferenceWidget(TypesWidget):
@@ -324,6 +326,8 @@ class PasswordWidget(TypesWidget):
         'modes' : ('edit',),
         'populate' : 0,
         'postback' : 0,
+        'size' : 20,
+        'maxlength' : '255',
         })
 
 class VisualWidget(TextAreaWidget):
