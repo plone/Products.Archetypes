@@ -1,6 +1,6 @@
 from __future__ import nested_scopes
 from copy import copy, deepcopy
-from types import ListType, TupleType, ClassType, FileType
+from types import ListType, TupleType, ClassType, FileType, DictType
 from types import StringType, UnicodeType
 from UserDict import UserDict
 
@@ -177,13 +177,31 @@ class Field(DefaultLayerContainer):
 
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
-        if type(self.validators) not in [type(()), type([])]:
-            self.validators = (self.validators,)
+        if type(self.validators) is DictType:
+            strategy   = self.validators.get('strategy', 'and').lower()
+            validators = self.validators.get('handlers', ( ))
+        else:
+            strategy  = 'and'
+            validators = self.validators
+        
+        if type(validators) not in [type(()), type([])]:
+            validators = (validators,)
+        else:
+            validators = tuple(validators)
+            
+        if strategy not in ('and', 'or'):
+            raise ValueError("strategy %s not in ('and', 'or')" % strategy)
 
-        for v in self.validators:
-            if not validation.validatorFor(v):
-                log("WARNING: no validator %s for %s" % (v,
+        for vname in validators:
+            try:
+                v = validation.validatorFor(vname)
+            except KeyError:
+                v = None
+            if not v:
+                log("WARNING: no validator %s for %s" % (name,
                 self.getName()))
+
+        self.validators = {'strategy' : strategy, 'handlers' : validators }
 
     def validate(self, value, instance, errors={}, **kwargs):
         """
@@ -214,8 +232,8 @@ class Field(DefaultLayerContainer):
         # XXX: This is a temporary fix. Need to be fixed right for AT 2.0
         #      content_edit / BaseObject.processForm() calls widget.process_form
         #      a second time!
-        useValidators = True
-        if self.validators and not self.required:
+        isEmpty = False
+        if self.validators:
             widget = self.widget
             # XXX: required for unit test
             request = getattr(instance, 'REQUEST', None)
@@ -224,14 +242,41 @@ class Field(DefaultLayerContainer):
                 result = widget.process_form(instance, self, form,
                                              empty_marker=_marker)
                 if result is _marker or result is None: # FileWidget returns None
-                    useValidators = False
+                    isEmpty = True
 
-        if useValidators:
-            for v in self.validators:
-                res = validation.validate(v, value, instance=instance,
-                                          errors=errors, field=self, **kwargs)
-                if res != 1:
-                    return res
+        return self.validate_validators(value, instance=instance, errors=errors,
+                                 isEmpty=isEmpty, **kwargs)
+
+    def validate_validators(self, value, instance, errors, isEmpty, **kwargs):
+        """
+        """
+        strategy   = self.validators.get('strategy')
+        validators = self.validators.get('handlers')
+        results    = {}
+
+        if strategy == 'and':
+            # not failed unless explicitly failed
+            failed = 0
+        else:
+            # failed unless one test has succeded
+            failed = 1
+
+        for name in validators:
+            results[name] = validation.validate(name, value, instance=instance,
+                                                errors=errors, field=self, 
+                                                isEmpty=isEmpty, **kwargs)
+
+        for name, res in results.items():
+            if res != 1 and strategy == 'and':
+                failed = 1
+            if res == 1 and strategy == 'or':
+                failed = 0
+                
+        if failed:
+            return '\n'.join(['%s: %s' % (name, res)
+                              for name, res in results.items()
+                              if res != 1 ])
+
 
     def validate_required(self, instance, value, errors):
         if not value:
