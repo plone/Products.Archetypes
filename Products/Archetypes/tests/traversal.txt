@@ -12,9 +12,9 @@ correctly accross the many use cases that must co-exist.
 First, we are going to setup an environment so we can test that stuff
 is acquired or not acquired at the right times.
 
-  >>> from Products.Archetypes.tests.ArchetypesTestCase import user_name
-  >>> from Products.Archetypes.tests.ArchetypesTestCase import user_password
-  >>> from Products.Archetypes.tests.ArchetypesTestCase import portal_name
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
   >>> self.setRoles(['Manager'])
 
   CMF and Plone sites may have different default titles so we set one

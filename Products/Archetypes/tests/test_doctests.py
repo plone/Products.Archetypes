@@ -37,7 +37,6 @@ from Testing import ZopeTestCase
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
-    'Products.Archetypes.registry.base',
     )
 
 from Products.Archetypes.tests.attestcase import ATTestCase

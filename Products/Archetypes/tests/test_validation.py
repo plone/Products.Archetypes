@@ -35,7 +35,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 
-from Products.Archetypes.validation import validationService
+from Products.validation import validation as validationService
 
 class TestValidation(ATTestCase):
     def test_inNumericRange(self):

@@ -1,20 +1,48 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
+
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
-from Products.Archetypes.tests.common import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
-
-import test_classgen
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.examples import ComplexType as complextype
+from Products.Archetypes.ClassGen import generateCtor
+import Products.Archetypes.tests.test_classgen
 
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
 
-class SitePolicyTests(ArcheSiteTestCase):
+class SitePolicyTests(ATSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'ComplexType']
 
@@ -77,9 +105,7 @@ class SitePolicyTests(ArcheSiteTestCase):
         self.assertEqual(new_size, content.get_size())
 
     def test_addComplexTypeCtor(self):
-        from Products.Archetypes.examples import ComplexType
-        from Products.Archetypes.ClassGen import generateCtor
-        addComplexType = generateCtor('ComplexType', ComplexType)
+        addComplexType = generateCtor('ComplexType', complextype)
         id = addComplexType(self.folder, id='complex_type',
                             textfield='Bla', integerfield=1,
                             stringfield='A String')

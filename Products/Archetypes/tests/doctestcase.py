@@ -23,7 +23,22 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
+"""Doc test suite for doc tests inside Zope 2 or Portal
+
+Example:
+DOCTESTS = (
+    'dotted.path.to.a.module.as.string',
+    'another.module.path',
+    )
+
+def test_suite():
+    suite = ZopeDocTestSuite(test_class=TestClass,
+                             extraglobs={},
+                             *DOCTESTS
+                             )
+    return suite
+
+
 """
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'

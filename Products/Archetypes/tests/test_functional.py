@@ -33,13 +33,7 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.ArchetypesTestCase import ArcheSiteTestCase
-from Testing.ZopeTestCase.functional import Functional
-
-class ATFunctionalSiteTestCase(Functional, ArcheSiteTestCase):
-    """AT test case for functional tests inside a CMF site
-    """
-    __implements__ = Functional.__implements__ + ArcheSiteTestCase.__implements__ 
+from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 
 from Products.CMFCore.utils import getToolByName
 
