@@ -111,8 +111,12 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         transform tool is added
         """
         Folder.manage_afterAdd(self, item, container)
-        # first initialization
-        transforms.initialize(self)
+        try:
+            # first initialization
+            transforms.initialize(self)
+        except:
+            # may fail on copy
+            pass
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
@@ -128,7 +132,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         """ add a new transform to the tool """
         transform = Transform(id, module)
         self._setObject(id, transform)
-        self.registerTransform(id, transform)
+        self._mapTransform(transform)
         if REQUEST is not None:
             REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
@@ -137,7 +141,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         """ add a new transform to the tool """
         transform = TransformsChain(id, description)
         self._setObject(id, transform)
-        self.registerTransform(id, transform)
+        self._mapTransform(transform)
         if REQUEST is not None:
             REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
 
@@ -197,14 +201,17 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
     # mimetype oriented conversions (iengine interface) ########################
 
     def registerTransform(self, name, transform):
-        """ register a new transform """
+        """register a new transform
+        
+        transform isn't a Zope Transform (the wrapper) but the wrapped transform
+        the persistence wrapper will be created here
+        """
         __traceback_info__ = (name, transform)
-        if not name in self.objectIds():
-            # needed when call from transform.transforms.initialize which
-            # register non zope transform
-            module = "%s" % transform.__module__
-            transform = Transform(name, module, transform)
-            self._setObject(name, transform)
+        # needed when call from transform.transforms.initialize which
+        # register non zope transform
+        module = "%s" % transform.__module__
+        transform = Transform(name, module, transform)
+        self._setObject(name, transform)
         self._mapTransform(transform)
 
     def unregisterTransform(self, name):
