@@ -10,9 +10,11 @@
 
     <metal:define define-macro="view">
       <metal:use use-macro="here/widgets/field/macros/view">
-	<metal:fill fill-slot="widget_view">
-	  <span tal:replace="python:', '.join([unicode(str(v)) for v in accessor()])"/>
-	</metal:fill>
+	<div metal:fill-slot="widget_view">
+	  <span tal:define="vocab python:field.Vocabulary(here);
+	                    display python:[vocab.getValue(unicode(str(v))) for v in accessor()]"
+	        tal:replace="python:', '.join(display)"/>
+	</div>
       </metal:use>
     </metal:define>
 
@@ -23,10 +25,6 @@
 	        format python:test(field.widget.format,field.widget.format,'select');
 	        vlen  python: len(vocab);
 	        ">
-
-        <input type="hidden"
-              value=""
-              tal:attributes="name string:$fieldName:default:list;" />
 
          <span tal:repeat="item vocab" tal:omit-tag=""
 	    tal:condition="python:format=='checkbox'">
