@@ -16,6 +16,7 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.utils import capitalize, DisplayList, \
      OrderedDict, mapply
 from Products.Archetypes.debug import log, log_exc
+from Products.generator.i18n import translate
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
@@ -336,8 +337,8 @@ class BasicSchema(Schemata):
         """
         Initialize a Schema.
 
-        The first positional argument may be a sequence of Fields. Otherwise,
-        args is taken to be a list of Fields.
+        The first positional argument may be a sequence of
+        Fields. (All further positional arguments are ignored.)
 
         Keyword arguments are added to my properties.
         """
@@ -351,8 +352,7 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                for field in args:
-                    self.addField(args[0])
+                self.addField(args[0])
 
     def __add__(self, other):
         c = BasicSchema()
@@ -378,6 +378,9 @@ class BasicSchema(Schemata):
         c._props.update(self._props)
         return c
 
+    def __cmp__(self, other):
+        return cmp(self.signature(), other.signature())
+    
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
         if self.allow(name):
@@ -506,6 +509,7 @@ class BasicSchema(Schemata):
             res = field.validate(instance=instance,
                                  value=value,
                                  errors=errors,
+                                 field=field,
                                  REQUEST=REQUEST)
             if res:
                 errors[field.getName()] = res
@@ -569,7 +573,7 @@ class BasicSchema(Schemata):
         else:
             raise ValueError, "Object doesn't implement IField: %r" % field
 
-class Schema(BasicSchema, SchemaLayerContainer):
+class RawSchema(BasicSchema, SchemaLayerContainer):
 
     __implements__ = (ILayerRuntime, ILayerContainer, ISchema)
 
@@ -614,12 +618,12 @@ class Schema(BasicSchema, SchemaLayerContainer):
             c.registerLayer(k, v)
         return c
 
-class ManagedSchema(Schema):
+class ManagedSchema(RawSchema):
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = (IManagedSchema, ) + Schema.__implements__
+    __implements__ = (IManagedSchema, ) + RawSchema.__implements__
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'delSchemata')
@@ -714,6 +718,7 @@ class ManagedSchema(Schema):
             for f in d[s_name]:
                 self.addField(f)
 
+Schema = ManagedSchema
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
 

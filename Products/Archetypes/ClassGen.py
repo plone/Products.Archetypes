@@ -8,11 +8,7 @@ from Products.Archetypes.utils import pathFor, unique, capitalize
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-
-# marker that AT should generate a method -- used to discard unwanted
-#  inherited methods
-AT_GENERATE_METHOD = []
-
+from new import instancemethod
 
 _modes = {
     'r' : { 'prefix'   : 'get',
@@ -43,9 +39,12 @@ class Generator:
         name   = capitalize(field.getName())
         return "%s%s" % (prefix, name)
 
-    def makeMethod(self, klass, field, mode, methodName):
+    def makeMethod(self, klass, field, mode, methodName, inst):
         name = field.getName()
         method = None
+        target = klass
+        if inst: target = inst
+            
         if mode == "r":
             def generatedAccessor(self, **kw):
                 """Default Accessor."""
@@ -83,8 +82,10 @@ class Generator:
                                 methodName,
                                 mode))
 
-        setattr(klass, methodName, method)
-
+        method = instancemethod(method, inst, klass)
+        setattr(target, methodName, method)
+        return method
+    
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
         if not hasattr(klass, "security"):
@@ -99,116 +100,62 @@ class ClassGenerator:
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
 
-    def checkSchema(self, klass):
-        # backward compatibility, should be removed later on
-        if klass.__dict__.has_key('type') and \
-           not klass.__dict__.has_key('schema'):
-            import warnings
-            warnings.warn('Class %s has type attribute, should be schema' % \
-                          klass.__name__,
-                          DeprecationWarning,
-                          stacklevel = 4)
-            klass.schema = klass.type
-        if not hasattr(klass, 'Schema'):
-            def Schema(self):
-                """Return a (wrapped) schema instance for
-                this object instance."""
-                return ImplicitAcquisitionWrapper(self.schema, self)
-            klass.Schema = Schema
-
     def generateClass(self, klass):
-        # We are going to assert a few things about the class here
-        # before we start, set meta_type, portal_type based on class
-        # name, but only if they are not set yet
-        if (not getattr(klass, 'meta_type', None) or
-            'meta_type' not in klass.__dict__):
-            klass.meta_type = klass.__name__
-        if (not getattr(klass, 'portal_type', None) or
-            'portal_type' not in klass.__dict__):
-            klass.portal_type = klass.__name__
+        #We are going to assert a few things about the class here
+        #before we start, set meta_type, portal_type based on class
+        #name
+        klass.meta_type = klass.__name__
+        klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))
 
-        self.checkSchema(klass)
         fields = klass.schema.fields()
         self.generateMethods(klass, fields)
 
-    def generateMethods(self, klass, fields):
+    def generateMethods(self, klass, fields, inst=None):
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
 
-            # Make sure we want to muck with the class for this field
+            #Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
-            type = getattr(klass, 'type')
             for mode in field.mode: #(r, w)
-                self.handle_mode(klass, generator, type, field, mode)
+                self.handle_mode(klass, generator, field, mode, inst)
                 if mode == 'w':
-                    self.handle_mode(klass, generator, type, field, 'm')
+                    self.handle_mode(klass, generator, field, 'm', inst)
 
         InitializeClass(klass)
 
-    def handle_mode(self, klass, generator, type, field, mode):
+    def handle_mode(self, klass, generator, field, mode, inst):
         attr = _modes[mode]['attr']
         # Did the field request a specific method name?
         methodName = getattr(field, attr, None)
+        target = klass
+        if inst: target = inst
+        
         if not methodName:
             methodName = generator.computeMethodName(field, mode)
-
-        # Avoid name space conflicts
-        if not hasattr(klass, methodName) \
-               or getattr(klass, methodName) is AT_GENERATE_METHOD:
-            if type.has_key(methodName):
-                raise GeneratorError("There is a conflict"
-                                     "between the Field(%s) and the attempt"
-                                     "to generate a method of the same name on"
-                                     "class %s" % (
-                    methodName,
-                    klass.__name__))
-
-
-            # Make a method for this klass/field/mode
-            generator.makeMethod(klass, field, mode, methodName)
-            self.updateSecurity(klass, field, mode, methodName)
-
-        # Note on the class what we did (even if the method existed)
+            #Now does this exist on target?
+            if not hasattr(target, methodName):
+                methodName = None # fallback to default field impl
+            
+        #Note on the class what we did
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
 
-def generateCtor(name, module):
+def generateCtor(type, module):
+    name = capitalize(type)
     ctor = """
-def add%(name)s(self, id, **kwargs):
-    o = %(name)s(id)
+def add%s(self, id, **kwargs):
+    o = %s(id)
     self._setObject(id, o)
     o = getattr(self, id)
     o.initializeArchetype(**kwargs)
     return id
-""" % {'name':name}
+""" % (name, type)
 
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
-
-def generateZMICtor(name, module):
-    zmi_ctor = """
-def manage_add%(name)s(self, id, REQUEST=None):
-    ''' Constructor for %(name)s '''
-    kwargs = {}
-    if REQUEST is not None:
-        kwargs = REQUEST.form.copy()
-        del kwargs['id']
-    id = add%(name)s(self, id, **kwargs)
-    obj = self._getOb(id)
-    manage_tabs_message = 'Successfully added %(name)s'
-    if REQUEST is not None:
-        return obj.manage_edit%(name)sForm(
-            REQUEST,
-            management_view='Edit',
-            manage_tabs_message=manage_tabs_message)
-    return id
-""" % {'name':name}
-
-    exec zmi_ctor in module.__dict__
-    return getattr(module, "manage_add%s" % name)
 
 
 _cg = ClassGenerator()

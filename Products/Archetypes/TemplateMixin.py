@@ -8,8 +8,6 @@ from Products.CMFCore.utils import getToolByName
 
 schema = Schema((
     StringField('layout',
-                accessor="getLayout",
-                mutator="setLayout",
                 default="base_view",
                 vocabulary="templates",
                 widget=SelectionWidget(

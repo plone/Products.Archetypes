@@ -47,6 +47,7 @@ class FieldDescription:
                  title='', description=''):
         self.id = className(klass)
         self.klass = klass
+        self.type = klass._properties.get('type', None)
         default_widget = default_widget or klass._properties.get('widget', None)
         if default_widget is None:
             raise ValueError, '%r Must have a default_widget' % klass
@@ -88,6 +89,7 @@ class WidgetDescription:
         self.description = description or getDoc(klass)
         self.used_for = used_for
 
+        
     def properties(self):
         from Products.Archetypes.Registry import getPropertyType
         props = []

@@ -169,8 +169,8 @@ _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()
 _zlogger = ZLogger()
 
-#log = _default_logger.log
-#log_exc = _default_logger.log_exc
+log = _default_logger.log
+log_exc = _default_logger.log_exc
 #zptlog = _zpt_logger.log
-log = zlog = _zlogger.log
-log_exc    = _zlogger.log_exc
+#log = zlog = _zlogger.log
+#log_exc    = _zlogger.log_exc

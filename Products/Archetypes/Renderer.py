@@ -23,7 +23,12 @@ class ArchetypesRenderer(base):
 
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
-        context.setLocal('accessor', accessor)
+
+        #XXX we override this now to prevent a skin change
+        def wrapped_accessor():
+            return instance.get(field_name)
+
+        context.setLocal('accessor', wrapped_accessor)
         context.setLocal('widget', widget)
         context.setLocal('field', field)
         context.setLocal('mode', mode)

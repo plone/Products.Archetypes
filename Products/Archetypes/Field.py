@@ -25,7 +25,7 @@ from Products.Archetypes.Storage import AttributeStorage, \
      MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
 from Products.validation import validation
-import Products.generator.i18n as i18n
+from Products.generator.i18n import translate
 from Products.PortalTransforms.interfaces import idatastream
 
 from AccessControl import ClassSecurityInfo, getSecurityManager
@@ -201,23 +201,9 @@ class Field(DefaultLayerContainer):
         if res is not None:
             return res
 
-##        isEmpty = 0
-##        if not self.required:
-##            if type(value) in STRING_TYPES:
-##                isEmpty = not value.strip()
-##            else:
-##                isEmpty = not value
-##
-##        if not self.required and isEmpty:
-##            # Don't check the value using the validators if the value is not
-##            # required and if it's empty
-##            # else it break because an empty email address doesn't validate but
-##            # the email address isn't required
-##            pass
-##        else:
         for v in self.validators:
             res = validation.validate(v, value, instance=instance,
-                                      errors=errors, field=self, **kwargs)
+                                      errors=errors, **kwargs)
             if res != 1:
                 return res
 
@@ -225,7 +211,7 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            error = i18n.translate(
+            error = translate(
                 'archetypes', 'error_required',
                 {'name': label}, instance,
                 default = "%s is required, please correct."
@@ -270,12 +256,13 @@ class Field(DefaultLayerContainer):
 
         if error == 1:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = i18n.translate(
+            error = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
                 default = "Value %s is not allowed for vocabulary "
                 "of element %s." % (val, label),
                 )
+            errors[self.getName()] = error
 
         return error
 
@@ -382,8 +369,13 @@ class Field(DefaultLayerContainer):
         """Return the accessor method for getting data out of this
         field"""
         if self.accessor:
-            return getattr(instance, self.accessor, None)
-        return None
+            accessor = getattr(instance, self.accessor, None)
+        else:
+            #curry a wrapper for backwards compat
+            def accessor(*args, **kwargs):
+                """publish"""
+                return self.get(instance, *args, **kwargs)
+        return accessor
 
     security.declarePublic('getEditAccessor')
     def getEditAccessor(self, instance):
@@ -391,16 +383,28 @@ class Field(DefaultLayerContainer):
         field e.g.: for editing
         """
         if self.edit_accessor:
-            return getattr(instance, self.edit_accessor, None)
-        return None
+            accessor = getattr(instance, self.edit_accessor, None)
+        else:
+            #curry a wrapper for backwards compat
+            def accessor(*args, **kwargs):
+                """publish"""
+                return self.getRaw(instance, *args, **kwargs)
+                
+        return accessor
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
         """Return the mutator method used for changing the value
         of this field"""
         if self.mutator:
-            return getattr(instance, self.mutator, None)
-        return None
+            mutator = getattr(instance, self.mutator)
+        else:
+            #curry a wrapper for backwards compat
+            def mutator(value, *args, **kwargs):
+                """publish"""
+                self.set(instance, value, *args, **kwargs)
+        return mutator
+    
 
     def toString(self):
         """Utility method for converting a Field to a string for the
@@ -415,6 +419,11 @@ class Field(DefaultLayerContainer):
             s = s + '%s:%s,' % (k, self._properties[k])
         s = s + '}'
         return s
+
+    def getContentType(self, instance):
+        """Return the type of file of this object if known; otherwise,
+        return None."""
+        return None
 
 
 class ObjectField(Field):
@@ -522,25 +531,24 @@ class FileField(StringField):
             if mimetype is None:
                 mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mimetype, ''
-            return value, mimetype, ''
+                return default, mimetype
+            return value, mimetype
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
             f_name = ''
-            if isinstance(value, FileUpload) or hasattr(value, 'filename'):
+            if isinstance(value, FileUpload):
                 f_name = value.filename
-            if isinstance(value, FileType) or hasattr(value, 'name'):
+            if isinstance(value, FileType):
                 f_name = value.name
-            # Get only last part from a 'c:\\folder\\file.ext'
-            f_name = f_name.split('\\')[-1]
             value = value.read()
             if mimetype is None:
                 mimetype, enc = guess_content_type(f_name, value, mimetype)
             size = len(value)
             if size == 0:
-                # This new file has no length, so we keep the orig
-                return default, mimetype, f_name
-            return value, mimetype, f_name
+                # This new file has no length, so we keep
+                # the orig
+                return default, mimetype
+            return value, mimetype
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
@@ -559,13 +567,13 @@ class FileField(StringField):
 
         if not value:
             return
-
+        
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
-        value, mimetype, f_name = self._process_input(value,
-                                                      default=self.default,
-                                                      **kwargs)
+        value, mimetype = self._process_input(value,
+                                               default=self.default,
+                                               **kwargs)
         kwargs['mimetype'] = mimetype
 
         if value=="DELETE_FILE":
@@ -589,11 +597,10 @@ class FileField(StringField):
             value = ''
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
-        setattr(value, 'filename', f_name or self.getName())
         ObjectField.set(self, instance, value, **kwargs)
 
     def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: value and str(value))()
+        value = getattr(value, 'get_size', lambda: str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
@@ -708,12 +715,6 @@ class TextField(ObjectField):
         encoding = kwargs.get('encoding')
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
-
-        # fix for external editor support
-        # set mimetype to the last state if the mimetype in kwargs is None or 'None'
-        mimetype = kwargs.get('mimetype', None)
-        if mimetype == 'None':
-            kwargs['mimetype'] = self.getContentType(instance)
 
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
@@ -896,12 +897,9 @@ class ReferenceField(ObjectField):
         'type' : 'reference',
         'default' : None,
         'widget' : ReferenceWidget,
-
+        
         'relationship' : None, # required
         'allowed_types' : (),  # a tuple of portal types, empty means allow all
-
-        'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
-                                            # display path as well
 
         'referenceClass' : Reference,
         })
@@ -927,7 +925,7 @@ class ReferenceField(ObjectField):
                 value = value[0]
 
         return value
-
+    
     def set(self, instance, value, **kwargs):
         """Mutator.
 
@@ -937,6 +935,7 @@ class ReferenceField(ObjectField):
         Keyword arguments may be passed directly to addReference(), thereby
         creating properties on the reference objects.
         """
+
         tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
@@ -946,7 +945,7 @@ class ReferenceField(ObjectField):
 
         if not value:
             value = ()
-
+        
         add = [v for v in value if v and v not in targetUIDs]
         sub = [t for t in targetUIDs if t not in value]
 
@@ -956,7 +955,6 @@ class ReferenceField(ObjectField):
         if addRef_kw.has_key('schema'): del addRef_kw['schema']
 
         for uid in add:
-            __traceback_info__ = (instance, uid, value, targetUIDs)
             # throws IndexError if uid is invalid
             tool.addReference(instance, uid, self.relationship, **addRef_kw)
 
@@ -971,29 +969,14 @@ class ReferenceField(ObjectField):
             return self._Vocabulary(content_instance).sortedByValue()
 
     def _Vocabulary(self, content_instance):
-        pairs = []
-        pc = getToolByName(content_instance, 'portal_catalog')
-        uc = getToolByName(content_instance, config.UID_CATALOG)
-        brains = pc.searchResults(portal_type=self.allowed_types)
+        catalog = getToolByName(content_instance, config.UID_CATALOG)
+        # should be obsolete soon:
+        index = 'portal_type' in catalog.indexes() and 'portal_type' or 'Type'
+        brains = catalog.searchResults(**{index: self.allowed_types})
 
-        if len(brains) > self.vocabulary_display_path_bound:
-            at = i18n.translate(domain='archetypes', msgid='label_at',
-                                context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
-                                           b.getPath())
-        else:
-            label = lambda b:b.Title or b.id
-
-        for b in brains:
-            uid = uc.getMetadataForUID(b.getPath())['UID']
-            pairs.append((uid, label(b)))
-
+        pairs = [(b.UID, b.Title and b.Title or b.id) for b in brains]
         if not self.required and not self.multiValued:
-            no_reference = i18n.translate(domain='archetypes',
-                                          msgid='label_no_reference',
-                                          context=content_instance,
-                                          default='<no reference>')
-            pairs.insert(0, ('', no_reference))
+            pairs.insert(0, ('', '<no reference>'))
 
         return DisplayList(pairs)
 
@@ -1092,10 +1075,7 @@ class CMFObjectField(ObjectField):
             if not hasattr(aq_base(info), 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
-            args = [instance, self.getName()]
-            for k in ['field', 'schema']:
-                del kwargs[k]
-            return mapply(info.constructInstance, *args, **kwargs)
+            return info.constructInstance(instance, self.getName(), **kwargs)
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
@@ -1121,8 +1101,6 @@ try:
     has_pil=1
 except:
     # no PIL, no scaled versions!
-    log("Warning: no Python Imaging Libraries (PIL) found."+\
-        "Archetypes based ImageField's don't scale if neccessary.")
     has_pil=None
 
 class Image(BaseImage):
@@ -1227,19 +1205,10 @@ class ImageField(ObjectField):
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            if self.sizes and has_pil:
-                for n, size in self.sizes.items():
-                    id = self.getName() + "_" + n
-                    try:
-                        # the following line may throw exceptions on types, if the
-                        # type-developer add sizes to a field in an existing
-                        # instance and a user try to remove an image uploaded before
-                        # that changed. The problem is, that the behavior for non
-                        # existent keys isnt defined. I assume a keyerror will be
-                        # thrown. Ignore that.
-                        self.storage.unset(id, instance, **kwargs)
-                    except KeyError:
-                        pass
+            # unset different sizes
+            for n, size in self.sizes.items():
+                id = self.getName() + "_" + n
+                self.storage.unset(id, instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
@@ -1269,41 +1238,14 @@ class ImageField(ObjectField):
                     # the orig
                     return
 
-        kwargs = self._updateKwargs(instance, value, **kwargs)
-        imgdata = self.rescaleOriginal(value, **kwargs)
-        self.createOriginal(instance, imgdata, **kwargs)
-        self.createScales(instance)
-        
-    def _updateKwargs(self, instance, value, **kwargs):
-        # get filename from kwargs, then from the value
-        # if no filename is available set it to ''
-        vfilename = getattr(value, 'filename', '')
-        kfilename = kwargs.get('filename', '')
-        if kfilename:
-            filename = kfilename
-        else:
-            filename = vfilename
-        kwargs['filename'] = filename
+        ###
+        ### store the original
+        ###
 
-        # set mimetype from kwargs, then from the field itself
-        # if no mimetype is available set it to 'image/png'
-        kmimetype = kwargs.get('mimetype', None)
-        imimetype = self.getContentType(instance)
-        if kmimetype:
-            mimetype = kmimetype
-        elif imimetype:
-            mimetype = imimetype
-        else:
-            mimetype = 'image/png'
-        kwargs['mimetype'] = mimetype
-        return kwargs
-
-    def rescaleOriginal(self, value, **kwargs):
-        """rescales the original image and sets the data
-        
-        for self.original_size or self.max_size
-        """
+        # test for scaling it.
+        imgdata = value
         mimetype = kwargs.get('mimetype', 'image/png')
+
         if has_pil:
             if self.original_size or self.max_size:
                 image = self.image_class(self.getName(), self.getName(),
@@ -1320,39 +1262,29 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    value = self.scale(data,w,h)
-        
-        return value
+                    imgdata = self.scale(data,w,h)
 
-    def createOriginal(self, instance, value, **kwargs):
-        """create the original image (save it)
-        """
-        mimetype = kwargs.get('mimetype', 'image/png')
-        filename = kwargs.get('filename', '')
         image = self.image_class(self.getName(), self.getName(),
-                                 value, mimetype)
-        image.filename = filename
+                                 imgdata, mimetype)
+        image.filename = hasattr(value, 'filename') and value.filename or ''
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
-    def createScales(self, instance):
-        """creates the scales and save them
-        """
+        # now create the scaled versions
         if not has_pil or not self.sizes:
             return
-        img = self.getRaw(instance)
-        if not img:
-            return
-        data = str(img.data)
+
+        data = str(image.data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
             imgdata = self.scale(data, w, h)
-            image = self.image_class(id, self.getName(),
+            image2 = self.image_class(id, self.getName(),
                                       imgdata, 'image/jpeg')
             # manually use storage
-            delattr(image, 'title')
-            self.storage.set(id, instance, image)
+            delattr(image2, 'title')
+            self.storage.set(id, instance, image2)
+
 
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""

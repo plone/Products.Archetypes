@@ -5,7 +5,7 @@ from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
 from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
 from Products.Archetypes.utils import mapply
-from Products.Archetypes.ClassGen import generateMethods
+#from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
@@ -78,8 +78,8 @@ class CMFMetadataFieldsDescriptor:
         # Calling generateMethods and reconstructing
         # the fields each time may actually be
         # *very very* expensive.
-        klass = obj.context.__class__
-        generateMethods(klass, fields.values())
+        #klass = obj.context.__class__
+        #generateMethods(klass, fields.values())
         return fields
 
 class CMFMetadataFieldNamesDescriptor:

@@ -2,25 +2,26 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema
-from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
+from Products.Archetypes.Field import StringField, TextField
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema, Schemata
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 
-from AccessControl import ClassSecurityInfo
+
+from AccessControl import ClassSecurityInfo, Unauthorized
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
-
-from types import TupleType, ListType, UnicodeType
+from Persistence import Persistent
 
 from ZPublisher import xmlrpc
 
 _marker = []
+
 
 content_type = Schema((
     StringField('id',
@@ -46,15 +47,17 @@ content_type = Schema((
                 searchable=1,
                 default='',
                 accessor='Title',
+                mutator='setTitle',
                 widget=StringWidget(
     label_msgid="label_title",
+    description=None,
     i18n_domain="plone"),
                 )),
 
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Implicit):
+class BaseObject(Persistent):
 
     security = ClassSecurityInfo()
 
@@ -66,7 +69,7 @@ class BaseObject(Implicit):
     __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
-        self.id = oid
+        self._setId(oid)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
@@ -101,7 +104,8 @@ class BaseObject(Implicit):
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)
 
-    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
+    security.declareProtected(CMFCorePermissions.View,
+                              'title_or_id')
     def title_or_id(self):
         """
         Utility that returns the title if it is not blank and the id
@@ -113,10 +117,11 @@ class BaseObject(Implicit):
 
         return self.getId()
 
-    security.declareProtected(CMFCorePermissions.View, 'getId')
-    def getId(self):
-        """get the objects id"""
-        return self.id
+##    security.declareProtected(CMFCorePermissions.View,
+##                              'getId')
+##    def getId(self):
+##        """get the objects id"""
+##        return self.id
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setId')
@@ -129,8 +134,21 @@ class BaseObject(Implicit):
                     )
             self._setId(value)
 
-    security.declareProtected(CMFCorePermissions.View, 'Type')
-    def Type(self):
+    security.declareProtected(CMFCorePermissions.View,
+                              'Title')
+    def Title(self):
+        """get the objects Title"""
+        return self.Schema()['title'].get(self)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setTitle')
+    def setTitle(self, value):
+        """set the objects Title"""
+        self.Schema()['title'].set(self, value)
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'Type')
+    def Type( self ):
         """Dublin Core element - Object type
 
         this method is redefined in ExtensibleMetadata but we need this
@@ -156,7 +174,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
-        element = getattr(self, key, None)
+        element = self.getRaw(key)
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
         mimetype = self.getContentType(key)
@@ -180,19 +198,14 @@ class BaseObject(Implicit):
                                **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
-    def getContentType(self, key=None):
+    def getContentType(self, key):
         value = 'text/plain' #this should maybe be octet stream or something?
-
-        # obj.getContentType() returns the mimetype of the first primary field
-        if key is None:
-            pfield = self.getPrimaryField()
-            if pfield and hasattr(pfield, 'getContentType'):
-                return pfield.getContentType()
-
         field = self.getField(key)
         if field and hasattr(field, 'getContentType'):
-            return field.getContentType(self)
-        element = getattr(self, key, None)
+            v = field.getContentType(self)
+            if v: return v
+            
+        element = self.getRaw(key)
         if element and hasattr(element, 'getContentType'):
             return element.getContentType()
         return value
@@ -255,7 +268,7 @@ class BaseObject(Implicit):
 
         # This is the access mode used by external editor. We need the
         # handling provided by BaseUnit when its available
-        kw = {'raw':1, 'field': field.__name__}
+        kw = {'raw': 1, 'field': field.__name__}
         value = mapply(accessor, **kw)
 
         return value
@@ -296,23 +309,26 @@ class BaseObject(Implicit):
             result = method(value)
             if result is not None:
                 errors[name] = result
+
         return result
+        
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
-    def pre_validate(self, REQUEST=None, errors=None):
+    def pre_validate(self, REQUEST, errors):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'post_validate')
-    def post_validate(self, REQUEST=None, errors=None):
+    def post_validate(self, REQUEST, errors):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
+        if REQUEST is None:
+            REQUEST = self.REQUEST
         if errors is None:
             errors = {}
-
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
@@ -347,17 +363,16 @@ class BaseObject(Implicit):
             if datum:
                 type_datum = type(datum)
                 vocab = field.Vocabulary(self)
-                if type_datum is ListType or type_datum is TupleType:
+                if type_datum is type([]) or type_datum is type(()):
                     # Unmangle vocabulary: we index key AND value
                     vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
-                    datum = list(datum)
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
-                elif type_datum in STRING_TYPES:
+                elif type_datum in (type(''), type(u''), ):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
-
+                    
                 # FIXME: we really need an unicode policy !
-                if type_datum is UnicodeType:
+                if type_datum is type(u''):
                     datum = datum.encode(charset)
                 data.append(str(datum))
 
@@ -382,12 +397,17 @@ class BaseObject(Implicit):
         return encoding
 
 
-    security.declareProtected(CMFCorePermissions.View, 'get_size')
+    security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for name in self.Schema().keys():
-            value = self[name]
+        for field in self.Schema().fields():
+            value = ''
+            try:
+                value = self.get(field.getName())
+            except:
+                pass
+            
             if IBaseUnit.isImplementedBy(value):
                 size += value.get_size()
             else:
@@ -434,12 +454,12 @@ class BaseObject(Implicit):
             result = widget.process_form(self, field, form,
                                          empty_marker=_marker)
             if result is _marker or result is None: continue
-
+            if result[0] == field.get(self): continue
             # Set things by calling the mutator
-            mutator = field.getMutator(self)
-            __traceback_info__ = (self, field, mutator)
-            result[1]['field'] = field.__name__
-            mapply(mutator, result[0], **result[1])
+            __traceback_info__ = (self, field, )
+            result[1]['field'] = field.getName()
+            self.set(field.getName(), result[0], **result[1])
+
 
         self.reindexObject()
 
@@ -450,7 +470,8 @@ class BaseObject(Implicit):
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
 
-    security.declareProtected(CMFCorePermissions.View, 'Schemata')
+    security.declareProtected(CMFCorePermissions.View,
+                              'Schemata')
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
@@ -637,7 +658,7 @@ class BaseObject(Implicit):
                     raise
                 except:
                     log_exc()
-        else:
+        else:            
             # try setting an existing attribute
             if hasattr(self, name):
                 setattr(self, name, value)
@@ -645,80 +666,37 @@ class BaseObject(Implicit):
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
 
-    # subobject access ########################################################
-    #
-    # some temporary objects could be set by fields (for instance additional
-    # images that may result from the transformation of a pdf field to html)
-    #
-    # those objects are specific to a session
+    def _checkPermission(self, field, mode):
+        if not field.checkPermission(mode, self):
+            raise Unauthorized("""You are not allowed to access %r in
+            mode %r on %s""" %(field.getName(), mode, self))
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'addSubObjects')
-    def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionnary of objects to session variable
-        """
-        if objects:
-            if REQUEST is None:
-                REQUEST = self.REQUEST
-            key = '/'.join(self.getPhysicalPath())
-            session = REQUEST.SESSION
-            defined = session.get(key, {})
-            defined.update(objects)
-            session[key] = defined
+    def get(self, name, *args, **kwargs):
+        """generic getter"""
+        schema = self.Schema()
+        field = schema[name]
+        self._checkPermission(field, 'get')
+        method = field.getAccessor(self)
+        return mapply(method, *args, **kwargs)
 
-    security.declareProtected(CMFCorePermissions.View, 'getSubObject')
-    def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """add a dictionnary of objects to session variable
-        """
-        try:
-            data = REQUEST.SESSION[self.absolute_url()][name]
-        except AttributeError:
-            return
-        except KeyError:
-            return
-        mtr = self.mimetypes_registry
-        mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, mt or 'application/octet')
+    def getRaw(self, name, *args, **kwargs):
+        """generic getter"""
+        schema = self.Schema()
+        field = schema[name]
+        self._checkPermission(field, 'get')
+        method = field.getEditAccessor(self)
+        return mapply(method, *args, **kwargs)
 
-    def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
-        """ transparent access to session subobjects
-        """
-        # is it a registered sub object
-        data = self.getSubObject(name, REQUEST, RESPONSE)
-        if data is not None:
-            return data
-        # or a standard attribute (maybe acquired...)
-        target = getattr(self, name, None)
-        if target is not None:
-            return target
-        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
-            from webdav.NullResource import NullResource
-            return NullResource(self, name, REQUEST).__of__(self)
-        if RESPONSE is not None:
-            RESPONSE.notFoundError("%s\n%s" % (name, ''))
-
-
-class Wrapper:
-    """wrapper object for access to sub objects """
-    __allow_access_to_unprotected_subobjects__ = 1
-
-    def __init__(self, data, filename, mimetype):
-        self._data = data
-        self._filename = filename
-        self._mimetype = mimetype
-
-    def __call__(self, REQUEST=None, RESPONSE=None):
-        if RESPONSE is None:
-            RESPONSE = REQUEST.RESPONSE
-        if RESPONSE is not None:
-            mt = self._mimetype
-            name =self._filename
-            RESPONSE.setHeader('Content-type', str(mt))
-            RESPONSE.setHeader('Content-Disposition',
-                               'inline;filename=%s' % name)
-            RESPONSE.setHeader('Content-Length', len(self._data))
-        return self._data
+    def set(self, name, value, *args, **kwargs):
+        """generic setter"""
+        schema = self.Schema()
+        field = schema[name]
+        self._checkPermission(field, 'set')
+        method = field.getMutator(self)
+        mapply(method, value, *args, **kwargs)
+    
+    def addSubObjects(self, *args, **kwargs):
+        "ugh"
+        pass
 
 InitializeClass(BaseObject)
