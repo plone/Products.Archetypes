@@ -13,47 +13,53 @@
     <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define define-macro="area_edit">
-      <tal:define tal:define="base python:hasattr(value, 'isUnit');
-                    	binary python:base and value.isBinary() or here.isBinary(fieldName);
-                    	content python:(base == 1) and value.getRaw() or value;
-                    	content python:(binary == 0) and content or '';
-		    	content_length python:len(content);
-                    	append_only python: getattr(widget, 'append_only', None);">
+      <tal:define
+          define="base python:hasattr(value, 'isUnit');
+                  binary python:base and value.isBinary() or here.isBinary(fieldName);
+                  content python: not not base and value.getRaw() or value;
+                  content python: not binary and content or '';
+                  content_length python:len(content);
+                  append_only python: getattr(widget, 'append_only', None);">
 
-      <textarea tabindex="#"
-        	tal:attributes="name fieldName;
-                	        id fieldName;
-                        	cols widget/cols;
-                        	rows widget/rows;
-                        	tabindex tabindex/next;"
-	    	tal:define="content python:not append_only and content or '';"
-        	tal:content="content">content</textarea>
+        <textarea
+            tabindex="#"
+            tal:attributes="name fieldName;
+                            id fieldName;
+                            cols widget/cols;
+                            rows widget/rows;
+                            tabindex tabindex/next;"
+            tal:define="content python:not append_only and content or '';"
+            tal:content="content">content</textarea>
 
-        <fieldset tal:condition="append_only">
-          <legend i18n:translate="" 
-		  tal:define="label widget/label"
-		  tal:content="string:HISTORY: ${label}">label</legend>
-          <span i18n:translate="" tal:condition="python:(content_length < 333)"
-                tal:content="content">content</span>
-          <textarea readonly i18n:translate="" 
-			     tal:condition="python:(content_length >= 333)"
-			     tal:content="content"
-	                     tal:attributes="cols widget/cols;
-                        		     rows widget/rows;">
-             content
-          </textarea>
-        </fieldset>
+            <fieldset tal:condition="append_only">
+              <legend i18n:translate=""
+                      tal:define="label widget/label"
+                      tal:content="string:HISTORY: ${label}">
+                label
+              </legend>
+              <span i18n:translate=""
+                    tal:condition="python:(content_length &lt; 333)"
+                    tal:content="content">content</span>
+                    <textarea readonly i18n:translate=""
+                              tal:condition="python:(content_length &gt;= 333)"
+                              tal:content="content"
+                              tal:attributes="cols widget/cols;
+                                              rows widget/rows;">
+                      content
+                    </textarea>
+            </fieldset>
 
       </tal:define>
     </metal:define>
 
     <metal:define define-macro="area_format">
-      <tal:define define="field_text_format string:${fieldName}_text_format;
-                          contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                          mimetypes python:[t for t in getattr(field, 'allowable_content_types', ())
-                                           if t.startswith('text/')];
-                          contenttype python:hasattr(field, 'getContentType') and
-                                             field.getContentType(here) or ''">
+      <tal:define
+          define="field_text_format string:${fieldName}_text_format;
+                  contentType python:request.get(field_text_format, here.getContentType(fieldName));
+                  mimetypes python:[t for t in getattr(field, 'allowable_content_types', ())
+                  if t.startswith('text/')];
+                  contenttype python:hasattr(field, 'getContentType') and
+                  field.getContentType(here) or ''">
 
         <tal:condition condition="python:len(mimetypes) &gt; 1">
           <label i18n:translate="label_format">Text Format</label>
