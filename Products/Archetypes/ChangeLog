@@ -1,3 +1,7 @@
+2003-04-25  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* tests/test_all.py (test_suite): Was missing a test on the test suite.
+
 2003-04-23  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Schema.py (MetadataSchema.addField): Layer was not being

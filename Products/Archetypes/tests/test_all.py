@@ -14,6 +14,7 @@ def test_suite():
         'test_storage',
         'test_classgen',
         'test_baseschema',
+        'test_baseunit',
         'test_utils',
         'test_sqlstorage',
         'test_schemata', 
