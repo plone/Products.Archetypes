@@ -1,5 +1,5 @@
 from __future__ import nested_scopes
-from copy import deepcopy
+from copy import copy, deepcopy
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
