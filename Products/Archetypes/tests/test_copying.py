@@ -1,7 +1,7 @@
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 
-$Id: test_copying.py,v 1.1.2.2 2004/06/10 09:14:18 shh42 Exp $
+$Id: test_copying.py,v 1.1.2.3 2004/07/04 18:32:31 tiran Exp $
 """
 
 import os, sys
@@ -10,6 +10,7 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
+import types
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_copying', 'Cannot import ArcheSiteTestCase')
@@ -43,11 +44,99 @@ class CutPasteCopyPasteTests(ArcheSiteTestCase):
         self.failIf('tourist' in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
 
+from Testing.ZopeTestCase.ZopeTestCase import user_name
+
+class PortalCopyTests(ArcheSiteTestCase):
+    
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self)
+        self.setRoles(['Manager',])
+        
+        imgpath = os.path.join(os.path.pardir, 'tool.gif')
+        self._image = open(imgpath).read()
+
+        self.portal.invokeFactory('DDocument', id='document')
+        doc = self.portal.document
+        doc.setBody('testdata', mimetype='text/x-rst')
+        doc.setImage(self._image, mimetype='image/gif')
+
+    def _test_doc(self, doc):
+        bodyfield = doc.getField('body')
+        imagefield = doc.getField('image')
+        
+        self.failUnlessEqual(doc.getContentType(), 'text/x-rst')
+        
+        self.failUnlessEqual(doc.getRawBody(), 'testdata')
+        self.failUnless(doc.getImage().data, self._image)
+        
+        self.failUnless(bodyfield.getContentType(doc), 'text/x-rst')
+        
+    def test_created_doc(self):
+        self.failUnless(hasattr(aq_base(self.portal), 'document'))
+        doc = self.portal.document
+        self._test_doc(doc)
+        
+    def test_clone_portal(self):
+        app = self.app
+        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        newSecurityManager(None, user)
+        app.manage_clone(self.app.portal, 'newportal')
+        noSecurityManager()
+        get_transaction().commit(1)
+        
+        self.failUnless(hasattr(aq_base(app), 'newportal'))
+        self.newportal = app.newportal
+        # check if we really have new portal!
+        self.failIf(aq_base(self.newportal) is aq_base(self.portal))
+        self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
+        
+        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        doc = self.newportal.document
+        self._test_doc(doc)
+
+    def test_copy_paste_portal(self):
+        app = self.app
+        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        newSecurityManager(None, user)
+        cp = app.manage_copyObjects(ids=['portal'])
+        app.manage_pasteObjects(cb_copy_data=cp)
+
+        noSecurityManager()
+        get_transaction().commit(1)
+        
+        self.failUnless(hasattr(aq_base(self.app), 'copy_of_portal'))
+        self.newportal = self.app.copy_of_portal
+        # check if we really have new portal!
+        self.failIf(aq_base(self.newportal) is aq_base(self.portal))
+        self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
+        
+        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        doc = self.newportal.document
+        self._test_doc(doc)
+
+    def test_cut_paste_portal(self):
+        app = self.app
+        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        newSecurityManager(None, user)
+        cp = app.manage_cutObjects(ids=['portal'])
+        app.manage_pasteObjects(cb_copy_data=cp)
+
+        noSecurityManager()
+        get_transaction().commit(1)
+
+        self.failUnless(hasattr(aq_base(self.app), 'portal'))
+        self.newportal = self.app.portal
+       
+        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        doc = self.newportal.document
+        self._test_doc(doc)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
+    suite.addTest(makeSuite(PortalCopyTests))
     return suite
 
 if __name__ == '__main__':
