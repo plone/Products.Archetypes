@@ -1,6 +1,11 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed broken implementation of moveObjectsByDelta in ordered base folder
+   by copying my code from CMFPlone. I've fixed it in Plone over an year ago
+   but I forgot to fix it in AT.
+   [tiran]
+
  * Fixed [ 1114362 ] use format name instaed that mime type inside RichWidget.
    [dan_t]
 
