@@ -468,8 +468,12 @@ class TextField(ObjectField):
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
-        if not kwargs.has_key('encoding'):
-            kwargs['encoding'] = None
+        try:
+            encoding = kwargs.get('encoding') or \
+                       instance.portal_properties.site_properties.getProperty('default_charset')
+        except AttributeError:
+            import site
+            encoding = site.encoding
 
         value, mimetype = self._process_input(value,
                                               default=self.default,
@@ -481,7 +485,7 @@ class TextField(ObjectField):
         else:
             bu = BaseUnit(self.getName(), value,
                           mimetype=mimetype,
-                          encoding=kwargs['encoding'],
+                          encoding=encoding,
                           instance=instance)
 
         ObjectField.set(self, instance, bu, **kwargs)

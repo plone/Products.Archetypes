@@ -17,6 +17,7 @@ from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
 import os.path
 import re
+import site
 import urllib
 
 from config import *
@@ -26,13 +27,13 @@ class newBaseUnit(File):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', instance=None, mimetype=None, encoding=None):
+    def __init__(self, name, file='', instance=None,
+                 mimetype=None, encoding=site.encoding):
         self.id = name
         self.update(file, instance, mimetype, encoding)
 
-    def update(self, data, instance, mimetype=None, encoding=None):
-        if encoding is None:
-            encoding = 'ascii'
+    def update(self, data, instance,
+               mimetype=None, encoding=site.encoding):
         #Convert from file/str to str/unicode as needed
         adapter = getToolByName(instance, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
