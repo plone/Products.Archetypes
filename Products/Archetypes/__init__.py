@@ -23,9 +23,15 @@ ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 # Archetypes and not from CMFPlone
 try:
     from Products.CMFPlone.PloneUtilities import IndexIterator
-except:
+except ImportError:
     from PloneCompat import IndexIterator
 allow_class(IndexIterator)
+
+try:
+    from Products.CMFPlone import transaction_note
+except ImportError:
+    from PloneCompat import transaction_note
+allow_class(transaction_note)
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment

@@ -16,3 +16,14 @@ except ImportError:
                 self.pos += 1
                 return self.pos
             raise KeyError, 'Reached upper bounds'
+
+try:
+    from Products.CMFPlone import transaction_note
+except ImportError:
+    def transaction_note(note):
+        """ Write human legible note """
+        T=get_transaction()
+        if (len(T.description)+len(note))>=65535:
+            log('Transaction note too large omitting %s' % str(note))
+        else:
+            T.note(str(note))
