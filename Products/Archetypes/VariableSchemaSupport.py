@@ -110,7 +110,7 @@ class VariableSchemaSupport:
         return self.schema
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'getAndPrepareSchema')
+                              'setSchema')
     def setSchema(self, schema):
         self.schema=schema
 
