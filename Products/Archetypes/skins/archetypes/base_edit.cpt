@@ -12,7 +12,10 @@
                    edit_macros python:path('here/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;
                    body_macro edit_macros/body | body_macro | base_macros/body;
-                   footer_macro edit_macros/footer | footer_macro | base_macros/footer;">
+                   footer_macro edit_macros/footer | footer_macro | base_macros/footer;
+                   lockable python:hasattr(here, 'wl_isLocked');
+                   isLocked python:lockable and here.wl_isLocked();
+                  ">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="en"

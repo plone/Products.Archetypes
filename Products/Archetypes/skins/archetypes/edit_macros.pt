@@ -31,6 +31,13 @@
         </tal:block>
       </div>
       <metal:block define-slot="extra_info" />
+
+      <p class="portalMessage" tal:condition="isLocked"
+         i18n:translate="description_webdav_locked"
+        >
+         This item is in use by someone else and cannot be modified
+      </p>      
+
     </div>
 
     <div metal:define-macro="body">
@@ -157,7 +164,8 @@
                        name="form_previous"
                        value="Previous"
                        i18n:attributes="value"
-                       tal:attributes="tabindex tabindex/next"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1"
                        class="context"
@@ -166,7 +174,8 @@
                        name="form_next"
                        value="Next"
                        i18n:attributes="value"
-                       tal:attributes="tabindex tabindex/next"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input class="context"
                        tabindex=""
@@ -174,7 +183,8 @@
                        name="form_submit"
                        value="Finish"
                        i18n:attributes="value"
-                       tal:attributes="tabindex tabindex/next"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
                        class="standalone"
