@@ -290,7 +290,9 @@ class IntegerField(ObjectField):
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'integer'
+        'type' : 'integer',
+        'size' : '10',
+        'default' : 0
         })
 
     def set(self, instance, value, **kwargs):

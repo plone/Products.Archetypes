@@ -23,9 +23,9 @@
 		 value="" 
 		 size="30" 
 		 tabindex="#"
-		 tal:attributes="name string:${fieldName}:int;
+		 tal:attributes="name string:${fieldName};
 	    value value;
-	    size size;
+	    size widget/size;
 	    tabindex tabindex/next;
 	    "
 	    />
