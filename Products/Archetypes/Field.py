@@ -371,47 +371,45 @@ class Field(DefaultLayerContainer):
         return error
 
     security.declarePublic('Vocabulary')
-    #XXX
     def Vocabulary(self, content_instance=None):
         """
-        returns a DisplayList
+        Returns a DisplayList.
 
-        uses self.vocabulary as source
+        Uses self.vocabulary as source.
 
-        1) Dynamic vocabulary:
+        1) Static vocabulary
 
-            precondition: a content_instance is given.
+           - is already a DisplayList
+           - is a list of 2-tuples with strings (see above)
+           - is a list of strings (in this case a DisplayList
+             with key=value will be created)
 
-            has to return a:
+        2) Dynamic vocabulary:
+
+           - precondition: a content_instance is given.
+
+           - has to return a:
+
                 * DisplayList or
                 * list of strings or
                 * list of 2-tuples with strings:
                     '[("key1","value 1"),("key 2","value 2"),]'
 
-            the output is postprocessed like a static vocabulary.
+           - the output is postprocessed like a static vocabulary.
 
-            vocabulary is a string:
+           - vocabulary is a string:
                 if a method with the name of the string exists it will be called
 
-            vocabulary is a class implementing IVocabulary:
+           - vocabulary is a class implementing IVocabulary:
                 the "getDisplayList" method of the class will be called.
-
-
-        2) Static vocabulary
-
-            * is already a DisplayList
-            * is a list of 2-tuples with strings (see above)
-            * is a list of strings (in this case a DisplayList with key=value
-              will be created)
 
         """
 
         value = self.vocabulary
         if not isinstance(value, DisplayList):
 
-
             if content_instance is not None and type(value) in STRING_TYPES:
-                # dynamic vocabulary by method on class of content_instance
+                # Dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
@@ -420,27 +418,27 @@ class Field(DefaultLayerContainer):
                     value = mapply(method, *args, **kw)
             elif content_instance is not None and \
                  IVocabulary.isImplementedBy(value):
-                # dynamic vocabulary provided by a class that implements
-                # IVocabulary
-                value=value.getDisplayList(content_instance)
+                # Dynamic vocabulary provided by a class that
+                # implements IVocabulary
+                value = value.getDisplayList(content_instance)
 
-            # Post process value into a DisplayList, templates will use
-            # this interface
+            # Post process value into a DisplayList
+            # Templates will use this interface
             sample = value[:1]
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
             elif type(sample) in (TupleType, ListType):
-                # Assume we have ( (value, display), ...)
+                # Assume we have ((value, display), ...)
                 # and if not ('', '', '', ...)
-                if sample and len(sample[0]) != 2:
+                if sample and type(sample[0]) not in (TupleType, ListType):
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
             elif len(sample) and type(sample[0]) is StringType:
                 value = DisplayList(zip(value, value))
             else:
-                log("Unhandled type in Vocab")
+                log('Unhandled type in Vocab')
                 log(value)
 
         if content_instance:
