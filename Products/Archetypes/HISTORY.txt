@@ -1,6 +1,15 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed [ 1093042 ] log warning for int keys in DisplayList
+   [tiran]
+
+ * Fixed [ 1067212 ] missing security declaration for BaseFolder.manage_addFolder
+   [biza]
+
+ * Fixed [ 1114892 ] should set to field, not fieldname in ObjectField.getRaw()
+   [madduck]
+
  * More OrderedDict fixes... wasn't overriding 'pop' method from base class,
    causing keys list and data to get out of sync if it were ever called
    [rafrombrc]

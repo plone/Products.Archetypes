@@ -246,6 +246,9 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
+        if type(key) is IntType:
+            warnings.warn('Using ints as DisplayList keys is deprecated',
+                          DeprecationWarning, stacklevel=2)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -273,6 +276,9 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
+        if type(key) is IntType:
+            warnings.warn('Using ints as DisplayList keys is deprecated',
+                          DeprecationWarning, stacklevel=2)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -371,6 +377,9 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
+        if type(key) is IntType:
+            warnings.warn('Using ints as DisplayList keys is deprecated',
+                          DeprecationWarning, stacklevel=2)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))

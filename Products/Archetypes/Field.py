@@ -609,7 +609,7 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
-        kwargs.update({'field': self.getName(),
+        kwargs.update({'field': self,
                        'encoding':kwargs.get('encoding', None),
                      })
         if accessor is None:
