@@ -1973,7 +1973,7 @@ class ImageField(FileField):
                  } 
         
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
-                 'widht="%(width)s" height="%(height)s"' % values
+                 'width="%(width)s" height="%(height)s"' % values
 
         if css_class is not None:
             result = '%s class="%s"' % (result, css_class)
