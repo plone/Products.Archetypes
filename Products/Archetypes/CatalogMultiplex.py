@@ -39,7 +39,7 @@ class CatalogMultiplex(CMFCatalogAware):
         self._uncatalogRefs(self)
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
-    def reindexObject(self, idxs=[]):
+    def reindexObject(self, idxs=[], **kw):
         if idxs == []:
             if hasattr(aq_base(self), 'notifyModified'):
                 self.notifyModified()
