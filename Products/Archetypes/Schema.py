@@ -652,7 +652,8 @@ class Schema(Schemata, DefaultLayerContainer):
                 schemata_names.insert(pos+1, name)
                 
         # remove and re-add
-        for f in fieldnames: self.delField(f)
+        self.__init__()
+
         for s_name in schemata_names:
             for f in fields:
                 if f.schemata == s_name:
@@ -691,7 +692,7 @@ class Schema(Schemata, DefaultLayerContainer):
         d[field_schemata_name] = lst
                 
         # remove and re-add
-        for f in fieldnames: self.delField(f)
+        self.__init__()
         for s_name in schemata_names:
             for f in d[s_name]:
                 self.addField(f)
