@@ -118,12 +118,12 @@ class I18NBaseContent(I18NMixin, BaseContent):
     """ override BaseContent to have I18N title and description,
     plus I18N related actions
     """
-    
+
     schema = BaseContent.schema + I18NMixin.schema
-    
+
     def __init__(self, *args, **kwargs):
         BaseContent.__init__(self, *args, **kwargs)
         I18NMixin.__init__(self)
 
 InitializeClass(I18NBaseContent)
-    
+

@@ -42,11 +42,17 @@
 	        condition="python: len(mimetypes) > 1">
     <div class="label"
          i18n:translate="label_format">Text Format</div>
+    <input type="hidden" name="text_format"
+           value=""
+           tal:attributes="name string:${fieldName}_text_format:default" />
     <select tal:attributes="
 	        id string:${fieldName}_text_format;
 	        name string:${fieldName}_text_format;
 	        tabindex tabindex/next;">
-	    <option selected=""
+      <option selected="selected" value="">
+	 (no change)
+      </option>
+      <option selected=""
 		    tal:repeat="item mimetypes"
 	            tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
 	            tal:content="item" />

@@ -354,7 +354,8 @@ class BaseObject(Implicit):
         form_keys = form.keys()
 
         for field in fields:
-            if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
+            if field.getName() in form_keys or \
+                   "%s_file" % field.getName() in form_keys:
                 text_format = None
                 isFile = 0
                 value = None
@@ -364,8 +365,10 @@ class BaseObject(Implicit):
                    field.allowable_content_types:
                     #was a mimetype specified
                     text_format = form.get("%s_text_format" % field.getName())
+
                 # or a file?
                 fileobj = form.get('%s_file' % field.getName())
+
                 if fileobj:
                     filename = getattr(fileobj, 'filename', '')
                     if filename != '':
@@ -377,12 +380,15 @@ class BaseObject(Implicit):
 
                 #Set things by calling the mutator
                 if value is None: continue
-                mutator = getattr(self, field.mutator)
+                mutator = field.getMutator(self)
                 __traceback_info__ = (self, field, mutator)
                 kwargs = {}
 
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)
+                elif self.isBinary(field.getName()) and not isFile:
+                    # file field with content, no new content uploaded
+                    pass
                 else:
                     mutator(value, **kwargs)
 

@@ -23,13 +23,14 @@
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
-    <metal:fill fill-slot="widget_body" 
+    <metal:fill fill-slot="widget_body"
 	        tal:define="binary python: here.isBinary(fieldName);">
         <div class="group">
 	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
             <div class="row">
                 <metal:use use-macro="here/widgets/epoz/macros/edit_area"/>
             </div>
+            <div metal:use-macro="here/widgets/textarea/macros/area_format" />
             <div class="row">
                 <strong>OR</strong>
             </div>
@@ -49,6 +50,6 @@
 
 
   </body>
-  
+
 </html>
 
