@@ -15,18 +15,17 @@
       </div>
     </div>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-	  <div class="group">
-	    <div tal:replace="structure value"/>
-	      <br/><br/>
-	    <div metal:use-macro="here/widgets/file/macros/file_edit"/>
-	      
-	    </div>
-	</div>
-      </div>
-    </div>
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <div class="group" metal:fill-slot="widget_body">
+        <tal:value condition="value">
+	<div tal:replace="structure value" />
+            <br />
+        </tal:value>    
+        <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+    </div>      
+    </metal:use>
+    </metal:define>
 
   </body>
   

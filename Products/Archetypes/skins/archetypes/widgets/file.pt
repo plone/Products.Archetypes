@@ -16,43 +16,40 @@
       </div>
     </div>
     
-    <div metal:define-macro="file_edit">
-      <input type="file" 
-	     size="30" 
-	     tabindex="" 
-	     tal:attributes="
-	name string:${fieldName}_file;
-	tabindex tabindex/next;" 
-	/>
-	<div tal:omit-tag="" tal:define="unit accessor;
-	  binary python: here.isBinary(fieldName);">
-	  <div tal:condition="python: binary == 1"
-	    tal:define="size unit/get_size | python: 0;
-	    icon unit/getIcon | nothing;"
-	    >
-	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
-	      <img tal:condition="icon" src="" tal:attributes="src
+    <metal:define define-macro="file_edit">
+    <input type="file" 
+	   size="30" 
+	   tabindex="" 
+	   tal:attributes=" name string:${fieldName}_file;
+	   tabindex tabindex/next; 
+           onfocus string:formtooltip('${fieldName}_help',1);
+           onblur string:formtooltip('${fieldName}_help',0);
+    "/>
+    <tal:define define="unit accessor;
+	                binary python: here.isBinary(fieldName);">
+    <div tal:condition="python: binary == 1"
+	 tal:define="size unit/get_size | python: 0;
+	            icon unit/getIcon | nothing;">
+	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
+             <img tal:condition="icon" src=""
+                  tal:attributes="src
 	      string:${here/portal_url}/${icon}"/>Download <span
-	      tal:replace="fieldName"/>
-	    </a> (<span tal:content="value/filename|nothing"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
-	    
-	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
+                  tal:replace="fieldName"/></a>
+         (<span tal:content="value/filename|nothing"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
+	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
 	      tal:define="edit here/edit.gif">
-	      <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
-		Edit</a>
-	  </div>
-	</div>
+	     <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />Edit</a>
     </div>
+    </tal:define>
+    </metal:define>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-
-	  >
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body">
 	  <metal:block metal:use-macro="here/widgets/file/macros/file_edit"/>
-	</div>
-      </div>
-    </div>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
 
   </body>
   
