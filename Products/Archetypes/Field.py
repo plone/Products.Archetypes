@@ -1109,7 +1109,7 @@ class ImageField(ObjectField):
             # unset different sizes
             for n, size in self.sizes.items():
                 id = self.getName() + "_" + n
-                self.storage.unset(id, instance, **kwargs) 
+                self.storage.unset(id, instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return

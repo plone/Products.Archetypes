@@ -1,8 +1,8 @@
 NAME=archetypes
 MAJOR_VERSION=1.3
 MINOR_VERSION=0
-RELEASE_TAG=a1
-PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}_${RELEASE_TAG}
+RELEASE_TAG=_a2
+PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
 
 PYTHON="/usr/bin/python"
 TMPDIR=~/tmp
@@ -48,7 +48,7 @@ sdist: reindent clean sdist_tgz
 # sdist_tgz:   Create a tgz archive file as a source distribution.
 #
 sdist_tgz:
-	echo -n "${MAJOR_VERSION}.${MINOR_VERSION}-${RELEASE_TAG}" >\
+	echo -n "${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}" >\
           ${CURDIR}/version.txt
 	${MKDIR} ${TMPDIR}/${PACKAGE_NAME}
 	${CD} ${TMPDIR}/${PACKAGE_NAME} && \
