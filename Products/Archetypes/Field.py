@@ -60,6 +60,7 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -1694,6 +1695,7 @@ class ImageField(FileField):
         'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
+        'swallowResizeExceptions' : False,
         'default_content_type' : 'image/png',
         'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
@@ -1729,7 +1731,16 @@ class ImageField(FileField):
         kwargs['filename'] = filename
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
-        imgdata = self.rescaleOriginal(value, **kwargs)
+        try:
+            imgdata = self.rescaleOriginal(value, **kwargs)
+        except ConflictError:
+            raise
+        except:
+            if not self.swallowResizeExceptions:
+                raise
+            else:
+                imgdata = value
+                log_exc()
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
         self.createScales(instance)
@@ -1849,7 +1860,17 @@ class ImageField(FileField):
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
-            imgdata, format = self.scale(data, w, h)
+            try:
+                imgdata, format = self.scale(data, w, h)
+            except ConflictError:
+                raise
+            except:
+                if not self.swallowResizeExceptions:
+                    raise
+                else:
+                    log_exc()
+                    # scaling failed, don't create a scaled version
+                    continue
             image = self.content_class(id, self.getName(),
                                      imgdata,
                                      'image/%s' % format

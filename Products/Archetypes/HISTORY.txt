@@ -1,19 +1,32 @@
 1.3.0-rc3 -
 ======================
 
+ * Added 'swallowResizeExceptions' attribute to ImageField. When the property is
+   set to True all exceptions raised by PIL are captured and the specified scale
+   isn't created.
+   Note: Some scales might be created when PIL fails only for some sizes.
+   [tiran]
+
+ * Field.ReferenceField: Simplify code a bit. Fix a typo on exception name.
+   [dreamcatcher]
+
  * Fixed [ 1023153 ] isEmpty validator must return empty string by using the new
-  isEmptyNoError validator.
+   isEmptyNoError validator.
+   [tiran]
 
  * Fixed [ 1029231 ] base_metadata doesn't use jsscripts properly, also cleaned
    up the base_metadata and added support for helper css.
+   [tiran, kai]
 
  * Fixed [ 1025842 ] Missing i18n:translate in widgets/field.pt <label>
+   [tiran]
 
  * Cleaned up and fixed ExtensibleMetadata class:
      o no more direct attribute access or attribute storage
      o rearranged some lines
      o use 'date is None and fallback or date' because testing for is None is
        much faster than testing a DateTime instance for not None.
+   [tiran]
 
  * Added SQL* and VariableSchemaSupport to public.py. Please import only from
    public!
