@@ -124,6 +124,7 @@ class Field(DefaultLayerContainer):
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'schemata' : 'default',
+        'languageIndependent' : False,
         }
 
     def __init__(self, name, **kwargs):
@@ -461,6 +462,12 @@ class Field(DefaultLayerContainer):
             s = s + '%s:%s,' % (k, self._properties[k])
         s = s + '}'
         return s
+
+    security.declarePublic('isLanguageIndependent')
+    def isLanguageIndependent(self, instance):
+        """Get the language independed flag for i18n content
+        """
+        return self.languageIndependent
 
 
 class ObjectField(Field):

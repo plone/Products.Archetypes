@@ -18,6 +18,12 @@ from Products.CMFDefault.utils import _dtmldir
 
 _marker=[]
 
+try:
+    True
+except NameError:
+    True=1
+    False=0
+
 FLOOR_DATE = DateTime( 1000, 0 ) # always effective
 CEILING_DATE = DateTime( 9999, 0 ) # never expires
 
@@ -96,6 +102,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'effectiveDate',
             mutator = 'setEffectiveDate',
+            languageIndependent = True,
             widget=CalendarWidget(
                 label="Effective Date",
                 description=("Date when the content should become available "
@@ -107,6 +114,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'expirationDate',
             mutator = 'setExpirationDate',
+            languageIndependent = True,
             widget=CalendarWidget(
                 label="Expiration Date",
                 description=("Date when the content should no longer be "
