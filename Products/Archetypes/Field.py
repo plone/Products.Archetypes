@@ -775,21 +775,36 @@ class ReferenceField(ObjectField):
         tool=getToolByName(instance, REFERENCE_CATALOG)
         refname=self.relationship
 
-        # XXX: thats too cheap, but I need the proof of concept before
-        # going on
-        instance.deleteReferences(refname)
+        refs=tool.getReferences(instance,refname)
+        if refs:
+            targetUIDs=[r.targetUID for r in refs]
+        else:
+            targetUIDs=[]
+            
         newValue = []
+
         if self.multiValued:
-            if type(value) in (type(()),type([])):
+            #add the new refs
+            if value:
+                value=[v for v in value if v]
+                #add new references
                 for uid in value:
-                    if uid:
+                    if uid not in targetUIDs:
                         target=tool.lookupObject(uuid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
+                        
                         instance.addReference(target,refname)
-                        newValue.append(uid)
+                    newValue.append(uid)
+                
+                #delete references
+                for uid in targetUIDs:
+                    if uid and uid not in value:
+                        target=tool.lookupObject(uid)
+                        if target:
+                            instance.deleteReference(target,refname)
         else:
-            if value:
+            if value :
                 target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value

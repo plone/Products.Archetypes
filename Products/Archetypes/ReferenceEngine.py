@@ -238,7 +238,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         #uid_catalog = getToolByName(self, UID_CATALOG)
         #uid_catalog.catalog_object(object, self._makeName(uuid))
         return uuid
-    
+
     def _deleteReference(self, referenceObject):
         
         try:
