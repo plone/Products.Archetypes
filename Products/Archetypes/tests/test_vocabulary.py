@@ -44,6 +44,8 @@ class DummyBrain:
     def getURL(self):
         return self.path
 
+    getPath = getURL
+
 class DummyArchTool:
 
     def lookupObject(self, uid):
@@ -59,6 +61,9 @@ class DummyCatalog:
 
     def __call__(self, *args, **kwargs):
         return self._brains
+
+    def getMetadataForUID(self, uid): # XXX stupid workaround, anyone?
+        return {'UID': uid[1:]}
 
     indexes = lambda self:['portal_type']
 
