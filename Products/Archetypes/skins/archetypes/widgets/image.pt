@@ -47,14 +47,7 @@
 		     />
             <span i18n:translate="delete_image">delete image</span>
           </div> 
-          <div>
-            <input type="file"
-                   size="30"
-                   tabindex=""
-                   tal:attributes="name string:${fieldName}_file;
-                                   tabindex tabindex/next;"
-            />
-          </div>
+	      <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
 	    </metal:fill>
       </metal:use>
     </metal:define>

@@ -35,26 +35,37 @@
     </div>
 
     <metal:define define-macro="file_edit">
-      <div tal:condition="accessor">
-        <input class="noborder"
-               type="checkbox"
-               value="on"
-               tabindex=""
-               tal:attributes="tabindex tabindex/next;
-                   name string:${fieldName}_delete;
-                   id string:${fieldName}_checkbox;
-                   checked python:str(value) == '1';"
-         />
-        <span i18n:translate="delete_file">delete file</span>
-      </div>
-      <input type="file"
-	     size="30"
-	     tabindex=""
-	     tal:attributes=" name string:${fieldName}_file;
-	     tabindex tabindex/next;"
-	     />
-      <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+        <metal use-macro="here/widgets/file/macros/file_delete" />
+        <metal use-macro="here/widgets/file/macros/file_upload" />
+        <metal use-macro="here/widgets/file/macros/file_view"/>
     </metal:define>
+
+    <metal:define define-macro="file_delete">
+        <div tal:condition="python: accessor() and not field.required">
+            <input class="noborder"
+                   type="checkbox"
+                   value="on"
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_checkbox;
+                       checked python:str(value) == '1';"
+             />
+            <span i18n:translate="delete_file">delete file</span>
+        </div>
+    </metal:define>
+
+    <metal:define define-macro="file_upload">
+        <div>
+            <input type="file"
+                   size="30"
+                   tabindex=""
+                   tal:attributes="name string:${fieldName}_file;
+                                   tabindex tabindex/next;"
+             />            
+        </div>
+    </metal:define>
+
 
     <metal:define define-macro="view">
       <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
