@@ -208,7 +208,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
             if field.getName().lower() != 'id':
-                # always set defaults
+                # always set defaults on writable fields
+                mutator = field.getMutator(instance)
+                if mutator is None:
+                    continue
                 #if not hasattr(aq_base(instance), field.getName()) and \
                 #   getattr(instance, field.getName(), None):
                 default = field.default
@@ -216,8 +219,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
-
-                field.set(instance, default)
+                mutator(default)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
@@ -337,8 +339,9 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         values = [value]
                     elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
                         raise TypeError("Field value type error")
-#                    values = field.multiValued == 1  and value or [value]
                     vocab = field.Vocabulary(instance)
+                    # filter empty
+                    values = [v for v in values if v.strip()]
                     for val in values:
                         error = 1
                         for v in vocab:

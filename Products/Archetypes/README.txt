@@ -19,9 +19,9 @@ Features
     * Full automatic form generation     
 
 Requires
-	Plone 1.0+
-	CMF 1.3+
-	Zope 2.5.1+ (Recommending 2.6.0+)
+	Plone 1.0.3+
+	CMF 1.3.1+
+	Zope 2.6.1+
 
         Zope products "PortalTransforms", "generator", "validation"
         should also be installed. All that products are also available 

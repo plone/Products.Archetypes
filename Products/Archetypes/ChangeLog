@@ -1,3 +1,99 @@
+2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* skins/archetypes/displayValue.py: Whoa. A parentesis was out of order.
+	Finish by filtering out empty values.
+
+	* Marshall.py (RFC822Marshaller.marshall): Removed TODO
+	DublinCoreMarshaller. The RFC822 one should do what the DublinCore
+	one intended to do.
+	(PrimaryFieldMarshaller.marshall): Make it just a little bit
+	smarter. I don't see why this fails to George Pan :(
+
+	* Field.py (Field.validate): Patch by Azazel. Allow passing kwargs
+	to the validators, as they seem to already support kwargs in the
+	method signatures. 
+
+	* BaseObject.py (BaseObject._processForm): As suggested by George
+	Pan, have a REQUEST argument on the processForm method to allow
+	passing in a REQUEST.
+
+	* skins/archetypes/displayValue.py: Ok, don't join chars with a
+	',' if its a not a list (eg: string or unicode) and convert to a
+	string if anything else (eg: int, float)
+
+	* Field.py (Image.isBinary): Use return wrapped image in the
+	instance context, and use the instance Title where
+	possible. Existing images must be re-saved to get this
+	functionality. If you want a non-wrapped image, you must pass the
+	keyword argument 'unwrapped=1'.
+
+2003-07-26  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Extensions/utils.py (filterTypes): Also check base classes to
+	see if they implement IBaseObject.
+
+2003-07-23  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Field.py (Field.copy): Do a deepcopy, so we don't get references
+	for stuff we don't want to change.
+
+2003-07-18  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* BaseObject.py (BaseObject.__getitem__): Backport slightly
+	modified fix from Ben from head. Enables External Editor to work again.
+
+	* Field.py (Field.getMutator): Aha! self.mutator may be None
+	actually, with ComputedField.
+
+2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* skins/archetypes/content_edit.py (previous): Clearer schemata
+	handling. Should fix #770953.
+
+	* BaseObject.py (content_type): Make the RFC822Marshaller the
+	default one. Pending tests.
+	(BaseObject.SearchableText): Misplaced piece of code, for handling
+	LinesField and SearchableText.
+
+	* Marshall.py (RFC822Marshaller.marshall): Small fixes to deal
+	with objects without PrimaryField set.
+
+2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* skins/archetypes/unicodeTestIn.py: Trying to fix current unicode
+	state on archetypes. Needs a unicode guru.
+
+	* Schema.py (Schema.validate): Filter empty values on vocabulary lookup.
+
+	* skins/archetypes/widgets/string.pt: Whitespace.
+
+	* skins/archetypes/widgets/keyword.pt: Fill from request if available.
+
+	* skins/archetypes/widgets/multiselection.pt: Reverting Xiru's
+	changes and fixing accordingly. Include the default hidden field
+	if not required.
+
+	* Validators.py: Zope-dependent validators goes here.
+
+	* skins/archetypes/widgets/field.pt: Display content type if available.
+
+2003-07-15  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* BaseObject.py: Missing import.
+
+2003-07-11  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* skins/archetypes/base_edit.pt: Show 'default' schemata when
+	there is more than one.
+	Ops. That wasn't quite it. Fixed accordingly now.
+
+	* skins/archetypes/widgets/multiselection.pt: <input> can't have
+	tal:content. I guess it should be value, so changed it to that. It
+	is a 'singleton' (or something like that).
+
+	* ArchetypeTool.py (process_types): I was missing this feature for
+	a loooong time. Lookup modify_fti on the base classes's modules.
+
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Field.py (ImageField.set): Trying to fix 'imgdata referenced

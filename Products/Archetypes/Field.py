@@ -1,7 +1,7 @@
 from __future__ import nested_scopes
-from copy import copy
+from copy import deepcopy
 from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
@@ -27,6 +27,7 @@ from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
+from ComputedAttribute import ComputedAttribute
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
@@ -109,8 +110,8 @@ class Field(DefaultLayerContainer):
         Return a copy of field instance, consisting of field name and
         properties dictionary.
         """
-
-        return self.__class__(self.getName(), **self.__dict__)
+        properties = deepcopy(self.__dict__)
+        return self.__class__(self.getName(), **properties)
 
     def __repr__(self):
         """
@@ -143,14 +144,14 @@ class Field(DefaultLayerContainer):
                 log("WARNING: no validator %s for %s" % (v,
                 self.getName()))
 
-    def validate(self, value):
+    def validate(self, value, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
         for v in self.validators:
-            res = validation.validate(v, value)
+            res = validation.validate(v, value, **kwargs)
             if res != 1:
                 return res
             return None
@@ -253,7 +254,9 @@ class Field(DefaultLayerContainer):
     security.declarePublic('getMutator')
     def getMutator(self, instance):
         """Return the mutator method used for changing the value of this field"""
-        return getattr(instance, self.mutator, None)
+        if self.mutator:
+            return getattr(instance, self.mutator, None)
+        return None
 
     def hasI18NContent(self):
         """Return true it the field has I18N content. Currently not
@@ -565,6 +568,7 @@ class TextField(ObjectField):
             import site
             encoding = site.encoding
 
+        kwargs['encoding'] = encoding
         value, mimetype = self._process_input(value,
                                               default=self.default,
                                               **kwargs)
@@ -653,8 +657,10 @@ class IntegerField(ObjectField):
     def set(self, instance, value, **kwargs):
         if value=='':
             value=None
-        # should really blow if value is not valid
-        value = int(value)
+        else:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = int(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -671,9 +677,10 @@ class FloatField(ObjectField):
         None."""
         if value=='':
             value=None
-
-        # should really blow if value is not valid
-        value = float(value)
+        else:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -916,6 +923,17 @@ except:
     has_pil=None
 
 class Image(BaseImage):
+
+    def title(self):
+        parent = aq_parent(aq_inner(self))
+        if parent is not None:
+            return parent.Title() or parent.getId()
+        return self.getId()
+
+    title = ComputedAttribute(title, 1)
+
+    alt = title_or_id = title
+    
     def isBinary(self):
         return 1
 
@@ -944,6 +962,12 @@ class ImageField(ObjectField):
         then no scaling will take place.
         This is important if you don't want to store megabytes of
         imagedata if you only need a max. of 100x100 ;-)
+
+	max_size -- similar to max_size but if it's given then the image
+	            is checked to be no bigger than any of the given values
+		    of width or height.
+		    XXX: I think it is, because the one who added it did not
+		    document it ;-) (mrtopf - 2003/07/20)
 
         example:
 
@@ -977,7 +1001,7 @@ class ImageField(ObjectField):
     _properties.update({
         'type' : 'image',
         'default' : '',
-        'original_size': (600,600),
+        'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
@@ -987,6 +1011,12 @@ class ImageField(ObjectField):
         })
 
     default_view = "view"
+
+    def get(self, instance, **kwargs):
+        image = ObjectField.get(self, instance, **kwargs)
+        if kwargs.get('unwrapped', 0):
+            return image
+        return image.__of__(instance)
 
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
@@ -1043,6 +1073,7 @@ class ImageField(ObjectField):
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
+        delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
@@ -1056,13 +1087,14 @@ class ImageField(ObjectField):
             imgdata = self.scale(data, w, h)
             image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
             # manually use storage
+            delattr(image2, 'title')
             self.storage.set(id, instance, image2)
 
 
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(w or h), 'width':int(h or w)}
+        keys = {'height':int(h), 'width':int(w)}
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)

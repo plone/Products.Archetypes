@@ -2,9 +2,9 @@ Archetypes Basic Reference
 ==========================
 
 :Author: Sidnei da Silva
-:Contact: sidnei@x3ng.com
-:Date: $Date: 2003/07/03 16:24:32 $
-:Version: $Revision: 1.6.4.1 $
+:Contact: sidnei@plone.org
+:Date: $Date: 2003/07/28 01:29:06 $
+:Version: $Revision: 1.6.4.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -26,7 +26,6 @@ found under the under the `docs`_ directory of Archetypes.
 .. _SourceForge: http://www.sourceforge.net
 .. _Archetypes Project: http://sourceforge.net/projects/archetypes
 .. _docs: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/Archetypes/docs
-
 
 Installation
 ------------
@@ -483,14 +482,9 @@ ObjectManagedStorage
 
 ``*SQLStorage``
   Experimental storage layer, which puts the data inside
-  SQL. Available variations are: MySQL and PostGRES. There's an initial
+  SQL. Available variations are: MySQL and PostgreSQL. There's an initial
   implementation of an Oracle storage, but it isn't tested at the
   moment.
-
-How to write your own SQLStorage
-********************************
-
-XXX Not written yet.
 
 Marshall
 --------
@@ -572,6 +566,8 @@ Examples can be found on the ArchExample product, that is included in
 the download. You can also `browse the cvs repository`_.
 
 .. _browse the cvs repository: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/
+
+
 
 Special Thanks
 --------------

@@ -214,8 +214,9 @@ def install_indexes(self, out, types):
                     installed = None
                     schema = alternative.split(':', 1)
                     if len(schema) == 2 and schema[1] == 'schema':
+                        # FIXME: why do we try/except this part ?
                         try:
-                            if ischema and field.accessor not in catalog.schema():
+                            if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
                         except:
                             pass
@@ -274,7 +275,16 @@ def filterTypes(self, out, types, package_name):
             print >> out, '%s is not a registered Type Information' % typeinfo_name
             continue
 
+        isBaseObject = 0
         if IBaseObject.isImplementedByInstancesOf(t):
+            isBaseObject = 1
+        else:
+            for k in t.__bases__:
+                if IBaseObject.isImplementedByInstancesOf(k):
+                    isBaseObject = 1
+                    break
+        
+        if isBaseObject:
             filtered_types.append(t)
         else:
             print >> out, """%s doesnt implements IBaseObject. Possible misconfiguration.""" % repr(t) + \

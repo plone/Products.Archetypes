@@ -10,6 +10,7 @@ from ZPublisher.HTTPRequest import FileUpload
 from ZODB.PersistentMapping import PersistentMapping
 from debug import log, log_exc
 from types import FileType
+from DateTime import DateTime
 import operator
 
 from Schema import Schema, Schemata
@@ -20,6 +21,8 @@ from interfaces.base import IBaseObject
 from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
+
+from Products.Archetypes.Marshall import RFC822Marshaller
 
 content_type = Schema((
     StringField('id',
@@ -41,8 +44,9 @@ content_type = Schema((
                 widget=StringWidget(label_msgid="label_title",
                                     description_msgid="help_title",
                                     i18n_domain="plone"),
-                ),
-    ))
+                )),
+    marshall = RFC822Marshaller()
+                      )
 
 class BaseObject(Implicit):
     security = ClassSecurityInfo()
@@ -197,7 +201,9 @@ class BaseObject(Implicit):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getAccessor(self)
+        accessor = self.Schema()[key].getEditAccessor(self)
+        if not accessor:
+            accessor = self.Schema()[key].getAccessor(self)
         return accessor()
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
@@ -285,6 +291,8 @@ class BaseObject(Implicit):
                 except:
                     datum =  ''
             if datum:
+                if type(datum) is type([]) or type(datum) is type(()):
+                    datum = ' '.join(datum)
                 data.append(datum)
 
         data = [str(d) for d in data if d is not None]
@@ -310,8 +318,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               '_processForm')
-    def _processForm(self, data=1, metadata=None):
-        request = self.REQUEST
+    def _processForm(self, data=1, metadata=None, REQUEST=None):
+        request = REQUEST or self.REQUEST
         form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
@@ -363,9 +371,9 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0):
+    def processForm(self, data=1, metadata=0, REQUEST=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata)
+        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
 
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
@@ -375,7 +383,7 @@ class BaseObject(Implicit):
     def _datify( self, attrib ):
         """FIXME: overriden from DublinCore to deal with blank value..."""
         if attrib == 'None' or not attrib:
-            attrib = ''
+            attrib = None
         elif not isinstance( attrib, DateTime ):
             attrib = DateTime( attrib )
         return attrib

@@ -6,6 +6,9 @@ from Products.CMFCore.TypesTool import TypesTool, typeClasses
 from config import *
 from debug import log, log_exc
 
+# Bootstrap Zope-dependent validators
+import Validators
+
 try:
     import Products.BTreeFolder2
 except ImportError:
