@@ -23,7 +23,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, \
      FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT, REFERENCE_CATALOG
+from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ZODB.PersistentMapping import PersistentMapping
@@ -148,13 +148,10 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given and call
-        widget.populateProps
+        instantiate the widget if a class was given
         """
-        if hasattr(self, 'widget'):
-            if type(self.widget) == ClassType:
-                self.widget = self.widget()
-            self.widget.populateProps(self)
+        if hasattr(self, 'widget') and type(self.widget) == ClassType:
+            self.widget = self.widget()
 
     def _validationLayer(self):
         """
@@ -180,7 +177,6 @@ class Field(DefaultLayerContainer):
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-
         for v in self.validators:
             res = validation.validate(v, value, **kwargs)
             if res != 1:
@@ -255,6 +251,10 @@ class Field(DefaultLayerContainer):
         """Return the storage name that is configured for this field
         as a string"""
         return self.storage.getName()
+
+    def getStorageType(self):
+        """Return the type of the storage of this field as a string"""
+        return className(self.storage)
 
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
@@ -753,7 +753,7 @@ class ReferenceField(ObjectField):
         'relationship':None
         })
 
-    def containsValueAsString(self,value,attrval):
+    def containsValueAsString(self, value, attrval):
         """
         checks wether the attribute contains a value
            if the field is a scalar -> comparison
@@ -775,43 +775,28 @@ class ReferenceField(ObjectField):
         __traceback_info__ = (instance, self.getName(), value)
 
         # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance, REFERENCE_CATALOG)
+        tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
-        refs=tool.getReferences(instance,refname)
-        if refs:
-            targetUIDs=[r.targetUID for r in refs]
-        else:
-            targetUIDs=[]
-            
+        # XXX: thats too cheap, but I need the proof of concept before
+        # going on
+        instance.deleteReferences(refname)
         newValue = []
-
         if self.multiValued:
-            #add the new refs
-            if value:
-                value=[v for v in value if v]
-                #add new references
+            if type(value) in (type(()),type([])):
                 for uid in value:
-                    if uid not in targetUIDs:
-                        target=tool.lookupObject(uuid=uid)
+                    if uid:
+                        target=tool.lookupObject(uid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
-                        
-                        instance.addReference(target,refname)
-                    newValue.append(uid)
-                
-                #delete references
-                for uid in targetUIDs:
-                    if uid and uid not in value:
-                        target=tool.lookupObject(uid)
-                        if target:
-                            instance.deleteReference(target,refname)
+                        instance.addReference(target, refname)
+                        newValue.append(uid)
         else:
-            if value :
-                target=tool.lookupObject(uuid=value)
+            if value:
+                target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target,refname)
+                instance.addReference(target, refname)
                 newValue = value
 
         # and now do the normal assignment
@@ -827,7 +812,7 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            results = catalog(meta_type=self.allowed_types)
+            results = catalog(Type=self.allowed_types)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
@@ -840,24 +825,6 @@ class ReferenceField(ObjectField):
         if not self.required:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
-
-    def allowedTypesReadable(self, instance):
-        """Returns a dictionary that maps meta_type to its human readable
-        form."""
-        tool = getToolByName(instance, 'portal_types')
-        if tool is None:
-            msg = "Coudln't get portal_types tool from this context"
-            raise AttributeError(msg)
-            
-        d = {}
-        for typeid in self.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                raise ValueError('No such content type: %s' % type_name)
-            d[typeid] = info.Title()
-
-        return d
-        
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -1163,12 +1130,17 @@ class ImageField(ObjectField):
         #make sure we have valid int's
         keys = {'height':int(h), 'width':int(w)}
 
+        pilfilter = 0 # NEAREST
+        #check for the pil version and enable antialias if > 1.1.3
+        if PIL.Image.VERSION >= "1.1.3":
+            pilfilter = 1 # ANTIALIAS
+
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
         image = image.convert('RGB')
-        image.thumbnail((keys['width'],keys['height']))
+        image.thumbnail((keys['width'],keys['height']), pilfilter)
         thumbnail_file = StringIO()
-        image.save(thumbnail_file, "JPEG")
+        image.save(thumbnail_file, "JPEG", quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
@@ -1471,7 +1443,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField', 'PhotoField',
+           'CMFObjectField', 'ImageField',
            )
 
 from Registry import registerField
@@ -1557,4 +1529,6 @@ registerPropertyType('read_permission', 'string')
 registerPropertyType('write_permission', 'string')
 registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
+registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
+
