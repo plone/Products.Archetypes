@@ -30,7 +30,7 @@
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
-      <label tal:content="python:widget.Label(here) + ':'">Field</label>
+      <label i18n:translate="" tal:content="python:widget.Label(here) + ':'">Field</label>
       <span tal:condition="field/workflowable | nothing"
             tal:omit-tag="">
         (

@@ -1,6 +1,8 @@
 1.3.0-rc3 -
 ======================
 
+ * Fixed [ 1025842 ] Missing i18n:translate in widgets/field.pt <label>
+
  * Cleaned up and fixed ExtensibleMetadata class:
      o no more direct attribute access or attribute storage
      o rearranged some lines
