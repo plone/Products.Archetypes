@@ -9,7 +9,7 @@
     <!-- Base Field Widgets -->
     <div metal:define-macro="view">
       <div tal:condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
-        <span class="label" tal:content="python:widget.Label(here) + ':'">Field</span>
+        <span class="label" tal:condition="use_label|nothing" tal:content="python:widget.Label(here) + ':'">Field</span>
         <span tal:condition="field/workflowable|nothing"
               tal:omit-tag="">
         (<a href="#"

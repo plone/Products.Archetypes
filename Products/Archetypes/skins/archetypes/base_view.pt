@@ -16,7 +16,7 @@
 	   
 	   <div tal:condition="not:body_macro"
                 tal:repeat="field python: here.Schema().filterFields(isMetadata=0)">
-	      <span metal:use-macro="python: here.widget(field.name, mode='view')"/>
+	      <span metal:use-macro="python: here.widget(field.name, mode='view', use_label=1)"/>
            </div>
 
 	   <div tal:condition="body_macro">
