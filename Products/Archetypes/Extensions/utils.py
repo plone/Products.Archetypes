@@ -158,7 +158,7 @@ def install_actions(self, out, types):
                 cmfver=getCMFVersion()
 
                 for action in type.actions:
-                    if cmfver[:7] >= "CMF-1.4": 
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased': 
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
                         if hits:
