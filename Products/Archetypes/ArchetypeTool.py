@@ -860,7 +860,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsByType(self, meta_type):
         """Return the catalog objects assoicated with a given type"""
         catalogs = []
-        names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
+        catalog_map=getattr(self,'catalog_map',None)
+        if catalog_map:
+            names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
+        else:
+            names = ['portal_catalog', UID_CATALOG]            
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
