@@ -286,14 +286,18 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     error = 1
                     break
 
-            #VOCABILARY CHECKS
+            #VOCABULARY CHECKS
             if error == 0  and field.enforceVocabulary == 1:
                 if value: ## we need to check this as optional field will be
                           ## empty and thats ok
-                    values = field.multiValued == 1  and value or [value]
+                    if isinstance(value, type('')) or isinstance(value, type(u'')):
+                        values = [value]
+                    elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
+                        raise TypeError("Field value type error")
+#                    values = field.multiValued == 1  and value or [value]
+                    vocab = field.Vocabulary(instance)
                     for value in values:
                         error = 1 
-                        vocab = field.Vocabulary(instance)
                         for v in vocab:
                             if type(v) in [type(()), type([])]:
                                 valid = v[0]
