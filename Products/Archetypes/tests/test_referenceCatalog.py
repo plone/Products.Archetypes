@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.18.1 2004/05/04 10:06:44 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.8.18.2 2004/05/05 16:54:06 bcsaller Exp $
 """
 
 import os, sys
@@ -28,6 +28,21 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         user = self.getManagerUser()
         newSecurityManager(None, user)
 
+    def verifyBrains(self):
+        site = self.getPortal()
+        uc = getattr(site, config.UID_CATALOG)
+        rc = getattr(site, config.REFERENCE_CATALOG)
+
+        #Verify all UIDs resolve
+        brains = uc()
+        objects = [b.getObject() for b in brains]
+        self.failIf(None in objects, """bad uid resolution""")
+
+        #Verify all references resolve
+        brains = rc()
+        objects = [b.getObject() for b in brains]
+        self.failIf(None in objects, """bad ref catalog resolution""")
+
     def test_create(self):
         site = self.getPortal()
         rc = getattr(site, config.REFERENCE_CATALOG)
@@ -45,8 +60,9 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         id2 = "secondObject"
         obj2 = makeContent(site, portal_type='Fact', id=id2)
 
+        self.verifyBrains()
         obj.addReference(obj2, 'testRelationship', foo="bar")
-
+        self.verifyBrains()
         uid1 = obj.UID()
         uid2 = obj2.UID()
 
@@ -80,12 +96,14 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         # /MAGIC
 
         #Rename can't invalidate UID or references
+        self.verifyBrains()
         obj.setId('new1')
+        self.verifyBrains()
+
         self.failUnless(obj.getId() == 'new1')
         self.failUnless(obj.UID() == uid1)
 
         b = obj.getRefs()
-        print b
         self.failUnless(b[0].UID() == uid2)
 
         obj2.setId('new2')
@@ -106,6 +124,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         refs = rc.getBackReferences(obj, 'betaRelationship')
         # objs back ref should be obj2
         self.failUnless(refs[0].sourceUID == b[0].UID() == uid2)
+        self.verifyBrains()
 
 
     def test_holdingref(self):

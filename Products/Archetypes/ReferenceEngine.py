@@ -10,7 +10,7 @@ from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
-from ExtensionClass import Base 
+from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -130,11 +130,12 @@ class Reference(Referenceable, SimpleItem):
         pass
 
     def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
+        #Referenceable.manage_afterAdd(self, item, container)
         uc = getToolByName(container, UID_CATALOG)
-        # These are stored as annotations, what we need to do is store
-        # it under its own UID, the ref cat brains will do the rest
-        uc.catalog_object(self, getRelURL(container, self.getPhysicalPath()))
+        rc = getToolByName(container, REFERENCE_CATALOG)
+        url = self.getURL()
+        uc.catalog_object(self, url)
+        rc.catalog_object(self, url)
 
     def getPhysicalPath(self):
         """return the munged physical path"""
@@ -165,7 +166,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         try:
             path = self.getPath()
             is_ref_path  = path.find('REF_PREFIX')
-            
+
             if not is_ref_path:
                 try:
                     obj = self.aq_parent.unrestrictedTraverse(self.getPath())
@@ -181,7 +182,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             # wrong object type
             if not hasattr( obj, 'UID'):
                 return
-            
+
             if obj.UID() != self.UID:
                 # We have the parent that contains an object with
                 # this UID as an annotation.
@@ -300,12 +301,6 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             annotation[rID] = referenceObject
             # Manually invoke the OFS like hook
             referenceObject.manage_afterAdd(referenceObject, sobj)
-            # When we store the refs on the object the uid passed to
-            # the catalog should be the physical path. People want
-            # this to be relative... I will look into that after this
-            # works
-            ## XXX: relative
-            self.catalog_object(referenceObject, referenceObject.getURL())
             return referenceObject
 
     def deleteReference(self, source, target, relationship=None):
@@ -465,11 +460,11 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             pass
         else:
             annotation = sobj._getReferenceAnnotations()
-            del annotation[referenceObject.UID()]
             url = '/'.join(referenceObject.getPhysicalPath())
             self.uid_catalog.uncatalog_object(url)
             self.uncatalog_object(url)
-    
+            del annotation[referenceObject.UID()]
+
     def _resolveBrains(self, brains):
         objects = []
         if brains:
