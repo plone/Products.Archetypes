@@ -47,6 +47,7 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes import config
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME
+from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 
@@ -89,7 +90,8 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
     obj.setLanguage(data)
     obj.setRights(data)
 
-def compareMetadataOf(test, obj, data='default', mimetype='application/octet-stream', time=1000):
+def compareMetadataOf(test, obj, data='default',
+                      mimetype='application/octet-stream', time=1000):
     l_data = (data,)
     test.failUnless(obj.Title() == data, 'Title')
     test.failUnless(obj.Subject() == l_data,
@@ -98,13 +100,18 @@ def compareMetadataOf(test, obj, data='default', mimetype='application/octet-str
     test.failUnless(obj.Contributors() == l_data, 'Contributors')
     test.failUnless(obj.EffectiveDate() == DateTime(time, 0).ISO(),
                     'effective date')
-    test.failUnlessEqual(str(obj.effective_date), str(DateTime(time, 0)))
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
                     'expiration date')
-
-    test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 0)))
-    test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
-
+    if aq_base(obj) is obj:
+        # If the object is not acquisition wrapped, then those
+        # ComputedAttributes won't get executed because the
+        # declaration requires it to be wrapped
+        # like: ComputedAttribute(method, 1)
+        test.failUnless(isinstance(obj.effective_date, ComputedAttribute))
+        test.failUnless(isinstance(obj.expiration_date, ComputedAttribute))
+    else:
+        test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 0)))
+        test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
     # XXX BROKEN! test.failUnless(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
     test.failUnless(obj.Language() == data, 'Language')
