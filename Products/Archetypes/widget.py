@@ -103,7 +103,11 @@ class macrowidget(widget):
 
     def __call__(self, mode, instance, context=None):
         self.bootstrap(instance)
-        template = instance.restrictedTraverse(path = self.macro)
+        #If an attribute called macro_<mode> exists resolve that
+        #before the generic macro, this lets other projects
+        #create more partial widgets
+        macro = getattr(self, "macro_%s" % mode, self.macro)
+        template = instance.restrictedTraverse(path = macro)
         return template.macros[mode]
     
 InitializeClass(widget)
