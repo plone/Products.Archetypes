@@ -5,7 +5,7 @@
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fields python:schematas[fieldset].fields();
-                   portal_type python:here.getPortalTypeName().lower();
+                   portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
                    base_macros here/edit_macros/macros;
                    edit_template python:'%s_edit' % portal_type;
                    edit_macros python:path('here/%s/macros | nothing' % edit_template);
