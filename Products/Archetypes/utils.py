@@ -347,8 +347,9 @@ InitializeClass(DisplayList)
 
 class Vocabulary(DisplayList):
     """
-    Wrap DisplayMist class and add internationalisation"""
-
+    Wrap DisplayList class and add internationalisation
+    """
+    
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
