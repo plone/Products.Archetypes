@@ -4,6 +4,8 @@ from interfaces.layer import ILayer
 from interfaces.base import IBaseUnit
 from StringIO import StringIO
 from types import StringType, ListType, TupleType
+from debug import log
+from OFS.content_types import guess_content_type
 
 class Marshaller:
     __implements__ = (IMarshall, ILayer)
@@ -28,41 +30,26 @@ class Marshaller:
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
 
-class DublinCoreMarshaller(Marshaller):
-    ## XXX TODO -- based on CMFCore.Document
-    def marshall(self, instance, **kwargs):
-        pass
-
-    def demarshall(self, instance, data, **kwargs):
-        pass
-
-
 class PrimaryFieldMarshaller(Marshaller):
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
 
-
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        data = p.get(instance)
+        data = p and p.get(instance) or ''
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(data):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
-
-        #XXX no transform tool
-        #else:
-        #    ## Use instance to get the transform tool
-        #    transformer = getToolByName(instance, 'transform_tool')
-        #    content_type = str(transformer.classify(data))
-        #    length = len(data)
-
-
-        if length is None:
-            return None
+        else:
+            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
+            content_type = guess_content_type(data)
+            length = len(data)
+            data = str(data)
 
         return (content_type, length, data)
 
