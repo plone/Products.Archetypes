@@ -177,6 +177,7 @@ class Referenceable(Base):
             uc = getToolByName(aq, config.UID_CATALOG)
             rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.values():
+                ref = aq_base(ref).__of__(self)
                 url = '/'.join(ref.getPhysicalPath())
                 uc.catalog_object(ref, url)
                 rc.catalog_object(ref, url)

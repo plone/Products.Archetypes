@@ -253,7 +253,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         self._catalog = UIDBaseCatalog()
 
 
-class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
+class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
     protect = security.declareProtected
@@ -262,6 +262,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
+        BTreeFolder2.__init__(self, id)
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = ReferenceBaseCatalog()
 
