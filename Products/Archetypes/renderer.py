@@ -10,6 +10,8 @@ class renderer:
                                     instance, field, accessor, **kwargs)
             
         result = widget(mode, instance, context)
+
+        del context
         return result
 
         
