@@ -19,6 +19,9 @@
 1.3.0-rc3 -
 ======================
 
+ * Fixed [ 1029231 ] base_metadata doesn't use jsscripts properly, also cleaned
+   up the base_metadata and added support for helper css.
+
  * Fixed [ 1025842 ] Missing i18n:translate in widgets/field.pt <label>
 
  * Cleaned up and fixed ExtensibleMetadata class:

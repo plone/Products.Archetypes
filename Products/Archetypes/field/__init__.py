@@ -93,7 +93,7 @@ __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
-    if type(value) is type(u''):
+    if type(value) is UnicodeType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -107,7 +107,7 @@ def encode(value, instance, **kwargs):
 
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
-    if type(value) is type(''):
+    if type(value) is StringType:
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -346,7 +346,7 @@ class Field(DefaultLayerContainer):
             for v in vocab:
                 if type(v) in (TupleType, ListType):
                     v = v[0]
-                if not type(v) in [type(''), type(u'')]:
+                if not type(v) in STRING_TYPES:
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -428,14 +428,14 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
-            elif type(sample) in [TupleType, ListType]:
+            elif type(sample) in (TupleType, ListType):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if sample and len(sample[0]) != 2:
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
-            elif len(sample) and type(sample[0]) == type(''):
+            elif len(sample) and type(sample[0]) is StringType:
                 value = DisplayList(zip(value, value))
             else:
                 log("Unhandled type in Vocab")
@@ -1049,7 +1049,7 @@ class TextField(FileField):
 
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
-        if type(value) is type(u'') and encoding is None:
+        if type(value) is UnicodeType and encoding is None:
             encoding = 'UTF-8'
 
         # fix for external editor support
@@ -1245,7 +1245,7 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.getDefault(instance)
-        if type(value) in [StringType]: value = self._to_tuple(instance, value)
+        if type(value) in (StringType,): value = self._to_tuple(instance, value)
         return template % value
 
     security.declarePrivate('validate_required')
@@ -1293,16 +1293,16 @@ class ReferenceField(ObjectField):
     def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
         """
-        res=instance.getRefs(relationship=self.relationship)
+        res = instance.getRefs(relationship=self.relationship)
 
-        #singlevalued ref fields return only the object, not a list,
-        #unless explicitely specified by the aslist option
+        # singlevalued ref fields return only the object, not a list,
+        # unless explicitely specified by the aslist option
         if not self.multiValued and not aslist:
             if res:
                 assert len(res) == 1
-                res=res[0]
+                res = res[0]
             else:
-                res=None
+                res = None
 
         return res
 
@@ -1320,7 +1320,8 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if not self.multiValued and value and type(value) not in (type(()),type([])):
+        if (not self.multiValued and value and
+            type(value) not in (ListType, TupleType)):
             value = (value,)
 
         if not value:
@@ -1329,7 +1330,7 @@ class ReferenceField(ObjectField):
         #convertobjects to uids if necessary
         uids=[]
         for v in value:
-            if type(v) in (type(''),type(u'')):
+            if type(v) in STRING_TYPES:
                 uids.append(v)
             else:
                 uids.append(v.UID())
@@ -1384,12 +1385,13 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
+        purl = getToolByName(content_instance, 'portal_url')
 
-        allowed_types=self.allowed_types
-        allowed_types_method=getattr(self,'allowed_types_method',None)
+        allowed_types = self.allowed_types
+        allowed_types_method = getattr(self, 'allowed_types_method', None)
         if allowed_types_method:
-            meth=getattr(content_instance,allowed_types_method)
-            allowed_types=meth(self)
+            meth = getattr(content_instance,allowed_types_method)
+            allowed_types = meth(self)
 
         skw = allowed_types and {'portal_type':allowed_types} or {}
         brains = uc.searchResults(**skw)
@@ -1408,18 +1410,20 @@ class ReferenceField(ObjectField):
         # information from, however the workflow and perms are not accounted
         # for there. We thus check each object in the portal catalog
         # to ensure it validity for this user.
-        portal_base = getToolByName(content_instance,'portal_url').getPortalPath()
-        path_offset = len(getToolByName(content_instance,'portal_url').getPortalPath())+1
+        portal_base = purl.getPortalPath()
+        path_offset = len(portal_base) + 1
+
         abs_paths = {}
-        def assign(x, y): abs_paths[x]=y
-        [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
-        #[assign("%s" %(b.getPath()), b) for b in brains]
+        abs_path = lambda b, p=portal_base: '%s/%s' % (p, b.getPath())
+        [abs_paths.update({abs_path(b):b}) for b in brains]
 
         pc_brains = pc(path=abs_paths.keys(), **skw)
 
         for b in pc_brains:
-            #translate abs path to rel path since uid_cat stores paths relative now
-            path=b.getPath()[path_offset:]
+            b_path = b.getPath()
+            # translate abs path to rel path since uid_cat stores
+            # paths relative now
+            path = b_path[path_offset:]
             # The reference field will not expose Refrerences by
             # default, this is a complex use-case and makes things too hard to
             # understand for normal users. Because of reference class
@@ -1432,14 +1436,14 @@ class ReferenceField(ObjectField):
             # now check if the results from the pc is the same as in uc.
             # so we verify that b is a result that was also returned by uc,
             # hence the check in abs_paths.
-            if abs_paths.has_key(b.getPath()):
-                uid = abs_paths[b.getPath()].UID
+            if abs_paths.has_key(b_path):
+                uid = abs_paths[b_path].UID
                 if uid is None:
                     # the brain doesn't have an uid because the catalog has a
                     # staled object. THAT IS BAD!
-                    raise ReferenceExeption("Brain for the object at %s "\
+                    raise ReferenceException("Brain for the object at %s "\
                         "doesn't have an UID assigned with. Please update your"\
-                        " reference catalog!" % b.getPath())
+                        " reference catalog!" % b_path)
                 pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
@@ -1538,7 +1542,7 @@ class CMFObjectField(ObjectField):
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
-        if type(value) != StringType:
+        if type(value) is not StringType:
             if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
