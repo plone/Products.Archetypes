@@ -1,3 +1,36 @@
+2003-08-08  Sylvain Thénault  <syt@logilab.fr>
+	* BaseObject.py: fix addSubObjects, remove _datify and Date
+
+	* ExtensibleMetada.py: remove inheritance of DefaultDublinCoreImpl:)
+	not more use of the ObjectField.
+	
+        * I18NMixin.py: stop trying to del the title property. Need to
+	find a clean way to do this 
+
+	* examples/ComplexType.py: remove the MetaDataField, use of
+	BaseSchema to avoid buggy metadata. I think we should not make
+	PortalContent and PortalFolder using ExtensibleMetaData
+
+	* tests/: make tests working (fix some ones according to new
+	implementation, code cleaning)
+	
+2003-08-07  Sylvain Thénault  <syt@logilab.fr>
+	* config.py: make new base unit the default unit :)
+
+	* Field.py: remove MetadataField, works on unicode for
+	String, Lines and Text fields. Override setStorage in TextField
+	and I18NMixin.
+
+	* BaseUnit.py: works on unicode, more reliance on the mime types
+	registry 
+	
+	* tests/test_unicode.py: new unit tests testing unicode behaviour
+	
+2003-08-04  Sylvain Thénault  <syt@logilab.fr>
+
+	* use generator and validation as Python package instead of zope
+	products
+	
 2003-07-30  Sylvain Thénault  <syt@logilab.fr>
 	
 	* Extensions/utils.py: only run install_subskins if
