@@ -59,15 +59,9 @@ class AttributeStorage(Storage):
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
-        value = getattr(aq_base(instance), name, _marker)
-        if value is _marker:
+        if not hasattr(aq_base(instance), name):
             raise AttributeError(name)
-        try:
-            # Try to wrap the value with some context
-            return value.__of__(instance)
-        except (AttributeError, KeyError):
-            # Return unwrapped
-            return value
+        return getattr(instance, name)
 
     def set(self, name, instance, value, **kwargs):
         setattr(aq_base(instance), name, value)
