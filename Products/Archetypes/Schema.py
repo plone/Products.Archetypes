@@ -72,10 +72,9 @@ class Schemata(UserDict):
 
 
     def copy(self):
-        # UserDict's copy() loses the order, we don't want that
         c = Schema()
         for field in self.fields():
-            c.addField(field)
+            c.addField(field.copy())
         return c
 
 
