@@ -13,7 +13,14 @@ Archetypes Unit Testing Suite
       This package is required for some tests.
       
   How to run the unit tests
+
+    Simple::
   
-    See runtest.sh for an example
+      export SOFTWARE_HOME=/path/to/Zope/lib/python 
+      python runalltests.py
+
+    Using a testrunner, e.g.::
+
+      python /path/to/Zope/bin/testrunner.py -qid .
     
-    See CMFPlone/tests/README.txt for more informations
+    See CMFPlone/tests/README.txt for more information.

@@ -12,7 +12,6 @@ from Products.Archetypes import listTypes
 from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
 
 from DateTime import DateTime
-import unittest
 
 schema = BaseSchema
 schema1= BaseSchema + Schema(StringField('additionalField'),)
@@ -20,10 +19,10 @@ schema1= BaseSchema + Schema(StringField('additionalField'),)
 class Dummy(VariableSchemaSupport,BaseContent):
     schema = schema
 
+
 class VarSchemataTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -42,17 +41,12 @@ class VarSchemataTest( ArchetypesTestCase ):
         #check if we can read the new field using the new schema
         self.assertEqual(dummy.getAdditionalField(),'flurb')
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(VarSchemataTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(VarSchemataTest))
-        return suite

@@ -29,18 +29,13 @@ stub_bin_content = ''
 from Products.Archetypes.public import *
 from OFS.Image import File
 from DateTime import DateTime
-from Acquisition import aq_base
 
-from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
 
 
 class WidgetTests(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager(None, user)
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content
         stub_text_file = file(join(_prefix, 'input', 'rest1.rst'))
@@ -53,8 +48,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.app.REQUEST['SESSION'] = {}
 
     def test_subject_keyword_widget(self):
-        site = self.getPortal()
-        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
         form = {'subject_keywords':['bla','ble'],
@@ -90,8 +84,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(expected, result[0])
 
     def test_widgets(self):
-        site = self.getPortal()
-        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
 
         #Now render this doc in view and edit modes. If this works
         #then we have pretty decent assurance that things are working
@@ -102,9 +95,8 @@ class WidgetTests(ArcheSiteTestCase):
         #I feel fine...
 
     def test_rich_text_widget(self):
-        site = self.getPortal()
         request = FakeRequest()
-        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['richtextfield']
         widget = field.widget
         form = {'richtextfield_text_format':'text/x-rst',
@@ -183,19 +175,17 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
         self.assertEqual(str(doc[field.getName()]), stub_text_content)
 
-    def beforeTearDown(self):
+    def afterClear(self):
         global stub_text_file, stub_bin_file
         stub_text_file.close()
         stub_bin_file.close()
-        ArcheSiteTestCase.beforeTearDown(self)
+
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(WidgetTests))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(WidgetTests))
-        return suite

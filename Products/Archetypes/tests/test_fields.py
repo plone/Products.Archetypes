@@ -4,21 +4,21 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-
-from test_classgen import Dummy as BaseDummy
 
 from os import curdir
 from os.path import join, abspath, dirname, split
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes import Field
 from Products.Archetypes.Field import ScalableImage, Image
 from OFS.Image import File
 from DateTime import DateTime
+
+from test_classgen import Dummy as BaseDummy
 
 try:
     __file__
@@ -89,10 +89,10 @@ class FakeRequest:
         self.other = {}
         self.form = {}
 
+
 class ProcessingTest(ArchetypesTestCase):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         txt_file.seek(0)
@@ -162,17 +162,12 @@ class ProcessingTest(ArchetypesTestCase):
                 failures.append(f_name)
         self.failIf(failures, "%s failed to report error." % failures)
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ProcessingTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(ProcessingTest))
-        return suite

@@ -1,7 +1,3 @@
-#
-# Skeleton Archetypes test
-#
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
@@ -216,14 +212,13 @@ for testInstance in testInstances:
     setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())
     tests.append(InstanceInterfaceTest)
 
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    for test in tests:
+        suite.addTest(makeSuite(test))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite

@@ -2,9 +2,11 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import unittest
 from common import *
 from utils import *
+
+import unittest
+
 from Products.Archetypes.AggregatedStorage import AggregatedStorage
 from Products.Archetypes.public import Schema, StringField, BaseContent
 from Products.Archetypes.public import registerType
@@ -33,7 +35,6 @@ class Dummy(BaseContent):
 
 registerType(Dummy)
 
-tests = []
 
 class AggregatedStorageTestsNoCache(unittest.TestCase):
 
@@ -68,21 +69,18 @@ class AggregatedStorageTestsNoCache(unittest.TestCase):
         self.assertEqual(self._instance.firstname, 'Bingo')
         self.assertEqual(self._instance.lastname, 'Gringo')
 
-tests.append(AggregatedStorageTestsNoCache)
 
-class AggregatedStorageTestWithCache(AggregatedStorageTestsNoCache):
+class AggregatedStorageTestsWithCache(AggregatedStorageTestsNoCache):
+
     caching = 1
 
-tests.append(AggregatedStorageTestWithCache)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(AggregatedStorageTestsNoCache))
+    suite.addTest(makeSuite(AggregatedStorageTestsWithCache))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite

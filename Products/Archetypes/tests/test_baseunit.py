@@ -2,17 +2,16 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from common import *
+from utils import *
+
 import glob
 from os import curdir
 from os.path import join, abspath, dirname, split
 
-from common import *
-from utils import *
-
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.BaseUnit import BaseUnit
-from StringIO import StringIO
 
 from test_classgen import Dummy, gen_dummy
 
@@ -24,6 +23,7 @@ except NameError:
 else:
     # Test was called by another test.
     _prefix = abspath(dirname(__file__))
+
 
 class BaseUnitTest( ArchetypesTestCase ):
 
@@ -60,14 +60,13 @@ for f in input_files:
 
     tests.append(BaseUnitTestSubclass)
 
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    for test in tests:
+        suite.addTest(makeSuite(test))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite

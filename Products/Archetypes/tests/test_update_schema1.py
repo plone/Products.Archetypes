@@ -8,7 +8,6 @@ from utils import *
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
 
-from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
@@ -20,18 +19,15 @@ except ImportError:
     raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema')
 import sys, os, shutil
 
+
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class test_update_schema1(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
+class TestUpdateSchema1(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager( None, user )
-        portal = self.getPortal()
-        qi = getToolByName(portal, 'portal_quickinstaller')
+        qi = getToolByName(self.portal, 'portal_quickinstaller')
         qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
@@ -51,34 +47,31 @@ class test_update_schema1(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
 
 
     def test_detect_schema_change(self):
-        site = self.getPortal()
         self._setClass(1)
 
-        t1 = makeContent(site, portal_type='TestClass', id='t1')
+        t1 = makeContent(self.folder, portal_type='TestClass', id='t1')
         self.failUnless(t1._isSchemaCurrent())
 
-        site.archetype_tool.manage_updateSchema()
+        self.portal.archetype_tool.manage_updateSchema()
         self.failUnless(t1._isSchemaCurrent())
 
         self._setClass(2)
 
-        t1 = site.t1
+        t1 = self.folder.t1
         self.failIf(t1._isSchemaCurrent())
 
-        t2 = makeContent(site, portal_type='TestClass', id='t2')
+        t2 = makeContent(self.folder, portal_type='TestClass', id='t2')
         self.failUnless(t2._isSchemaCurrent())
 
-        site.archetype_tool.manage_updateSchema()
+        self.portal.archetype_tool.manage_updateSchema()
         self.failUnless(t1._isSchemaCurrent())
 
 
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(TestUpdateSchema1))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(test_update_schema1))
-        return suite

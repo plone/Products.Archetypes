@@ -12,7 +12,7 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import TestPreconditionFailed, Xprint
+from common import TestPreconditionFailed
 
 import unittest
 TestRunner = unittest.TextTestRunner
@@ -27,7 +27,7 @@ for test in tests:
         if hasattr(m, 'test_suite'):
             suite.addTest(m.test_suite())
     except TestPreconditionFailed, err:
-        Xprint('Can\'t run the unit tests in %s: \n %s' % (test, err))
+        print >>sys.stderr, "Can't run the unit tests in %s:\n %s\n" % (test, err)
 
 if __name__ == '__main__':
     TestRunner(verbosity=1).run(suite)

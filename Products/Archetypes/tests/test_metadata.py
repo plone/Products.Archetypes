@@ -1,18 +1,19 @@
 import os, sys
-from types import FunctionType, ListType, TupleType
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
 from utils import *
 
+from types import FunctionType, ListType, TupleType
+
 from Products.Archetypes.public import *
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime
-from Acquisition import aq_base, aq_parent
 
 from test_classgen import Dummy, gen_dummy, gen_class
+
 
 fieldList = [
     # (accessor, mutator, field),
@@ -76,17 +77,14 @@ class DummyFolder(BaseFolder):
 
     portal_membership = DummyPortalMembership()
 
+
 class ExtensibleMetadataTest( ArchetypesTestCase ):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         addMetadataTo(self._dummy)
-
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
 
     def testAccessors(self):
         obj = self._dummy
@@ -131,9 +129,10 @@ class ExtensibleMetadataTest( ArchetypesTestCase ):
             self.failUnless(field.isMetadata,
                             'isMetadata not set correctly for field %s.' % meta)
 
+
 class ExtMetadataContextTest( ArchetypesTestCase ):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         gen_class(DummyFolder)
         self._parent = DummyFolder(oid='parent')
@@ -163,12 +162,9 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
                         ('Parent is not the parent of dummy! '
                          'Some tests will give you false results!'))
 
-    def beforeTearDown(self):
-        del self._dummy
-        del self._parent
-        ArchetypesTestCase.beforeTearDown(self)
 
 class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
+
     def testDefaultLanguage(self):
         language = 'no'
         gen_dummy()
@@ -178,15 +174,13 @@ class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
         self.failUnlessEqual(self._dummy.Language(), language)
 
 
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ExtensibleMetadataTest))
+    suite.addTest(makeSuite(ExtMetadataContextTest))
+    suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(ExtensibleMetadataTest))
-        suite.addTest(unittest.makeSuite(ExtMetadataContextTest))
-        suite.addTest(unittest.makeSuite(ExtMetadataDefaultLanguageTest))
-        return suite

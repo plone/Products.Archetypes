@@ -9,7 +9,6 @@ if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_sqlstorage',
                                  'Cannot import ArcheSiteTestCase')
 
-import unittest
 from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__, etc
 def pretty_exc(self, exc):
@@ -19,6 +18,7 @@ def pretty_exc(self, exc):
     except:
         return ''.join(format_exception(t, e, tb))
 
+import unittest
 unittest.TestResult._exc_info_to_string = pretty_exc
 
 from Products.Archetypes.public import *
@@ -27,7 +27,6 @@ from Products.Archetypes import listTypes
 from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
-from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.ArchetypeTool import ArchetypeTool
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 
@@ -51,7 +50,7 @@ try:
 #except ImportError:
 #    pass
 except:
-    Xprint('Failed to import ZGadFlyDA')
+    print >>sys.stderr, 'Failed to import ZGadflyDA'
 
 
 try:
@@ -206,12 +205,12 @@ class DummyTool(ArchetypeTool):
             return self._instance
         return None
 
+
 class SQLStorageTest(ArchetypesTestCase):
     # abstract base class for the tests
     db_name = ''
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
         gen_dummy(storage_class)
         self._storage_class = storage_class
@@ -223,7 +222,6 @@ class SQLStorageTest(ArchetypesTestCase):
     def beforeTearDown(self):
         db = getattr(self._dummy, connection_id)()
         db.tpc_abort()
-        ArchetypesTestCase.beforeTearDown(self)
 
     def test_objectfield(self):
         dummy = self._dummy
@@ -303,7 +301,6 @@ for db_name in connectors.keys():
         clean = self.cleanup.get(self.db_name, None)
         if clean is None:
             SQLStorageTest.beforeTearDown(self)
-        ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestSubclass)
 
@@ -319,15 +316,15 @@ for db_name in connectors.keys():
 
         def afterSetUp(self):
             RenameTests.afterSetUp(self)
-            site = self.getPortal()
+            portal = self.portal
             storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
             gen_dummy(storage_class)
             self._storage_class = storage_class
             self._nwdummy = dummy = Dummy(oid='dummy')
-            self._dummy = dummy.__of__(site)
+            self._dummy = dummy.__of__(portal)
             dummy_tool = DummyTool(self.db_name)
-            dummy_tool.setup(site)
-            typesTool = site.portal_types
+            dummy_tool.setup(portal)
+            typesTool = portal.portal_types
             typesTool.manage_addTypeInformation(
                 FactoryTypeInformation.meta_type,
                 id='Dummy',
@@ -347,30 +344,27 @@ for db_name in connectors.keys():
             self.failUnless(str(value) == uid)
 
         def test_rename(self):
-            site = self.getPortal()
+            portal = self.portal
             obj_id = 'dummy'
             new_id = 'new_demodoc'
-            site._setObject(obj_id, self._nwdummy)
-            doc = getattr(site, obj_id)
+            portal._setObject(obj_id, self._nwdummy)
+            doc = getattr(portal, obj_id)
             doc.initializeArchetype()
             content = 'The book is on the table!'
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
             # make sure we have _p_jar
-            assert site._p_jar is not None
-            doc._p_jar = site._p_jar
-            new_oid = site._p_jar.new_oid
-            doc._p_oid = new_oid()
-            site.manage_renameObject(obj_id, new_id)
-            doc = getattr(site, new_id)
+            get_transaction().commit(1)
+            portal.manage_renameObject(obj_id, new_id)
+            doc = getattr(portal, new_id)
             self.failUnless(str(doc.getAtextfield()) == content)
 
         def test_parentUID(self):
-            site = self.getPortal()
-            makeContent(site, portal_type='SimpleFolder', id='folder1')
-            folder1 = getattr(site, 'folder1')
-            makeContent(site, portal_type='SimpleFolder', id='folder2')
-            folder2 = getattr(site, 'folder2')
+            portal = self.portal
+            makeContent(portal, portal_type='SimpleFolder', id='folder1')
+            folder1 = getattr(portal, 'folder1')
+            makeContent(portal, portal_type='SimpleFolder', id='folder2')
+            folder2 = getattr(portal, 'folder2')
             obj_id = 'dummy'
             folder1._setObject(obj_id, self._nwdummy)
             doc = getattr(folder1, obj_id)
@@ -382,10 +376,7 @@ for db_name in connectors.keys():
             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
             self.failUnless(str(PUID) == str(PUID1))
             # make sure we have _p_jar
-            doc._p_jar = folder1._p_jar = site._p_jar
-            new_oid = site._p_jar.new_oid
-            folder1._p_oid = new_oid()
-            doc._p_oid = new_oid()
+            get_transaction().commit(1)
             cb = folder1.manage_cutObjects(ids=(obj_id,))
             folder2.manage_pasteObjects(cb)
             PUID2 = folder2.UID()
@@ -395,10 +386,10 @@ for db_name in connectors.keys():
             self.failUnless(str(PUID2) == str(PUID))
 
         def test_emptyPUID(self):
-            site = self.getPortal()
+            portal = self.portal
             obj_id = 'dummy'
-            site._setObject(obj_id, self._nwdummy)
-            doc = getattr(site, obj_id)
+            portal._setObject(obj_id, self._nwdummy)
+            doc = getattr(portal, obj_id)
             doc.initializeArchetype()
             f = StringField('PARENTUID',
                             storage=doc.Schema()['atextfield'].storage)
@@ -407,9 +398,9 @@ for db_name in connectors.keys():
             self.failUnless(PUID == 'None')
 
         def test_nomoreparentUID(self):
-            site = self.getPortal()
-            makeContent(site, portal_type='SimpleFolder', id='folder1')
-            folder1 = getattr(site, 'folder1')
+            portal = self.portal
+            makeContent(portal, portal_type='SimpleFolder', id='folder1')
+            folder1 = getattr(portal, 'folder1')
             obj_id = 'dummy'
             folder1._setObject(obj_id, self._nwdummy)
             doc = getattr(folder1, obj_id)
@@ -421,13 +412,10 @@ for db_name in connectors.keys():
             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
             self.failUnless(str(PUID) == str(PUID1))
             # make sure we have _p_jar
-            doc._p_jar = folder1._p_jar = site._p_jar
-            new_oid = site._p_jar.new_oid
-            folder1._p_oid = new_oid()
-            doc._p_oid = new_oid()
+            get_transaction().commit(1)
             cb = folder1.manage_cutObjects(ids=(obj_id,))
-            site.manage_pasteObjects(cb)
-            doc = getattr(site, obj_id)
+            portal.manage_pasteObjects(cb)
+            doc = getattr(portal, obj_id)
             PUID = f.get(doc)
             __traceback_info__ = (self.db_name, str(PUID), 'None')
             self.failUnless(PUID == 'None')
@@ -447,9 +435,10 @@ for db_name in connectors.keys():
 # run tests
 
 def test_suite():
-    suite = unittest.TestSuite()
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
     for test in tests:
-        suite.addTest(unittest.makeSuite(test))
+        suite.addTest(makeSuite(test))
     return suite
 
 if __name__ == '__main__':

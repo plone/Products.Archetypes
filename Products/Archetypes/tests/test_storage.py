@@ -4,21 +4,20 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
 from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
 from test_classgen import ClassGenTest, Dummy, gen_dummy
 
 from DateTime import DateTime
 
-tests = []
 
 class ChangeStorageTest( ArchetypesTestCase ):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -67,12 +66,10 @@ class ChangeStorageTest( ArchetypesTestCase ):
         self.failIf(dummy._md.has_key('atextfield'))
         self.failUnless(hasattr(dummy, 'atextfield'))
 
-tests.append(ChangeStorageTest)
 
 class MetadataStorageTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -80,12 +77,10 @@ class MetadataStorageTest( ArchetypesTestCase ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
-tests.append(MetadataStorageTest)
 
 class AttributeStorageTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -93,16 +88,14 @@ class AttributeStorageTest( ArchetypesTestCase ):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 
-tests.append(AttributeStorageTest)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ChangeStorageTest))
+    suite.addTest(makeSuite(MetadataStorageTest))
+    suite.addTest(makeSuite(AttributeStorageTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite
