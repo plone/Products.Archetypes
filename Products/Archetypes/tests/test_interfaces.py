@@ -7,6 +7,12 @@ from utils import *
 
 from types import TupleType
 
+from Interface.Implements import getImplementsOfInstances, \
+    getImplements, flattenInterfaces
+from Interface.Verify import verifyClass, verifyObject
+from Interface.Exceptions import BrokenImplementation, DoesNotImplement
+from Interface.Exceptions import BrokenMethodImplementation
+
 from Products.Archetypes.interfaces.base import *
 from Products.Archetypes.interfaces.field import *
 from Products.Archetypes.interfaces.layer import *

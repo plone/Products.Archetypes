@@ -40,10 +40,10 @@ from apelib.sql.structure import RowSequenceSchema
 from apelib.sql.properties import SQLFixedProperties
 from apelib.zodb3.serializers import RemainingState as RemainingBase
 from apelib.zodb3.serializers import encode_to_text
+from apelib.core.interfaces import ISerializer
+from apelib.core.interfaces import IFullSerializationEvent
+from apelib.core.interfaces import IFullDeserializationEvent
 
-
-from apelib.core.interfaces \
-     import ISerializer, IFullSerializationEvent, IFullDeserializationEvent
 from Persistence import Persistent, PersistentMapping
 from StringIO import StringIO
 from cPickle import Pickler, UnpickleableError

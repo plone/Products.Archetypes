@@ -1,6 +1,12 @@
-from Products.CMFPlone.Portal import addPolicy
-from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
-from Products.Archetypes.Extensions.Install import install as installArchetypes
+try:
+    from Products.CMFPlone.Portal import addPolicy
+except ImportError:
+    def addPolicy(name, cls):
+        pass
+    class DefaultCustomizationPolicy:
+        pass
+else:
+    from Products.Archetypes.Extensions.Install import install as installArchetypes
 
 class ArchetypeCustomizationPolicy(DefaultCustomizationPolicy):
     """ Install Plone with the Archetypes Package """

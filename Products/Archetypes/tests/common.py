@@ -18,11 +18,7 @@ else:
     del config
 
 # Import Interface for interface testing
-from Interface.Implements import getImplementsOfInstances, \
-    getImplements, flattenInterfaces
-from Interface.Verify import verifyClass, verifyObject
-from Interface.Exceptions import BrokenImplementation, DoesNotImplement
-from Interface.Exceptions import BrokenMethodImplementation
+
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
@@ -32,12 +28,12 @@ from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 
-from ArchetypesTestCase import ArchetypesTestCase
-from ArchetypesTestCase import default_user
-from ArchetypesTestCase import default_role
-from ArchetypesTestCase import ArcheSiteTestCase
-from ArchetypesTestCase import portal_name
-from ArchetypesTestCase import portal_owner
+from Products.Archetypes.tests.ArchetypesTestCase import ArchetypesTestCase
+from Products.Archetypes.tests.ArchetypesTestCase import default_user
+from Products.Archetypes.tests.ArchetypesTestCase import default_role
+from Products.Archetypes.tests.ArchetypesTestCase import ArcheSiteTestCase
+from Products.Archetypes.tests.ArchetypesTestCase import portal_name
+from Products.Archetypes.tests.ArchetypesTestCase import portal_owner
 
 from Products.Archetypes.tests import PACKAGE_HOME
 from Products.Archetypes.atapi import registerType, process_types, listTypes

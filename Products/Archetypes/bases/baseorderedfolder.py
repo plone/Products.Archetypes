@@ -30,7 +30,7 @@ except ImportError:
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
-    from interfaces.orderedfolder import IOrderedContainer
+    from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
 
 class OrderedContainer:
 

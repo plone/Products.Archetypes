@@ -1,10 +1,15 @@
 import os.path
-__version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+try:
+    __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+except NameError:
+    __version__ = 'unknown'
 import sys
 
 from Products.Archetypes.config import *
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import getPkgInfo
+from Products.Archetypes.lib.logging import INFO
+from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.plonecompat import IndexIterator
 from Products.Archetypes.atapi import process_types
 from Products.Archetypes.atapi import listTypes
@@ -14,8 +19,6 @@ from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
-
-from zLOG import LOG, PROBLEM
 
 ###
 ## security
@@ -29,13 +32,13 @@ from zLOG import LOG, PROBLEM
 try:
     from Products.CMFPlone.PloneUtilities import IndexIterator
 except ImportError:
-    from PloneCompat import IndexIterator
+    from Products.Archetypes.lib.plonecompat import IndexIterator
 allow_class(IndexIterator)
  
 try:
     from Products.CMFPlone import transaction_note
 except ImportError:
-    from PloneCompat import transaction_note
+    from Products.Archetypes.lib.plonecompat import transaction_note
 allow_class(transaction_note)
 
 # make DisplayList accessible from python scripts and others objects executed
@@ -71,6 +74,20 @@ for info in (mtr_info, pt_info ):
 #                           'of compatible versions for %s!\nList: %s' % \
 #                           (at_version, info.modname, info.at_versions)
 #                          )
+
+try:
+    import Products.generators
+except ImportError:
+    pass
+else:
+    log('Warning: Products.generator is deprecated, please remove the product')
+
+try:
+    import Products.validation
+except ImportError:
+    pass
+else:
+    log('Warning: Products.validation is deprecated, please remove the product')    
 
 ###
 # Tools
