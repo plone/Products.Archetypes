@@ -6,9 +6,9 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
-from Products.PortalTransforms.utils import getToolByName
+from Products.CMFCore.utils import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-from Products.PortalTransforms.mime_types import text_plain, \
+from Products.MimetypesRegistry.mime_types.mtr_mimetypes import text_plain, \
      application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
