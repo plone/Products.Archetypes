@@ -3,6 +3,7 @@ from Acquisition import aq_base
 from debug import log
 from utils import className, unique, capitalize
 from types import FileType
+from types import DictType # needed for ugly hack in class TypesWidget def isVisible
 
 try:
     from generator.widget import macrowidget
@@ -52,7 +53,9 @@ class TypesWidget(macrowidget):
         state = 'visible'
         if not vis_dic:
             return state
-        state = vis_dic.get(mode, state)
+        # ugly hack ...
+        if type(vis_dic)==DictType:
+            state = vis_dic.get(mode, state)
         return state
 
     def process_form(self, instance, field, form, empty_marker=None):
