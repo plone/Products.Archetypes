@@ -96,7 +96,7 @@ class newBaseUnit(File):
             assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
-            portal_encoding = self.portalEncoding()
+            portal_encoding = self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding
             if portal_encoding != encoding:
                 _data = unicode(_data, encoding).encode(portal_encoding)
@@ -106,7 +106,7 @@ class newBaseUnit(File):
         # return the raw data if it's not binary data
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
-            portal_encoding = self.portalEncoding()
+            portal_encoding = self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
@@ -132,7 +132,7 @@ class newBaseUnit(File):
     def get_size(self):
         return self.size
 
-    def getRaw(self, encoding=None):
+    def getRaw(self, encoding=None, instance=None):
         """return encoded raw value"""
         if self.isBinary():
             return self.raw
@@ -140,12 +140,15 @@ class newBaseUnit(File):
         if not type(self.raw) is type(u''):
             return self.raw
         if encoding is None:
-            # FIXME: fallback to portal encoding or original encoding ?
-            encoding = self.portalEncoding()
+            if instance is None:
+                encoding ='UTF-8'
+            else:
+                # FIXME: fallback to portal encoding or original encoding ?
+                encoding = self.portalEncoding(instance)
         return self.raw.encode(encoding)
     
-    def portalEncoding(self):
-        site_props = self.portal_properties.site_properties
+    def portalEncoding(self, instance):
+        site_props = instance.portal_properties.site_properties
         return site_props.getProperty('default_charset', 'UTF-8')
     
     def getContentType(self):

@@ -514,7 +514,7 @@ class TextField(ObjectField):
         if raw or not IBaseUnit.isImplementedBy(value):
             return value
         try:
-            return value.getRaw(encoding=kwargs.get('encoding'))
+            return value.getRaw(encoding=kwargs.get('encoding'), instance=instance)
         except TypeError:
             # FIXME: backward compat, getRaw doesn't take encoding argument on old base units
             value.getRaw()
