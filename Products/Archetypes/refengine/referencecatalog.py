@@ -6,7 +6,9 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import IReference
 from Products.Archetypes.interfaces.referenceengine import IContentReference
 from Products.Archetypes.interfaces.referenceengine import IReferenceCatalog
-from Products.Archetypes.refengine.pluggablecatalog import PluggableCatalog
+from Products.Archetypes.refengine.common import PluggableCatalog
+from Products.Archetypes.refengine.common import ReferenceResolver
+from Products.Archetypes.refengine.common import RelativPathCatalogBrains
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
@@ -42,58 +44,9 @@ import zLOG
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
-class ReferenceCatalogBrains(UIDCatalogBrains):
+class ReferenceCatalogBrains(RelativPathCatalogBrains):
     pass
 
-
-class ReferenceResolver(Base):
-
-    security = ClassSecurityInfo()
-    # XXX FIXME more security
-
-    def resolve_url(self, path, REQUEST):
-        """Strip path prefix during resolution, This interacts with
-        the default brains.getObject model and allows and fakes the
-        ZCatalog protocol for traversal
-        """
-        parts = path.split('/')
-        # XXX REF_PREFIX is undefined
-        #if parts[-1].find(REF_PREFIX) == 0:
-        #    path = '/'.join(parts[:-1])
-
-        portal_object = self.portal_url.getPortalObject()
-
-        try:
-            return portal_object.unrestrictedTraverse(path)
-        except KeyError:
-            # ObjectManager may raise a KeyError when the object isn't there
-            return None
-
-    def catalog_object(self, obj, uid=None, **kwargs):
-        """Use the relative path from the portal root as uid
-
-        Ordinary the catalog is using the path from root towards object but we
-        want only a relative path from the portal root
-
-        Note: This method could be optimized by improving the calculation of the
-              relative path like storing the portal root physical path in a
-              _v_ var.
-        """
-        portal_path_len = getattr(aq_base(self), '_v_portal_path_len', None)
-
-        if not portal_path_len:
-            # cache the lenght of the portal path in a _v_ var
-            urlTool = getToolByName(self, 'portal_url')
-            portal_path = urlTool.getPortalObject().getPhysicalPath()
-            portal_path_len = len(portal_path)
-            self._v_portal_path_len = portal_path_len
-
-        relpath = obj.getPhysicalPath()[portal_path_len:]
-        uid = '/'.join(relpath)
-        ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
-        ZCatalog.catalog_object(self, obj, uid, **kwargs)
-
-InitializeClass(ReferenceResolver)
 
 class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     """Reference catalog

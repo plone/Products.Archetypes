@@ -9,6 +9,12 @@ from Products.Archetypes.lib.utils import className
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.Archetypes.interfaces.base import IBaseObject
 
+from Products.Archetypes.baseregistry import getDoc
+from Products.Archetypes.baseregistry import findBaseTypes
+from Products.Archetypes.baseregistry import setSecurity
+from Products.Archetypes.baseregistry import mergeSecurity
+from Products.Archetypes.baseregistry import Registry
+
 class FieldDescription:
 
     __allow_access_to_unprotected_subobjects__ = 1

@@ -30,7 +30,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
-from Products.Archetypes.layer import DefaultLayerContainer
+from Products.Archetypes.lib.layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
@@ -52,10 +52,10 @@ from Products.Archetypes.widget import IntegerWidget
 from Products.Archetypes.widget import LinesWidget
 from Products.Archetypes.widget import StringWidget
 from Products.Archetypes.widget import ReferenceWidget
-from Products.Archetypes.baseunit import BaseUnit
-from Products.Archetypes.ReferenceEngine import Reference
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.utils import Vocabulary
+from Products.Archetypes.lib.baseunit import BaseUnit
+from Products.Archetypes.refengine.references import Reference
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes.lib.vocabulary import Vocabulary
 from Products.Archetypes.lib.utils import className
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.utils import shasattr
@@ -68,7 +68,7 @@ from Products.Archetypes.storage import ReadOnlyStorage
 from Products.Archetypes.registry import setSecurity
 from Products.Archetypes.registry import registerField
 from Products.Archetypes.registry import registerPropertyType
-from Products.Archetypes.translate import translate
+from Products.Archetypes.lib.translate import translate
 
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError

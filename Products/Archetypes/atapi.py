@@ -45,7 +45,7 @@ from Products.Archetypes.storage import *
 #from Products.Archetypes.storage.SQLStorage import PostgreSQLStorage
 #from Products.Archetypes.storage.SQLStorage import SQLServerStorage
 # misc
-from Products.Archetypes.lib.vobabulary import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.classgen import AT_GENERATE_METHOD
 
 

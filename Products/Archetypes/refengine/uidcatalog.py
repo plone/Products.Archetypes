@@ -10,7 +10,9 @@ from Products.Archetypes.interfaces.referenceengine import IReference
 from Products.Archetypes.interfaces.referenceengine import IContentReference
 from Products.Archetypes.interfaces.referenceengine import IReferenceCatalog
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
-from Products.Archetypes.refengine.pluggablecatalog import PluggableCatalog
+from Products.Archetypes.refengine.common import PluggableCatalog
+from Products.Archetypes.refengine.common import ReferenceResolver
+from Products.Archetypes.refengine.common import RelativPathCatalogBrains
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import UUID_ATTR
@@ -46,47 +48,8 @@ from ZODB.POSException import ConflictError
 import zLOG
 
 # The brains we want to use
-class UIDCatalogBrains(AbstractCatalogBrain):
+class UIDCatalogBrains(RelativPathCatalogBrains):
     """fried my little brains"""
-
-    security = ClassSecurityInfo()
-
-    def getObject(self, REQUEST=None):
-        """
-        Used to resolve UIDs into real objects. This also must be
-        annotation aware. The protocol is:
-        We have the path to an object. We get this object. If its
-        UID is not the UID in the brains then we need to pull it
-        from the reference annotation and return that object
-
-        Thus annotation objects store the path to the source object
-        """
-        obj = None
-        try:
-            path = self.getPath()
-            try:
-                portal = getToolByName(self, 'portal_url').getPortalObject()
-                obj = portal.unrestrictedTraverse(self.getPath())
-                obj = aq_inner( obj )
-            except ConflictError:
-                raise
-            except: #NotFound # XXX bare exception
-                pass
-
-            if not obj:
-                if REQUEST is None:
-                    REQUEST = self.REQUEST
-                obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
-
-            return obj
-        except ConflictError:
-            raise
-        except:
-            #import traceback
-            #traceback.print_exc()
-            zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
-                     error=sys.exc_info())
-            pass
 
 InitializeClass(UIDCatalogBrains)
 

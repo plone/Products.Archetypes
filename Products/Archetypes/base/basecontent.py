@@ -1,9 +1,9 @@
-from Products.Archetypes.baseobject import BaseObject
-from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.base.baseobject import BaseObject
+from Products.Archetypes.base.extensiblemetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.catalogmultiplex import CatalogMultiplex
+from Products.Archetypes.base.catalogmultiplex import CatalogMultiplex
 from Products.Archetypes.lib.utils import shasattr
 
 from AccessControl import ClassSecurityInfo

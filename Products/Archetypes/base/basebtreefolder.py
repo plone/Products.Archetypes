@@ -1,4 +1,4 @@
-from Products.Archetypes.basefolder import BaseFolder
+from Products.Archetypes.base.basefolder import BaseFolder
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder

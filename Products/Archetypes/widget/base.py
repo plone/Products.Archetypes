@@ -15,7 +15,7 @@ from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.logging import log_exc
 from Products.Archetypes.lib.utils import className
 from Products.Archetypes.lib.utils import capitalize
-from Products.Archetypes.translate import translate
+from Products.Archetypes.lib.translate import translate
 from Products.Archetypes.interfaces.widget import IWidget
 
 

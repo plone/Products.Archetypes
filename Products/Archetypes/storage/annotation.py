@@ -7,8 +7,8 @@ from Products.Archetypes.lib.logging import log
 from Products.Archetypes.storage.base import Storage
 from Products.Archetypes.storage.base import StorageLayer
 from Products.Archetypes.storage.base import _marker
-from Products.Archetypes.annotations import AT_ANN_STORAGE
-from Products.Archetypes.annotations import AT_MD_STORAGE
+from Products.Archetypes.lib.annotations import AT_ANN_STORAGE
+from Products.Archetypes.lib.annotations import AT_MD_STORAGE
 from Products.Archetypes.registry import setSecurity
 from Products.Archetypes.registry import registerStorage
 

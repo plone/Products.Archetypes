@@ -4,10 +4,10 @@ import sha
 #from Products.Archetypes.widget import *
 from Products.Archetypes.schema import Schemata
 from Products.Archetypes.schema import WrappedSchemata
-from Products.Archetypes.classgen import ClassGenerator
-from Products.Archetypes.classgen import Generator
-from Products.Archetypes.classgen import _modes
-from Products.Archetypes.utils import OrderedDict
+from Products.Archetypes.lib.classgen import ClassGenerator
+from Products.Archetypes.lib.classgen import Generator
+from Products.Archetypes.lib.classgen import _modes
+from Products.Archetypes.lib.vocabulary import OrderedDict
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper

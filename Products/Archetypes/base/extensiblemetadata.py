@@ -5,7 +5,7 @@ from Products.Archetypes.widget import *
 from Products.Archetypes.schema import Schema
 from Products.Archetypes.schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.logging import log_exc
 from Products.Archetypes.lib.logging import ERROR

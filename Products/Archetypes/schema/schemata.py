@@ -3,7 +3,7 @@ from types import ListType, TupleType, StringType
 import warnings
 
 from Products.Archetypes.storage import MetadataStorage
-from Products.Archetypes.layer import DefaultLayerContainer
+from Products.Archetypes.lib.layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces.layer import ILayerRuntime
@@ -12,7 +12,7 @@ from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema
 from Products.Archetypes.interfaces.schema import ISchemata
 from Products.Archetypes.interfaces.schema import IManagedSchema
-from Products.Archetypes.utils import OrderedDict
+from Products.Archetypes.lib.vocabulary import OrderedDict
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.logging import log

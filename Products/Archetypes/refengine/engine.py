@@ -7,7 +7,7 @@ alias.
 from Products.Archetypes.refengine.pluggablecatalog import PluggableCatalog
 
 from Products.Archetypes.refengine.referencecatalog import ReferenceCatalogBrains
-from Products.Archetypes.refengine.referencecatalog import ReferenceBaseCatalog
+#from Products.Archetypes.refengine.referencecatalog import ReferenceBaseCatalog
 from Products.Archetypes.refengine.referencecatalog import ReferenceResolver
 from Products.Archetypes.refengine.referencecatalog import ReferenceCatalog
 
