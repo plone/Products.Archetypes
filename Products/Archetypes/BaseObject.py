@@ -869,10 +869,12 @@ class BaseObject(Referenceable):
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
-        # ok the RESPONSE is None for web traversal and sometimes the
-        # REQUEST isn't a HTTPRequest object but a dict
-        if hasattr(REQUEST, 'RESPONSE'):
-            REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
+
+        # Nothing has been found. Though it's not written anywere,
+        # from deep ZPublisher inspection it seems like
+        # we *SHOULD NOT* raise a notFoundError, but instead,
+        # return None and leave acquisition do it's job.
+        return
 
 InitializeClass(BaseObject)
 
