@@ -1025,9 +1025,10 @@ class ImageField(ObjectField):
 
         # test for scaling it.
         imgdata = value
+        mimetype = kwargs.get('mimetype', 'image/png')
+
         if has_pil:
             if self.original_size or self.max_size:
-                mimetype = kwargs.get('mimetype', 'image/png')
                 image = Image(self.getName(), self.getName(), value, mimetype)
                 data = str(image.data)
                 if self.max_size:
@@ -1039,8 +1040,6 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 imgdata = self.scale(data,w,h)
-        else:
-            mimetype = kwargs.get('mimetype', 'image/png')
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''

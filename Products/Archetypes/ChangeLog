@@ -2,6 +2,7 @@
 
 	* Field.py (ImageField.set): Trying to fix 'imgdata referenced
 	before assignment' for Lewellyn.
+	(ImageField.set): Doh, now 'mimetype refereced before assignment'
 
 	* tests/test_all.py (test_suite): Added test_fields to the
 	suite. Added test_widgets, but commented out. It should be run
