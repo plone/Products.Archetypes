@@ -150,7 +150,7 @@ class BaseUnit(File):
     def setContentType(self, value):
         """
         """
-        print value, self.getContentType()
+        #print value, self.getContentType()
         self.mimetype = value
 
     def content_type(self):
@@ -173,7 +173,7 @@ class BaseUnit(File):
         """download method"""
         filename = self.filename
         if self.filename:
-            print self.filename
+            #print self.filename
             RESPONSE.setHeader('Content-Disposition',
                                'attachment; filename=%s' % self.getFilename())
         RESPONSE.setHeader('Content-Type', self.getContentType())

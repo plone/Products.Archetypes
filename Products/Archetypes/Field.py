@@ -1439,7 +1439,7 @@ class ImageField(FileField):
         value, mimetype, filename = self._process_input(value,
                                                       default=self.getDefault(instance),
                                                       **kwargs)
-        print type(value), mimetype, filename
+        #print type(value), mimetype, filename
         
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
