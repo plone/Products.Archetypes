@@ -18,11 +18,39 @@ unittest.TestResult._exc_info_to_string = pretty_exc
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, TOOL_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes.SQLStorage import GadflySQLStorage, MySQLStorage, OracleSQLStorage, PostgreSQLStorage
+from Products.Archetypes import SQLStorage
 
 from DateTime import DateTime
 
-from Products.ZGadflyDA.DA import Connection
+# the id to use in the connection objects
+connection_id = 'sql_connection'
+
+# the db names and Connection objects
+connectors = {}
+
+try:
+  # gadfly storage is currently b0rked, we don't want to test it yet
+  if 0:
+    from Products.ZGadflyDA.DA import Connection
+    connectors['Gadfly'] = Connection(id=connection_id,
+                                      title='connection',
+                                      connection_string='demo', # default connection
+                                      check=1, # connect immediatly
+                                      )
+except ImportError:
+    pass
+
+try:
+    from Products.ZPsycopgDA.DA import Connection
+    connectors['Postgre'] = Connection(id=connection_id,
+                                       title='connection',
+                                       connection_string='dbname=demo user=demo',
+                                       zdatetime=1, # use Zope's DateTime, not mxDateTime
+                                       check=1, # connect immediatly
+                                       )
+except ImportError:
+    pass
+
 
 class Dummy(BaseContent):
     pass
@@ -71,14 +99,26 @@ def gen_dummy(storage_class):
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
    
+class DummyTool:
+    def __init__(self, db_name):
+        self.connection = connectors[db_name]
+
+    def getConnFor(self, instance=None):
+        return connection_id
+
+    def setup(self, instance):
+        setattr(instance, TOOL_NAME, self)
+        setattr(instance, connection_id, self.connection)
+
 class SQLStorageTest(unittest.TestCase):
-    dummy_tool = None
-    storage_class = None
+    db_name = ''
 
     def setUp(self):
-        gen_dummy(self.storage_class)
+        storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
+        gen_dummy(storage_class)
         self._dummy = dummy = Dummy(oid='dummy')
-        self.dummy_tool.setup(dummy)
+        dummy_tool = DummyTool(self.db_name)
+        dummy_tool.setup(dummy)
         dummy.initalizeArchetype()
 
     def test_textfield(self):
@@ -89,35 +129,23 @@ class SQLStorageTest(unittest.TestCase):
         self.failUnless(str(text) == 'Bla')
 
 
+tests = []
+
 #################################################################
-# test Gadfly
+# test each db
 
-class DummyToolGadfly:
-    _connection_id = 'sql_connection'
+for db_name in connectors.keys():
 
-    def __init__(self):
-        self.connection = Connection(id=self._connection_id,
-                                     title='connection',
-                                     connection_string='demo', # default connection
-                                     check=1, # connect immediatly
-                                     )
+    class StorageTestSubclass(SQLStorageTest):
+        db_name = db_name
 
-    def getConnFor(self, instance=None):
-        return self._connection_id
+    tests.append(StorageTestSubclass)
 
-    def setup(self, instance):
-        setattr(instance, TOOL_NAME, self)
-        setattr(instance, self._connection_id, self.connection)
-
-class GadflyStorageTest(SQLStorageTest):
-    dummy_tool = DummyToolGadfly()
-    storage_class = GadflySQLStorage
-
+#################################################################
+# run tests
         
 def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(GadflyStorageTest),
-        ))
+    return unittest.TestSuite([unittest.makeSuite(test) for test in tests])
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
