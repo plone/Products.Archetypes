@@ -40,7 +40,7 @@ class I18NDDocument(TemplateMixin, I18NBaseContent):
     """An extensible Document (test) type, with I18Nizable content"""
     schema = schema
     archetype_name = "I18N Demo Doc"
-    actions = I18NBaseContent + TemplateMixin.actions
+    actions = I18NBaseContent.actions + TemplateMixin.actions
     
                   
 registerType(I18NDDocument)
