@@ -20,7 +20,7 @@ from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
-from Globals import InitializeClass
+from Globals import InitializeClass, DTMLFile
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import CMFCorePermissions
@@ -29,11 +29,13 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
+from Products import CMFCore
 
 import zLOG
 import sys
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
+_catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 STRING_TYPES = (StringType, UnicodeType)
 
@@ -307,7 +309,8 @@ InitializeClass(ReferenceResolver)
 
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = UID_CATALOG
-
+    manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
+    
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
@@ -317,7 +320,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-
+    manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
 
     # XXX FIXME more security
