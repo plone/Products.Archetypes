@@ -44,8 +44,7 @@
                                                tabindex tabindex;"
                                />
 
-                        <label i18n:translate=""
-                               tal:content="python:vocab.getValue(item)"
+                        <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
                                tal:attributes="for string:${fieldName}_${tabindex/pos}" />
 
                         <br />
@@ -65,7 +64,7 @@
                         <option tal:repeat="item vocab"
                                 tal:attributes="value item;
                                                 selected python:test(here.checkSelected(item, value), 'selected', None);"
-                                tal:content="python:vocab.getValue(item)"
+                                tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
                                 i18n:translate=""
                                 />
 

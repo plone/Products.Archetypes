@@ -47,7 +47,7 @@ class VarClassGen(ClassGenerator):
 
 schemadict={}
 
-class VariableSchemaSupport (Base):
+class VariableSchemaSupport(Base):
     """
     Mixin class to support instance-based schemas
     Attention: must be before BaseFolder or BaseContent in
@@ -69,19 +69,19 @@ class VariableSchemaSupport (Base):
         schema = self.getAndPrepareSchema()
         schemata = OrderedDict()
         for f in schema.fields():
-            sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+            sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, self)
-
+            schemata[f.schemata] = sub.__of__(self)
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
         schema = self.getAndPrepareSchema()
+        # XXX see ClassGen about line 130 for a comment
         #if hasattr(schema, 'wrapped'):
         #    return schema.wrapped(self)
-        return schema
+        return ImplicitAcquisitionWrapper(schema, self)
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')

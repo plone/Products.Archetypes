@@ -34,7 +34,7 @@ from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base, aq_parent, aq_inner
 from DateTime import DateTime
 from OFS.content_types import guess_content_type
-from OFS.Image import File
+from OFS.Image import File, Pdata
 from Globals import InitializeClass
 from ComputedAttribute import ComputedAttribute
 from ExtensionClass import Base
@@ -86,6 +86,7 @@ def decode(value, instance, **kwargs):
         value = unicode(value, encoding)
     return value
 
+_field_count = 0
 
 class Field(DefaultLayerContainer):
     """
@@ -130,12 +131,17 @@ class Field(DefaultLayerContainer):
         'languageIndependent' : False,
         }
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name=None, **kwargs):
         """
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
+
+        if name is None:
+            global _field_count
+            _field_count += 1
+            name = 'field.%s' % _field_count
 
         self.__name__ = name
 
@@ -389,7 +395,7 @@ class Field(DefaultLayerContainer):
             elif type(sample) in [TupleType, ListType]:
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
-                if len(sample) != 2:
+                if sample and len(sample[0]) != 2:
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
@@ -717,7 +723,10 @@ class FileField(ObjectField):
             kwargs['filename'] = getattr(value, 'filename', '')
             mimetype = getattr(value, 'mimetype', None)
             value = value.read()
-
+        if isinstance(value, Pdata):
+            # Pdata is a chain of Pdata objects but we can easily use str()
+            # to get the whole string from a chain of Pdata objects
+            value = str(value)
         if type(value) in STRING_TYPES:
             filename = kwargs.get('filename', '')
             if mimetype is None:
@@ -1285,14 +1294,20 @@ class ReferenceField(ObjectField):
             ObjectField.set(self, instance, self.getRaw(instance), **kwargs)
 
     security.declarePrivate('getRaw')
-    def getRaw(self, instance, **kwargs):
+    def getRaw(self, instance, aslist=0, **kwargs):
         """Return the list of UIDs referenced under this fields
         relationship
         """
         rc = getToolByName(instance, REFERENCE_CATALOG)
         brains = rc(sourceUID=instance.UID(),
                     relationship=self.relationship)
-        return [b.targetUID for b in brains]
+        res = [b.targetUID for b in brains]
+        if not self.multiValued and not aslist:
+            if res:
+                res = res[0]
+            else:
+                res = None
+        return res
 
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
@@ -1626,7 +1641,7 @@ class ImageField(FileField):
 
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            self.removeScales(image)
+            self.removeScales(instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
@@ -1761,7 +1776,7 @@ class ImageField(FileField):
         ObjectField.set(self, instance, image, **kwargs)
 
     security.declarePrivate('removeScales')
-    def removeScales(self, instance):
+    def removeScales(self, instance, **kwargs):
         """Remove the scaled image
         """
         sizes = self.getAvailableSizes(instance)

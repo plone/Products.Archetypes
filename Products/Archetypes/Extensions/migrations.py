@@ -45,15 +45,15 @@ def migrateReferences(portal, out):
     # Old 1.2 style references are stored inside archetype_tool on the 'ref'
     # attribute
     refs = getattr(at, 'refs', None)
-    if refs:
+    if refs is not None:
         print >>out, 'migrating reference from Archetypes 1.2'
         count=0
         print >>out, "Old references are stored in %s, so migrating them to new style reference annotations." % (TOOL_NAME)
         allbrains = uc()
         for brain in allbrains:
             sourceObj = brain.getObject()
-            sourceUID = getattr(sourceObj.aq_base, olduididx, None)
-            if not sourceUID: continue
+            sourceUID = getattr(aq_base(sourceObj), olduididx, None)
+            if sourceUID is None: continue
             # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
@@ -73,66 +73,33 @@ def migrateReferences(portal, out):
         return
     
     else:
-        # :-( XXX THE FOLLOWING ISNT TESTED, just copied from old buggy code !!!
-        # maybe theres something useful for code-recycling in
-        # --jensens
-                    
         # SECOND
         # a 1.3.b2 -> 1.3 (new annotation style) migration path
         # We had a reference catalog, make sure its doing annotation
         # based references
     
-        # looks like its a folder with stuff in it.. old style
-        # we want to do this quickly so we will grab all the
-        # objects for each unique source ID and push them into
-        # that source object
-        
+        # reference metadata cannot be restored since reference-catalog is no more
+        # a btree and in AT 1.3.b2 reference_catalog was a btreefolder
+
         print >>out, 'migrating reference from Archetypes 1.3. beta2'
 
-        sids = rc.uniqueValuesFor('sourceUID')
-        for sid in sids:
-            set = rc(sourceUID=sid)
-            sourceObject = uc(UID=sid)[0].getObject()
-            if not sourceObject: continue
-            annotations = sourceObject._getReferenceAnnotations()
-            for brain in set:
-                # we need to uncatalog the ref at its current path
-                # and then stick it on the new object and index it
-                # again under its new relative pseudo path
-
-                targetObject=rc.lookupObject(brain.targetUID)
-                if not targetObject:
-                    print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
-                    continue
+        refs = rc()
+        rc.manage_catalogClear()
+        for brain in refs:
+            sourceObject = rc.lookupObject(brain.sourceUID)
+            if sourceObject is None: continue
+            targetObject=rc.lookupObject(brain.targetUID)
+            if not targetObject:
+                print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
+                continue
                 
-                count+=1
-                sourceObject.addReference(targetObject,relationship=brain.relationship)
-
-#            sourceObject._catalogRefs(portal)
+            count+=1
+            sourceObject.addReference(targetObject,relationship=brain.relationship)
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
 
     print >>out, "Migrated References"
 
-# reference metadata cannot be restored since reference-catalog is no more
-# a btree and in AT 1.3.b2 reference_catalog was a btreefolder
-##                path = brain.getPath()
-##                ref = getattr(rc, path, None)
-##                if ref is None: continue
-##                if path.find('ref_') != -1:
-##                    rc.uncatalog_object(path)
-##                    uc.uncatalog_object(path)
-##    
-##                    # make sure id==uid
-##                    setattr(ref, UUID_ATTR, make_uuid())
-##                    ref.id = ref.UID()
-##                    # now stick this in the annotation
-##                    # unwrap the ref
-##                    ref = aq_base(ref)
-##                    annotations[ref.UID()] = ref
-##                rc._delOb(path)
-            # I might have to do this each time (to deal with an
-            # edge case), but I suspect not
 
     #Reindex for new UUIDs
     uc.manage_reindexIndex()
@@ -161,8 +128,8 @@ def migrateUIDs(portal, out):
         if not IBaseObject.isImplementedBy(obj): 
             continue #its no Archetype instance, so leave it
         
-        objUID = getattr(obj.aq_base, '_uid', None)        
-        if objUID: #continue    # not an old style AT?
+        objUID = getattr(aq_base(obj), '_uid', None)        
+        if objUID is not None: #continue    # not an old style AT?
             setattr(obj, olduididx, objUID) # this one can be part of the catalog
             delattr(obj, '_uid')
             setattr(obj, UUID_ATTR, None)
@@ -187,8 +154,8 @@ def removeOldUIDs(portal, out):
     for brain in allbrains:
         #Get a uid for each thingie
         obj = brain.getObject()
-        objUID = getattr(obj.aq_base, olduididx, None)        
-        if not objUID: continue # not an old style AT
+        objUID = getattr(aq_base(obj), olduididx, None)        
+        if objUID is None: continue # not an old style AT
         delattr(obj, olduididx)
         obj._updateCatalog(portal) 
         count+=1

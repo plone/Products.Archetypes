@@ -8,6 +8,8 @@ from AccessControl import allow_class
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
+from zLOG import LOG, PROBLEM
+
 ###
 ## security
 ###
@@ -55,6 +57,9 @@ val_info = getPkgInfo(Products.validation)
 
 at_version = at_info.version
 for info in (mtr_info, pt_info, gen_info, val_info, ):
+    if not hasattr(info, 'at_versions'):
+        raise RuntimeError('The product %s has no at_versions assigend. ' \
+                           'Please update to a newer version.' % info.modname)
     if at_version not in info.at_versions:
         raise RuntimeError('The current Archetypes version %s is not in list ' \
                            'of compatible versions for %s!\nList: %s' % \
@@ -101,5 +106,3 @@ def initialize(context):
     except ImportError:
         pass
 
-    context.registerHelpTitle('Archetypes Help')
-    context.registerHelp(directory='interfaces')

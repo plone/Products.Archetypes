@@ -6,6 +6,7 @@ from Acquisition import aq_base
 from Globals import PersistentMapping
 
 from Globals import InitializeClass
+from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
 
@@ -17,6 +18,7 @@ type_map = {'text':'string',
 
 _marker = []
 
+#XXX subclass from Base?
 class Storage:
     """Basic, abstract class for Storages. You need to implement
     at least those methods"""

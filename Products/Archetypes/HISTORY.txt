@@ -1,0 +1,60 @@
+1.3.0-beta4 - 2004-07-09
+
+ * Fix bug on image deletion [clebeaupin]
+
+ * Fixed [ 997899 ] 1.3b3 will ot startup on Zope 2.7, Windows.
+   Removed api helper to avoid problem with windows [dreamcatcher, tiran]
+
+ * Small improvements on migration (using aq_base() instead of attribute, using
+   is None test instead of simple bool test)
+   [tiran]
+
+ * Get the first non None object instead of the first element of a list of
+   brains to circumvent problems with stalled objects inside the uid catalog
+   [tiran]
+
+ * Don't raise AttributeError when no reference can be found
+   [gotcha]
+
+ * Fixed a problem introduced by getRaw method on ReferenceField class.
+   When using a field on 'hidden' mode, field.pt uses field.edit_acessor
+   to get field value (and edit_accessor calls getRaw).
+   The problem was related to ReferenceFields not multivalued where
+   getRaw always returns a list, instead of the single UID.
+   [deo]
+
+ * Added a flag refresh_references to Archetypes.Extensions.utils.installTypes
+   (default False). When enabled it's using ZopeFindAndApply to find all
+   objects of the given types and refreshes their references. This is a 
+   workaround but not a real fix for bug 997840.
+   [tiran]
+
+ * Added a test for at_version information
+   [tiran]
+
+ * Support Pdata (possible large data from OFS.Image) as type for FileField.
+   This is required to load large images and files based on OFS.Image into a 
+   FileField.
+   [tiran]
+
+ * Merged sid's security branch. DefaultLayer based classes (Field, Widget) and 
+   schema are now subclassed from ExtensionsClass.Base.
+   [dreamcatcher, tiran]
+
+ * Fixed [ 994511 ] Field.py: Vocabulary cannot handle 2-tuple list
+   [tiran]
+
+ * Fixed creation_date field to be metadata again 
+   [tiran]
+
+ * Fixed [ 944440 ] getMsgID method of DisplayList should be used 
+   [tiran]
+
+ * Fixed [ 972091 ] base widget doesn't support visble attribute for view 
+  [tiran]
+
+ * Added better traceback information to fixAfterRenameType
+   [tiran]
+
+ * Fixed [ 988898 ] Don't swallow ConflictError (SQL missing)
+   [tiran]

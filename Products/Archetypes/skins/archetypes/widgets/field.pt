@@ -13,13 +13,17 @@
                            tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
                                        field_macros here/widgets/field/macros;
                                        label_macro view_macros/label | label_macro | field_macros/label;
-                                       data_macro view_macros/data | data_macro | field_macros/data;">
-      <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
-        <tal:if_use_label condition="use_label | nothing">
-          <metal:use_label use-macro="label_macro" />
-        </tal:if_use_label>
-	<metal:use_data use-macro="data_macro|default" />
-      </tal:if_perm>
+                                       data_macro view_macros/data | data_macro | field_macros/data;
+                                       visState python:widget.isVisible(here, mode);
+                                       visCondition python:field.widget.testCondition(here, portal, template);">
+      <tal:condition condition="python:visState == 'visible' and visCondition">
+        <tal:if_perm condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
+          <tal:if_use_label condition="use_label | nothing">
+            <metal:use_label use-macro="label_macro" />
+          </tal:if_use_label>
+	      <metal:use_data use-macro="data_macro|default" />
+        </tal:if_perm>
+      </tal:condition>
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">

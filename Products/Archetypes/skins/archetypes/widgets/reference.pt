@@ -13,41 +13,41 @@
                   condition="refs">
 
         <tal:block tal:condition="not:field/multiValued"
-               tal:define="ref python:refs[0]; obj python:ref.getTargetObject()"
-            >
+               tal:define="ref python:refs[0];
+                           obj ref/getTargetObject">
 
             <a href="#"
-               tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+               tal:attributes="href obj/absolute_url;
+                               class python:obj.portal_type.replace(' ', '_')"
                tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
               Sole target object's title
             </a>
 
             <a href="#"
                tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
-               tal:attributes="href python:ref.getContentObject().absolute_url(); class python:obj.portal_type.replace(' ', '_')"
-               tal:content="python:field.relationship"
-             >
+               tal:attributes="href python:ref.getContentObject().absolute_url();
+                               class python:obj.portal_type.replace(' ', '_')"
+               tal:content="field/relationship">
               reference object link
             </a>
-            
-        </tal:block>
 
-        
+        </tal:block>
 
         <ul tal:condition="field/multiValued">
           <li tal:repeat="ref refs">
              <tal:block tal:define="obj ref/getTargetObject">
                 <a href="#"
-                   tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+                   tal:attributes="href obj/absolute_url;
+                                   class python:obj.portal_type.replace(' ', '_')"
                    tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
                   Target Title
                 </a>
-    
+
                 <a href="#"
                    tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
-                   tal:attributes="href python:ref.getContentObject().absolute_url(); class python:obj.portal_type.replace(' ', '_')"
-                   tal:content="python:field.relationship"
-                 >
+                   tal:attributes="href python:ref.getContentObject().absolute_url();
+                                   class python:obj.portal_type.replace(' ', '_')"
+                   tal:content="field/relationship">
                   reference object link
                 </a>
              </tal:block>
@@ -64,7 +64,7 @@
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
                          fieldName python:fieldName+':list';
-                         uids value;
+                         uids python:same_type(value, []) and value or [value];
                          vlen python:len(vocab);">
 
           <input type="hidden"
@@ -90,7 +90,8 @@
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:vocab.getValue(item)" />
+                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item)) />
+
 
                 <br/>
               </tal:block>
@@ -108,7 +109,7 @@
                       tal:repeat="item vocab"
                       tal:attributes="value item;
                                       selected python:test((item in uids), 'selected', '')"
-                      tal:content="python:vocab.getValue(item)"></option>
+                      tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
             </select>
           </div>
 
@@ -116,7 +117,7 @@
               <tal:block define="types python:widget.addableTypes(here, field);
                                  thereAreMoreThanOneDestination python:[t for t in types if len(t['destinations'])>1]"
                          condition="python:types">
-    
+
                 <div tal:condition="not:thereAreMoreThanOneDestination">
                   <tal:block repeat="content types">
                     <input class="context"
@@ -125,28 +126,28 @@
                            value="Add"
                            name="form.button.form_add"
                            tal:define="cid content/id;
-                           cdestination python:content['destinations'][0];"
+                                       cdestination python:content['destinations'][0];"
                            tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value='${cid}';;this.form['add_reference.destination:record'].value='${cdestination}';
-                           id string:${field/getName}_link;
-                           value string:Add ${content/name};
-                           tabindex tabindex/next;"
+                                           id string:${field/getName}_link;
+                                           value string:Add ${content/name};
+                                           tabindex tabindex/next;"
                            i18n:attributes="value"
                            />
                   </tal:block>
                   <script tal:content="structure here/reference_focus_js"></script>
                 </div>
-    
+
                 <div tal:condition="thereAreMoreThanOneDestination">
                   <input type="button" class="context"
                     tal:attributes="id string:${field/getName}_link;
-                    onclick string:${field/getName}_show();;return false;
-                    value string:Add New ${widget/label};
-                    tabindex tabindex/next" />
-    
+                                    onclick string:${field/getName}_show();;return false;
+                                    value string:Add New ${widget/label};
+                                    tabindex tabindex/next" />
+
                   <div tal:attributes="id string:${field/getName}_fieldset"
                      i18n:domain="archetypes"
                      style="display:none">
-    
+
                     <fieldset>
                       <legend i18n:translate="legend_add_new">add new</legend>
                       <div class="field">
