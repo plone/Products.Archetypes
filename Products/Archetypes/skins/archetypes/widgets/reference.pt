@@ -50,7 +50,7 @@
                  tal:attributes="name string:$fieldName:default:list"
                  />
 
-          <div tal:condition="python:vlen &lt; widget.checkbox_bound">
+          <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
               <tal:block tal:define="item_tabindex tabindex/next;
@@ -74,7 +74,7 @@
             </tal:item>
           </div>
 
-          <div tal:condition="python:vlen &gt;= widget.checkbox_bound">
+          <div tal:condition="python:vlen &gt; widget.checkbox_bound">
             <!-- pulldown for longer vocabs -->
             <select tal:attributes="name fieldName;
                                     id fieldName;
