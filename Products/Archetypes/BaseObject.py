@@ -204,7 +204,7 @@ class BaseObject(Implicit):
         accessor = self.Schema()[key].getEditAccessor(self)
         if not accessor:
             accessor = self.Schema()[key].getAccessor(self)
-        return accessor()
+        return accessor(maybe_baseunit=1)
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):

@@ -173,12 +173,18 @@ class DisplayList:
         """get key"""
         v = self._values.get(value, None)
         if v: return v[1]
+        for k, v in self._values.items():
+            if str(value) == str(k):
+                return v[1]
         return default
 
     def getValue(self, key, default=None):
         "get value"
         v = self._keys.get(key, None)
         if v: return v[1]
+        for k, v in self._keys.items():
+            if str(key) == str(k):
+                return v[1]
         return default
 
     def getMsgId(self, key):

@@ -1,6 +1,8 @@
 from debug import log
-from generator.widget import macrowidget
-
+try:
+    from generator.widget import macrowidget
+except ImportError:
+    from Products.generator.widget import macrowidget
 from utils import capitalize
 
 class TypesWidget(macrowidget):

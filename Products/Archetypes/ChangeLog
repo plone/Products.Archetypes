@@ -1,3 +1,39 @@
+2003-09-02  Sidnei da Silva  <sidnei@plone.org>
+
+	* Field.py (Field.getAccessor): Be more robust about fields
+	without accessor.
+
+	* skins/archetypes/widgets/reference.pt: Provide a default value.
+
+	* Field.py (ReferenceField.Vocabulary): Fixed typo in
+	vocabylary. Patch by philiKON.
+
+	* BaseUnit.py (newBaseUnit.content_type): Provide a content_type
+	method to make ExternalEditor happy (oh, adapters...)
+
+	* Marshall.py (PrimaryFieldMarshaller.marshall): Use __getitem__
+	of BaseObject, so we get to use the same effect everywere (get a
+	BaseUnit instead of a string).
+	(RFC822Marshaller.marshall): Same thing here.
+
+	* BaseUnit.py: Missing parameter on call to update on PUT.
+
+2003-09-01  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.__getitem__): Fixed ExternalEditor
+	with Archetypes, by passing maybe_baseunit, which triggers getRaw
+	to return the BaseUnit instead of it's string value.
+
+	* Marshall.py (PrimaryFieldMarshaller.marshall): Issue a log
+	warning instead of cryptic error if no IBaseUnit returned.
+
+	* BaseUnit.py (newBaseUnit.manage_FTPget): Typo.
+
+2003-08-13  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* utils.py (DisplayList.keys): Lookup keys/values as their string
+	representation as well.
+
 2003-07-31  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* Field.py (ReferenceField.Vocabulary): Log a warning instead of

@@ -29,7 +29,7 @@ except ImportError:
     class idatastream(Interface):
         """ Dummy idatastream for when PortalTransforms isnt available """
 
-    
+
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 
@@ -44,7 +44,8 @@ class newBaseUnit(File):
                mimetype=None, encoding=site.encoding):
         #Convert from file/str to str/unicode as needed
         adapter = getToolByName(instance, 'mimetypes_registry')
-        data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
+        data, filename, mimetype = adapter(data, mimetype=mimetype,
+                                           encoding=encoding)
 
         self.mimetype = mimetype
         self.encoding = encoding
@@ -107,6 +108,9 @@ class newBaseUnit(File):
     def getContentType(self):
         return self.mimetype
 
+    def content_type(self):
+        return self.getContentType()
+
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
@@ -131,7 +135,7 @@ class newBaseUnit(File):
         file=REQUEST['BODYFILE']
         data = file.read()
 
-        self.update(data, mimetype=mimetype)
+        self.update(data, self.aq_parent, mimetype=mimetype)
 
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)
@@ -142,7 +146,7 @@ class newBaseUnit(File):
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
-        if type(self.raw) is type(''): return raw
+        if type(self.raw) is type(''): return self.raw
 
         return ''
 

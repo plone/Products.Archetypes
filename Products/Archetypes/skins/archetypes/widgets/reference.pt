@@ -40,6 +40,9 @@
       fieldName python:test(field.multiValued,fieldName+':list',fieldName);
 	  vlen  python: len(vocab);
 	  ">
+	  <input type="hidden" value=""
+            tal:condition="python: (not field.required) and field.multiValued"
+            tal:attributes="name string:$fieldName:default:list" />
 	  <div tal:condition="python: vlen < 4">
 	    <!-- Radio when the vocab is short < 4 -->
 	    <span tal:repeat="item vocab"

@@ -1,5 +1,8 @@
 from interfaces.layer import ILayer
-from generator.renderer import renderer as base
+try:
+    from generator.renderer import renderer as base
+except ImportError:
+    from Products.generator.renderer import renderer as base
 from debug import log, log_exc
 import sys
 

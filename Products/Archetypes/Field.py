@@ -22,7 +22,10 @@ from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, FileFieldException
-from validation import validation
+try:
+    from validation import validation
+except ImportError:
+    from Products.validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
@@ -242,18 +245,23 @@ class Field(DefaultLayerContainer):
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
         """Return the accessor method for getting data out of this field"""
-        return getattr(instance, self.accessor, None)
+        if self.accessor:
+            return getattr(instance, self.accessor, None)
+        return None
 
     security.declarePrivate('getEditAccessor')
     def getEditAccessor(self, instance):
         """Return the accessor method for getting raw data out of this
         field e.g.: for editing
         """
-        return getattr(instance, self.edit_accessor, None)
+        if self.edit_accessor:
+            return getattr(instance, self.edit_accessor, None)
+        return None
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
-        """Return the mutator method used for changing the value of this field"""
+        """Return the mutator method used for changing the value
+        of this field"""
         if self.mutator:
             return getattr(instance, self.mutator, None)
         return None
@@ -699,7 +707,9 @@ class FixedPointField(ObjectField):
 
     def _to_tuple(self, value):
         """ COMMENT TO-DO """
-        value = value.split('.') # FIXME: i18n?
+        if not value:
+            value = self.default # Does this sounds right?
+        value = value.split('.')
         if len(value) < 2:
             value = (int(value[0]), 0)
         else:
@@ -796,7 +806,7 @@ class ReferenceField(ObjectField):
             results = archetype_tool.Content()
         results = [(r, r.getObject()) for r in results]
         value = [(r.UID, obj and (str(obj.Title().strip()) or \
-                                  str(obj.getId).strip())  or \
+                                  str(obj.getId()).strip())  or \
                   log('Field %r: Object at %r could not be found' % \
                       (self.getName(), r.getURL())) or \
                   r.Title or r.UID) for r, obj in results]

@@ -4,6 +4,8 @@ from interfaces.layer import ILayer
 from interfaces.base import IBaseUnit
 from StringIO import StringIO
 from types import StringType, ListType, TupleType
+from debug import log
+from OFS.content_types import guess_content_type
 
 class Marshaller:
     __implements__ = (IMarshall, ILayer)
@@ -29,31 +31,25 @@ class Marshaller:
             delattr(instance, 'marshall_hook')
 
 class PrimaryFieldMarshaller(Marshaller):
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
 
-
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        data = p and p.get(instance) or ''
+        data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(data):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
-
-        #XXX no transform tool
-        #else:
-        #    ## Use instance to get the transform tool
-        #    transformer = getToolByName(instance, 'transform_tool')
-        #    content_type = str(transformer.classify(data))
-        #    length = len(data)
-
-
-        if length is None:
-            return None
+        else:
+            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
+            content_type = guess_content_type(data)
+            length = len(data)
+            data = str(data)
 
         return (content_type, length, data)
 
@@ -79,7 +75,7 @@ class RFC822Marshaller(Marshaller):
     def marshall(self, instance, **kwargs):
         from Products.CMFDefault.utils import formatRFC822Headers
         p = instance.getPrimaryField()
-        body = p and p.get(instance) or ''
+        body = p and instance[p.getName()] or ''
         pname = p and p.getName() or None
         content_type = length = None
         # Gather/Guess content type
