@@ -20,7 +20,7 @@
         </a>
 
         <tal:block tal:condition="python:field.multiValued"
-                   tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in accessor()];">
+                   tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in (accessor() or [])];">
             
               <a href="#"
                  
