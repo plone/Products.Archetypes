@@ -1,43 +1,36 @@
-from interfaces.layer import *
+from interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
 from debug import log, log_exc
+import sys
+
+_marker = []
 
 class ArchetypesRenderer(base):
     __implements__ = (ILayer,)
 
-    def render(self, field_name, mode, widget, instance, **kwargs):
-        try:
-            value = base.render(self, field_name, mode, widget,
-                                instance, **kwargs)
+    def setupContext(self, field_name, mode, widget, instance, field, \
+                     accessor, **kwargs):
 
-        except Exception, E:
-            log_exc()
-            value = "%s: %s" % (str(type(E)), E)
+        # look for the context in the stack
+        frame = sys._getframe()
+        context = _marker
+        while context is _marker and frame is not None:
+            context = frame.f_locals.get('econtext', _marker)
+            frame = frame.f_back
+        if context is _marker:
+            raise RuntimeError, 'Context not found'
 
-        return value
-    
-    def setupContext(self, field_name, mode, widget, instance,
-                     **kwargs):
-
-        #Were we passed the context to use or create a new one?
-        context = kwargs.get('context')
-        if not context:
-            context = widget.getContext(instance)
-            
-        context.beginScope()
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
-        context.setLocal('accessor', getattr(instance,
-                                             instance.type[field_name].accessor))
+        context.setLocal('accessor', accessor)
         context.setLocal('widget', widget)
-        context.setLocal('field', instance.type[field_name])
-        context.setLocal('request', instance.REQUEST)
+        context.setLocal('field', field)
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)
-                
-        return context
 
+        del frame
+        return context
 
 renderer = ArchetypesRenderer()
 

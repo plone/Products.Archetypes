@@ -46,7 +46,7 @@
                     tal:content="python: ct.getObject(ref).Title()"/> 
                     </td>
                     <td>
-                    <a href="#" tal:attributes="href string:${here/absolute_url}/deleteRef?oid=${here/UID}&tid=${ref};">X</a>
+                        <a href="#" title="Delete reference" i18n:attributes="title" tal:attributes="href string:${here/absolute_url}/deleteRef?oid=${here/UID}&tid=${ref};">X</a>
                     </td>
                   </tr>
                     </tbody>

@@ -12,7 +12,7 @@
 ##############################################################################
 """ SQL Storage Configuration for Archetypes.
 
-$Id: SQLStorageConfig.py,v 1.1 2003/03/06 20:28:28 bcsaller Exp $
+$Id: SQLStorageConfig.py,v 1.3 2003/04/12 15:39:26 dreamcatcher Exp $
 """
 
 from OFS.SimpleItem import SimpleItem
@@ -32,7 +32,7 @@ class SQLStorageConfig (SimpleItem):
 
     """ Map Archetypes to SQL Database Connections.
     """
-    
+
     meta_type = 'SQL Storage Config'
 
     _conn_by_type = None  # PersistentMapping
@@ -94,7 +94,7 @@ class SQLStorageConfig (SimpleItem):
             field_name = 'conn_%s' % id
             conn = props.get(field_name, '(Default)').strip()
             self.setConnForPortalTypes((id, ), conn)
-            
+
         # Set up the default conn.
         self.setDefaultConn(default_conn)
         if REQUEST is not None:
@@ -139,7 +139,7 @@ class SQLStorageConfig (SimpleItem):
                     c_types.append(t)
                     break
         return c_types
-        
+
 
     security.declareProtected( ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
@@ -148,16 +148,16 @@ class SQLStorageConfig (SimpleItem):
         if pt is None:
             return ()
         if at is None:
-            return () 
+            return ()
         pt = pt.listTypeInfo()
         pt = [t.getId() for t in pt]
 
-        ti = at.listTypes()
+        ti = at.listRegisteredTypes()
 
-        installed_types = [t for t in ti if t in pt]
+        installed_types = [t for t in ti if t['name'] in pt]
         return installed_types
 
-                
+
     security.declareProtected( ManagePortal, 'setConnForPortalTypes')
     def setConnForPortalTypes(self, type_names, conn):
         """ Set a conn for a specific portal type.

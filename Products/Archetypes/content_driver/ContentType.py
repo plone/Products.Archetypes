@@ -106,7 +106,7 @@ class ContentTypeManager:
                 log("No Converter for %s" % mime_type)
                 return
 
-        valid = converter.initalize(content_type)
+        valid = converter.initialize(content_type)
         if not valid: return
 
         self.bind(content_type, converter.__class__)

@@ -16,53 +16,56 @@
       </div>
     </div>
 
-    <div metal:define-macro="area_edit">
-      <textarea  
-		tabindex="#"
-		tal:attributes="name fieldName;
-	value value;
-	cols widget/cols;
-	rows widget/rows;
-	tabindex tabindex/next;
-	" 
-	tal:define="base python: hasattr(value, 'isUnit'); 
-	binary python: base and value.isBinary() or 0;
-	content python: (base == 1)and value.getRaw() or value ;
-	content python: (binary == 0) and content or '';
-	" 
-	tal:content="content"/>
-    </div>
-    
-    <div metal:define-macro="area_format">
-      <div tal:omit-tag="" 
-	tal:define="contentType python:here.getContentType(fieldName);
-	mimetypes python: getattr(field, 'allowable_content_types', ());"
-	tal:condition="python: len(mimetypes) > 1">
-	<div class="label">Format</div>
-	<select
-		tal:attributes="
-	  id string:${fieldName}_text_format;
-	  name string:${fieldName}_text_format;
-	  tabindex tabindex/next;">
-	  <option 
-		  selected=""
-		  tal:repeat="item mimetypes"
-	    tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
-	    tal:content="item" />
-	</select>
-      </div>
-    </div>
+    <metal:define define-macro="area_edit">
+    <textarea tabindex="#"
+	      tal:attributes="name fieldName;
+	      id fieldName;
+	      cols widget/cols;
+	      rows widget/rows;
+              tabindex tabindex/next;
+              onfocus string:formtooltip('${fieldName}_help',1);
+              onblur string:formtooltip('${fieldName}_help',0);
+	      "
+	      tal:define="base python: hasattr(value, 'isUnit');
+	      binary python: base and value.isBinary() or here.isBinary(fieldName);
+	      content python: (base == 1) and value.getRaw() or value ;
+	      content python: (binary == 0) and content or '';
+	      "
+	      tal:content="content"/>
+    </metal:define>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_edit"/>
-	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_format"/>
-	</div>
+    <metal:define define-macro="area_format">
+    <tal:define define="contentType python:request.get('%s_text_format' % fieldName, here.getContentType(fieldName));
+	        mimetypes python: getattr(field, 'allowable_content_types', ());"
+	        condition="python: len(mimetypes) > 1">
+    <div class="label"
+         i18n:translate="label_format">Text Format</div>
+    <select tal:attributes="
+	        id string:${fieldName}_text_format;
+	        name string:${fieldName}_text_format;
+	        tabindex tabindex/next;">
+	    <option selected=""
+		    tal:repeat="item mimetypes"
+	            tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
+	            tal:content="item" />
+    </select>
+    </tal:define>
+    </metal:define>
+
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body" >
+        <metal:block metal:use-macro="here/widgets/textarea/macros/area_edit"  />
+        <metal:block metal:use-macro="here/widgets/textarea/macros/area_format"/>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/textarea/macros/edit">
       </div>
     </div>
 
   </body>
-  
+
 </html>
 

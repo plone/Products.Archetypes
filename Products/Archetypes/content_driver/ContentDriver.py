@@ -6,7 +6,7 @@ class ContentDriver:
 
 
 
-    def initalize(self, content_type=None):
+    def initialize(self, content_type=None):
         """Return boolean indidating if the converter should be in a
         functional state.
 

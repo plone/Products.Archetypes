@@ -3,10 +3,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory
-
 from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
-
-from Products.Archetypes import listTypes, types_globals
 from Products.Archetypes.Extensions.Install import install as installArchetypes
 import sys
 
@@ -21,21 +18,19 @@ class ArchetypeCustomizationPolicy(DefaultCustomizationPolicy):
 
         outStr = doCustomization(portal)
         #print >> sys.stdout, outStr
-        
 
 def doCustomization(self):
     from StringIO import StringIO
     out = StringIO()
 
-    result = installArchetypes(self)
+    # Always include demo types
+    result = installArchetypes(self, include_demo=1)
     print >>out, result
     
     updatePortalProps(self, out)
     updateActions(self, out)
     
     return out.getvalue()
-
-
 
 #
 # set the portal properties

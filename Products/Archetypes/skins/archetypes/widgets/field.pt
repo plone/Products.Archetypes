@@ -8,25 +8,57 @@
 
     <!-- Base Field Widgets -->
     <div metal:define-macro="view">
-      <div tal:condition="python:'view' in widget.modes">
-	<div metal:define-slot="widget_view"/>
+      <div tal:condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
+        <span class="label" tal:condition="use_label|nothing" tal:content="python:widget.Label(here) + ':'">Field</span>
+        <span tal:condition="field/workflowable|nothing"
+              tal:omit-tag="">
+        (<a href="#"
+        tal:define="wf_tool here/portal_workflow;
+                    obj python:accessor();
+                    review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+        tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
+                        class python:test(review_state, review_state, 'private')"
+        tal:content="review_state">
+        review_state
+        </a>)
+        </span>
+	      <div metal:define-slot="widget_view"/>
+	      <br/>
       </div>
     </div>
     
-    <div metal:define-macro="edit">
-      <div tal:condition="python: 'edit' in widget.modes"
-           tal:attributes="class python:test(field.required, 'required
-	label', 'label')">
-	<span i18n:translate="" tal:content="widget/label"></span>
-	<div class="field"
-	     tal:define="error python:errors.get(fieldName);
-	  value python:request.get(fieldName, accessor())"
-	  tal:attributes="class python:test(error, 'field error', 'field')" >
-	  <span tal:condition="error" tal:replace="error" />
-           <div metal:define-slot="widget_body"/>
-          </div></div>
-      </div>
-  </body>
-  
-</html>
+    <metal:define define-macro="edit">
+    <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">
+        <div tal:attributes="class python:test(field.required, 'required label', 'label')">
+             <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
+             <div id="title_help" class="help" style="visibility: hidden;"
+                  tal:content="structure python:widget.Description(here)"
+                  tal:attributes="id string:${fieldName}_help">Help tooltip</div>
+        
+             <span tal:condition="field/workflowable|nothing"
+                   tal:omit-tag="">
+             (<a href="#"
+                 tal:define="wf_tool here/portal_workflow;
+                             obj python:accessor();
+                             review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+                 tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
+                                 class python:test(review_state, review_state, 'private')"
+                 tal:content="review_state">review_state</a>)
+             </span>
+        </div> 
+        <div class="field"
+	           tal:define="error python:errors.get(fieldName);
+                         value python:widget.populate and accessor() or '';
+	                       value python:widget.postback and request.get(fieldName, value) or value;"
+	           tal:attributes="class python:test(error, 'field error', 'field')" >
+             <div tal:condition="error">
+                 <tal:block i18n:translate="" content="error">Error</tal:block>
+                 <br />
+             </div>
+             <div metal:define-slot="widget_body"></div>
+        </div>
+    </div>
+    </metal:define>    
 
+   </body>
+</html>
