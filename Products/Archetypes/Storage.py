@@ -1,5 +1,5 @@
 import ZODB
-from ZODB.PersistentMapping import PersistentMapping
+from Persistence.PersistentMapping import PersistentMapping
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from interfaces.storage import IStorage
@@ -7,6 +7,7 @@ from interfaces.field import IObjectField
 from interfaces.layer import ILayer
 from debug import log
 from config import TOOL_NAME
+from utils import className
 
 type_map = {'text':'string',
             'datetime':'date',
@@ -17,6 +18,9 @@ type_map = {'text':'string',
 _marker = []
 
 class Storage:
+    """Basic, abstract class for Storages. You need to implement
+    at least those methods"""
+
     __implements__ = IStorage
 
     def getName(self):
@@ -38,9 +42,14 @@ class Storage:
         raise NotImplementedError('%s: unset' % self.getName())
 
 class ReadOnlyStorage(Storage):
+    """A marker storage class for used for read-only fields."""
     __implements__ = IStorage
 
 class StorageLayer(Storage):
+    """Base, abstract StorageLayer. Storages that need to manipulate
+    how they are initialized per instance and/or per field must
+    subclass and implement those methods"""
+
     __implements__ = (IStorage, ILayer)
 
     def initializeInstance(self, instance, item=None, container=None):
@@ -56,6 +65,9 @@ class StorageLayer(Storage):
         raise NotImplementedError('%s: cleanupField' % self.getName())
 
 class AttributeStorage(Storage):
+    """Stores data as an attribute of the instance. This is the most
+    commonly used storage"""
+
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
@@ -75,6 +87,9 @@ class AttributeStorage(Storage):
         instance._p_changed = 1
 
 class ObjectManagedStorage(Storage):
+    """Stores data using the Objectmanager interface. It's usually
+    used for BaseFolder-based content"""
+
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
@@ -96,6 +111,9 @@ class ObjectManagedStorage(Storage):
         instance._p_changed = 1
 
 class MetadataStorage(StorageLayer):
+    """Storage used for ExtensibleMetadata. Attributes are stored on
+    a persistent mapping named ``_md`` on the instance."""
+
     __implements__ = (IStorage, ILayer)
 
     def initializeInstance(self, instance, item=None, container=None):
@@ -139,3 +157,9 @@ class MetadataStorage(StorageLayer):
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
+
+from Registry import registerStorage
+
+for name in __all__:
+    storage = locals()[name]
+    registerStorage(storage)
