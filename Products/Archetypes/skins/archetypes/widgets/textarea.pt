@@ -36,7 +36,7 @@
 
     <metal:define define-macro="area_format">
     <tal:define define="contentType python:request.get('%s_text_format' % fieldName, here.getContentType(fieldName));
-	        mimetypes python: getattr(field, 'allowable_content_types', ());"
+	        mimetypes python: [t for t in getattr(field, 'allowable_content_types', ()) if t.startswith('text/')];"
 	        condition="python: len(mimetypes) > 1">
     <div class="label"
          i18n:translate="label_format">Text Format</div>
