@@ -27,6 +27,10 @@ def doCustomization(self):
     from StringIO import StringIO
     out = StringIO()
 
+    #Make sure to include the demo types for now
+    import Products.Archetypes.config
+    Products.Archetypes.config.INCLUDE_DEMO_TYPES = 1
+    
     result = installArchetypes(self)
     print >>out, result
     
