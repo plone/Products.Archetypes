@@ -15,7 +15,7 @@
         <a href="#"
            tal:define="obj python:targets[0]"
            tal:condition="not:field/multiValued"
-           tal:attributes="href obj/absolute_url"
+           tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
            tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
           Sole target object's title
         </a>
@@ -52,20 +52,26 @@
           <div tal:condition="python:vlen &lt; 5">
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
-              <input class="noborder"
-                     tabindex=""
-                     type="radio"
-                     tal:attributes="name fieldName;
-                                     checked python:test(value and multiVal and
-                                                         item in value or
-                                                         item==value, value, '');
-                                     tabindex tabindex/next; value item;
-                                     type python:multiVal and 'checkbox' or 'radio'"
-                     />
+              <tal:block tal:define="item_tabindex tabindex/next;
+                                     item_id string:${fieldName}_${item_tabindex}">
+                <input class="noborder"
+                       tabindex=""
+                       type="radio"
+                       tal:attributes="name fieldName;
+                                       checked python:test(value and multiVal and
+                                                           item in value or
+                                                           item==value, value, '');
+                                       tabindex item_tabindex;
+                                       value item;
+                                       id item_id;
+                                       type python:multiVal and 'checkbox' or 'radio'"
+                       />
 
-              <span tal:content="python:vocab.getValue(item)" />
+                <label tal:attributes="for item_id"
+                       tal:content="python:vocab.getValue(item)" />
 
-              <br/>
+                <br/>
+              </tal:block>
             </tal:item>
           </div>
 

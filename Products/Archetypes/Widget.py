@@ -109,6 +109,7 @@ class ReferenceWidget(TypesWidget):
         'addable' : 0, # create createObject link for every addable type
         'destination' : None, # may be name of method on instance or string.
                               # destination is relative to portal root
+        'helper_css' : ('content_types.css',),
         })
 
     def addableTypes(self, instance, field):
