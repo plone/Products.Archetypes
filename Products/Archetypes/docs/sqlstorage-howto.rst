@@ -2,6 +2,13 @@
 HOWTO: Using Archetypes SQLStorage and Advanced Tips
 ====================================================
 
+:Author: Joel Burton
+:Contact: joel@joelburton.com
+:Date: $Date: 2003/07/24 12:46:13 $
+:Version: $Revision: 1.1.2.2 $
+:Web site: http://sourceforge.net/projects/archetypes
+
+.. contents::
 
 Introduction
 ============
@@ -1732,4 +1739,11 @@ changes to it, etc.
 If you have any comments, corrections, or changes, please let me know.
 Thanks!
 
-# vim:tw=78
+
+..
+   Local Variables:
+   mode: rst
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 70
+   End:
