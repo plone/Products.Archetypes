@@ -243,7 +243,7 @@ class ObjectField(Field):
             return self.default
 
     def getRaw(self, instance, **kwargs):
-        return self.get(instance, **kwargs)
+        return self.getAccessor(instance)(**kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
