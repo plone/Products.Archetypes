@@ -1,5 +1,9 @@
 2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* skins/archetypes/displayValue.py: Ok, don't join chars with a
+	',' if its a not a list (eg: string or unicode) and convert to a
+	string if anything else (eg: int, float)
+
 	* Field.py (Image.isBinary): Use return wrapped image in the
 	instance context, and use the instance Title where
 	possible. Existing images must be re-saved to get this
