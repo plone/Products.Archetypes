@@ -1159,7 +1159,7 @@ class ReferenceField(ObjectField):
         def assign(x, y): abs_paths[x]=y
         [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
 
-        pc_brains = pc(path=abs_paths.keys())
+        pc_brains = pc(path=abs_paths.keys(), **skw)
 
         for b in pc_brains:
             #translate abs path to rel path since uid_cat stores paths relative now
@@ -1172,6 +1172,7 @@ class ReferenceField(ObjectField):
             if self.referenceReferences is False and \
                path.find(config.REFERENCE_ANNOTATION) != -1:
                 continue
+            
             pairs.append((abs_paths[b.getPath()].UID, label(b)))
 
         if not self.required and not self.multiValued:
