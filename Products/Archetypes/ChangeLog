@@ -1,25 +1,22 @@
-2004-03-26  Chris McDonough  <chrism@plope.com>
+2004-04-06  Sidnei da Silva  <sidnei@awkly.org>
 
-	* BaseContent.py BaseContent.PUT did not take into account that
-	the body of a PUT is not MIME-encoded and thus does not itself
-	contain the content-type of the thing being PUT.  Instead, we
-	needed to look at the request's main content-type header.  The
-	symptom of the bug was that items that were PUT did not have the
-	correct content-type, and would be marked with the most generic of
-	possible content-types (either application/octet-stream or
-	text/plain).
+	* ArchetypeTool.py (BoundPageTemplateFile.__init__): Created a
+	'BoundPageTemplateFile', that is bound to an Archetype. This is
+	used for the (experimental) zmi support.
+	(registerClasses): A method to allow a set of classes to be
+	registered for adding through the zmi. This registers the classes,
+	and creates a BoundTemplateFile (which will use the archetypes
+	widgets) that will be the add form. For now it uses the default
+	constructor generated.
+	(ArchetypeTool.getWidgets): Factored getSearchWidgets into the
+	more generic getWidgets, while keeping backward
+	compatibility. This allows for getting fields for any mode (for
+	example 'edit'). Check the method signature for the exact options.
+	Tried to normalize the use of klass.__name__, meta_type and
+	portal_type. Installing types and binding templates uses
+	portal_type. Registering classes uses meta_type. Constructors use
+	class name. I hope this is a bit more clear now.
 
-	* Extensions/utils.py Made it possible to install archetypes
-	without installing dependencies (QuickInstallerTool,
-	CMFFormController, PortalTransforms) by passing a (false)
-	"require_dependencies" argument into either setupEnvironment or
-	installTypes.
-
-	* Field.py If a user of a field widget typed a bogus filename into
-	the field upload form element, a traceback was raised somewhere in
-	the bowels of AT/Zope.  Now, we just assume he knows what he's
-	doing and turn the upload into a blank string, for better or worse.
-	
 2004-03-02  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): field_name

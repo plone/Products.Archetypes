@@ -16,7 +16,8 @@ from Products.Archetypes.ClassGen import generateClass, generateCtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.utils import capitalize, findDict, DisplayList, unique
+from Products.Archetypes.utils import capitalize, findDict, DisplayList, \
+     unique, mapply
 from Products.Archetypes.Renderer import renderer
 
 from AccessControl import ClassSecurityInfo
@@ -34,6 +35,22 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
+class BoundPageTemplateFile(PageTemplateFile):
+
+    def __init__(self, *args, **kw):
+        self._portal_type = kw['portal_type']
+        self._type = kw['type']
+        self._package = kw['package']
+        args = (self,) + args
+        mapply(PageTemplateFile.__init__, *args, **kw)
+
+    def pt_render(self, source=0, extra_context={}):
+        options = extra_context.get('options', {})
+        options['portal_type'] = self._portal_type
+        options['type'] = self._type
+        options['package'] = self._package
+        extra_context['options'] = options
+        return PageTemplateFile.pt_render(self, source, extra_context)
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
@@ -50,7 +67,9 @@ except ImportError:
         return _version.strip()
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
- 
+_skins = os.path.join(os.path.dirname(__file__), 'skins')
+_zmi = os.path.join(_skins, 'zmi')
+
 # This is the template that we produce our custom types from
 # Never actually used
 base_factory_type_information = (
@@ -108,10 +127,6 @@ def fixActionsForType(portal_type, typesTool):
             cmfver=getCMFVersion()
 
             for action in portal_type.actions:
-                # DM: "Expression" derives from "Persistent" and
-                #  we must not put persistent objects into class attributes.
-                #  Thus, copy "action"
-                action = action.copy()
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -162,7 +177,7 @@ def modify_fti(fti, klass, pkg_name):
     fti[0]['id']          = klass.__name__
     fti[0]['meta_type']   = klass.meta_type
     fti[0]['description'] = klass.__doc__
-    fti[0]['factory']     = "add%s" % capitalize(klass.__name__)
+    fti[0]['factory']     = "add%s" % klass.__name__
     fti[0]['product']     = pkg_name
 
     if hasattr(klass, "content_icon"):
@@ -221,8 +236,7 @@ def process_types(types, pkg_name):
             if m is not None:
                 m.modify_fti(fti[0])
 
-        ctor = getattr(module, "add%s" % capitalize(typeName),
-                         None)
+        ctor = getattr(module, "add%s" % typeName, None)
         if ctor is None:
             ctor = generateCtor(typeName, module)
 
@@ -234,8 +248,7 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-# DM (avoid persistency bug): 
-##_types_callback = []
+_types_callback = []
 
 def _guessPackage(base):
     if base.startswith('Products'):
@@ -254,7 +267,9 @@ def registerType(klass, package=None):
 
     data = {
         'klass' : klass,
-        'name'  : klass.meta_type,
+        'name'  : klass.__name__,
+        'identifier': klass.meta_type.capitalize().replace(' ', '_'),
+        'meta_type': klass.meta_type,
         'portal_type': klass.portal_type,
         'package' : package,
         'module' : sys.modules[klass.__module__],
@@ -264,12 +279,34 @@ def registerType(klass, package=None):
         'type' : klass.schema,
         }
 
-    key = "%s.%s" % (package, klass.meta_type)
+    key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
 
-    # DM (avoid persistency bug): 
-##    for tc in _types_callback:
-##        tc(klass, package)
+    for tc in _types_callback:
+        tc(klass, package)
+
+def registerClasses(context, package, types=None):
+    registered = listTypes(package)
+    if types is not None:
+        registered = filter(lambda t: t['meta_type'] in types, registered)
+    for t in registered:
+        module = t['module']
+        typeName = t['identifier']
+        ctorName = "add%s" % typeName
+        constructor = getattr(module, ctorName)
+        formName = "add%sForm" % typeName
+        setattr(module, formName,
+                BoundPageTemplateFile('base_add.pt', _zmi,
+                                      type=typeName,
+                                      package=package,
+                                      portal_type=portal_type))
+        generatedForm = getattr(module, formName)
+        context.registerClass(
+            t['klass'],
+            constructors=(generatedForm,
+                          constructor),
+            visibility=None,
+            )
 
 def listTypes(package=None):
     values = _types.values()
@@ -362,15 +399,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
-        # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-##        for k, t in _types.items():
-##            self._types[k] = {'signature':t['signature'], 'update':1}
-##        cb = lambda klass, package:self.registerType(klass, package)
-##        DM: never put something referencing a persistent object into
-##            a module global variable!
-##        _types_callback.append(cb)
-##        self.last_types_update = DateTime()
+        for k, t in _types.items():
+            self._types[k] = {'signature':t['signature'], 'update':1}
+        cb = lambda klass, package:self.registerType(klass, package)
+        _types_callback.append(cb)
+        self.last_types_update = DateTime()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -435,9 +469,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'bindTemplate')
-    def bindTemplate(self, meta_type, templateList):
+    def bindTemplate(self, portal_type, templateList):
         """create binding between a type and its associated views"""
-        self._templates[meta_type] = templateList
+        self._templates[portal_type] = templateList
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_templates')
@@ -507,7 +541,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         types = self.listRegisteredTypes()
         for t in types:
             if t['package'] != package: continue
-            if t['name'] == type:
+            if t['meta_type'] == type:
                 return t
         return None
 
@@ -544,7 +578,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         t = getattr(typesTool, typeName, None)
         if t:
             t.title = getattr(typeDesc['klass'], 'archetype_name',
-                              typeDesc['name'])
+                              typeDesc['portal_type'])
 
 
         # and update the actions as needed
@@ -557,41 +591,74 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declarePublic('getSearchWidgets')
     def getSearchWidgets(self, package=None, type=None, context=None):
-        """empty widgets for searching"""
+        """Empty widgets for searching"""
+        return self.getWidgets(package=package, type=type,
+                               context=context, mode='search')
 
-        # possible problem: assumes fields with same name can be
-        # searched with the same widget
-        widgets = {}
+    security.declarePublic('getWidgets')
+    def getWidgets(self, instance=None,
+                   package=None, type=None,
+                   context=None, mode='edit',
+                   fields=None, schemata=None):
+        """Empty widgets for standalone rendering"""
+
+        widgets = []
+        w_keys = {}
         context = context is None and context or self
-        for t in self.listTypes(package, type):
-            instance = t('fake')
-            instance = instance.__of__(context)
-            if isinstance(instance, DefaultDublinCoreImpl):
-                DefaultDublinCoreImpl.__init__(instance)
-            instance._is_fake_instance = 1
-            schema = instance.schema = instance.Schema().copy()
-            fields = [f for f in schema.fields()
-                      if (not widgets.has_key(f.getName())
-                          and f.index and f.accessor)]
+        instances = instance is not None and [instance] or []
+        f_names = fields
+        if not instances:
+            for t in self.listTypes(package, type):
+                instance = t('')
+                wrapped = instance.__of__(context)
+                if isinstance(wrapped, DefaultDublinCoreImpl):
+                    DefaultDublinCoreImpl.__init__(wrapped)
+                wrapped._is_fake_instance = 1
+                instances.append(wrapped)
+        for instance in instances:
+            if schemata is not None:
+                schema = instance.Schemata()[schemata].copy()
+            else:
+                schema = instance.Schema().copy()
+            fields = schema.fields()
+            if mode == 'search':
+                # Include only fields which have an index
+                # XXX duplicate fieldnames may break this,
+                # as different widgets with the same name
+                # on different schemas means only the first
+                # one found will be used
+                fields = [f for f in fields
+                          if (f.accessor and
+                              not w_keys.has_key(f.accessor)
+                              and f.index)]
+            if f_names is not None:
+                fields = filter(lambda f: f.getName() in f_names, fields)
             for field in fields:
-                field.required = 0
-                field.addable = 0 # for ReferenceField
-                if not isinstance(field.vocabulary, DisplayList):
-                    field.vocabulary = field.Vocabulary(instance)
-                if '' not in field.vocabulary.keys():
-                    field.vocabulary = DisplayList([('', '<any>')]) + \
-                                       field.vocabulary
                 widget = field.widget
-                widget.populate = 0
-                widgets[field.getName()] = WidgetWrapper(
-                    field_name=field.accessor,
-                    mode='search',
-                    widget=field.widget,
+                field_name = field.getName()
+                accessor = field.getAccessor(instance)
+                if mode == 'search':
+                    field.required = 0
+                    field.addable = 0 # for ReferenceField
+                    if not isinstance(field.vocabulary, DisplayList):
+                        field.vocabulary = field.Vocabulary(instance)
+                    if '' not in field.vocabulary.keys():
+                        field.vocabulary = DisplayList([('', '<any>')]) + \
+                                           field.vocabulary
+                    widget.populate = 0
+                    field_name = field.accessor
+                    accessor = field.getDefault
+
+                w_keys[field_name] = None
+                widgets.append((field_name, WidgetWrapper(
+                    field_name=field_name,
+                    mode=mode,
+                    widget=widget,
                     instance=instance,
                     field=field,
-                    accessor=field.getDefault)
-        widgets = widgets.items()
-        widgets.sort()
+                    accessor=accessor)))
+        if mode == 'search':
+            widgets.sort()
         return [widget for name, widget in widgets]
 
     security.declarePrivate('_rawEnum')
@@ -680,34 +747,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     index = manage_reindex
 
 
-    def _listAllTypes(self):
-        """list all types -- either currently known or known to us."""
-        allTypes = _types.copy(); allTypes.update(self._types)
-        return allTypes.keys()
-
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
         """Returns a list of tuples indicating which schema have changed.
            Tuples have the form (schema, changed)"""
         list = []
-        currentTypes = _types
-        ourTypes = self._types; modified = 0
-        keys = self._listAllTypes()
+        keys = self._types.keys()
         keys.sort()
         for t in keys:
-            if t not in ourTypes:
-                # add it
-                ourTypes[t] = currentTypes[t]['signature']; modified = 1
-                list.append((t, 0))
-            elif t not in currentTypes:
-                # huh: what shall we do? We remove it -- this might be wrong!
-                del ourTypes[t]; modified = 1
-                # we do not add an entry because we cannot update
-                # these objects (having no longer type information for them)
-            else:
-                list.append((t, ourTypes[t] != currentTypes[t]['signature']))
-        if modified: self._p_changed = 1
+            list.append((t, self._types[t]['update']))
         return list
 
 
@@ -721,15 +770,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         update_types = []
         if REQUEST is None:
-            # DM (avoid persistency bug): avoid code duplication
-            update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
-##            for t in self._types.keys():
-##                if self._types[t]['update']:
-##                    update_types.append(t)
+            for t in self._types.keys():
+                if self._types[t]['update']:
+                    update_types.append(t)
             update_all = 0
         else:
-            # DM (avoid persistency bug):
-            for t in self._listAllTypes():
+            for t in self._types.keys():
                 if REQUEST.form.get(t, 0):
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
@@ -741,7 +787,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # can't update it if you require that it be in the catalog.
         catalog = getToolByName(self, 'portal_catalog')
         portal = getToolByName(self, 'portal_url').getPortalObject()
-        meta_types = [_types[t]['name'] for t in update_types]
+        meta_types = [_types[t]['meta_type'] for t in update_types]
         if update_all:
             catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                 search_sub=1, apply_func=self._updateObject)
@@ -749,9 +795,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                 search_sub=1, apply_func=self._updateChangedObject)
         for t in update_types:
-            # DM (avoid persistency bug): set to current signature
-##            self._types[t]['update'] = 0
-            self._types[t] = _types[t]['signature']
+            self._types[t]['update'] = 0
         self._p_changed = 1
         return out.getvalue()
 
@@ -763,47 +807,44 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not o._isSchemaCurrent():
             o._updateSchema()
 
-# DM (avoid persistency bug): 
-##    def __setstate__(self, v):
-##        """Add a callback to track product registrations"""
-##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
-##        global _types
-##        global _types_callback
-##        import sys
-##        if hasattr(self, '_types'):
-##            if not hasattr(self, 'last_types_update') or \
-##                   self.last_types_update.lessThan(last_load):
-##                for k, t in _types.items():
-##                    if self._types.has_key(k):
-##                        update = (t['signature'] !=
-##                                  self._types[k]['signature'])
-##                    else:
-##                        update = 1
-##                    self._types[k] = {'signature':t['signature'],
-##                                      'update':update}
-##                cb = lambda klass, package:self.registerType(klass, package)
-##                _types_callback.append(cb)
-##                self.last_types_update = DateTime()
+    def __setstate__(self, v):
+        """Add a callback to track product registrations"""
+        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
+        global _types
+        global _types_callback
+        if hasattr(self, '_types'):
+            if not hasattr(self, 'last_types_update') or \
+                   self.last_types_update.lessThan(last_load):
+                for k, t in _types.items():
+                    if self._types.has_key(k):
+                        update = (t['signature'] !=
+                                  self._types[k]['signature'])
+                    else:
+                        update = 1
+                    self._types[k] = {'signature':t['signature'],
+                                      'update':update}
+                cb = lambda klass, package:self.registerType(klass, package)
+                _types_callback.append(cb)
+                self.last_types_update = DateTime()
 
 
-# DM (avoid persistency bug): 
-##    security.declareProtected(CMFCorePermissions.ManagePortal,
-##                              'registerType')
-##    def registerType(self, klass, package):
-##        """This gets called every time registerType is called as soon as the
-##        hook is installed by setstate"""
-##        # See if the schema has changed.  If it has, flag it
-##        update = 0
-##        sig = klass.schema.signature()
-##        key = "%s.%s" % (package, klass.meta_type)
-##        old_data = self._types.get(key, None)
-##        if old_data:
-##            update = old_data.get('update', 0)
-##            old_sig = old_data.get('signature', None)
-##            if sig != old_sig:
-##                update = 1
-##        self._types[key] = {'signature':sig, 'update':update}
-##        self._p_changed = 1
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'registerType')
+    def registerType(self, klass, package):
+        """This gets called every time registerType is called as soon as the
+        hook is installed by setstate"""
+        # See if the schema has changed.  If it has, flag it
+        update = 0
+        sig = klass.schema.signature()
+        key = "%s.%s" % (package, klass.meta_type)
+        old_data = self._types.get(key, None)
+        if old_data:
+            update = old_data.get('update', 0)
+            old_sig = old_data.get('signature', None)
+            if sig != old_sig:
+                update = 1
+        self._types[key] = {'signature':sig, 'update':update}
+        self._p_changed = 1
 
 
     # Catalog management

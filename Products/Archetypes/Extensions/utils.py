@@ -28,15 +28,8 @@ from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 class Extra:
     """indexes extra properties holder"""
 
-def install_dependencies(self, out, required=1):
-    qi=getToolByName(self, 'portal_quickinstaller', None)
-    if qi is None:
-        if required:
-            raise RuntimeError, (
-                'portal_quickinstaller tool could not be found, and it is '
-                'required to install Archetypes dependencies')
-        else:
-            return
+def install_dependencies(self, out):
+    qi=getToolByName(self, 'portal_quickinstaller')
     qi.installProduct('CMFFormController',locked=1)
     qi.installProduct('PortalTransforms',)
 
@@ -164,16 +157,17 @@ def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     for type in types:
         try:
-            typesTool._delObject(type.__name__)
+            typesTool._delObject(type.portal_type)
         except:
             pass
 
         typeinfo_name = "%s: %s" % (package_name, type.__name__)
+
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id=type.__name__,
+                                                id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
         # set the human readable title explicitly
-        t = getattr(typesTool, type.__name__, None)
+        t = getattr(typesTool, type.portal_type, None)
         if t:
             t.title = type.archetype_name
 
@@ -183,42 +177,25 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    
+    catalog = getToolByName(self, 'portal_catalog')
+    catalog = aq_base(catalog)
+
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
 
         for field in cls.schema.fields():
             if field.index:
-                portal_catalog = catalog = getToolByName(self, 'portal_catalog')
-                
                 if type(field.index) is StringType:
                     index = (field.index,)
-                elif isinstance(field.index, (TupleType, ListType) ):
-                    index = field.index
                 else:
-                    raise SyntaxError("Invalid Index Specification %r"%field.index)
-                
+                    index = field.index
+
                 for alternative in index:
                     installed = None
-                    index_spec = alternative.split(':', 1)
-                    use_column  = 0 
-                    if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
-                        use_column = 1
-                    index_spec = index_spec[0]
-
-                    parts = index_spec.split('|')
-                    # we want to be able to specify which catalog we want to use
-                    # for each index. syntax is
-                    # index=('member_catalog/:schema',)
-                    # portal catalog is used by default if not specified
-                    if parts[0].find('/') > 0:
-                        str_idx = parts[0].find('/')
-                        catalog_name = parts[0][:str_idx]
-                        parts[0] = parts[0][str_idx+1:]
-                        catalog = getToolByName(self, catalog_name)
-                    
-                    if use_column:
+                    schema = alternative.split(':', 1)
+                    if len(schema) == 2 and schema[1] == 'schema':
+                        # FIXME: why do we try/except this part ?
                         try:
                             if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
@@ -226,10 +203,13 @@ def install_indexes(self, out, types):
                             import traceback
                             traceback.print_exc(file=out)
 
-                    # if you want to add a schema field without an index
-                    #if not parts[0]:
-                    #    continue
-                        
+                    # we may want to add a field to metadata without
+                    # indexing it
+                    if not schema[0]:
+                        continue
+
+                    parts = schema[0].split('|')
+
                     for itype in parts:
                         extras = itype.split(',')
                         if len(extras) > 1:
@@ -317,10 +297,9 @@ def filterTypes(self, out, types, package_name):
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
-                     product_skins_dir='skins',
-                     require_dependencies=1):
+                     product_skins_dir='skins'):
 
-    install_dependencies(self, out, require_dependencies)
+    install_dependencies(self, out)
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
@@ -341,11 +320,10 @@ def setupEnvironment(self, out, types,
 
 ## The master installer
 def installTypes(self, out, types, package_name,
-                 globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1):
+                 globals=types_globals, product_skins_dir='skins'):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir, require_dependencies)
+                     globals, product_skins_dir)
