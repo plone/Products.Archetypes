@@ -15,6 +15,7 @@ def test_suite():
         'test_baseunit',
         'test_classgen',
         'test_contenttype',
+        'test_fields',
         'test_referenceable',
         'test_referenceEngine',
         'test_rename',
@@ -26,6 +27,7 @@ def test_suite():
         'test_sqlstorage',
         'test_utils',
         'test_utils2',
+        # 'test_widgets',
         ])
 
 if __name__ == '__main__':

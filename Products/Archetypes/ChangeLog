@@ -1,5 +1,13 @@
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* tests/test_all.py (test_suite): Added test_fields to the
+	suite. Added test_widgets, but commented out. It should be run
+	standalone, and with caution! It may harm your database.
+
+	* Extensions/utils.py (isPloneSite): More permissive detection of
+	a Plone Site (for people using sites created with *REALLY* old
+	versions).
+
 	* ArchetypeTool.py (ArchetypeTool._genId): Replaced weak
 	implementation by version suggested by Robert Rotterman.
 	(TTWSchema.compileSchema): Tentative to fix 'module Form not
@@ -42,7 +50,7 @@
 
     * I18NMixIn.py: docstring cleanup, fix to work with
     BaseObject.__bobo_traverse__.
-    
+
     * skins/archetypes/widgets/rich.pt: use isTransformable instead
     of isBinary
 
@@ -67,17 +75,17 @@
 
 	* public.py: add i18N content related actions (not sure they are
 	in the right place...)
-	
+
 	* skins/archetypes/base_translation.pt: template to edit a
 	translation while viewing the master translation.
 
 	* skins/archetypes/manage_translations_form.pt: form to delete
 	existant translations or change the master translation.
-	
+
 2003-06-22  Geoff Davis <geoff@geoffdavis.net> (plonista)
 
     * ArchetypeTool.py: added mechanism for monitoring object schemae.  Schema
-    are signed at registration time, and when a schema signature changes, it is 
+    are signed at registration time, and when a schema signature changes, it is
     flagged in ArchetypeTool._types.  Added a new tab on the tool that lets you
     see which types have schema that have changed and lets you update all the
     schema in place.  You will need to reinstall Archetypes to make this work.
@@ -102,12 +110,12 @@
     for this test to run.
 
     * skins/archetypes/widget/label.pt: Added a skin for a Label Widget (a
-    widget used not for data storage, but rather as a kludge for displaying 
+    widget used not for data storage, but rather as a kludge for displaying
     text on a form)
 
 2003-06-19  Sylvain Thénault  <syt@logilab.fr>
-	
-	* Field.py: add the I18NMixin and create I18N fields for String, 
+
+	* Field.py: add the I18NMixin and create I18N fields for String,
 	  Metadata, File, Text, Lines and Image.
 
 	* interfaces/fields.py: added the hasI18NContent method
@@ -120,35 +128,35 @@
 
 	* skins/archetypes/base_edit.py: add a language selector if object
 	has I18N content
-	
+
 2003-06-18  Sylvain Thénault  <syt@logilab.fr>
-	
+
 	* always use mimetype (and not mime_type) as variable / argument,
 	for consistency.
-	
+
 	* TransformTool.py: fix persistence bug in the transformations
 	mapping , add support for list and dictionary in
 	transforms'configuration.
 
 	* www/configureTransform.pt: use some simple widgets according to
-	config metadata.	
+	config metadata.
 
 2003-06-10  Geoff Davis <geoff@geoffdavis.net> (plonista)
 
-	* Field.py: added max_size attribute to ImageField.  max_size is 
-	a 2-tuple that specifies the maximum width and height for an image.  
-	Images larger than max_size will be rescaled so that their dimensions 
+	* Field.py: added max_size attribute to ImageField.  max_size is
+	a 2-tuple that specifies the maximum width and height for an image.
+	Images larger than max_size will be rescaled so that their dimensions
 	are <= max_size.  Rescaling preserves the image's aspect ratio and
 	requires PIL.
 
-	* Schema.py: fixed a bug in validate when no REQUEST is passed in 
+	* Schema.py: fixed a bug in validate when no REQUEST is passed in
 
 	* Widget.py: added size and maxlength attributes to the StringWidget
 
-	* widgets/string.pt: added support for size and maxlength widget 
+	* widgets/string.pt: added support for size and maxlength widget
 	attributes
 
-	* widgets/zid.pt: allow a form to override member.visible_ids by 
+	* widgets/zid.pt: allow a form to override member.visible_ids by
 	defining a value for the variable visible_ids
 
 2003-06-06  Sylvain Thénault  <syt@logilab.fr>
@@ -162,17 +170,17 @@
 	accessor for TextField (i.e. wrapping a BU) return a html / plain
 	text version of the content. The edit accessor return the BU
 	instance in that case, the same thing as the standard accessor in
-	other cases. 
+	other cases.
 
 	* Field.py: add methods to handle the edit accessor. Add
 	transformation in the TextField accessor.
-	
+
 	* Extensions/utils.py (install_tools): install the transforms tool
 	and the mimetypes registry.
 
 	* TransformTool.py: new TransformsChain classe, simple policy
 	handling
-	
+
 2003-06-04  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* SQLStorage.py (BaseSQLStorage.unmap_fixedpoint): Was causing an

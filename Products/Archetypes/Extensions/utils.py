@@ -246,6 +246,11 @@ def isPloneSite(self):
     for base in self.__class__.__bases__:
         if base.__name__ == "PloneSite":
             return 1
+    if 'plone_utils' in self.objectIds():
+        # Possibly older PloneSite
+        # It may be risky to assert this, but the user should
+        # have upgrade anyway, so its his fault :)
+        return 1
     return 0
 
 
