@@ -200,10 +200,15 @@ class BaseObject(Implicit):
 
     def __getitem__(self, key):
         """play nice with externaleditor again"""
+        log(self, key)
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getAccessor(self)
-        return accessor()
+
+        try:
+            f = self.Schema()[key]
+            return f.get(self, raw=1)
+        except:
+            return self.Schema()[key].getAccessor(self)()
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):
