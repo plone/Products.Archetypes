@@ -20,5 +20,5 @@ except AttributeError:
         pass
 
 # Try to convert to a string and do the dirty job.
-return vocab.getValue(context.unicodeEncode(str(value),
-                                            context.unicodeEncode(str(value))))
+return vocab.getValue(context.unicodeEncode(str(value)),
+                                            context.unicodeEncode(str(value)))

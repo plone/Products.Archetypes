@@ -1,5 +1,7 @@
 2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* skins/archetypes/displayValue.py: Whoa. A parentesis was out of order.
+
 	* Marshall.py (RFC822Marshaller.marshall): Removed TODO
 	DublinCoreMarshaller. The RFC822 one should do what the DublinCore
 	one intended to do.
