@@ -5,6 +5,15 @@
    IBAS for the catch.
    [dtremea]
 
+ * Fixed a bug with TemplateMixin on folderish types: in navtree and on view 
+   tab the choosen template has been ignored, cause it felt back to an action 
+   folderlisting, which now is set to view instead.
+   [yenzenz]
+
+ * Applied patch contributed in [ 1038107 ] Problems with addable_types 
+   handling in ReferenceWidget. Thanks to Alec Mitchell for the patch.
+   [yenzenz]
+
  * Added Archetypes Site customization policy
    [tiran]
 
