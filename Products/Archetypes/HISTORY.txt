@@ -54,6 +54,10 @@
    ModifyPortalContent permissions.
    [tiran]
 
+ * Added IUIDCatalog and IReferenceCatalog interface. Test for interfaces in
+   the installation process of Archetypes to remove invalid catalogs.
+   [tiran]
+
 1.3.0-beta4 - 2004-07-09
 
  * Fix bug on image deletion [clebeaupin]

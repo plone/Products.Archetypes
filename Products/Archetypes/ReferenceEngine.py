@@ -7,7 +7,7 @@ import urllib
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
-    IReference, IContentReference
+    IReference, IContentReference, IReferenceCatalog, IUIDCatalog
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
 from Products.Archetypes.config import UID_CATALOG, \
@@ -363,8 +363,13 @@ class ReferenceResolver(Base):
 InitializeClass(ReferenceResolver)
 
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
-    security = ClassSecurityInfo()
+    """Unique id catalog
+    """
+
     id = UID_CATALOG
+    security = ClassSecurityInfo()
+    __implements__ = IUIDCatalog
+
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     
     manage_options = ZCatalog.manage_options + \
@@ -420,8 +425,13 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
 
 class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
+    """Reference catalog
+    """
+
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
+    __implements__ = IReferenceCatalog
+    
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
 

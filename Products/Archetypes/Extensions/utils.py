@@ -5,7 +5,7 @@ from types import *
 from Globals import package_home
 from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
@@ -22,6 +22,8 @@ from Products.MimetypesRegistry.Extensions.Install \
 
 from Products.Archetypes.ReferenceEngine import \
      manage_addReferenceCatalog, manage_addUIDCatalog
+from Products.Archetypes.interfaces.referenceengine import \
+     IReferenceCatalog, IUIDCatalog
 
 class Extra:
     """indexes extra properties holder"""
@@ -57,7 +59,7 @@ def install_tools(self, out):
 
     install_catalog(self, out)
 
-def install_catalog(self, out):
+def install_catalog(self, out, rebuild=0):
 
     index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
@@ -66,12 +68,20 @@ def install_catalog(self, out):
                  ('portal_type', 'FieldIndex'),
                )
 
-    if not hasattr(self, UID_CATALOG):
+    catalog = getToolByName(self, UID_CATALOG, None)
+    if catalog and not IUIDCatalog.isImplementedBy(catalog):
+        # got a catalog but it's doesn't implement IUIDCatalog
+        aq_parent(catalog).manage_delObjects([UID_CATALOG,])
+        catalog = None
+        rebuild = 1
+
+    if not catalog:
         #Add a zcatalog for uids
         addCatalog = manage_addUIDCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
+        catalog = getToolByName(self, UID_CATALOG)
 
-    catalog = getToolByName(self, UID_CATALOG)
+    #catalog = getToolByName(self, UID_CATALOG)
     for indexName, indexType in index_defs:
         try: #ugly try catch XXX FIXME
             if indexName not in catalog.indexes():
@@ -82,9 +92,18 @@ def install_catalog(self, out):
             pass
 
     catalog.manage_reindexIndex()
+    if rebuild:
+        catalog.manage_rebuildCatalog()
 
-def install_referenceCatalog(self, out):
-    if not hasattr(self, REFERENCE_CATALOG):
+def install_referenceCatalog(self, out, rebuild=0):
+    catalog = getToolByName(self, REFERENCE_CATALOG, None)
+    if catalog and not IReferenceCatalog.isImplementedBy(catalog):
+        # got a catalog but it's doesn't implement IUIDCatalog
+        aq_parent(catalog).manage_delObjects([REFERENCE_CATALOGG,])
+        catalog = None
+        rebuild = 1
+
+    if not catalog:
         #Add a zcatalog for uids
         addCatalog = manage_addReferenceCatalog
         addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
@@ -108,6 +127,9 @@ def install_referenceCatalog(self, out):
 
         catalog.manage_reindexIndex()
 
+    if rebuild:
+        catalog = getToolByName(self, REFERENCE_CATALOG)
+        catalog.manage_rebuildCatalog()
 
 def install_templates(self, out):
     at = self.archetype_tool
