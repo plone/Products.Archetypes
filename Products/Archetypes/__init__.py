@@ -106,8 +106,3 @@ def initialize(context):
     except ImportError:
         pass
 
-    try:
-        context.registerHelpTitle('Archetypes Help')
-        context.registerHelp(directory='interfaces')
-    except IndexError:
-        LOG('Archetypes', PROBLEM, 'Can\'t register api help')
