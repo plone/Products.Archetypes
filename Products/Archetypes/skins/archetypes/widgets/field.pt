@@ -106,15 +106,6 @@
             </a>
           </span>
 
-<!-- Unnecessary as far as I can see, the widgets normally present this if 
-     relevant anyway. ~limi
-     
-          <span tal:define="content_type python: field.getContentType(here)"
-                tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and content_type"
-                tal:omit-tag=""
-                tal:content="string:Content Type: ${content_type}">
-          </span>
--->
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
             <div tal:content="error_id">Validation Error</div>
