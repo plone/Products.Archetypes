@@ -870,13 +870,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self._p_changed = 1
         return out.getvalue()
 
+    # a counter to ensure that in a given interval a subtransaction commit is 
+    # done.
+    subtransactioncounter = 0
+    
     def _updateObject(self, o, path):
-        #sys.stdout.write('updating %s\n' % o.getId())
         o._updateSchema()
+        # subtransactions to avoid eating up RAM when used inside a 
+        # 'ZopeFindAndApply' like in manage_updateSchema
+        self.subtransactioncounter+=1
+        # only every 250 objects a sub-commit, otherwise it eats up all diskspace
+        if not self.subtransactioncounter % 250:
+            print "write subtransaction #%s" % self.subtransactioncounter
+            get_transaction().commit(1) 
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
-            o._updateSchema()
+            self._updateObject(o, path)
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
