@@ -22,7 +22,7 @@
 
 	  <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
 	    <div style="width: 45%; float: right;">
-	      <span i18n:translate="" tal:content="string: New ${fieldName}">New keywords</span>
+	      <span i18n:translate="label_new_keywords">New keywords</span>
 	      <br />
 	      <textarea id="entered_subjects"
 			name="subject:lines"
@@ -42,7 +42,7 @@
 	  </tal:condition>
 
 	  <div style="width: 45%">
-	    <span i18n:translate="" tal:content="string: Existing ${fieldName}">Existing keywords</span>
+	    <span i18n:translate="label_existing_keywords">Existing keywords</span>
 	    <br />
 	    <select id="predefined_subjects"
 		    name="predefined_subjects:list"
