@@ -6,7 +6,20 @@ from common import *
 from utils import *
 
 from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import make_uuid
 
+class UidGeneratorTest(ArchetypesTestCase):
+    """Some ppl have reported problems with uids. This test isn't mathematical
+    correct but should show the issue on plattform. I suspect it's Windows :|
+    """
+    
+    def test_uuid(self):
+        uids = {}
+        loop_length = 10**5 # about 1.5 seconds on a fast cpu
+        for i in xrange(loop_length):
+            uid = make_uuid()
+            uids[uid] = 1
+        self.failUnlessEqual(len(uids), loop_length)
 
 class DisplayListTest(ArchetypesTestCase):
 
@@ -145,6 +158,7 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(DisplayListTest))
+    suite.addTest(makeSuite(UidGeneratorTest))
     return suite
 
 if __name__ == '__main__':

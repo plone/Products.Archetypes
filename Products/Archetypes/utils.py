@@ -1,8 +1,11 @@
 import sys
 import os, os.path
 import types
-import time, random, md5, socket
+import socket
+from random import random, randint
+from time import time
 from inspect import getargs
+from md5 import md5
 from types import TupleType, ListType, StringType
 from UserDict import UserDict as BaseDict
 
@@ -15,9 +18,35 @@ from Products.CMFCore.utils import getToolByName
 import Products.generator.i18n as i18n
 
 try:
-    _v_network = socket.gethostbyname(socket.gethostname())
+    _v_network = str(socket.gethostbyname(socket.gethostname()))
 except:
-    _v_network = random.random() * 100000000000000000L
+    _v_network = str(random() * 100000000000000000L)
+
+_v_uid_seed = None # a supplementary seed
+_v_used_uids = {}  # a list of uids that where already used
+
+def _init_uid_seed():
+    global _v_uid_seed
+    _v_uid_seed = str(randint(1, 1000) * 1000L)
+_init_uid_seed()
+
+def make_uuid(*args):
+    global _v_used_uids, _v_network, _v_uid_seed
+
+    # XXX keep the list of used uids small, required?
+    if len(_v_used_uids) > 10**6:
+        _v_used_uids = {}
+
+    t = str(time() * 1000L) # inside the loop the time wouldn't change
+    while 1:
+        r = str(random()*100000000000000000L)
+        data = t +' '+ r +' '+ _v_uid_seed +' '+ _v_network +' '+ str(args)
+        uid = md5(data).hexdigest()
+        if not _v_used_uids.has_key(uid):
+             _v_used_uids[uid] = 1
+             return uid
+        else:
+            _init_uid_seed()
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -28,14 +57,6 @@ def fixSchema(schema):
         Schemata.__init__(schema, fields)
         del schema.data
     return schema
-
-def make_uuid(*args):
-    t = long(time.time() * 1000)
-    r = long(random.random()*100000000000000000L)
-    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
-    data = md5.md5(data).hexdigest()
-    return data
-
 
 _marker = []
 
