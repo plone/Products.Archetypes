@@ -59,7 +59,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
-                description_msgid="help_keywords",
+                description_msgid="help_keyword",
                 i18n_domain="plone"),
         ),
         TextField(
