@@ -168,7 +168,8 @@ class GadflySQLStorage(BaseSQLStorage):
 
     sqlm_type_map = {'integer':'int'}
     db_type_map = {'text': 'varchar',
-                   'object': 'varchar',}
+                   'object': 'varchar',
+                   'string': 'varchar'}
 
 
 class MySQLStorage(BaseSQLStorage):
@@ -191,6 +192,7 @@ class MySQLStorage(BaseSQLStorage):
         'fixedpoint': 'float',
         'reference': 'text',
         'datetime': 'datetime',
+        'string': 'text',
         }
 
 
@@ -232,4 +234,5 @@ class PostgreSQLStorage(BaseSQLStorage):
         'fixedpoint': 'integer',
         'reference': 'text',
         'datetime': 'timestamp',
+        'string': 'text',
         }

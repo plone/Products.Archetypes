@@ -171,7 +171,14 @@ class ObjectField(Field):
     def getStorage(self):
         return self.storage
 
-StringField = ObjectField
+class StringField(ObjectField):
+    """A string field"""
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'string',
+        'default': '',
+        'default_content_type' : 'text/plain',
+        })
 
 class MetadataField(ObjectField):
     """Metadata fields have special storage and explictly no markup as
