@@ -1,5 +1,8 @@
 2003-10-08  Benjamin Saller  <bcsaller@yahoo.com>
 
+	* TemplateMixin.py (getTemplateFor): Made registerTemplate less
+	restrictive and TemplateMixin a bit more robust.
+
 	* ArchetypeTool.py (fixActionsForType): Added CMF1.4 support for
 	method aliases by defining an aliases dict on the class
 	object. This is needed to make TemplateMixin work again as

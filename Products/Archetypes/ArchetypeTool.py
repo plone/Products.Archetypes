@@ -429,9 +429,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def registerTemplate(self, template, name=None):
         #lookup the template by name
         obj = self.unrestrictedTraverse(template, None)
-        if not obj: return
-        if not name:
-            name = obj.title_or_id()
+        if obj:
+            if not name:
+                name = obj.title_or_id()
+        else:
+            name = template
+            
         self._registeredTemplates[template] = name
     
 

@@ -222,10 +222,11 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-    install_templates(self, out)
     
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
+
+    install_templates(self, out)
 
     install_indexes(self, out, types)
     install_actions(self, out, types)

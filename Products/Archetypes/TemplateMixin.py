@@ -44,8 +44,9 @@ class TemplateMixin:
         at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
-def getTemplateFor(self, pt):
+def getTemplateFor(self, pt, default="base_view"):
     ## Let the SkinManager handle this
-    pt = getattr(self, pt)
+    ## But always try to show something 
+    pt = getattr(self, pt, getattr(self, default))
     return pt
 
