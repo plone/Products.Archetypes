@@ -265,8 +265,8 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
         for name, field in fields:
             if name == 'id':
                 member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
-                if not getattr(member, 'visible_ids', None) and \
-                   not REQUEST.form.get('id', None):
+                if not member.getProperty('visible_ids', None) and \
+                   not (REQUEST and REQUEST.form.get('id', None)):
                     continue
             if errors and errors.has_key(name): continue
             error = 0

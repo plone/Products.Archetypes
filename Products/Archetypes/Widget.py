@@ -38,7 +38,9 @@ class TypesWidget(macrowidget):
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/string"
+        'macro' : "widgets/string",
+        'size' : '30',
+        'maxlength' : '255',
         })
 
 class DecimalWidget(TypesWidget):

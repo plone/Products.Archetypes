@@ -787,6 +787,7 @@ class ImageField(ObjectField):
         'type' : 'image',
         'default' : '',
         'original_size': (600,600),
+        'max_size': None,
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
@@ -832,12 +833,20 @@ class ImageField(ObjectField):
         ###
 
         # test for scaling it.
-        if self.original_size and has_pil:
-            mime_type = kwargs.get('mime_type', 'image/png')
-            image = Image(self.getName(), self.getName(), value, mime_type)
-            data=str(image.data)
-            w,h=self.original_size
-            imgdata=self.scale(data,w,h)
+        if has_pil:
+            if self.original_size or self.max_size:
+                mime_type = kwargs.get('mime_type', 'image/png')
+                image = Image(self.getName(), self.getName(), value, mime_type)
+                data=str(image.data)
+                if self.max_size:
+                    if image.width > self.max_size[0] or image.height > self.max_size[1]:
+                        factor = min(float(self.max_size[0])/float(image.width),
+                                     float(self.max_size[1])/float(image.height))
+                        w = int(factor*image.width)
+                        h = int(factor*image.height)
+                elif self.original_size:
+                    w,h=self.original_size
+                imgdata=self.scale(data,w,h)
         else:
             mime_type = kwargs.get('mime_type', 'image/png')
             imgdata=value
