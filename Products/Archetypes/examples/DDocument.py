@@ -5,11 +5,11 @@ schema = BaseSchema + Schema((
     TextField('teaser',
               searchable=1,
               widget=TextAreaWidget(description="""A short lead-in to the
-              article so that we might get people to read the body""", 
+              article so that we might get people to read the body""",
                                     label="Teaser",
                                     rows=3)),
     ObjectField('author'),
-    
+
     TextField('body',
               required=1,
               primary=1,
@@ -21,13 +21,13 @@ schema = BaseSchema + Schema((
                                        'application/msword'),
               widget=RichWidget,
               ),
-    
+
     IntegerField("number",
                  index="FieldIndex",
                  default=42,
                  validators=('isInt',),
                  ),
-    
+
     ImageField('image',
                default_output_type='image/jpeg',
                allowable_content_types=('image/*',),
@@ -40,7 +40,6 @@ class DDocument(TemplateMixin, BaseContent):
     schema = schema
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
-    
-                  
-registerType(DDocument)
 
+
+registerType(DDocument)

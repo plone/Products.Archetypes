@@ -146,14 +146,14 @@ class CalendarWidget(TypesWidget):
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-	'format': "flex", # possible values: flex, select, radio
+        'format': "flex", # possible values: flex, select, radio
         'macro' : "widgets/selection",
         })
 
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-	'format': "select", # possible values: select, checkbox
+        'format': "select", # possible values: select, checkbox
         'macro' : "widgets/multiselection",
         'size'  : 5,
         })

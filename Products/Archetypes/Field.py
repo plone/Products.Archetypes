@@ -987,11 +987,11 @@ class ImageField(ObjectField):
         This is important if you don't want to store megabytes of
         imagedata if you only need a max. of 100x100 ;-)
 
-	max_size -- similar to max_size but if it's given then the image
-	            is checked to be no bigger than any of the given values
-		    of width or height.
-		    XXX: I think it is, because the one who added it did not
-		    document it ;-) (mrtopf - 2003/07/20)
+        max_size -- similar to max_size but if it's given then the image
+                    is checked to be no bigger than any of the given values
+                    of width or height.
+                    XXX: I think it is, because the one who added it did not
+                    document it ;-) (mrtopf - 2003/07/20)
 
         example:
 
@@ -1069,9 +1069,9 @@ class ImageField(ObjectField):
                 size = value.tell()
                 value.seek(0)
                 if size == 0:
-                 # This new file has no length, so we keep
-                 # the orig
-                 return
+                    # This new file has no length, so we keep
+                    # the orig
+                    return
 
         ###
         ### store the original
@@ -1224,9 +1224,9 @@ class ScalableImage(BaseImage):
 
     security.declarePrivate('checkForVariant')
     def checkForVariant(self, size):
-	"""Create variant if not there."""
+        """Create variant if not there."""
         if size in self.displays.keys():
-	    # Create resized copy, if it doesnt already exist
+            # Create resized copy, if it doesnt already exist
             if not self._photos.has_key(size):
                 self._photos[size] = BaseImage(
                     size, size, self._resize(self.displays.get(size, (0,0)))

@@ -88,7 +88,7 @@ class newBaseUnit(File):
         #being used with APE
         if not hasattr(instance,'aq_parent'):
             return orig
-        
+
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      mimetype=self.mimetype,

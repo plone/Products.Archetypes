@@ -1,7 +1,7 @@
 import unittest
 
 # need this to initialize new BU for tests
-from test_classgen import Dummy 
+from test_classgen import Dummy
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -18,7 +18,7 @@ from DateTime import DateTime
 import unittest
 
 Dummy.schema = BaseSchema
-    
+
 
 class BaseSchemaTest( unittest.TestCase ):
 

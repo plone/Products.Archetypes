@@ -58,4 +58,3 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
         self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)
-

@@ -23,7 +23,7 @@ from DateTime import DateTime
 from Products.Archetypes.ClassGen import _modes
 
 class VarClassGen (ClassGenerator):
-    
+
     def __init__(self, schema):
         self.schema=schema
 
@@ -53,19 +53,19 @@ class VarClassGen (ClassGenerator):
 
         InitializeClass(klass)
         InitializeClass(klass)
-    
+
 schemadict={}
 
 class VariableSchemaSupport:
     '''
     Mixin class to support instance-based schemas
-    Attention: must be before BaseFolder or BaseContent in 
+    Attention: must be before BaseFolder or BaseContent in
     the inheritance list, e.g:
-        
+
     class Blorf(VariableSchemaSupport,BaseContent):
         def getSchema():
             return some schema definition...
-        
+
     '''
     def Schemata(self):
         schema = self.getAndPrepareSchema()
@@ -75,13 +75,13 @@ class VariableSchemaSupport:
             sub.addField(f)
             schemata[f.schemata] = sub
         return schemata
-    
+
     def Schema(self):
         return self.getAndPrepareSchema()
 
     def getAndPrepareSchema(self):
         s = self.getSchema()
-        
+
         # create a hash value out of the schema
         hash=sha.new(str([f._properties for f in s.values()])).hexdigest()
 
@@ -92,12 +92,12 @@ class VariableSchemaSupport:
             schema=schemadict[hash]
             g=VarClassGen(schema)
             g.generateClass(self.__class__) #generate the methods
-        
+
         return schema
-    
+
     # supposed to be overloaded. here the object can return its own schema
     def getSchema(self):
         return self.schema
-   
+
     def setSchema(self,schema):
-        self.schema=schema 
+        self.schema=schema

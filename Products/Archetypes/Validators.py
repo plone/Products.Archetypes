@@ -22,4 +22,3 @@ class DateValidator:
                                                                                  value)
 
 registerValidator(DateValidator('isValidDate'))
-

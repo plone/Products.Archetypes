@@ -16,23 +16,23 @@ class Warnings:
         self.messages.append(message)
 
 class Converter(ContentDriver):
-  mime_type = 'text/restructured'
+    mime_type = 'text/restructured'
 
-  def convertData(self, instance, data):
-      # format with strings
-      from html4zope import Writer
-      settings_overrides = {'report_level': 1,
-                            'halt_level': 6,
-                            'warning_stream': Warnings()
-                            }
+    def convertData(self, instance, data):
+        # format with strings
+        from html4zope import Writer
+        settings_overrides = {'report_level': 1,
+                              'halt_level': 6,
+                              'warning_stream': Warnings()
+                              }
 
-      # do the format
-      html = publish_string(writer=Writer(), source=data, settings_overrides=settings_overrides)
-      html = html.replace(' class="document"', '', 1)
-        
-      # XXX what todo with this?
-      #warnings = ''.join(pub.settings.warning_stream.messages)
+        # do the format
+        html = publish_string(writer=Writer(), source=data, settings_overrides=settings_overrides)
+        html = html.replace(' class="document"', '', 1)
 
-      # do the format
-      instance.html = html
-      instance.text = data
+        # XXX what todo with this?
+        #warnings = ''.join(pub.settings.warning_stream.messages)
+
+        # do the format
+        instance.html = html
+        instance.text = data

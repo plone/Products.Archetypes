@@ -110,5 +110,3 @@ class BaseContent(BaseObject,
             data=data.next
 
 InitializeClass(BaseContent)
-
-

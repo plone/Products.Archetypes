@@ -26,7 +26,7 @@ class TemplateMixin:
           'action': 'view',
           'permissions': (CMFCorePermissions.View,),
         }, )
-    
+
     aliases = {
         '(Default)':'',
         'index_html': '',
@@ -46,7 +46,6 @@ class TemplateMixin:
 
 def getTemplateFor(self, pt, default="base_view"):
     ## Let the SkinManager handle this
-    ## But always try to show something 
+    ## But always try to show something
     pt = getattr(self, pt, getattr(self, default))
     return pt
-

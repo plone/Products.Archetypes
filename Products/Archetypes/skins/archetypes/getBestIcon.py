@@ -15,5 +15,3 @@ except Exception, E:
     icon = context.getIcon()
 
 return icon
-
-    

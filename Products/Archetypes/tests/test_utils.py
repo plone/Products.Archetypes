@@ -118,7 +118,7 @@ class DisplayListTest( unittest.TestCase ):
         assert dlb_s.values() == ['X', 'Y', 'Z']
         dlc_s = dlc.sortedByKey()
         assert dlc_s.values() == ['Z', 'X', 'Y']
-        
+
 
 def test_suite():
     return unittest.TestSuite((

@@ -59,7 +59,7 @@ def AtType2ApeType(f):
             return 'string'
     if t=='computed':
         return None
-    
+
     return typemap.get(t,t)
 
 def AtSchema2ApeSchema(atschema):
@@ -80,7 +80,7 @@ def AtSchema2ApeSchema(atschema):
     #print schema,tuple(column_defs)
     return schema,tuple(column_defs)
 
-# creates a generic gateway instance based on 
+# creates a generic gateway instance based on
 # the klass's Schema
 def constructGateway(klass):
     res=ArcheSQLGateway()
@@ -89,7 +89,7 @@ def constructGateway(klass):
     res.table_base_name = klass.__name__.lower()
     return res
 
-# creates a generic serializer instance based on 
+# creates a generic serializer instance based on
 # the klass's Schema
 def constructSerializer(klass):
     res=ArcheSerializer()
@@ -177,7 +177,7 @@ class ArcheSerializer:
             object.__dict__.update({id:v})
 
 # this replacement of RemainingState is necessary in order to
-# replace the BaseUnit members by string data because 
+# replace the BaseUnit members by string data because
 # Baseunits are not pickleable (dunno why)
 # overloaded the serialize method in order to clean the __dict__
 # correctly
@@ -186,7 +186,7 @@ class RemainingState(RemainingBase):
     def cleanDictCopy(self,dict):
         ''' cleans out the baseUnit instances of the dict, because the are not picklable '''
         res={}
-        
+
         for k in dict.keys():
             v=dict[k]
             if type(v) == type({}) or ec_isinstance(v,PersistentMapping):
@@ -198,7 +198,7 @@ class RemainingState(RemainingBase):
             res[k]=v1
 
         return res
-    
+
     def serialize(self, object, event):
         assert IFullSerializationEvent.isImplementedBy(event)
         assert isinstance(object, Persistent)
@@ -208,7 +208,7 @@ class RemainingState(RemainingBase):
 
         # Ignore previously serialized attributes
         state = self.cleanDictCopy(object.__dict__)
-        
+
         for key in state.keys():
             if key.startswith('_v_'):
                 del state[key]
@@ -274,7 +274,7 @@ class RemainingState(RemainingBase):
         event.addUnmanagedPersistentObjects(unmanaged)
         return s
 
-# helper functions for issubclass and isinstance 
+# helper functions for issubclass and isinstance
 # with extension classes.
 # borrowed from Greg Ward (thanx Greg :)
 def ec_issubclass (class1, class2):

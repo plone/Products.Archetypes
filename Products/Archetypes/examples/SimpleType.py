@@ -20,4 +20,3 @@ class SimpleType(BaseContent):
 
 
 registerType(SimpleType)
-

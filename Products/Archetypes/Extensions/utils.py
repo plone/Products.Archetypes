@@ -36,7 +36,7 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
-    
+
     install_catalog(self, out)
 
 
@@ -61,13 +61,13 @@ def install_catalog(self, out)
                 catalog.addColumn('UID')
         except:
             pass
-        
+
         catalog.manage_reindexIndex(ids=('UID',))
 
 def install_templates(self, out):
     at = self.archetype_tool
     at.registerTemplate('base_view')
-    
+
 
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
@@ -118,13 +118,13 @@ def install_types(self, out, types, package_name):
         if t:
             t.title = type.archetype_name
 
-    
+
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
         fixActionsForType(portal_type, typesTool)
-        
+
 def install_indexes(self, out, types):
     catalog = getToolByName(self, 'portal_catalog')
 
@@ -212,7 +212,7 @@ def filterTypes(self, out, types, package_name):
                 if IBaseObject.isImplementedByInstancesOf(k):
                     isBaseObject = 1
                     break
-        
+
         if isBaseObject:
             filtered_types.append(t)
         else:
@@ -232,12 +232,12 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-    
+
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
 
-    
+
     install_templates(self, out)
 
     install_indexes(self, out, types)

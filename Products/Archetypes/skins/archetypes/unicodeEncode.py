@@ -11,7 +11,7 @@ site_charset = context.portal_properties.site_properties.default_charset
 
 if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
     value = str(value)
-    
+
 if hasattr(value, 'decode'): # type(value) is type('')
     for charset in [site_charset, 'latin-1', 'utf-8']:
         try:

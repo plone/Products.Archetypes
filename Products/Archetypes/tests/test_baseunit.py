@@ -25,7 +25,7 @@ except NameError:
     _prefix = abspath(curdir)
 else:
     # Test was called by another test.
-    _prefix = abspath(dirname(__file__))    
+    _prefix = abspath(dirname(__file__))
 
 class BaseUnitTest( unittest.TestCase ):
 

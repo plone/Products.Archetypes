@@ -38,14 +38,14 @@ connectors = {}
 cleanup = {}
 
 try:
-  # gadfly storage is currently b0rked, we don't want to test it yet
-  if 0:
-    from Products.ZGadflyDA.DA import Connection
-    connectors['Gadfly'] = Connection(id=connection_id,
-                                      title='connection',
-                                      connection_string='demo', # default connection
-                                      check=1, # connect immediatly
-                                      )
+    # gadfly storage is currently b0rked, we don't want to test it yet
+    if 0:
+        from Products.ZGadflyDA.DA import Connection
+        connectors['Gadfly'] = Connection(id=connection_id,
+                                          title='connection',
+                                          connection_string='demo', # default connection
+                                          check=1, # connect immediatly
+                                          )
 except ImportError:
     pass
 
@@ -69,11 +69,11 @@ try:
     # are failing.
     transactional = 0
     if transactional:
-            connectors['MySQL'] = Connection(id=connection_id,
-                                             title='connection',
-                                             connection_string='+demo@localhost demo demo',
-                                             check=1, # connect immediatly
-                                             )
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='+demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
     if not transactional:
         connectors['MySQL'] = Connection(id=connection_id,
                                          title='connection',
@@ -285,7 +285,7 @@ for db_name in connectors.keys():
                                                 typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
 
-	def test_referencefield(self):
+        def test_referencefield(self):
             dummy = self._dummy
             self.failUnless(dummy.getAreferencefield() is None)
             dummy.setAreferencefield('Bla')

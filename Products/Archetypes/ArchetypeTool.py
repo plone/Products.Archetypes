@@ -146,8 +146,8 @@ def fixActionsForType(portal_type, typesTool):
                     typeInfo.setMethodAliases(portal_type.aliases)
                 else:
                     #Custom views might need to reguess the aliases
-		    if hasattr(typeInfo,'_guessMethodAliases'):
-                       typeInfo._guessMethodAliases()
+                    if hasattr(typeInfo,'_guessMethodAliases'):
+                        typeInfo._guessMethodAliases()
 
 
 
@@ -179,8 +179,8 @@ def modify_fti(fti, klass, pkg_name):
         fti[0]['filter_content_types'] = allowed and 1 or 0
 
     if hasattr(klass, "filter_content_types"):
-             filter = klass.filter_content_types
-             fti[0]['filter_content_types'] = filter
+        filter = klass.filter_content_types
+        fti[0]['filter_content_types'] = filter
 
     if not IReferenceable.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
@@ -743,7 +743,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """assign UIDs to all basecontent objects"""
 
         def _index(object, archetype_tool):
-                archetype_tool.registerContent(object)
+            archetype_tool.registerContent(object)
 
         self._rawEnum(_index, self)
 

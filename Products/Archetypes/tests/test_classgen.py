@@ -45,7 +45,7 @@ schema = BaseSchema + Schema((
                                          label="A Fixed Point Field"),
                     ),
     StringField('awriteonlyfield', mode="w"),
-    
+
     StringField('areadonlyfield', mode="r"),
     ))
 
@@ -54,14 +54,14 @@ class SiteProperties:
     default_charset = 'UTF-8'
     def getProperty(self, name, default=None):
         return getattr(self, name, default)
-    
+
 class PortalProperties:
     site_properties = SiteProperties()
 
 class Dummy(BaseContent):
     portal_properties = PortalProperties()
     mimetypes_registry = MimeTypesTool()
-    
+
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
@@ -112,7 +112,7 @@ class ClassGenTest( unittest.TestCase ):
         self.failUnless(hasattr(obj, 'getRawAfixedpointfield'))
         self.failUnless(hasattr(obj, 'getRawAwriteonlyfield'))
         self.failUnless(not hasattr(obj, 'getRawAreadonlyfield'))
-        
+
     def test_textfield(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype="text/plain")
@@ -147,7 +147,7 @@ class ClassGenTest( unittest.TestCase ):
         obj = self._dummy
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
-        
+
     def tearDown( self ):
         del self._dummy
 

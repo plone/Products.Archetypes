@@ -12,7 +12,7 @@ from DateTime import DateTime
 
 import unittest
 
-fields = ['ObjectField', 'StringField', 
+fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField',

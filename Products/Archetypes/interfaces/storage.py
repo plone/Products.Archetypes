@@ -22,4 +22,3 @@ class IStorage(Interface):
 class ISQLStorage(IStorage):
     """ Marker interface for distinguishing ISQLStorages """
     pass
-    

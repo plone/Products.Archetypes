@@ -10,4 +10,4 @@ INSTALL_DEMO_TYPES = 0 ##Install the demo types
 DEBUG = 1  ## See debug messages
 
 #XXX activate experimental baseunit
-USE_NEW_BASEUNIT = 1 
+USE_NEW_BASEUNIT = 1

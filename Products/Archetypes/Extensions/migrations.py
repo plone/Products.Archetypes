@@ -14,13 +14,13 @@ def fixArchetypesTool(portal, out):
         at.catalog_map = PersistentMapping()
 
     install_catalog(portal, out)
-    
+
 
 
 def migrate(self):
     out = StringIO()
     portal = self
-    
+
     fixArchetypesTool(portal, out)
 
     print >>out, "Archetypes Migration Successful"

@@ -200,4 +200,3 @@ class ReferenceEngine(Base):
 
         refs = [grp for r,grp in refs]
         return unique(refs)
-

@@ -20,4 +20,3 @@ BaseBTreeFolderSchema = BaseBTreeFolder.schema
 BaseFolderSchema = BaseFolder.schema
 
 BaseSchema = BaseContent.schema
-

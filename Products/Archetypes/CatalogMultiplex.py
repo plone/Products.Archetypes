@@ -35,7 +35,7 @@ class CatalogMultiplex(CMFCatalogAware):
 
         at = getToolByName(self, TOOL_NAME, None)
         if at is None: return
-        
+
         catalogs = at.getCatalogsByType(self.meta_type)
 
         for c in catalogs:
@@ -45,5 +45,5 @@ class CatalogMultiplex(CMFCatalogAware):
                 lst = idxs
                 indexes = c.indexes()
                 if idxs:
-                    lst = [i for i in idxs if i in indexes] 
+                    lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, self.__url(), idxs=lst)

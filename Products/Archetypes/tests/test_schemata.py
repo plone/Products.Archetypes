@@ -15,11 +15,11 @@ from Products.Archetypes import listTypes
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema 
+schema = BaseSchema
 
 class Dummy(BaseContent):
     schema = schema
-   
+
 class SchemataTest( unittest.TestCase ):
 
     def setUp(self):
@@ -33,7 +33,7 @@ class SchemataTest( unittest.TestCase ):
         keys = schemata.keys()
         keys.sort()
         self.assertEqual(keys, ['default', 'metadata'])
-        
+
     def test_nameschemata(self):
         dummy = self._dummy
         schemata = dummy.Schemata()
@@ -56,7 +56,7 @@ class SchemataTest( unittest.TestCase ):
 
     def tearDown( self ):
         del self._dummy
-        
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(SchemataTest),
