@@ -258,6 +258,7 @@ class ReferenceWidget(TypesWidget):
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
+                    place = getattr(instance, destination)
                     place = place()
                 if isinstance(place, ListType):
                     options[typeid] = place
@@ -279,6 +280,7 @@ class ReferenceWidget(TypesWidget):
                 else:
                     place = getattr(aq_base(instance), destination, destination)
                     if callable(place):
+                        place = getattr(instance, destination)
                         place = place()
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
@@ -676,13 +678,24 @@ class PicklistWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+    
+class ReferenceBrowserWidget(ReferenceWidget):
+    _properties = ReferenceWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/referencebrowser",
+        'size' : '',
+        'helper_js': ('widgets/js/referencebrowser.js',),
+        })
+
+    security = ClassSecurityInfo()    
+    
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget', 'ReferenceBrowserWidget'
            )
 
 registerWidget(StringWidget,
@@ -842,6 +855,12 @@ registerWidget(PicklistWidget,
                             'list to populate another.  Items '
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(ReferenceBrowserWidget,
+               title='Reference Browser',
+               description=('Reference widget that allows you to browse or search the portal for objects to refer to.'),
+               used_for=('Products.Archetypes.Field.ReferenceField',)
                )
 
 registerPropertyType('maxlength', 'integer', StringWidget)
