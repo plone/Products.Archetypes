@@ -1,4 +1,5 @@
 from __future__ import nested_scopes
+from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from types import ListType, TupleType, ClassType, FileType
@@ -27,16 +28,16 @@ def getNames(schema):
     return [f.getName() for f in schema.fields()]
 
 
-def getSchemata(klass):
+def getSchemata(obj):
     """Returns an ordered dictionary, which maps all Schemata names to fields
     that belong to the Schemata."""
 
-    schema = klass.schema
+    schema = obj.Schema()
     schemata = OrderedDict()
     for f in schema.fields():
         sub = schemata.get(f.schemata, Schemata(name=f.schemata))
         sub.addField(f)
-        schemata[f.schemata] = sub
+        schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
 
     return schemata
 

@@ -281,7 +281,7 @@ class Field(DefaultLayerContainer):
         field"""
         return self.default
 
-    security.declarePrivate('getAccessor')
+    security.declarePublic('getAccessor')
     def getAccessor(self, instance):
         """Return the accessor method for getting data out of this
         field"""
@@ -289,7 +289,7 @@ class Field(DefaultLayerContainer):
             return getattr(instance, self.accessor, None)
         return None
 
-    security.declarePrivate('getEditAccessor')
+    security.declarePublic('getEditAccessor')
     def getEditAccessor(self, instance):
         """Return the accessor method for getting raw data out of this
         field e.g.: for editing

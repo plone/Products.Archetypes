@@ -406,18 +406,20 @@ class BaseObject(Implicit):
         form_keys = form.keys()
 
         for field in fields:
-            ## Delegate to the widget for processing of the form element.
-            ## This means that if the widget needs _n_ fields
-            ## under a naming convention it can handle this internally.
-            ## The calling API is process_form(instance, field, form)
-            ## where instance should rarely be needed, field is the field object
-            ## and form is the dict. of kv_pairs from the REQUEST
+            ## Delegate to the widget for processing of the form
+            ## element.  This means that if the widget needs _n_
+            ## fields under a naming convention it can handle this
+            ## internally.  The calling API is process_form(instance,
+            ## field, form) where instance should rarely be needed,
+            ## field is the field object and form is the dict. of
+            ## kv_pairs from the REQUEST
             ##
             ## The product of the widgets processing should be:
             ##   (value, **kwargs) which will be passed to the mutator
             ##   or None which will simply pass
             widget = field.widget
-            result = widget.process_form(self, field, form, empty_marker=_marker)
+            result = widget.process_form(self, field, form,
+                                         empty_marker=_marker)
             if result is _marker or result is None: continue
 
             # Set things by calling the mutator
@@ -451,13 +453,17 @@ class BaseObject(Implicit):
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
+
         For each field we use the existing accessor to get its value,
         then we re-initialize the class, then use the new schema
-        mutator for each field to set the values again.  We also copy
-        over any class methods to handle product refreshes gracefully
-        (when a product refreshes, you end up with both the old
-        version of the class and the new in memory at the same time --
-        you really should restart zope after doing a schema update)."""
+        mutator for each field to set the values again.
+
+        We also copy over any class methods to handle product
+        refreshes gracefully (when a product refreshes, you end up
+        with both the old version of the class and the new in memory
+        at the same time -- you really should restart zope after doing
+        a schema update).
+        """
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
 
         if out:

@@ -52,7 +52,7 @@ class newBaseUnit(File):
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = mimetype
+        self.mimetype = aq_base(mimetype)
         if not mimetype.binary:
             assert type(data) is type(u'')
             if encoding is None:
