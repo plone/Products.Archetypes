@@ -1,7 +1,7 @@
 from __future__ import nested_scopes
 from copy import deepcopy
 from types import ListType, TupleType, ClassType, FileType, DictType
-from types import StringType, UnicodeType
+from types import StringType, UnicodeType, IntType
 
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.config import REFERENCE_CATALOG
@@ -283,31 +283,37 @@ class Field(DefaultLayerContainer):
         error = None
         if value:
             # coerce value into a list called values
-            values = value
-            if type(value) in STRING_TYPES:
+            vocab = self.Vocabulary(instance)
+            
+            if type(value) in (IntType,):
+                pass
+            elif type(value) in STRING_TYPES:
+                # String widget using vocabulary
                 values = [value]
+                
+                # filter empty
+                values = [instance.unicodeEncode(v)
+                          for v in values if v.strip()]
+                          
+                # extract valid values from vocabulary
+                valids = []
+                for v in vocab:
+                    if type(v) in (TupleType, ListType):
+                        v = v[0]
+                    if not type(v) in [type(''), type(u'')]:
+                        v = str(v)
+                    valids.append(instance.unicodeEncode(v))
+                    
+                # check field values
+                for val in values:
+                    error = 1
+                    for v in valids:
+                        if val == v:
+                            error = None
+                            break
             elif type(value) not in (TupleType, ListType):
                 raise TypeError("Field value type error")
-            vocab = self.Vocabulary(instance)
-            # filter empty
-            values = [instance.unicodeEncode(v)
-                      for v in values if v.strip()]
-            # extract valid values from vocabulary
-            valids = []
-            for v in vocab:
-                if type(v) in (TupleType, ListType):
-                    v = v[0]
-                if not type(v) in [type(''), type(u'')]:
-                    v = str(v)
-                valids.append(instance.unicodeEncode(v))
-            # check field values
-            for val in values:
-                error = 1
-                for v in valids:
-                    if val == v:
-                        error = None
-                        break
-
+                
         if error == 1:
             label = self.widget.Label(instance)
             errors[self.getName()] = error = i18n.translate(

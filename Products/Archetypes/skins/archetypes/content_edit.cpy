@@ -16,6 +16,12 @@ old_id = context.getId()
 new_context = context.portal_factory.doCreate(context, id)
 new_context.processForm()
 
+# Get the current language and put it in request/LANGUAGE
+form = REQUEST.form
+if form.has_key('current_lang'):
+    form['language'] = form.get('current_lang')
+    
+
 portal_status_message = context.translate(
     msgid='message_content_changes_saved',
     domain='archetypes',
