@@ -101,12 +101,6 @@ base_factory_type_information = (
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
-                     { 'id': 'references',
-                       'name': 'References',
-                       'action': 'string:${object_url}/reference_edit',
-                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       'visible' : 0,
-                       },
                      )
       }, )
 
