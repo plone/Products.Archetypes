@@ -778,7 +778,7 @@ class FileField(ObjectField):
             # box (at least under Mozilla).
             value = ''
         obj = self.content_class(self.getName(), '', str(value), mimetype) 
-        setattr(obj, 'filename', filename or self.getName())
+        setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         ObjectField.set(self, instance, obj, **kwargs)
 
@@ -788,7 +788,7 @@ class FileField(ObjectField):
         """
         filename = self.getFilename(instance, fromBaseUnit=False)
         if not filename:
-            filename = self.getName()
+            filename = '' # self.getName()
         mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
@@ -946,6 +946,10 @@ class TextField(FileField):
         pass to processing method without one and add mimetype
         returned to kwargs. Assign kwargs to instance.
         """
+        if value is None:
+            # nothing to do
+            return
+
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
         if type(value) is type(u'') and encoding is None:
