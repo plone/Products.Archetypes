@@ -268,23 +268,23 @@ class SchemaLayerContainer(DefaultLayerContainer):
         for field in self.fields():
             if ILayerContainer.isImplementedBy(field):
                 layers = field.registeredLayers()
-                for layer, object in layers:
-                    if ILayer.isImplementedBy(object):
-                        if not called((layer, object)):
-                            object.initializeInstance(instance, item, container)
+                for layer, obj in layers:
+                    if ILayer.isImplementedBy(obj):
+                        if not called((layer, obj)):
+                            obj.initializeInstance(instance, item, container)
                             # Some layers may have the same name, but
                             # different classes, so, they may still
                             # need to be initialized
-                            initializedLayers.append((layer, object))
-                        object.initializeField(instance, field)
+                            initializedLayers.append((layer, obj))
+                        obj.initializeField(instance, field)
 
         # Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
-            for layer, object in self.registeredLayers():
-                if (not called((layer, object)) and
-                    ILayer.isImplementedBy(object)):
-                    object.initializeInstance(instance, item, container)
-                    initializedLayers.append((layer, object))
+            for layer, obj in self.registeredLayers():
+                if (not called((layer, obj)) and
+                    ILayer.isImplementedBy(obj)):
+                    obj.initializeInstance(instance, item, container)
+                    initializedLayers.append((layer, obj))
 
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -299,24 +299,24 @@ class SchemaLayerContainer(DefaultLayerContainer):
         for field in self.fields():
             if ILayerContainer.isImplementedBy(field):
                 layers = field.registeredLayers()
-                for layer, object in layers:
-                    if not queued((layer, object)):
-                        queuedLayers.append((layer, object))
-                    if ILayer.isImplementedBy(object):
-                        object.cleanupField(instance, field)
+                for layer, obj in layers:
+                    if not queued((layer, obj)):
+                        queuedLayers.append((layer, obj))
+                    if ILayer.isImplementedBy(obj):
+                        obj.cleanupField(instance, field)
 
-        for layer, object in queuedLayers:
-            if ILayer.isImplementedBy(object):
-                object.cleanupInstance(instance, item, container)
+        for layer, obj in queuedLayers:
+            if ILayer.isImplementedBy(obj):
+                obj.cleanupInstance(instance, item, container)
 
         # Now do the same for objects registered at this level
 
         if ILayerContainer.isImplementedBy(self):
-            for layer, object in self.registeredLayers():
-                if (not queued((layer, object)) and
-                    ILayer.isImplementedBy(object)):
-                    object.cleanupInstance(instance, item, container)
-                    queuedLayers.append((layer, object))
+            for layer, obj in self.registeredLayers():
+                if (not queued((layer, obj)) and
+                    ILayer.isImplementedBy(obj)):
+                    obj.cleanupInstance(instance, item, container)
+                    queuedLayers.append((layer, obj))
 
     def __add__(self, other):
         c = SchemaLayerContainer()
