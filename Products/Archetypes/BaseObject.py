@@ -280,6 +280,7 @@ class BaseObject(Implicit):
     def SearchableText(self):
         """full indexable text"""
         data = []
+        charset = self.portal_properties.site_properties.default_charset
         for field in self.Schema().fields():
             if field.searchable != 1:
                 continue
@@ -295,7 +296,10 @@ class BaseObject(Implicit):
                     datum =  ''
             if datum:
                 if type(datum) is type([]) or type(datum) is type(()):
-                    datum = ' '.join(datum) 
+                    datum = ' '.join(datum)
+                # FIXME: we really need an unicode policy !
+                if type(datum) is type(u''):
+                    datum = datum.encode(charset)
                 data.append(datum)
 
         data = [str(d) for d in data if d is not None]
@@ -336,25 +340,6 @@ class BaseObject(Implicit):
             if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
-        base_lang = self.getContentLanguage()
-        # FIXME put this out of BaseObject
-        if self.hasI18NContent():
-            # FIXME : update existant objects, remove latter
-            if not hasattr(self, '_translations_states'):
-                self._translations_states = PersistentMapping()
-            # set other translations as outdated if we are currently processing
-            # the main translation
-            m_lang = self.getMasterLanguage()
-            if base_lang == m_lang:
-                for lang_desc in self.getFilteredLanguages():
-                    if lang_desc[0] != m_lang:
-                        old_value = self._translations_states.get(lang_desc[0], '')
-                        if old_value.find('outdated') == -1:
-                            self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
-
-            # else try to get and set the translation state
-            elif form.has_key('_translation_state'):
-                self._translations_states[base_lang] = form['_translation_state']
 
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
@@ -383,8 +368,6 @@ class BaseObject(Implicit):
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
                 kwargs = {}
-                if field.hasI18NContent():
-                    kwargs['lang'] = base_lang
 
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)

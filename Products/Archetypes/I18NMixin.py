@@ -1,7 +1,8 @@
 from AccessControl import ClassSecurityInfo
+from ExtensionClass import Base
 from Products.CMFCore  import CMFCorePermissions
 from Schema import Schema
-from Field import I18NStringField, I18NTextField
+from Field import I18NStringField, I18NTextField, ComputedField
 from Widget import TextAreaWidget, StringWidget
 from Storage import MetadataStorage
 from BaseObject import BaseObject
@@ -29,11 +30,18 @@ i18n_schema = Schema((
                                         label_msgid="label_description",
                                         description_msgid="help_description",
                                         i18n_domain="plone"),
-                  )
+                  ),
+    ComputedField('language',
+                  searchable=0,
+                  isMetadata=1,
+                  accessor='Language',
+                  expression='context.getContentLanguage()',
+                  widget=StringWidget(label="Language")
+                  ),
     ))
 
 
-class I18NMixin:
+class I18NMixin(Base):
     """ I18NMixin for content objects
 
     handle :
@@ -57,7 +65,13 @@ class I18NMixin:
     security = ClassSecurityInfo()
 
     _need_redirect = 0
-    
+
+
+    def __init__(self):
+        self._translations_states = PersistentMapping()
+        # we need to delete title property so we can still use property sheet from the ZMI
+        self.manage_delProperties(('title',))
+        
     # we need to override some Dublin Core methods to make them works cleanly i18nized
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
@@ -89,10 +103,6 @@ class I18NMixin:
         "Dublin Core element - resource name"
         title_field = self.Schema()['title']
         return title_field.get(self, lang)
-
-    def Language(self):
-        "Dublin Core element - resource language"
-        return self.getContentLanguage()
 
     def setLanguage(self, language, encoding=None):
         "Dublin Core element - resource language"
@@ -194,8 +204,7 @@ class I18NMixin:
         allow access to different translations of the object by adding the lang
         code to its url
         """
-        # FIXME: beurk
-        
+        # FIXME: beurk        
         target = BaseObject.__bobo_traverse__(self, REQUEST, name)
         if target is not None:
             return target
@@ -215,3 +224,23 @@ class I18NMixin:
             else:
                 raise AttributeError(name)
 
+    def _processForm(self, data=1, metadata=None):
+        # FIXME: beurk        
+        BaseObject._processForm(self, data, metadata)
+        form = self.REQUEST.form
+        base_lang = self.getContentLanguage()
+        if self.hasI18NContent():
+            # set other translations as outdated if we are currently processing
+            # the main translation
+            m_lang = self.getMasterLanguage()
+            if base_lang == m_lang:
+                for lang_desc in self.getFilteredLanguages():
+                    if lang_desc[0] != m_lang:
+                        old_value = self._translations_states.get(lang_desc[0], '')
+                        if old_value.find('outdated') == -1:
+                            self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
+
+            # else try to get and set the translation state
+            elif form.has_key('_translation_state'):
+                self._translations_states[base_lang] = form['_translation_state']
+        

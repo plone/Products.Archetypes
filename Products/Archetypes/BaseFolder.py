@@ -58,6 +58,9 @@ class I18NBaseFolder(I18NMixin, BaseFolder):
     
     schema = BaseFolder.schema + I18NMixin.schema
 
+    def __init__(self, *args, **kwargs):
+        BaseFolder.__init__(self, *args, **kwargs)
+        I18NMixin.__init__(self)
 
 InitializeClass(I18NBaseFolder)
 
