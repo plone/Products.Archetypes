@@ -12,7 +12,8 @@
     <tal:define define="unit accessor">
     <div tal:define="size unit/get_size | python: len(unit) or 0;
 	            icon unit/getIcon | nothing;
-		    filename value/filename|nothing">
+		    filename value/filename|nothing"
+	 tal:condition="python:size>0">
 	<a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
         <img tal:condition="icon" src=""
              tal:attributes="src string:${here/portal_url}/${icon}"/>
