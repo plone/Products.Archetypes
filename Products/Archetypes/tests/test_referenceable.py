@@ -86,6 +86,15 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
+        self.verifyBrains()
+        get_transaction().commit(1)
+        obj2.setId('bar')
+        get_transaction().commit(1)
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
+        self.verifyBrains()
 
     def test_renamecontainerKeepsReferences( self ):
         # test for #956677: renaming the container causes contained objects
