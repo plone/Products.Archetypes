@@ -148,10 +148,10 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 
     def deleteReferences(self, object, relationship=None):
         """delete all the references held by an object"""
-        for b in self.getReferences(object):
+        for b in self.getReferences(object, relationship):
             self._deleteReference(b)
 
-        for b in self.getBackReferences(object):
+        for b in self.getBackReferences(object, relationship):
             self._deleteReference(b)
 
     def getReferences(self, object, relationship=None):
