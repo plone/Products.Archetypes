@@ -3,7 +3,7 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType
+from types import StringType, StringTypes
 from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
@@ -362,6 +362,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         cb = lambda klass, package:self.registerType(klass, package)
         _types_callback.append(cb)
         self.last_types_update = DateTime()
+
+        # SchemaProvider Data
+        self._managedSchema = PersistentMapping()
+        self._schemaColloctorRegistry = PersistentMapping()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -843,5 +847,42 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return self.reference_catalog.lookupObject(uid)
 
     getObject=lookupObject
+
+
+    ## Schema Provider Hooks
+    ##
+    def registerSchemaCollector(self, schemaCollector):
+        self._schemaColloctorRegistry[schemaCollector.name] = schemaCollector
+
+    def getSchemaCollector(self, name):
+        return self._schemaColloctorRegistry[name]
+
+    def provideSchema(self, provider, schema):
+        #XXX
+        # Even here we don't allow for both policies which could be the case
+        # Ex: All my folders add x,y,z to content and this one adds a,b as well
+        # Easy enough to composite, but who knows... sometimes is just an override
+        if type(provider) in StringTypes:
+            #Register for the type
+            self._managedSchema[provider] = schema
+        else:
+            # Register for an instance UUID
+            self._managedSchema[provider.UID()] = schema
+
+    def getProvidedSchema(self, object):
+        """
+        An object that is triggered as a Schema provider doesn't provide its
+        own schema, but rather a managed schema, back to the object.
+        This provider may be providing this schema by its type or by its UUID
+        """
+        schema = self._managedSchema.get(object.UID())
+        if not schema:
+            schema = self._managedSchema.get(object.meta_type)
+
+        # XXX this is highly questionable
+        if not schema:
+            return object.schema 
+        return schema
+    
 
 InitializeClass(ArchetypeTool)

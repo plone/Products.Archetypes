@@ -1,6 +1,6 @@
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.Schema import Schema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import DisplayList
@@ -34,7 +34,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security = ClassSecurityInfo()
 
-    schema = type = MetadataSchema(
+    schema = type = Schema(
         (
         StringField(
             'allowDiscussion',

@@ -378,6 +378,9 @@ class BasicSchema(Schemata):
         c._props.update(self._props)
         return c
 
+    def __cmp__(self, other):
+        return cmp(self.signature(), other.signature())
+    
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
         if self.allow(name):

@@ -6,6 +6,7 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.SchemaProvider import SchemaProvider
 
 from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
@@ -14,7 +15,8 @@ from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 
-class BaseContentMixin(BaseObject,
+class BaseContentMixin(SchemaProvider,
+                       BaseObject,
                        Referenceable,
                        CatalogMultiplex,
                        PortalContent,
@@ -30,6 +32,11 @@ class BaseContentMixin(BaseObject,
 
     security = ClassSecurityInfo()
 
+    def __init__(self, oid, **kwargs):
+        SchemaProvider.__init__(self)
+        BaseObject.__init__(self, oid, **kwargs)
+        
+    
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)

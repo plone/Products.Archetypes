@@ -8,6 +8,7 @@ from Products.Archetypes.Schema import Schema, Schemata
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 
+
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
