@@ -221,14 +221,15 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-
+    portal_catalog = catalog = getToolByName(self, 'portal_catalog')
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
 
         for field in cls.schema.fields():
             if field.index:
-                portal_catalog = catalog = getToolByName(self, 'portal_catalog')
+                if field.type == 'reference':
+                    raise SyntaxError('Index on reference fields aren\'t supported yet.')
 
                 if type(field.index) is StringType:
                     index = (field.index,)
