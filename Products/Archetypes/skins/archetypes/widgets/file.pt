@@ -11,29 +11,26 @@
     <!-- File Widgets -->
 
     <div class="field" metal:define-macro="file_view">
-      <metal:block define-slot="widget_label" />
+      <metal:label define-slot="widget_label" />
       <tal:define define="unit accessor">
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
-                           filename value/filename | nothing"
+                           filename unit/filename | nothing"
                    condition="python:size &gt; 0">
-          <a href="" tal:attributes="href string:${here/absolute_url}/${fieldName}">
+          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/download">
             <img tal:condition="icon" src=""
-                 tal:attributes="src string:${here/portal_url}/${icon}"/>
-              <span i18n:translate="" tal:omit-tag="">View</span>
-              <span tal:replace="filename | fieldName"/>
+                 tal:attributes="src string:${here/portal_url}/$icon"/>
+              <tal:i18n i18n:translate="">View</tal:i18n>
+              <tal:filename tal:replace="filename | fieldName"/>
           </a>
-          (<tal:filename content="string:${filename} "
-                         condition="filename">myfile.pdf
-          </tal:filename><span
-                 tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+          (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
           <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
           <a href=""
              tal:condition="python:field.checkExternalEditor(here)"
-             tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
+             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
              tal:define="edit here/edit.gif">
             <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
-            <span i18n:translate="" tal:omit-tag="">Edit</span>
+            <tal:i18n i18n:translate="">Edit</tal:i18n>
           </a>
         </tal:block>
       </tal:define>
