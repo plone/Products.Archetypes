@@ -37,7 +37,7 @@ from App.Extensions import getBrain
 
 from ZODB.POSException import ConflictError
 
-from IOBTree import Bucket
+from BTrees.IOBTree import IOBucket
 
 _defaults = {'max_rows_':1000,
              'cache_time_':0,
@@ -82,7 +82,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         self.src = template
         self.template = t = context.template_class(template)
         t.cook()
-        context._v_query_cache={}, Bucket()
+        context._v_query_cache={}, IOBucket()
 
     def advanced_edit(self, max_rows=1000, max_cache=100, cache_time=0,
                         class_name='', class_file='',
@@ -126,7 +126,7 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         context.max_rows_ = max_rows
         context.max_cache_, context.cache_time_ = max_cache, cache_time
-        context._v_sql_cache = {}, Bucket()
+        context._v_sql_cache = {}, IOBucket()
         context.class_name_, context.class_file_ = class_name, class_file
         context._v_sql_brain = getBrain(context.class_file_,
                                         context.class_name_, 1)
@@ -137,7 +137,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         if hasattr(context,'_v_sql_cache'):
             cache = context._v_sql_cache
         else:
-            cache = context._v_sql_cache={}, Bucket()
+            cache = context._v_sql_cache={}, IOBucket()
         cache, tcache = cache
         max_cache = context.max_cache_
         now = time()

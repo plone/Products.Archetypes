@@ -50,28 +50,13 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         BaseFolder.__init__(self, oid, **kwargs)
 
     security.declarePrivate('manage_afterAdd')
-    def manage_afterAdd(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
-        BaseFolder.manage_afterAdd(self, item, container)
+    manage_afterAdd = BaseFolder.manage_afterAdd.im_func
 
     security.declarePrivate('manage_afterClone')
-    def manage_afterClone(self, item):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
-        BaseFolder.manage_afterClone(self, item)
+    manage_afterClone = BaseFolder.manage_afterClone.im_func
 
     security.declarePrivate('manage_beforeDelete')
-    def manage_beforeDelete(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
-        BaseFolder.manage_beforeDelete(self, item, container)
+    manage_beforeDelete = BaseFolder.manage_beforeDelete.im_func
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """
@@ -82,40 +67,40 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         return CMFBTreeFolder.__getitem__(self, key)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
-    indexObject = BaseFolder.indexObject
+    indexObject = BaseFolder.indexObject.im_func
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unindexObject')
-    unindexObject = BaseFolder.unindexObject
+    unindexObject = BaseFolder.unindexObject.im_func
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObject')
-    reindexObject = BaseFolder.reindexObject
+    reindexObject = BaseFolder.reindexObject.im_func
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObjectSecurity')
-    reindexObjectSecurity = BaseFolder.reindexObjectSecurity
+    reindexObjectSecurity = BaseFolder.reindexObjectSecurity.im_func
 
     security.declarePrivate('notifyWorkflowCreated')
-    notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated
+    notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated.im_func
 
     security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems
 
     security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueIds')
-    opaqueIds = BaseFolder.opaqueIds
+    opaqueIds = BaseFolder.opaqueIds.im_func
 
     security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueValues')
-    opaqueValues = BaseFolder.opaqueValues
+    opaqueValues = BaseFolder.opaqueValues.im_func
 
     security.declareProtected(CMFCorePermissions.ListFolderContents, 'listFolderContents')
-    listFolderContents = BaseFolder.listFolderContents
+    listFolderContents = BaseFolder.listFolderContents.im_func
 
     security.declareProtected(CMFCorePermissions.AccessContentsInformation,
                               'folderlistingFolderContents')
-    folderlistingFolderContents = BaseFolder.folderlistingFolderContents
+    folderlistingFolderContents = BaseFolder.folderlistingFolderContents.im_func
 
-    __call__ = SkinnedFolder.__call__
+    __call__ = SkinnedFolder.__call__.im_func
 
     security.declareProtected(CMFCorePermissions.View, 'view')
-    view = SkinnedFolder.view
+    view = SkinnedFolder.view.im_func
 
     def index_html(self):
         """ Allow creation of .
@@ -135,21 +120,21 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     index_html = ComputedAttribute(index_html, 1)
 
     security.declareProtected(CMFCorePermissions.View, 'Title')
-    Title = BaseFolder.Title
+    Title = BaseFolder.Title.im_func
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
-    setTitle = BaseFolder.setTitle
+    setTitle = BaseFolder.setTitle.im_func
 
     security.declareProtected(CMFCorePermissions.View, 'title_or_id')
-    title_or_id = BaseFolder.title_or_id
+    title_or_id = BaseFolder.title_or_id.im_func
 
     security.declareProtected(CMFCorePermissions.View, 'Description')
-    Description = BaseFolder.Description
+    Description = BaseFolder.Description.im_func
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
-    setDescription = BaseFolder.setDescription
+    setDescription = BaseFolder.setDescription.im_func
 
-    manage_addFolder = BaseFolder.manage_addFolder
+    manage_addFolder = BaseFolder.manage_addFolder.im_func
 
 InitializeClass(BaseBTreeFolder)
 
