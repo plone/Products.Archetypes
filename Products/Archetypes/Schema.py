@@ -20,7 +20,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
-from Products.generator.i18n import translate
+import Products.generator.i18n as i18n
 
 __docformat__ = 'reStructuredText'
 
@@ -428,7 +428,7 @@ class Schema(Schemata, DefaultLayerContainer):
 
                 if not value:
                     label = field.widget.Label(instance)
-                    errors[name] = translate(
+                    errors[name] = i18n.translate(
                         'archetypes', 'error_required',
                         {'name': label}, instance,
                         default = "%s is required, please correct" % label
@@ -470,7 +470,7 @@ class Schema(Schemata, DefaultLayerContainer):
 
                     if error == 1:
                         label = self.widget.Label(instance)
-                        errors[name] = translate(
+                        errors[name] = i18n.translate(
                             'archetypes', 'error_vocabulary',
                             {'val': val, 'name': label}, instance,
                             default = "Value %s is not allowed for vocabulary"
