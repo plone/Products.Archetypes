@@ -25,7 +25,10 @@ from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
      MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
-from Products.validation import validation
+from Products.validation import validation as validationService
+from Products.validation import ValidationChain, UnknowValidatorError, FalseValidatorError
+from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
 import Products.generator.i18n as i18n
 from Products.PortalTransforms.interfaces import idatastream
 
@@ -179,31 +182,38 @@ class Field(DefaultLayerContainer):
 
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
+        chainname = 'Validator_%s' % self.getName
+
         if type(self.validators) is DictType:
-            strategy   = self.validators.get('strategy', 'and').lower()
-            validators = self.validators.get('handlers', ( ))
-        else:
-            strategy  = 'and'
+            raise NotImplementedError, 'Please use the new syntax with validation chains'
+        elif IValidationChain.isImplementedBy(self.validators):
             validators = self.validators
-
-        if type(validators) not in (TupleType, ListType):
-            validators = (validators,)
+        elif IValidator.isImplementedBy(self.validators):
+            validators = ValidationChain(chainname, validators=self.validators)
+        elif type(self.validators) in (TupleType, ListType, StringType):
+            if len(self.validators):
+                # got a non empty list or string - create a chain
+                try:
+                    validators = ValidationChain(chainname, validators=self.validators)
+                except (UnknowValidatorError, FalseValidatorError), msg:
+                    log("WARNING: Disabling validation for %s: %s" % (self.getName(), msg))
+                    validators = ()
+            else:
+                validators = ()
         else:
-            validators = tuple(validators)
+            log('WARNING: Unknow validation %s. Disabling!' % self.validators)
+            validators = ()
 
-        if strategy not in ('and', 'or'):
-            raise ValueError("strategy %s not in ('and', 'or')" % strategy)
+        if not self.required:
+            if validators == ():
+                validators = ValidationChain(chainname)
+            if len(validators):
+                # insert isEmpty validator at position 0 if first validator
+                # is not isEmpty
+                if not validators[0][0].name == 'isEmpty':
+                    validators.insertSufficient('isEmpty')
 
-        for vname in validators:
-            try:
-                v = validation.validatorFor(vname)
-            except KeyError:
-                v = None
-            if not v:
-                log("WARNING: no validator %s for %s" % (vname,
-                self.getName()))
-
-        self.validators = {'strategy' : strategy, 'handlers' : validators }
+        self.validators = validators
 
     def validate(self, value, instance, errors={}, **kwargs):
         """
@@ -255,33 +265,14 @@ class Field(DefaultLayerContainer):
     def validate_validators(self, value, instance, errors, isEmpty, **kwargs):
         """
         """
-        strategy   = self.validators.get('strategy')
-        validators = self.validators.get('handlers')
-        results    = {}
-
-        if strategy == 'and':
-            # not failed unless explicitly failed
-            failed = 0
+        if self.validators:
+            result = self.validators(value, instance=instance, errors=errors,
+                                     field=self, isEmpty=isEmpty, **kwargs)
         else:
-            # failed unless one test has succeded
-            failed = 1
+            result = True
 
-        for name in validators:
-            results[name] = validation.validate(name, value, instance=instance,
-                                                errors=errors, field=self,
-                                                isEmpty=isEmpty, **kwargs)
-
-        for name, res in results.items():
-            if res != 1 and strategy == 'and':
-                failed = 1
-            if res == 1 and strategy == 'or':
-                failed = 0
-
-        if failed:
-            return '\n'.join(['%s: %s' % (name, res)
-                              for name, res in results.items()
-                              if res != 1 ])
-
+        if result is not True:
+            return result
 
     def validate_required(self, instance, value, errors):
         if not value:
