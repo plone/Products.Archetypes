@@ -1,3 +1,5 @@
+from types import StringType
+
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
@@ -6,7 +8,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
+from Products.MimetypesRegistry.common import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
 from Products.MimetypesRegistry.mime_types.mtr_mimetypes import text_plain, \
      application_octet_stream
@@ -48,7 +50,10 @@ class BaseUnit(File):
         self.raw  = data
         self.size = len(data)
         # taking care of stupid IE
-        self.filename = filename.split("\\")[-1]
+        if type(filename) is StringType:
+            self.filename = filename.split("\\")[-1]
+        else:
+            self.filename = filename
 
 
     def transform(self, instance, mt):

@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.2 2004/05/13 21:08:26 shh42 Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.2.2.1 2004/05/22 17:22:27 tiran Exp $
 
 from Testing import ZopeTestCase
 
@@ -21,8 +21,9 @@ ZopeTestCase.installProduct('PageTemplates', 1)
 ZopeTestCase.installProduct('PythonScripts', 1)
 ZopeTestCase.installProduct('ExternalMethod', 1)
 
-ZopeTestCase.installProduct('Archetypes', 1)
+ZopeTestCase.installProduct('MimetypesRegistry', 1)
 ZopeTestCase.installProduct('PortalTransforms', 1)
+ZopeTestCase.installProduct('Archetypes', 1)
 ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
 
 from AccessControl.SecurityManagement import newSecurityManager

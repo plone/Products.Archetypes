@@ -9,7 +9,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
+from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
 
 from Products.CMFCore.DiscussionTool import DiscussionTool
