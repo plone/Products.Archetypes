@@ -13,13 +13,11 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Products.CMFCore.utils import getToolByName
-from OFS.Folder import Folder
 
 class BaseFolderMixin(CatalogMultiplex,
-                      BaseObject,
-                      SkinnedFolder,
-                      Folder
-                      ):
+                    BaseObject,
+                    SkinnedFolder,
+                    ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
@@ -60,7 +58,7 @@ class BaseFolderMixin(CatalogMultiplex,
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
-        Folder.manage_afterAdd(self, item, container)
+        SkinnedFolder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
 
@@ -68,14 +66,14 @@ class BaseFolderMixin(CatalogMultiplex,
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
-        Folder.manage_afterClone(self, item)
+        SkinnedFolder.manage_afterClone(self, item)
 
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
-        Folder.manage_beforeDelete(self, item, container)
+        SkinnedFolder.manage_beforeDelete(self, item, container)
 
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
