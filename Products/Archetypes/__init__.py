@@ -1,6 +1,5 @@
 from Products.Archetypes.config import *
 from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes import Validators
 from Products.Archetypes.utils import DisplayList
 
 from AccessControl import ModuleSecurityInfo
