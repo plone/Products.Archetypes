@@ -1,8 +1,7 @@
-import sys
-
-from Products.Archetypes.interfaces.layer import ILayer
+from interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
-from Products.Archetypes.debug import log, log_exc
+from debug import log, log_exc
+import sys
 
 _marker = []
 

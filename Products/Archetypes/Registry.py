@@ -1,6 +1,7 @@
 import types
 
-from Products.Archetypes.utils import className
+from utils import className
+
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 

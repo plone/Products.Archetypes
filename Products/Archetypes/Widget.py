@@ -5,11 +5,7 @@ from utils import className, unique, capitalize
 from types import FileType
 from types import DictType # needed for ugly hack in class TypesWidget def isVisible
 
-try:
-    from generator.widget import macrowidget
-except:
-    from Products.generator.widget import macrowidget
-
+from Products.generator.widget import macrowidget
 
 class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()

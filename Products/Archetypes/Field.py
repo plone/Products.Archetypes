@@ -31,10 +31,7 @@ from Products.PortalTransforms.interfaces import idatastream
 
 import config
 
-try:
-    from validation import validation
-except ImportError:
-    from Products.validation import validation
+from Products.validation import validation
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
