@@ -585,6 +585,7 @@ class ReferenceField(ObjectField):
         'allowed_types' : (),
         'addable': 0,
         'destination': None,
+        'relationship':None
         })
 
     def containsValueAsString(self,value,attrval):
@@ -597,6 +598,37 @@ class ReferenceField(ObjectField):
             return str(value) in [str(a) for a in attrval]
         else:
             return str(value) == str(attrval)
+
+    def set(self, instance, value, **kwargs):
+        ''' before setting the value the reference gets also be established 
+            in the reference tool
+        '''
+        
+        if not value:
+            value=None
+            
+        #establish the relation through the ReferenceEngine
+        tool=getToolByName(instance,TOOL_NAME)
+        refname=self.relationship
+        
+        #XXX: thats too cheap, but I need the proof of concept before going on
+        instance.deleteReferences(refname)
+        
+        if self.multiValued:
+            if type(value) in (type(()),type([])):
+                for uid in value:
+                    if uid:
+                        target=tool.lookupObject(uid=uid)
+                        instance.addReference(target,refname)
+        else:
+            if value:
+                target=tool.lookupObject(uid=value)
+                instance.addReference(target,refname)
+
+            pass
+        
+        #and now do the normal assignment
+        ObjectField.set(self, instance, value, **kwargs)
         
     def Vocabulary(self, content_instance=None):
         #If we have a method providing the list of types go with it,
