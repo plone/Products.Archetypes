@@ -1,3 +1,9 @@
+2003-11-13  Sylvain Thénault  <syt@logilab.fr>
+
+	* BaseObject.py (BaseObject): added the Type method, copied from
+	ExtensibleMetadata, to interact cleanly with the uid_catalog with
+	or without metadata implementation
+	
 2003-11-12  Sylvain Thénault  <syt@logilab.fr>
 
 	* BaseContent.py: BaseContentMixin without Extensible metadata

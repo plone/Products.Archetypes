@@ -131,6 +131,21 @@ class BaseObject(Implicit):
                     )
             self._setId(value)
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'Type')
+    def Type( self ):
+        """Dublin Core element - Object type
+        
+        this method is redefined in ExtensibleMetadata but we need this
+        at the object level (i.e. with or without metadata) to interact
+        with the uid catalog
+        """
+        if hasattr(aq_base(self), 'getTypeInfo'):
+            ti = self.getTypeInfo()
+            if ti is not None:
+                return ti.Title()
+        return self.meta_type
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
     def getField(self, key):
