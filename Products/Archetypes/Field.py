@@ -417,6 +417,7 @@ class ObjectField(Field):
         })
 
     def get(self, instance, **kwargs):
+        __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
             return self.storage.get(self.getName(), instance, **kwargs)
@@ -442,10 +443,12 @@ class ObjectField(Field):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
+        __traceback_info__ = (self.getName(), instance, value, kwargs)
         self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
+        __traceback_info__ = (self.getName(), instance, kwargs)
         self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
