@@ -12,7 +12,7 @@ from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
 from Products.CMFCore import CMFCorePermissions
-
+from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
 
@@ -47,7 +47,7 @@ class VarClassGen(ClassGenerator):
 
 schemadict={}
 
-class VariableSchemaSupport:
+class VariableSchemaSupport (Base):
     """
     Mixin class to support instance-based schemas
     Attention: must be before BaseFolder or BaseContent in
