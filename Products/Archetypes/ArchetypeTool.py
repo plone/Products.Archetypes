@@ -744,8 +744,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                                            field.vocabulary
                     widget.populate = False
                     field_name = field.accessor
-                    accessor = field.getDefault
-
+                    # accessor must be a method which doesn't take an argument
+                    # this lambda is facking an accessor
+                    accessor = lambda: field.getDefault(instance)
+    
                 w_keys[field_name] = None
                 widgets.append((field_name, WidgetWrapper(
                     field_name=field_name,
