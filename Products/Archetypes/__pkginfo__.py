@@ -1,9 +1,9 @@
 
 modname = 'generator'
-version = '1.3.0-5'
-numversion = (1, 3, 0, 5)
+version = '1.3.0-6'
+numversion = (1, 3, 0, 6)
 at_versions = ('1.3.0-beta3', '1.3.0-beta4', '1.3.0-beta5', '1.3.0-rc1',
-    '1.3.0-rc2',
+    '1.3.0-rc2', '1.3.0-rc3',
     )
 
 license = 'GPL'
