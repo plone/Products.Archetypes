@@ -7,6 +7,9 @@ from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
+# to keep backward compatibility
+has_btree = 1
+
 class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
