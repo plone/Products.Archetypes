@@ -14,7 +14,7 @@
           <a href="#"
              tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor())" 
              tal:attributes="href obj/getURL"
-             tal:content="obj/Title"
+             tal:content="python:obj.Title or obj.getURL(relative=1)"
              tal:condition="obj"></a>
 	</div>
       </div>
