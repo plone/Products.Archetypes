@@ -186,6 +186,9 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
             security.declareObjectPrivate()
         else:
             security.declareObjectProtected(objectPermission)
+
+    InitializeClass(klass)
+
     if DEBUG_SECURITY:
         if getattr(klass, '__allow_access_to_unprotected_subobjects__', False):
             print '%s: Unprotected access is allowed: %s' % (
@@ -199,8 +202,6 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
             elif security.names.get(name) is ACCESS_PUBLIC:
                 print '%s.%s is public' % (klass.__name__, name)
             
-    InitializeClass(klass)
-
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):

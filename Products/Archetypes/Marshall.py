@@ -8,8 +8,15 @@ from Products.Archetypes.debug import log
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
 
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
+
 class Marshaller:
     __implements__ = IMarshall, ILayer
+    
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
 
     def __init__(self, demarshall_hook=None, marshall_hook=None):
         self.demarshall_hook = demarshall_hook
@@ -43,7 +50,14 @@ class Marshaller:
     def cleanupField(self, instance, field):
         pass
 
+InitializeClass(Marshaller)
+
 class PrimaryFieldMarshaller(Marshaller):
+    
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
@@ -72,7 +86,13 @@ class PrimaryFieldMarshaller(Marshaller):
 
         return (content_type, length, data)
 
+InitializeClass(PrimaryFieldMarshaller)
+
 class RFC822Marshaller(Marshaller):
+
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
 
     def demarshall(self, instance, data, **kwargs):
         from Products.CMFDefault.utils import parseHeadersBody
@@ -126,3 +146,5 @@ class RFC822Marshaller(Marshaller):
         length = len(data)
 
         return (content_type, length, data)
+
+InitializeClass(RFC822Marshaller)

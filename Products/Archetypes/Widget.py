@@ -32,28 +32,28 @@ class TypesWidget(macrowidget):
 
     security = ClassSecurityInfo()
 
-    #X#security.declarePublic('getName')
+    security.declarePublic('getName')
     def getName(self):
         return self.__class__.__name__
 
-    #X#security.declarePublic('getType')
+    security.declarePublic('getType')
     def getType(self):
         """Return the type of this field as a string"""
         return className(self)
 
-    #X#security.declarePublic('bootstrap')
+    security.declarePublic('bootstrap')
     def bootstrap(self, instance):
         """Override if your widget needs data from the instance."""
         return
 
-    #X#security.declarePublic('populateProps')
+    security.declarePublic('populateProps')
     def populateProps(self, field):
         """This is called when the field is created."""
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
 
-    #X#security.declarePublic('isVisible')
+    security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
         visible, hidden, invisible"""
@@ -68,17 +68,17 @@ class TypesWidget(macrowidget):
         return state
 
     # XXX
-    #X#security.declarePublic('setCondition')
+    security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
         self.condition = condition
 
-    #X#security.declarePublic('getCondition')
+    security.declarePublic('getCondition')
     def getCondition(self):
         """Return the widget text condition."""
         return self.condition
 
-    #X#security.declarePublic('testCondition')
+    security.declarePublic('testCondition')
     def testCondition(self, folder, portal, object):
         """Test the widget condition."""
         try:
@@ -92,7 +92,7 @@ class TypesWidget(macrowidget):
             return 1
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """Basic impl for form processing in a widget"""
@@ -159,7 +159,7 @@ class ReferenceWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    #X#security.declarePublic('addableTypes')
+    security.declarePublic('addableTypes')
     def addableTypes(self, instance, field):
         """Returns a list of dictionaries which maps portal_type to its human readable
         form."""
@@ -264,7 +264,7 @@ class TextAreaWidget(TypesWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """handle text formatting"""
@@ -361,7 +361,7 @@ class KeywordWidget(TypesWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """process keywords from form where this widget has a list of
@@ -392,7 +392,7 @@ class FileWidget(TypesWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """form processing that deals with binary data"""
@@ -430,7 +430,7 @@ class RichWidget(TypesWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """complex form processing, includes handling for text
@@ -491,7 +491,7 @@ class IdWidget(TypesWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """the id might be hidden by the widget and not submitted"""
@@ -512,7 +512,7 @@ class ImageWidget(FileWidget):
     security = ClassSecurityInfo()
 
     # XXX
-    #X#security.declarePublic('process_form')
+    security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """form processing that deals with image data (and its delete case)"""

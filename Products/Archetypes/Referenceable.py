@@ -13,6 +13,9 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
+
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
 ####
 ## In the case of a copy we want to lose refs
 ##                a cut/paste we want to keep refs
@@ -25,7 +28,10 @@ class Referenceable(Base):
     isReferenceable = 1
 
     __implements__ = (IReferenceable,)
-    
+
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
+
     def reference_url(self):
         """like absoluteURL, but return a link to the object with this UID"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -254,3 +260,5 @@ class Referenceable(Base):
         ## worse case is not that bad and could be fixed with a reindex
         ## on the archetype tool
         if op==1: self._v_cp_refs =  1
+
+InitializeClass(Referenceable)

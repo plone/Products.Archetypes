@@ -3,11 +3,16 @@ import sys
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.generator.renderer import renderer as base
 from Products.Archetypes.debug import log, log_exc
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
 
 _marker = []
 
 class ArchetypesRenderer(base):
     __implements__ = ILayer
+    
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
 
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):
@@ -34,5 +39,7 @@ class ArchetypesRenderer(base):
 
         del frame
         return context
+
+InitializeClass(ArchetypesRenderer)
 
 renderer = ArchetypesRenderer()

@@ -55,6 +55,8 @@ class Reference(Referenceable, SimpleItem):
     
     security = ClassSecurityInfo()
     portal_type = 'Reference'
+    
+    # XXX FIXME more security
 
     manage_options = (
         (
@@ -160,12 +162,17 @@ class Reference(Referenceable, SimpleItem):
         """the url used as the relative path based uid in the catalogs"""
         return getRelURL(self, self.getPhysicalPath())
 
+InitializeClass(Reference)
+
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
 class ContentReference(Reference, ObjectManager):
     '''Subclass of Reference to support contentish objects inside references '''
 
     __implements__ = Reference.__implements__ + (IContentReference,)
+    
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
     
     def addHook(self, *args, **kw):
         #creates the content instance 
@@ -180,10 +187,14 @@ class ContentReference(Reference, ObjectManager):
         
     def getContentObject(self):
         return getattr(self,REFERENCE_CONTENT_INSTANCE_NAME)
+
+InitializeClass(ContentReference)
         
 class ContentReferenceCreator:
     '''Helper class to construct ContentReference instances based 
        on a certain content type '''
+
+    security = ClassSecurityInfo()
        
     def __init__(self,contentType):
         self.contentType=contentType
@@ -195,10 +206,13 @@ class ContentReferenceCreator:
         
         return res
 
+InitializeClass(ContentReferenceCreator)
 
 # The brains we want to use
 class UIDCatalogBrains(AbstractCatalogBrain):
     """fried my little brains"""
+    
+    security = ClassSecurityInfo()
 
     def getObject(self, REQUEST=None):
         """
@@ -236,6 +250,8 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                      error=sys.exc_info())
             pass
 
+InitializeClass(UIDCatalogBrains)
+
 class ReferenceCatalogBrains(UIDCatalogBrains):
     pass
 
@@ -243,7 +259,10 @@ class ReferenceCatalogBrains(UIDCatalogBrains):
 class PluggableCatalog(Catalog):
     # Catalog overrides
     # smarter brains, squirrely traversal
-
+    
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
+    
     def useBrains(self, brains):
         """Tricky brains overrides, we need to use our own class here
         with annotation support
@@ -263,14 +282,19 @@ class PluggableCatalog(Catalog):
         self._v_brains = brains
         self._v_result_class = plugbrains
 
+InitializeClass(PluggableCatalog)
+
 class UIDBaseCatalog(PluggableCatalog):
     BASE_CLASS = UIDCatalogBrains
 
 class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
 
-class ReferenceResolver( Base ):
-
+class ReferenceResolver(Base):
+    
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
+    
     def resolve_url(self, path, REQUEST):
         """Strip path prefix during resolution, This interacts with
         the default brains.getObject model and allows and fakes the
@@ -284,7 +308,7 @@ class ReferenceResolver( Base ):
 
         return portal_object.unrestrictedTraverse(path)
 
-
+InitializeClass(ReferenceResolver)
 
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = UID_CATALOG
@@ -298,9 +322,10 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    protect = security.declareProtected
 
     manage_options = ZCatalog.manage_options
+
+    # XXX FIXME more security
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
@@ -426,11 +451,11 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
     #####
     ## UID register/unregister
-    protect(CMFCorePermissions.ModifyPortalContent, 'registerObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'registerObject')
     def registerObject(self, object):
         self._uidFor(object)
 
-    protect(CMFCorePermissions.ModifyPortalContent, 'unregisterObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
@@ -521,8 +546,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
     def __nonzero__(self):
         return 1
 
-
-    protect(CMFCorePermissions.ModifyPortalContent, 'catalogReferences')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'catalogReferences')
     def catalogReferences(self, ob=None):
         '''
         catalogs references for an object and all its 
@@ -542,8 +566,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
             if IReferenceable.isImplementedBy(o):
                 o._catalogRefs(self, ignoreExceptions=0)
                 
-                
 
+InitializeClass(ReferenceCatalog)
 
 
 def manage_addReferenceCatalog(self, id, title,
