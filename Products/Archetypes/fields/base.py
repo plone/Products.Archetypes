@@ -59,6 +59,7 @@ from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.registries import setSecurity
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import mapply
+from Products.Archetypes.lib.utils import className
 from Products.Archetypes.config import STRING_TYPES
 
 __docformat__ = 'reStructuredText'
