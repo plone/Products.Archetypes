@@ -76,11 +76,17 @@ class newBaseUnit(File):
 
 
     def transform(self, instance, mt):
-        """Takes a mimetype so object.foo['text/plain'] should return
+        """Takes a mimetype so object.foo.transform('text/plain') should return
         a plain text version of the raw content
+
+        return None if no data or if data is untranformable to desired output
+        mime type
         """
         encoding = self.original_encoding
         orig = self.getRaw(encoding)
+        if not orig:
+            return None
+        
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      mimetype=self.mimetype,
@@ -91,6 +97,7 @@ class newBaseUnit(File):
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = self.portalEncoding()
+            encoding = data.getMetadata().get("encoding") or encoding
             if portal_encoding != encoding:
                 _data = unicode(_data, encoding).encode(portal_encoding)
             return _data
