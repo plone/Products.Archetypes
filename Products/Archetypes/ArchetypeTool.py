@@ -562,7 +562,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             instance._is_fake_instance = 1
             schema = instance.schema = instance.Schema().copy()
             fields = [f for f in schema.fields()
-                      if (not widgets.has_key(f.getName()) and f.index)]
+                      if (not widgets.has_key(f.getName())
+                          and f.index and f.accessor)]
             for field in fields:
                 field.required = 0
                 field.addable = 0 # for ReferenceField
@@ -574,7 +575,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 widget = field.widget
                 widget.populate = 0
                 widgets[field.getName()] = WidgetWrapper(
-                    field_name=field.getName(),
+                    field_name=field.accessor,
                     mode='search',
                     widget=field.widget,
                     instance=instance,

@@ -1,3 +1,9 @@
+2004-03-02  Sidnei da Silva  <sidnei@awkly.org>
+
+	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): field_name
+	should be set to the accessor, because the index that is created
+	is named after the accessor!
+
 2004-02-12  Sidnei da Silva  <sidnei@awkly.org>
 
         * Make all imports absolute.
