@@ -39,10 +39,14 @@ content_type = Schema((
                 accessor="getId",
                 mutator="setId",
                 default=None,
-                widget=IdWidget(label_msgid="label_name",
-                                description_msgid="help_name",
-                                visible={'view' : 'invisible'},
-                                i18n_domain="plone"),
+                widget=IdWidget(
+    label="Short Name",
+    label_msgid="label_short_name",
+    description="Should not contain spaces, underscores or mixed case. "\
+    "Short Name is part of the item's web address.",
+    description_msgid="help_shortname",
+    visible={'view' : 'invisible'},
+    i18n_domain="plone"),
                 ),
 
     StringField('title',
@@ -50,10 +54,12 @@ content_type = Schema((
                 searchable=1,
                 default='',
                 accessor='Title',
-                widget=StringWidget(label_msgid="label_title",
-                                    description_msgid="help_title",
-                                    i18n_domain="plone"),
+                widget=StringWidget(
+    label_msgid="label_title",
+    description=None,
+    i18n_domain="plone"),
                 )),
+
     marshall = RFC822Marshaller()
                       )
 

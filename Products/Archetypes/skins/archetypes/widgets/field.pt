@@ -69,7 +69,8 @@
 	    (Required)
 	  </span>
 	  <div class="formHelp"
-	       tal:content="structure python:widget.Description(here)"
+	       tal:define="description python:widget.Description(here)"
+	       tal:content="structure description"
 	       tal:attributes="id string:${fieldName}_help"
 	       i18n:translate="">
 	    Help
