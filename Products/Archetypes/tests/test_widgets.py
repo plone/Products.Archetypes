@@ -87,6 +87,7 @@ class WidgetTests(ArcheSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
+
     def test_widgets(self):
         site = self.getPortal()
         doc = makeContent(site, portal_type='ComplexType', id='demodoc')

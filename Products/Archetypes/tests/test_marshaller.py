@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.2 2003/12/06 16:43:26 dreamcatcher Exp $
+$Id: test_marshaller.py,v 1.1.2.2 2004/02/02 22:26:52 dreamcatcher Exp $
 """
 
 import os, sys
@@ -120,11 +120,16 @@ class MarshallerTests(ArcheSiteTestCase):
         ctr = self.setupCTR()
 
         #now trigger the creation of a content type akin to DAV
-        wordFilePath = join(_prefix, "input", "word.doc")
+        wordFilePath = join(_prefix, "input", "pdb.doc")
         wordFile = open(wordFilePath, 'r')
 
         obj = site.PUT_factory('test', 'application/msword', wordFile)
         site._setObject('test', obj)
+
+        obj = site['test']
+        request = site.REQUEST
+        request['BODYFILE'] = wordFile
+        obj.PUT()
 
         wordFile.seek(0)
         data = wordFile.read()
@@ -132,7 +137,7 @@ class MarshallerTests(ArcheSiteTestCase):
         word = site.test
 
         self.assertEqual(word.archetype_name, DDocument.archetype_name)
-        self.assertEqual(word.getBody(), data)
+        self.assertEqual(str(word.getBody(raw=1)), data)
 
 
 if __name__ == '__main__':

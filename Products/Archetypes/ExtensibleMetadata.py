@@ -220,15 +220,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         """cmf/backward compat: ignore setFormat"""
         pass
 
-    def Identifer(self):
-        """ dublin core getId method"""
-        return self.getId()
-
     #  DublinCore utility methods #############################################
 
     security.declareProtected(CMFCorePermissions.View,
-                              'isEffective')
-    def isEffective(self, date):
+                              'contentEffective')
+    def contentEffective(self, date):
         """ Is the date within the resource's effective range? """
         effectiveDate = self.schema['effectiveDate'].get(self)
         expirationDate = self.schema['expirationDate'].get(self)
@@ -239,8 +235,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         return pastEffective and beforeExpiration
 
     security.declareProtected(CMFCorePermissions.View,
-                              'isExpired')
-    def isExpired(self, date=None):
+                              'contentExpired')
+    def contentExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
             # XXX we need some unittesting for this
