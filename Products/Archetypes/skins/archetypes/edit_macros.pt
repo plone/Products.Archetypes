@@ -137,18 +137,19 @@
                      />
             </tal:env>
 
-
             <tal:comment replace="nothing">
               Stores lastests referer to remmber where to go back
             </tal:comment>
-            <input type="hidden" name="lastest_referer:list"
-                   tal:define="referer request/HTTP_REFERER"
+            <input type="hidden"
+                   name="lastest_referer"
+                   tal:define="referer request/form/HTTP_REFERER | request/HTTP_REFERER"
                    tal:attributes="value python:referer and referer or here.aq_parent.absolute_url()"
                    />
 
             <metal:block define-slot="buttons"
                    tal:define="fieldset_index python:fieldsets.index(fieldset);
                                n_fieldsets python:len(fieldsets)">
+
                 <input tal:condition="python:fieldset_index &gt; 0"
                        class="context"
                        tabindex=""
@@ -175,13 +176,13 @@
                        i18n:attributes="value"
                        tal:attributes="tabindex tabindex/next"
                        />
-                <input class="standalone"
+                <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
+                       class="standalone"
                        tabindex=""
                        type="submit"
                        name="form.button.cancel"
-                       i18n:attributes="value"
                        value="Cancel"
-                       tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
+                       i18n:attributes="value"
                        tal:attributes="tabindex tabindex/next;"
                        />
             </metal:block>
