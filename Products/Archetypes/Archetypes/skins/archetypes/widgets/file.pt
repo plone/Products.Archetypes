@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- File Widgets -->
+
+    <div class="field" metal:define-macro="file_view">
+      <metal:label define-slot="widget_label" />
+      <tal:define define="unit accessor">
+        <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
+                           icon unit/getBestIcon | nothing;
+                           filename unit/filename | nothing"
+                   condition="python:size &gt; 0">
+
+          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/at_download">
+            <img tal:condition="icon" src=""
+                 tal:attributes="src string:${here/portal_url}/$icon"/>
+              <tal:i18n i18n:translate="">View</tal:i18n>
+              <tal:filename tal:replace="filename | fieldName"/>
+          </a>
+          (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+          <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+          <a href=""
+             tal:condition="python:field.checkExternalEditor(here)"
+             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
+             tal:define="edit here/edit.gif">
+            <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+            <tal:i18n i18n:translate="">Edit</tal:i18n>
+          </a>
+
+        </tal:block>
+      </tal:define>
+    </div>
+
+    <metal:define define-macro="file_edit">
+      <metal:block use-macro="here/widgets/file/macros/file_delete" />
+      <metal:block use-macro="here/widgets/file/macros/file_upload" />
+      <metal:block use-macro="here/widgets/file/macros/file_view" />
+    </metal:define>
+
+    <metal:define define-macro="file_delete">
+      <div tal:condition="python:accessor() and not field.required">
+        <input class="noborder"
+               type="checkbox"
+               value="on"
+               tabindex=""
+               tal:define="name string:${fieldName}_delete"
+               tal:attributes="tabindex tabindex/next;
+                               name name;
+                               id string:${fieldName}_checkbox;
+                               checked request/?name|nothing;"
+               />
+        <span i18n:translate="delete_file">delete file</span>
+      </div>
+    </metal:define>
+
+    <metal:define define-macro="file_upload">
+      <div>
+        <input type="file"
+               size="30"
+               tabindex=""
+               tal:attributes="name string:${fieldName}_file;
+                               id fieldName;
+                               tabindex tabindex/next;"
+               />
+      </div>
+    </metal:define>
+
+    <metal:define define-macro="view">
+      <metal:use use-macro="here/widgets/file/macros/file_view" />
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body">
+          <metal:use use-macro="here/widgets/file/macros/file_edit" />
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <metal:define define-macro="search">
+      <metal:use use-macro="here/widgets/file/macros/edit" />
+    </metal:define>
+
+  </body>
+
+</html>

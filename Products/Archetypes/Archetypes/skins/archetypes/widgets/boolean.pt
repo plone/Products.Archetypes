@@ -1,0 +1,63 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+  <body>
+
+    <!-- Boolean Widgets -->
+
+    <metal:view_macro define-macro="view"
+                      tal:define="voc field/Vocabulary; key accessor;
+                                  value python:voc and voc.getValue(key) or key"
+		      tal:replace="structure value"/>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+	<metal:fill metal:fill-slot="widget_body">
+	  <script>
+	    // this function turns a checkbox into a radio button... sort of
+	    function toggle_boolean(visibleCheckbox, hiddenBoolean) {
+	    vis = document.getElementById(visibleCheckbox);
+	    hidden = document.getElementById(hiddenBoolean);
+	    if (vis.checked) {
+	    hidden.value = 1;
+	    } else {
+	    hidden.value = 0;
+	    }
+	    return true;
+	    }
+	  </script>
+
+	  <input class="noborder"
+		 type="checkbox"
+		 value="on"
+		 tabindex=""
+		 tal:attributes="tabindex tabindex/next;
+		 name string:${fieldName}_visible;
+		 onClick string:toggle_boolean('${fieldName}', '${fieldName}_hidden');; return true;
+		 id fieldName;
+		 checked python:not not value;"
+		 />
+	  <input type="hidden"
+		 tal:attributes="name fieldName;
+		 id string:${fieldName}_hidden;
+		 value value;"
+		 />
+
+
+	</metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/boolean/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+
