@@ -4,6 +4,7 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from OFS.SimpleItem import SimpleItem
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
+from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 
 from debug import log, log_exc
@@ -33,7 +34,11 @@ class Reference(SimpleItem):
         )+
         SimpleItem.manage_options
         )
-    
+
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_view')
+    manage_view = PageTemplateFile('view_reference', _www)
+
     def __init__(self, id, sid, tid, relationship, **kwargs):
         self.id = id
         self.sourceUID = sid
@@ -87,10 +92,6 @@ class Reference(SimpleItem):
         """called when the refering source Object is about to be deleted"""
         pass
 
-    ###
-    # Manage View
-    # Lets see something in the ZMI
-    
     
 class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     id = REFERENCE_CATALOG
