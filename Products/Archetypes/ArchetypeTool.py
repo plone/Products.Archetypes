@@ -1,3 +1,4 @@
+from __future__ import nested_scopes
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
@@ -24,7 +25,6 @@ from utils import capitalize, findDict, DisplayList, unique
 import BaseContent
 import ExtensibleMetadata
 from Renderer import renderer
-from __future__ import nested_scopes
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
