@@ -8,16 +8,18 @@
 
 <!-- Selection Widgets -->
 
-    <metal:define define-macro="view">
-      <metal:use use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view"
+    <div class="field" metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <metal:block use-macro="here/widgets/field/macros/view">
+	<metal:block fill-slot="widget_view"
    	     tal:define="vocab python:field.Vocabulary(here);
                          value python:accessor();
 	                 display python:here.displayValue(vocab, value);">
           <span tal:replace="structure display"/>
-	</div>
-      </metal:use>
-    </metal:define>
+	</metal:block>
+     </metal:block>
+    </div>
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">

@@ -8,15 +8,17 @@
 
     <!-- Id/NameWidgets -->
 
-    <div metal:define-macro="view">
+    <div class="field" metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
         <tal:block tal:define="member_visible_ids python:here.portal_membership.getAuthenticatedMember().getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
                                visible_ids visible_ids|member_visible_ids;"
                    tal:condition="visible_ids">
-            <div metal:use-macro="here/widgets/field/macros/view">
-                <div metal:fill-slot="widget_view">
+            <metal:block use-macro="here/widgets/field/macros/view">
+                <metal:block fill-slot="widget_view">
                     <span tal:replace="structure accessor"/>
-                </div>
-            </div>
+                </metal:block>
+            </metal:block>
         </tal:block>
     </div>
 
