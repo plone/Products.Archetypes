@@ -1044,8 +1044,13 @@ class ReferenceField(ObjectField):
             label = lambda b:b.Title or b.id
 
         for b in brains:
-            uid = uc.getMetadataForUID(b.getPath())['UID']
-            pairs.append((uid, label(b)))
+            try:
+                uid = uc.getMetadataForUID(b.getPath())['UID']
+                pairs.append((uid, label(b)))
+            except KeyError:
+                # Probably got an object that was created before
+                # AT was installed and doesn't exist in UID catalog
+                pass
 
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
