@@ -28,7 +28,7 @@ from interfaces.base import IBaseObject, IBaseFolder
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-from ClassGen import generateClass
+from ClassGen import generateClass, generateCtor
 from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
 from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
@@ -61,7 +61,7 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 # Never actually used
 base_factory_type_information = (
     { 'id': 'Archetype'
-      ,  'content_icon': 'document_icon.gif'
+      , 'content_icon': 'document_icon.gif'
       , 'meta_type': 'Archetype'
       , 'description': ( 'Archetype for flexible types')
       , 'product': 'Unknown Package'
@@ -186,19 +186,6 @@ def modify_fti(fti, klass, pkg_name):
         refs['visible'] = 0
 
 
-def generateCtor(type, module):
-    name = capitalize(type)
-    ctor = """
-def add%s(self, id, **kwargs):
-    o = %s(id)
-    self._setObject(id, o)
-    o = getattr(self, id)
-    o.initializeArchetype(**kwargs)
-    return id
-""" % (name, type)
-
-    exec ctor in module.__dict__
-    return getattr(module, "add%s" % name)
 
 
 def process_types(types, pkg_name):
