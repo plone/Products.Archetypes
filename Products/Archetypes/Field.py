@@ -161,7 +161,7 @@ class Field(DefaultLayerContainer):
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'index_method' : '_at_accessor', # method used for the index
-                                         # _at_accessor an _at_edit_accessor 
+                                         # _at_accessor an _at_edit_accessor
                                          # are the accessor and edit accessor
         'schemata' : 'default',
         'languageIndependent' : False,
@@ -688,7 +688,7 @@ class ObjectField(Field):
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
-        
+
         Should be overwritte by special fields like FileField. It's safe for
         fields which are storing strings, ints and BaseUnits but it won't return
         the right results for fields containing OFS.Image.File instances or
@@ -868,7 +868,7 @@ class FileField(ObjectField):
         setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         delattr(obj, 'title')
-        
+
         return obj
 
     security.declarePrivate('getBaseUnit')
@@ -1437,7 +1437,7 @@ class ReferenceField(ObjectField):
                         "doesn't have an UID assigned with. Please update your"\
                         " reference catalog!" % b.getPath())
                 pairs.append((uid, label(b)))
-         
+
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
                                           msgid='label_no_reference',
@@ -1886,7 +1886,7 @@ class ImageField(FileField):
         image.save(thumbnail_file, format, quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
-    
+
     security.declareProtected(CMFCorePermissions.View, 'getSize')
     def getSize(self, instance, scale=None):
         """get size of scale or original
@@ -1895,7 +1895,7 @@ class ImageField(FileField):
         if not img:
             return 0, 0
         return img.width, img.height
-        
+
     security.declareProtected(CMFCorePermissions.View, 'getScale')
     def getScale(self, instance, scale=None, **kwargs):
         """Get scale by name or original
@@ -1932,10 +1932,10 @@ class ImageField(FileField):
         sizes = self.getAvailableSizes(instance)
         size=0
         size+=len(str(self.get(instance)))
-        
+
         if sizes:
             for name in sizes.keys():
-                id = self.getScaleName(scale=name)        
+                id = self.getScaleName(scale=name)
                 try:
                     data = self.getStorage(instance).get(id, instance)
                 except AttributeError:
@@ -1965,14 +1965,14 @@ class ImageField(FileField):
         url = instance.absolute_url()
         if scale:
             url+='/' + self.getScaleName(scale)
-            
+
         values = {'src' : url,
                   'alt' : alt and alt or instance.Title(),
                   'title' : title and title or instance.Title(),
                   'height' : height,
                   'width' : width,
-                 } 
-        
+                 }
+
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
                  'width="%(width)s" height="%(height)s"' % values
 
