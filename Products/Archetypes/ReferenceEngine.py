@@ -435,7 +435,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         brains = self._queryFor(sid=sID)
         res = {}
         for brain in brains:
-            res[b.relationship]=1
+            res[brain.relationship] = 1
 
         return res.keys()
 
