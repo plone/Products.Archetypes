@@ -32,14 +32,16 @@
                            filename unit/filename | nothing"
                    condition="python:size &gt; 0">
 
-          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName">
-            <img tal:condition="icon" src=""
-                 tal:attributes="src string:${here/portal_url}/$icon"/>
-              <tal:i18n i18n:translate="">View</tal:i18n>
-              <tal:filename tal:replace="filename | fieldName"/>
-          </a>
-          (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
-          <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+          <!---<a href="" tal:attributes="href string:${here/absolute_url}/$fieldName">--->
+            <!---<img tal:condition="icon" src=""--->
+                 <!---tal:attributes="src string:${here/portal_url}/$icon"/>--->
+              <!---<tal:i18n i18n:translate="">View</tal:i18n>--->
+              <!---<tal:filename tal:replace="filename | fieldName"/>--->
+          <!---</a>--->
+          <div class="discreet">
+          <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+          <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
+          </div>
           <a href=""
              tal:condition="python:field.checkExternalEditor(here)"
              tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
@@ -66,19 +68,58 @@
 	        </metal:display>
 	      </div>
 	      <metal:block metal:use-macro="here/widgets/image/macros/image_view"/> 
-          <div tal:condition="accessor">
+          <div tal:condition="accessor" class="field">
             <input class="noborder"
-                   type="checkbox"
-                   value="on"
+                   type="radio"
+                   value="nochange"
+                   tabindex=""
+                   checked="checked"
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_nochange;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+             <label for="" 
+                    tal:attributes="for string:${fieldName}_nochange;" 
+                    i18n:translate="nochange_image">
+                    no change
+             </label>
+             <br/>
+            <input class="noborder"
+                   type="radio"
+                   value="delete"
                    tabindex=""
                    tal:attributes="tabindex tabindex/next;
                        name string:${fieldName}_delete;
-                       id string:${fieldName}_checkbox;
-                       checked python:str(value) == '1';"
+                       id string:${fieldName}_delete;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
 		     />
-            <span i18n:translate="delete_image">delete image</span>
-          </div> 
-	      <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+             <label for="" 
+                    tal:attributes="for string:${fieldName}_delete;" 
+                    i18n:translate="delete_image">
+                    delete current image
+             </label><br />
+            <input class="noborder"
+                   type="radio"
+                   value=""
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_upload;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
+             <label for="" 
+                    tal:attributes="for string:${fieldName}_upload;
+                                    " 
+                    i18n:translate="upload_image">
+                    upload new image:
+             </label>
+             <div style="padding-left:1.5em;padding-top:0.5em;">
+                <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+             </div>
+          </div>
+          <div tal:condition="not: accessor">
+            <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+          </div>
+	      
 	    </metal:fill>
       </metal:use>
     </metal:define>
