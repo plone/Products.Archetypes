@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+  <body>
+
+    <!-- Image Widgets -->
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body">
+	  <div class="group">
+	    <div tal:replace="structure value"/>
+	      <br/>
+	    <div metal:use-macro="here/widgets/file/macros/file_edit"/>
+	      
+	    </div>
+	</div>
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+

@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- Selection Widgets -->
+
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body" 
+	  tal:define="	  
+	  vocab python:field.Vocabulary(here);
+	  vlen  python: len(vocab);
+	  ">
+	    <select multiple="multiple" tal:attributes="name
+	      fieldName; id fieldName;
+		size widget/size;
+		tabindex tabindex/next;">
+		<option 
+			selected=""
+			tal:repeat="item vocab"
+		  tal:attributes="selected python:test(str(item) in  value, 'selected', None); value item;"
+		  tal:content="python: vocab.getValue(item)"
+		  /> 
+	      </select>	  
+	</div>
+      </div>
+    </div>
+  </body>
+  
+</html>
+

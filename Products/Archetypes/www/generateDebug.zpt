@@ -1,0 +1,58 @@
+<html>
+  <div tal:replace="structure here/manage_page_header"/>
+    <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
+      <div tal:replace="structure here/manage_tabs"/>
+	<style type="text/css">
+	  div.row {
+	  padding-top: 2px;
+	  }
+	  
+	  .cell {
+	  margin-right:1em;
+	  width: 33%;
+	  }	    
+	  
+	  .content_type {
+	  border: 1px solid black;
+	  margin: 4px;
+	  }
+	  
+	  th.title {
+	    background-color: #ccf;
+	    }
+
+	  .detail {
+	  background-color: #cdcdcd;
+	  width:100%;
+	  }
+
+	</style>
+	
+	<form action="manage_debug" method="POST" 
+	      tal:define="gen here/archetype_tool;
+	  types gen/listRegisteredTypes	;
+	  ">
+	  
+	    <table class="content_type" width="80%" tal:repeat="type types">
+	      <tr>
+		<th class="title" 
+			tal:define="typ python: here.portal_types.getTypeInfo(type['name']);
+				    installed python: test(typ != None, 'installed', 'not installed')"
+			tal:content="string: ${type/package}::${type/name}   [$installed]"/> 
+	      </tr>
+	      <tr>
+		<td>
+		  <table class="detail">
+		    <tr class="row" tal:repeat="field type/type/fields">
+		      <td tal:content="string: ${field/name}::${field/type}"/> 
+		      <td tal:content="field/required"/>
+		  </tr>
+		</table>
+		  </td>
+	      </tr>
+	    </table>
+      
+    </form>
+      
+    </body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+    <!-- Base Field Widgets -->
+    <div metal:define-macro="view">
+      <div tal:condition="python:'view' in widget.modes">
+	<div metal:define-slot="widget_view"/>
+      </div>
+    </div>
+    
+    <div metal:define-macro="edit">
+      <div tal:condition="python: 'edit' in widget.modes"
+           tal:attributes="class python:test(field.required, 'required
+	label', 'label')">
+	<span i18n:translate="" tal:content="widget/label"></span>
+	<div class="field"
+	     tal:define="error python:errors.get(fieldName);
+	  value python:request.get(fieldName, accessor())"
+	  tal:attributes="class python:test(error, 'field error', 'field')" >
+	  <span tal:condition="error" tal:replace="error" />
+           <div metal:define-slot="widget_body"/>
+          </div></div>
+      </div>
+  </body>
+  
+</html>
+

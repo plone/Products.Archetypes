@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- Boolean Widgets -->
+
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body">
+	  <input type="hidden"
+		 tal:attributes="name fieldName; 
+	    id string: ${fieldName}_hidden;"
+	    />
+	    
+	    <script>
+	      // this function turns a checkbox into a radio button... sort of
+	      function toggle_boolean(visibleCheckbox, hiddenBoolean) {
+	          vis = document.getElementById(visibleCheckbox);
+	          hidden = document.getElementById(hiddenBoolean);
+	          if (vis.checked) {
+	             hidden.value = 1;
+	          } else {
+	             hidden.value = 0;
+	          }
+	          return true;
+	      }
+	  </script>
+	    
+	    <input class="noborder" 
+		   type="checkbox" 
+		   value="on" 
+		   tabindex=""
+                       tal:attributes="tabindex tabindex;
+	      name fieldName;
+	      onClick string: toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');
+	      id string: ${fieldName}_checkbox;
+	      checked python: value == '1'"
+	      />
+
+	</div>
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+

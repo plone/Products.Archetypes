@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- TextArea Widgets -->
+
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="area_edit">
+      <textarea  
+		tabindex="#"
+		tal:attributes="name fieldName;
+	value value;
+	cols widget/cols;
+	rows widget/rows;
+	tabindex tabindex/next;
+	" 
+	tal:define="base python: hasattr(value, 'isUnit'); 
+	binary python: base and value.isBinary() or 0;
+	content python: (base == 1)and value.getRaw() or value ;
+	content python: (binary == 0) and content or '';
+	" 
+	tal:content="content"/>
+    </div>
+    
+    <div metal:define-macro="area_format">
+      <div tal:omit-tag="" 
+	tal:define="contentType python:here.getContentType(fieldName);
+	mimetypes python: getattr(field, 'allowable_content_types', ());"
+	tal:condition="python: len(mimetypes) > 1">
+	<div class="label">Format</div>
+	<select
+		tal:attributes="
+	  id string:${fieldName}_text_format;
+	  name string:${fieldName}_text_format;
+	  tabindex tabindex/next;">
+	  <option 
+		  selected=""
+		  tal:repeat="item mimetypes"
+	    tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
+	    tal:content="item" />
+	</select>
+      </div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body">
+	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_edit"/>
+	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_format"/>
+	</div>
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+

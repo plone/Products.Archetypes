@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- File Widgets -->
+
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+    
+    <div metal:define-macro="file_edit">
+      <input type="file" 
+	     size="30" 
+	     tabindex="" 
+	     tal:attributes="
+	name string:${fieldName}_file;
+	tabindex tabindex/next;" 
+	/>
+	<div tal:omit-tag="" tal:define="unit accessor"
+	  tal:condition="python: hasattr(unit, 'isUnit')">      
+	  <div tal:condition="python: binary == 1"
+	    tal:define="size unit/get_size;
+	    icon unit/getIcon;"
+	    >
+	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
+	      <img src="" tal:attributes="src
+	      string:${here/portal_url}/${icon}"/>Download <span tal:replace="fieldName"/>
+	    </a> (<span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
+	    
+	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
+	      tal:define="edit here/edit.gif">
+	      <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+		Edit</a>
+	  </div>
+	</div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body"
+	  tal:define="binary python: here.isBinary(fieldName);"
+	  >
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_edit"/>
+	</div>
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+

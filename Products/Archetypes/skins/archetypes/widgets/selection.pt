@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- Selection Widgets -->
+
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body" 
+	  tal:define="	  
+	  vocab python:field.Vocabulary(here);
+	  vlen  python: len(vocab);
+	  ">
+	  <div tal:condition="python: vlen < 4">
+	    <!-- Radio when the vocab is short < 4 -->
+	    <span tal:repeat="item vocab" 
+	      tal:omit-tag="">
+	      <input  class="noborder"
+		     tabindex=""
+		     type="radio"
+		     tal:attributes="name fieldName; 
+		checked python: str(value) == str(item); 
+		value item;
+		tabindex tabindex/next;"
+		/><span tal:content="python: vocab.getValue(item)"/>
+		&nbsp;
+		</span>
+		
+	  </div>
+	  <!-- Pulldown when longer -->
+	  <div tal:condition="python: vlen >= 4">
+	    <select tal:attributes="name fieldName; id fieldName;
+	      tabindex tabindex/next;">
+	      <option 
+		      selected=""
+		      tal:repeat="item vocab"
+		tal:attributes="selected python:test(str(value) == str(item), 'selected', None); value item;"
+		tal:content="python: vocab.getValue(item)"
+		/> 
+	    </select>
+	  </div>
+	  
+	</div>
+      </div>
+    </div>
+  </body>
+  
+</html>
+

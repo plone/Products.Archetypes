@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+    <!-- Id/NameWidgets -->
+    
+    <div metal:define-macro="view">
+      <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
+	<span tal:replace="structure accessor"/>
+      </tal:block>
+    </div>
+
+    <div metal:define-macro="edit">
+      <div tal:define="value python:request.get(fieldName, accessor())">
+      <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
+	<div tal:attributes="class python:test(field.required, 'required
+	  label', 'label')">
+	  <span i18n:translate="" tal:content="widget/label"></span>
+	  <div class="field"
+	       tal:define="error errors/fieldName | nothing;"
+	    tal:attributes="class python:test(error, 'field error', 'field')" >
+	    <span tal:condition="error" tal:replace="error" />
+	      <input type="text" 
+		     name="" 
+		     value="" 
+		     size="30" 
+		     tabindex="#"
+		     tal:attributes="name fieldName;
+		value value;
+		tabindex tabindex/next;
+		"
+		/>
+	  </div></div>
+      </tal:block>
+      <tal:block  tal:condition="python:not here.portal_membership.getAuthenticatedMember().visible_ids">
+	<input type="hidden" tal:attributes="name fieldName; value value;"/>
+      </tal:block>
+      </div></div>
+
+  </body>
+  
+</html>
+
