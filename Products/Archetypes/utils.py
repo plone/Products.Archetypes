@@ -12,6 +12,8 @@ from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 
+import Products.generator.i18n as i18n
+
 try:
     _v_network = socket.gethostbyname(socket.gethostname())
 except:
@@ -167,6 +169,8 @@ def unique(s):
             u.append(x)
     return u
 
+
+
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
@@ -312,6 +316,46 @@ class DisplayList:
 
 InitializeClass(DisplayList)
 
+class Vocabulary(DisplayList):
+    """
+    Wrap DisplayMist class and add internationalisation"""
+    
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+    
+    def __init__(self, display_list, instance, i18n_domain):
+        self._keys = display_list._keys
+        self._i18n_msgids = display_list._i18n_msgids
+        self._values = display_list._values
+        self._itor   = display_list._itor
+        self.index = display_list.index
+        self._instance = instance
+        self._i18n_domain = i18n_domain
+        
+    def getValue(self, key, default=None):
+        """
+        Get i18n value
+        """
+        
+        v = self._keys.get(key, None)
+        value = default
+        if v: 
+            value = v[1]
+        else:
+            for k, v in self._keys.items():
+                if repr(key) == repr(k):
+                    value = v[1]
+                    break
+                    
+        if self._i18n_domain and self._instance:
+            msg = self._i18n_msgids.get(key, None) or value
+        
+            return i18n.translate(self._i18n_domain, msg,
+                                  context=self._instance, default=value)
+        else:
+            return value
+
+InitializeClass(Vocabulary)
 
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for

@@ -18,7 +18,7 @@ from Products.Archetypes.exceptions import ObjectFieldException, \
 from Products.Archetypes.Widget import *
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
-from Products.Archetypes.utils import DisplayList, className, mapply
+from Products.Archetypes.utils import DisplayList, Vocabulary, className, mapply
 from Products.Archetypes.debug import log
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
@@ -391,6 +391,13 @@ class Field(DefaultLayerContainer):
             else:
                 log("Unhandled type in Vocab")
                 log(value)
+        
+        if content_instance:
+            # Translate vocabulary
+            i18n_domain = (getattr(self, 'i18n_domain', None) or 
+                          getattr(self.widget, 'i18n_domain', None))
+                      
+            return Vocabulary(value, content_instance, i18n_domain)
 
         return value
 
@@ -507,6 +514,11 @@ class Field(DefaultLayerContainer):
         """
         return self.languageIndependent
 
+    security.declarePublic('getI18nDomain')
+    def getI18nDomain(self):
+        """ Checks if the user may edit this field and if
+        external editor is enabled on this instance """
+        
 #InitializeClass(Field)
 setSecurity(Field)
 
