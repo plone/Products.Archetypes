@@ -49,9 +49,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator="allowDiscussion",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList(((None,'Default'),
-                                    (1,'Enabled'),
-                                    (0,'Disabled'),
+            vocabulary=DisplayList(((None,'Default', 'label_discussion_default'),
+                                    (1,'Enabled', 'label_discussion_enabled'),
+                                    (0,'Disabled', 'label_discussion_disabled'),
                                    )),
             widget=SelectionWidget(
                 label="Allow Discussion?",
