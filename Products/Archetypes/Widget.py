@@ -217,7 +217,6 @@ class FileWidget(TypesWidget):
         return value, {}
 
 
-
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

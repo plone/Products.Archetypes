@@ -37,6 +37,11 @@ try:
 except ImportError:
     from Products.validation import validation
 
+try:
+    from generator.i18n import translate
+except ImportError:
+    from Products.generator.i18n import translate
+
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
 
@@ -180,12 +185,86 @@ class Field(DefaultLayerContainer):
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
+        errors = kwargs['errors']
+        instance = kwargs['instance']
+        name = self.getName()
+
+        if errors and errors.has_key(name):
+            return 1
+
+        if self.required:
+            res = self.validate_required(instance, value, errors)
+            if res != 1:
+                return res
+
+        if self.enforceVocabulary:
+            res = self.validate_vocabulary(instance, value, errors)
+            if res != 1:
+                return res
+
+        res = instance.validate_field(name, value, errors)
 
         for v in self.validators:
             res = validation.validate(v, value, **kwargs)
             if res != 1:
                 return res
-            return None
+        return None
+
+    def validate_required(self, instance, value, errors):
+        if not value:
+            label = self.widget.Label(instance)
+            name = self.getName()
+            errors[name] =  translate(
+                'archetypes', 'error_required',
+                {'name': label}, instance,
+                default = "%s is required, please correct."
+                % label,
+                )
+            return 1
+        return None
+
+    def validate_vocabulary(self, instance, value, errors):
+        """Make sure value is inside the allowed values
+        for a given vocabulary"""
+        error = 0
+        if value:
+            # coerce value into a list called values
+            values = value
+            if isinstance(value, type('')) or \
+                   isinstance(value, type(u'')):
+                values = [value]
+            elif not (isinstance(value, type((1,))) or \
+                      isinstance(value, type([]))):
+                raise TypeError("Field value type error")
+            vocab = self.Vocabulary(instance)
+            # filter empty
+            values = [instance.unicodeEncode(v)
+                      for v in values if v.strip()]
+            # extract valid values from vocabulary
+            valids = []
+            for v in vocab:
+                if type(v) in [type(()), type([])]:
+                    v = v[0]
+                if not type(v) in [type(''), type(u'')]:
+                    v = str(v)
+                valids.append(instance.unicodeEncode(v))
+            # check field values
+            for val in values:
+                error = 1
+                for v in valids:
+                    if val == v:
+                        error = 0
+                        break
+
+        if error == 1:
+            errors[name] = translate(
+                'archetypes', 'error_vocabulary',
+                {'val': val, 'name': label}, instance,
+                default = "Value %s is not allowed for vocabulary "
+                "of element %s." % (val, label),
+                )
+
+        return error
 
     def Vocabulary(self, content_instance=None):
         """

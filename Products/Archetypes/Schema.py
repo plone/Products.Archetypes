@@ -19,6 +19,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
+
 try:
     from generator.i18n import translate
 except ImportError:
@@ -368,12 +369,7 @@ class Schema(Schemata, DefaultLayerContainer):
         The passed dictionary ``errors`` will be filled with human readable
         error messages as values and the corresponding fields' names as
         keys.
-
-        *FIXME*: What's data and metadata arguments?
         """
-        # *TODO*: This method is approx. 130 lines long and has up to 7 nesting
-        #         levels!
-
         if REQUEST:
             fieldset = REQUEST.form.get('fieldset', None)
         else:
@@ -392,143 +388,30 @@ class Schema(Schemata, DefaultLayerContainer):
                 fields.extend([(field.getName(), field)
                                for field in self.filterFields(isMetadata=1)])
 
+        form = REQUEST.form
+        _marker = []
         for name, field in fields:
-            if name == 'id':
-                m_tool = getToolByName(instance, 'portal_membership')
-                member = m_tool.getAuthenticatedMember()
-                if not member.getProperty('visible_ids', None) and \
-                   not (REQUEST and REQUEST.form.get('id', None)):
-                    continue
-            if errors and errors.has_key(name):
-                continue
             error = 0
             value = None
-            label = field.widget.Label(instance)
-            if REQUEST:
-                form = REQUEST.form
-                for postfix in ['_file', '']: ## Contract with FileWidget
-                    value = form.get("%s%s" % (name, postfix), None)
-                    if type(value) != type(''):
-                        if isinstance(value, FileUpload):
-                            if value.filename == '':
-                                continue
-                            else:
-                                break
-                        else:
-                            # Do other types need special handling here?
-                            pass
-
-                    if value is not None and value != '':
-                        break
-
-            # If no REQUEST, validate existing value
-            else:
+            widget = field.widget
+            result = widget.process_form(instance, field, form,
+                                         empty_marker=_marker)
+            if result is None or result is _marker:
                 accessor = field.getAccessor(instance)
                 if accessor is not None:
                     value = accessor()
                 else:
                     # can't get value to validate -- bail
-                    break
-
-            # REQUIRED CHECK
-            if field.required == 1:
-                if not value or value == "":
-                    ## The only time a field would not be resubmitted
-                    ## with the form is if was a file object from a
-                    ## previous edit. That will not come back.  We
-                    ## have to check to see that the field is
-                    ## populated in that case
-                    accessor = field.getAccessor(instance)
-                    if accessor is not None:
-                        unit = accessor()
-                        if (IBaseUnit.isImplementedBy(unit) or
-                            (IImageField.isImplementedBy(field) and
-                             isinstance(unit, field.image_class))):
-                            if hasattr(aq_base(unit), 'get_size'):
-                                if unit.filename != '' or unit.get_size():
-                                    value = 1 # value doesn't matter
-                                elif unit.get_size():
-                                    value = unit
-
-                if ((isinstance(value, FileUpload) and value.filename != '') or
-                    (isinstance(value, FileType) and value.name != '')):
-                    # OK, its a file, is it empty?
-                    value.seek(-1, 2)
-                    size = value.tell()
-                    value.seek(0)
-                    if size == 0:
-                        value = None
-
-                if not value:
-                    errors[name] =  translate(
-                        'archetypes', 'error_required',
-                        {'name': label}, instance,
-                        default = "%s is required, please correct."
-                        % label,
-                        )
-                    error = 1
                     continue
+            else:
+                value = result[0]
 
-            # VOCABULARY CHECKS
-            if error == 0  and field.enforceVocabulary == 1:
-                if value: ## we need to check this as optional field will be
-                          ## empty and thats ok
-                    # coerce value into a list called values
-                    values = value
-                    if isinstance(value, type('')) or \
-                           isinstance(value, type(u'')):
-                        values = [value]
-                    elif not (isinstance(value, type((1,))) or \
-                              isinstance(value, type([]))):
-                        raise TypeError("Field value type error")
-                    vocab = field.Vocabulary(instance)
-                    # filter empty
-                    values = [instance.unicodeEncode(v)
-                              for v in values if v.strip()]
-                    # extract valid values from vocabulary
-                    valids = []
-                    for v in vocab:
-                        if type(v) in [type(()), type([])]:
-                            v = v[0]
-                        if not type(v) in [type(''), type(u'')]:
-                            v = str(v)
-                        valids.append(instance.unicodeEncode(v))
-                    # check field values
-                    for val in values:
-                        error = 1
-                        for v in valids:
-                            if val == v:
-                                error = 0
-                                break
-
-                    if error == 1:
-                        errors[name] = translate(
-                            'archetypes', 'error_vocabulary',
-                            {'val': val, 'name': label}, instance,
-                            default = "Value %s is not allowed for vocabulary "
-                            "of element %s." % (val, label),
-                            )
-
-            # Call any field level validation
-            if error == 0 and value:
-                try:
-                    res = field.validate(value, instance=instance,
-                                         field=field, REQUEST=REQUEST)
-                    if res:
-                        errors[name] = res
-                        error = 1
-                except Exception, E:
-                    log_exc()
-                    errors[name] = E
-
-            # CUSTOM VALIDATORS
-            if error == 0:
-                try:
-                    instance.validate_field(name, value, errors)
-                except Exception, E:
-                    log_exc()
-                    errors[name] = E
-
+            res = field.validate(instance=instance,
+                                 value=value,
+                                 errors=errors,
+                                 field=field,
+                                 REQUEST=REQUEST)
+        return errors
 
     # ILayerRuntime
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
