@@ -21,3 +21,6 @@ UUID_ATTR = "_at_uid"
 ##implement the old style ordered folder?
 ##for backward compatibility reasons only
 USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
+
+# XXX TO IMPLEMENT
+ZOPE_LINES_IS_TUPLE_TYPE = 1

@@ -641,7 +641,7 @@ class LinesField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'lines',
-        'default' : [],
+        'default' : (),
         'widget' : LinesWidget,
         })
 
@@ -657,11 +657,16 @@ class LinesField(ObjectField):
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        return [encode(v, instance, **kwargs) for v in value]
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            return tuple([encode(v, instance, **kwargs) for v in value])
+        else:
+            return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
