@@ -404,8 +404,8 @@ def installTypes(self, out, types, package_name,
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies)
     if refresh_references and ftypes:
-        refreshReferenceCatalog(self, out, package_name=package_name, 
-                                ftypes=ftypes)
+        rc = getToolByName(self, REFERENCE_CATALOG)
+        rc.manage_rebuildCatalog()
 
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
