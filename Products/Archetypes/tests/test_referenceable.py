@@ -238,6 +238,21 @@ class ReferenceableTests(ArcheSiteTestCase):
         #assert len(uids) == 0
         assert len(rc()) == 0
 
+    def test_referenceReference(self):
+        # Reference a reference object for fun (no, its like RDFs
+        # metamodel)
+        site = self.getPortal()
+        rc = site.reference_catalog
+
+        a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
+        c = makeContent( site, portal_type='DDocument',title='Foo', id='c')
+        a.addReference(b)
+
+        ref = a._getReferenceAnnotations().objectValues()[0]
+        c.addReference(ref)
+        ref.addReference(c)
+        self.verifyBrains()
 
     def verifyBrains(self):
         site = self.getPortal()
