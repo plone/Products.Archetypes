@@ -917,6 +917,20 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return res
 
+    security.declareProtected(CMFCorePermissions.View, 'visibleLookup')
+    def visibleLookup(self, field, vis_key, vis_value='visible'):
+        """Checks the value of a specific key in the field widget's 'visible'
+           dictionary... returns 1 or 0 so it can be used within a lambda as
+           the predicate for a filterFields call"""
+        vis_dict = field.widget.visible
+        value = ""
+        if vis_dict.has_key(vis_key):
+            value = field.widget.visible[vis_key]
+        if value==vis_value:
+            return 1
+        else:
+            return 0
+
     def lookupObject(self,uid):
         import warnings
         warnings.warn('ArchetypeTool.lookupObject is dreprecated',
