@@ -38,6 +38,11 @@
    Sounds complex? Well the former version was much complexer.
    [tiran]
 
+ * Subclasses TemplateMixin from ExtensionClass.Base, set default_view to None
+   in order to enable the immediate_view magic and made the getDefaultView()
+   method a little bit more efficient.
+   [tiran]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 
