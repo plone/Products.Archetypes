@@ -258,6 +258,7 @@ class ReferenceWidget(TypesWidget):
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
+                    #restore acq.wrapper
                     place = getattr(instance, destination)
                     place = place()
                 if isinstance(place, ListType):
@@ -280,6 +281,7 @@ class ReferenceWidget(TypesWidget):
                 else:
                     place = getattr(aq_base(instance), destination, destination)
                     if callable(place):
+                        #restore acq.wrapper
                         place = getattr(instance, destination)
                         place = place()
                     if isinstance(place, ListType):
