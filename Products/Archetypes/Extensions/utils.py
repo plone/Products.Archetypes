@@ -3,6 +3,7 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
      createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
+from Products.CMFCore.Expression import Expression
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
@@ -142,14 +143,14 @@ def install_navigation(self, out, types):
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
-    for type in types:
-        if 'actions' in type.installMode:
-            typeInfo = getattr(typesTool, type.__name__)
-            if hasattr(type,'actions'):
-                #Look for each action we define in type.actions
+    for portal_type in types:
+        if 'actions' in portal_type.installMode:
+            typeInfo = getattr(typesTool, portal_type.__name__)
+            if hasattr(portal_type,'actions'):
+                #Look for each action we define in portal_type.actions
                 #in typeInfo.action replacing it if its there and
                 #just adding it if not
-                if getattr(type,'include_default_actions',1):
+                if getattr(portal_type,'include_default_actions',1):
                     new = list(typeInfo._actions)
                 else:
                     # if no standard actions are wished - dont display them
@@ -157,10 +158,17 @@ def install_actions(self, out, types):
 
                 cmfver=getCMFVersion()
 
-                for action in type.actions:
-                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
+                for action in portal_type.actions:
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased': 
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
+                        
+                        #change action and condition into expressions,
+                        #if they are still strings
+                        if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
+                            action['action']=Expression(action['action'])
+                        if action.has_key('condition') and type(action['condition']) in (type(''), type(u'')):
+                            action['condition']=Expression(action['condition'])
                         if hits:
                             hits[0].__dict__.update(action)
                         else:
@@ -179,8 +187,8 @@ def install_actions(self, out, types):
                 typeInfo._actions = tuple(new)
                 typeInfo._p_changed = 1
 
-            if hasattr(type,'factory_type_information'):
-                typeInfo.__dict__.update(type.factory_type_information)
+            if hasattr(portal_type,'factory_type_information'):
+                typeInfo.__dict__.update(portal_type.factory_type_information)
                 typeInfo._p_changed = 1
 
 def install_indexes(self, out, types):
