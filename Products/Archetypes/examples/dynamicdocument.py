@@ -1,5 +1,4 @@
 from Products.Archetypes.public import *
-from Products.Archetypes.templatemixin import TemplateMixin
 
 schema = BaseSchema + Schema((
     TextField('teaser',

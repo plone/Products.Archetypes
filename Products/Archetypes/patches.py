@@ -67,5 +67,5 @@ mapping = {
     }
 
 # create aliases from dottedpath to module
-for dottedpath, module in mapping.keys():
+for dottedpath, module in mapping.items():
     sys.modules[dottedpath] = module

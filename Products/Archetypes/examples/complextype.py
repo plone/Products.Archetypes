@@ -1,6 +1,6 @@
 from Products.Archetypes.public import *
 from Products.Archetypes import field
-from SimpleType import SimpleType
+from Products.Archetypes.examples.simpletype import SimpleType
 
 fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',

@@ -14,6 +14,7 @@ from Products.Archetypes.base.basetool import BaseFolderishTool
 from Products.Archetypes.base.basebtreefolder import BaseBTreeFolder
 from Products.Archetypes.base.baseorderedfolder import OrderedBaseFolder
 from Products.Archetypes.base.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.base.templatemixin import TemplateMixin
 # base class schemata instances
 from Products.Archetypes.base.baseobject import MinimalSchema
 from Products.Archetypes.base.basecontent import BaseSchema

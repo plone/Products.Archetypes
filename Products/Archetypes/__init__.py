@@ -4,7 +4,8 @@ from Products.Archetypes.config import *
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import getPkgInfo
 from Products.Archetypes.lib.plonecompat import IndexIterator
-import Products.Archetypes.atapi
+from Products.Archetypes.atapi import process_types
+from Products.Archetypes.atapi import listTypes
 import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo

@@ -13,6 +13,7 @@ from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 from Products.Archetypes.refengine.common import PluggableCatalog
 from Products.Archetypes.refengine.common import ReferenceResolver
 from Products.Archetypes.refengine.common import RelativPathCatalogBrains
+from Products.Archetypes.refengine.common import _catalog_dtml
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import UUID_ATTR

@@ -1,3 +1,4 @@
+import os
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.ZCatalog.Catalog import Catalog
@@ -22,6 +23,8 @@ from Products import CMFCore
 from ZODB.POSException import ConflictError
 import zLOG
 
+_www = os.path.join(os.path.dirname(__file__), 'www')
+_catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 class RelativPathCatalogBrains(AbstractCatalogBrain):
     """fried my little brains"""

@@ -9,6 +9,7 @@ from Products.Archetypes.interfaces.referenceengine import IReferenceCatalog
 from Products.Archetypes.refengine.common import PluggableCatalog
 from Products.Archetypes.refengine.common import ReferenceResolver
 from Products.Archetypes.refengine.common import RelativPathCatalogBrains
+from Products.Archetypes.refengine.common import _catalog_dtml
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
@@ -37,12 +38,9 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
-from Products import CMFCore
 from ZODB.POSException import ConflictError
 import zLOG
 
-_www = os.path.join(os.path.dirname(__file__), 'www')
-_catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 class ReferenceCatalogBrains(RelativPathCatalogBrains):
     pass
