@@ -38,12 +38,14 @@
 		    tal:define="form_name form_name | nothing"
 		    tal:attributes="name attr_name | string:lang;
 				    onChange python:form_name and (form_name+'.submit()');">
-	      <option value="" i18n:translate="label_choose_language">
-		Choose Language
+	      <option value="" tal:attributes="value current" 
+			       tal:content="python:current+' ('+here.languageDescription(current)+')'">
+		 Current Language
 	      </option> 
 
 	      <tal:block tal:repeat="lang python:languages">
 		  <option value="" 
+                          tal:condition="python: lang[0] != current"
 			  tal:attributes="value python:lang[0];"
 			  tal:content="python:lang[0]+' ('+lang[1]+')'" />
 	      </tal:block>
