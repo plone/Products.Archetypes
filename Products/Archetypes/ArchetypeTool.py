@@ -143,7 +143,9 @@ def fixActionsForType(portal_type, typesTool):
                     typeInfo.setMethodAliases(portal_type.aliases)
                 else:
                     #Custom views might need to reguess the aliases
-                    typeInfo._guessMethodAliases()
+		    if hasattr(typeInfo,'_guessMethodAliases'):
+                       typeInfo._guessMethodAliases()
+                    
                     
             
             typeInfo._actions = tuple(new)
