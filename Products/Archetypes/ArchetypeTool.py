@@ -547,8 +547,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         returns a DisplayList 
         """        
         results = []
-        import pdb
-        #pdb.set_trace()
         if type(instance) is not StringType:
             instance = instance.meta_type
         try:
