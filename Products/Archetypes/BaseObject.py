@@ -49,6 +49,7 @@ class BaseObject(Implicit):
         self.id = oid
     
     def initalizeArchetype(self, **kwargs):
+        """called by the generated addXXX factory in types tool"""
         self.initalizeLayers()
         self.setDefaults()
         if kwargs:
