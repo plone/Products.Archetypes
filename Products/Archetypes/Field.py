@@ -26,6 +26,7 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
      MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
+from Products.Archetypes.Registry import setSecurity, registerField, registerPropertyType
 
 from Products.validation import validation as validationService
 from Products.validation import ValidationChain, UnknowValidatorError, FalseValidatorError
@@ -511,7 +512,8 @@ class Field(DefaultLayerContainer):
         """
         return self.languageIndependent
 
-InitializeClass(Field)
+#InitializeClass(Field)
+setSecurity(Field)
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -627,7 +629,8 @@ class ObjectField(Field):
             mimetype = getattr(self, 'default_content_type', 'application/octet')
         return mimetype
 
-InitializeClass(ObjectField)
+#InitializeClass(ObjectField)
+setSecurity(ObjectField)
 
 class StringField(ObjectField):
     """A field that stores strings"""
@@ -1697,8 +1700,6 @@ class ImageField(FileField):
         return thumbnail_file, format.lower()
 
 
-InitializeClass(Field)
-
 # photo field implementation, derived from CMFPhoto by Magnus Heino
 
 from cgi import escape
@@ -1992,8 +1993,6 @@ class PhotoField(ObjectField):
         value = getattr(value, 'get_size', lambda: str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
-InitializeClass(PhotoField)
-
 __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
@@ -2001,7 +2000,6 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'CMFObjectField', 'ImageField', 'PhotoField',
            )
 
-from Registry import registerField
 
 registerField(StringField,
               title='String',
@@ -2069,8 +2067,6 @@ registerField(PhotoField,
 	      description=('Used for storing images. '
 			   'Based on CMFPhoto. ')
 	     )
-
-from Registry import registerPropertyType
 
 registerPropertyType('required', 'boolean')
 registerPropertyType('default', 'string')

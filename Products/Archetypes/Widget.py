@@ -5,6 +5,10 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
 
+from Products.CMFCore import CMFCorePermissions
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
+
 from Acquisition import aq_base, aq_parent
 
 try:
@@ -26,23 +30,30 @@ class TypesWidget(macrowidget):
         'helper_css': (),
         })
 
+    security = ClassSecurityInfo()
+
+    #X#security.declarePublic('getName')
     def getName(self):
         return self.__class__.__name__
 
+    #X#security.declarePublic('getType')
     def getType(self):
         """Return the type of this field as a string"""
         return className(self)
 
+    #X#security.declarePublic('bootstrap')
     def bootstrap(self, instance):
         """Override if your widget needs data from the instance."""
         return
 
+    #X#security.declarePublic('populateProps')
     def populateProps(self, field):
         """This is called when the field is created."""
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
 
+    #X#security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
         visible, hidden, invisible"""
@@ -56,14 +67,18 @@ class TypesWidget(macrowidget):
             state = vis_dic.get(mode, state)
         return state
 
+    # XXX
+    #X#security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
         self.condition = condition
 
+    #X#security.declarePublic('getCondition')
     def getCondition(self):
         """Return the widget text condition."""
         return self.condition
 
+    #X#security.declarePublic('testCondition')
     def testCondition(self, folder, portal, object):
         """Test the widget condition."""
         try:
@@ -76,6 +91,8 @@ class TypesWidget(macrowidget):
         except AttributeError:
             return 1
 
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """Basic impl for form processing in a widget"""
@@ -94,6 +111,8 @@ class StringWidget(TypesWidget):
         'maxlength' : '255',
         })
 
+    security = ClassSecurityInfo()
+
 class DecimalWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -105,6 +124,8 @@ class DecimalWidget(TypesWidget):
         'thousands_commas' : 0,
         })
 
+    security = ClassSecurityInfo()
+
 class IntegerWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -112,6 +133,8 @@ class IntegerWidget(TypesWidget):
         'size' : '5',
         'maxlength' : '255',
         })
+
+    security = ClassSecurityInfo()
 
 class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -134,6 +157,9 @@ class ReferenceWidget(TypesWidget):
         'helper_css' : ('content_types.css',),
         })
 
+    security = ClassSecurityInfo()
+
+    #X#security.declarePublic('addableTypes')
     def addableTypes(self, instance, field):
         """Returns a list of dictionaries which maps portal_type to its human readable
         form."""
@@ -222,6 +248,8 @@ class ComputedWidget(TypesWidget):
         'macro' : "widgets/computed",
         })
 
+    security = ClassSecurityInfo()
+
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -233,6 +261,10 @@ class TextAreaWidget(TypesWidget):
         'divider':"\n\n========================\n\n",
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """handle text formatting"""
@@ -276,11 +308,15 @@ class LinesWidget(TypesWidget):
         'cols'  : 40,
         })
 
+    security = ClassSecurityInfo()
+
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/boolean",
         })
+
+    security = ClassSecurityInfo()
 
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -292,12 +328,16 @@ class CalendarWidget(TypesWidget):
         'helper_css': ('jscalendar/calendar-system.css',),
         })
 
+    security = ClassSecurityInfo()
+
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'format': "flex", # possible values: flex, select, radio
         'macro' : "widgets/selection",
         })
+
+    security = ClassSecurityInfo()
 
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -306,6 +346,8 @@ class MultiSelectionWidget(TypesWidget):
         'macro' : "widgets/multiselection",
         'size'  : 5,
         })
+
+    security = ClassSecurityInfo()
 
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -316,6 +358,10 @@ class KeywordWidget(TypesWidget):
         'roleBasedAdd' : 1,
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """process keywords from form where this widget has a list of
@@ -343,6 +389,10 @@ class FileWidget(TypesWidget):
         'show_content_type' : 1,
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """form processing that deals with binary data"""
@@ -377,6 +427,10 @@ class RichWidget(TypesWidget):
         'format': 1,
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """complex form processing, includes handling for text
@@ -434,6 +488,10 @@ class IdWidget(TypesWidget):
         'is_autogenerated' : 'isIDAutoGenerated',
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """the id might be hidden by the widget and not submitted"""
@@ -450,6 +508,10 @@ class ImageWidget(FileWidget):
         'display_threshold': 102400,
         })
 
+    security = ClassSecurityInfo()
+
+    # XXX
+    #X#security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
         """form processing that deals with image data (and its delete case)"""
@@ -481,6 +543,8 @@ class LabelWidget(TypesWidget):
         'macro' : "widgets/label",
         })
 
+    security = ClassSecurityInfo()
+
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -491,6 +555,8 @@ class PasswordWidget(TypesWidget):
         'size' : 20,
         'maxlength' : '255',
         })
+
+    security = ClassSecurityInfo()
 
 class VisualWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
@@ -505,11 +571,15 @@ class VisualWidget(TextAreaWidget):
         'divider': '\n\n<hr />\n\n', # default divider for append only divider
         })
 
+    security = ClassSecurityInfo()
+
 class EpozWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/epoz",
         })
+
+    security = ClassSecurityInfo()
 
 class InAndOutWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -519,6 +589,8 @@ class InAndOutWidget(TypesWidget):
         'helper_js': ('widgets/js/inandout.js',),
         })
 
+    security = ClassSecurityInfo()
+
 class PicklistWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -526,6 +598,8 @@ class PicklistWidget(TypesWidget):
         'size' : '6',
         'helper_js': ('widgets/js/picklist.js',),
         })
+
+    security = ClassSecurityInfo()
 
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',

@@ -31,3 +31,4 @@ MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
 
 ## Debug security settings of Fields, Widgets and Storages?
 DEBUG_SECURITY=False
+#DEBUG_SECURITY=True

@@ -5,6 +5,7 @@ from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
 from AccessControl import ClassSecurityInfo
+from AccessControl.SecurityInfo import ACCESS_PRIVATE, ACCESS_PUBLIC
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
 
@@ -171,6 +172,8 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
     * Sets permission of objects
     """
     if not klass.__dict__.has_key('security'):
+        if DEBUG_SECURITY:
+            raise AssertionError('%s has no ClassSecurityObject' % klass.__name__)
         security = klass.security = ClassSecurityInfo()
     else:
         security = klass.security
@@ -183,16 +186,19 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
             security.declareObjectPrivate()
         else:
             security.declareObjectProtected(objectPermission)
-    InitializeClass(klass)
     if DEBUG_SECURITY:
-        if hasattr(klass, '__allow_access_to_unprotected_subobjects__'):
+        if getattr(klass, '__allow_access_to_unprotected_subobjects__', False):
             print '%s: Unprotected access is allowed' % klass.__name__
-        for name in dir(klass):
+        for name in klass.__dict__.keys():
             method = getattr(klass, name)
             if name.startswith('_') or type(method) != types.MethodType:
                 continue
-            if not hasattr(klass, '%s__roles__' % name):
+            if not security.names.has_key(name):
                 print '%s.%s has no security' % (klass.__name__, name)
+            elif security.names.get(name) is ACCESS_PUBLIC:
+                print '%s.%s is public' % (klass.__name__, name)
+            
+    InitializeClass(klass)
 
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
