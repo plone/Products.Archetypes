@@ -108,6 +108,9 @@ class newBaseUnit(File):
     def getContentType(self):
         return self.mimetype
 
+    def content_type(self):
+        return self.getContentType()
+
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):

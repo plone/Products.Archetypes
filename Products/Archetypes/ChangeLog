@@ -1,5 +1,8 @@
 2003-09-02  Sidnei da Silva  <sidnei@plone.org>
 
+	* BaseUnit.py (newBaseUnit.content_type): Provide a content_type
+	method to make ExternalEditor happy (oh, adapters...)
+
 	* Marshall.py (PrimaryFieldMarshaller.marshall): Use __getitem__
 	of BaseObject, so we get to use the same effect everywere (get a
 	BaseUnit instead of a string).
