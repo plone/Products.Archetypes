@@ -23,7 +23,7 @@ class Referenceable(CMFCatalogAware, Base):
     isReferenceable = 1
     def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
-        if hasattr(self, '_uid') and self._uid is not None:
+        if hasattr(aq_base(self), '_uid') and self._uid is not None:
             return
         
         try:
@@ -48,7 +48,7 @@ class Referenceable(CMFCatalogAware, Base):
         return self._getUID()
     
     def _getUID(self):
-        return getattr(self, '_uid', None)
+        return getattr(aq_base(self), '_uid', None)
 
     def _setUID(self, id):
         tid =  self._getUID()
