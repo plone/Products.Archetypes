@@ -34,8 +34,7 @@ class CatalogMultiplex(CMFCatalogAware):
                 self.notifyModified()
 
         at = getToolByName(self, TOOL_NAME, None)
-        if at is None:
-            return
+        if at is None: return
         
         catalogs = at.getCatalogsByType(self.meta_type)
 

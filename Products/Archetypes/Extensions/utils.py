@@ -51,10 +51,15 @@ def install_tools(self, out):
         addCatalog = self.manage_addProduct['ZCatalog'].manage_addZCatalog
         addCatalog(UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
-        try:
-            catalog.addIndex('UID', 'FieldIndex', extra=None)
-        except:
-            pass
+
+        for indexName, indexType in ( ('UID', 'FieldIndex'),
+                                      ('Type', 'FieldIndex'),
+                                      ('Title', 'FieldIndex'),
+                                      ):
+            try:
+                catalog.addIndex(indexName, indexType, extra=None)
+            except:
+                pass
 
         try:
             if not 'UID' in catalog.schema():
