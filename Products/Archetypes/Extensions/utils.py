@@ -214,8 +214,9 @@ def install_indexes(self, out, types):
                     installed = None
                     schema = alternative.split(':', 1)
                     if len(schema) == 2 and schema[1] == 'schema':
+                        # FIXME: why do we try/except this part ?
                         try:
-                            if ischema and field.accessor not in catalog.schema():
+                            if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
                         except:
                             pass
