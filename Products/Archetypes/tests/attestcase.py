@@ -65,6 +65,7 @@ else:
     import Products.PloneTestCase.setup
 
     # hack to eliminate fine circular dependency
+    # will be handled later by PloneTestCase
     try:
         import Products.CMFPlone.patches.zserverPatch
         ZopeTestCase.installProduct('ATContentTypes', quiet=1)

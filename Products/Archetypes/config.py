@@ -45,6 +45,3 @@ else:
 
 ## comment out the following line to enable the reference graph tool
 HAS_GRAPHVIZ = False
-
-## protect attributes of AttributeStorage from unallowed access?
-ATTRIBUTE_SECURITY = False
