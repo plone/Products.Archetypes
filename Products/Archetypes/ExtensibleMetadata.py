@@ -86,7 +86,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator = 'setEffectiveDate',
             widget=CalendarWidget(
                 label="Effective Date",
-                description=("Date when the content should become available"
+                description=("Date when the content should become available "
                              "on the public site"),
                 label_msgid="label_effective_date",
                 description_msgid="help_effective_date",
