@@ -8,6 +8,7 @@ from Products.Archetypes.config import UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR
 from Products.Archetypes.exceptions import ReferenceException
 
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -272,7 +273,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
         if type(obj) not in STRING_TYPES:
-            uobject = obj.aq_base
+            uobject = aq_base(obj)
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject
 
