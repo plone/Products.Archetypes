@@ -18,7 +18,7 @@
 		      tal:replace="structure python: result or 'not set'" />
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body">
 	  <div tal:define="id fieldName;
 	       inputname  fieldName;

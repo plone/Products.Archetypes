@@ -18,7 +18,7 @@
       <tal:block tal:define="member_visible_ids python:here.portal_membership.getAuthenticatedMember().getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
 		 global visible_ids visible_ids|member_visible_ids;"
 		 tal:condition="visible_ids">
-	<metal:use use-macro="here/widgets/field/macros/edit">
+	<metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	  <input metal:fill-slot="widget_body"
 		 type="text"
 		 name=""

@@ -15,7 +15,7 @@
 		      tal:replace="structure display" />
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="vocab python:field.Vocabulary(here);
 		    format python:test(field.widget.format,field.widget.format,'select');
