@@ -153,7 +153,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         v, m, f = self.field._process_input(fd, instance=self.folder)
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'text/plain')
-        self.failIf(f)
+        self.failIf(f, f)
 
     def test_real_file_binary(self):
         from tempfile import TemporaryFile
@@ -163,7 +163,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         v, m, f = self.field._process_input(fd, instance=self.folder)
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'application/octet-stream')
-        self.failIf(f)
+        self.failIf(f, f)
 
     def test_real_file_force_filename_detect_mime_pdf(self):
         from tempfile import TemporaryFile
@@ -196,7 +196,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
                                             mimetype='text/xml')
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'text/xml')
-        self.failIf(f)
+        self.failIf(f, f)
 
     def test_ofs_file_text(self):
         from tempfile import TemporaryFile
@@ -314,7 +314,7 @@ def test_suite():
     suite = unittest.TestSuite()
     tests = [
         unittest.makeSuite(FileFieldTest),
-        #unittest.makeSuite(TextFieldTest),
+        unittest.makeSuite(TextFieldTest),
         ]
     for t in tests:
         suite.addTest(t)

@@ -1182,6 +1182,9 @@ class TextField(FileField):
             value = value.data
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
+            # XXX Should be fixed eventually
+            body = value.read(CHUNK)
+            value.seek(0)
         elif isinstance(value, FileType) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
@@ -1207,6 +1210,9 @@ class TextField(FileField):
             klass = getattr(value, '__class__', None)
             raise TextFieldException('Value is not File or String (%s - %s)' %
                                      (type(value), klass))
+        if isinstance(value, Pdata):
+            # XXX Should be fixed eventually
+            value = str(value)
         filename = filename[max(filename.rfind('/'),
                                 filename.rfind('\\'),
                                 filename.rfind(':'),
@@ -1224,6 +1230,8 @@ class TextField(FileField):
                 mimetype, enc = guess_content_type(filename, body, mimetype)
         mimetype = str(mimetype)
         file.update(value, instance, mimetype=mimetype, filename=filename)
+        file.setContentType(instance, mimetype)
+        file.setFilename(filename)
         return file, str(file.getContentType()), file.getFilename()
 
     security.declarePrivate('getRaw')
