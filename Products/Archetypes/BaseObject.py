@@ -1,4 +1,4 @@
-from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import log_exc, log, _default_logger
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
@@ -84,10 +84,32 @@ class BaseObject(Referenceable):
             if kwargs:
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
-            self.mark_creation_flag()
+            self.markCreationFlag()
         except:
             log_exc()
+            #_default_logger.log_exc()
+            #raise
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'markCreationFlag')
+    def markCreationFlag(self, request=None):
+        """XXX explain me
+        """
+        if not request:
+            request = getattr(self, 'REQUEST', None)
+        if not request:
+            log("markCreationFlag: Can't get request from %s" % repr(self))
+            return
+        session = getattr(request, 'session', None)
+        if not session:
+            log("markCreationFlag: Can't get session from request")
+            return
+        id = self.getId()
+        referrer = request.get('HTTP_REFERER', aq_parent(self).absolute_url())
+        # XXX do we really need sessions?
+        cflag = session.get('__creation_flag__', {})
+        cflag[id] = referrer
+        session.set('__creation_flag__', cflag)
+    
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
@@ -762,6 +784,7 @@ class BaseObject(Referenceable):
         if hasattr(REQUEST, 'RESPONSE'):
             REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
+InitializeClass(BaseObject)
 
 class Wrapper:
     """wrapper object for access to sub objects """
@@ -784,4 +807,3 @@ class Wrapper:
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
-InitializeClass(BaseObject)
