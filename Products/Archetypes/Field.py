@@ -364,11 +364,11 @@ class ReferenceField(ObjectField):
     def Vocabulary(self, content_instance=None):
         if self.allowed_types:
             catalog = getToolByName(content_instance, 'portal_catalog')
-            value = [(obj.UID, obj.Title)
+            value = [(obj.UID, obj.Title or obj.getId)
                      for obj in catalog(Type=self.allowed_types)]
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            value = [(obj.UID, obj.Title)
+            value = [(obj.UID, obj.Title or obj.getId)
                      for obj in archetype_tool.Content()]
         if not self.required:
             value.insert(0, (None, '<no reference>'))
