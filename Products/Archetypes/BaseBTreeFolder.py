@@ -37,6 +37,14 @@ if has_btree:
             CMFBTreeFolder.manage_beforeDelete(self, item, container)
             BaseFolder.manage_beforeDelete(self, item, container)
 
+        def __getitem__(self, key):
+            """ Override BTreeFolder __getitem__ """
+            if key in self.Schema().keys() and key[:1] != "_": #XXX 2.2
+                accessor = self.Schema()[key].getAccessor(self)
+                if accessor is not None:
+                    return accessor()
+            return CMFBTreeFolder.__getitem__(self, key)
+
         security.declareProtected(ModifyPortalContent, 'indexObject')
         indexObject = BaseFolder.indexObject
 

@@ -23,7 +23,8 @@ from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, FileFieldException
 from Products.validation import validation
 from config import TOOL_NAME, USE_NEW_BASEUNIT
-
+from OFS.content_types import guess_content_type
+from OFS.Image import File
 
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
@@ -159,6 +160,13 @@ class Field(DefaultLayerContainer):
     def getDefault(self):
         return self.default
 
+    security.declarePrivate('getAccessor')
+    def getAccessor(self, instance):
+        return getattr(instance, self.accessor, None)
+
+    security.declarePublic('getMutator')
+    def getMutator(self, instance):
+        return getattr(instance, self.mutator, None)
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -244,21 +252,36 @@ class FileField(StringField):
         })
 
     def _process_input(self, value, default=None,
-                       mime_type='text/plain', **kwargs):
+                       mime_type=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) is StringType:
+            if mime_type is None:
+                mime_type, enc = guess_content_type('', value, 'text/plain')
             return value, mime_type
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
-            return value.read(), mime_type
+            f_name = ''
+            if isinstance(value, FileUpload):
+                f_name = value.filename
+            if isinstance(value, FileType):
+                f_name = value.name
+            value = value.read()
+            if mime_type is None:
+                mime_type, enc = guess_content_type(f_name, value, 'text/plain')
+            return value, mime_type
         raise TextFieldException('Value is not File or String')
+
+    def getContentType(self, instance):
+        if hasattr(aq_base(instance), '_FileField_types'):
+            return instance._FileField_types.get(self.getName(), 'text/plain')
+        return None
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = self.default_content_type
+            kwargs['mime_type'] = None
 
         value, mime_type = self._process_input(value,
                                                default=self.default, \
@@ -266,21 +289,13 @@ class FileField(StringField):
         # FIXME: ugly hack
         try:
             types_d = instance._FileField_types
-            instance._p_changed
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
         types_d[self.name] = mime_type
+        instance._p_changed = 1
+        value = File(self.name, '', value, mime_type)
         ObjectField.set(self, instance, value, **kwargs)
-
-        #Invoke the default Transforms, hey, its policy
-        #Note that we stash the product of transforms on
-        #bu.transforms and BU deals with that
-        #tt = getToolByName(self, "transformation_tool")
-        #tt.runChains(MUTATION,
-        #             bu.getRaw(),
-        #             bu.transforms)
-
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -301,7 +316,7 @@ class TextField(ObjectField):
         return self.default_output_type
 
     def _process_input(self, value, default=None, \
-                       mime_type='text/plain', **kwargs):
+                       mime_type=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
@@ -310,6 +325,14 @@ class TextField(ObjectField):
             if ((isinstance(value, FileUpload) and value.filename != '') or
                 (isinstance(value, FileType) and value.name != '')):
                 #OK, its a file, is it empty?
+                f_name = ''
+                if isinstance(value, FileUpload):
+                    f_name = value.filename
+                if isinstance(value, FileType):
+                    f_name = value.name
+                value = value.read()
+                if mime_type is None:
+                    mime_type, enc = guess_content_type(f_name, value, self.default_content_type)
                 value.seek(-1, 2)
                 size = value.tell()
                 value.seek(0)
@@ -320,16 +343,28 @@ class TextField(ObjectField):
                 return value, mime_type
 
             elif IBaseUnit.isImplementedBy(value):
+                if mime_type is None:
+                    mime_type, enc = guess_content_type(f_name, str(value), self.default_content_type)
                 return value, getattr(aq_base(value), 'mimetype', mime_type)
         else:
             if value == '':
-                return default, mime_type
-            return value, mime_type
+                return default, self.default_content_type
+            return value, self.default_content_type
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.name, type(value)))
+
+    def getContentType(self, instance):
+        value = ''
+        accessor = self.getAccessor(instance)
+        if accessor is not None:
+            value = accessor()
+        mime_type = getattr(aq_base(value), 'mimetype', None)
+        if mime_type is None:
+            mime_type, enc = guess_content_type('', str(value), self.default_content_type)
+        return mime_type
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = self.default_content_type
+            kwargs['mime_type'] = None
 
         value, mime_type = self._process_input(value,
                                                default=self.default, \
@@ -606,7 +641,6 @@ except:
 class Image(BaseImage):
     def isBinary(self):
         return 1
-
 
 class ImageField(ObjectField):
     """ implements an image attribute. it stores

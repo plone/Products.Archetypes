@@ -112,13 +112,15 @@ class BaseObject(Implicit):
         field = self.getField(field)
         return field.default
 
-
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
         element = getattr(self, key, None)
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
-        return 0
+        mime_type = self.getContentType(key)
+        if mime_type and mime_type.find('text') >= 0:
+            return 0
+        return 1
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", **kwargs):
@@ -129,6 +131,9 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key):
         value = 'text/plain' #this should maybe be octet stream or something?
+        field = self.getField(key)
+        if field and hasattr(field, 'getContentType'):
+            return field.getContentType(self)
         element = getattr(self, key, None)
         if element and hasattr(element, 'getContentType'):
             return element.getContentType()
@@ -172,7 +177,7 @@ class BaseObject(Implicit):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = getattr(self, self.Schema()[key].accessor)
+        accessor = self.Schema()[key].getAccessor(self)
         return accessor()
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')

@@ -47,8 +47,6 @@ class Generator:
 
         setattr(klass, methodName, method)
 
-
-
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
         if not hasattr(klass, "security"):
@@ -123,7 +121,6 @@ class ClassGenerator:
                 setattr(field, attr, methodName)
 
         InitializeClass(klass)
-
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass

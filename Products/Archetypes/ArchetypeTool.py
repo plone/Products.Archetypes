@@ -82,6 +82,11 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "allowed_content_types"):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed
+        fti[0]['filter_content_types'] = allowed and 1 or 0
+
+    if hasattr(klass, "filter_content_types"):
+             filter = klass.filter_content_types
+             fti[0]['filter_content_types'] = filter
 
     if not IReferenceable.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
@@ -128,7 +133,6 @@ def process_types(types, pkg_name):
                          None)
         if ctor is None:
             ctor = generateCtor(typeName, module)
-            
 
         content_types += (klass,)
         constructors  += (ctor,)
