@@ -34,7 +34,7 @@ from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base, aq_parent, aq_inner
 from DateTime import DateTime
 from OFS.content_types import guess_content_type
-from OFS.Image import File
+from OFS.Image import File, Pdata
 from Globals import InitializeClass
 from ComputedAttribute import ComputedAttribute
 from ExtensionClass import Base
@@ -717,7 +717,10 @@ class FileField(ObjectField):
             kwargs['filename'] = getattr(value, 'filename', '')
             mimetype = getattr(value, 'mimetype', None)
             value = value.read()
-
+        if isinstance(value, Pdata):
+            # Pdata is a chain of Pdata objects but we can easily use str()
+            # to get the whole string from a chain of Pdata objects
+            value = str(value)
         if type(value) in STRING_TYPES:
             filename = kwargs.get('filename', '')
             if mimetype is None:
