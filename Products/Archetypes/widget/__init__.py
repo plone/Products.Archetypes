@@ -26,15 +26,14 @@
 
 
 from types import FileType
-
 from Products.CMFCore.utils import getToolByName
-
 from Products.Archetypes.lib.utils import unique
 
 from Products.Archetypes.widget.base import TypesWidget
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.registries import registerPropertyType
-from Products.Archetypes.registries import registerWidget
+from Products.Archetypes.registry import registerComponent
+from Products.Archetypes.interfaces import field as IField
 from Products.Archetypes.widget.base import TypesWidget
 
 from ExtensionClass import Base
@@ -43,10 +42,7 @@ from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
 
-
-
 _marker = []
-
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -57,6 +53,13 @@ class StringWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(StringWidget,
+               name='String',
+               description=('Renders a HTML text input box which '
+                            'accepts a single line of text'),
+               used_for=(IField.IStringField,),
+               )
 
 class DecimalWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -71,6 +74,13 @@ class DecimalWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(DecimalWidget,
+               name='Decimal',
+               description=('Renders a HTML text input box which '
+                            'accepts a fixed point value'),
+               used_for=(IField.IFixedPointField,)
+               )
+
 class IntegerWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -80,6 +90,13 @@ class IntegerWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(IntegerWidget,
+               name='Integer',
+               description=('Renders a HTML text input box which '
+                            'accepts a integer value'),
+               used_for=(IField.IIntegerField,)
+               )
 
 class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -213,6 +230,13 @@ class ReferenceWidget(TypesWidget):
 
         return types
 
+registerComponent(ReferenceWidget,
+               name='Reference',
+               description=('Renders a HTML text input box which '
+                            'accepts a reference value'),
+               used_for=(IField.IReferenceField,)
+               )
+
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -220,6 +244,12 @@ class ComputedWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(ComputedWidget,
+               name='Computed',
+               description='Renders the computed value as HTML',
+               used_for=(IField.IComputedField,)
+               )
 
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -275,6 +305,14 @@ class TextAreaWidget(TypesWidget):
                     value = field.getEditAccessor(instance)()
         return value, kwargs
 
+registerComponent(TextAreaWidget,
+               name='Text Area',
+               description=('Renders a HTML Text Area for typing '
+                            'a few lines of text'),
+               used_for=(IField.IStringField,
+                         IField.ITextField, ),
+               )
+
 class LinesWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -285,6 +323,13 @@ class LinesWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(LinesWidget,
+               name='Lines',
+               description=('Renders a HTML textarea for a list '
+                            'of values, one per line'),
+               used_for=(IField.ILinesField,)
+               )
+
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -292,6 +337,13 @@ class BooleanWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(BooleanWidget,
+               name='Boolean',
+               description='Renders a HTML checkbox',
+               used_for=(IField.IBooleanField,)
+               )
+
 
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -311,6 +363,13 @@ class CalendarWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(CalendarWidget,
+               name='Calendar',
+               description=('Renders a HTML input box with a helper '
+                            'popup box for choosing dates'),
+               used_for=(IField.IDateTimeField,)
+               )
+
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -319,6 +378,15 @@ class SelectionWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(SelectionWidget,
+               name='Selection',
+               description=('Renders a HTML selection widget, which '
+                            'can be represented as a dropdown, or as '
+                            'a group of radio buttons'),
+               used_for=(IField.IStringField,
+                         IField.ILinesField,)
+               )
 
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -329,6 +397,13 @@ class MultiSelectionWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(MultiSelectionWidget,
+               name='Multi Selection',
+               description=('Renders a HTML selection widget, where '
+                            'you can be choose more than one value'),
+               used_for=(IField.ILinesField,)
+               )
 
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -362,6 +437,11 @@ class KeywordWidget(TypesWidget):
 
         return value, {}
 
+registerComponent(KeywordWidget,
+               name='Keyword',
+               description='Renders a HTML widget for choosing keywords',
+               used_for=(IField.ILinesField,)
+               )
 
 class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -399,6 +479,11 @@ class FileWidget(TypesWidget):
 
         return value, {}
 
+registerComponent(FileWidget,
+               name='File',
+               description='Renders a HTML widget upload a file',
+               used_for=(IField.IFileField,)
+               )
 
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -460,6 +545,13 @@ class RichWidget(TypesWidget):
 
         return value, kwargs
 
+registerComponent(RichWidget,
+               name='Rich Widget',
+               description=('Renders a HTML widget that allows you to '
+                            'type some content, choose formatting '
+                            'and/or upload a file'),
+               used_for=(IField.ITextField,)
+               )
 
 class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -483,6 +575,13 @@ class IdWidget(TypesWidget):
             value = instance.getId()
         return value,  {}
 
+registerComponent(IdWidget,
+               name='ID',
+               description='Renders a HTML widget for typing an Id',
+               used_for=(IField.IStringField,)
+               )
+
+
 class RequiredIdWidget(IdWidget):
     _properties = IdWidget._properties.copy()
     _properties.update({
@@ -496,6 +595,12 @@ class RequiredIdWidget(IdWidget):
     def process_form(self, instance, field, form, empty_marker=None):
         """Override IdWidget.process_form to require id."""
         return TypesWidget.process_form(self, instance, field, form, empty_marker)
+
+registerComponent(RequiredIdWidget,
+               name='ID',
+               description='Renders a HTML widget for typing an required Id',
+               used_for=(IField.IStringField,)
+               )
 
 
 class ImageWidget(FileWidget):
@@ -533,6 +638,12 @@ class ImageWidget(FileWidget):
         if not value: return None
         return value, {}
 
+registerComponent(ImageWidget,
+               name='Image',
+               description=('Renders a HTML widget for '
+                            'uploading/displaying an image'),
+               used_for=(IField.IImageField,)
+               )
 
 # LabelWidgets are used to display instructions on a form.  The widget only
 # displays the label for a value -- no values and no form elements.
@@ -543,6 +654,13 @@ class LabelWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(LabelWidget,
+               name='Label',
+               description=('Renders a HTML widget that only '
+                            'displays the label'),
+               used_for=None
+               )
 
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -556,6 +674,12 @@ class PasswordWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(PasswordWidget,
+               name='Password',
+               description='Renders a HTML password widget',
+               used_for=(IField.IStringField,)
+               )
 
 class VisualWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
@@ -572,6 +696,13 @@ class VisualWidget(TextAreaWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(VisualWidget,
+               name='Visual',
+               description='Renders a HTML visual editing widget widget',
+               used_for=(IField.IStringField,
+                         IField.ITextField,)
+               )
+
 class EpozWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
@@ -579,6 +710,14 @@ class EpozWidget(TextAreaWidget):
         })
 
     security = ClassSecurityInfo()
+
+registerComponent(EpozWidget,
+               name='Epoz',
+               description='Renders a HTML Epoz widget',
+               used_for=(IField.IStringField,
+                         IField.ITextField,)
+               )
+
 
 class InAndOutWidget(ReferenceWidget):
     _properties = ReferenceWidget._properties.copy()
@@ -590,6 +729,15 @@ class InAndOutWidget(ReferenceWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(InAndOutWidget,
+               name='In & Out',
+               description=('Renders a widget for moving items '
+                            'from one list to another. Items are '
+                            'removed from the first list.'),
+               used_for=(IField.ILinesField,
+                         IField.IReferenceField,)
+               )
+
 class PicklistWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -600,6 +748,14 @@ class PicklistWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+registerComponent(PicklistWidget,
+               name='Picklist',
+               description=('Render a widget to pick from one '
+                            'list to populate another.  Items '
+                            'stay in the first list.'),
+               used_for=(IField.ILinesField,)
+               )
+
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
@@ -608,165 +764,6 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
            )
-
-registerWidget(StringWidget,
-               title='String',
-               description=('Renders a HTML text input box which '
-                            'accepts a single line of text'),
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(DecimalWidget,
-               title='Decimal',
-               description=('Renders a HTML text input box which '
-                            'accepts a fixed point value'),
-               used_for=('Products.Archetypes.Field.FixedPointField',)
-               )
-
-registerWidget(IntegerWidget,
-               title='Integer',
-               description=('Renders a HTML text input box which '
-                            'accepts a integer value'),
-               used_for=('Products.Archetypes.Field.IntegerField',)
-               )
-
-registerWidget(ReferenceWidget,
-               title='Reference',
-               description=('Renders a HTML text input box which '
-                            'accepts a reference value'),
-               used_for=('Products.Archetypes.Field.ReferenceField',)
-               )
-
-registerWidget(ComputedWidget,
-               title='Computed',
-               description='Renders the computed value as HTML',
-               used_for=('Products.Archetypes.Field.ComputedField',)
-               )
-
-registerWidget(TextAreaWidget,
-               title='Text Area',
-               description=('Renders a HTML Text Area for typing '
-                            'a few lines of text'),
-               used_for=('Products.Archetypes.Field.StringField',
-                         'Products.Archetypes.Field.TextField')
-               )
-
-registerWidget(LinesWidget,
-               title='Lines',
-               description=('Renders a HTML textarea for a list '
-                            'of values, one per line'),
-               used_for=('Products.Archetypes.Field.LinesField',)
-               )
-
-registerWidget(BooleanWidget,
-               title='Boolean',
-               description='Renders a HTML checkbox',
-               used_for=('Products.Archetypes.Field.BooleanField',)
-               )
-
-registerWidget(CalendarWidget,
-               title='Calendar',
-               description=('Renders a HTML input box with a helper '
-                            'popup box for choosing dates'),
-               used_for=('Products.Archetypes.Field.DateTimeField',)
-               )
-
-registerWidget(SelectionWidget,
-               title='Selection',
-               description=('Renders a HTML selection widget, which '
-                            'can be represented as a dropdown, or as '
-                            'a group of radio buttons'),
-               used_for=('Products.Archetypes.Field.StringField',
-                         'Products.Archetypes.Field.LinesField',)
-               )
-
-registerWidget(MultiSelectionWidget,
-               title='Multi Selection',
-               description=('Renders a HTML selection widget, where '
-                            'you can be choose more than one value'),
-               used_for=('Products.Archetypes.Field.LinesField',)
-               )
-
-registerWidget(KeywordWidget,
-               title='Keyword',
-               description='Renders a HTML widget for choosing keywords',
-               used_for=('Products.Archetypes.Field.LinesField',)
-               )
-
-registerWidget(RichWidget,
-               title='Rich Widget',
-               description=('Renders a HTML widget that allows you to '
-                            'type some content, choose formatting '
-                            'and/or upload a file'),
-               used_for=('Products.Archetypes.Field.TextField',)
-               )
-
-registerWidget(FileWidget,
-               title='File',
-               description='Renders a HTML widget upload a file',
-               used_for=('Products.Archetypes.Field.FileField',)
-               )
-
-registerWidget(IdWidget,
-               title='ID',
-               description='Renders a HTML widget for typing an Id',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(RequiredIdWidget,
-               title='ID',
-               description='Renders a HTML widget for typing an required Id',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(ImageWidget,
-               title='Image',
-               description=('Renders a HTML widget for '
-                            'uploading/displaying an image'),
-               used_for=('Products.Archetypes.Field.ImageField',)
-               )
-
-registerWidget(LabelWidget,
-               title='Label',
-               description=('Renders a HTML widget that only '
-                            'displays the label'),
-               used_for=None
-               )
-
-registerWidget(PasswordWidget,
-               title='Password',
-               description='Renders a HTML password widget',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(VisualWidget,
-               title='Visual',
-               description='Renders a HTML visual editing widget widget',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(EpozWidget,
-               title='Epoz',
-               description='Renders a HTML Epoz widget',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
-registerWidget(InAndOutWidget,
-               title='In & Out',
-               description=('Renders a widget for moving items '
-                            'from one list to another. Items are '
-                            'removed from the first list.'),
-               used_for=('Products.Archetypes.Field.LinesField',
-                         'Products.Archetypes.Field.ReferenceField',)
-               )
-
-registerWidget(PicklistWidget,
-               title='Picklist',
-               description=('Render a widget to pick from one '
-                            'list to populate another.  Items '
-                            'stay in the first list.'),
-               used_for=('Products.Archetypes.Field.LinesField',)
-               )
 
 registerPropertyType('maxlength', 'integer', StringWidget)
 registerPropertyType('populate', 'boolean')
