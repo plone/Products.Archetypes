@@ -2,6 +2,8 @@ from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.Schema import Schema
 from Acquisition import Implicit
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.Schema.Editor import SchemaEditor
+
 
 from types import StringTypes, ListType, TupleType
 import md5
@@ -164,7 +166,11 @@ class SchemaProvider(Implicit):
         collector = self.getSchemaCollector()
         providers = collector.getProviders(self)
         return [p.provider for p in providers]
-    
+
+    def getSchemaEditor(self):
+	return SchemaEditor(self.Schema(), self)
+
+	
     # XXX This might be a call back to classgen, but I want to get
     # rid of that anyway
     def Schema(self):
@@ -200,13 +206,18 @@ class SchemaProvider(Implicit):
                 if field.getName() not in current_fields:
                     schema.addField(field)
                     current_fields[field.getName()] = True
-        
+
+        # PHASE: Regenerate
+	se = SchemaEditor(schema, self)
+	se.regen(self)
                 
+
         # PHASE: Cache
         self._schema = schema
         self._checksum = checksum
 
         return self._schema
-    
+
+
         
         

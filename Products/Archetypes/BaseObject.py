@@ -680,24 +680,24 @@ class BaseObject(Implicit):
         mt = mtr.classify(data, filename=name)
         return Wrapper(data, name, mt or 'application/octet')
 
-    def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
-        """ transparent access to session subobjects
-        """
-        # is it a registered sub object
-        data = self.getSubObject(name, REQUEST, RESPONSE)
-        if data is not None:
-            return data
-        # or a standard attribute (maybe acquired...)
-        target = getattr(self, name, None)
-        if target is not None:
-            return target
-        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
-            from webdav.NullResource import NullResource
-            return NullResource(self, name, REQUEST).__of__(self)
-        if RESPONSE is not None:
-            RESPONSE.notFoundError("%s\n%s" % (name, ''))
+##    def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
+##        """ transparent access to session subobjects
+##        """
+##        # is it a registered sub object
+##        data = self.getSubObject(name, REQUEST, RESPONSE)
+##        if data is not None:
+##            return data
+##        # or a standard attribute (maybe acquired...)
+##        target = getattr(self, name, None)
+##        if target is not None:
+##            return target
+##        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+##        if (not method in ('GET', 'POST', 'HEAD') and
+##            not isinstance(RESPONSE, xmlrpc.Response)):
+##            from webdav.NullResource import NullResource
+##            return NullResource(self, name, REQUEST).__of__(self)
+##        if RESPONSE is not None:
+##            RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
 
 class Wrapper:

@@ -169,6 +169,51 @@ MetadataStorage = AttributeStorage
 ##        # python garbarage system will clean up if needed.
 ##        pass
 
+class MementoStorage(Storage):
+    """Stores the data in a memento which we expect to find in self._target
+    where instance is converted into a key into the storage
+    
+    target.storeMemento(instance, memento)
+    target.getMemento(instance)
+    
+    where typically this will store
+    instance.UID() -> {fieldName :value}
+    where the dict of f:v pairs is the memento
+    """
+
+    __implements__ = IStorage
+
+    def _memento(self, instance):
+        # XXX How racey is this really?, sorta last write wins
+        mementoName ='_v_%s' % self._target
+        inst = aq_base(instance)
+        memento = getattr(inst, mementoName, None)
+        if memento is None:
+            rc = getName(instance, REFERENCE_CATALOG)
+            dataContainer = rc.lookupObject(self._target)
+            assert dataContainer
+            memento = datacContainer.getMemento(instance)
+            if not memento:
+                memento = PersistentMapping()
+                dataContainer.setMemento(instance, memento)
+        return memento
+    
+    def get(self, name, instance, **kwargs):
+        m = self._memento(instance)
+        return m[name]
+
+    def set(self, name, instance, value, **kwargs):
+        # Remove acquisition wrappers
+        m = self._memento(instance)
+        m[name] = value
+        instance._p_changed = 1
+
+    def unset(self, name, instance, **kwargs):
+        m = self._memento(instance)
+        del m[name]
+        instance._p_changed = 1
+
+
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
 

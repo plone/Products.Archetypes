@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.3 2004/03/31 04:16:04 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.4 2004/04/01 01:47:09 bcsaller Exp $
 """
 
 import os, sys
@@ -54,7 +54,7 @@ class SchemaProviderTests(ArcheSiteTestCase):
         # (but in this case provides nothing)
         objb.setSchemaCollector('acquisition')
         assert objb.Schema() == DDocumentSchema
-
+        
         # Now we need to make folder a provider of a new Schemata
         # and assert those fields appear on objb
         f = TextField('newField')
@@ -66,6 +66,19 @@ class SchemaProviderTests(ArcheSiteTestCase):
         assert g.type == "text"
         assert g.getName() == f.getName()
         assert g is objb.Schema().fields()[-1]
+        mutator = g.getMutator(objb)
+        accessor = g.getAccessor(objb)
+
+        mutator("monkey")
+        assert accessor() == "monkey"
+
+        objb = site.folder.objb
+        g = objb.Schema()['newField']
+        mutator = g.getMutator(objb)
+        accessor = g.getAccessor(objb)
+        mutator("monkey")
+        assert accessor() == "monkey"
+        
 
     def testReferenceCollector(self):
         site = self.getPortal()
@@ -166,6 +179,24 @@ class SchemaProviderTests(ArcheSiteTestCase):
         
         assert y.Schema() == DDocumentSchema
         assert z.Schema()['FieldA']
+
+
+    def test_Editor(self):
+        site = self.getPortal()
+        at = site.archetype_tool
+        x = makeContent(site, "SimpleFolder", 'x')
+        z = makeContent(site, "SimpleType", 'z')
+
+        SchemaA = Schema((TextField('FieldA'),))
+        at.provideSchema(z.meta_type, SchemaA)
+        z.setSchemaCollector('type')
+
+        # Z now has our new schema, this important
+        # because we want to TTW add additional fields
+        # to SchemaA
+        se = z.getSchemaEditor()
+        sse = se.getSchemaEditorForSubSchema('FieldA')
+        assert sse.schema == SchemaA
         
         
 

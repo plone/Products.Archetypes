@@ -95,7 +95,7 @@ base_factory_type_information = (
                        'action' : 'string:${object_url}/schema_editor',
                        'permissions' : (CMFCorePermissions.ManagePortal,),
                        'visible': 1,
-                       'condition' : 'python: here.archetype_tool.getProvidedSchema() is not None',
+                       'condition' : 'python: object.archetype_tool.getProvidedSchema(object) is not None',
                        },
                      )
       }, )
@@ -875,10 +875,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         try:
             uid = provider.UID()
         except AttributeError:
-            uid = "ttw"
-            
-        for field in schema.fields():
-            field.provider = uid
+            uid = provider
+
+        # This instance of the schema brought to you by...
+        from Products.Archetypes.Schema.Editor import SchemaEditor
+        se = SchemaEditor(schema, self)
+        se.assignProvider(uid)
             
         if type(provider) in StringTypes:
             #Register for the type (should be a meta_type, but whatever)
@@ -899,13 +901,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             uid = object
         schema = self._managedSchema.get(uid)
         if not schema:
-            mt = getattr(aq_base(object), 'meta_type')
+            mt = getattr(aq_base(object), 'meta_type', None)
             if mt:
                 schema = self._managedSchema.get(mt)
 
         # XXX this is highly questionable
         if not schema:
-            return object.schema 
+            return getattr(aq_base(object), 'schema', None)
         return schema
     
 
