@@ -1,5 +1,9 @@
-import Zope
-Zope.startup()
+import Zope # Sigh, make product initialization happen
+
+try:
+    Zope.startup()
+except: # Zope > 2.6
+    pass
 
 from unittest import main
 from Products.CMFCore.tests.base.utils import build_test_suite

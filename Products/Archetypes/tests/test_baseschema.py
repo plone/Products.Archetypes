@@ -325,7 +325,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.type == 'metadata')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.validators == ())
-        self.failUnless(isinstance(field.widget, StringWidget))
+        self.failUnless(isinstance(field.widget, TextAreaWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(tuple(vocab) == ())
