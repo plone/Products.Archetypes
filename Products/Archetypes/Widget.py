@@ -65,8 +65,6 @@ class TypesWidget(macrowidget):
         try:
             if self.condition:
                 ec = createExprContext(folder, portal, object)
-                from zLOG import LOG
-                LOG("Condition", 100, self.condition)
                 return Expression(self.condition)(ec)
             else:
                 return 1
