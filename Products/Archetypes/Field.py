@@ -346,7 +346,7 @@ class TextField(ObjectField):
 
             elif IBaseUnit.isImplementedBy(value):
                 if mime_type is None:
-                    mime_type, enc = guess_content_type(f_name, str(value), mime_type)
+                    mime_type, enc = guess_content_type('', str(value), mime_type)
                 return value, getattr(aq_base(value), 'mimetype', mime_type)
         else:
             if value == '':
