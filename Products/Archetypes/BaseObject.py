@@ -702,8 +702,8 @@ class BaseObject(Implicit):
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
-        if RESPONSE is not None:
-            RESPONSE.notFoundError("%s\n%s" % (name, ''))
+        #if RESPONSE is not None:
+        REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
 
 class Wrapper:
