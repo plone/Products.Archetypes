@@ -805,7 +805,7 @@ class ReferenceField(ObjectField):
                             instance.deleteReference(target,refname)
         else:
             if value :
-                target=tool.lookupObject(uid=value)
+                target=tool.lookupObject(uuid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
                 instance.addReference(target,refname)

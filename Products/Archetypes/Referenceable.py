@@ -95,7 +95,7 @@ class Referenceable(Base):
         Get a new UID (effectivly dropping reference)
         (Called when the object is cloned.)
         """
-        setattr(self, UUID_ATTR, None)
+        setattr(self, config.UUID_ATTR, None)
         self._register()
 
     def manage_beforeDelete(self, item, container):
