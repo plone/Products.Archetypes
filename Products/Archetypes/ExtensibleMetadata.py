@@ -245,7 +245,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 log(msg, level=ERROR)
             else:
                 raise
-        except Unauthorized:
+        except ("Unauthorized", Unauthorized):
             # Catch Unauthorized exception that could be raised by the
             # discussion tool when the authenticated users hasn't
             # ModifyPortalContent permissions. IMO this behavior is safe because
