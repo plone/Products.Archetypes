@@ -92,6 +92,9 @@ def initialize(context):
                    product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
+                   
+    from Products.Archetypes.customizationpolicy import registerPolicy
+    registerPolicy(context)
 
     if REGISTER_DEMO_TYPES:
         import Products.Archetypes.examples
