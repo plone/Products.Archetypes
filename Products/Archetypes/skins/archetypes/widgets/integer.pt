@@ -33,6 +33,11 @@
       </div>
     </div>
 
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/integer/macros/edit">
+      </div>
+    </div>
+
   </body>
   
 </html>

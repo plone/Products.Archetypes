@@ -21,6 +21,13 @@
 	It doesn't make any sense to "edit" a computed field
 	</div>
     </div>
+
+    <div metal:define-macro="search">
+        <div metal:use-macro="here/widgets/string/macros/edit">
+	It does make sense to "search" a computed field
+	</div>
+    </div>
+
   </body>
   
 </html>

@@ -36,6 +36,37 @@
 	</div>
       </div>
     </div>
+    
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body">
+	    <div tal:define="id fieldName;
+	      inputname  fieldName;
+	      formname   string:search_form;
+	      inputvalue python: '';
+	      tabindex tabindex/next; 
+              onfocus string:formtooltip('${fieldName}_help',1);
+              onblur string:formtooltip('${fieldName}_help',0);"
+	      tal:omit-tag="">
+	      <div metal:use-macro="here/calendar_support/macros/calendarDatePickerBox">
+		a calendar, hopefully
+	      </div>
+	    -
+	    <div tal:define="id fieldName;
+	      inputname  string:$fieldName:list;
+	      formname   string:search_form;
+	      inputvalue python: '';
+	      tabindex tabindex/next; 
+              onfocus string:formtooltip('${fieldName}_help',1);
+              onblur string:formtooltip('${fieldName}_help',0);"
+	      tal:omit-tag="">
+	      <div metal:use-macro="here/calendar_support/macros/calendarDatePickerBox">
+		a calendar, hopefully
+	      </div>
+	    </div>
+	</div>
+      </div>
+    </div>
 
   </body>
   

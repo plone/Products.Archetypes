@@ -56,6 +56,11 @@
       </div>
     </div>
 
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/boolean/macros/edit">
+      </div>
+    </div>
+
   </body>
   
 </html>

@@ -211,6 +211,7 @@ class WidgetWrapper:
         self._args = args
 
     def __call__(self):
+        __traceback_info__ = self._args
         return renderer.render(**self._args)
 
 class ArchetypeTool(UniqueObject, ActionProviderBase, \

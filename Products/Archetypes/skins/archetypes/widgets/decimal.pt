@@ -32,6 +32,12 @@
 	"/>
     </metal:use>
     </metal:define>
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/decimal/macros/edit">
+      </div>
+    </div>
+
+
 
   </body>
   
