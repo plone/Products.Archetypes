@@ -47,7 +47,6 @@ class widget:
         'description' : '',
         'label' : '',
         'visible' : {'edit':'visible', 'view':'visible'},
-    #   'attributes' : '',
         'condition': '',
         }
 
@@ -70,24 +69,24 @@ class widget:
     def _translate_attribute(self, instance, name):
         value = getattr(self, name, '')
         msgid = getattr(self, name+'_msgid', None) or value
-        
+
         if not value and not msgid:
             return ''
-        
+
         domain = (getattr(self, 'i18n_domain', None) or
                   getattr(instance, 'i18n_domain', None))
-                  
+
         if domain is None:
             return value
-            
+
         return i18n.translate(domain, msgid, mapping=instance.REQUEST,
                               context=instance, default=value)
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated"""
-        methodName = getattr(aq_base(instance), 'label_method', None)
-        if methodName:
-            method = value and getattr(aq_inner(instance), methodName)
+        value = getattr(self, 'label_method', None)
+        method = value and getattr(aq_inner(instance), value, None)
+        if method and callable(method):
             ## Label methods can be called with kwargs and should
             ## return the i18n version of the description
             value = method(**kwargs)
@@ -98,7 +97,7 @@ class widget:
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated"""
         value = self.description
-        method = value and getattr(instance.aq_inner, value, None)
+        method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
             ## Description methods can be called with kwargs and should
             ## return the i18n version of the description
@@ -141,8 +140,7 @@ class macrowidget(widget):
                 if template:
                     return template.macros[mode]
             except (Unauthorized, AttributeError, KeyError):
-                # This means we didn't have access or it doesn't
-                # exit
+                # This means we didn't have access or it doesn't exist
                 pass
         raise AttributeError("Macro %s does not exist for %s" %(macro,
                                                                 instance))
