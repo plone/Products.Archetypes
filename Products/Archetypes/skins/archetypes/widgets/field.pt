@@ -53,7 +53,7 @@
                   tal:define="visState python: widget.isVisible(here, mode);
                               edit_accessor python:field.getEditAccessor(here);
                               value python:widget.populate and edit_accessor and edit_accessor() or '';
-                              value python:test(widget.postback and request.has_key(fieldName), request.get(fieldName, value), value);
+                              value python:widget.postback and request.get(fieldName, value) or value;
                               error_id python:errors.get(fieldName)">
       <tal:condition condition="python: visState == 'visible'">
         <div class="field"
