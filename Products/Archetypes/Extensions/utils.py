@@ -218,7 +218,7 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
+        typeinfo_name = "%s: %s (%s)" % (package_name, type.portal_type, type.meta_type)
 
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.portal_type,
@@ -369,7 +369,7 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
-        typeinfo_name="%s: %s" % (package_name, t.meta_type)
+        typeinfo_name="%s: %s (%s)" % (package_name, t.portal_type, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:

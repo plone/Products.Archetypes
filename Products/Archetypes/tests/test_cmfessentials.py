@@ -38,7 +38,6 @@ from Products.Archetypes.tests.utils import makeContent
 from Products.CMFCore.utils import _checkPermission as checkPerm
 from Products.CMFCore import CMFCorePermissions
 
-
 class TestPermissions(ATSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'ComplexType']
