@@ -1,5 +1,9 @@
 2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* skins/archetypes/widgets/string.pt: Whitespace.
+
+	* skins/archetypes/widgets/keyword.pt: Fill from request if available.
+
 	* skins/archetypes/widgets/multiselection.pt: Reverting Xiru's
 	changes and fixing accordingly. Include the default hidden field
 	if not required.

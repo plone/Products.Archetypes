@@ -22,13 +22,14 @@
       <div tal:attributes="class python:test(field.required, 'required label', 'label')">
 	<span i18n:translate="" tal:content="python:widget.Label(here)"/>
 	<div class="field"
-	     tal:define="error errors/fieldName | nothing;
+            tal:define="error errors/fieldName | nothing;
 	    accessor_name field/accessor;
-	    value python:request.get(fieldName, accessor())"
+            value python:request.get(fieldName, None);
+	    value python:value and [value] or accessor()"
 	    tal:attributes="class python:test(error, 'field error', 'field')" >
 	    <span tal:condition="error" tal:replace="error" />
 
-	      <script language="JavaScript"> 
+	      <script language="JavaScript">
 		function addSelectedKeywords(fieldName) {
 		predefKeywords=document.getElementById(fieldName + '_predefined_keywords');
 		for (var x=0; x<predefKeywords.length; x++) {
@@ -37,7 +38,7 @@
 		      }
 		    }
 		  }
-		  
+
 		  function addNewKeyword(fieldName, newWord) {
 		      selKeywords=document.getElementById(fieldName + '_entered_keywords');
 		      if (selKeywords) {
@@ -52,23 +53,23 @@
 	      <tr><td>
 		  Existing <span tal:content="fieldName"/>
 		  <br />
-		      <select size="7" 
+		      <select size="7"
 			      multiple="multiple"
 			      tal:attributes="
-			id string:${fieldName}_predefined_keywords;
-			name string:${fieldName}_predefined_keywords;
-			tabindex tabindex/next;">
+			      id string:${fieldName}_predefined_keywords;
+			      name string:${fieldName}_predefined_keywords;
+			      tabindex tabindex/next;">
                         <option value="#" tal:define="keywords python: here.collectKeywords(fieldName, accessor_name)"
 			tal:repeat="keyword keywords"
-			tal:content="keyword" tal:attributes="value python: keywords.getValue(keyword)"> # </option>                                
+			tal:content="keyword" tal:attributes="value python: keywords.getValue(keyword)"> # </option>
                         </select>
-                        
+
                         <br />
 
-                        <input class="context" 
-                               type="submit" 
+                        <input class="context"
+                               type="submit"
                                name="add"
-                               tabindex="" 
+                               tabindex=""
                                value="Add Selected &gt;"
                                tal:attributes="
 			onclick string: javascript: addSelectedKeywords('${fieldName}');;return false;
@@ -78,18 +79,18 @@
 		    <div tal:define="fixed python: test(field.enforceVocabulary == 1, 1, 0);"
                          tal:condition="python: test(fixed, 0, 1)">
                     New keyword <br />
-                    <input type="text" 
-                           value="" 
+                    <input type="text"
+                           value=""
                            size="20"
                            tabindex=""
                            tal:attributes="
 			    name string:${fieldName}_entered_keyword;
 			    tabindex tabindex/next;"
-                           /> 
+                           />
                     <br />
-                    <input class="context" 
-                           type="submit" 
-                           name="add" 
+                    <input class="context"
+                           type="submit"
+                           name="add"
                            tabindex=""
                            value="Add New &gt;"
                            tal:attributes="
@@ -101,19 +102,19 @@
 
                     <td>
                     Selected <span tal:content="fieldName"/><br />
-                    <textarea 
-			      rows="15" 
-			      cols="15" 
+                    <textarea
+			      rows="15"
+			      cols="15"
 			      wrap="off"
 			      tabindex=""
 			      tal:attributes="name fieldName;
 		  id string:${fieldName}_entered_keywords;
 		  tabindex tabindex/next;"
-	      ><span tal:omit-tag="" tal:repeat="item accessor" tal:replace="python: item +'\n'"/></textarea>&nbsp;
+	      ><span tal:omit-tag="" tal:repeat="item value" tal:replace="python: item +'\n'"/></textarea>&nbsp;
 	</td></tr>
       </table>
       </div>
-    </div>         
+    </div>
   </div>
 
     <div metal:define-macro="search">
@@ -122,6 +123,6 @@
     </div>
 
   </body>
-  
+
 </html>
 
