@@ -1,3 +1,11 @@
+1.3.1-POST rc1 - 2004-10-23
+===========================
+
+ * allow comma as dezimal delimiter in FixedPointField and convert it
+   immediatly to a point-delimited-value. The whole process needs a rewrite 
+   in 1.4, this here is only a quick non-immersive usability enhancement.
+   [yenzenz]
+
 1.3.1-rc1 - 2004-10-17
 ======================
 

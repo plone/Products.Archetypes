@@ -221,7 +221,11 @@ class SQLMethod(Aqueduct.BaseQuery):
             if db_encoding:
                 query = query.encode(db_encoding)
             else:
-                query = query.encode('latin-1')
+                try:
+                    query = query.encode('latin-1')
+                except UnicodeEncodingError:
+                    query = query.encode('UTF-8')
+                    
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))

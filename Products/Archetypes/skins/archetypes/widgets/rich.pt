@@ -16,27 +16,28 @@
         <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
       </tal:download>
     </metal:view_macro>
-
+ 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="binary python: here.isBinary(fieldName)">
+          <div metal:use-macro="here/widgets/textarea/macros/area_format" />
           <metal:use use-macro="here/widgets/epoz/macros/edit_area">
             <metal:fill fill-slot="text_format"/>
           </metal:use>
 
-          <div metal:use-macro="here/widgets/textarea/macros/area_format" />
-          <tal:upload tal:condition="widget/allow_file_upload | python:1">
-            <div class="field">
-              <strong i18n:translate="uppercase_or">OR</strong>
-            </div>
+          <div style="text-align: right; margin-right: 0.75em;"
+               tal:condition="widget/allow_file_upload | python:1">
+              <span class="discreet" i18n:translate="label_or">or</span>
 
-            <div class="field">
-              <label i18n:translate="upload_a_file">Upload a File</label>
-              <metal:use use-macro="here/widgets/file/macros/file_upload"/>
-              <metal:use use-macro="here/widgets/file/macros/file_view"/>
-            </div>
-          </tal:upload>
+              <span class="discreet" 
+                    i18n:translate="upload_a_file">upload a file</span>
+              <metal:use use-macro="here/widgets/file/macros/file_upload" />
+              
+<!-- Is this any use at all in the editing part? ~limi
+              <metal:use use-macro="here/widgets/file/macros/file_view" />
+-->
+          </div>
         </metal:fill>
       </metal:use>
     </metal:define>

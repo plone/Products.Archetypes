@@ -23,7 +23,7 @@
       <div tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
-            <b>[<span tal:content="set" i18n:translate="" />]</b>
+            <strong>[<span tal:content="set" i18n:translate="" />]</strong>
           </tal:current>
           <tal:others condition="python:set != fieldset">
             <a href="#" tal:attributes="href string:${here/absolute_url}/${template/getId}?fieldset=${set}">

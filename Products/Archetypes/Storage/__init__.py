@@ -183,6 +183,9 @@ class MetadataStorage(StorageLayer):
     def set(self, name, instance, value, **kwargs):
         base = aq_base(instance)
         # Remove acquisition wrappers
+        if not hasattr(base,'_md'):
+	            base._md=PersistentMapping()
+
         base._md[name] = aq_base(value)
         base._p_changed = 1
 

@@ -1051,7 +1051,7 @@ class TextField(FileField):
         encoding = kwargs.get('encoding')
         if type(value) is UnicodeType and encoding is None:
             kwargs['encoding'] = 'UTF-8'
-            
+
 
         # fix for external editor support
         # set mimetype to the last state if the mimetype in kwargs is None or 'None'
@@ -1222,6 +1222,16 @@ class FixedPointField(ObjectField):
         """ COMMENT TO-DO """
         if not value:
             value = self.getDefault(instance)
+
+        # XXX :-(
+        # Dezimal Point is very english. as a first hack
+        # we should allow also the more contintental european comma.
+        # The clean solution is to lookup:
+        # * the locale settings of the zope-server, Plone, logged in user
+        # * maybe the locale of the browser sending the value.
+        # same should happen with the output.
+        value = value.replace(',','.')
+
         value = value.split('.')
         __traceback_info__ = (self, value)
         if len(value) < 2:

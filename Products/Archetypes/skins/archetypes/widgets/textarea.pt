@@ -62,7 +62,8 @@
                   field.getContentType(here) or ''">
 
         <tal:condition condition="python:len(mimetypes) &gt; 1">
-          <label i18n:translate="label_format">Text Format</label>
+        <div style="text-align: right; margin-right: 0.75em;">
+          <label i18n:translate="label_format">Format</label>
           <select tal:attributes="id string:${fieldName}_text_format;
                                   name string:${fieldName}_text_format;
                                   tabindex tabindex/next">
@@ -78,6 +79,7 @@
                                     selected python:test(here.checkSelected(item, contenttype, contenttypes=1), 'selected', None);"
                     />
           </select>
+        </div>
         </tal:condition>
         <tal:condition condition="python:len(mimetypes) == 1">
           <input type="hidden"
