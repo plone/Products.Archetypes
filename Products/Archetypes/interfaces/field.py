@@ -185,6 +185,15 @@ class IObjectField(IField):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
 
+    def get_size(instance):
+        """Get size of the stored data used for get_size in BaseObject
+        
+        Should be overwritte by special fields like FileField. It's safe for
+        fields which are storing strings, ints and BaseUnits but it won't return
+        the right results for fields containing OFS.Image.File instances or
+        lists/tuples/dicts.
+        """
+
 class IFileField(IObjectField):
     """Interface fora fields which (may) contain a file like FileField or
     TextField

@@ -476,16 +476,8 @@ class BaseObject(Referenceable):
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for name in self.Schema().keys():
-            value = self[name]
-            if IBaseUnit.isImplementedBy(value):
-                size += value.get_size()
-            else:
-                if value is not None:
-                    try:
-                        size += len(value)
-                    except (TypeError, AttributeError):
-                        size += len(str(value))
+        for field in self.Schema().fields():
+            size+=field.get_size(self)
         return size
 
     security.declarePrivate('_processForm')

@@ -44,10 +44,11 @@ class SitePolicyTests(ArcheSiteTestCase):
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
-        new_size = size + len(str(now))
+        # subtract 4 because an empty DateTime field has this size
+        new_size = size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
+        new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(100)
         new_size = new_size + 2
@@ -65,10 +66,10 @@ class SitePolicyTests(ArcheSiteTestCase):
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
-        new_size = size + len(str(now))
+        new_size = size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
+        new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         text = 'Bla bla bla'
         content.setTitle(text)
