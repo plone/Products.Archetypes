@@ -502,8 +502,7 @@ class BaseObject(Implicit):
 
 
         # replace the schema
-        from copy import deepcopy
-        self.schema = deepcopy(new_schema)
+        self.schema = new_schema.copy()
         self.initializeArchetype()
 
         for f in new_schema.fields():

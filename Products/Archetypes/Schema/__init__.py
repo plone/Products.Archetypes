@@ -270,6 +270,7 @@ class Schema(Schemata, DefaultLayerContainer):
             c.addField(field)
         # Need to be smarter when joining layers
         # and internal props
+        c._props.update(self._props)
         layers = {}
         for k, v in self.registeredLayers():
             layers[k] = v
@@ -286,6 +287,12 @@ class Schema(Schemata, DefaultLayerContainer):
         c = Schema()
         for field in self.fields():
             c.addField(field.copy())
+        # Need to be smarter when joining layers
+        # and internal props
+        c._props.update(self._props)
+        layers = {}
+        for k, v in self.registeredLayers():
+            c.registerLayer(k, v)
         return c
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
