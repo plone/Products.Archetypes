@@ -538,13 +538,10 @@ class TextField(ObjectField):
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
             return value
-        try:
-            return value.getRaw(encoding=kwargs.get('encoding'),
-                                instance=instance)
-        except TypeError:
-            # FIXME: backward compat, getRaw doesn't take encoding
-            # argument on old base units
-            value.getRaw()
+        kw = {'encoding':kwargs.get('encoding'),
+              'instance':instance}
+        args = []
+        return mapply(value.getRaw, *args, **kw)
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         """ If raw, return the base unit object, else return value of

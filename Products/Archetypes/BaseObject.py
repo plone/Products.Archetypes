@@ -481,6 +481,7 @@ class BaseObject(Implicit):
 
         # read all the old values into a dict
         values = {}
+        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
             if name not in excluded_fields:
@@ -490,6 +491,9 @@ class BaseObject(Implicit):
                     if out != None:
                         print >> out, ('Unable to get %s.%s'
                                        % (str(self.getId()), name))
+                else:
+                    if hasattr(f, 'getContentType'):
+                        mimes[name] = f.getContentType(self)
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -511,9 +515,12 @@ class BaseObject(Implicit):
 
         for f in new_schema.fields():
             name = f.getName()
+            kw = {}
             if name not in excluded_fields and values.has_key(name):
+                if mimes.has_key(name):
+                    kw['mimetype'] = mimes[name]
                 try:
-                    self._migrateSetValue(name, values[name])
+                    self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
                     if out != None:
                         print >> out, ('Unable to set %s.%s to '
@@ -601,16 +608,17 @@ class BaseObject(Implicit):
 
 
     security.declarePrivate('_migrateSetValue')
-    def _migrateSetValue(self, name, value, old_schema=None):
+    def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
         field = schema.get(name, None)
         # try using the field's mutator
         if field:
             mutator = field.getMutator(self)
-            if mutator:
+            if mutator is not None:
                 try:
-                    mutator(value)
+                    args = [value,]
+                    mapply(mutator, *args, **kw)
                     return
                 except ConflictError:
                     raise
