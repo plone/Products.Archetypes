@@ -23,6 +23,7 @@ from Acquisition import aq_base
 from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
+from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
@@ -198,10 +199,19 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
-    def getField(self, key):
+    def getField(self, key, wrapped=False):
         """Return a field object
         """
         return self.Schema().get(key)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'getWrappedField')
+    def getWrappedField(self, key):
+        """Get a field by id which is explicitly wrapped
+        
+        XXX Maybe we should subclass field from Acquisition.Explicit?
+        """
+        return ExplicitAcquisitionWrapper(self.getField(key), self)
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):

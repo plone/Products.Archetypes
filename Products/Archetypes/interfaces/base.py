@@ -27,8 +27,12 @@ class IBaseObject(Interface):
         with the uid catalog
         """
 
-    def getField(key):
+    def getField(key, wrapped=False):
         """Get a field by id
+        """
+
+    def getWrappedField(key):
+        """Get a field by id which is explicitly wrapped
         """
 
     def getDefault(field):
