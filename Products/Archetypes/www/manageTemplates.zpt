@@ -41,7 +41,8 @@
 	
       <table class="main" width="80%">
 	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
-	  <tal:condition condition="python:meta_type['schema'].has_key('layout')">
+   
+	  <tal:condition condition="python:at.isTemplateEnabled(meta_type)">
 	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
 	  <td>
 	    <select multiple="multiple"

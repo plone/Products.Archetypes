@@ -562,6 +562,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def listTemplates(self):
         """list all the templates"""
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
+    
+    security.declareProtected(CMFCorePermissions.View,
+                              'isTemplateEnabled')
+    def isTemplateEnabled(self, type):
+        """checks if an type uses ITemplateMixin"""
+        # XXX this should check if ITemplateMixin is implemented
+        return type['schema'].has_key('layout')
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'bindTemplate')
@@ -591,10 +598,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View,
                               'listRegisteredTypes')
     def listRegisteredTypes(self, inProject=None):
-        """Return the list of sorted types"""
-        tt = getToolByName(self, "portal_types")
-        def isRegistered(type, tt=tt):
-            return tt.getTypeInfo(type['portal_type']) != None
+        """Return the list of sorted types"""        
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
@@ -608,8 +612,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         values = listTypes()
         values.sort(type_sort)
+
         if inProject:
-            values = [v for v in values if isRegistered(v)]
+            # portal_type can change (as it does after ATCT-migration), so we
+            # need to check against the content_meta_type of each type-info       
+            tt = getToolByName(self, "portal_types")     
+            meta_types= tt.listContentTypes(self, by_metatype=True)
+            values = [v for v in values if v['portal_type'] in meta_types]
 
         return values
 
