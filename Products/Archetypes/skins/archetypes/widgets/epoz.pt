@@ -16,7 +16,7 @@
     </div>
 
     <metal:define define-macro="edit_area">
-      <tal:define define="inputname fieldName;inputvalue accessor">
+      <tal:define define="inputname fieldName;inputvalue python:request.get(fieldName, accessor())">
 	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
       <input type="hidden" tal:attributes="name string: ${fieldName}_text_format;" value="text/html"/>
