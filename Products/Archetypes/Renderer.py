@@ -8,20 +8,6 @@ _marker = []
 class ArchetypesRenderer(base):
     __implements__ = (ILayer,)
 
-    # broken - capturing the exception at this level is worse than not doing it
-    # (as it will return something invalid and cause a very hard to debug error)
-    # if you disagree, talk to lalo ;-)
-##     def render(self, field_name, mode, widget, instance, **kwargs):
-##         try:
-##             value = base.render(self, field_name, mode, widget,
-##                                 instance, **kwargs)
-
-##         except Exception, E:
-##             log_exc()
-##             value = "%s: %s" % (str(type(E)), E)
-
-##         return value
-    
     def setupContext(self, field_name, mode, widget, instance,
                      **kwargs):
 
