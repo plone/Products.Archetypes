@@ -18,10 +18,11 @@ class TypesWidget(macrowidget):
         if not self.description or not self.label:
             field = self.findField(instance)
             name = field.name
-            if not self.description:
-                self.description = "Enter a value for %s" % name
             if not self.label:
                 self.label = capitalize(name)
+            if not self.description:
+                self.description = "Enter a value for %s" % self.label
+
 
     def findField(self, instance):
         #This is a sad hack, I don't want widgets to have to take a
