@@ -1,5 +1,6 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
+from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 
 schema = BaseSchema + Schema((
     TextField('teaser',
@@ -19,7 +20,7 @@ schema = BaseSchema + Schema((
                                        'text/plain',
                                        'text/html',
                                        'application/msword'),
-              widget=RichWidget,
+              widget=RichWidget(),
               ),
 
     IntegerField("number",
@@ -31,9 +32,10 @@ schema = BaseSchema + Schema((
     ImageField('image',
                default_output_type='image/jpeg',
                allowable_content_types=('image/*',),
-               widget=ImageWidget),
-
-    )) + TemplateMixin.schema
+               widget=ImageWidget()),
+    
+    ),
+      marshaller = PrimaryFieldMarshaller()) + TemplateMixin.schema
 
 class DDocument(TemplateMixin, BaseContent):
     """An extensible Document (test) type"""

@@ -88,6 +88,18 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(expected, result[0])
 
 
+    def test_widgets(self):
+        site = self.getPortal()
+        doc = makeContent(site, portal_type='ComplexType', id='demodoc')
+
+        #Now render this doc in view and edit modes. If this works
+        #then we have pretty decent assurance that things are working
+        view = doc.base_view()
+        edit = doc.base_edit()
+
+        #No exceptions are good, parse the results more if you need to
+        #I feel fine...
+
     def test_rich_text_widget(self):
         site = self.getPortal()
         request = FakeRequest()
