@@ -20,17 +20,20 @@ from OFS.Folder import Folder
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 ####
-## In the case of a copy we want to lose refs
-##                a cut/paste we want to keep refs
-##                a delete to lose refs
+## In the case of:
+## - a copy:
+##   * we want to lose refs on the new object
+##   * we want to keep refs on the orig object
+## - a cut/paste
+##   * we want to keep refs
+## - a delete:
+##   * to lose refs
 ####
 
 #include graph supporting methods
 from Products.Archetypes.refengine.ref_graph import get_cmapx, get_png
 
-
-class Referenceable(Base):
-##class Referenceable(CopySource):
+class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
@@ -131,7 +134,8 @@ class Referenceable(Base):
         """given an object extract the bag of references for which it
         is the source"""
         if not getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
-            setattr(self, config.REFERENCE_ANNOTATION, Folder(config.REFERENCE_ANNOTATION))
+            setattr(self, config.REFERENCE_ANNOTATION,
+                    Folder(config.REFERENCE_ANNOTATION))
 
         return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
 
@@ -201,10 +205,13 @@ class Referenceable(Base):
         Get a UID
         (Called when the object is created or moved.)
         """
-##        isCopy = getattr(item, '_v_is_cp', None)
-##        if isCopy:
-##            setattr(self, config.UUID_ATTR, None)
-##            self._delReferenceAnnotations()
+        isCopy = getattr(item, '_v_is_cp', None)
+        if isCopy:
+            # If the object is a copy of a existing object we
+            # want to renew the UID, and drop all existing references
+            # on the newly-created copy.
+            setattr(self, config.UUID_ATTR, None)
+            self._delReferenceAnnotations()
 
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
@@ -218,17 +225,24 @@ class Referenceable(Base):
         """
         uc = getToolByName(self, config.UID_CATALOG)
 
-        if not shasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
-            #if the object has no UID or the UID already exists, get a new one
-            setattr(self, config.UUID_ATTR, None)
+        isCopy = getattr(item, '_v_is_cp', None)
+        # if isCopy is True, manage_afterAdd should have assigned a
+        # UID already.  Don't mess with UID anymore.
+        if not isCopy:
+            # XXX Should we ever get here after the isCopy flag addition??
+            # If the object has no UID or the UID already exists, then
+            # we should get a new one
+            if (not shasattr(self,config.UUID_ATTR) or
+                len(uc(UID=self.UID()))):
+                setattr(self, config.UUID_ATTR, None)
 
         self._register()
         self._updateCatalog(self)
 
     def manage_beforeDelete(self, item, container):
         """
-            Remove self from the catalog.
-            (Called when the object is deleted or moved.)
+        Remove self from the catalog.
+        (Called when the object is deleted or moved.)
         """
 
         # Change this to be "item", this is the root of this recursive
@@ -303,18 +317,20 @@ class Referenceable(Base):
                 uc.uncatalog_object(url)
                 rc.uncatalog_object(url)
 
-##    # CopyPaste hack
-##    def _getCopy(self, container):
-##        ob = CopySource._getCopy(self, container)
-##        ob._v_is_cp = 1
-##        return ob
+    def _getCopy(self, container):
+        # We set the '_v_is_cp' flag here so that when the new object
+        # gets to manage_afterAdd, the UID is renewed and references
+        # are not moved over to the new object.
+        ob = CopySource._getCopy(self, container)
+        ob._v_is_cp = 1
+        return ob
 
     def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
         because in those cases we need to keep refs"""
-        ## This isn't really safe for concurrent usage, but the
-        ## worse case is not that bad and could be fixed with a reindex
-        ## on the archetype tool
+        # This isn't really safe for concurrent usage, but the
+        # worse case is not that bad and could be fixed with a reindex
+        # on the archetype tool
         if op==1: self._v_cp_refs =  1
 
     # Recursion Mgmt
