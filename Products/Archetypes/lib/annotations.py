@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #	                       the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
@@ -34,7 +34,8 @@ from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
 from Globals import InitializeClass
 
-from Products.Archetypes.interfaces.IAnnotations import IATAnnotations, IATAnnotatable
+from Products.Archetypes.interfaces.annotations import IATAnnotations
+from Products.Archetypes.interfaces.annotations import IATAnnotatable
 
 # annotation keys
 AT_ANN_STORAGE = 'Archetypes.storage.AnnotationStorage'
@@ -49,7 +50,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     """
     __implements__ = IATAnnotations
     __used_for__ = IATAnnotatable
-    
+
     security = ClassSecurityInfo()
     security.declareObjectPrivate()
 
@@ -57,7 +58,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         self._obj = obj
 
     # basic methods required for DictMixin
-    
+
     def __nonzero__(self):
         return bool(getattr(aq_base(self._obj), '_at_annotations_', False))
 
@@ -74,14 +75,14 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
             raise KeyError, key
 
         return annotations[key]
-        
+
     def keys(self):
         annotations = getattr(aq_base(self._obj), '_at_annotations_', None)
         if annotations is None:
             return []
 
         return annotations.keys()
-    
+
     def __setitem__(self, key, value):
         if type(key) is not StringType:
             raise TypeError('ATAnnotations key must be a string')
@@ -102,26 +103,26 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
 
         del annotation[key]
         self._p_changed = 1
-        
+
     # additional methods
-    
+
     def set(self, key, value):
         self[key] = value
-        
+
     def getSubkey(self, key, default=None, subkeys=()):
         """Get annotations using a key and one or multiple subkeys
-        
+
         For subkeys being a string the value is stored in a key named
         key-subkeys::
 
             obj.getSubkeys('foo', subkeys='bar')
             obj.get('foo-bar')
             obj._at_annotations_['foo-bar']
-            
+
         For subkeys beeing a tuple with 2 elements the value is stored in an
         OOBTree named key-subkeys[0] using the key subkeys[1] on this
         particular OOBTree::
-            
+
             obj.getSubkeys('foo', subkeys=('ham', 'egg'))
             obj.get('foo-ham')['egg']
             obj._at_annotations_['foo-ham']['egg']
@@ -140,7 +141,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
                 return btree.get(subkeys[1], default)
         else:
             raise TypeError('Invalid subkey type %s, must be string or tuple' % type(subkeys))
-    
+
     def setSubkey(self, key, value, subkeys=()):
         """Stores data using a key and one to multiple subkeys
         """
@@ -219,19 +220,19 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     #def __repr__(self):
     #def __cmp__(self, other):
     #def __len__(self):
-        
+
 InitializeClass(ATAnnotations)
 
 class ATAnnotatableMixin(Base):
     __implements__ = IATAnnotatable
     security = ClassSecurityInfo()
-    
+
     security.declarePrivate('getAnnotation')
     def getAnnotation(self):
         """Get an ATAnnotation object for self
         """
         return ATAnnotations(self).__of__(self)
-    
+
     security.declarePrivate('hasAnnotation')
     def hasAnnotation(self):
         """Check if the object has annotations
@@ -239,4 +240,3 @@ class ATAnnotatableMixin(Base):
         return bool(self.getAnnotation())
 
 InitializeClass(ATAnnotatableMixin)
-
