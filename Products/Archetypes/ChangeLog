@@ -1,3 +1,10 @@
+2003-11-10  Geoff Davis <geoff@geoffdavis.net>
+
+    * BaseObject.py: Added optional values argument to processForm to allow one
+      to massage incoming form values in a script before passing them along to
+      processForm.  If values is set (should be a dict), processForm takes its 
+      values from the dict; otherwise it gets them from REQUEST.form.
+
 2003-11-09  Geoff Davis <geoff@geoffdavis.net>
 
     * updateSchemaForm.pt: Let user choose which classes should be updated

@@ -348,9 +348,12 @@ class BaseObject(Implicit):
         return size
 
     security.declarePrivate('_processForm')
-    def _processForm(self, data=1, metadata=None, REQUEST=None):
+    def _processForm(self, data=1, metadata=None, REQUEST=None, values=None):
         request = REQUEST or self.REQUEST
-        form = request.form
+        if values:
+            form = values
+        else:
+            form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
         schemata = self.Schemata()
@@ -388,9 +391,9 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0, REQUEST=None):
+    def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
+        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST, values=values)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
