@@ -5,7 +5,7 @@ from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from utils import capitalize, DisplayList, OrderedDict
+from utils import capitalize, DisplayList, OrderedDict, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -19,7 +19,6 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
-from inspect import getargs
 
 __docformat__ = 'reStructuredText'
 
@@ -284,14 +283,8 @@ class Schema(Schemata, DefaultLayerContainer):
                 kw = {}
                 if hasattr(field, 'default_content_type'):
                     # specify a mimetype if the mutator takes a mimetype argument
-                    m = mutator
-                    if hasattr(m,'im_func'):
-                        m = m.im_func
-                    code = m.func_code
-                    fn_args = getargs(code)
-                    if 'mimetype' in fn_args[0] or fn_args[2] is not None:
-                        kw['mimetype'] = field.default_content_type
-                mutator(*args, **kw)
+                    kw['mimetype'] = field.default_content_type
+                mapply(mutator, *args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')

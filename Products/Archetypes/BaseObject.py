@@ -18,7 +18,7 @@ import operator
 from Schema import Schema, Schemata
 from Field import StringField, TextField
 from Widget import IdWidget, StringWidget
-from utils import DisplayList
+from utils import DisplayList, mapply
 from interfaces.base import IBaseObject, IBaseUnit
 from interfaces.referenceable import IReferenceable
 
@@ -250,10 +250,8 @@ class BaseObject(Implicit):
 
         #This is the access mode used by external editor. We need the
         #handling provided by BaseUnit when its available
-        try:
-            value = accessor(raw=1)
-        except TypeError:
-            value = accessor()
+        kw = {'raw':1}
+        value = mapply(accessor, **kw)
 
         return value
 

@@ -8,7 +8,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import *
-from utils import capitalize, DisplayList, className
+from utils import capitalize, DisplayList, className, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -349,8 +349,9 @@ class ObjectField(Field):
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
         if accessor is None:
-            return self.get(instance, **kwargs)
-        return accessor(**kwargs)
+            args = [instance,]
+            return mapply(self.get, *args, **kwargs)
+        return mapply(accessor, **kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
