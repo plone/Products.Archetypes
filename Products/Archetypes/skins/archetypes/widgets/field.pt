@@ -89,7 +89,7 @@
                 review_state
               </a>
             </span>
-            <span tal:condition="python:getatttr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
+            <span tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
                   tal:omit-tag="">
               Content Type: <span tal:replace="python:field.getContentType(here)" />
             </span>
