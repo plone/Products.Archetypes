@@ -35,6 +35,10 @@ class BaseSQLStorage(StorageLayer):
         __traceback_info__ = repr(value)
         split = 10 ** field.precision
         return (value / split), (value % split)
+
+    def map_datetime(self, field, value):
+        # we don't want to lose even 0.001 second
+        return value.ISO()[:-2] + str(value.second())
     
     def initalizeInstance(self, instance):
         c_tool = getToolByName(instance, TOOL_NAME)

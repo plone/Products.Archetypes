@@ -160,7 +160,7 @@ class SQLStorageTest(unittest.TestCase):
         now = DateTime()
         dummy.setAdatetimefield(now)
         value = dummy.getAdatetimefield()
-        __traceback_info__ = repr(value)
+        __traceback_info__ = (value, now)
         self.failUnless(value == now)
 
     def test_integerfield(self):
