@@ -126,6 +126,8 @@ class ClassGenerator:
                 this object instance.
                 """
                 schema = self.schema
+                # XXX This code doesn't work at all and it's slowing down
+                # unit tests like hell.
                 #if hasattr(schema, 'wrapped'):
                 #    return schema.wrapped(self)
                 return ImplicitAcquisitionWrapper(schema, self)

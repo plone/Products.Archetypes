@@ -14,6 +14,7 @@ from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base, Explicit
+from ExtensionClass import Base
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
 
@@ -36,7 +37,7 @@ def getSchemata(obj):
 
     return schemata
 
-class Schemata:
+class Schemata(Base):
     """Manage a list of fields by grouping them together.
 
     Schematas are identified by their names.
