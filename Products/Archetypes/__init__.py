@@ -1,3 +1,5 @@
+import sys
+
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList
 
@@ -32,7 +34,8 @@ allow_class(DisplayList)
 registerDirectory('skins', globals())
 
 from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     process_types, listTypes
+     process_types, listTypes, fixAfterRenameType
+ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
 
 tools = (

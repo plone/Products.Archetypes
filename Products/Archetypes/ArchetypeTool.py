@@ -283,6 +283,22 @@ def registerType(klass, package=None):
     key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
 
+def fixAfterRenameType(context, old_portal_type, new_portal_type):
+    """Helper method to fix some vars after renaming a type in portal_types
+    """
+    at_tool = getToolByName(context, TOOL_NAME)
+    __traceback_info__ = (context, old_portal_type, new_portal_type)
+    # will fail if oldId wasn't registered
+    old_type = [ t for t in _types.values()
+                 if t['portal_type'] == old_portal_type ][0]
+    
+    # rename portal type
+    old_type['portal_type'] = new_portal_type
+    
+    # copy old templates to new portal name without references
+    old_templates = at_tool._templates.get(old_portal_type)
+    at_tool._templates[new_portal_type] = deepcopy(old_templates)
+
 def registerClasses(context, package, types=None):
     registered = listTypes(package)
     if types is not None:
@@ -458,12 +474,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'registerTemplate')
     def registerTemplate(self, template, name=None):
         # Lookup the template by name
-        obj = self.unrestrictedTraverse(template, None)
-        if obj:
-            if not name:
+        if not name:
+            obj = self.unrestrictedTraverse(template, None)
+            if obj:
                 name = obj.title_or_id()
-        else:
-            name = template
+            else:
+                name = template
 
         self._registeredTemplates[template] = name
 
@@ -523,7 +539,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Return the list of sorted types"""
         tt = getToolByName(self, "portal_types")
         def isRegistered(type, tt=tt):
-            return tt.getTypeInfo(type['name']) != None
+            return tt.getTypeInfo(type['portal_type']) != None
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
