@@ -3,6 +3,7 @@ from __future__ import nested_scopes
 import os.path
 import sys
 import time
+import random
 from copy import deepcopy
 from types import StringType
 from md5 import md5
@@ -211,8 +212,7 @@ class TTWSchema(SimpleItem):
         import BaseContent
         import ExtensibleMetadata
 
-        exec "from Products.Archetypes.Form import *" in ns
-        exec "from Products.Archetypes.Field import *" in ns
+        exec "from Products.Archetypes.public import *" in ns
 
         exec text in ns
         schema = ns['schema']
@@ -485,9 +485,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         cid = object.getId()
         i = 0
+        counter = 0
+        postfix = ''
         while cid in keys:
-            cid = "%s-%s" % (object.getId(), i)
+            if counter > 0:
+                g = random.Random(time.time())
+                postfix = g.random() * 10000
+            cid = "%s-%s%s" % (object.getId(),
+                               i, postfix)
             i = int((time.time() % 1.0) * 10000)
+            counter += 1
 
         return cid
 

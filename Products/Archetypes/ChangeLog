@@ -1,5 +1,13 @@
 2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* ArchetypeTool.py (ArchetypeTool._genId): Replaced weak
+	implementation by version suggested by Robert Rotterman.
+	(TTWSchema.compileSchema): Tentative to fix 'module Form not
+	found' messages for people trying to use TTW schema.
+
+	* skins/archetypes/base_view.pt: Define 'errors' so you can use
+	edit widgets on the 'view' customization if you want to.
+
 	* skins/archetypes/widgets/selection.pt: Made selection widget
 	work with LinesField. I know it wasn't supposed to be like this,
 	but I supposed it should work and it didn't worked, so I ended up
