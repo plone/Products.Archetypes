@@ -191,7 +191,6 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
-                       i18n:attributes="value"
                        tal:define="cname python:getattr(here.portal_types, here.portal_type).Title()"
                        tal:attributes="tabindex tabindex/next;
                                        value string:Save ${cname};
@@ -204,7 +203,7 @@
                        name="form.button.cancel"
                        value="Cancel"
                        i18n:attributes="value"
-                       tal:attributes="tabindex tabindex/next;"
+                       tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>
 

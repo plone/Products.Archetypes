@@ -33,7 +33,7 @@
 			tal:attributes="id string:${fieldName}_keywords;
 			name string:${fieldName}_keywords:lines;
 			tabindex tabindex/next;"
-			tal:define="subject python:request.get(fieldName,[])"
+			tal:define="subject python:[item for item in value if item not in allowedKeywords]"
 			tal:content="python:'\n'.join(subject)">
 		selected keywords
 	      </textarea>
@@ -54,7 +54,7 @@
 		    tabindex tabindex/next;">
 	      <option value="#" tal:repeat="keyword allowedKeywords"
 		      tal:content="keyword" tal:attributes="value keyword;
-		      selected python:test(here.unicodeTestIn(keyword, contentKeywords), 'selected', None)">
+		      selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
 		an existing keyword
 	      </option>
 	    </select>
