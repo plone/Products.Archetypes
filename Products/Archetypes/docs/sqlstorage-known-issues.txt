@@ -1,0 +1,8 @@
+Known problems with sql-storage:
+
+ SQLStorage does not work well together with the portal factory tool.
+
+ for more information see:
+ http://sourceforge.net/tracker/index.php?func=detail&aid=1009865&group_id=75272&atid=543430
+
+
