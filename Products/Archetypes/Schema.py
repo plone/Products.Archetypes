@@ -679,14 +679,15 @@ class Schema(Schemata, DefaultLayerContainer):
             d[s_name] = self.getSchemataFields(s_name)
 
         lst = d[field_schemata_name]  # list of fields of schemata
-        pos = lst.index(field)
+        pos = [f.getName() for f in lst].index(field.getName())
+
         if direction == -1:
             if pos > 0:
-                lst.remove(field)
+                del lst[pos]
                 lst.insert(pos-1, field)
         if direction == 1:
             if pos < len(lst):
-                lst.remove(field)
+                del lst[pos]
                 lst.insert(pos+1, field)
 
         d[field_schemata_name] = lst
