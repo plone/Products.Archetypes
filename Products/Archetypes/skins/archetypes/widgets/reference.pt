@@ -22,8 +22,8 @@
         <ul tal:condition="field/multiValued">
           <li tal:repeat="obj targets">
             <a href="#"
-	       tal:attributes="href obj/absolute_url"
-	       tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+               tal:attributes="href obj/absolute_url"
+               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
               Target Title
             </a>
           </li>
@@ -37,49 +37,55 @@
 
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
-             vocab python:field.Vocabulary(here);
-             fieldName python:multiVal and fieldName+':list' or fieldName;
-             vlen python:len(vocab);">
+                         vocab python:field.Vocabulary(here);
+                         fieldName python:multiVal and fieldName+':list' or fieldName;
+                         vlen python:len(vocab);">
 
           <input type="hidden"
                  value=""
                  tal:condition="python:not field.required and multiVal"
-                 tal:attributes="name string:$fieldName:default:list" />
+                 tal:attributes="name string:$fieldName:default:list"
+                 />
 
           <div tal:condition="python:vlen < 5">
             <!-- checkbox or radio for short vocabs -->
-            <span tal:repeat="item vocab"
-                  tal:omit-tag="">
+            <tal:item repeat="item vocab">
               <input class="noborder"
                      tabindex=""
                      type="radio"
                      tal:attributes="name fieldName;
-                     checked python:test(value and multiVal and item in value or item==value, value, '');
-                     tabindex tabindex/next; value item;
-                     type python:multiVal and 'checkbox' or 'radio'" />
-              <span tal:content="python: vocab.getValue(item)"></span>
+                                     checked python:test(value and multiVal and
+                                                         item in value or
+                                                         item==value, value, '');
+                                     tabindex tabindex/next; value item;
+                                     type python:multiVal and 'checkbox' or 'radio'"
+                     />
+
+              <span tal:content="python:vocab.getValue(item)" />
 
               <br/>
-            </span>
+            </tal:item>
           </div>
 
           <div tal:condition="python:vlen &gt; 4">
             <!-- pulldown for longer vocabs -->
             <select tal:attributes="name fieldName;
-                    id fieldName;
-                    multiple python:multiVal and 'multiple' or None;
-                    tabindex tabindex/next;">
+                                    id fieldName;
+                                    multiple python:multiVal and 'multiple' or None;
+                                    tabindex tabindex/next;">
 
               <option selected="selected"
                       tal:repeat="item vocab"
                       tal:attributes="value item;
-                      selected python:test(value and multiVal and item in value or item==value, 'selected', '')"
+                                      selected python:test(value and multiVal and
+                                                           item in value or
+                                                           item==value, 'selected', '')"
                       tal:content="python:vocab.getValue(item)"></option>
-	    </select>
+        </select>
           </div>
 
           <div tal:condition="python:widget.addable"
-            tal:define="types python:widget.addableTypes(here, field)">
+               tal:define="types python:widget.addableTypes(here, field)">
 
             <a tal:attributes="id string:${field/getName}_link;
                 onclick string:${field/getName}_show()"
@@ -94,15 +100,15 @@
                 <legend>add new</legend>
                 <div class="field">
                   <label>What</label>
-                  <div class="formHelp">Select what content type you wish create.</div>
+                  <div class="formHelp">Select what content type you wish to create.</div>
                   <div>
                     <select tal:define="id string:${field/getName}_types"
-                      tal:attributes="id id;
-                        tabindex tabindex/next;
-                        onchange string:${field/getName}_update(this)" >
+                            tal:attributes="id id;
+                                            tabindex tabindex/next;
+                                            onchange string:${field/getName}_update(this)" >
                       <option tal:repeat="type types"
-                        tal:attributes="value type/id"
-                        tal:content="type/name" />
+                              tal:attributes="value type/id"
+                              tal:content="type/name" />
                     </select>
                   </div>
                 </div>
@@ -111,8 +117,8 @@
                   <div class="formHelp">Select where you want to create that.</div>
                   <div>
                     <select name="add_reference.destination:record"
-                      tal:attributes="id string:${field/getName}_destinations;
-                      tabindex tabindex/next"></select>
+                            tal:attributes="id string:${field/getName}_destinations;
+                                            tabindex tabindex/next"></select>
                   </div>
                 </div>
                 <div class="field">
@@ -122,16 +128,16 @@
                     <input class="context"
                       tabindex=""
                       type="submit"
+                      value="Add"
                       name="form.button.form_add"
                       tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value=document.getElementById('${field/getName}_types').options[document.getElementById('${field/getName}_types').selectedIndex].value;;this.form['add_info.field:record'].value='';
-                        tabindex tabindex/next;"
+                                      tabindex tabindex/next;"
                       i18n:attributes="value"
-                      value="Add"
                       />
                   </div>
                 </div>
               </fieldset>
-              <script tal:content="structure here/reference_js" />
+              <script tal:content="structure here/reference_js"></script>
             </div>
           </div>
         </div>
