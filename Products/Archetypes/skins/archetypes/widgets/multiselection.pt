@@ -25,14 +25,14 @@
           <input type="hidden"
                  value=""
                  tal:condition="not:field/required|nothing"
-                 tal:attributes="name string:$fieldName:default:list:int;" />
+                 tal:attributes="name string:$fieldName:default:list;" />
           
           <tal:block tal:condition="python:format=='checkbox'">
             <tal:block tal:repeat="item vocab">
               <input tal:define="index python:vocab.getIndex(item);
                                  tabindex tabindex/next;"
                      tal:attributes="type string:checkbox;
-                                     name string:$fieldName:list:int;
+                                     name string:$fieldName:list;
                                      id string:${fieldName}_${tabindex};
                                      tabindex tabindex;
                                      checked python:test(index in indexes, 'checked', None);
@@ -47,7 +47,7 @@
           <tal:block tal:condition="python:format=='select'">
             <select multiple="multiple"
                     tal:condition="python:format=='select'"
-                    tal:attributes="name string:${fieldName}:list:int;
+                    tal:attributes="name string:${fieldName}:list;
                                     id fieldName;
                                     size widget/size;
                                     tabindex tabindex/next;">

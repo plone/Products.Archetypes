@@ -71,7 +71,7 @@
           <input type="hidden"
                  value=""
                  tal:condition="python:not field.required and multiVal"
-                 tal:attributes="name string:$fieldName:default:list:int"
+                 tal:attributes="name string:$fieldName:default:list"
                  />
 
           <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
@@ -100,7 +100,7 @@
 
           <div tal:condition="python:vlen &gt; widget.checkbox_bound">
             <!-- pulldown for longer vocabs -->
-            <select tal:attributes="name string:$fieldName:int;
+            <select tal:attributes="name string:$fieldName;
                                     id fieldName;
                                     multiple python:multiVal and 'multiple' or None;
                                     tabindex tabindex/next;">

@@ -39,7 +39,7 @@
                                type="radio"
                                tal:define="item_index python:vocab.getIndex(item);
                                            tabindex tabindex/next"
-                               tal:attributes="name string:$fieldName:int;
+                               tal:attributes="name string:$fieldName;
                                                id string:${fieldName}_${tabindex};
                                                checked python:test(item_index==index, 'checked', '');
                                                value item_index;
@@ -60,7 +60,7 @@
 
                     <!-- Pulldown when longer -->
 
-                    <select tal:attributes="name string:$fieldName:int;
+                    <select tal:attributes="name string:$fieldName;
                                             id fieldName;
                                             tabindex tabindex/next;">
                       <tal:block tal:repeat="item vocab">
