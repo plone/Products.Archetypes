@@ -9,7 +9,10 @@ schema = BaseSchema + Schema((
               article so that we might get people to read the body""",
                                     label="Teaser",
                                     rows=3)),
-    ObjectField('author'),
+    
+    # Using a bare ObjetField doesn't make sense ...
+    #ObjectField('author'),
+    StringField('author'),
 
     TextField('body',
               required=1,
