@@ -1,11 +1,6 @@
 1.3.0-rc2
 ======================
 
- * Added targetId index to reference_catalog. It was removed earlier to make
-   the ref catalog more lightweight. However, it broke
-   ReferenceCatalog._queryFor.
-   [dpunktnpunkt]
-
  * Removed class="error" from field.pt error message. It caused some ui
    glitches.
    [tiran]
@@ -149,6 +144,22 @@
 
  * Fixed [ 1018300 ] schema defined indexes are not set anymore.
    [dtremea]
+
+ * Added targetId index to reference_catalog. It was removed earlier to make
+   the ref catalog more lightweight. However, it broke
+   ReferenceCatalog._queryFor.
+   [dpunktnpunkt]
+
+ * Explictly reinstall MimetypesRegistry, PortalTransforms and Archetypes when
+   running the migration. Before MTR and PT weren't reinstalled ever and AT
+   under some circumstances which were leading to annoying bug reports.
+   [tiran]
+
+ * Added StdoutStringIO to migration.py which is printing the input to stdout,
+   too. Also added some gimmicks to the migration: After 10 items a '.' is
+   printed to stdout and after 250 items a '*' is printed to stdout so you can
+   see how the migration is coming along.
+   [tiran]
 
 1.3.0-rc1 - 2004-08-16
 ======================

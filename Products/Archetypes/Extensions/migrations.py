@@ -1,3 +1,4 @@
+import sys
 from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
@@ -12,15 +13,29 @@ from Products.Archetypes.interfaces.base import IBaseObject
 # required if you don't have enough space and memory
 USE_FULL_TRANSACTIONS = False
 
-def reinstallArchetypes(portal,out):
-    ''' lets quickinstaller reinstall the archetypes '''
-    # heuristic: if there is no reference_catalog, lets reinstall
-    refcat=getToolByName(portal,REFERENCE_CATALOG,None)
-    if not refcat:
-        print >>out, 'reinstalling Archetypes...'
-        getToolByName(portal,'portal_quickinstaller').reinstallProducts(['Archetypes'])
-        print >>out, 'reinstalled Archetypes.'
-        
+class StdoutStringIO(StringIO):
+    """StringIO that also writes to stdout
+    """
+    
+    def write(self, s):
+        print >> sys.stdout, str(s),
+        StringIO.write(self, s)
+
+def reinstallArchetypes(portal, out):
+    """let's quickinstaller (re)install Archetypes and it's dependencies
+    """
+    qi = getToolByName(portal, 'portal_quickinstaller')
+    products = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )
+    print >>out, 'Reinstalling Archetypes and it\'s dependencies'
+    for product in products:
+        if qi.isProductInstalled(product):
+            qi.reinstallProducts(product)
+            print >>out, '... reinstalling %s' % product
+        else:
+            qi.installProducts(product)
+            print >>out, '... installing %s' % product
+    print >>out, 'Done\n'
+       
 def fixArchetypesTool(portal, out):
     at = portal.archetype_tool
 
@@ -51,7 +66,7 @@ def migrateReferences(portal, out):
     if refs is not None:
         print >>out, 'migrating reference from Archetypes 1.2'
         count=0
-        print >>out, "Old references are stored in %s, so migrating them to new style reference annotations." % (TOOL_NAME)
+        print >>out, "Old references are stored in %s, so migrating them to new style reference annotations.\n" % (TOOL_NAME)
         allbrains = uc()
         for brain in allbrains:
             sourceObj = brain.getObject()
@@ -66,12 +81,16 @@ def migrateReferences(portal, out):
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
                 count+=1        
+                if not count % 10:
+                    print >>out, '.',
                 # avoid eating up all RAM
                 if not count % 250:
+                    print >>out, '*',
                     get_transaction().commit(1) 
-                print >>out, "%s old references migrated." % count
+            print >>out, "\n%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
+        print >>out, 'Done\n'
         if USE_FULL_TRANSACTIONS:
             get_transaction().commit()
         else:
@@ -86,7 +105,7 @@ def migrateReferences(portal, out):
         # reference metadata cannot be restored since reference-catalog is no more
         # a btree and in AT 1.3.b2 reference_catalog was a btreefolder
 
-        print >>out, 'migrating reference from Archetypes 1.3. beta2'
+        print >>out, 'migrating reference from Archetypes 1.3. beta2\n'
 
         refs = rc()
         rc.manage_catalogClear()
@@ -100,12 +119,15 @@ def migrateReferences(portal, out):
                 
             count+=1
             sourceObject.addReference(targetObject,relationship=brain.relationship)
+            if not count % 10:
+                print >>out, '.',
             # avoid eating up all RAM
             if not count % 250:
+                print >>out, '*',
                 get_transaction().commit(1) 
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
-
+        print >>out, '\nDone\n'
         if USE_FULL_TRANSACTIONS:
             get_transaction().commit()
         else:
@@ -123,6 +145,7 @@ olduididx = 'old_tmp_at_uid'
 def migrateUIDs(portal, out):
     count=0
     uc = getToolByName(portal, UID_CATALOG)    
+    print >>out, 'Migrating uids\n'
     
     # temporary add a new index    
     if olduididx not in uc.indexes():
@@ -149,10 +172,13 @@ def migrateUIDs(portal, out):
         obj._register()            # creates a new UID
         obj._updateCatalog(portal) # to be sure
         count+=1
+        if not count % 10:
+            print >>out, '.',
         # avoid eating up all RAM
         if not count % 250:
+            print >>out, '*',
             get_transaction().commit(1) 
-
+    print >>out, '\nDone\n'
     if USE_FULL_TRANSACTIONS:
         get_transaction().commit()
     else:
@@ -163,6 +189,7 @@ def migrateUIDs(portal, out):
 def removeOldUIDs(portal, out):
     # remove temporary needed index 
     uc = getToolByName(portal, UID_CATALOG)    
+    print >>out, 'Removing old uids\n'
     if olduididx in uc.indexes():
         uc.delIndex(olduididx)
         if olduididx in uc.schema():
@@ -177,8 +204,11 @@ def removeOldUIDs(portal, out):
         delattr(obj, olduididx)
         obj._updateCatalog(portal) 
         count+=1
+        if not count % 10:
+            print >>out, '.',
         # avoid eating up all RAM
         if not count % 250:
+            print >>out, '*',
             get_transaction().commit(1) 
 
     if USE_FULL_TRANSACTIONS:
@@ -186,7 +216,8 @@ def removeOldUIDs(portal, out):
     else:
         get_transaction().commit(1)
 
-    print >>out, count, "old UID attributes removed."
+    print >>out, "\n%s old UID attributes removed." % count
+    print >>out, 'Done\n'
 
 def migrateSchemas(portal, out):
     at = getToolByName(portal, TOOL_NAME)
@@ -230,7 +261,7 @@ def refreshCatalogs(portal, out):
 
 def migrate(self):
     """migrate an AT site"""
-    out = StringIO()
+    out = StdoutStringIO()
     portal = self
 
     print >>out, "Begin Migration"
