@@ -7,6 +7,8 @@ class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
+        'populate' : 1,  # should this field be populated in edit and view?
+        'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
         })
 
     def getName(self):
@@ -141,9 +143,18 @@ class ImageWidget(TypesWidget):
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
+class PasswordWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : 'widgets/password',
+        'modes' : ('edit',),
+        'populate' : 0,
+        'postback' : 0,
+        })
 
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
-           'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget', )
+           'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
+           'PasswordWidget',)

@@ -23,7 +23,7 @@
 	        vlen  python: len(vocab);
 	        ">
         <select multiple="multiple" 
-            tal:attributes="name fieldName;
+            tal:attributes="name string:$fieldName:list;
                 id fieldName;
 		        size widget/size;
 		        tabindex tabindex/next;
@@ -33,7 +33,7 @@
 		    <option selected=""
 	            tal:repeat="item vocab"
                 tal:attributes="value item;
-                    selected python:test(unicode(str(item)) in [unicode(str(val)) for val in value], 'selected', None);"
+                    selected python:test(unicode(item) in [unicode(val) for val in value], 'selected', None);"
 		        tal:content="python: vocab.getValue(item)"
 		        /> 
 	    </select>	  
