@@ -1033,8 +1033,10 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
-        brains = pc.searchResults(portal_type=self.allowed_types)
 
+        skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
+        brains = pc.searchResults(**skw)
+        
         if len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
