@@ -111,15 +111,12 @@ class Referenceable(Base):
         self._catalogUID(container)
         self._catalogRefs(container)
 
-
-
     def manage_afterClone(self, item):
         """
         Get a new UID (effectivly dropping reference)
         (Called when the object is cloned.)
         """
-        print "MAC", self.UID()
-        uc = getToolByName(container, config.UID_CATALOG)
+        uc = getToolByName(self, config.UID_CATALOG)
 
         setattr(self, config.UUID_ATTR, None)
         self._register()
