@@ -61,6 +61,9 @@ class BaseSQLStorage(StorageLayer):
         method.edit(connection_id, ' '.join(args.keys()), self.query_create)
         try:
             query, result = method(test__=1, **args)
+	    get_transaction().commit() #XXX We need to commit the transaction so subsequent
+	                               #    transactions can fill the table.  Else the table 
+				       #    is not yet created to be filled.
             # print query
         except Exception, msg:
             # usually, table already exists
