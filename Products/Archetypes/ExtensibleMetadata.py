@@ -289,7 +289,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         date = self.schema['effectiveDate'].get(self)
         if date is None:
             date = self.modified()
-        return date.ISO()
+        return date and date.ISO() or DateTime()
 
     security.declareProtected(CMFCorePermissions.View,
                               'Format')
@@ -457,7 +457,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     def ModificationDate(self):
         """ Dublin Core element - date resource last modified.
         """
-        return self.modified().ISO()
+        modified = self.modified()
+        return modified and modified.ISO() or DateTime()
 
     security.declareProtected(CMFCorePermissions.View,
                               'Type')
