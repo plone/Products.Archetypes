@@ -69,18 +69,19 @@ class VariableSchemaSupport (Base):
         schema = self.getAndPrepareSchema()
         schemata = OrderedDict()
         for f in schema.fields():
-            sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
+            sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = sub.__of__(self)
+            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, self)
+
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
         schema = self.getAndPrepareSchema()
-        if hasattr(schema, 'wrapped'):
-            return self.schema.wrapped(self)
-        return ImplicitAcquisitionWrapper(schema, self)
+        #if hasattr(schema, 'wrapped'):
+        #    return schema.wrapped(self)
+        return schema
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')

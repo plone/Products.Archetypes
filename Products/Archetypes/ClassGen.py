@@ -126,8 +126,8 @@ class ClassGenerator:
                 this object instance.
                 """
                 schema = self.schema
-                if hasattr(schema, 'wrapped'):
-                    return self.schema.wrapped(self)
+                #if hasattr(schema, 'wrapped'):
+                #    return schema.wrapped(self)
                 return ImplicitAcquisitionWrapper(schema, self)
             klass.Schema = Schema
 

@@ -17,7 +17,7 @@ except NameError:
     True=1
     False=0
 
-class TypesWidget(macrowidget, Base):
+class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
