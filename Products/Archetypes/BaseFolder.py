@@ -77,7 +77,7 @@ class BaseFolderMixin(CatalogMultiplex,
         SkinnedFolder.manage_beforeDelete(self, item, container)
 
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
-        self._at_cp_refs = None
+        self._v_cp_refs = None
 
 
     security.declareProtected(CMFCorePermissions.DeleteObjects,

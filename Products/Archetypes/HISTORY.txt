@@ -13,10 +13,6 @@
    [ 1087990 ] 'References' action visible for everyone.
    [tiran]
 
- *  Renamed _v_is_cp and _v_keep_ref to _at_*. Using volatile attributes may 
-    result in strange behavior when using sub transactions.
-    [tiran]
-
  * Fixed customizationpolicy.py not to break if CMFPlone isn't available.
    [tiran]
 

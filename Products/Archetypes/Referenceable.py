@@ -203,7 +203,7 @@ class Referenceable(CopySource):
         Get a UID
         (Called when the object is created or moved.)
         """
-        isCopy = getattr(item, '_at_is_cp', None)
+        isCopy = getattr(item, '_v_is_cp', None)
         if isCopy:
             # If the object is a copy of a existing object we
             # want to renew the UID, and drop all existing references
@@ -223,7 +223,7 @@ class Referenceable(CopySource):
         """
         uc = getToolByName(self, config.UID_CATALOG)
 
-        isCopy = getattr(item, '_at_is_cp', None)
+        isCopy = getattr(item, '_v_is_cp', None)
         # if isCopy is True, manage_afterAdd should have assigned a
         # UID already.  Don't mess with UID anymore.
         if not isCopy:
@@ -245,7 +245,7 @@ class Referenceable(CopySource):
 
         # Change this to be "item", this is the root of this recursive
         # chain and it will be flagged in the correct mode
-        storeRefs = getattr(item, '_at_cp_refs', None)
+        storeRefs = getattr(item, '_v_cp_refs', None)
         if storeRefs is None:
             # The object is really going away, we want to remove
             # its references
@@ -316,11 +316,11 @@ class Referenceable(CopySource):
                 rc.uncatalog_object(url)
 
     def _getCopy(self, container):
-        # We set the '_at_is_cp' flag here so that when the new object
+        # We set the '_v_is_cp' flag here so that when the new object
         # gets to manage_afterAdd, the UID is renewed and references
         # are not moved over to the new object.
         ob = CopySource._getCopy(self, container)
-        ob._at_is_cp = 1
+        ob._v_is_cp = 1
         return ob
 
     def _notifyOfCopyTo(self, container, op=0):
@@ -329,7 +329,7 @@ class Referenceable(CopySource):
         # This isn't really safe for concurrent usage, but the
         # worse case is not that bad and could be fixed with a reindex
         # on the archetype tool
-        if op==1: self._at_cp_refs =  1
+        if op==1: self._v_cp_refs =  1
 
     # Recursion Mgmt
     def _referenceApply(self, methodName, *args, **kwargs):

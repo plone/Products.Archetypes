@@ -182,7 +182,7 @@ class BaseObject(Referenceable):
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
-                self._at_cp_refs = 1 # See Referenceable, keep refs on
+                self._v_cp_refs = 1 # See Referenceable, keep refs on
                                     # what is a move/rename
                 parent.manage_renameObject(
                     self.id, value,
