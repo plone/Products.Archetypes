@@ -259,7 +259,7 @@ class FileField(StringField):
         # migrated from the old BaseObject.set method
         if type(value) is StringType:
             if mime_type is None:
-                mime_type, enc = guess_content_type('', value, 'text/plain')
+                mime_type, enc = guess_content_type('', value, mime_type)
             return value, mime_type
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
@@ -270,19 +270,21 @@ class FileField(StringField):
                 f_name = value.name
             value = value.read()
             if mime_type is None:
-                mime_type, enc = guess_content_type(f_name, value, 'text/plain')
+                mime_type, enc = guess_content_type(f_name, value, mime_type)
             return value, mime_type
         raise TextFieldException('Value is not File or String')
 
     def getContentType(self, instance):
         if hasattr(aq_base(instance), '_FileField_types'):
-            return instance._FileField_types.get(self.getName(), 'text/plain')
+            return instance._FileField_types.get(self.getName(), None)
         return None
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
             kwargs['mime_type'] = None
 
+        import pdb
+        pdb.set_trace()
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
@@ -293,7 +295,6 @@ class FileField(StringField):
             types_d = {}
             instance._FileField_types = types_d
         types_d[self.name] = mime_type
-        instance._p_changed = 1
         value = File(self.name, '', value, mime_type)
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -332,7 +333,7 @@ class TextField(ObjectField):
                     f_name = value.name
                 value = value.read()
                 if mime_type is None:
-                    mime_type, enc = guess_content_type(f_name, value, self.default_content_type)
+                    mime_type, enc = guess_content_type(f_name, value, mime_type)
                 value.seek(-1, 2)
                 size = value.tell()
                 value.seek(0)
@@ -344,7 +345,7 @@ class TextField(ObjectField):
 
             elif IBaseUnit.isImplementedBy(value):
                 if mime_type is None:
-                    mime_type, enc = guess_content_type(f_name, str(value), self.default_content_type)
+                    mime_type, enc = guess_content_type(f_name, str(value), mime_type)
                 return value, getattr(aq_base(value), 'mimetype', mime_type)
         else:
             if value == '':
@@ -359,7 +360,7 @@ class TextField(ObjectField):
             value = accessor()
         mime_type = getattr(aq_base(value), 'mimetype', None)
         if mime_type is None:
-            mime_type, enc = guess_content_type('', str(value), self.default_content_type)
+            mime_type, enc = guess_content_type('', str(value), None)
         return mime_type
 
     def set(self, instance, value, **kwargs):

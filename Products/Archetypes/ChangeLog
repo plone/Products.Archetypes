@@ -1,5 +1,11 @@
 2003-05-07  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
 
+	* skins/archetypes/widgets/textarea.pt: Value is not a valid
+	attribute for textareas.
+
+	* Field.py (TextField.getContentType): Changed default to None, or
+	else uploaded files of unknown type could end up as text/plain.
+
 	* skins/archetypes/widgets/rich.pt: Display 'download or edit'
 	widget.
 
