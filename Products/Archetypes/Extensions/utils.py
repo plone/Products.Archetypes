@@ -215,8 +215,9 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     """Deprecated.  Please use Archetypes.skins.
     """
     
-    deprecated("Please use Archetypes.skins")
-    installPathsFromDir(self, product_skins_dir, globals=globals)
+    deprecated("install_subskin: Please use Archetypes.skins")
+    installPathsFromDir(self, product_skins_dir,
+                        globals=globals, position='custom')
 
 
 def install_types(self, out, types, package_name):
