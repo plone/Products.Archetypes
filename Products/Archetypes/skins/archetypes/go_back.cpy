@@ -1,5 +1,4 @@
 ## Script (Python) "go_back"
-##title=Edit content
 ##bind container=container
 ##bind context=context
 ##bind namespace=
@@ -7,12 +6,12 @@
 ##bind state=state
 ##bind subpath=traverse_subpath
 ##parameters=lastest_referer
+##title=Go Back
 ##
-REQUEST = context.REQUEST
+portal_status_message=context.translate(
+    msgid='message_add_new_item_cancelled',
+    domain='archetypes',
+    default='Add New Item operation was cancelled.')
 
-portal = context.portal_url.getPortalObject()
-
-portal_status_message='Add New Item Operation was Cancelled.'
-referer = lastest_referer.pop()
-return state.set(next_action='redirect_to:string:'+referer,
+return state.set(next_action='redirect_to:string:%s' % lastest_referer,
                  portal_status_message=portal_status_message)
