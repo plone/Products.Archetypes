@@ -64,9 +64,7 @@
 
           <metal:block define-slot="widgets">
             <tal:fields repeat="field fields">
-              <tal:condition tal:define="visCondition python:field.widget.testCondition(here, portal, template)">
-                <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-              </tal:condition>
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
             </tal:fields>
           </metal:block>
 
