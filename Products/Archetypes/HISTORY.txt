@@ -1,6 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Fixed 1084278 In www/generateDebug.zpt error in getTypeInfo(type['name'])
+   [yenzenz]
+
  * Applied patch in 1076864 schemata links need css declaration, thx to 
    David Convent.
    [yenzenz]
