@@ -1,3 +1,12 @@
+2003-11-07  Sylvain Thénault  <syt@logilab.fr>
+    * BaseFolder.py: added the Description method to not fallback to
+    the PortalFolder's one
+
+    * __init__.py: make DisplayList public
+
+    * Extensions/utils.py: don't try to add an index when we only want
+    to add the field to metadata
+
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.get_size): Fix for when the value is

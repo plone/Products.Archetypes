@@ -153,6 +153,10 @@ def install_indexes(self, out, types):
                         except:
                             pass
 
+                    # we may want to add a field to metadata without indexing it
+                    if not schema[0]:
+                        continue
+                    
                     parts = schema[0].split('|')
 
                     for itype in parts:

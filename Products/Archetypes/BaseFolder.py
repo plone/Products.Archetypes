@@ -57,4 +57,10 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
 
+    def Description(self, **kwargs):
+        """we have to override Description here to handle arbitrary 
+        arguments since PortalFolder defines it.
+        """
+        self.getField('description').get(self, **kwargs)
+
 InitializeClass(BaseFolder)
