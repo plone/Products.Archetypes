@@ -1268,14 +1268,41 @@ class ImageField(ObjectField):
                     # the orig
                     return
 
-        ###
-        ### store the original
-        ###
+        kwargs = self._updateKwargs(instance, value, **kwargs)
+        imgdata = self.rescaleOriginal(value, **kwargs)
+        self.createOriginal(instance, imgdata, **kwargs)
+        self.createScales(instance)
+        
+    def _updateKwargs(self, instance, value, **kwargs):
+        # get filename from kwargs, then from the value
+        # if no filename is available set it to ''
+        vfilename = getattr(value, 'filename', '')
+        kfilename = kwargs.get('filename', '')
+        if kfilename:
+            filename = kfilename
+        else:
+            filename = vfilename
+        kwargs['filename'] = filename
 
-        # test for scaling it.
-        imgdata = value
+        # set mimetype from kwargs, then from the field itself
+        # if no mimetype is available set it to 'image/png'
+        kmimetype = kwargs.get('mimetype', None)
+        imimetype = self.getContentType(instance)
+        if kmimetype:
+            mimetype = kmimetype
+        elif imimetype:
+            mimetype = imimetype
+        else:
+            mimetype = 'image/png'
+        kwargs['mimetype'] = mimetype
+        return kwargs
+
+    def rescaleOriginal(self, value, **kwargs):
+        """rescales the original image and sets the data
+        
+        for self.original_size or self.max_size
+        """
         mimetype = kwargs.get('mimetype', 'image/png')
-
         if has_pil:
             if self.original_size or self.max_size:
                 image = self.image_class(self.getName(), self.getName(),
@@ -1292,29 +1319,40 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    imgdata = self.scale(data,w,h)
+                    value = self.scale(data,w,h)
+        
+        return value
 
+    def createOriginal(self, instance, value, **kwargs):
+        """create the original image (save it)
+        """
+        mimetype = kwargs.get('mimetype', 'image/png')
+        filename = kwargs.get('filename', '')
         image = self.image_class(self.getName(), self.getName(),
-                                 imgdata, mimetype)
-        image.filename = hasattr(value, 'filename') and value.filename or ''
+                                 value, mimetype)
+        image.filename = filename
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
-        # now create the scaled versions
+    def createScales(self, instance):
+        """creates the scales and save them
+        """
         if not has_pil or not self.sizes:
             return
-
-        data = str(image.data)
+        img = self.getRaw(instance)
+        if not img:
+            return
+        data = str(img.data)
+        print type(data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
             imgdata = self.scale(data, w, h)
-            image2 = self.image_class(id, self.getName(),
+            image = self.image_class(id, self.getName(),
                                       imgdata, 'image/jpeg')
             # manually use storage
-            delattr(image2, 'title')
-            self.storage.set(id, instance, image2)
-
+            delattr(image, 'title')
+            self.storage.set(id, instance, image)
 
     def scale(self,data,w,h):
         """ scale image (with material from ImageTag_Hotfix)"""
