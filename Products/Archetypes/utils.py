@@ -184,7 +184,7 @@ class DisplayList:
         "get i18n msgid"
         try:
             return self._i18n_msgids[key]
-        except KeyError:
+        except (KeyError, AttributeError):
             return self._keys[key]
 
     def keys(self):

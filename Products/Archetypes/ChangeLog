@@ -1,5 +1,7 @@
 2003-05-16  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* utils.py (DisplayList.__add__): Typo. mgsids -> msgids.
+
 	* Field.py (Field.checkExternalEditor): Add check for external
 	editor plus permission. This is to make it display the external
 	edit link only if it is enabled in plone site_properties (which
