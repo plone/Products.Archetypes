@@ -344,15 +344,15 @@ class TextAreaWidget(TypesWidget):
 
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None):
-            if field.get(instance):
+            if field.getEditAccessor(instance)():
                 if (value and not value.isspace()):
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
                     value = value + field.widget.divider + \
-                            field.get(instance, mimetype="text/plain")
+                            field.getEditAccessor(instance)()
                 else:
                     # keep historical entries
-                    value = field.get(instance, mimetype="text/plain")
+                    value = field.getEditAccessor(instance)()
         return value, kwargs
 
 class LinesWidget(TypesWidget):
