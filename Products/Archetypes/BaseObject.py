@@ -330,7 +330,7 @@ class BaseObject(Implicit):
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
-            method = getattr(self, field.accessor)
+            method = field.getAccessor(self)
             try:
                 datum =  method(mimetype="text/plain")
             except TypeError:
@@ -351,7 +351,7 @@ class BaseObject(Implicit):
                     datum = ' '.join(datum)
                 elif type_datum in (type(''), type(u''), ):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
-                    
+
                 # FIXME: we really need an unicode policy !
                 if type_datum is type(u''):
                     datum = datum.encode(charset)

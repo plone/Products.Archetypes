@@ -1046,7 +1046,10 @@ class CMFObjectField(ObjectField):
             if not hasattr(aq_base(info), 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
-            return info.constructInstance(instance, self.getName(), **kwargs)
+            args = [instance, self.getName()]
+            for k in ['field', 'schema']:
+                del kwargs[k]
+            return mapply(info.constructInstance, *args, **kwargs)
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)

@@ -45,14 +45,20 @@ if next or previous:
     if next_schemata == None:
         raise 'Unable to find next field set after %s' % fieldset
 
-original_url = state.kwargs.get('original_url')
-if original_url is not None:
+
+env = state.kwargs
+reference_source_url = env.get('reference_source_url')
+if reference_source_url is not None:
+    reference_source_url = env['reference_source_url'].pop()
+    reference_source_field = env['reference_source_field'].pop()
+    reference_source_fieldset = env['reference_source_fieldset'].pop()
     portal = context.portal_url.getPortalObject()
-    new_context = portal.restrictedTraverse(original_url)
+    new_context = portal.restrictedTraverse(reference_source_url)
     return state.set(status='success_add_reference',
                      context=new_context,
                      portal_status_message='Reference Added.',
-                     fieldset=state.kwargs.get('original_fieldset'))
+                     fieldset=reference_source_fieldset,
+                     field=reference_source_field)
 
 
 if state.errors:
