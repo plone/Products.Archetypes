@@ -56,7 +56,7 @@ class IRegistryMultiplexer(IRegistry):
         """
 
 class IRegistryEntry(Interface):
-    """An interface entry
+    """A dict like registry entry
     """
 
     __used_for__ = Attribute("Interface of the class that should be stored")
@@ -78,10 +78,6 @@ class IRegistryEntry(Interface):
 
         This method can be used to prevent an object from getting registered
         or to change the class before registering it.
-        """
-
-    def keys():
-        """Return list of attributes that provide information
         """
 
     def getDottedName():

@@ -35,8 +35,8 @@ if __name__ == '__main__':
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
+    'Products.Archetypes.lib.utils',
     'Products.Archetypes.registry.base',
-    'Products.Archetypes.lib.skins',
 )
 
 ##

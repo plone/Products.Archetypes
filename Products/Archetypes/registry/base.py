@@ -28,6 +28,8 @@
 
 __author__ = 'Christian Heimes'
 
+import sys
+
 from Interface import Interface
 #from Interface.IInterface import IInterface
 from Products.Archetypes.interfaces.registry import IRegistry
@@ -37,7 +39,7 @@ from Products.Archetypes.lib.utils import getDottedName
 
 _marker = object()
 
-class RegistryEntry(object):
+class RegistryEntry(dict):
     """See IRegistryEntry
 
     >>> class ISample(Interface): pass
@@ -52,7 +54,7 @@ class RegistryEntry(object):
     >>> from Interface.Verify import verifyClass
     >>> verifyClass(IRegistryEntry, SampleEntry)
     1
-    >>> verifyClass(ISample, sample.cls)
+    >>> verifyClass(ISample, sample['klass'])
     1
 
     Check if adding a class which doesn't implement our interface does fail
@@ -69,16 +71,11 @@ class RegistryEntry(object):
     ValueError: <class 'Products.Archetypes.registry.base.Other'> does not implement Products.Archetypes.registry.base.ISample
 
 
-    Overwriting an existing instance var isn't allowed
-    >>> error = SampleEntry(Sample, __used_for__='this should fail')
-    Traceback (most recent call last):
-    KeyError: '__used_for__ is a forbidden key'
-
     Additional keywords must result in instance vars
     >>> sample = SampleEntry(Sample, foo='bar', egg=object)
-    >>> sample.foo
+    >>> sample['foo']
     'bar'
-    >>> sample.egg
+    >>> sample['egg']
     <type 'object'>
 
     Check if require is working
@@ -90,57 +87,54 @@ class RegistryEntry(object):
     ValueError: name is required
 
     >>> sample = SampleEntryWithName(Sample, name='a sample')
-    >>> sample.name
+    >>> sample['name']
     'a sample'
     """
     __implements__ = (IRegistryEntry, )
     __used_for__ = None
-    __slots__ = ('cls', '_data',)
-    required = ('name', 'description')
+    __slots__ = ()
+    required = ('name', 'description', 'registry_key', )
 
-    def __init__(self, cls, **kw):
-        self._checkCls(cls)
-        self.cls = cls
-        vars = dir(self)
-        for key in kw:
-            if key in vars:
-                raise KeyError, "%s is a forbidden key" % key
+    def __init__(self, klass, **kw):
+        self._checkClass(klass)
+        self['klass'] = klass
         for req in self.required:
             if req not in kw:
                 raise ValueError, '%s is required' % req
-        self._data = self.process(**kw)
+        self.update(self.process(**kw))
 
-    def _checkCls(self, cls):
+    def _checkClass(self, klass):
+        """Chech if the class matches the constrains for the entry
+        """
         iface = self.__used_for__
-        if not iface.isImplementedByInstancesOf(cls):
-            raise ValueError, "%s does not implement %s" % (cls, getDottedName(iface))
-
-    def __getattr__(self, key, default=_marker):
-        try:
-            return self._data[key]
-        except KeyError:
-            try:
-                return object.__getattribute__(self, key)
-            except AttributeError:
-                if default is not _marker:
-                    return marker
-                else:
-                    raise
+        if not iface.isImplementedByInstancesOf(klass):
+            raise ValueError, "%s does not implement %s" % (klass, getDottedName(iface))
 
     def process(self, **kw):
+        """Process the keyword arguments
+        
+        May be used to add additional data or check the data
+        """
         return kw
 
     def beforeRegister(self, registry, key):
+        """Called before the entry is registered
+        
+        registry is the registry instance to which the entry is added
+        key is the key under which the entry is registered
+        """
         pass
 
-    def keys(self):
-        return self._data.keys()
-
     def getModule(self):
-        return getattr(self.cls, '__module__', None)
+        """Return the module in which the class is defined
+        """
+        module_name = self['klass'].__module__
+        return sys.modules[module_name]
 
     def getDottedName(self):
-        return getDottedName(self.cls)
+        """Return the dotted name of the class
+        """
+        return getDottedName(self['klass'])
 
 
 class _MetaRegistry(type):
@@ -149,13 +143,13 @@ class _MetaRegistry(type):
     The metaclass does some checks on the entryclass class var and assigns
     entry_interface according to the entry class __used_for__ class var.
     """
-    def __init__(cls, name, bases, dict):
-        super(_MetaRegistry, cls).__init__(name, bases, dict)
+    def __init__(klass, name, bases, dict):
+        super(_MetaRegistry, klass).__init__(name, bases, dict)
         entry_class = dict.get('_entry_class')
         if not IRegistryEntry.isImplementedByInstancesOf(entry_class):
             raise TypeError, "%s doesn't implement IRegistryEntry" % entry_class
         iface = entry_class.__used_for__
-        setattr(cls, '_entry_iface', iface)
+        setattr(klass, '_entry_iface', iface)
 
 class Registry(dict):
     """See IRegistry
@@ -214,12 +208,23 @@ class Registry(dict):
                  getDottedName(self._entry_iface))
         dict.__setitem__(self, key, value)
 
-    def register(self, cls, name=None, **kw):
-        if name is None:
-            name = getDottedName(cls)
-        ob = self._entry_class(cls, name=name **kw)
-        ob.beforeRegister(registry=self, key=name)
-        self[name] = ob
+    def register(self, klass, key=None, **kw):
+        """Registers a class
+        
+        The key is autogenerated when not provided. Instead of the class an
+        entry that contains the class and additional data is added to the 
+        registry.
+        """
+        key = self._createKey(klass, key, **kw)
+        ob = self._entry_class(klass, registry_key=key, **kw)
+        ob.beforeRegister(registry=self, key=key)
+        self[key] = ob
+        
+    def _createKey(self, klass, key, **kw):
+        """Hook to auto-create a key
+        """
+        if key is None:
+            key = getDottedName(klass)
 
 class RegistryMultiplexer(dict):
     """See IRegistryMultiplexer
@@ -239,20 +244,20 @@ class RegistryMultiplexer(dict):
         iface = registry._entry_iface
         self[iface] = registry
 
-    def register(self, cls, **kw):
+    def register(self, klass, **kw):
         match = None
         for iface in self.keys():
-            if iface.isImplementedByInstancesOf(cls):
+            if iface.isImplementedByInstancesOf(klass):
                 if match is not None:
                     raise ValueError, 'Found more then one registry for %s:' \
-                        '%s, %s' % (getDottedName(cls), getDottedName(iface),
+                        '%s, %s' % (getDottedName(klass), getDottedName(iface),
                             getDotttedName(match))
                 else:
                     match = iface
         if match is None:
-            raise ValueError, 'Unable to find a registry for %s' % getDottedName(cls)
+            raise ValueError, 'Unable to find a registry for %s' % getDottedName(klass)
         registry = self[match]
-        registry.register(cls, **kw)
+        registry.register(klass, **kw)
 
 mainRegistry = RegistryMultiplexer()
 register = mainRegistry.register
