@@ -1343,7 +1343,6 @@ class ImageField(ObjectField):
         if not img:
             return
         data = str(img.data)
-        print type(data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
