@@ -1,9 +1,9 @@
 NAME=archetypes
 MAJOR_VERSION=1.3
 MINOR_VERSION=0
-RELEASE_TAG=_b1
+RELEASE_TAG=_b2
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
-CVSTAG=release-1_3_0-b1
+CVSTAG=release-1_3_0-b2
 
 PYTHON="/usr/bin/python"
 TMPDIR=~/tmp
@@ -11,7 +11,7 @@ TMPDIR=~/tmp
 CURDIR=~/src/archetypes/1_3/Archetypes
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=~/src/zope/2_7/lib/python
-INSTANCE_HOME=~/src/instance/head
+INSTANCE_HOME=~/src/instance/shellex
 PACKAGES=Archetypes validation generator ArchExample ArchGenXML
 CVSROOT=-d:ext:dreamcatcher@cvs.sf.net:/cvsroot/archetypes
 
