@@ -5,9 +5,7 @@ from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-from Products.transform import transformer, registry
 from Products.transform.interfaces import idatastream
-from Products.transform.sourceAdapter import sourceAdapter
 from StringIO import StringIO
 from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
@@ -28,26 +26,27 @@ class newBaseUnit(File):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', mime_type=None):
+    def __init__(self, name, file='', instance=None, mime_type=None):
         self.id = name
-        self.update(file, mime_type)
+        self.update(file, instance, mime_type)
 
-    def update(self, data, mimetype=None):
+    def update(self, data, instance, mimetype=None):
         #Convert from file/str to str/unicode as needed
-        data, filename, mimetype = sourceAdapter()(data, mimetype=mimetype)
+        adapter = getToolByName(instance, 'mimetypes_registry')
+        data, filename, mimetype = adapter(data, mimetype=mimetype)
 
         self.mimetype = mimetype
         self.raw  = data and str(data) or ''
         self.size = len(data)
         self.filename = filename
 
-        ##force default transform policy, this needs to come out
-        str(self)
+##         #force default transform policy, this needs to come out
+##         str(self)
 
-    def __getitem__(self, key):
-        return self.transform(key)
+##     def __getitem__(self, key):
+##         return self.transform(key)
 
-    def transform(self, mt, cache=0):
+    def transform(self, instance, mt, cache=0):
         """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
         """
@@ -55,6 +54,7 @@ class newBaseUnit(File):
         data = cache.getCache(mt)
         #Do we have a cached transform for this key?
         if data is None:
+            transformer = getToolByName(instance, 'portal_transforms')
             data = transformer.convertTo(mt,
                                          self.raw,
                                          usedby=self.id,
@@ -72,33 +72,42 @@ class newBaseUnit(File):
             return data
 
         #XXX debug
+        registry = getToolByName(instance, 'mimetypes_registry')
         mt = registry.lookup(mt)
         if mt and mt[0].binary:
             return self.raw
 
         return None
 
+##     def __str__(self):
+##         ## XXX make sure default view points to a RFC-2046 name
+##         data = self.transform('text/html', cache=1)
+##         if not data:
+##             data = self.transform('text/plain', cache=1)
+##         if not data:
+##             return ''
+
+##         if idatastream.isImplementedBy(data):
+##             data = data.getData()
+##         if type(data) == DictType and data.has_key('html'):
+##             return data['html']
+##         return data
+
+##     # Hook needed for catalog
+##     __call__ = __str__
+
     def __str__(self):
-        ## XXX make sure default view points to a RFC-2046 name
-        data = self.transform('text/html', cache=1)
-        if not data:
-            data = self.transform('text/plain', cache=1)
-        if not data:
-            return ''
-
-        if idatastream.isImplementedBy(data):
-            data = data.getData()
-        if type(data) == DictType and data.has_key('html'):
-            return data['html']
-        return data
-
-    # Hook needed for catalog
-    __call__ = __str__
-
+        return self.raw
+    
     def isBinary(self):
-        mt = registry.lookup(self.getContentType())
-        if not mt: return 1 #if we don't hear otherwise its binary
-        return mt[0].binary
+        try:
+            return self.getContentType().binary
+        except AttributeError:
+            return 1
+##         registry = getToolByName('mimetypes_registry')
+##         mt = registry.lookup(self.getContentType())
+##         if not mt: return 1 #if we don't hear otherwise its binary
+##         return mt[0].binary
 
     # File handling
     def get_size(self):
@@ -110,8 +119,8 @@ class newBaseUnit(File):
     def getContentType(self):
         return self.mimetype
 
-    def SearchableText(self):
-        return self.transform('text/plain')
+##     def SearchableText(self):
+##         return self.transform('text/plain')
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
@@ -160,7 +169,7 @@ class oldBaseUnit(File, ObjectManager):
     __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
-    def __init__(self, name, file='', mime_type=None):
+    def __init__(self, name, file='', instance=None, mime_type=None):
         self.id = name
         self.filename = ''
         self.data = ''

@@ -29,6 +29,8 @@ from OFS.Image import File
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
+from transform.interfaces import idatastream
+
 STRING_TYPES = [StringType, UnicodeType]
 
 class Field(DefaultLayerContainer):
@@ -173,14 +175,20 @@ class Field(DefaultLayerContainer):
     security.declarePublic('getDefault')
     def getDefault(self):
         return self.default
-
+        
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
         return getattr(instance, self.accessor, None)
 
+    security.declarePrivate('getEditAccessor')
+    def getEditAccessor(self, instance):
+        return getattr(instance, self.edit_accessor, None)
+
     security.declarePublic('getMutator')
     def getMutator(self, instance):
         return getattr(instance, self.mutator, None)
+
+
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -205,6 +213,9 @@ class ObjectField(Field):
             if not kwargs.get('_initializing_', 0):
                 self.set(instance, self.default,_initializing_=1,**kwargs)
             return self.default
+
+    def getRaw(self, instance, **kwargs):
+        return self.getAccessor(instance)(**kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
@@ -321,6 +332,7 @@ class FileField(StringField):
         value = File(self.getName(), '', value, mime_type)
         ObjectField.set(self, instance, value, **kwargs)
 
+
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -381,11 +393,49 @@ class TextField(ObjectField):
         value = ''
         accessor = self.getAccessor(instance)
         if accessor is not None:
-            value = accessor()
+            try:
+                value = accessor(raw=1)
+            except TypeError:
+                value = accessor()
         mime_type = getattr(aq_base(value), 'mimetype', None)
         if mime_type is None:
             mime_type, enc = guess_content_type('', str(value), None)
         return mime_type
+
+
+    def getRaw(self, instance, **kwargs):
+        kwargs['raw'] = 1
+        return self.getAccessor(instance)(**kwargs)
+    
+    def get(self, instance, mimetype=None, raw=1, **kwargs):
+        try:
+            kwargs['field'] = self
+            value = self.storage.get(self.getName(), instance, **kwargs)
+            if not IBaseUnit.isImplementedBy(value):
+                return value
+        except AttributeError:
+            # happens if new Atts are added and not yet stored in the instance
+            if not kwargs.get('_initializing_', 0):
+                self.set(instance, self.default, _initializing_=1, **kwargs)
+            return self.default
+
+        if raw:
+            return value
+        
+        if mimetype is None:
+            mimetype = 'text/html' # XXX: default_output_type ?
+        data = value.transform(instance, mimetype, cache=1)
+        if not data:
+            data = value.transform(instance, 'text/plain', cache=1)
+        if not data:
+            return ''
+        
+        if idatastream.isImplementedBy(data):
+            data = data.getData()
+        if type(data) == type({}) and data.has_key('html'):
+            return data['html']
+        return data
+
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
@@ -399,7 +449,7 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.getName(), value, mime_type=mime_type)
+            bu = BaseUnit(self.getName(), value, mime_type=mime_type, instance=instance)
 
         ObjectField.set(self, instance, bu, **kwargs)
 

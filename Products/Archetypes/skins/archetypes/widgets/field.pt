@@ -48,7 +48,7 @@
         </div> 
         <div class="field"
 	           tal:define="error python:errors.get(fieldName);
-                         value python:widget.populate and accessor() or '';
+                               value python:widget.populate and field.getEditAccessor(here)() or '';
 	                       value python:widget.postback and request.get(fieldName, value) or value;"
 	           tal:attributes="class python:test(error, 'field error', 'field')" >
              <div tal:condition="error">
