@@ -25,7 +25,7 @@ class Storage:
     at least those methods"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePublic('getName')
@@ -55,7 +55,7 @@ setSecurity(Storage)
 class ReadOnlyStorage(Storage):
     """A marker storage class for used for read-only fields."""
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
 class StorageLayer(Storage):
@@ -64,7 +64,7 @@ class StorageLayer(Storage):
     subclass and implement those methods"""
 
     __implements__ = IStorage, ILayer
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
@@ -90,7 +90,7 @@ class AttributeStorage(Storage):
     commonly used storage"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
@@ -119,7 +119,7 @@ class ObjectManagedStorage(Storage):
     used for BaseFolder-based content"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
@@ -150,7 +150,7 @@ class MetadataStorage(StorageLayer):
     a persistent mapping named ``_md`` on the instance."""
 
     __implements__ = IStorage, ILayer
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')

@@ -47,8 +47,7 @@ class BaseContentMixin(CatalogMultiplex,
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
-                              'PUT')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
         """ HTTP PUT handler with marshalling support """
         if not REQUEST:

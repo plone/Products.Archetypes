@@ -78,7 +78,7 @@ class BaseUnit(File):
 
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
-                                     context=instance,                                     
+                                     context=instance,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 
