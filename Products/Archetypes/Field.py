@@ -1,46 +1,44 @@
 from __future__ import nested_scopes
 from copy import copy, deepcopy
-from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base, aq_parent, aq_inner
 from types import ListType, TupleType, ClassType, FileType
-from UserDict import UserDict
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore  import CMFCorePermissions
-from Globals import InitializeClass
-from Widget import *
-from ReferenceEngine import Reference
-from utils import capitalize, DisplayList, className, mapply
-from debug import log, log_exc
-from ZPublisher.HTTPRequest import FileUpload
-from BaseUnit import BaseUnit
 from types import StringType, UnicodeType
-from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
-     ReadOnlyStorage
-from DateTime import DateTime
-from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField, IImageField
-from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
-from interfaces.storage import IStorage
-from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException, \
-     FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT, REFERENCE_CATALOG
-from OFS.content_types import guess_content_type
-from OFS.Image import File
-from ComputedAttribute import ComputedAttribute
+from UserDict import UserDict
+
+from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
+from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IField, IObjectField, \
+     IImageField
+from Products.Archetypes.interfaces.layer import ILayerContainer, \
+     ILayerRuntime, ILayer
+from Products.Archetypes.exceptions import ObjectFieldException, \
+     TextFieldException, FileFieldException
+from Products.Archetypes.Widget import *
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.ReferenceEngine import Reference
+from Products.Archetypes.utils import capitalize, DisplayList, \
+     className, mapply
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes import config
+from Products.Archetypes.Storage import AttributeStorage, \
+     MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
+
+from Products.validation import validation
+from Products.generator.i18n import translate
 from Products.PortalTransforms.interfaces import idatastream
 
-import config
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from Acquisition import aq_base, aq_parent, aq_inner
+from DateTime import DateTime
+from OFS.content_types import guess_content_type
+from OFS.Image import File
+from Globals import InitializeClass
+from ComputedAttribute import ComputedAttribute
+from ZPublisher.HTTPRequest import FileUpload
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore  import CMFCorePermissions
 
-try:
-    from validation import validation
-except ImportError:
-    from Products.validation import validation
-
-try:
-    from generator.i18n import translate
-except ImportError:
-    from Products.generator.i18n import translate
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""

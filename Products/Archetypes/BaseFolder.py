@@ -1,17 +1,18 @@
+from Products.Archetypes.Referenceable import Referenceable
+from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.base import IBaseFolder
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from OFS.Folder import Folder
-from Referenceable import Referenceable
-from CatalogMultiplex  import CatalogMultiplex
-from ExtensibleMetadata import ExtensibleMetadata
-from BaseObject import BaseObject
-from debug import log, log_exc
-from interfaces.base import IBaseFolder
-from interfaces.referenceable import IReferenceable
-from interfaces.metadata import IExtensibleMetadata
 
 class BaseFolderMixin(BaseObject,
                       Referenceable,

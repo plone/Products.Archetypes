@@ -1,22 +1,19 @@
-from Acquisition import aq_base
-
-from debug import log
-from utils import className, unique, capitalize
 from types import FileType
-from types import DictType # needed for ugly hack in class TypesWidget def isVisible
+from types import DictType # needed for ugly hack in class TypesWidget
+                           # def isVisible
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import className, unique, capitalize
+from Products.generator.widget import macrowidget
 
-try:
-    from generator.widget import macrowidget
-except:
-    from Products.generator.widget import macrowidget
-
+from Acquisition import aq_base
 
 class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
         'populate' : 1,  # should this field be populated in edit and view?
-        'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
+        'postback' : 1,  # should this field be repopulated with POSTed
+                         # value when an error occurs?
         'show_content_type' : 0,
         })
 
@@ -366,25 +363,29 @@ from Registry import registerWidget
 
 registerWidget(StringWidget,
                title='String',
-               description='Renders a HTML text input box which accepts a single line of text',
+               description=('Renders a HTML text input box which '
+                            'accepts a single line of text'),
                used_for=('Products.Archetypes.Field.StringField',)
                )
 
 registerWidget(DecimalWidget,
                title='Decimal',
-               description='Renders a HTML text input box which accepts a fixed point value',
+               description=('Renders a HTML text input box which '
+                            'accepts a fixed point value'),
                used_for=('Products.Archetypes.Field.FixedPointField',)
                )
 
 registerWidget(IntegerWidget,
                title='Integer',
-               description='Renders a HTML text input box which accepts a integer value',
+               description=('Renders a HTML text input box which '
+                            'accepts a integer value'),
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
 registerWidget(ReferenceWidget,
                title='Reference',
-               description='Renders a HTML text input box which accepts a reference value',
+               description=('Renders a HTML text input box which '
+                            'accepts a reference value'),
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
@@ -396,14 +397,16 @@ registerWidget(ComputedWidget,
 
 registerWidget(TextAreaWidget,
                title='Text Area',
-               description='Renders a HTML Text Area for typing a few lines of text',
+               description=('Renders a HTML Text Area for typing '
+                            'a few lines of text'),
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.TextField')
                )
 
 registerWidget(LinesWidget,
                title='Lines',
-               description='Renders a HTML textarea for a list of values, one per line',
+               description=('Renders a HTML textarea for a list '
+                            'of values, one per line'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -415,20 +418,24 @@ registerWidget(BooleanWidget,
 
 registerWidget(CalendarWidget,
                title='Calendar',
-               description='Renders a HTML input box with a helper popup box for choosing dates',
+               description=('Renders a HTML input box with a helper '
+                            'popup box for choosing dates'),
                used_for=('Products.Archetypes.Field.DateTimeField',)
                )
 
 registerWidget(SelectionWidget,
                title='Selection',
-               description='Renders a HTML selection widget, which can be represented as a dropdown, or as a group of radio buttons',
+               description=('Renders a HTML selection widget, which '
+                            'can be represented as a dropdown, or as '
+                            'a group of radio buttons'),
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',
-               description='Renders a HTML selection widget, where you can be choose more than one value',
+               description=('Renders a HTML selection widget, where '
+                            'you can be choose more than one value'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -440,7 +447,9 @@ registerWidget(KeywordWidget,
 
 registerWidget(RichWidget,
                title='Rich Widget',
-               description='Renders a HTML widget that allows you to type some content, choose formatting and/or upload a file',
+               description=('Renders a HTML widget that allows you to '
+                            'type some content, choose formatting '
+                            'and/or upload a file'),
                used_for=('Products.Archetypes.Field.TextField',)
                )
 
@@ -458,13 +467,15 @@ registerWidget(IdWidget,
 
 registerWidget(ImageWidget,
                title='Image',
-               description='Renders a HTML widget for uploading/displaying an image',
+               description=('Renders a HTML widget for '
+                            'uploading/displaying an image'),
                used_for=('Products.Archetypes.Field.ImageField',)
                )
 
 registerWidget(LabelWidget,
                title='Label',
-               description='Renders a HTML widget that only displays the label',
+               description=('Renders a HTML widget that only '
+                            'displays the label'),
                used_for=None
                )
 

@@ -1,24 +1,21 @@
-from AccessControl import ClassSecurityInfo
-from Products.ZCatalog.ZCatalog import ZCatalog
+import os
+from types import StringType, UnicodeType
 
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.utils import unique, make_uuid
+from Products.Archetypes.config import UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR
+from Products.Archetypes.exceptions import ReferenceException
+
+from AccessControl import ClassSecurityInfo
 from OFS.SimpleItem import SimpleItem
+from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
-
-from debug import log, log_exc
-
-from interfaces.referenceable import IReferenceable
-from utils import unique, make_uuid
-from types import StringType, UnicodeType
-from config import UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR
-from exceptions import ReferenceException
-
-from Globals import InitializeClass
-
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import os
+from Products.ZCatalog.ZCatalog import ZCatalog
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
@@ -305,6 +302,5 @@ def manage_addReferenceCatalog(self, id, title,
     self._setObject(id, c)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST,update_menu=1)
-
 
 InitializeClass(ReferenceCatalog)

@@ -1,19 +1,19 @@
+from Products.Archetypes.Field import *
+from Products.Archetypes.Widget import *
+from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import DisplayList
+
+import Persistence
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Field import *
-from Widget import *
-from Schema import MetadataSchema
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
-from interfaces.metadata import IExtensibleMetadata
-from debug import log, log_exc
-import Persistence
-
-from utils import DisplayList
-
 from Products.CMFDefault.utils import _dtmldir
+
 _marker=[]
 
 FLOOR_DATE = DateTime( 1000, 0 ) # always effective
@@ -345,6 +345,16 @@ class ExtensibleMetadata(Persistence.Persistent):
                 modification_date = DateTime( modification_date )
             self.modification_date = self._datify(modification_date)
 
+
+    security.declarePrivate( '_datify' )
+    def _datify(self, attrib):
+        if attrib == 'None':
+            attrib = None
+        elif not isinstance(attrib, DateTime):
+            if attrib is not None:
+                attrib = DateTime(attrib)
+        return attrib
+
     #
     #  DublinCore interface query methods
     #
@@ -549,6 +559,5 @@ class ExtensibleMetadata(Persistence.Persistent):
                            , rights=rights
                            )
         self.reindexObject()
-
 
 InitializeClass(ExtensibleMetadata)

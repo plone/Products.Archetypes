@@ -1,11 +1,25 @@
+2004-02-12  Sidnei da Silva  <sidnei@awkly.org>
+
+        * Make all imports absolute.
+
+	* Schema.py: generator, validation should stay in Products.
+
+	* BaseUnit.py: oldBaseUnit is now gone for good.
+
+	* BaseBTreeFolder.py: BTreeFolder2 is now required.
+
+	* content_types/*: content_types is now gone for
+	good. PortalTransforms is required now.
+
 2004-02-06  Sylvain Thénault  <syt@logilab.fr>
+
         * Extensions/utils.py (install_subskin):
 	  do not fail if the default skins directory is missing (as in
-	  CMFPloneTypes for instance) 
+	  CMFPloneTypes for instance)
 
 	* skins/archetypes/reference_slot.pt:
 	  fix the reference box for backward compat
-	
+
 2004-01-17  Sidnei da Silva  <sidnei@awkly.org>
 
         * ExtensibleMetadata.py (ExtensibleMetadata.isEffective):

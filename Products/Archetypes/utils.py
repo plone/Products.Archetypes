@@ -1,16 +1,18 @@
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from UserDict import UserDict as BaseDict
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
-from types import TupleType, ListType
-from debug import log
 import sys
 import os.path
 import types
-from ExtensionClass import ExtensionClass
 import time, random, md5, socket
 from inspect import getargs
+from types import TupleType, ListType
+from UserDict import UserDict as BaseDict
+
+from Products.Archetypes.debug import log
+
+from AccessControl import ClassSecurityInfo
+from ExtensionClass import ExtensionClass
+from Globals import InitializeClass
+from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
 
 try:
     _v_network = socket.gethostbyname(socket.gethostbyname())

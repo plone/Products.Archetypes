@@ -1,14 +1,14 @@
+from Products.Archetypes import config
+from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.debug import log, log_exc
+
 from Acquisition import aq_base, aq_chain
 from AccessControl import getSecurityManager,Unauthorized
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore import CMFCorePermissions
-
 from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
-from exceptions import ReferenceException
 
-import config
-from debug import log, log_exc
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore import CMFCorePermissions
 
 ####
 ## In the case of a copy we want to lose refs

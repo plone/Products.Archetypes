@@ -1,31 +1,21 @@
-import sys
-from DateTime import DateTime
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.utils import DisplayList, mapply
+from Products.Archetypes.Field import StringField, TextField
+from Products.Archetypes.Renderer import renderer
+from Products.Archetypes.Schema import Schema, Schemata
+from Products.Archetypes.Widget import IdWidget, StringWidget
+from Products.Archetypes.Marshall import RFC822Marshaller
+
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
 from Globals import InitializeClass
-from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-from ZPublisher.HTTPRequest import FileUpload
-from Globals import PersistentMapping
 from ZODB.POSException import ConflictError
-from debug import log, log_exc
-from types import FileType
-from DateTime import DateTime
-import operator
-from inspect import getargs
 
-from Schema import Schema, Schemata
-from Field import StringField, TextField
-from Widget import IdWidget, StringWidget
-from utils import DisplayList, mapply
-from interfaces.base import IBaseObject, IBaseUnit
-from interfaces.referenceable import IReferenceable
-
-from Renderer import renderer
-
-from Products.Archetypes.Marshall import RFC822Marshaller
 from ZPublisher import xmlrpc
 
 _marker = []
@@ -471,6 +461,7 @@ class BaseObject(Implicit):
         a schema update).
         """
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
+        import sys
 
         if out:
             print >> out, 'Updating %s' % (self.getId())
@@ -679,8 +670,8 @@ class BaseObject(Implicit):
         if target is not None:
             return target
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if not method in ('GET', 'POST', 'HEAD') and not isinstance(RESPONSE,
-                                                                    xmlrpc.Response):
+        if (not method in ('GET', 'POST', 'HEAD') and
+            not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
         if RESPONSE is not None:

@@ -1,5 +1,5 @@
-from ReferenceEngine import Reference
-from exceptions import ReferenceException
+from Products.Archetypes.ReferenceEngine import Reference
+from Products.Archetypes.exceptions import ReferenceException
 from OFS.ObjectManager import BeforeDeleteException
 
 class HoldingReference(Reference):

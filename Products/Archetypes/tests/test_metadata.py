@@ -8,8 +8,7 @@ from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT, \
-     ZOPE_LINES_IS_TUPLE_TYPE
+from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime
 from Acquisition import aq_base, aq_parent
 

@@ -2,41 +2,35 @@ from __future__ import nested_scopes
 
 import os.path
 import sys
-import time
-import random
 from copy import deepcopy
 from types import StringType
 from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
 
+from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+
+from Products.Archetypes.ClassGen import generateClass, generateCtor
+from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
+from Products.Archetypes.config  import PKG_NAME, TOOL_NAME, UID_CATALOG
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import capitalize, findDict, DisplayList, unique
+from Products.Archetypes.Renderer import renderer
+
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from OFS.SimpleItem import SimpleItem
+from Globals import InitializeClass, PersistentMapping
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
-from Products.CMFCore.TypesTool import  FactoryTypeInformation
+from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.ZCatalog.IZCatalog import IZCatalog
-
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import PersistentMapping
-
-from interfaces.base import IBaseObject, IBaseFolder
-from interfaces.referenceable import IReferenceable
-from interfaces.metadata import IExtensibleMetadata
-
-from ClassGen import generateClass, generateCtor
-from SQLStorageConfig import SQLStorageConfig
-from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
-from debug import log, log_exc
-from utils import capitalize, findDict, DisplayList, unique
-from Renderer import renderer
-
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -44,21 +38,19 @@ from Products.CMFCore.Expression import Expression
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
-    # Configuration and getCMFVersion come with Plone 1.1
+    # Configuration and getCMFVersion come with Plone 2.0
     def getCMFVersion():
         from os.path import join
         from Globals import package_home
         from Products.CMFCore import cmfcore_globals
-
         path=join(package_home(cmfcore_globals),'version.txt')
         file=open(path, 'r')
         _version=file.read()
         file.close()
         return _version.strip()
 
-
 _www = os.path.join(os.path.dirname(__file__), 'www')
-
+ 
 # This is the template that we produce our custom types from
 # Never actually used
 base_factory_type_information = (
@@ -102,11 +94,11 @@ base_factory_type_information = (
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
         typeInfo = getattr(typesTool, portal_type.__name__)
-        if hasattr(portal_type,'actions'):
+        if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            if getattr(portal_type,'include_default_actions',1):
+            if getattr(portal_type,'include_default_actions', 1):
                 new = list(typeInfo._actions)
             else:
                 # If no standard actions are wished -
@@ -731,7 +723,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return out.getvalue()
 
     def _updateObject(self, o, path):
-        import sys
         sys.stdout.write('updating %s\n' % o.getId())
         o._updateSchema()
 
@@ -744,7 +735,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
         global _types
         global _types_callback
-        import sys
         if hasattr(self, '_types'):
             if not hasattr(self, 'last_types_update') or \
                    self.last_types_update.lessThan(last_load):

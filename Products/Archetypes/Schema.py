@@ -1,29 +1,30 @@
 from __future__ import nested_scopes
+from types import ListType, TupleType, ClassType, FileType
+from UserDict import UserDict
+
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.interfaces.field import IField, IObjectField, \
+     IImageField
+from Products.Archetypes.interfaces.layer import ILayerContainer, \
+     ILayerRuntime, ILayer
+from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.exceptions import ObjectFieldException
+from Products.Archetypes.utils import capitalize, DisplayList, \
+     OrderedDict, mapply
+from Products.Archetypes.debug import log, log_exc
+from Products.generator.i18n import translate
+
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from types import ListType, TupleType, ClassType, FileType
-from UserDict import UserDict
-from Products.CMFCore  import CMFCorePermissions
-from Globals import InitializeClass
-from utils import capitalize, DisplayList, OrderedDict, mapply
-from debug import log, log_exc
-from ZPublisher.HTTPRequest import FileUpload
-from BaseUnit import BaseUnit
-from Storage import AttributeStorage, MetadataStorage
 from DateTime import DateTime
-from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField, IImageField
-from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
-from interfaces.storage import IStorage
-from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException
+from Globals import InitializeClass
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-
-try:
-    from generator.i18n import translate
-except ImportError:
-    from Products.generator.i18n import translate
+from ZPublisher.HTTPRequest import FileUpload
 
 __docformat__ = 'reStructuredText'
 

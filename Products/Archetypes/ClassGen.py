@@ -1,10 +1,12 @@
+import os, os.path
+import re
+
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import pathFor, unique, capitalize
+
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from debug import log
-from utils import pathFor, unique, capitalize
-import os, os.path
-import re
 
 
 _modes = {
