@@ -1,5 +1,6 @@
 from __future__ import nested_scopes
 import re
+from types import FunctionType as function
 
 from Products.Archetypes.utils import capitalize
 
@@ -81,6 +82,17 @@ class Generator:
                                 methodName,
                                 mode))
 
+        # Zope security requires all security protected methods to have a
+        # function name. It uses this name to determine which roles are allowed
+        # to access the method.
+        # This code is renaming the internal name from e.g. generatedAccessor to
+        # methodName.
+        method = function(method.func_code,
+                          method.func_globals,
+                          methodName,
+                          method.func_defaults,
+                          method.func_closure,
+                         )
         setattr(klass, methodName, method)
 
 class ClassGenerator:
@@ -111,12 +123,8 @@ class ClassGenerator:
         if not hasattr(klass, 'Schema'):
             def Schema(self):
                 """Return a (wrapped) schema instance for
-                this object instance.
-                """
-                schema = self.schema
-                if hasattr(schema, 'wrapped'):
-                    return self.schema.wrapped(self)
-                return ImplicitAcquisitionWrapper(schema, self)
+                this object instance."""
+                return ImplicitAcquisitionWrapper(self.schema, self)
             klass.Schema = Schema
 
     def generateClass(self, klass):

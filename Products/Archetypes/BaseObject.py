@@ -1,7 +1,7 @@
 from Products.Archetypes.debug import log_exc, log, _default_logger
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
-    getRelURL, getRelPath
+    getRelURL, getRelPath 
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
@@ -340,7 +340,7 @@ class BaseObject(Referenceable):
         return value
 
 
-    security.declarePublic('setDefaults')
+    security.declarePrivate('setDefaults')
     def setDefaults(self):
         """Set field values to the default values
         """
@@ -402,12 +402,12 @@ class BaseObject(Referenceable):
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
-
+        
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
-
+        
         self.post_validate(REQUEST, errors)
-
+        
         return errors
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
@@ -476,16 +476,8 @@ class BaseObject(Referenceable):
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for name in self.Schema().keys():
-            value = self[name]
-            if IBaseUnit.isImplementedBy(value):
-                size += value.get_size()
-            else:
-                if value is not None:
-                    try:
-                        size += len(value)
-                    except (TypeError, AttributeError):
-                        size += len(str(value))
+        for field in self.Schema().fields():
+            size+=field.get_size(self)
         return size
 
     security.declarePrivate('_processForm')
@@ -524,7 +516,7 @@ class BaseObject(Referenceable):
             result = widget.process_form(self, field, form,
                                          empty_marker=_marker)
             if result is _marker or result is None: continue
-
+            
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             # required for ComputedField et al

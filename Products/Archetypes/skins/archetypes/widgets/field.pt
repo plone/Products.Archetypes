@@ -54,7 +54,7 @@
                               edit_accessor python:field.getEditAccessor(here);
                               value python:widget.populate and edit_accessor and edit_accessor();
                               value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
-                              visCondition python:widget.testCondition(here, portal, template);
+                              visCondition python:field.widget.testCondition(here, portal, template);
                               error_id python:errors.get(fieldName)">
       <tal:condition condition="python:visState == 'visible' and visCondition">
         <div class="field"
@@ -106,7 +106,7 @@
         </div>
       </tal:condition>
 
-      <tal:condition condition="python: visState == 'hidden' or not visCondition">
+      <tal:condition condition="python: visState == 'hidden'">
         <metal:hiddenmacro
           tal:define="widget_macro python:path('here/%s/macros' % widget.macro);
                       default_hidden_macro here/widgets/field/macros/hidden;
