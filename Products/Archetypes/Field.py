@@ -109,7 +109,7 @@ class Field(DefaultLayerContainer):
         'generateMode' : 'veVc',
         'force' : '',
         'type' : None,
-        'widget': StringWidget(),
+        'widget': StringWidget,
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'schemata' : 'default',
@@ -412,7 +412,7 @@ class FileField(StringField):
         'type' : 'file',
         'default' : '',
         'primary' : 0,
-        'widget' : FileWidget(),
+        'widget' : FileWidget,
         })
 
     def _process_input(self, value, default=None,
@@ -615,7 +615,7 @@ class DateTimeField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'datetime',
-        'widget' : CalendarWidget(),
+        'widget' : CalendarWidget,
         })
 
     def set(self, instance, value, **kwargs):
@@ -642,7 +642,7 @@ class LinesField(ObjectField):
     _properties.update({
         'type' : 'lines',
         'default' : (),
-        'widget' : LinesWidget(),
+        'widget' : LinesWidget,
         })
 
     def set(self, instance, value, **kwargs):
@@ -676,7 +676,7 @@ class IntegerField(ObjectField):
     _properties.update({
         'type' : 'integer',
         'size' : '10',
-        'widget' : IntegerWidget(),
+        'widget' : IntegerWidget,
         'default' : 0
         })
 
@@ -719,7 +719,7 @@ class FixedPointField(ObjectField):
         'type' : 'fixedpoint',
         'precision' : 2,
         'default' : '0.0',
-        'widget' : DecimalWidget(),
+        'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
 
@@ -757,7 +757,7 @@ class ReferenceField(ObjectField):
     _properties.update({
         'type' : 'reference',
         'default': None,
-        'widget' : ReferenceWidget(),
+        'widget' : ReferenceWidget,
         'allowed_types' : (),
         'allowed_type_column' : 'portal_type',
         'addable': 0,
@@ -889,7 +889,7 @@ class ComputedField(ObjectField):
     _properties.update({
         'type' : 'computed',
         'expression': None,
-        'widget' : ComputedWidget(),
+        'widget' : ComputedWidget,
         'mode' : 'r',
         'storage': ReadOnlyStorage(),
         })
@@ -908,7 +908,7 @@ class BooleanField(ObjectField):
     _properties.update({
         'type' : 'boolean',
         'default': None,
-        'widget' : BooleanWidget(),
+        'widget' : BooleanWidget,
         })
 
     def set(self, instance, value, **kwargs):
@@ -932,7 +932,7 @@ class CMFObjectField(ObjectField):
         'portal_type': 'File',
         'default': None,
         'default_mime_type': 'application/octet-stream',
-        'widget' : FileWidget(),
+        'widget' : FileWidget,
         'storage': ObjectManagedStorage(),
         'workflowable': 1,
         })
@@ -1090,7 +1090,7 @@ class ImageField(ObjectField):
         'sizes' : {'thumb':(80,80)},
         'default_content_type' : 'image/gif',
         'allowable_content_types' : ('image/gif','image/jpeg'),
-        'widget': ImageWidget(),
+        'widget': ImageWidget,
         'storage': AttributeStorage(),
         'image_class': Image,
         })
@@ -1487,7 +1487,7 @@ class PhotoField(ObjectField):
             'large': (768,768),
             'xlarge': (1024,1024)
             },
-        'widget': ImageWidget(),
+        'widget': ImageWidget,
         'storage': AttributeStorage(),
         })
 

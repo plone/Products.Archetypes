@@ -26,7 +26,7 @@ STRING_TYPES = (StringType, UnicodeType)
 
 class Reference(SimpleItem):
     security = ClassSecurityInfo()
-    
+
     manage_options = (
         (
         {'label':'View', 'action':'manage_view',
@@ -92,7 +92,7 @@ class Reference(SimpleItem):
         """called when the refering source Object is about to be deleted"""
         pass
 
-    
+
 class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
@@ -105,8 +105,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     def __init__(self, id, title, vocab_id, extra):
         BTreeFolder2.__init__(self, id)
         ZCatalog.__init__(self, id, title, vocab_id, extra)
-        
-    
+
+
     ###
     ## Public API
     def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):
@@ -274,7 +274,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         else:
             self.uncatalog_object(referenceObject.getId())
             self._delObject(referenceObject.getId())
-            
+
 
     def _resolveBrains(self, brains):
         objects = []

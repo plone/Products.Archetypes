@@ -5,13 +5,9 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-
-from Products.Archetypes.debug import log
-try:
-    mtr = context.mimetypes_registry
-    mti = mtr.lookup(context.getContentType())[0]
-    icon = mti.icon_path
-except Exception, E:
-    icon = context.getIcon()
-
-return icon
+from Products.CMFCore.utils import getToolByName
+mtr = getToolByName(context, 'mimetypes_registry', None)
+if mtr is None:
+    return context.getIcon()
+mti = mtr.lookup(context.getContentType())[0]
+return mti.icon_path

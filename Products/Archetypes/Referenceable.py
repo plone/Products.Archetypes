@@ -68,7 +68,7 @@ class Referenceable(Base):
         if self.UID() is not None:
             return
 
-        if not reference_manager:
+        if reference_manager is None:
             reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.registerObject(self)
 
