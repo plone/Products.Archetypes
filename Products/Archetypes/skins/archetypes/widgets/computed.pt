@@ -19,6 +19,10 @@
     </div>
 
     <div metal:define-macro="edit">
+        <tal:block condition="use_label|nothing">
+        <span class="label"
+              tal:content="python:widget.Label(here) + ':'">Field</span>
+        </tal:block>
         <div metal:use-macro="here/widgets/computed/macros/view">
 	It doesn't make any sense to "edit" a computed field
 	</div>

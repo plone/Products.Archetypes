@@ -361,7 +361,8 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             #Call any field level validation
             if error == 0 and value:
                 try:
-                    res = field.validate(value)
+                    res = field.validate(value, instance=instance,
+                                         field=field, REQUEST=REQUEST)
                     if res:
                         errors[name] = res
                         error = 1
