@@ -7,7 +7,7 @@ from ExtensionClass import Base
 from interfaces.referenceable import IReferenceable
 from utils import unique
 from types import StringType
-
+from config import UID_CATALOG
 
 class ReferenceEngine(Base):
     def __init__(self):
@@ -76,7 +76,7 @@ class ReferenceEngine(Base):
             self._addBref(oid, tid, relationship=relationship)
 
     def assertId(self, uid):
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         result  = catalog({'UID' : uid})
         if result:
             return 1

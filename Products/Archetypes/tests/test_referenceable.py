@@ -36,7 +36,6 @@ class ReferenceableTests( SecurityRequestTest ):
 
     def test_hasUID( self ):
         site = self.root.testsite
-        catalog = site.portal_catalog
 
         doc = makeContent( site
                            , portal_type='DDocument'
@@ -47,7 +46,7 @@ class ReferenceableTests( SecurityRequestTest ):
 
     def test_renamedontchangeUID( self ):
         site = self.root.testsite
-        catalog = site.portal_catalog
+        catalog = site.uid_catalog
 
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
@@ -70,7 +69,7 @@ class ReferenceableTests( SecurityRequestTest ):
 
     def test_UIDclash( self ):
         site = self.root.testsite
-        catalog = site.portal_catalog
+        catalog = site.uid_catalog
 
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
@@ -99,7 +98,6 @@ class ReferenceableTests( SecurityRequestTest ):
 
     def test_relationships(self):
         site = self.root.testsite
-        catalog = site.portal_catalog
 
         obj_id   = 'demodoc'
         known_id = 'known_doc'
@@ -129,7 +127,6 @@ class ReferenceableTests( SecurityRequestTest ):
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
         site = self.root.testsite
-        catalog = site.portal_catalog
         at = site.archetype_tool
 
         a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
@@ -149,7 +146,6 @@ class ReferenceableTests( SecurityRequestTest ):
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
         site = self.root.testsite
-        catalog = site.portal_catalog
         at = site.archetype_tool
 
         folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
@@ -161,7 +157,6 @@ class ReferenceableTests( SecurityRequestTest ):
 
     def test_hasRelationship(self):
         site = self.root.testsite
-        catalog = site.portal_catalog
 
         a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( site, portal_type='DDocument',title='Foo', id='b')

@@ -18,6 +18,9 @@ from types import *
 
 from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
 
+
+from Products.Archetypes.config import *
+
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
@@ -43,23 +46,31 @@ def install_tools(self, out):
         at.registerTemplate('base_view', "Normal View")
 
     #and the tool uses an index
-    catalog = getToolByName(self, 'portal_catalog')
-    try:
-        catalog.addIndex('UID', 'FieldIndex', extra=None)
-    except:
-        pass
+    if not hasattr(self, UID_CATALOG):
+        #Add a zcatalog for uids
+        addCatalog = self.manage_addProduct['ZCatalog'].manage_addZCatalog
+        addCatalog(UID_CATALOG, 'Archetypes UID Catalog')
+        catalog = getToolByName(self, UID_CATALOG)
+        try:
+            catalog.addIndex('UID', 'FieldIndex', extra=None)
+            #We also have to add in the fields the indexing code
+            #automatically looks for, this should go away in the
+            #future
+            catalog.addIndex('Type', 'FieldIndex', extra=None)
+            catalog.addIndex('portal_type', 'FieldIndex', extra=None)
+            catalog.addIndex('review_state', 'FieldIndex', extra=None)
+            catalog.addIndex('allowedRolesAndUsers', 'KeywordIndex', extra=None)
+        except:
+            pass
 
-    try:
-        if not 'UID' in catalog.schema():
-            catalog.addColumn('UID')
-    except:
-        print >> out, ''.join(traceback.format_exception(*sys.exc_info()))
-        print >> out, "Problem updating catalog for UIDs"
-
-    try:
+        try:
+            if not 'UID' in catalog.schema():
+                catalog.addColumn('UID')
+        except:
+            pass
+        
         catalog.manage_reindexIndex(ids=('UID',))
-    except:
-        pass
+
 
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
@@ -167,7 +178,7 @@ def install_actions(self, out, types):
                 cmfver=getCMFVersion()
 
                 for action in portal_type.actions:
-                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
+                    if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
 

@@ -1,3 +1,15 @@
+2003-09-19  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ReferenceEngine.py: This is a BIG CHANGE. Using the
+	multi-catalog code the reference engine is now tooled to use a
+	uid_catalog (which is created by the install script). Archetypes
+	should have uid_catalog listed in the archetypes_tool/catalogs tab
+	in addition to portal_catalog or what ever other cataloging is
+	arranged. This helps with the use-case that context is indexed in
+	a catalog other than portal catalog for a specific data
+	type. Previous to this portal_catalog was needed for UID support
+	and hence references to work. This will no longer be the case.
+
 2003-09-14  Sidnei da Silva  <sidnei@plone.org>
 
 	* Registry.py (availableTypes): Created a property type registry.

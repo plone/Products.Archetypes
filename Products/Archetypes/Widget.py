@@ -1,3 +1,5 @@
+from Acquisition import aq_base
+
 from debug import log
 from utils import className
 
@@ -46,7 +48,7 @@ class TypesWidget(macrowidget):
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state' visible, hidden, invisible"""
         # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
-        vis_dic = getattr(self, 'visible')
+        vis_dic = getattr(aq_base(self), 'visible', None)
         state = 'visible'
         if not vis_dic:
             return state

@@ -27,7 +27,7 @@ from interfaces.metadata import IExtensibleMetadata
 from ClassGen import generateClass
 from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
-from config  import PKG_NAME, TOOL_NAME
+from config  import PKG_NAME, TOOL_NAME, UID_CATALOG
 from debug import log, log_exc
 from utils import capitalize, findDict, DisplayList, unique
 from Renderer import renderer
@@ -461,7 +461,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not uid:
             return None
         object = None
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         result  = catalog({'UID' : uid})
         if result:
             #This is an awful workaround for the UID under containment
@@ -498,7 +498,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     def enum(self, callback, *args, **kwargs):
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         for uid in keys:
             o = self.getObject(uid)
@@ -508,7 +508,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log("no object for %s" % uid)
 
     def _genId(self, object):
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
 
         cid = object.getId()
@@ -558,7 +558,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def Content(self):
         """Return a list of all the content ids"""
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(UID=keys)
         return results
@@ -667,7 +667,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for t in self._types.keys():
             if not self._types[t]['update']:
                 continue
-            catalog = getToolByName(self, 'portal_catalog')
+            catalog = getToolByName(self, UID_CATALOG)
             result = catalog._catalog.searchResults({'meta_type' : t})
 
             classes = {}
@@ -740,7 +740,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsByType(self, meta_type):
         """Return the catalog objects assoicated with a given type"""
         catalogs = []
-        names = self.catalog_map.get(meta_type, ['portal_catalog'])
+        names = self.catalog_map.get(meta_type, ['portal_catalog', UID_CATALOG])
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
