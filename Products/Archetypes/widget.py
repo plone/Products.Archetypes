@@ -1,4 +1,6 @@
 from AccessControl import ClassSecurityInfo
+from AccessControl.unauthorized import Unauthorized
+from Acquisition import aq_base, aq_inner
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 ##XXX remove dep, report errors properly
@@ -79,9 +81,9 @@ class widget:
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated"""
-        value = self.label
-        method = value and getattr(instance.aq_inner, value, None)
-        if method and callable(method):
+        methodName = getattr(aq_base(instance), 'label_method', None)
+        if methodName:
+            method = value and getattr(aq_inner(instance), methodName)
             ## Label methods can be called with kwargs and should
             ## return the i18n version of the description
             value = method(**kwargs)
@@ -122,7 +124,23 @@ class macrowidget(widget):
         #before the generic macro, this lets other projects
         #create more partial widgets
         macro = getattr(self, "macro_%s" % mode, self.macro)
-        template = instance.restrictedTraverse(path = macro)
-        return template.macros[mode]
+        # Now split the macro into optional parts using '|'
+        # if the first part doesn't exist, the search continues
+        paths = macro.split('|')
+        if len(paths) == 1 and macro == self.macro:
+            # prepend the default (optional) customization element
+            paths.insert(0, 'at_widget_%s' % self.macro.split('/')[-1])
+
+        for path in paths:
+            try:
+                template = instance.restrictedTraverse(path = path)
+                if template:
+                    return template.macros[mode]
+            except Unauthorized:
+                # This means we didn't have access or it doesn't
+                # exit
+                pass
+        raise AttributeError("Macro %s does not exist for %s" %(macro,
+                                                                instance))
 
 InitializeClass(widget)
