@@ -4,7 +4,7 @@ from Acquisition import aq_base, aq_inner
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 ##XXX remove dep, report errors properly
-import i18n
+from Products.Archetypes.translate import translate
 
 class iwidget:
     def __call__(instance, context=None):
@@ -79,7 +79,7 @@ class widget:
         if domain is None:
             return value
 
-        return i18n.translate(domain, msgid, mapping=instance.REQUEST,
+        return translate(domain, msgid, mapping=instance.REQUEST,
                               context=instance, default=value)
 
     def Label(self, instance, **kwargs):
