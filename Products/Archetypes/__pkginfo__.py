@@ -21,13 +21,6 @@ if 'final' in release:
 numversion = (int(major), int(minor), int(bugfix), relinfo)
 
 at_versions = (
-    '1.3.0-beta3',
-    '1.3.0-beta4',
-    '1.3.0-beta5',
-    '1.3.0-rc1',
-    '1.3.0-rc2',
-    '1.3.0-rc3',
-    '1.3.0-rc4',
     '1.3.0-final',
     '1.3.1-rc1',
     '1.3.1-rc2',
