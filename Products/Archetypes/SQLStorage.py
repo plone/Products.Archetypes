@@ -86,6 +86,9 @@ class BaseSQLStorage(StorageLayer):
         except AttributeError:
             return None
 
+    def cleanupField(self, instance, field):
+        pass
+
     def _query(self, instance, query, args):
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
