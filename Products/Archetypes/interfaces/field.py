@@ -28,7 +28,7 @@ class IField(Interface):
     def Vocabulary(content_instance):
         """ Vocabulary of allowed values for this field """
         
-    def hasI18NContent(self):
+    def hasI18NContent():
         """return true it the schema fields has I18N content"""
 
 class IObjectField(IField):
