@@ -10,4 +10,4 @@ RESPONSE.setHeader('Content-Disposition',
                    'attachment; filename=%s' % context.filename)
 RESPONSE.setHeader('Content-Type', context.getContentType())
 RESPONSE.setHeader('Content-Length', context.get_size())
-RESPONSE.write(context.data)
+RESPONSE.write(str(context.data))
