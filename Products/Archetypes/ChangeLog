@@ -1,5 +1,8 @@
 2003-07-18  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* BaseObject.py (BaseObject.__getitem__): Backport slightly
+	modified fix from Ben from head. Enables External Editor to work again.
+
 	* Field.py (Field.getMutator): Aha! self.mutator may be None
 	actually, with ComputedField.
 

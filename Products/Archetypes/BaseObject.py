@@ -201,7 +201,9 @@ class BaseObject(Implicit):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getAccessor(self)
+        accessor = self.Schema()[key].getEditAccessor(self)
+        if not accessor:
+            accessor = self.Schema()[key].getAccessor(self)
         return accessor()
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
