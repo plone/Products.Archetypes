@@ -1,0 +1,24 @@
+zope-cmfarchetypes (1.1+20031008-1) unstable; urgency=low
+
+  * Snapshot update (now on a maintenance brach)
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed,  8 Oct 2003 16:38:29 +0200
+
+zope-cmfarchetypes (1.1+20030819-1) unstable; urgency=low
+
+  * Snapshot update (fix metadata). 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 19 Aug 2003 11:33:13 +0200
+
+zope-cmfarchetypes (1.1+20030813-2) unstable; urgency=low
+
+  * Snapshot update. 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 5 Aug 2003 14:42:05 +0200
+  
+zope-cmfarchetypes (1.1+20030813-1) unstable; urgency=low
+
+  * Initial debian packaging. 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 5 Aug 2003 14:42:05 +0200
+
