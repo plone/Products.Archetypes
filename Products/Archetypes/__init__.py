@@ -73,3 +73,6 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
+
+    context.registerHelpTitle('Archetypes Help')
+    context.registerHelp(directory='interfaces')

@@ -1,4 +1,4 @@
-from interface import Interface, Attribute
+from Interface import Interface, Attribute
 
 class IField(Interface):
     """ Interface for fields """
@@ -62,13 +62,13 @@ class IField(Interface):
     # private
     def copy():
         """Return a copy of field instance [PRIVATE]
-        
+
         Consisting of field name and properties dictionary.
         """
 
     def validate(value, instance, errors={}, **kwargs):
         """Validate passed-in value using all field validators.
-        
+
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
@@ -76,7 +76,7 @@ class IField(Interface):
     # private
     def validate_required(instance, value, errors):
         """Validate the required flag for a field [PRIVATE]
-        
+
         Overwrite it in your field for special case handling like empty files
         """
 
@@ -126,7 +126,7 @@ class IField(Interface):
     # private
     def toString():
         """Utility method for converting a Field to a string [PRIVATE]
-        
+
         For the purpose of comparing fields.  This comparison is used for
         determining whether a schema has changed in the auto update
         function.  Right now it's pretty crude."""
@@ -196,7 +196,7 @@ class IFileField(IObjectField):
     # private
     def _process_input(value, default=None, mimetype=None, **kwargs):
         """Processes user input [PRIVATE]
-       
+
         Must take care of:
             * string
             * open files
@@ -223,7 +223,7 @@ class IFileField(IObjectField):
     # private
     def download(instance):
         """Kicks download [PRIVATE]
-        
+
         Writes data including file name and content type to RESPONSE
         """
 

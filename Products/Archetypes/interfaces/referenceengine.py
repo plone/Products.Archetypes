@@ -1,6 +1,7 @@
-from interface import Interface, Attribute
+from Interface import Interface, Attribute
 
 class IReference(Interface):
+    """ Reference """
 
     def UID():
         """the uid method for compat"""
@@ -8,7 +9,7 @@ class IReference(Interface):
     # Convenience methods
     def getSourceObject():
         """ returns the source end as object """
-        
+
     def getTargetObject():
         """ returns the source end as object """
 
@@ -26,7 +27,7 @@ class IReference(Interface):
         to reject the reference being added raise a ReferenceException """
 
     def delHook(tool, sourceObject=None, targetObject=None):
-        """gets called before reference object gets deleted 
+        """gets called before reference object gets deleted
         to reject the delete raise a ReferenceException """
 
     ###
@@ -46,6 +47,6 @@ class IReference(Interface):
 
 class IContentReference(IReference):
     '''Subclass of Reference to support contentish objects inside references '''
-    
+
     def getContentObject():
         """ gives the contentish object attached to the reference"""

@@ -1,11 +1,12 @@
-from interface import Interface, Attribute
+from Interface import Interface, Attribute
 
 class IBaseObject(Interface):
+    """ Base Object """
 
     #XXX windows is strange
     #schema = Attribute('schema', 'Schema of the object')
     #installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
-    
+
     #typeDescription = Attribute('Type description used for base_edit')
     #typeDescMsgId = Attribute('I18N message id for type description')
 
@@ -82,7 +83,7 @@ class IBaseObject(Interface):
     def edit(**kwargs):
         """Alias for update(**kwargs*)
         """
-    
+
     def validate_field(name, value, errors):
         """
         write a method: validate_foo(new_value) -> "error" or None
@@ -135,11 +136,11 @@ class IBaseObject(Interface):
         """Get a dictionary of objects from the session
         """
 
-class IBaseContent(IBaseObject):  
+class IBaseContent(IBaseObject):
     """Contentish base interface marker
-    
+
     BaseContent is subclassing the following classes, too:
-    
+
     Products.Archetypes.Referenceable.Referenceable
     Products.Archetypes.CatalogMultiplex.CatalogMultiplex
     Products.CMFCore.PortalContent.PortalContent
@@ -149,13 +150,13 @@ class IBaseContent(IBaseObject):
 
 class IBaseFolder(IBaseObject):
     """Folderish base interface marker
-    
+
     BaseFolder is subclassing the following classes, too:
-    
+
     Products.CMFDefault.SkinnedFolder.SkinnedFolder
     OFS.Folder.Folder
     """
-    
+
     def listFolderContents(spec=None, contentFilter=None, suppressHiddenFiles=0):
         """
         Optionally you can suppress "hidden" files, or files that begin with .
@@ -171,7 +172,7 @@ class IBaseFolder(IBaseObject):
 class IBaseUnit(Interface):
     """
     """
-    
+
     def update(data, instance, **kw):
         """
         """
@@ -186,7 +187,7 @@ class IBaseUnit(Interface):
 
     def isBinary():
         """return true if this contains a binary value, else false"""
-        
+
     def get_size():
         """
         """
@@ -212,11 +213,11 @@ class IBaseUnit(Interface):
     def content_type():
         """
         """
-    
+
     def getFilename():
         """
         """
-    
+
     def setFilename(filename):
         """
         """

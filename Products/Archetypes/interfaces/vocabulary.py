@@ -1,19 +1,19 @@
-from interface import Interface, Attribute
+from Interface import Interface, Attribute
 
 class IVocabulary(Interface):
     """ interface for vocabularies used in fields """
-    
+
     def getDisplayList(self, instance):
-        """ returns an object of class DisplayList as defined in 
-            Products.Archetypes.utils. 
-            
+        """ returns an object of class DisplayList as defined in
+            Products.Archetypes.utils.
+
             The instance of the content is given as parameter.
         """
 
     def getVocabularyDict(self, instance):
-        """ returns the vocabulary as a dictionary with a string key and a 
-	    string value. If it is not a flat vocabulary, the value is a 
-	    tuple with a string and a sub-dictionary with the same format 
+        """ returns the vocabulary as a dictionary with a string key and a
+	    string value. If it is not a flat vocabulary, the value is a
+	    tuple with a string and a sub-dictionary with the same format
 	    (or None if its a leave).
 
 	    Example for a flat vocabulary-dictionary:
@@ -32,7 +32,7 @@ class IVocabulary(Interface):
 
     def showLeafsOnly(self):
         """ returns true for flat vocabularies. In hierachical (tree-like)
-	    vocabularies it defines if only leafs should be displayed, or 
+	    vocabularies it defines if only leafs should be displayed, or
 	    knots and leafs.
 	"""
-    
+

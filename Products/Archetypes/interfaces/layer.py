@@ -1,6 +1,8 @@
-from interface import Interface
+from Interface import Interface
 
 class ILayer(Interface):
+    """ ILayer """
+
 
     def initializeInstance(instance, item=None, container=None):
         """optionally called to initialize a layer for an entire
@@ -34,6 +36,7 @@ class ILayerContainer(Interface):
         """return an object implementing this layer"""
 
 class ILayerRuntime(Interface):
+    """ Layer Runtime """
 
     def initializeLayers(instance, item=None, container=None):
         """optional Process all layers attempting their initializeInstance and

@@ -1,6 +1,8 @@
-from interface import Interface, Attribute
+from Interface import Interface, Attribute
 
 class IReferenceable(Interface):
+    """ Referenceable """
+
 
     def getRefs(relationship=None):
         """get all the referenced objects for this object"""

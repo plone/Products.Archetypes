@@ -1,7 +1,6 @@
+from Interface import Interface
 
-from Products.Archetypes.interfaces.interface import Interface
-
-class IOrderedFolder( Interface ):
+class IOrderedFolder(Interface):
     """ DEPRECATED, will be removed in next releaese """
 
     def get_object_position( id ):
