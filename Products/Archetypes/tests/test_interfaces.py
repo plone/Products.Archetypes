@@ -21,8 +21,8 @@ from Products.Archetypes.interfaces.referenceable import *
 from Products.Archetypes.interfaces.storage import *
 
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.BaseContent import BaseContent, I18NBaseContent
-from Products.Archetypes.BaseFolder import BaseFolder, I18NBaseFolder
+from Products.Archetypes.BaseContent import BaseContent
+from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.BaseUnit import newBaseUnit, oldBaseUnit
 from Products.Archetypes import Field # use __all__ field
 from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
@@ -172,10 +172,8 @@ testClasses = [
 # take care: you must provide an instance, not a class!
 testInstances = [
     (ExtensibleMetadata(), ()),
-    (BaseContent('test'), ()), (I18NBaseContent('test'), ()),
+    (BaseContent('test'), ()),
     (BaseFolder('test'), ()), 
-    # XXX this instance breaks badly :(
-    #(I18NBaseFolder('test'), ()), 
     (OrderedBaseFolder('test'), ()),
 ]
 
