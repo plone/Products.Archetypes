@@ -56,7 +56,7 @@ binary-indep: build install
 	
 	
 	gzip -9 -c ChangeLog > changelog.gz
-	dh_installdocs -A changelog.gz 
+	dh_installdocs -A README changelog.gz 
 	dh_installchangelogs
 	
 	dh_link
@@ -78,7 +78,7 @@ binary-arch: build install
 	
 	
 	gzip -9 -c ChangeLog > changelog.gz
-	dh_installdocs -A changelog.gz 
+	dh_installdocs -A README changelog.gz 
 	dh_installchangelogs
 	
 	dh_strip
