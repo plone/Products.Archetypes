@@ -1285,14 +1285,20 @@ class ReferenceField(ObjectField):
             ObjectField.set(self, instance, self.getRaw(instance), **kwargs)
 
     security.declarePrivate('getRaw')
-    def getRaw(self, instance, **kwargs):
+    def getRaw(self, instance, aslist=0, **kwargs):
         """Return the list of UIDs referenced under this fields
         relationship
         """
         rc = getToolByName(instance, REFERENCE_CATALOG)
         brains = rc(sourceUID=instance.UID(),
                     relationship=self.relationship)
-        return [b.targetUID for b in brains]
+        res = [b.targetUID for b in brains]
+        if not self.multiValued and not aslist:
+            if res:
+                res = res[0]
+            else:
+                res = None
+        return res
 
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
