@@ -32,12 +32,22 @@ from Products.Archetypes.registry.base import registerRegistry
 from Products.Archetypes.registry.base import Registry
 from Products.Archetypes.registry.base import RegistryEntry
 from Products.Archetypes.interfaces.validation import IValidator
+from Products.Archetypes.lib.security import setSecurity
 
 class ValidatorEntry(RegistryEntry):
     __used_for__ = IValidator
 
+    def beforeRegister(self, registry, key):
+        """Hook
+        
+        * Set security
+        """
+        # set security
+        klass = self['klass']
+        setSecurity(klass, defaultAccess='allow', objectPermission=None)
+
 class ValidatorRegistry(Registry):
     _entry_class = ValidatorEntry
 
-validatorRegistry = ValidatorRegistry()
-registerRegistry(validatorRegistry)
+_validatorRegistry = ValidatorRegistry()
+registerRegistry(_validatorRegistry)

@@ -32,12 +32,22 @@ from Products.Archetypes.registry.base import registerRegistry
 from Products.Archetypes.registry.base import Registry
 from Products.Archetypes.registry.base import RegistryEntry
 from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.lib.security import setSecurity
 
 class StorageEntry(RegistryEntry):
     __used_for__ = IStorage
 
+    def beforeRegister(self, registry, key):
+        """Hook
+        
+        * Set security
+        """
+        # set security
+        klass = self['klass']
+        setSecurity(klass, defaultAccess='allow', objectPermission=None)
+
 class StorageRegistry(Registry):
     _entry_class = StorageEntry
 
-storageRegistry = StorageRegistry()
-registerRegistry(storageRegistry)
+_storageRegistry = StorageRegistry()
+registerRegistry(_storageRegistry)

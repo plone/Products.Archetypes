@@ -32,12 +32,22 @@ from Products.Archetypes.registry.base import registerRegistry
 from Products.Archetypes.registry.base import Registry
 from Products.Archetypes.registry.base import RegistryEntry
 from Products.Archetypes.interfaces.field import IField
+from Products.Archetypes.lib.security import setSecurity
 
 class FieldEntry(RegistryEntry):
     __used_for__ = IField
 
+    def beforeRegister(self, registry, key):
+        """Hook
+        
+        * Set security
+        """
+        # set security
+        klass = self['klass']
+        setSecurity(klass, defaultAccess='allow', objectPermission=None)
+
 class FieldRegistry(Registry):
     _entry_class = FieldEntry
 
-fieldRegistry = FieldRegistry()
-registerRegistry(fieldRegistry)
+_fieldRegistry = FieldRegistry()
+registerRegistry(_fieldRegistry)

@@ -183,7 +183,7 @@ class Registry(dict):
     Check __setitem__ restrictions
     >>> sr[object] = SampleEntry(Sample)
     Traceback (most recent call last):
-    KeyError: 'Registry key must be a string'
+    KeyError: "Registry key must be a string, got <type 'type'>"
     >>> sr['foo'] = object
     Traceback (most recent call last):
     ValueError: <type 'object'> doesn't provide IRegistryEntry
@@ -205,7 +205,7 @@ class Registry(dict):
 
     def __setitem__(self, key, value):
         if not isinstance(key, basestring):
-            raise KeyError, 'Registry key must be a string'
+            raise KeyError, 'Registry key must be a string, got %s' % type(key)
         if not IRegistryEntry.isImplementedBy(value):
             raise ValueError, "%s doesn't provide IRegistryEntry" % value
         if not value.__used_for__ is self._entry_iface:
@@ -231,6 +231,7 @@ class Registry(dict):
         """
         if key is None:
             key = getDottedName(klass)
+        return key
 
 class RegistryMultiplexer(dict):
     """See IRegistryMultiplexer
@@ -265,7 +266,7 @@ class RegistryMultiplexer(dict):
         registry = self[match]
         registry.register(klass, **kw)
 
-mainRegistry = RegistryMultiplexer()
-registerComponent = mainRegistry.register
-registerRegistry = mainRegistry.registerRegistry
-getRegistry = mainRegistry.__getitem__
+_mainRegistry = RegistryMultiplexer()
+registerComponent = _mainRegistry.register
+registerRegistry = _mainRegistry.registerRegistry
+getRegistry = _mainRegistry.__getitem__

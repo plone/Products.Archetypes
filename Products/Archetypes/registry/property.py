@@ -48,6 +48,6 @@ class PropertyEntry(RegistryEntry):
 class PropertyRegistry(Registry):
     _entry_class = PropertyEntry
 
-propertyRegistry = PropertyRegistry()
-#registerRegistry(PropertyRegistry)
-registerProperty = propertyRegistry.register
+_propertyRegistry = PropertyRegistry()
+#registerRegistry(_PropertyRegistry)
+registerProperty = _propertyRegistry.register

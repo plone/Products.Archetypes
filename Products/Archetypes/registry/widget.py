@@ -32,12 +32,22 @@ from Products.Archetypes.registry.base import registerRegistry
 from Products.Archetypes.registry.base import Registry
 from Products.Archetypes.registry.base import RegistryEntry
 from Products.Archetypes.interfaces.widget import IWidget
+from Products.Archetypes.lib.security import setSecurity
 
 class WidgetEntry(RegistryEntry):
     __used_for__ = IWidget
 
+    def beforeRegister(self, registry, key):
+        """Hook
+        
+        * Set security
+        """
+        # set security
+        klass = self['klass']
+        setSecurity(klass, defaultAccess='allow', objectPermission=None)
+
 class WidgetRegistry(Registry):
     _entry_class = WidgetEntry
 
-widgetRegistry = WidgetRegistry()
-registerRegistry(widgetRegistry)
+_widgetRegistry = WidgetRegistry()
+registerRegistry(_widgetRegistry)
