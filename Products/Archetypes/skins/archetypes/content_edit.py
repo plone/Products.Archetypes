@@ -13,12 +13,12 @@ REQUEST = context.REQUEST
 portal_status_message = REQUEST.get('portal_status_message', 'Content changes saved.')
 
 # handle navigation for multi-page edit forms
-next = REQUEST.get('form_next',None) != None
-previous = REQUEST.get('form_previous',None) != None
+next = not REQUEST.get('form_next',None) is None
+previous = not REQUEST.get('form_previous',None) is None
 if next or previous:
     fieldset = REQUEST.get('fieldset', None)
 
-    schematas = context.Schemata()
+    schematas = context.Schemata().keys()
     if next:
         schematas.reverse()
 
