@@ -954,8 +954,7 @@ class ReferenceField(ObjectField):
         uc = getToolByName(content_instance, config.UID_CATALOG)
         brains = pc.searchResults(portal_type=self.allowed_types)
 
-        if self.vocabulary_display_path_bound and \
-           len(brains) > self.vocabulary_display_path_bound:
+        if len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
             label = lambda b:'%s %s %s' % (b.Title or b.id, at,
