@@ -582,6 +582,8 @@ class BaseObject(Implicit):
 
 class Wrapper:
     """wrapper object for access to sub objects """
+    __allow_access_to_unprotected_subobjects__ = 1
+
     def __init__(self, data, filename, mimetype):
         self._data = data
         self._filename = filename
