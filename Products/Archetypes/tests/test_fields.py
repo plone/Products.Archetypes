@@ -252,11 +252,218 @@ class ProcessingTest(ArcheSiteTestCase):
         field.vocabulary = sampleInterfaceVocabulary()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
 
+class FileLike:
+
+    def __init__(self, data):
+        self.data = data
+        self.pos = 0
+
+    def read(self, chunk=None):
+        if chunk == None:
+            return self.data
+        next = self.pos + chunk
+        self.pos = next
+        return self.data[self.pos:next]
+
+    def seek(self, pos, start=0):
+        if start == 0:
+            self.pos = pos
+        if start == 1:
+            self.pos += pos
+        if start == 2:
+            self.pos = len(data) - pos
+
+    def tell(self):
+        return self.pos
+
+
+
+class FileFieldTest(ZopeTestCase.ZopeTestCase):
+
+    def afterSetUp(self):
+        self.field = Field.FileField('file')
+
+    def test_stringio_text(self):
+        from cStringIO import StringIO
+        f = StringIO('x' * (1 << 19))
+        f.seek(0)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.failIf(f)
+
+    def test_stringio_binary(self):
+        from cStringIO import StringIO
+        f = StringIO('\x00' + 'x' * (1 << 19))
+        f.seek(0)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.failIf(f)
+
+    def test_file_like_text(self):
+        f = FileLike('x' * (1 << 19))
+        f.seek(0)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.failIf(f)
+
+    def test_file_like_binary(self):
+        f = FileLike('\x00' + 'x' * (1 << 19))
+        f.seek(0)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.failIf(f)
+
+    def test_file_upload_text(self):
+        from cgi import FieldStorage
+        from ZPublisher.HTTPRequest import FileUpload
+        from tempfile import TemporaryFile
+        fp = TemporaryFile('w+b')
+        fp.write('x' * (1 << 19))
+        fp.seek(0)
+        env = {'REQUEST_METHOD':'PUT'}
+        headers = {'content-type':'text/plain',
+                   'content-length': 1 << 19,
+                   'content-disposition':'attachment; filename=test.txt'}
+        fs = FieldStorage(fp=fp, environ=env, headers=headers)
+        f = FileUpload(fs)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.assertEquals(f, 'test.txt')
+
+    def test_file_upload_binary(self):
+        from cgi import FieldStorage
+        from ZPublisher.HTTPRequest import FileUpload
+        from tempfile import TemporaryFile
+        fp = TemporaryFile('w+b')
+        fp.write('\x00' + 'x' * (1 << 19))
+        fp.seek(0)
+        env = {'REQUEST_METHOD':'PUT'}
+        headers = {'content-type':'text/plain',
+                   'content-length': 1 << 19,
+                   'content-disposition':'attachment; filename=test.bin'}
+        fs = FieldStorage(fp=fp, environ=env, headers=headers)
+        f = FileUpload(fs)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.assertEquals(f, 'test.bin')
+
+    def test_real_file_text(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.assertEquals(f, fd.name)
+
+    def test_real_file_binary(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.assertEquals(f, fd.name)
+
+    def test_ofs_file_text(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('x' * (1 << 19))
+        fd.seek(0)
+        f = File('f', '', '')
+        self.folder._setObject('f', f)
+        self.folder.f.manage_upload(fd)
+        v, m, f = self.field._process_input(self.folder.f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.assertEquals(f, self.folder.f.getId())
+
+    def test_ofs_file_binary(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        f = File('f', '', '')
+        self.folder._setObject('f', f)
+        self.folder.f.manage_upload(fd)
+        v, m, f = self.field._process_input(self.folder.f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.assertEquals(f, self.folder.f.getId())
+
+    def test_pdata_text(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('x' * (1 << 19))
+        fd.seek(0)
+        f = File('f', '', '')
+        self.folder._setObject('f', f)
+        self.folder.f.manage_upload(fd)
+        v, m, f = self.field._process_input(self.folder.f.data)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.failIf(f)
+
+    def test_pdata_binary(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        f = File('f', '', '')
+        self.folder._setObject('f', f)
+        self.folder.f.manage_upload(fd)
+        v, m, f = self.field._process_input(self.folder.f.data)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.failIf(f)
+
+    def test_string_text(self):
+        f = 'x' * (1 << 19)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.failIf(f)
+
+    def test_string_binary(self):
+        f = '\x00' + 'x' * (1 << 19)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.failIf(f)
+
+    def test_base_unit_text(self):
+        from Products.Archetypes.BaseUnit import BaseUnit
+        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
+        self.folder.mimetypes_registry = MimeTypesRegistry()
+        f = BaseUnit('f', 'x' * (1 << 19), instance=self.folder)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'text/plain')
+        self.failIf(f)
+
+    def test_base_unit_binary(self):
+        from Products.Archetypes.BaseUnit import BaseUnit
+        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
+        self.folder.mimetypes_registry = MimeTypesRegistry()
+        f = BaseUnit('f', '\x00' + 'x' * (1 << 19), instance=self.folder)
+        v, m, f = self.field._process_input(f)
+        self.failUnless(isinstance(v, basestring))
+        self.assertEquals(m, 'application/octet-stream')
+        self.failIf(f)
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ProcessingTest))
+    suite.addTest(makeSuite(FileFieldTest))
     return suite
 
 if __name__ == '__main__':

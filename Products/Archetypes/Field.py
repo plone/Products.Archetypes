@@ -797,7 +797,7 @@ class FileField(ObjectField):
 
         if isinstance(value, File):
             # OFS.Image.File based
-            filename = value.filename
+            filename = getattr(value, 'filename', value.getId())
             mimetype = value.content_type
             data = value.data
             if len(data) == 0:

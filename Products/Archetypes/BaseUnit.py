@@ -27,7 +27,7 @@ class BaseUnit(File):
     def __init__(self, name, file='', instance=None, **kw):
         self.id = self.__name__ = name
         self.update(file, instance, **kw)
-        
+
     def __setstate__(self, dict):
         mimetype = dict.get('mimetype', None)
         if IMimetype.isImplementedBy(mimetype):
