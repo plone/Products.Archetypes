@@ -39,7 +39,10 @@ class BaseSQLStorage(StorageLayer):
 
     def map_datetime(self, field, value):
         # we don't want to lose even 0.001 second
-        return value.ISO()[:-2] + str(value.second())
+	try:
+            return value.ISO()[:-2] + str(value.second())
+	except:
+	    return None
 
     def table_exists(self, instance):
         raise NotImplemented
