@@ -1228,6 +1228,9 @@ class FixedPointField(ObjectField):
         else:
             fra = value[1][:self.precision]
             fra += '0' * (self.precision - len(fra))
+            #handle leading comma e.g. .36
+            if value[0]=='':
+                value[0]='0'
             value = (int(value[0]), int(fra))
         return value
 
