@@ -1,3 +1,8 @@
+2003-09-06  Sidnei da Silva  <sidnei@plone.org>
+
+	* skins/archetypes/widgets/field.pt: Edit accessor may be None in
+	some cases.
+
 2003-09-04  Sidnei da Silva  <sidnei@plone.org>
 
 	* Marshall.py (RFC822Marshaller.marshall): And more marshalling fixes.
