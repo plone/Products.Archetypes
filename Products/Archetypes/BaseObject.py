@@ -284,15 +284,15 @@ class BaseObject(Implicit):
         """
 
         methodName = "validate_%s" % name
+        result = None
 
-        res = 1
         if hasattr(aq_base(self), methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
                 errors[name] = result
-                res = 0
-        return res
+
+        return result
         
 
     ## Pre/post validate hooks that will need to write errors

@@ -184,22 +184,21 @@ class Field(DefaultLayerContainer):
         result returned by validator
         """
         name = self.getName()
-
         if errors and errors.has_key(name):
             return 1
 
         if self.required:
             res = self.validate_required(instance, value, errors)
-            if res != 1:
+            if res is not None:
                 return res
 
         if self.enforceVocabulary:
             res = self.validate_vocabulary(instance, value, errors)
-            if res != 1:
+            if res is not None:
                 return res
 
         res = instance.validate_field(name, value, errors)
-        if res != 1:
+        if res is not None:
             return res
 
         for v in self.validators:
@@ -207,25 +206,25 @@ class Field(DefaultLayerContainer):
                                       errors=errors, **kwargs)
             if res != 1:
                 return res
-        return None
 
     def validate_required(self, instance, value, errors):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            errors[name] =  translate(
+            error = translate(
                 'archetypes', 'error_required',
                 {'name': label}, instance,
                 default = "%s is required, please correct."
                 % label,
                 )
-            return 1
+            errors[name] = error
+            return error
         return None
 
     def validate_vocabulary(self, instance, value, errors):
         """Make sure value is inside the allowed values
         for a given vocabulary"""
-        error = 0
+        error = None
         if value:
             # coerce value into a list called values
             values = value
@@ -252,17 +251,18 @@ class Field(DefaultLayerContainer):
                 error = 1
                 for v in valids:
                     if val == v:
-                        error = 0
+                        error = None
                         break
 
         if error == 1:
             label = self.widget.Label(instance)
-            errors[name] = translate(
+            error = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
                 default = "Value %s is not allowed for vocabulary "
                 "of element %s." % (val, label),
                 )
+            errors[self.getName()] = error
 
         return error
 
