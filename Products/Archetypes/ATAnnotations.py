@@ -1,5 +1,5 @@
 from UserDict import DictMixin
-import types
+from types import StringType, TupleType
 
 from BTrees.OOBTree import OOBTree
 from  Persistence import Persistent
@@ -28,7 +28,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     security.declareObjectPrivate()
 
     def __init__(self, obj):
-        self._obj = obj        
+        self._obj = obj
 
     # basic methods required for DictMixin
     
@@ -57,7 +57,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         return annotations.keys()
     
     def __setitem__(self, key, value):
-        if type(key) is not types.StringType:
+        if type(key) is not StringType:
             raise TypeError('ATAnnotations key must be a string')
         try:
             annotations = aq_base(self._obj)._at_annotations_
@@ -100,11 +100,11 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
             obj._at_annotations_['foo-ham']['egg']
         """
         if isinstance(subkeys, StringType):
-            k = '%s-%s' % (key, subkeys[0])
+            k = '%s-%s' % (key, subkeys)
             return self.get(k, default)
         elif isinstance(subkeys, TupleType):
             if len(subkeys) != 2:
-                raise ValueError('Subkeys tuple must have exactly two elements')
+                raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
             if not self.has_key(k):
                 return default
@@ -114,20 +114,20 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         else:
             raise TypeError('Invalid subkey type %s, must be string or tuple' % type(subkeys))
     
-    def setSubkey(self, key, value, subkey=()):
+    def setSubkey(self, key, value, subkeys=()):
         """Stores data using a key and one to multiple subkeys
         """
         if isinstance(subkeys, StringType):
-            k = '%s-%s' % (key, subkeys[0])
+            k = '%s-%s' % (key, subkeys)
             if isinstance(self.get(k, None), OOBTree):
-                raise KeyError('Key %s is already in use as OOBtree' % k)
+                raise KeyError('Key %s is already in use as OOBTree' % k)
             self[k] = value
         elif isinstance(subkeys, TupleType):
             if len(subkeys) != 2:
-                raise ValueError('Subkeys tuple must have exactly two elements')
+                raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
             if not self.has_key(k):
-                btree = self[k] = OOBTree
+                btree = self[k] = OOBTree()
             else:
                 btree = self[k]
                 if not isinstance(self.get(k, None), OOBTree):
@@ -142,11 +142,11 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         """Removes a subkey
         """
         if isinstance(subkeys, StringType):
-            k = '%s-%s' % (key, subkeys[0])
+            k = '%s-%s' % (key, subkeys)
             del self[k]
         elif isinstance(subkeys, TupleType):
             if len(subkeys) != 2:
-                raise ValueError('Subkeys tuple must have exactly two elements')
+                raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
             del self[k][subkeys[1]]
         else:
@@ -157,11 +157,11 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         """
         """
         if isinstance(subkeys, StringType):
-            k = '%s-%s' % (key, subkeys[0])
+            k = '%s-%s' % (key, subkeys)
             return self.has_key(k)
         elif isinstance(subkeys, TupleType):
             if len(subkeys) != 2:
-                raise ValueError('Subkeys tuple must have exactly two elements')
+                raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
             if not self.has_key(k):
                 return False
