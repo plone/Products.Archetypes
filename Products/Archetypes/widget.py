@@ -31,7 +31,8 @@ class widget:
 
     description -- tooltip
     label       -- textual label
-    visible     -- 1[default] visible 0 hidden -1 skipped
+    visible     -- visible[default] | invisible | hidden
+    condition   -- TALES expression to control the widget display
     """
 
     __implements__ = (iwidget,)
@@ -44,10 +45,12 @@ class widget:
         'description' : '',
         'label' : '',
         'visible' : {'edit':'visible', 'view':'visible'},
-        'attributes' : ''
+    #   'attributes' : '',
+        'condition': '',
         }
 
     def __init__(self, **kwargs):
+        # Hey, where's _processed used?!?
         self._processed  = 0
         self._process_args(**kwargs)
 
