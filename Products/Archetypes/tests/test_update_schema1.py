@@ -32,23 +32,6 @@ class test_update_schema1(ArcheSiteTestCase):
         newSecurityManager( None, user ) 
 
 
-    def beforeTearDown(self): 
-        get_transaction().abort()
-        # clean things up by hand, since the transaction seems to be getting
-        # committed somewhere along the way
-        site = self.getPortal()
-        if site:
-            if hasattr(site, 't1'):
-                site.manage_delObjects(['t1'])
-            if hasattr(site, 't2'):
-                site.manage_delObjects(['t2'])
-            if self.created_site:
-                self.root.manage_delObjects([self.site_id])
-            get_transaction().commit()
-        SecurityRequestTest.tearDown(self)
-        ArchetypesTestCase.beforeTearDown(self)
-
-
     def _setClass(self, version):
         import Products.ArchetypesTestUpdateSchema
         classdir = Products.ArchetypesTestUpdateSchema.getDir()
@@ -62,7 +45,7 @@ class test_update_schema1(ArcheSiteTestCase):
         except:
             pass
 
-        self.root.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
+        self.app.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
 
 
     def test_detect_schema_change(self):
