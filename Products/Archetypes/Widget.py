@@ -217,10 +217,11 @@ class ReferenceWidget(TypesWidget):
 
         catalog = getToolByName(purl, 'portal_catalog')
         containers = []
+        portal_path = "/".join(purl.getPortalObject().getPhysicalPath())
         for wanted in searchFor:
             for brain in catalog(portal_type=wanted):
-                rel = purl.getRelativeUrl(brain.getObject())
-                containers.append(rel)
+                relative_path = brain.getPath().replace(portal_path + '/', '')
+                containers.append(relative_path)
 
         return containers
 
