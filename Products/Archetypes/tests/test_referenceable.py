@@ -111,6 +111,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.verifyBrains()
         get_transaction().commit(1)
+        # order support issue
         obj1.setId('foo')
         get_transaction().commit(1)
 
@@ -510,6 +511,8 @@ class BaseReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
+
+        field.Vocabulary(dummy)
         self.assertEquals(field.Vocabulary(dummy), expected)
 
         # We should have the option of nothing
@@ -524,6 +527,8 @@ class BaseReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
+        
+
         self.assertEquals(field.Vocabulary(dummy), expected)
         
         field = field.copy()

@@ -21,9 +21,37 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.config import DEBUG_SECURITY
 import Products.generator.i18n as i18n
 
-import uuid
+try:
+    _v_network = str(socket.gethostbyname(socket.gethostname()))
+except:
+    _v_network = str(random() * 100000000000000000L)
+
 def make_uuid(*args):
-    return uuid.generate()
+    t = str(time() * 1000L)
+    r = str(random()*100000000000000000L)
+    data = t +' '+ r +' '+ _v_network +' '+ str(args)
+    uid = md5(data).hexdigest()
+    return uid
+
+# linux kernel uid generator. It's a little bit slower but a little bit better
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
+
+if os.path.isfile(KERNEL_UUID):
+    HAS_KERNEL_UUID = True
+    def uuid_gen():
+        fp = open(KERNEL_UUID, 'r')
+        while 1:
+            uid = fp.read()[:-1]
+            fp.seek(0)
+            yield uid
+    uid_gen = uuid_gen()
+
+    def kernel_make_uuid(*args):
+        return uid_gen.next()
+else:
+    HAS_KERNEL_UUID = False
+    kernel_make_uuid = make_uuid
+
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -231,7 +259,7 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-
+    
     >>> dl = DisplayList()
 
     Add some keys
@@ -273,7 +301,7 @@ class DisplayList:
 
     Using ints as DisplayList keys works but will raise an deprecation warning
     You should use IntDisplayList for int keys
-
+    
     >>> idl = DisplayList()
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
@@ -283,7 +311,7 @@ class DisplayList:
 
     >>> idl.getMsgId(1)
     'number one'
-
+    
     Remove warning hook
     >>> w.uninstall(); del w
     """
@@ -384,6 +412,7 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
+
         if type(key) is IntType:
             warnings.warn('Using ints as DisplayList keys is deprecated (msgid)',
                           DeprecationWarning, stacklevel=3)
@@ -738,9 +767,9 @@ def shasattr(obj, attr, acquire=False):
                     Py_INCREF(Py_False);
                     return Py_False;
             }
-        Py_DECREF(v);
-        Py_INCREF(Py_True);
-        return Py_True;
+    	Py_DECREF(v);
+    	Py_INCREF(Py_True);
+    	return Py_True;
 
     It should not swallow all errors, especially now that descriptors make
     computed attributes quite common.  getattr() only recently started catching

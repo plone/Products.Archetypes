@@ -61,7 +61,6 @@ from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
@@ -78,7 +77,6 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 from Products.generator import i18n
-
 
 try:
     import PIL.Image
@@ -177,10 +175,7 @@ class Field(DefaultLayerContainer):
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
-        self.uuid = make_uuid()
-
         DefaultLayerContainer.__init__(self)
-
         if name is None:
             global _field_count
             _field_count += 1
@@ -1465,10 +1460,10 @@ class ReferenceField(ObjectField):
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
+            label = lambda b:'%s %s %s' % (b.Title or b.getId, at,
                                            b.getPath())
         else:
-            label = lambda b:b.Title or b.id
+            label = lambda b:b.Title or b.getId
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
