@@ -1,3 +1,9 @@
+2003-05-13  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
+
+	* Field.py (FileField.set): Fixed problem with uploading
+	files. Sometimes the mime_type was being wrongly set. Added a test
+	to make sure it keeps working.
+
 2003-05-12  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* ArchetypeTool.py (modify_fti): Get 'global_allow' from the class

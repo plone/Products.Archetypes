@@ -35,7 +35,7 @@ class ChangeStorageTest( unittest.TestCase ):
         self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
         self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
         self.failUnless(dummy.getAnobjectfield() == 'someothertext')
-        
+
         for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.name] = field.getStorage()
@@ -61,7 +61,6 @@ class ChangeStorageTest( unittest.TestCase ):
         field.setStorage(dummy, AttributeStorage())
         self.failIf(dummy._md.has_key('atextfield'))
         self.failUnless(hasattr(dummy, 'atextfield'))
-        
 
 class MetadataStorageTest( ClassGenTest ):
 

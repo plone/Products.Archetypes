@@ -17,16 +17,21 @@ from copy import deepcopy
 
 schema = BaseSchema + Schema((
     TextField('atextfield',
-              widget=StringWidget(description="Just a text field for the testing",
+              widget=RichWidget(description="Just a text field for the testing",
                                   label="A Text Field",
                                   )),
-    
+
+    FileField('afilefield',
+              widget=RichWidget(description="Just a file field for the testing",
+                                  label="A File Field",
+                                  )),
+
     LinesField('alinesfield', widget=LinesWidget),
-    
+
     DateTimeField('adatefield',
                   widget=CalendarWidget(description="A date field",
                                         label="A Date Field")),
-    
+
     ObjectField('anobjectfield',
                 widget=StringWidget(description="An object field",
                                     label="An Object Field"),
@@ -47,7 +52,7 @@ def gen_dummy():
     Dummy.schema = deepcopy(schema)
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-   
+
 class ClassGenTest( unittest.TestCase ):
 
     def setUp( self ):
@@ -56,48 +61,55 @@ class ClassGenTest( unittest.TestCase ):
         self._dummy.initializeArchetype()
 
     def test_methods(self):
-        klass = self._dummy
+        obj = self._dummy
         #setters
-        self.failUnless(hasattr(klass, 'setAtextfield'))
-        self.failUnless(hasattr(klass, 'setAlinesfield'))
-        self.failUnless(hasattr(klass, 'setAdatefield'))
-        self.failUnless(hasattr(klass, 'setAnobjectfield'))
-        self.failUnless(hasattr(klass, 'setAfixedpointfield'))
+        self.failUnless(hasattr(obj, 'setAtextfield'))
+        self.failUnless(hasattr(obj, 'setAfilefield'))
+        self.failUnless(hasattr(obj, 'setAlinesfield'))
+        self.failUnless(hasattr(obj, 'setAdatefield'))
+        self.failUnless(hasattr(obj, 'setAnobjectfield'))
+        self.failUnless(hasattr(obj, 'setAfixedpointfield'))
         #getters
-        self.failUnless(hasattr(klass, 'getAtextfield'))
-        self.failUnless(hasattr(klass, 'getAlinesfield'))
-        self.failUnless(hasattr(klass, 'getAdatefield'))
-        self.failUnless(hasattr(klass, 'getAnobjectfield'))
-        self.failUnless(hasattr(klass, 'getAfixedpointfield'))
+        self.failUnless(hasattr(obj, 'getAtextfield'))
+        self.failUnless(hasattr(obj, 'getAfilefield'))
+        self.failUnless(hasattr(obj, 'getAlinesfield'))
+        self.failUnless(hasattr(obj, 'getAdatefield'))
+        self.failUnless(hasattr(obj, 'getAnobjectfield'))
+        self.failUnless(hasattr(obj, 'getAfixedpointfield'))
 
     def test_textfield(self):
-        klass = self._dummy
-        klass.setAtextfield('Bla')
-        self.failUnless(str(klass.getAtextfield()) == 'Bla')
+        obj = self._dummy
+        obj.setAtextfield('Bla')
+        self.failUnless(str(obj.getAtextfield()) == 'Bla')
+
+    def test_filefield(self):
+        obj = self._dummy
+        obj.setAfilefield('Bla')
+        self.failUnless(str(obj.getAfilefield()) == 'Bla')
 
     def test_linesfield(self):
-        klass = self._dummy
-        klass.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnless(klass.getAlinesfield() == ['Bla', 'Ble', 'Bli'])
+        obj = self._dummy
+        obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
+        self.failUnless(obj.getAlinesfield() == ['Bla', 'Ble', 'Bli'])
 
     def test_datefield(self):
-        klass = self._dummy
-        klass.setAdatefield('2002/01/01')
-        self.failUnless(klass.getAdatefield() == DateTime('2002/01/01'))
+        obj = self._dummy
+        obj.setAdatefield('2002/01/01')
+        self.failUnless(obj.getAdatefield() == DateTime('2002/01/01'))
 
     def test_objectfield(self):
-        klass = self._dummy
-        klass.setAnobjectfield('bla')
-        self.failUnless(klass.getAnobjectfield() == 'bla')
-                
+        obj = self._dummy
+        obj.setAnobjectfield('bla')
+        self.failUnless(obj.getAnobjectfield() == 'bla')
+
     def test_fixedpointfield(self):
-        klass = self._dummy
-        klass.setAfixedpointfield('26.05')
-        self.failUnless(klass.getAfixedpointfield() == '26.05')
-                
+        obj = self._dummy
+        obj.setAfixedpointfield('26.05')
+        self.failUnless(obj.getAfixedpointfield() == '26.05')
+
     def tearDown( self ):
         del self._dummy
-        
+
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(ClassGenTest),

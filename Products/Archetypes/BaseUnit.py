@@ -23,7 +23,6 @@ import urllib
 
 from config import *
 
-
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 
@@ -167,7 +166,7 @@ class oldBaseUnit(File, ObjectManager):
         self.data = ''
         self.size = 0
         self.content_type = None
-
+        self.mimetype = mime_type
         self.update(file, mime_type)
 
     def __str__(self):

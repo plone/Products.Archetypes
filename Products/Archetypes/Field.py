@@ -260,9 +260,11 @@ class FileField(StringField):
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
-        if type(value) is StringType:
+        if type(value) in STRING_TYPES:
             if mime_type is None:
                 mime_type, enc = guess_content_type('', value, mime_type)
+            if not value:
+                return default, mime_type
             return value, mime_type
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
@@ -274,8 +276,13 @@ class FileField(StringField):
             value = value.read()
             if mime_type is None:
                 mime_type, enc = guess_content_type(f_name, value, mime_type)
+            size = len(value)
+            if size == 0:
+                # This new file has no length, so we keep
+                # the orig
+                return default, mime_type
             return value, mime_type
-        raise TextFieldException('Value is not File or String')
+        raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
         if hasattr(aq_base(instance), '_FileField_types'):
@@ -289,6 +296,8 @@ class FileField(StringField):
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
+        kwargs['mime_type'] = mime_type
+
         # FIXME: ugly hack
         try:
             types_d = instance._FileField_types
@@ -323,7 +332,13 @@ class TextField(ObjectField):
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
-        if type(value) != StringType:
+        if type(value) in STRING_TYPES:
+            if mime_type is None:
+                mime_type, enc = guess_content_type('', str(value), mime_type)
+            if not value:
+                return default, mime_type
+            return value, mime_type
+        else:
             if ((isinstance(value, FileUpload) and value.filename != '') or
                 (isinstance(value, FileType) and value.name != '')):
                 #OK, its a file, is it empty?
@@ -339,17 +354,14 @@ class TextField(ObjectField):
                 if size == 0:
                     # This new file has no length, so we keep
                     # the orig
-                    return default #XXX missing mimetype
+                    return default, mime_type
                 return value, mime_type
 
             elif IBaseUnit.isImplementedBy(value):
                 if mime_type is None:
                     mime_type, enc = guess_content_type('', str(value), mime_type)
                 return value, getattr(aq_base(value), 'mimetype', mime_type)
-        else:
-            if value == '':
-                return default, self.default_content_type
-            return value, self.default_content_type
+
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.name, type(value)))
 
     def getContentType(self, instance):
@@ -369,6 +381,8 @@ class TextField(ObjectField):
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
+        kwargs['mime_type'] = mime_type
+
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
