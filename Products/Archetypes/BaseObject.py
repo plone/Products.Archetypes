@@ -361,7 +361,7 @@ class BaseObject(Implicit):
             else:
                 try:
                     size += len(value)
-                except TypeError:
+                except (TypeError, AttributeError):
                     pass
 
         return size
