@@ -90,7 +90,7 @@
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item)) />
+                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))" />
 
 
                 <br/>

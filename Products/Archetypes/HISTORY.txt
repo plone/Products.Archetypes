@@ -1,3 +1,12 @@
+1.3.0-rc1
+
+ * Fixed forbidden access to schema methods when the schema was
+   acccessed using archetype_tool.lookupType().
+   [tiran]
+   
+ * Fixed typo in widgets/reference.pt
+   [tiran]
+
 1.3.0-beta4 - 2004-07-09
 
  * Fix bug on image deletion [clebeaupin]

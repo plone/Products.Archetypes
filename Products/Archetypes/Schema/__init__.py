@@ -212,7 +212,16 @@ class Schemata(Base):
 
         return [f.getName() for f in self.fields() if f.searchable]
 
-class WrappedSchemata(Schemata, Explicit): pass
+InitializeClass(Schemata)
+
+
+class WrappedSchemata(Schemata, Explicit):
+
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+
+InitializeClass(WrappedSchemata)
+
 
 class SchemaLayerContainer(DefaultLayerContainer):
     """Some layer management for schemas"""
@@ -312,6 +321,9 @@ class SchemaLayerContainer(DefaultLayerContainer):
         for k, v in self.registeredLayers():
             c.registerLayer(k, v)
         return c
+
+InitializeClass(SchemaLayerContainer)
+
 
 class BasicSchema(Schemata):
     """Manage a list of fields and run methods over them."""
@@ -557,6 +569,9 @@ class BasicSchema(Schemata):
         else:
             raise ValueError, "Object doesn't implement IField: %r" % field
 
+InitializeClass(BasicSchema)
+
+
 class Schema(BasicSchema, SchemaLayerContainer):
 
     __implements__ = ILayerRuntime, ILayerContainer, ISchema
@@ -609,7 +624,15 @@ class Schema(BasicSchema, SchemaLayerContainer):
         schema = self.copy(factory=WrappedSchema)
         return schema.__of__(parent)
 
-class WrappedSchema(Schema, Explicit): pass
+InitializeClass(Schema)
+
+
+class WrappedSchema(Schema, Explicit):
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+
+InitializeClass(WrappedSchema)
+
 
 class ManagedSchema(Schema):
 
@@ -711,6 +734,9 @@ class ManagedSchema(Schema):
             for f in d[s_name]:
                 self.addField(f)
 
+InitializeClass(ManagedSchema)
+
+
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
 
@@ -718,6 +744,7 @@ class MetadataSchema(Schema):
     """Schema that enforces MetadataStorage."""
 
     security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addField')
@@ -736,13 +763,8 @@ class MetadataSchema(Schema):
 
         Schema.addField(self, field)
 
-
-InitializeClass(Schemata)
-InitializeClass(BasicSchema)
-InitializeClass(Schema)
-InitializeClass(ManagedSchema)
-InitializeClass(SchemaLayerContainer)
 InitializeClass(MetadataSchema)
+
 
 FieldList = Schema
 MetadataFieldList = MetadataSchema

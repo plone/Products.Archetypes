@@ -34,6 +34,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 from ZODB.POSException import ConflictError
+from Acquisition import ImplicitAcquisitionWrapper
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -597,6 +598,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for t in types:
             if t['package'] != package: continue
             if t['meta_type'] == type:
+                # We have to return the schema wrapped into the acquisition of
+                # something to allow access. Otherwise we will end up with:
+                # Your user account is defined outside the context of the object
+                # being accessed.
+                t['schema'] = ImplicitAcquisitionWrapper(t['schema'], self)
                 return t
         return None
 
