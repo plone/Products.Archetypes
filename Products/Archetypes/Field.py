@@ -1324,7 +1324,7 @@ class ImageField(ObjectField):
                     return
 
         kwargs = self._updateKwargs(instance, value, **kwargs)
-        imgdata, format = self.rescaleOriginal(value, **kwargs)
+        imgdata = self.rescaleOriginal(value, **kwargs)
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
         self.createScales(instance)
@@ -1375,8 +1375,7 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    value = self.scale(data,w,h)
-
+                    value, format = self.scale(data,w,h)
         return value
 
     def createOriginal(self, instance, value, **kwargs):
