@@ -22,31 +22,12 @@ try:
 except:
     _v_network = str(random() * 100000000000000000L)
 
-_v_uid_seed = None # a supplementary seed
-_v_used_uids = {}  # a list of uids that where already used
-
-def _init_uid_seed():
-    global _v_uid_seed
-    _v_uid_seed = str(randint(1, 1000) * 1000L)
-_init_uid_seed()
-
 def make_uuid(*args):
-    global _v_used_uids, _v_network, _v_uid_seed
-
-    # XXX keep the list of used uids small, required?
-    if len(_v_used_uids) > 10**6:
-        _v_used_uids = {}
-
-    t = str(time() * 1000L) # inside the loop the time wouldn't change
-    while 1:
-        r = str(random()*100000000000000000L)
-        data = t +' '+ r +' '+ _v_uid_seed +' '+ _v_network +' '+ str(args)
-        uid = md5(data).hexdigest()
-        if not _v_used_uids.has_key(uid):
-             _v_used_uids[uid] = 1
-             return uid
-        else:
-            _init_uid_seed()
+    t = str(time() * 1000L)
+    r = str(random()*100000000000000000L)
+    data = t +' '+ r +' '+ _v_network +' '+ str(args)
+    uid = md5(data).hexdigest()
+    return uid
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
