@@ -74,7 +74,8 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """called by the generated addXXX factory in types tool"""
+        """called by the generated addXXX factory in types tool
+        """
         try:
             self.initializeLayers()
             self.setDefaults()
@@ -107,9 +108,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     def title_or_id(self):
-        """
-        Utility that returns the title if it is not blank and the id
-        otherwise.
+        """Utility that returns the title if it is not blank and the id otherwise.
         """
         if hasattr(aq_base(self), 'Title'):
             if callable(self.Title):
@@ -119,12 +118,15 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getId')
     def getId(self):
-        """get the objects id"""
+        """get the object id
+        """
         return self.id
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setId')
     def setId(self, value):
+        """set the object id
+        """
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
@@ -150,16 +152,21 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
     def getField(self, key):
+        """Return a field object
+        """
         return self.Schema().get(key)
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
-        """return the default from the type info"""
+        """Return the default value of a field
+        """
         field = self.getField(field)
         return field.default
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
+        """Return wether a field contains binary data
+        """
         element = getattr(self, key, None)
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
@@ -172,11 +179,15 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'isTransformable')
     def isTransformable(self, name):
+        """Returns wether a field is transformable
+        """
         field = self.getField(name)
         return isinstance(field, TextField)  or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
+        """Returns the rendered widget
+        """
         if field is None:
             field = self.Schema()[field_name]
         widget = field.widget
@@ -185,6 +196,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
+        """Returns the Content Type of a field or the primary field if available
+        """
         value = 'text/plain'
 
         # obj.getContentType() returns the mimetype of the first primary field
@@ -214,6 +227,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
+        """Returns the portal_metadata for a field
+        """
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
@@ -231,6 +246,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'Vocabulary')
     def Vocabulary(self, key):
+        """Returns the vocabulary for a specified field
+        """
         vocab, enforce = None, 0
         field = self.getField(key)
         if field:
@@ -247,7 +264,8 @@ class BaseObject(Implicit):
         return vocab, enforce
 
     def __getitem__(self, key):
-        """play nice with externaleditor again"""
+        """Play nice with externaleditor again
+        """
         schema = self.Schema()
         keys = schema.keys()
         if key not in keys and key[:1] != "_": #XXX 2.2
@@ -269,15 +287,21 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'edit')
     def edit(self, **kwargs):
+        """Alias for update()
+        """
         self.update(**kwargs)
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
+        """Set field values to the default values
+        """
         self.Schema().setDefaults(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'update')
     def update(self, **kwargs):
+        """Change the values of the field and reindex the object
+        """
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
@@ -316,6 +340,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
+        """Validates the form data from the request
+        """
         if errors is None:
             errors = {}
 
@@ -458,6 +484,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'Schemata')
     def Schemata(self):
+        """Returns the Schemata for the Object
+        """
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
@@ -661,7 +689,7 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionnary of objects to session variable
+        """add a dictionary of objects to the session
         """
         if objects:
             if REQUEST is None:
@@ -674,7 +702,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """add a dictionnary of objects to session variable
+        """Get a dictionary of objects from the session
         """
         try:
             data = REQUEST.SESSION[self.absolute_url()][name]
@@ -702,6 +730,8 @@ class BaseObject(Implicit):
             not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
+        # ok the RESPONSE is None for web traversal and sometimes the
+        # REQUEST isn't a HTTPRequest object but a dict
         if hasattr(REQUEST, 'RESPONSE'):
             REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
