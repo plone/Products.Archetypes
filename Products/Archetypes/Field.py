@@ -242,8 +242,11 @@ class TextField(ObjectField):
         raise TextFieldException('Value is not File, String or BaseUnit')
 
     def set(self, instance, value, **kwargs):
-        value, mime_type = self._process_input(value, default=self.default, \
-                                               mime_type=self.default_content_type, \
+        if not kwargs.has_key('mime_type'):
+            kwargs['mime_type'] = self.default_content_type
+            
+        value, mime_type = self._process_input(value,
+                                               default=self.default, \
                                                **kwargs)
         if value == self.default:
             # do nothing
@@ -470,7 +473,6 @@ except:
 
 class Image(BaseImage):
     def isBinary(self):
-        log("isBin")
         return 1
     
 
@@ -564,7 +566,7 @@ class ImageField(ObjectField):
             if not ((isinstance(value, FileUpload) and value.filename != '') or
                     (isinstance(value, FileType) and value.name != '')):
                 return
-                
+            
             if image:
                 #OK, its a file, is it empty?
                 value.seek(-1, 2)
@@ -591,13 +593,14 @@ class ImageField(ObjectField):
             imgdata=value
 
         image = Image(self.name, self.name, imgdata, mime_type)
+        image.filename = value.filename
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
         if not has_pil or not self.sizes: 
             return
 
-        data=image.data
+        data=str(image.data)
         for n,size in self.sizes.items():
             w,h=size
             id=self.name+"_"+n
