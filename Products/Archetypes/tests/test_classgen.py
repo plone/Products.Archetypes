@@ -10,6 +10,8 @@ except: # Zope > 2.6
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
+from Products.Archetypes.MimeTypesTool import MimeTypesTool
+from Products.Archetypes.TransformTool import TransformTool
 
 from DateTime import DateTime
 import unittest
@@ -46,7 +48,11 @@ schema = BaseSchema + Schema((
 
 
 class Dummy(BaseContent):
-    pass
+
+    def __init__(self, oid, **kwargs):
+        BaseContent.__init__(self, oid, **kwargs)
+        self.mimetypes_registry = MimeTypesTool()
+        self.portal_transforms = TransformTool()
 
 def gen_dummy():
     Dummy.schema = deepcopy(schema)
