@@ -181,13 +181,15 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
-        value = 'text/plain' #this should maybe be octet stream or something?
+        value = 'text/plain'
 
         # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
             pfield = self.getPrimaryField()
             if pfield and hasattr(pfield, 'getContentType'):
-                return pfield.getContentType()
+                return pfield.getContentType(self)
+            else:
+                return value
 
         field = self.getField(key)
         if field and hasattr(field, 'getContentType'):

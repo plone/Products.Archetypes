@@ -224,7 +224,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         Dublin Core element - resource format
         """
         # FIXME: get content type from marshaller
-        return
+        return self.getContentType()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setFormat')
