@@ -29,6 +29,13 @@ def start_http(address, port):
     from ZServer import asyncore
     from ZServer import zhttp_server, zhttp_handler
     import socket
+
+    import Zope # Sigh, make product initialization happen
+    try:
+        Zope.startup()
+    except: # Zope > 2.6
+        pass
+
     from ZServer import setNumberOfThreads
     setNumberOfThreads(4)
 

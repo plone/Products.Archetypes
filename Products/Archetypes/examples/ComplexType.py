@@ -13,12 +13,24 @@ field_instances = []
 for f in fields:
     field_instances.append(getattr(Field, f)(f.lower()))
 
-schema = Schema(tuple(field_instances))
+schema = Schema(tuple(field_instances) + (
+    LinesField('selectionlinesfield1',
+               vocabulary='_get_selection_vocab',
+               enforceVocabulary=1,
+               widget=SelectionWidget(label='Selection'),
+               ),
+    LinesField('selectionlinesfield2',
+               vocabulary='_get_selection_vocab',
+               widget=SelectionWidget(label='Selection'),
+               ),
+    ))
 
 class ComplexType(BaseContent):
     """A simple archetype"""
     schema = schema
 
+    def _get_selection_vocab(self):
+        return DisplayList((('Test','Test'),))
 
 registerType(ComplexType)
 

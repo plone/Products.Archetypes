@@ -29,23 +29,35 @@ field_values = {'objectfield':'objectfield',
                 'filefield':'filefield',
                 'textfield':'textfield',
                 'datetimefield':'2003-01-01',
-                'linesfield':'bla\nbla',
+                'linesfield:lines':'bla\nbla',
                 'integerfield':'1',
                 'floatfield':'1.5',
                 'fixedpointfield': '1.5',
-                'booleanfield':'1'}
+                'booleanfield':'1',
+                'selectionlinesfield1':'Test',
+                'selectionlinesfield2':'Test',
+                }
 
 expected_values = {'objectfield':'objectfield',
                    'stringfield':'stringfield',
                    'filefield':'filefield',
                    'textfield':'textfield',
-                   'datetimefield':DateTime('2003-01-01'),
-                   'linesfield':['bla', 'bla'],
-                   'integerfield': 1,
-                   'floatfield': 1.5,
+                   'datetimefield':'2003/01/01',
+                   'linesfield:lines':'bla\nbla',
+                   'integerfield': '1',
+                   'floatfield': '1.5',
                    'fixedpointfield': '1.50',
-                   'booleanfield': 1}
+                   'booleanfield': '1',
+                   'selectionlinesfield1':'Test',
+                   'selectionlinesfield2':'Test',
+                   }
 
+
+def findEditForm(forms):
+    for f in forms:
+        if f.action.endswith('base_edit'):
+            return f
+    return None
 
 class WidgetTests( SecurityRequestTest ):
 
@@ -61,15 +73,27 @@ class WidgetTests( SecurityRequestTest ):
 
     def test_widgets(self):
         site = self.root.testsite
-        obj_id = 'demodoc'
-        doc = makeContent(site, portal_type='ComplexType', id=obj_id)
+        doc = makeContent(site, portal_type='ComplexType', id='demodoc')
         get_transaction().commit()
         request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
-        form = forms[0]
-        for f in forms:
-            print f
+        form = findEditForm(forms)
+        self.failIf(form is None)
+        for k,v in field_values.items():
+            control = form.find_control(k)
+            if control and hasattr(control, 'readonly') and control.readonly:
+                control.readonly = 0
+            form[k] = v
+        response = urllib2.urlopen(form.click("form_submit"))
+        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
+        response = urllib2.urlopen(request)
+        forms = ClientForm.ParseResponse(response)
+        form = findEditForm(forms)
+        self.failIf(form is None)
+        for k,v in expected_values.items():
+            control = form.find_control(k)
+            assert form[k] == v, 'Expected %s on %s, got %s' % (v, k, form[k])
 
     def tearDown(self):
         self.root._delObject('testsite',)
