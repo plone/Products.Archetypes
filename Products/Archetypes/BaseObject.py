@@ -340,10 +340,11 @@ class BaseObject(Implicit):
             if IBaseUnit.isImplementedBy(value):
                 size += value.get_size()
             else:
-                try:
-                    size += len(value)
-                except TypeError:
-                    pass
+                if value is not None:
+                    try:
+                        size += len(value)
+                    except (TypeError, AttributeError):
+                        size += len(str(value))
 
         return size
 
