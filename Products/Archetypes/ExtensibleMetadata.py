@@ -81,7 +81,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
         DateTimeField('effectiveDate',
                       accessor="EffectiveDate",
-                      default=FLOOR_DATE,
+#                      default=FLOOR_DATE,
                       widget=CalendarWidget(label="Effective Date",
                                             description="Date when the content should become availble on the public site",
                                             label_msgid="label_effective_date",
@@ -90,7 +90,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
         DateTimeField('expirationDate',
                       accessor="ExpirationDate",
-                      default=CEILING_DATE,
+#                      default=CEILING_DATE,
                       widget=CalendarWidget(label="Expiration Date",
                                             description="Date when the content should no longer be visible on the public site",
                                             label_msgid="label_expiration_date",
@@ -185,18 +185,24 @@ class ExtensibleMetadata(Persistence.Persistent):
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
         pass
-    
+
     #  DublinCore utility methods #############################################
     
     security.declarePublic( 'isEffective' )
     def isEffective( self, date ):
         """ Is the date within the resource's effective range? """
-        return self.EffectiveDate() <= date and not self.isExpired()
+        eff_date = self.EffectiveDate()
+        if not eff_date:
+            eff_date = FLOOR_DATE
+        return eff_date <= date and not self.isExpired()
 
     security.declarePublic( 'isExpired' )
     def isExpired( self, date ):
         """ Is the date after resource's expiration """
-        return self.ExpirationDate() < date
+        exp_date = self.ExpirationDate()
+        if not exp_date:
+            exp_date = CEILING_DATE
+        return exp_date < date
 
     #  CatalogableDublinCore methods ##########################################
 
