@@ -68,7 +68,7 @@ class widget:
         if domain is None:
             return value
         msgid = getattr(self, name+'_msgid', None) or value
-        return i18n.translate(domain, msgid, None, instance.REQUEST, None, value)
+        return i18n.translate(domain, msgid, mapping=instance.REQUEST, context=instance, default=value)
 
     def Label(self, instance):
         """Returns the label, possibly translated"""
