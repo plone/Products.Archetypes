@@ -252,8 +252,6 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-# DM (avoid persistency bug):
-##_types_callback = []
 
 def _guessPackage(base):
     if base.startswith('Products'):
@@ -286,10 +284,6 @@ def registerType(klass, package=None):
 
     key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
-
-    # DM (avoid persistency bug):
-##    for tc in _types_callback:
-##        tc(klass, package)
 
 def registerClasses(context, package, types=None):
     registered = listTypes(package)
@@ -438,13 +432,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.catalog_map['Reference'] = [] # References not in portal_catalog
         # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-##        for k, t in _types.items():
-##            self._types[k] = {'signature':t['signature'], 'update':1}
-##        cb = lambda klass, package:self.registerType(klass, package)
-##        DM: never put something referencing a persistent object into
-##            a module global variable!
-##        _types_callback.append(cb)
-##        self.last_types_update = DateTime()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -830,9 +817,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if REQUEST is None:
             # DM (avoid persistency bug): avoid code duplication
             update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
-##            for t in self._types.keys():
-##                if self._types[t]['update']:
-##                    update_types.append(t)
             update_all = 0
         else:
             # DM (avoid persistency bug):
@@ -858,8 +842,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                     search_sub=1, apply_func=self._updateChangedObject)
             for t in update_types:
-                # DM (avoid persistency bug): set to current signature
-##                self._types[t]['update'] = 0
                 self._types[t] = _types[t]['signature']
             self._p_changed = 1
         return out.getvalue()
@@ -871,49 +853,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
             o._updateSchema()
-
-# DM (avoid persistency bug):
-##    def __setstate__(self, v):
-##        """Add a callback to track product registrations"""
-##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
-##        global _types
-##        global _types_callback
-##        import sys
-##        if hasattr(self, '_types'):
-##            if not hasattr(self, 'last_types_update') or \
-##                   self.last_types_update.lessThan(last_load):
-##                for k, t in _types.items():
-##                    if self._types.has_key(k):
-##                        update = (t['signature'] !=
-##                                  self._types[k]['signature'])
-##                    else:
-##                        update = 1
-##                    self._types[k] = {'signature':t['signature'],
-##                                      'update':update}
-##                cb = lambda klass, package:self.registerType(klass, package)
-##                _types_callback.append(cb)
-##                self.last_types_update = DateTime()
-
-
-# DM (avoid persistency bug):
-##    security.declareProtected(CMFCorePermissions.ManagePortal,
-##                              'registerType')
-##    def registerType(self, klass, package):
-##        """This gets called every time registerType is called as soon as the
-##        hook is installed by setstate"""
-##        # See if the schema has changed.  If it has, flag it
-##        update = 0
-##        sig = klass.schema.signature()
-##        key = "%s.%s" % (package, klass.meta_type)
-##        old_data = self._types.get(key, None)
-##        if old_data:
-##            update = old_data.get('update', 0)
-##            old_sig = old_data.get('signature', None)
-##            if sig != old_sig:
-##                update = 1
-##        self._types[key] = {'signature':sig, 'update':update}
-##        self._p_changed = 1
-
 
     # Catalog management
     security.declareProtected(CMFCorePermissions.View,
