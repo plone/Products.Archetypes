@@ -1,5 +1,5 @@
 Archetypes
-     Formerly known as CMFTypes, Archetypes is a developers framework
+     Archetypes (formerly known as CMFTypes) is a developers framework
      for rapidly developing and deploying rich, full featured content
      types within the context of Zope/CMF and Plone.
 
@@ -19,6 +19,7 @@ Features
     * Full automatic form generation
     * Unique Ids for objects
     * Object References/Relationships
+    * Per Type cataloging in one or more catalogs
 
 Requires
 	Plone 2.0+

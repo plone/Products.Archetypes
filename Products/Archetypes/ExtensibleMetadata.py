@@ -213,7 +213,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """cmf/backward compat
         Dublin Core element - resource format
         """
-        # FIXME: get content type from marschaller
+        # FIXME: get content type from marshaller
         return
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -246,7 +246,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         expirationDate = self.schema['expirationDate'].get(self)
         if not expirationDate:
             expirationDate = CEILING_DATE
-        return expirationDate < date
+        return expirationDate <= date
 
     #  CatalogableDublinCore methods ##########################################
 
