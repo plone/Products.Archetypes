@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ class BaseUnit(File):
     def __init__(self, name, file='', instance=None, **kw):
         self.id = self.__name__ = name
         self.update(file, instance, **kw)
-        
+
     def __setstate__(self, dict):
         mimetype = dict.get('mimetype', None)
         if IMimetype.isImplementedBy(mimetype):
@@ -288,4 +288,3 @@ InitializeClass(BaseUnit)
 
 # XXX Backward-compatibility. Should eventually go away after 1.3-final.
 newBaseUnit = BaseUnit
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -201,7 +201,7 @@ class ReferenceWidget(TypesWidget):
                     if callable(place):
                         # restore acq.wrapper
                         place = getattr(instance, option)
-                        place = place()                    
+                        place = place()
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:
@@ -779,4 +779,3 @@ registerPropertyType('rows', 'integer', LinesWidget)
 registerPropertyType('cols', 'integer', LinesWidget)
 registerPropertyType('rows', 'integer', VisualWidget)
 registerPropertyType('cols', 'integer', VisualWidget)
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ class ValidationChain:
     """
     """
     __implements__ = IValidationChain
-     
+
     def __init__(self, name, title='', description='', validators=(),
                  register=False):
         self.name = name
@@ -64,7 +64,7 @@ class ValidationChain:
 
         if register:
             validationService.register(self)
-                
+
     def __repr__(self):
         """print obj support
         """
@@ -80,32 +80,32 @@ class ValidationChain:
         """
         assert(len(self._chain), len(self._v_mode))
         return len(self._chain)
-    
+
     def __iter__(self):
         """Python 2.3 for i in x support
         """
         assert(len(self._chain), len(self._v_mode))
         return iter(zip(self._chain, self._v_mode))
-    
+
     def __cmp__(self, key):
         if isinstance(key, ValidationChain):
             str = repr(key)
         else:
             str = key
         return cmp(repr(self), str)
-    
+
     def __getitem__(self, idx):
         """self[idx] support and Python 2.1 for i in x support
         """
         assert(len(self._chain), len(self._v_mode))
         return self._chain[idx], self._v_mode[idx]
-        
+
     def append(self, id_or_obj, mode=V_REQUIRED):
         """Appends a validator
         """
         validator = self.setValidator(id_or_obj)
         self.setMode(validator, mode)
-    
+
     def appendRequired(self, id_or_obj):
         """Appends a validator as required
         """
@@ -115,7 +115,7 @@ class ValidationChain:
         """Appends a validator as sufficient
         """
         self.append(id_or_obj, mode=V_SUFFICIENT)
-    
+
     def insert(self, id_or_obj, mode=V_REQUIRED, position=0):
         """Inserts a validator at position (default 0)
         """
@@ -147,7 +147,7 @@ class ValidationChain:
         """Set validator
         """
         validator = validationService.validatorFor(id_or_obj)
- 
+
         if position is None:
             self._chain.append(validator)
         else:
@@ -184,7 +184,7 @@ class ValidationChain:
                     break    # fatal error, stop and fail
                 else:
                     raise ValidatorError, 'Unknown mode %s' % mode
-        
+
         if failed:
             return '\n'.join([
                               #'%s: %s' % (name, res)
@@ -227,4 +227,3 @@ test()
 
 if __name__ == '__main__':
     test()
-

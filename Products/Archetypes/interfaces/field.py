@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -213,7 +213,7 @@ class IObjectField(IField):
 
     def get_size(instance):
         """Get size of the stored data used for get_size in BaseObject
-        
+
         Should be overwritte by special fields like FileField. It's safe for
         fields which are storing strings, ints and BaseUnits but it won't return
         the right results for fields containing OFS.Image.File instances or
@@ -264,4 +264,3 @@ class IFileField(IObjectField):
 
 class IImageField(IFileField):
     """ Marker interface for detecting an image field """
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -67,4 +67,3 @@ vs.register(EmptyValidator('isEmpty', title='', description=''))
 vs.register(EmptyValidator('isEmptyNoError', title='', description='',
                    showError=False))
 vs.register(TALValidator('isTAL', title='', description=''))
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -62,10 +62,10 @@ class BaseSchemaTest(ArcheSiteTestCase):
         # put dummy in context of portal
         dummy = dummy.__of__(portal)
         portal.dummy = dummy
-        
+
         dummy.initializeArchetype()
         self._dummy = dummy
-        
+
 
     def test_id(self):
         dummy = self._dummy
@@ -414,4 +414,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

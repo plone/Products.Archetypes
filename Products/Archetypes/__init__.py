@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ try:
 except ImportError:
     from Products.Archetypes.lib.plonecompat import IndexIterator
 allow_class(IndexIterator)
- 
+
 try:
     from Products.CMFPlone import transaction_note
 except ImportError:
@@ -103,7 +103,7 @@ try:
 except ImportError:
     pass
 else:
-    log('Warning: Products.validation is deprecated, please remove the product')    
+    log('Warning: Products.validation is deprecated, please remove the product')
 
 ###
 # Tools
@@ -152,5 +152,3 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
-
-

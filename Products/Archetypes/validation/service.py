@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ class Service:
             del self._validator[name]
 
 class ZService(Service, Implicit):
-    """Service running in a zope site - exposes some methods""" 
+    """Service running in a zope site - exposes some methods"""
 
     security = ClassSecurityInfo()
     __implements__ = IValidationService
@@ -95,7 +95,6 @@ class ZService(Service, Implicit):
     security.declarePublic('__call__')
     security.declarePublic('validatorFor')
 
-InitializeClass(ZService) 
+InitializeClass(ZService)
 
 validationService = ZService()
-

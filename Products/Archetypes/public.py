@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,5 +29,3 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.lib.logging import deprecated
 deprecated("`from Products.Archetypes.public import *` is deprecated. Please "
            "use atapi instead of public!", level=4)
-
-

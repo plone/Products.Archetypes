@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -464,7 +464,7 @@ def setupEnvironment(self, out, types,
 
 
     install_additional_templates(self, out, types)
- 
+
     ftypes = filterTypes(self, out, types, package_name)
     install_indexes(self, out, ftypes)
     install_actions(self, out, ftypes)
@@ -488,7 +488,7 @@ def installTypes(self, out, types, package_name,
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
     AT based product.
-    
+
     This may take a very long time but it seems to be required under some
     circumstances.
     """
@@ -503,7 +503,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
 
     rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
-    
+
     # because manage_catalogFoundItems sucks we have to do it on our own ...
     func    = rc.catalog_object
     obj     = self
@@ -516,4 +516,3 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
                         REQUEST=REQUEST,
                         apply_func=func,
                         apply_path=path)
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ ArchGenXML has support for APE:
  When you invoke ArchGenXML with the option --ape-support the outline_od.xmi
  sample works with APE correctly all ape_config and the serializer/gateway
  stuff is generated for you.
- 
+
 ApeSupport is tested with Ape 1.0 and PostgreSQL
 """
 
@@ -325,4 +325,3 @@ def ec_isinstance (object, klass):
         return ec_issubclass(object.__class__, klass)
     else:
         return 0
-

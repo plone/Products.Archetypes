@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,11 @@ class BaseAnnotationStorage(Storage):
     """
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
-    
+
     _key = None
-    
+
     security.declarePrivate('get')
     def get(self, name, instance, **kwargs):
         ann = instance.getAnnotation()
@@ -76,9 +76,9 @@ setSecurity(BaseAnnotationStorage)
 class AnnotationStorage(BaseAnnotationStorage):
     """Stores values as ATAnnotations on the object
     """
-    
+
     _key = AT_ANN_STORAGE
-    
+
     security = ClassSecurityInfo()
 
 registerStorage(AnnotationStorage)
@@ -86,11 +86,11 @@ registerStorage(AnnotationStorage)
 class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
     """Stores metadata as ATAnnotations on the object
     """
-    
+
     _key = AT_MD_STORAGE
-    
+
     security = ClassSecurityInfo()
-    
+
     __implements__ = IStorage, ILayer
 
     security.declarePrivate('initializeInstance')
@@ -120,4 +120,3 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         pass
 
 registerStorage(MetadataAnnotationStorage)
-

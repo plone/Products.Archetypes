@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -64,40 +64,40 @@ schema = BaseSchema + Schema((
         widget = MultiSelectionWidget(
             i18n_domain = 'plone',
             ),
-        ), 
+        ),
             ))
 
 
 class Dummy(BaseContent):
-   
+
     portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
-         return 'iso-8859-1'
-         
+        return 'iso-8859-1'
+
 class BaseObjectTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
                                       schema=schema)
-    
+
     def test_searchableText(self):
         """
         Fix bug [ 951955 ] BaseObject/SearchableText and list of Unicode stuffs
         """
         dummy = self._dummy
-        
-        
+
+
         # Set a multiple field
         dummy.setMULTIPLEFIELD(['1','2'])
-        
+
         # Get searchableText
         searchable = dummy.SearchableText()
-        
+
         # Test searchable type
         self.assertEquals(type(searchable), StringType)
-        
+
         # Test searchable value
         self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
 
@@ -110,4 +110,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

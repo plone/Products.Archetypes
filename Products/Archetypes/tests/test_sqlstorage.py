@@ -1,3 +1,29 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+
 # -*- coding: latin1 -*-
 
 import os, sys
@@ -6,10 +32,6 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sqlstorage',
-                                 'Cannot import ArcheSiteTestCase')
 
 from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__
@@ -23,11 +45,10 @@ def pretty_exc(self, exc):
 import unittest
 unittest.TestResult._exc_info_to_string = pretty_exc
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME, TOOL_NAME
-from Products.Archetypes import listTypes
-from Products.Archetypes import SQLStorage
-from Products.Archetypes.SQLMethod import SQLMethod
+from Products.Archetypes.storages.sql import storage as SQLStorage
+from Products.Archetypes.storages.sql import method as SQLMethod
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.test_sitepolicy import makeContent
@@ -297,20 +318,11 @@ class SQLStorageTest(SQLStorageTestBase):
 
     def test_stringfield_bug1003868(self):
         s = unicode('ação!', 'latin1')
-        sp = self.portal.portal_properties.site_properties
         dummy = self._dummy
-
-        sp.default_charset = 'latin1'
         dummy.setAstringfield(s)
         value = dummy.getAstringfield()
         __traceback_info__ = (self.db_name, repr(value), s)
-        self.failUnlessEqual(value, s.encode(sp.default_charset))
-
-        sp.default_charset = 'utf8'
-        dummy.setAstringfield(s)
-        value = dummy.getAstringfield()
-        __traceback_info__ = (self.db_name, repr(value), s)
-        self.failUnlessEqual(value, s.encode(sp.default_charset))
+        self.failUnless(value == s)
 
     def test_textfield(self):
         dummy = self._dummy
@@ -429,7 +441,7 @@ class SQLStorageTest(SQLStorageTestBase):
         self.failUnless(value == 0)
 
     def test_rename(self):
-        self.login('manager')
+        self.loginAsPortalOwner()
         dummy = self._dummy
         content = 'The book is on the table!'
         dummy.setAtextfield(content)

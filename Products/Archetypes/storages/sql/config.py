@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ class SQLStorageConfig (SimpleItem):
     def getDefaultConnFor(self, ob):
         """ Return the default conn, if applicable, for ob.
         """
-    
+
         types_tool = getToolByName( self, 'portal_types', None )
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
@@ -227,4 +227,3 @@ class SQLStorageConfig (SimpleItem):
         return conn
 
 InitializeClass(SQLStorageConfig)
-

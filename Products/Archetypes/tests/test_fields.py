@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -97,8 +97,8 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
                    # this only works for Plone b/c of monkeypatch
-                   #'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name, 
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name, 
+                   #'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name,
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name,
                    'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name}
 
 empty_values = {'objectfield':None,
@@ -299,4 +299,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

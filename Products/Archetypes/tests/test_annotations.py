@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ class TestAnnotations( ArchetypesTestCase ):
         ann = dummy.getAnnotation()
         # set an annotation to have the attribute
         ann['init'] = None
-        
+
     def test_hasAnnotation(self):
         dummy = self._dummy
         ann = dummy.getAnnotation()
@@ -57,7 +57,7 @@ class TestAnnotations( ArchetypesTestCase ):
         self.failUnless(dummy.hasAnnotation())
         self.failUnlessEqual(ann['dummy'], 'dummy')
         self.failUnlessEqual(aq_base(dummy)._at_annotations_['dummy'], 'dummy')
-        
+
     def test_simple(self):
         dummy = self._dummy
         ann = dummy.getAnnotation()
@@ -71,11 +71,11 @@ class TestAnnotations( ArchetypesTestCase ):
         self.failUnlessEqual(ann.get('dummy', None), 1)
         self.failUnless(dummy.hasAnnotation())
         self.failUnless(len(ann))
-        
+
         del ann['dummy']
         self.failIf(ann.has_key('dummy'))
         self.failIf(ann_attr.has_key('dummy'))
-        
+
         ann.set('dummy', 2)
         self.failUnless(ann.has_key('dummy'))
         self.failUnless(ann_attr.has_key('dummy'))
@@ -85,7 +85,7 @@ class TestAnnotations( ArchetypesTestCase ):
         dummy = self._dummy
         ann = dummy.getAnnotation()
         ann_attr = dummy._at_annotations_
-        
+
         ann.setSubkey('foo', 1, subkeys='bar')
         self.failUnlessEqual(ann.getSubkey('foo', subkeys='bar', default=None), 1)
         self.failUnlessEqual(ann.getSubkey('foo', subkeys='egg', default=None), None)
@@ -94,7 +94,7 @@ class TestAnnotations( ArchetypesTestCase ):
         self.failUnless(ann.hasSubkey('foo', subkeys='bar'))
         self.failUnless(ann.has_key('foo-bar'))
         self.failUnless(ann_attr.has_key('foo-bar'))
-        
+
         ann.delSubkey('foo', subkeys='bar')
         self.failUnlessEqual(ann.getSubkey('foo', subkeys='bar', default=None), None)
         self.failUnlessEqual(ann.get('foo-bar',default=None), None)
@@ -106,7 +106,7 @@ class TestAnnotations( ArchetypesTestCase ):
         dummy = self._dummy
         ann = dummy.getAnnotation()
         ann_attr = dummy._at_annotations_
-        
+
         ann.setSubkey('foo', 1, subkeys=('spam', 'egg'))
         self.failUnlessEqual(ann.getSubkey('foo', subkeys=('spam', 'egg'), default=None), 1)
         self.failUnlessEqual(ann.getSubkey('foo', subkeys=('spam', 'foo'), default=None), None)
@@ -117,13 +117,13 @@ class TestAnnotations( ArchetypesTestCase ):
         self.failUnless(ann_attr.has_key('foo-spam'))
         self.failUnless(isinstance(ann['foo-spam'], OOBTree))
         self.failUnlessRaises(KeyError, ann.setSubkey, 'foo', 1, subkeys='spam')
-        
+
         ann.delSubkey('foo', subkeys=('spam', 'egg'))
         self.failUnlessEqual(ann.getSubkey('foo', subkeys=('spam', 'egg'), default=None), None)
         self.failUnlessEqual(ann.get('foo-spam').get('egg'), None)
         self.failIf(ann.hasSubkey('foo', subkeys=('spam', 'egg')))
         self.failIf(ann.get('foo-spam').has_key('egg'))
-        
+
     def test_failRight(self):
         dummy = self._dummy
         ann = dummy.getAnnotation()
@@ -138,4 +138,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ class ReferenceField(ObjectField):
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
     """
-    
+
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -270,4 +270,3 @@ registerField(ReferenceField,
               title='Reference',
               description=('Used for storing references to '
                            'other Archetypes Objects'))
-

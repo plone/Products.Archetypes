@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -212,10 +212,10 @@ class SQLMethod(Aqueduct.BaseQuery):
         argdata['sql_delimiter'] = '\0'
         argdata['sql_quote__'] = dbc.sql_quote__
 
-        # TODO: Review the argdata dictonary. The line bellow is receiving unicode 
-        # strings, mixed with standard strings. It is insane! Archetypes needs a policy 
-        # about unicode, and lots of tests on this way. I prefer to not correct it now, 
-        # only doing another workarround. We need to correct the cause of this problem, 
+        # TODO: Review the argdata dictonary. The line bellow is receiving unicode
+        # strings, mixed with standard strings. It is insane! Archetypes needs a policy
+        # about unicode, and lots of tests on this way. I prefer to not correct it now,
+        # only doing another workarround. We need to correct the cause of this problem,
         # not its side effects :-(
 
         try:
@@ -235,14 +235,14 @@ class SQLMethod(Aqueduct.BaseQuery):
         # We have two possible kw arguments:
         #   db_encoding:        The encoding used in the external database
         #   site_encoding:      The uncoding used for the site
-        #                       If not specified, we use sys.getdefaultencoding()        
+        #                       If not specified, we use sys.getdefaultencoding()
         db_encoding = kw.get('db_encoding',None)
 
         try:
             site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
         except AttributeError, KeyError:
             site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
-       
+
         if type(query) == type(u''):
             if db_encoding:
                 query = query.encode(db_encoding)
@@ -274,10 +274,10 @@ class SQLMethod(Aqueduct.BaseQuery):
             f.seek(0)
             result = RDB.File(f, brain, p, None)
         else:
-            if db_encoding:                
+            if db_encoding:
                 # Encode result before we wrap it in Result object
                 # We will change the encoding from source to either the specified target_encoding
-                # or the site default encoding                                
+                # or the site default encoding
 
                 # The data is a list of tuples of column data
                 encoded_result = []
@@ -291,11 +291,11 @@ class SQLMethod(Aqueduct.BaseQuery):
                             newcol = newcol.encode(site_encoding)
                         else:
                             newcol = col
-                        
+
                         columns += newcol,
-                        
+
                     encoded_result.append(columns)
-                                    
+
                 result = (result[0],encoded_result)
 
             result = Results(result, brain, p, None)
@@ -328,4 +328,3 @@ class SQLMethod(Aqueduct.BaseQuery):
     def connected(self):
         context = self.context
         return getattr(getattr(context, self.connection_id), 'connected')()
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,4 +29,3 @@ from Products.Archetypes.marshallers.primaryfield import PrimaryFieldMarshaller
 from Products.Archetypes.marshallers.rfc822 import RFC822Marshaller
 
 __all__ = ('PrimaryFieldMarshaller', 'RFC822Marshaller', )
-

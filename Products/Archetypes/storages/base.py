@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ class Storage:
     at least those methods"""
 
     __implements__ = IStorage
-    
+
     security = ClassSecurityInfo()
 
     security.declarePublic('getName')
@@ -82,7 +82,7 @@ class StorageLayer(Storage):
     subclass and implement those methods"""
 
     __implements__ = IStorage, ILayer
-    
+
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
@@ -102,4 +102,3 @@ class StorageLayer(Storage):
         raise NotImplementedError('%s: cleanupField' % self.getName())
 
 setSecurity(StorageLayer)
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -111,16 +111,16 @@ class WidgetTests(ArcheSiteTestCase):
     def test_appendtextarea_widget(self):
         request = FakeRequest()
         mystring = str('<<<<this is a test string>>>>')
-        
+
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
-        
+
         form = {'textarea_appendonly':''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
-        
+
         form = {'textarea_appendonly': mystring}
         expected = mystring, {}
         result = widget.process_form(doc, field, form)
@@ -227,4 +227,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

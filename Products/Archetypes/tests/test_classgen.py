@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('anotherfilefield', widget=FileWidget),
-    
+
     LinesField('alinesfield', widget=LinesWidget),
 
     DateTimeField('adatefield',
@@ -199,7 +199,7 @@ class ClassGenTest(ArcheSiteTestCase):
             bu = field.getBaseUnit(obj)
             self.failUnless(IBaseUnit.isImplementedBy(bu),
                'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
-            
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
@@ -209,4 +209,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

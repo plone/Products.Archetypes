@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,10 @@ class AggregatedStorage(Storage):
         self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
         self._caching = caching
         self._lock = Lock()
-        
+
     def __getstate__(self):
         """Override __getstate__ used for copy operations
-        
+
         Required to fix the copy problem with the lock
         """
         state = self.__dict__
@@ -66,7 +66,7 @@ class AggregatedStorage(Storage):
 
     def __setstate__(self, state):
         """Override __setstate__ used for copy operations
-        
+
         Required to fix the copy problem with the lock
         """
         state['_lock'] = Lock()
@@ -113,12 +113,12 @@ class AggregatedStorage(Storage):
 
             if not result.has_key(name):
                 raise KeyError('result dictionary returned from "%s"'
-                               ' does not contain an key for "%s"' % 
+                               ' does not contain an key for "%s"' %
                                (methodname, name))
             return result[name]
         else:
             return cache_entry[name]
-        
+
     def set(self, name, instance, value, **kwargs):
         methodname = self._reg_dag.get(name)
         if not methodname:
@@ -143,10 +143,10 @@ class AggregatedStorage(Storage):
         """ retrieve the result dictionary for (objId, methodname) """
         self._lock.acquire()
         entry = self.cache.get((objId, methodname))
-        if entry is None: 
+        if entry is None:
             self._lock.release()
             return None
-        if time.time() - entry[0] > CACHE_TIMEOUT: 
+        if time.time() - entry[0] > CACHE_TIMEOUT:
             del self.cache[(objId, methodname)]
             self._lock.release()
             return None
@@ -161,12 +161,11 @@ class AggregatedStorage(Storage):
 
     def _cache_remove(self, objId, methodname):
         """ remove (objId, methodname) from cache """
-        
+
         self._lock.acquire()
         key = (objId, methodname)
         if self.cache.has_key(key):
-            del self.cache[key] 
+            del self.cache[key]
         self._lock.release()
 
 registerStorage(AggregatedStorage)
-

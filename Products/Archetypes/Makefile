@@ -3,7 +3,7 @@ MAJOR_VERSION=1.4
 MINOR_VERSION=0
 RELEASE_TAG=_dev_
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
-#CVSTAG=release-1_3_0-b2
+#CVSTAG=release-1_4_0-a1
 
 PYTHON=/usr/bin/python2.3
 TMPDIR=/tmp
@@ -35,7 +35,7 @@ clean :
 	find . \( -name '*~' -o -name '*.py[co]' -o -name '*.bak' \) -exec rm {} \; -print
 
 reindent :
-	~/src/reindent.py -r -v .
+	~/scripts/reindent.py -r -v .
 
 test :
 	export INSTANCE_HOME=${INSTANCE_HOME}; \

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -128,12 +128,12 @@ className = getDottedName
 
 def getDoc(klass):
     """Return the doc string of an object
-    
+
     Or an empty string if the object doesn't have a doc string
-    
+
     >>> getDoc(getDoc).startswith("Return the doc string of an object")
     True
-    
+
     """
     return klass.__doc__ or ''
 
@@ -360,4 +360,3 @@ def insert_zmi_tab_after(label, new_option, options):
     position = _get_position_after(label, options)
     _options.insert(position, new_option)
     return tuple(_options)
-

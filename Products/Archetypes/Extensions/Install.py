@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ def install(self, include_demo=None, require_dependencies=1):
     if not hasattr(self, "_isPortalRoot"):
         print >> out, "Must be installed in a CMF Site (read Plone)"
         return
-    
+
     setupArchetypes(self, out, require_dependencies=require_dependencies)
 
     if include_demo or INSTALL_DEMO_TYPES:
@@ -55,4 +55,3 @@ def uninstall(portal):
     prod = getattr(portal.portal_quickinstaller, PKG_NAME)
     prod.portalobjects = [po for po in prod.portalobjects
                           if po[-8:] != '_catalog']
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -84,8 +84,8 @@ class RegexValidator:
 
     def compileRegex(self):
         for r in self.regex_strings:
-            self.regex.append(re.compile(r))        
-    
+            self.regex.append(re.compile(r))
+
     def __getstate__(self):
         """Because copy.deepcopy and pickle.dump cannot pickle a regex pattern
         I'm using the getstate/setstate hooks to set self.regex to []
@@ -93,7 +93,7 @@ class RegexValidator:
         d = self.__dict__.copy()
         d['regex'] = []
         return d
-    
+
     def __setstate__(self, dict):
         self.__dict__.update(dict)
         self.compileRegex()
@@ -113,7 +113,7 @@ class RegexValidator:
         for r in self.regex:
             m = r.match(value)
             if not m:
-                return ("Validation failed(%(name)s): '%(value)s' %(errmsg)s' " % 
+                return ("Validation failed(%(name)s): '%(value)s' %(errmsg)s' " %
                         { 'name' : self.name, 'value': value, 'errmsg' : self.errmsg})
         return 1
 
@@ -161,14 +161,14 @@ class EmptyValidator:
 # ****************************************************************************
 
 class MaxSizeValidator:
-    """Tests if an upload, file or something supporting len() is smaller than a 
+    """Tests if an upload, file or something supporting len() is smaller than a
        given max size value
-       
+
     If it's a upload or file like thing it is using seek(0, 2) which means go
     to the end of the file and tell() to get the size in bytes otherwise it is
     trying to use len()
-    
-    The maxsize can be acquired from the kwargs in a call, a 
+
+    The maxsize can be acquired from the kwargs in a call, a
     getMaxSizeFor(fieldname) on the instance, a maxsize attribute on the field
     or a given maxsize at validator initialization.
     """
@@ -194,10 +194,10 @@ class MaxSizeValidator:
         else:
             # set to given default value (default defaults to 0)
             maxsize = self.maxsize
-        
+
         if not maxsize:
             return True
-        
+
         # calculate size
         elif isinstance(value, FileUpload) or type(value) is FileType \
           or hasattr(aq_base(value), 'tell'):
@@ -262,5 +262,3 @@ class TALValidator:
         except Exception, err:
             return ("Validation Failed(%s): \n %s" % (self.name, err))
         return 1
-    
-

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ class FacadeMetadataStorage(StorageLayer):
     security = ClassSecurityInfo()
 
     __implements__ = (IStorage, ILayer)
-    
+
     def __init__(self, metadata_set):
         self.metadata_set = metadata_set
 
@@ -94,4 +94,3 @@ class FacadeMetadataStorage(StorageLayer):
         pass
 
 registerStorage(FacadeMetadataStorage)
-

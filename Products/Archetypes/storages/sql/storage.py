@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and 
-#	                       the respective authors. All rights reserved.
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
 # For a list of Archetypes contributors see docs/CREDITS.txt.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -115,12 +115,12 @@ class BaseSQLStorage(StorageLayer):
             return 0
         else:
             return 1
-        
+
     def map_reference(self, field, value):
         __traceback_info__ = repr(value)
 
         return ','.join(value)
-    
+
     def unmap_boolean(self, field, value):
         __traceback_info__ = repr(value)
         if not value or value == '0':   # Gadfly return integers as strings
@@ -506,4 +506,3 @@ class SQLServerStorage(BaseSQLStorage):
                             'xtype=char(85) and uid=1 and '
                             '<dtml-sqltest name op="eq" type="string">'),
                            {'name':instance.portal_type.lower()})
-
