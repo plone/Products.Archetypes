@@ -11,7 +11,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
@@ -76,6 +76,8 @@ class MarshallerTests(ArcheSiteTestCase):
         rstFile.seek(0)
 
         request = aputrequest(rstFile, 'text/x-rst')
+        # XXX PUT factory is using PARENTS to get an acquisition context
+        request['PARENTS'] = (self.folder, self.portal)
         request.processInputs()
         rst = self.folder.obj1
         rst.PUT(request, request.RESPONSE)
