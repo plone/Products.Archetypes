@@ -7,7 +7,6 @@ from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
-from types import StringType
 
 from interfaces.metadata import IExtensibleMetadata
 
@@ -122,7 +121,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         self.creation_date = now
         self.modification_date = now
 
-    def isDiscussable(self):
+    def isDiscussable(self, encoding=None):
         result = None
         try:
             result = getToolByName(self, 'portal_discussion').isDiscussionAllowedFor(self)
@@ -135,15 +134,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             try:
                 allowDiscussion = int(allowDiscussion)
             except:
-                if type(allowDiscussion) == StringType:
-                    allowDiscussion = allowDiscussion.lower().strip()
-                    allowDiscussion = {'on' : 1, 'off': 0, 'none':None}.get(allowDiscussion, None)
-
-            try:
-                getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)
-            except:
-                log_exc()
-                pass
+                allowDiscussion = allowDiscussion.lower().strip()
+                allowDiscussion = {'on' : 1, 'off': 0,
+                                   'none':None, '':None}.get(allowDiscussion, None)
+        getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)
             
     
     # Vocabulary methods ######################################################
