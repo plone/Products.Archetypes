@@ -38,9 +38,7 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 STRING_TYPES = (StringType, UnicodeType)
 
-
 from Referenceable import Referenceable
-
 
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References
@@ -54,6 +52,7 @@ class Reference(Referenceable, SimpleItem):
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
+    meta_type = 'Reference'
 
     # XXX FIXME more security
 
@@ -148,7 +147,7 @@ class Reference(Referenceable, SimpleItem):
 
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
-        
+
         # when copying a full site containe is the container of the plone site
         # and item is the plone site (at least for objects in portal root)
         base = container
@@ -166,8 +165,6 @@ class Reference(Referenceable, SimpleItem):
         rc  = getToolByName(container, REFERENCE_CATALOG)
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
-
-
 
 InitializeClass(Reference)
 
@@ -308,7 +305,7 @@ _marker=[]
 ##        self._context = context
 ##        self._obj = obj
 ##        self._clean_obj = aq_base(obj)
-##        
+##
 ##    def __getattr__(self, key, default=None):
 ##        if key == 'getPhysicalPath':
 ##            return getRelPath(self._context, self._obj.getPhysicalPath())
@@ -338,10 +335,10 @@ class ReferenceResolver(Base):
 
     def catalog_object(self, obj, uid=None, **kwargs):
         """Use the relative path from the portal root as uid
-        
+
         Ordinary the catalog is using the path from root towards object but we
         want only a relative path from the portal root
-        
+
         Note: This method could be optimized by improving the calculation of the
               relative path like storing the portal root physical path in a
               _v_ var.
@@ -371,12 +368,12 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     __implements__ = IUIDCatalog
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
-    
+
     manage_options = ZCatalog.manage_options + \
         ({'label': 'Rebuild catalog',
          'action': 'manage_rebuildCatalog',}, )
-         
-    
+
+
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
@@ -395,10 +392,10 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         path    = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
-        
+
         # build a list of archetype meta types
         mt = tuple([typ['meta_type'] for typ in atool.listRegisteredTypes()])
-        
+
         # clear the catalog
         self.manage_catalogClear()
 
@@ -431,7 +428,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
     __implements__ = IReferenceCatalog
-    
+
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
 
@@ -670,9 +667,9 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             obj._catalogRefs(self)
 
     def _catalogReferences(self,root=None,**kw):
-        ''' catalogs all references, where the optional parameter 'root' 
+        ''' catalogs all references, where the optional parameter 'root'
            can be used to specify the tree that has to be searched for references '''
-           
+
         if not root:
             root=getToolByName(self,'portal_url').getPortalObject()
 
@@ -682,8 +679,8 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                                         search_sub=1,
                                         apply_func=self._catalogReferencesFor,
                                         apply_path=path,**kw)
-            
-        
+
+
 
     def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
                                  obj_metatypes=None,
@@ -694,7 +691,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
         """ Find object according to search criteria and Catalog them
         """
-        
+
 
         elapse = time.time()
         c_elapse = time.clock()
@@ -707,7 +704,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                                  obj_expr=obj_expr, obj_mtime=obj_mtime,
                                  obj_mspec=obj_mspec, obj_roles=obj_roles,
                                  obj_permission=obj_permission)
-        
+
         elapse = time.time() - elapse
         c_elapse = time.clock() - c_elapse
 
@@ -733,10 +730,10 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         path    = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
-        
+
         # build a list of archetype meta types
         mt = tuple([typ['meta_type'] for typ in atool.listRegisteredTypes()])
-        
+
         # clear the catalog
         self.manage_catalogClear()
 
