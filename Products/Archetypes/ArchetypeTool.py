@@ -15,7 +15,7 @@ import sys
 import time
 from ZODB.PersistentMapping import PersistentMapping
 
-from interfaces.base import IBaseObject
+from interfaces.base import IBaseObject, IBaseFolder
 from ClassGen import generateClass
 from ReferenceEngine import ReferenceEngine
 from SQLStorageConfig import SQLStorageConfig
@@ -79,6 +79,10 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "allowed_content_types"):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed
+
+    if IBaseFolder.isImplementedByInstancesOf(klass):
+        for action in fti[0]['actions']:
+            action['category'] = 'folder'
 
 def generateCtor(type, module):
     name = capitalize(type)
