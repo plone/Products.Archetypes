@@ -49,7 +49,7 @@ function init () {
     ztxsl.onreadystatechange = ztxslHandler;
     ztxml.setProperty("SelectionLanguage", "XPath");
     ztxsl.setProperty("SelectionLanguage", "XPath");
-    ztxml.load("registry.xml");
+    ztxml.load("archetypes_ttw_tool/registry_xml");
 
     return;
 }

@@ -6,7 +6,7 @@ from Products.CMFCore.TypesTool import TypesTool, typeClasses
 from config import *
 from debug import log, log_exc
 
-# Bootstrap generator and validation package for users installing them in 
+# Bootstrap generator and validation package for users installing them in
 # the Products directory
 try:
     import generator
@@ -17,7 +17,7 @@ except ImportError:
     sys.path.append(dirname(__path__[0]))
     import generator
     import validation
- 
+
 # Bootstrap Zope-dependent validators
 import Validators
 
@@ -72,3 +72,7 @@ def initialize(context):
             fti = ftis,
             ).initialize(context)
 
+    from Products.CMFCore.DirectoryView import registerFileExtension
+    from Products.CMFCore.FSFile import FSFile
+    registerFileExtension('xsl', FSFile)
+    registerFileExtension('xul', FSFile)
