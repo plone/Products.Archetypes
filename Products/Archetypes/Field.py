@@ -335,9 +335,7 @@ class TextField(ObjectField):
                 value = value.read()
                 if mime_type is None:
                     mime_type, enc = guess_content_type(f_name, value, mime_type)
-                value.seek(-1, 2)
-                size = value.tell()
-                value.seek(0)
+                size = len(value)
                 if size == 0:
                     # This new file has no length, so we keep
                     # the orig
