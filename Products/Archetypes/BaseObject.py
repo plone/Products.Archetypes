@@ -207,9 +207,8 @@ class BaseObject(Implicit):
         """
         methodName = "validate_%s" % name
 
-        base = aq_base(self)
-        if hasattr(base, methodName):
-            method = getattr(base, methodName)
+        if hasattr(aq_base(self), methodName):
+            method = getattr(self, methodName)
             result = method(value)
             if result is not None:
                 errors[name] = result
