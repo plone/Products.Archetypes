@@ -25,11 +25,18 @@ Requires
 
 
 Quickstart
+
+    Or, in an existing Plone site, 
+    
     1) Edit config.py and change INCLUDE_DEMO_TYPES to 1
-    2) Install a new Plone site and use the Archetype customization
-       policy.
+    2) restart server
     3) Create an external method, module Archetypes.Install, function: install
     4) Run it
+
+    Or,
+
+    Create a new Plone site with ZMI and use the Archetype site customization
+       policy in the Add Plone Site page.
 
 
 Documentation
