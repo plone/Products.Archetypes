@@ -1,3 +1,8 @@
+2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* interfaces/interface.py: Trying to normalize the way interfaces
+	are imported in different versions of Zope.
+
 2003-05-13  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Extensions/utils.py (install_indexes): Changed behavior on index
