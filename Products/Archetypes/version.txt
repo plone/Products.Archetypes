@@ -1,1 +1,1 @@
-1.3.0-beta4 (CVS/UNRELEASED)
+1.3.0-beta5 (CVS/UNRELEASED)

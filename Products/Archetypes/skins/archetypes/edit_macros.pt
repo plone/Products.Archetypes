@@ -67,11 +67,23 @@
     
               <img alt="" tal:attributes="src icon" />
           
-              <tal:legend i18n:translate="legend_type_details">
-              
-                  <span i18n:name="type"
-                        tal:replace="python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset or here.archetype_name" />
+              <tal:legend define="fieldset python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset">
+                <tal:fieldset i18n:translate="legend_fieldset_details"
+                              tal:condition="fieldset">
+                  <span i18n:name="fieldset">
+                    <span i18n:translate=""
+                          tal:content="fieldset" />
+                  </span>
                   Details
+                </tal:fieldset>
+                <tal:type i18n:translate="legend_type_details"
+                          tal:condition="not: fieldset">
+                  <span i18n:name="type">
+                    <span i18n:translate=""
+                          tal:content="here/archetype_name" />
+                  </span>
+                  Details
+                </tal:type>
               </tal:legend>
           </legend>
 
