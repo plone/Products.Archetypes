@@ -545,7 +545,7 @@ class FileField(StringField):
 
         if not value:
             return
-        
+
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -868,7 +868,7 @@ class ReferenceField(ObjectField):
         'type' : 'reference',
         'default' : None,
         'widget' : ReferenceWidget,
-        
+
         'relationship' : None, # required
         'allowed_types' : (),  # a tuple of portal types, empty means allow all
 
@@ -896,7 +896,7 @@ class ReferenceField(ObjectField):
                 value = value[0]
 
         return value
-    
+
     def set(self, instance, value, **kwargs):
         """Mutator.
 
@@ -906,7 +906,6 @@ class ReferenceField(ObjectField):
         Keyword arguments may be passed directly to addReference(), thereby
         creating properties on the reference objects.
         """
-
         tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
@@ -916,7 +915,7 @@ class ReferenceField(ObjectField):
 
         if not value:
             value = ()
-        
+
         add = [v for v in value if v and v not in targetUIDs]
         sub = [t for t in targetUIDs if t not in value]
 
@@ -926,6 +925,7 @@ class ReferenceField(ObjectField):
         if addRef_kw.has_key('schema'): del addRef_kw['schema']
 
         for uid in add:
+            __traceback_info__ = (instance, uid, value, targetUIDs)
             # throws IndexError if uid is invalid
             tool.addReference(instance, uid, self.relationship, **addRef_kw)
 

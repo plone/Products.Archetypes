@@ -293,24 +293,23 @@ class BaseObject(Implicit):
                 errors[name] = result
                 res = 0
         return res
-        
+
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
-    def pre_validate(self, REQUEST, errors):
+    def pre_validate(self, REQUEST=None, errors=None):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'post_validate')
-    def post_validate(self, REQUEST, errors):
+    def post_validate(self, REQUEST=None, errors=None):
         pass
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
-        if REQUEST is None:
-            REQUEST = self.REQUEST
         if errors is None:
             errors = {}
+
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
@@ -635,7 +634,7 @@ class BaseObject(Implicit):
                     raise
                 except:
                     log_exc()
-        else:            
+        else:
             # try setting an existing attribute
             if hasattr(self, name):
                 setattr(self, name, value)

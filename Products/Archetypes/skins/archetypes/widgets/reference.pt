@@ -9,7 +9,7 @@
     <metal:view_macro define-macro="view">
       <tal:define define="targets python:here.getRefs(field.relationship)"
                   condition="targets">
-        
+
         <a href="#"
            tal:define="obj python:targets[0]"
            tal:condition="not:field/multiValued"
@@ -17,7 +17,7 @@
            tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
           Sole target object's title
         </a>
-      
+
 
         <ul tal:condition="field/multiValued">
           <li tal:repeat="obj targets">
@@ -77,19 +77,24 @@
                       tal:content="python:vocab.getValue(item)"></option>
 	    </select>
           </div>
-          
+
           <div tal:condition="python:widget.addable">
             <span tal:define="types python:widget.addableTypes(here, field)"
                   tal:repeat="typename python:types.keys()"
                   tal:omit-tag="">
-              <a href="#"
-                 tal:define="dest python:widget.getDestination(here);
-                 create string:createObject?type_name=${typename};
-                 readable_name python:types[typename]"
-                 tal:attributes="href string:${dest}/${create}"
-                 tal:content="string:Add New ${readable_name}">
-                Add new foo
-              </a>
+              <input class="context"
+                     tabindex=""
+                     type="submit"
+                     name="form.button.form_add"
+                     onclick="this.form['add_info.field:record'].value='';"
+                     i18n:attributes="value"
+                     value="Add"
+                     tal:define="readable_name python:types[typename]"
+                     tal:attributes="tabindex tabindex/next;
+                                     onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value='$typename';
+                                     value string:Add New $readable_name"
+                     />
+
             </span>
           </div>
         </div>

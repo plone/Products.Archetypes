@@ -52,6 +52,8 @@
 	      </strong>:<span tal:replace="python:errors[error]" />
 	      </div>
 	      </div>
+              <pre tal:content="structure request/controller_state" />
+              <pre tal:content="structure request" />
 	    -->
 
 	    <tal:fields repeat="field python: schematas[fieldset].fields()">
@@ -59,6 +61,17 @@
 	    </tal:fields>
 
 	    <input type="hidden" name="form.submitted" value="1" />
+	    <input type="hidden" name="add_reference.field:record" value="" />
+	    <input type="hidden" name="add_reference.type:record" value="" />
+            <tal:env repeat="env request/controller_state/kwargs/items">
+              <input type="hidden" name="key"
+                     value="value"
+                     tal:define="key python:env[0];
+                                 value python:env[1]"
+                     tal:attributes="name string:form_env.${key}:record;
+                                     value value"
+                     />
+            </tal:env>
 	    <input type="hidden" name="fieldset"
 		   value="default" tal:attributes="value fieldset" />
 
@@ -73,7 +86,8 @@
 		     name="form_previous"
 		     i18n:attributes="value"
 		     value="Previous"
-		     tal:attributes="tabindex tabindex/next;" />
+		     tal:attributes="tabindex tabindex/next;"
+                     />
 	      <input tal:condition="python:fieldset_index &lt; n_fieldsets-1"
 		     class="context"
 		     tabindex=""
@@ -81,15 +95,16 @@
 		     name="form_next"
 		     i18n:attributes="value"
 		     value="Next"
-		     tal:attributes="tabindex tabindex/next;" />
-	      <input tal:condition="python:fieldset_index == n_fieldsets-1"
-		     class="context"
+		     tal:attributes="tabindex tabindex/next;"
+                     />
+	      <input class="context"
 		     tabindex=""
 		     type="submit"
 		     name="form_submit"
 		     i18n:attributes="value"
-		     value="Save"
-		     tal:attributes="tabindex tabindex/next;" />
+		     value="Finish"
+		     tal:attributes="tabindex tabindex/next;"
+                     />
 	    </div>
 
 	  </fieldset>

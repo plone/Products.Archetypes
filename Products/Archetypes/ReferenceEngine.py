@@ -137,6 +137,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             referenceObject = getattr(self, rID)
             # XXX should second arg be rID or a pretty name, lets try a name
             self.catalog_object(referenceObject, rID)
+            return referenceObject 
 
     def deleteReference(self, source, target, relationship=None):
         sID, sobj = self._uidFor(source)
