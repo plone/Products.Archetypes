@@ -33,6 +33,18 @@
  * Added a test for mimetypes registry before adapter call in BaseUnit.update()
    with a more verbose error in the case the user hasn't updated MTR properly.
    [tiran]
+
+ * Fixed Find Objects of uid catalog and reference catalog: Use the relative 
+   path (relative to the portal) of the object as uid instead of the full 
+   physical path
+   [tiran]
+
+ * Added Rebuild Catalog tab to uid catalog and reference catalog to make the 
+   life easier
+   [tiran]
+
+ * Added context to the PortalTransform.convertTo() call in BaseUnit.transform()
+   [tiran]
    
 1.3.0-beta4 - 2004-07-09
 
