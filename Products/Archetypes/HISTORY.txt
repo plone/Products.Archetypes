@@ -1,5 +1,5 @@
-unreleased
-=====================
+1.3.3-rc2 - 2005-04-01
+======================
 
  * Changed warnings.warn(...) to deprecated(..) from Archetypes.debug
    [yenzenz]
