@@ -6,7 +6,8 @@ from common import *
 from utils import *
 
 if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sqlstorage', 'Cannot import ArcheSiteTestCase')
+    raise TestPreconditionFailed('test_sqlstorage',
+                                 'Cannot import ArcheSiteTestCase')
 
 import unittest
 from zExceptions.ExceptionFormatter import format_exception
@@ -27,6 +28,7 @@ from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
 from Products.Archetypes.tests.test_sitepolicy import makeContent
+from Products.Archetypes.ArchetypeTool import ArchetypeTool
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 
 from DateTime import DateTime
@@ -39,14 +41,13 @@ connectors = {}
 cleanup = {}
 
 try:
-    # gadfly storage is currently b0rked, we don't want to test it yet
-    if 0:
-        from Products.ZGadflyDA.DA import Connection
-        connectors['Gadfly'] = Connection(id=connection_id,
-                                          title='connection',
-                                          connection_string='demo', # default connection
-                                          check=1, # connect immediatly
-                                          )
+    from Products.ZGadflyDA.DA import Connection
+    connectors['Gadfly'] = Connection(id=connection_id,
+                                      title='connection',
+                                      # default connection
+                                      connection_string='demo',
+                                      check=1, # connect immediatly
+                                      )
 except ImportError:
     pass
 
@@ -56,7 +57,8 @@ try:
     connectors['Postgre'] = Connection(id=connection_id,
                                        title='connection',
                                        connection_string='dbname=demo user=demo',
-                                       zdatetime=1, # use Zope's DateTime, not mxDateTime
+                                       # use Zope's DateTime, not mxDateTime
+                                       zdatetime=1,
                                        check=1, # connect immediatly
                                        )
 except ImportError:
@@ -70,24 +72,27 @@ try:
     # are failing.
     transactional = 0
     if transactional:
-        connectors['MySQL'] = Connection(id=connection_id,
-                                         title='connection',
-                                         connection_string='+demo@localhost demo demo',
-                                         check=1, # connect immediatly
-                                         )
+        connectors['MySQL'] = Connection(
+            id=connection_id,
+            title='connection',
+            connection_string='+demo@localhost demo demo',
+            check=1, # connect immediatly
+            )
     if not transactional:
-        connectors['MySQL'] = Connection(id=connection_id,
-                                         title='connection',
-                                         connection_string='-demo@localhost demo demo',
-                                         check=1, # connect immediatly
-                                         )
+        connectors['MySQL'] = Connection(
+            id=connection_id,
+            title='connection',
+            connection_string='-demo@localhost demo demo',
+            check=1, # connect immediatly
+            )
         def cleanupMySQL(self):
             instance = self._dummy
             args = {}
             args['table'] = 'Dummy'
             storage = self._storage_class
             method = SQLMethod(instance)
-            method.edit(connection_id, ' '.join(args.keys()), storage.query_drop)
+            method.edit(connection_id, ' '.join(args.keys()),
+                        storage.query_drop)
             query, result = method(test__=1, **args)
 
         cleanup['MySQL'] = cleanupMySQL
@@ -105,65 +110,85 @@ default_time = DateTime()
 
 def gen_dummy(storage_class):
     Dummy.schema = Schema((
-        ObjectField('aobjectfield',
-                    storage = storage_class(),
-                    widget = StringWidget(label = 'aobjectfield',
-                                          description = 'Just a object field for the testing')),
+        ObjectField(
+            'aobjectfield',
+            storage = storage_class(),
+            widget = StringWidget(label='aobjectfield',
+                                  description=('Just a object field for '
+                                               'the testing'))),
 
-        TextField('atextfield',
-                  storage = storage_class(),
-                  widget = StringWidget(label = 'atextfield',
-                                        description = 'Just a text field for the testing')),
+        TextField(
+            'atextfield',
+            storage = storage_class(),
+            widget = StringWidget(label='atextfield',
+                                  description=('Just a text field for '
+                                               'the testing'))),
 
-        DateTimeField('adatetimefield',
-                      default = default_time,
-                      storage = storage_class(),
-                      widget = CalendarWidget(label = 'adatetimefield',
-                                              description = 'Just a datetime field for the testing')),
+        DateTimeField(
+            'adatetimefield',
+            default = default_time,
+            storage = storage_class(),
+            widget = CalendarWidget(label='adatetimefield',
+                                    description=('Just a datetime field '
+                                                 'for the testing'))),
 
-        #LinesField('alinesfield',
-        #           widget = StringWidget(label = 'alinesfield',
-        #                                 description = 'Just a lines field for the testing')),
+##         LinesField(
+##             'alinesfield',
+##             widget = StringWidget(label='alinesfield',
+##                                   description=('Just a lines field for '
+##                                                'the testing'))),
 
-        IntegerField('aintegerfield',
-                     default = 0,
-                     storage = storage_class(),
-                     widget = IntegerWidget(label = 'aintegerfield',
-                                            description = 'Just a integer field for the testing')),
+        IntegerField(
+            'aintegerfield',
+            default = 0,
+            storage = storage_class(),
+            widget = IntegerWidget(label='aintegerfield',
+                                   description=('Just a integer field '
+                                                'for the testing'))),
 
-        FixedPointField('afixedpointfield',
-                        default = '0.0',
-                        storage = storage_class(),
-                        widget = DecimalWidget(label = 'afixedwidthfield',
-                                               description = 'Just a fixed-width field for the testing')),
+        FixedPointField(
+            'afixedpointfield',
+            default = '0.0',
+            storage = storage_class(),
+            widget = DecimalWidget(label='afixedwidthfield',
+                                   description=('Just a fixed-width '
+                                                'field for the testing'))),
 
-        ReferenceField('areferencefield',
-                       storage = storage_class(),
-                       widget = ReferenceWidget(label = 'areferencefield',
-                                                description = 'Just a reference field for the testing')),
+        ReferenceField(
+            'areferencefield',
+            storage = storage_class(),
+            widget = ReferenceWidget(label='areferencefield',
+                                     description=('Just a reference '
+                                                  'field for the testing'))),
 
-        BooleanField('abooleanfield',
-                     widget = StringWidget(label = 'abooleanfield',
-                                           description = 'Just a boolean field for the testing')),
+        BooleanField(
+            'abooleanfield',
+            widget = StringWidget(label='abooleanfield',
+                                  description=('Just a boolean field '
+                                               'for the testing'))),
 
-        #ImageField('aimagefield',
-        #           original_size = (600,600),
-        #           sizes = {'mini' : (80,80),
-        #                    'normal' : (200,200),
-        #                    'big' : (300,300),
-        #                    'maxi' : (500,500)},
-        #           widget = ImageWidget(label = 'aimagefield',
-        #                                description = 'Just a image field for the testing'))
+##         ImageField(
+##             'aimagefield',
+##             original_size = (600,600),
+##             sizes = {'mini' : (80,80),
+##                      'normal' : (200,200),
+##                      'big' : (300,300),
+##                      'maxi' : (500,500)},
+##             widget = ImageWidget(label='aimagefield',
+##                                  description=('Just a image field '
+##                                               'for the testing')))
     ))
-    registerType(Dummy)
+    registerType(Dummy, PKG_NAME)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
-class DummyTool:
+class DummyTool(ArchetypeTool):
 
     def __init__(self, db_name):
+        ArchetypeTool.__init__(self)
         self.sql_connection = connectors[db_name]
         # to ensure test atomicity
-        # XXX Need a way to make this work with MySQL when non-transactional
+        # XXX Need a way to make this work with MySQL when
+        # non-transactional
         # self.sql_connection().tpc_abort()
 
     def getConnFor(self, instance=None):
@@ -258,7 +283,7 @@ for db_name in connectors.keys():
     def beforeTearDown(self):
         clean = self.cleanup.get(self.db_name, None)
         if clean is None:
-            SQLStorageTest.tearDown(self)
+            SQLStorageTest.beforeTearDown(self)
         ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestSubclass)
@@ -274,8 +299,8 @@ for db_name in connectors.keys():
         cleanup = cleanup
 
         def afterSetUp(self):
-            RenameTests.setUp(self)
-            site = self.root.testsite
+            RenameTests.afterSetUp(self)
+            site = self.getPortal()
             storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
             gen_dummy(storage_class)
             self._storage_class = storage_class
@@ -284,9 +309,10 @@ for db_name in connectors.keys():
             dummy_tool = DummyTool(self.db_name)
             dummy_tool.setup(site)
             typesTool = site.portal_types
-            typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id='Dummy',
-                                                typeinfo_name='CMFDefault: Document')
+            typesTool.manage_addTypeInformation(
+                FactoryTypeInformation.meta_type,
+                id='Dummy',
+                typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
 
         def test_referencefield(self):
@@ -298,7 +324,7 @@ for db_name in connectors.keys():
             self.failUnless(str(value) == 'Bla')
 
         def test_rename(self):
-            site = self.root.testsite
+            site = self.getPortal()
             obj_id = 'dummy'
             new_id = 'new_demodoc'
             site._setObject(obj_id, self._nwdummy)
@@ -307,17 +333,16 @@ for db_name in connectors.keys():
             content = 'The book is on the table!'
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
-            #make sure we have _p_jar
-            doc._p_jar = site._p_jar = self.root._p_jar
+            # make sure we have _p_jar
+            doc._p_jar = site._p_jar
             new_oid = self.root._p_jar.new_oid
-            site._p_oid = new_oid()
             doc._p_oid = new_oid()
             site.manage_renameObject(obj_id, new_id)
             doc = getattr(site, new_id)
             self.failUnless(str(doc.getAtextfield()) == content)
 
         def test_parentUID(self):
-            site = self.root.testsite
+            site = self.getPortal()
             makeContent(site, portal_type='SimpleFolder', id='folder1')
             folder1 = getattr(site, 'folder1')
             makeContent(site, portal_type='SimpleFolder', id='folder2')
@@ -327,13 +352,13 @@ for db_name in connectors.keys():
             doc = getattr(folder1, obj_id)
             doc.initializeArchetype()
             PUID1 = folder1.UID()
-            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            f = ObjectField('PARENTUID',
+                            storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             self.failUnless(str(PUID) == str(PUID1))
-            #make sure we have _p_jar
-            doc._p_jar = folder1._p_jar = site._p_jar = self.root._p_jar
+            # make sure we have _p_jar
+            doc._p_jar = folder1._p_jar = site._p_jar
             new_oid = self.root._p_jar.new_oid
-            site._p_oid = new_oid()
             folder1._p_oid = new_oid()
             doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))
@@ -344,17 +369,18 @@ for db_name in connectors.keys():
             self.failUnless(str(PUID2) == str(PUID))
 
         def test_emptyPUID(self):
-            site = self.root.testsite
+            site = self.getPortal()
             obj_id = 'dummy'
             site._setObject(obj_id, self._nwdummy)
             doc = getattr(site, obj_id)
             doc.initializeArchetype()
-            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            f = ObjectField('PARENTUID',
+                            storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             self.failUnless(PUID is None)
 
         def test_nomoreparentUID(self):
-            site = self.root.testsite
+            site = self.getPortal()
             makeContent(site, portal_type='SimpleFolder', id='folder1')
             folder1 = getattr(site, 'folder1')
             obj_id = 'dummy'
@@ -362,13 +388,13 @@ for db_name in connectors.keys():
             doc = getattr(folder1, obj_id)
             doc.initializeArchetype()
             PUID1 = folder1.UID()
-            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            f = ObjectField('PARENTUID',
+                            storage=doc.Schema()['atextfield'].storage)
             PUID = f.get(doc)
             self.failUnless(str(PUID) == str(PUID1))
-            #make sure we have _p_jar
-            doc._p_jar = folder1._p_jar = site._p_jar = self.root._p_jar
+            # make sure we have _p_jar
+            doc._p_jar = folder1._p_jar = site._p_jar
             new_oid = self.root._p_jar.new_oid
-            site._p_oid = new_oid()
             folder1._p_oid = new_oid()
             doc._p_oid = new_oid()
             cb = folder1.manage_cutObjects(ids=(obj_id,))
@@ -384,22 +410,18 @@ for db_name in connectors.keys():
             db.tpc_abort()
         else:
             cleanup(self)
-        RenameTests.tearDown(self)
-        ArchetypesTestCase.beforeTearDown(self)
+        RenameTests.beforeTearDown(self)
 
     tests.append(StorageTestRenameSubclass)
 
 #################################################################
 # run tests
 
+def test_suite():
+    suite = unittest.TestSuite()
+    for test in tests:
+        suite.addTest(unittest.makeSuite(test))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite
