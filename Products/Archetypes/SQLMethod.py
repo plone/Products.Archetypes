@@ -3,6 +3,7 @@ from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
+from debug import log_exc
 
 try: from IOBTree import Bucket
 except: Bucket=lambda:{}
@@ -216,8 +217,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         dbc, DB__ = self._get_dbc()
         try:
             DB__.tpc_abort()
-        except AttributeError:
-            pass
+        except:
+            log_exc(msg = 'Database abort failed')
 
     def connectionIsValid(self):
         context = self.context
