@@ -1,5 +1,7 @@
 2003-09-02  Sidnei da Silva  <sidnei@plone.org>
 
+	* skins/archetypes/widgets/reference.pt: Provide a default value.
+
 	* Field.py (ReferenceField.Vocabulary): Fixed typo in
 	vocabylary. Patch by philiKON.
 
