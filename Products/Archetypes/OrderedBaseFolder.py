@@ -248,15 +248,6 @@ class OrderedContainer:
     # here the implementing of IOrderedContainer ends
 
 
-    def manage_renameObject(self, id, new_id, REQUEST=None):
-        " "
-        objidx = self.getObjectPosition(id)
-        method = OrderedContainer.inheritedAttribute('manage_renameObject')
-        result = method(self, id, new_id, REQUEST)
-        self.moveObject(new_id, objidx)
-
-        return result
-
 InitializeClass(OrderedContainer)
 
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
@@ -273,9 +264,12 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
         ExtensibleMetadata.__init__(self)
 
     security.declarePrivate('manage_renameObject')
-    def manage_renameObject(self, item, container):
-        BaseFolder.manage_renameObject(self, item, container)
-        OrderedContainer.manage_renameObject(self, item, container)
+    def manage_renameObject(self, id, new_id, REQUEST=None):
+        objidx = self.getObjectPosition(id)
+        result = BaseFolder.manage_renameObject(self, id, new_id, REQUEST)
+        self.moveObject(new_id, objidx)
+
+        return result
 
 
 class old_OrderedBaseFolder(BaseObject,
