@@ -3,6 +3,7 @@ from types import ListType, TupleType
 import Products.transform
 from transform.interfaces import itransform, iengine, implements
 from transform.data import datastream
+from transform.chain import chain
 from transform import transforms
 
 from ExtensionClass import Base
@@ -48,21 +49,8 @@ def import_from_name(module_name):
         raise ImportError(str(e))
     return m
 
-class bindingMixin(Base):
 
-    def getBindings(self):
-        return self._bindings.values()
-
-    def getBinding(self, name):
-        return self._bindings[name]
-
-    def registerTransform(self, name, transform):
-        self._bindings[name] = transform
-
-    def unregisterTransform(self, name):
-        del self._bindings[name]
-
-class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
+class TransformTool(UniqueObject, ActionProviderBase, Folder):
     """ Transform tool, manage mime type oriented content transformation """
 
     id        = 'portal_transforms'
@@ -89,7 +77,6 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
     security = ClassSecurityInfo()
 
     def __init__(self):
-        self._bindings = PersistentMapping()
         self._mtmap    = PersistentMapping()
 
     def __call__(self, name, orig, data=None, **kwargs):
@@ -131,7 +118,7 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
         """ add a new transform to the tool """
         transform = Transform(id, module)
         self._setObject(id, transform)
-        self.registerTransform(id, transform._transform)
+        self.registerTransform(id, transform)
 
         if REQUEST is not None:
             REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
@@ -159,16 +146,14 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
     def registerTransform(self, name, transform):
         """ register a new transform """
         __traceback_info__ = (name, transform)
-        bindingMixin.registerTransform(self, name, transform)
-        self._mapTransform(transform)
         if name not in self.objectIds():
             module = "%s" % transform.__module__
             transform = Transform(name, module)
             self._setObject(name, transform)
+        self._mapTransform(transform)
 
     def unregisterTransform(self, name):
         """ unregister a known transform """
-        bindingMixin.unregisterTransform(self, name)
         self._unmapTransform(self._bindings[name])
 
     security.declarePublic('classify')
@@ -179,8 +164,8 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
         """
         registry = getToolByName(self, 'mimetypes_registry')
         return registry.classify(data,
-                                      mimetype=mimetype,
-                                      filename=filename)
+                                 mimetype=mimetype,
+                                 filename=filename)
 
 
     security.declarePublic('convertTo')
@@ -209,12 +194,14 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
 
         ## Only do single hop right now or None
         path = self._findPath(orig_mt, target_mt)
-
+        log('PATH FROM %s TO %s : %s' % (orig_mt, target_mimetype, path))
         ## create a chain on the fly (sly)
-        if not path: return None #XXX raise TransformError
+        if not path:
+            return None #XXX raise TransformError
+        
         c = chain()
         for t in path:
-            c.registerTransform(t.name(), t)
+            c.registerTransform(t.id, t._transform)
 
         if not data:
             data = self._wrap(target_mimetype)
@@ -228,7 +215,7 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
         if not data:
             data = self._wrap(name)
 
-        transform = self.getBinding(name)
+        transform = getattr(self, name)._transform
         data = transform.convert(orig, data, **kwargs)
         #bind in the mimetype as metadata
         md = data.getMetadata()
@@ -239,14 +226,14 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
     def _mapTransform(self, transform):
         SEQ = (ListType, TupleType)
         registry = getToolByName(self, 'mimetypes_registry')
-        for i in transform.inputs:
+        for i in transform.inputs():
             mts = registry.lookup(i)
             if type(mts) not in SEQ:
                 mts = (mts,)
 
             for mti in mts:
                 mt_in = self._mtmap.setdefault(mti, PersistentMapping())
-                for o in transform.outputs:
+                for o in transform.outputs():
                     mtss = registry.lookup(o)
                     if type(mtss) not in SEQ:
                         mtss = (mtss,)
@@ -256,30 +243,37 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
     def _unmapTransform(self, transform):
         SEQ = (ListType, TupleType)
         registry = getToolByName(self, 'mimetypes_registry')
-        for i in transform.inputs:
+        for i in transform.inputs():
             mts = registry.lookup(i)
             if type(mts) not in SEQ:
                 mts = (mts,)
 
             for mti in mts:
                 mt_in = self._mtmap.get(mti, {})
-                for o in transform.outputs:
+                for o in transform.outputs():
                     mtss = registry.lookup(o)
                     if type(mtss) not in SEQ:
                         mtss = (mtss,)
                     for mto in mtss:
-                        mt_in[mto].remove(transform)
-
+                        l = mt_in[mto]
+                        for i in range(len(l)):
+                            if l.__name__ == l[i].__name__:
+                                l.pop(i)
+                                break
+                        else:
+                            log('Can\'t find transform %s' % transform.id)
+    
     def _findPath(self, orig, target, required_transforms=()):
         #return a list of transforms
-        registry = getToolByName(self, 'mimetypes_registry')
         path = []
 
         if not self._mtmap:
             return None
 
+        registry = getToolByName(self, 'mimetypes_registry')
+
         # naive algorithm :
-        #  find all possible path required transforms
+        #  find all possible paths with required transforms
         #  take the shortest
         #
         # it should be enough since we should not have so much possible paths
@@ -305,8 +299,8 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
         for o_mt, transforms in outputs.items():
             for transform in transforms:
                 required = 0
-                if transform.name() in requirements:
-                    requirements.remove(transform.name())
+                if transform.id in requirements:
+                    requirements.remove(transform.id)
                     required = 1
                 if transform in path:
                     # avoid infinite loop...
@@ -316,9 +310,9 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
                     if not requirements:
                         result.append(path[:])
                 else:
-                    self.getPaths(o_mt, target, requirements, path, result)
+                    self._getPaths(o_mt, target, requirements, path, result)
                 if required:
-                    requirements.append(transform.name())
+                    requirements.append(transform.id)
         path.pop()
 
         return result
@@ -351,22 +345,38 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     def __init__(self, id, module):
         self.id = id
         self.module = module
-        # try to import the module
-        __traceback_info__ = (module, )
-        m = import_from_name(module)
+        self._config = PersistentMapping()
+        self._tr_init(1)
+
+    def __setstate__(self, state):
+        """ __setstate__ is called whenever the instance is loaded
+            from the ZODB, like when Zope is restarted.
+            
+            We should reload the wrapped transform at this time
+        """
+        Transform.inheritedAttribute('__setstate__')(self, state)
+        self._tr_init()
+
+
+    def _tr_init(self, set_conf=0):
+        """ initialize the zope transform by loading the wrapped transform """
+        __traceback_info__ = (self.module, )
+        m = import_from_name(self.module)
         if not hasattr(m, 'register'):
             raise TransformException('Unvalid transform module %s: no register function defined' % module)
 
         transform = m.register()
         if not hasattr(transform, '__class__'):
-           raise TransformException('Unvalid transform : transform is not a class')
+            raise TransformException('Unvalid transform : transform is not a class')
         if not implements(transform, itransform):
-           raise TransformException('Unvalid transform : itransform is not implemented by %s' % transform.__class__)
-
-        if not hasattr(transform, 'config'):
-            transform.config = {}
-
+            raise TransformException('Unvalid transform : itransform is not implemented by %s' % transform.__class__)
+        
+        transform.__name__ = self.id
+        if set_conf and hasattr(transform, 'config'):
+            self._config.update(transform.config)
+        transform.config = self._config
         self._transform = transform
+        return transform
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
@@ -408,11 +418,9 @@ class Transform(Implicit, Item, RoleManager, Persistent):
             # FIXME: not sure map / unmap is a correct access point
             tr_tool._unmapTransform(transform)
             tr_tool._mapTransform(transform)
-        # FIXME
-        self._transform._p_changed = 1
 
         if REQUEST is not None:
-            REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage')
+            REQUEST['RESPONSE'].redirect(aq_parent(self).absolute_url()+'/manage')
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'inputs')
     def inputs(self):
@@ -430,6 +438,7 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         log('Reloading transform %s' % self.module)
         m = import_from_name(self.module)
         reload(m)
-        Transform.__init__(self, self.id, self.module)
+        self._tr_init()
+
 
 InitializeClass(Transform)
