@@ -124,7 +124,7 @@ def install_validation(self, out, types):
 
     # Default validation for types
     form_tool.setValidators("base_edit", ["validate_base"])
-    form_tool.setValidators("base_edit", ["validate_base"])
+    form_tool.setValidators("base_metadata", ["validate_base"])
     form_tool.setValidators("base_translation", ["validate_base"])
     form_tool.setValidators("manage_translations_form", ["validate_translations"])
 
