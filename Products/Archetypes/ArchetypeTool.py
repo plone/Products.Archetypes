@@ -258,6 +258,7 @@ def registerType(klass, package=None):
     data = {
         'klass' : klass,
         'name'  : klass.meta_type,
+        'portal_type': klass.portal_type,
         'package' : package,
         'module' : sys.modules[klass.__module__],
         'schema' : klass.schema,
