@@ -2,51 +2,111 @@ from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Widget import SelectionWidget
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
+from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
 
-schema = Schema((
+TemplateMixinSchema = Schema((    
+    # TemplateMixin
     StringField('layout',
-                accessor="getLayout",
-                mutator="setLayout",
-                default="base_view",
-                vocabulary="templates",
-                widget=SelectionWidget(
-                                       visible={'view' : 'invisible'},
-                                       )
-                ),
-        ))
+                write_permission=CMFCorePermissions.ModifyPortalContent,
+                default_method="getDefaultLayout",
+                vocabulary="_voc_templates",
+                #enforceVocabulary=1,
+                widget=SelectionWidget(description="Choose a template that will be used for viewing this item.",
+                                       description_msgid = "help_template_mixin",
+                                       label = "View template",
+                                       label_msgid = "label_template_mixin",
+                                       i18n_domain = "plone",
+                                       visible={'view' : 'hidden',
+                                                'edit' : 'visible'
+                                               },
+                                       )),
+    ))
 
+# XXX backward compatibility
+schema = TemplateMixinSchema
 
 class TemplateMixin:
-    schema = schema
+    __implements__ = ITemplateMixin
+    
+    schema = TemplateMixinSchema
+
     actions = (
         { 'id': 'view',
           'name': 'View',
           'action': 'view',
           'permissions': (CMFCorePermissions.View,),
-        }, )
+        },
+        )
 
     aliases = {
-        '(Default)':'',
-        'index_html': '',
-        'view':'',
-        'gethtml':'source_html'}
+        '(Default)'  : '',
+        'index_html' : '',
+        'view'       : '',
+        'gethtml'    : 'source_html',
+        }
 
+    default_view = 'base_view'
+    suppl_views  = ()
+    
+    security = ClassSecurityInfo()
 
-    index_html = None
+    index_html = None # setting index_html to None forces the usage of __call__
     def __call__(self):
         """return a view based on layout"""
         v = getTemplateFor(self, self.getLayout())
         return v(self, self.REQUEST)
 
-    def templates(self):
+    def _voc_templates(self):
         at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
+    
+    # XXX backward compatibility
+    templates = _voc_templates
 
-def getTemplateFor(self, pt, default="base_view"):
-    ## Let the SkinManager handle this
-    ## But always try to show something
-    pt = getattr(self, pt, getattr(self, default))
-    return pt
+    security.declareProtected(CMFCorePermissions.View, 'getLayout')
+    def getLayout(self, **kw):
+        """Get the current layout or the default layout if the current one is None
+        """
+        if kw.has_key('schema'):
+            schema = kw['schema']
+        else:
+            schema = self.Schema()
+            kw['schema'] = schema
+        value =  schema['layout'].get(self, **kw)
+        if value:
+            return value
+        else:
+            return self.getDefaultLayout()
+
+    security.declareProtected(CMFCorePermissions.View, 'getDefaultLayout')
+    def getDefaultLayout(self):
+        """Get the default layout used for TemplateMixin
+        """
+        return self.default_view
+
+    def getTemplateFor(self, pt, default='base_view'):
+        """Let the SkinManager handle this
+        But always try to show something
+        """
+        pt = getattr(self, pt, None)
+        if not pt:
+            # default is the value of obj.default_view or base_view
+            default_pt = getattr(self, 'default_view', None)
+            if not default_pt:
+                default_pt = default
+            return getattr(self, default_pt)
+        else:
+            return pt
+
+InitializeClass(TemplateMixin)
+
+# XXX backward compatibility
+getTemplateFor = TemplateMixin.getTemplateFor
+
+
+__all__ = ('TemplateMixinSchema', 'TemplateMixin', )
