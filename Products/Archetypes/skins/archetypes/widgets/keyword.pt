@@ -23,11 +23,11 @@
     <div metal:define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
 	<tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
-	                    allowedKeywords python: here.collectKeywords(fieldName, field.accessor);
+	                    allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
 	                    site_props here/portal_properties/site_properties;
 	                    allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
 
-	  <tal:condition condition="python:[role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
+	  <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
 	    <div style="width: 45%; float: right;">
 	      <span i18n:translate="" tal:content="string: New ${fieldName}">New keywords</span>
                             <br />
@@ -52,7 +52,7 @@
 	  </tal:condition>
 
 	  <div style="width: 45%">
-	    <span i18n:translate="" content="string: Existing ${fieldName}">Existing keywords</span>
+	    <span i18n:translate="" tal:content="string: Existing ${fieldName}">Existing keywords</span>
 	    <br />
                         <select id="predefined_subjects"
                                 name="predefined_subjects:list"
@@ -68,7 +68,7 @@
 		                                tabindex tabindex/next;">
                           <option value="#" tal:repeat="keyword allowedKeywords"
                                   tal:content="keyword" tal:attributes="value keyword;
-                                                                        selected python:test(keyword in contentKeywords, 'selected', None)">
+                                                                        selected python:test(here.unicodeTestIn(keyword, contentKeywords), 'selected', None)">
                           an existing keyword
                           </option>
                         </select>
