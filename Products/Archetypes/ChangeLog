@@ -1,3 +1,7 @@
+2003-04-15  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* SQLStorage.py: Forgot to import type_map from Storage.py
+
 2003-04-14  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* BaseBTreeFolder.py: Declare the right interfaces we implement.

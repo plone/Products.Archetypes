@@ -6,7 +6,7 @@ from interfaces.field import IObjectField
 from interfaces.layer import ILayer
 from debug import log
 from config import TOOL_NAME
-from Storage import StorageLayer
+from Storage import StorageLayer, type_map
 from sys import exc_info
 
 class BaseSQLStorage(StorageLayer):
