@@ -83,7 +83,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def __init__(self):
         self._mtmap = PersistentMapping()
-        self._policy = PersistentMapping()
+        self._policies = PersistentMapping()
 
     def __call__(self, name, orig, data=None, **kwargs):
         """run a transform returning the raw data product"""
@@ -198,7 +198,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
             # needed when call from transform.transforms.initialize which
             # register non zope transform
             module = "%s" % transform.__module__
-            transform = Transform(name, module)
+            transform = Transform(name, module, transform)
             self._setObject(name, transform)
         self._mapTransform(transform)
 
@@ -313,7 +313,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                     for mto in mtss:
                         l = mt_in[mto]
                         for i in range(len(l)):
-                            if l.__name__ == l[i].__name__:
+                            if transform.id == l[i].id:
                                 l.pop(i)
                                 break
                         else:
@@ -398,11 +398,11 @@ class Transform(Implicit, Item, RoleManager, Persistent):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, id, module):
+    def __init__(self, id, module, transform=None):
         self.id = id
         self.module = module
         self._config = PersistentMapping()
-        self._tr_init(1)
+        self._tr_init(1, transform)
 
     def __setstate__(self, state):
         """ __setstate__ is called whenever the instance is loaded
@@ -414,14 +414,16 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         self._tr_init()
 
 
-    def _tr_init(self, set_conf=0):
+    def _tr_init(self, set_conf=0, transform=None):
         """ initialize the zope transform by loading the wrapped transform """
         __traceback_info__ = (self.module, )
-        m = import_from_name(self.module)
-        if not hasattr(m, 'register'):
-            raise TransformException('Unvalid transform module %s: no register function defined' % module)
-
-        transform = m.register()
+        if transform is None:
+            m = import_from_name(self.module)
+            if not hasattr(m, 'register'):
+                msg = 'Unvalid transform module %s: no register function defined' % module
+                raise TransformException(msg)
+            transform = m.register()
+            
         if not hasattr(transform, '__class__'):
             raise TransformException('Unvalid transform : transform is not a class')
         if not implements(transform, itransform):
@@ -478,11 +480,11 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         if kwargs.has_key('inputs') or kwargs.has_key('outputs'):
             # need to remap transform
             # FIXME: not sure map / unmap is a correct access point
-            tr_tool._unmapTransform(transform)
-            tr_tool._mapTransform(transform)
+            tr_tool._unmapTransform(self)
+            tr_tool._mapTransform(self)
 
         if REQUEST is not None:
-            REQUEST['RESPONSE'].redirect(tr_tool.absolute_url()+'/manage')
+            REQUEST['RESPONSE'].redirect(tr_tool.absolute_url()+'/manage_main')
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'inputs')
     def inputs(self):
