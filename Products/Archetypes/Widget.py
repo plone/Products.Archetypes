@@ -501,6 +501,7 @@ class IdWidget(TypesWidget):
         return value,  {}
 
 class ImageWidget(FileWidget):
+    __allow_access_to_unprotected_subobjects__ = 0
     _properties = FileWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/image",
@@ -559,6 +560,7 @@ class PasswordWidget(TypesWidget):
     security = ClassSecurityInfo()
 
 class VisualWidget(TextAreaWidget):
+    __allow_access_to_unprotected_subobjects__ = 0
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/visual",
@@ -574,6 +576,7 @@ class VisualWidget(TextAreaWidget):
     security = ClassSecurityInfo()
 
 class EpozWidget(TextAreaWidget):
+    __allow_access_to_unprotected_subobjects__ = 0
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/epoz",

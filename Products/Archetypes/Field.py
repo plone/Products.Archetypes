@@ -817,6 +817,7 @@ class FileField(ObjectField):
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
+    __allow_access_to_unprotected_subobjects__ = 0
     __implements__ = FileField.__implements__
 
     _properties = FileField._properties.copy()
@@ -1481,7 +1482,7 @@ class ImageField(FileField):
         If 'DELETE_IMAGE' will be given as value, then all the images
         will be deleted (None is understood as no-op)
         """
-
+    __allow_access_to_unprotected_subobjects__ = 0
     # XXX__implements__ = FileField.__implements__ , IImageField
 
     _properties = FileField._properties.copy()

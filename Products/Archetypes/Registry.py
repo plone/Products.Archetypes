@@ -188,7 +188,8 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
             security.declareObjectProtected(objectPermission)
     if DEBUG_SECURITY:
         if getattr(klass, '__allow_access_to_unprotected_subobjects__', False):
-            print '%s: Unprotected access is allowed' % klass.__name__
+            print '%s: Unprotected access is allowed: %s' % (
+                  klass.__name__, klass.__allow_access_to_unprotected_subobjects__)
         for name in klass.__dict__.keys():
             method = getattr(klass, name)
             if name.startswith('_') or type(method) != types.MethodType:
