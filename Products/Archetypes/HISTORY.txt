@@ -137,6 +137,29 @@
    
  * Fixed [ 1005843 ] Stringfields should not default to '0' in search mode
    [tiran]
+
+ * Moved addable feature of reference.pt to a seperate file and added addable to
+   inandout.pt
+   [ender]
+
+ * Use manage_rebuildCatalog for refresh_references in installTypes()
+   [tiran]
+
+ * Fixed [ 905677 ] manage_afterClone is a bit of a mess
+   [dreamcatcher]
+
+ * Template cleanups
+   [dreamcatcher]
+   
+ * ImageField: Fixed problem with empty image field and calls to getScale,
+   getSize and tag()
+   [tiran]
+   
+ * Cleaned up the Extensions/utils.py function which are installing AT and it's
+   dependencies. Added a method setupArchetypes() which is setting up the internals.
+   These fixes are fixing the problem that AT don't seemed to be installed when
+   it's installed from an AT based product.
+   [tiran]
    
 1.3.0-beta5 - 2004-08-06
 ========================
