@@ -32,8 +32,8 @@ class IOrderedFolder( Interface ):
 
 # this interface is needed while Archetypes isnt dependend on Zope 2.7
 # if it depends on it should be replaced by importing
-# http://cvs.zope.org/Packages/OFS/IOrderSupport.py 
-# instead of this class. 
+# http://cvs.zope.org/Packages/OFS/IOrderSupport.py
+# instead of this class.
 class IOrderedContainer(Interface):
     """ Ordered Container interface.
 
@@ -116,5 +116,3 @@ class IOrderedContainer(Interface):
 
         Returns -- Position
         """
-        
-        

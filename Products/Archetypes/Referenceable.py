@@ -134,5 +134,3 @@ class Referenceable(Base):
         ## worse case is not that bad and could be fixed with a reindex
         ## on the archetype tool
         if op==1: self._cp_refs =  1
-
-

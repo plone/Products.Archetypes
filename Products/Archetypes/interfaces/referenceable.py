@@ -29,7 +29,3 @@ class IReferenceable(Interface):
 
     def getRelationships():
         """list all the relationship types this object has refs for"""
-    
-
-            
-            

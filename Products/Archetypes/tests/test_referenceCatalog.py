@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.4 2003/11/10 17:50:38 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.5 2003/12/06 17:00:29 dreamcatcher Exp $
 """
 
 import os, sys
@@ -32,9 +32,9 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         site = self.getPortal()
         rc = getattr(site, config.REFERENCE_CATALOG)
         uc = getattr(site, config.UID_CATALOG)
-        
+
         self.failUnless(rc is not None)
-        
+
         id1 = "firstObject"
         obj = makeContent(site, portal_type='Fact', id=id1)
         self.failUnless(obj.UID())
@@ -49,7 +49,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         uid1 = obj.UID()
         uid2 = obj2.UID()
-        
+
         brains = rc()
         ref = brains[0].getObject()
         self.failUnless(ref.sourceUID == uid1)
@@ -57,7 +57,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         #Check the metadata
         self.failUnless(ref.foo == "bar")
-        
+
         unqualified = obj.getRefs()
         byRel = obj.getRefs('testRelationship')
         assert unqualified[0] == byRel[0] == ref.getTargetObject()
@@ -83,10 +83,10 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         obj.setId('new1')
         self.failUnless(obj.getId() == 'new1')
         self.failUnless(obj.UID() == uid1)
-        
+
         b = obj.getRefs()
         self.failUnless(b[0].UID() == uid2)
-        
+
         obj2.setId('new2')
         self.failUnless(obj2.getId() == 'new2')
         self.failUnless(obj2.UID() == uid2)
@@ -97,7 +97,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         #Add another reference with a different relationship (and the
         #other direction)
-        
+
         obj2.addReference(obj, 'betaRelationship', this="that")
         b = obj2.getRefs('betaRelationship')
         self.failUnless(b[0].UID() == uid1)
@@ -105,13 +105,13 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         refs = rc.getBackReferences(obj, 'betaRelationship')
         # objs back ref should be obj2
         self.failUnless(refs[0].sourceUID == b[0].UID() == uid2)
-        
+
 
     def test_holdingref(self):
         site = self.getPortal()
         rc = getattr(site, config.REFERENCE_CATALOG)
         uc = getattr(site, config.UID_CATALOG)
-               
+
         obj1 = makeContent(site, portal_type='Fact', id='obj1')
         obj2 = makeContent(site, portal_type='Fact', id='obj2')
 
@@ -139,12 +139,12 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         items = site.contentIds()
         self.failIf(obj3.id in items)
         self.failIf(obj4.id in items)
-        
+
     def test_delete(self):
         site = self.getPortal()
         rc = getattr(site, config.REFERENCE_CATALOG)
         uc = getattr(site, config.UID_CATALOG)
-               
+
         obj1 = makeContent(site, portal_type='Fact', id='obj1')
         obj2 = makeContent(site, portal_type='Fact', id='obj2')
 
@@ -152,7 +152,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         uid2 = obj2.UID()
 
 
-        #Make a reference 
+        #Make a reference
         obj1.addReference(obj2, relationship="example")
 
         #and clean it up
@@ -171,7 +171,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         assert len(sourceRefs) == 0
         assert len(targetRefs) == 0
-        
+
 
 if __name__ == '__main__':
     framework()
