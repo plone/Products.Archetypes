@@ -1891,6 +1891,8 @@ class ImageField(FileField):
         """get size of scale or original
         """
         img = self.getScale(instance, scale=scale)
+        if not img:
+            return 0, 0
         return img.width, img.height
         
     security.declareProtected(CMFCorePermissions.View, 'getScale')
@@ -1903,7 +1905,10 @@ class ImageField(FileField):
             assert(scale in self.getAvailableSizes(instance).keys(),
                    'Unknown scale %s for %s' % (scale, self.getName()))
             id = self.getScaleName(scale=scale)
-            image = self.getStorage(instance).get(id, instance, **kwargs)
+            try:
+                image = self.getStorage(instance).get(id, instance, **kwargs)
+            except AttributeError:
+                return ''
             image = self._wrapValue(instance, image, **kwargs)
             if shasattr(image, '__of__', acquire=True) and not kwargs.get('unwrapped', False):
                 return image.__of__(instance)
@@ -1944,11 +1949,17 @@ class ImageField(FileField):
         """Create a tag including scale
         """
         image = self.getScale(instance, scale=scale)
+        if image:
+            img_height=image.height
+            img_width=image.width
+        else:
+            img_height=0
+            img_width=0
 
         if height is None:
-            height=image.height
+            height=img_height
         if width is None:
-            width=image.width
+            width=img_width
 
         url = instance.absolute_url()
         if scale:
