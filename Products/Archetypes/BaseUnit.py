@@ -139,7 +139,8 @@ class newBaseUnit(File):
         """return encoded raw value"""
         if self.isBinary():
             return self.raw
-        # FIXME: backward compat, non binary data should always be stored as unicode
+        # FIXME: backward compat, non binary data
+        # should always be stored as unicode
         if not type(self.raw) is type(u''):
             return self.raw
         if encoding is None:

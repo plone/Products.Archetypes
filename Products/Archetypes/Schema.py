@@ -9,7 +9,7 @@ from utils import capitalize, DisplayList, OrderedDict
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
-from types import StringType, StringTypes
+from types import StringType
 from Storage import AttributeStorage, MetadataStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
@@ -178,27 +178,12 @@ class Schemata(UserDict):
         """Adds a given field to my dictionary of fields."""
 
         if IField.isImplementedBy(field):
-            if self.has_key(field.getName()):
-                raise KeyError('Field already exists: %s' % field.getName())
             self[field.getName()] = field
             field._index = self._index
             self._index +=1
             self._order_fields = None
         else:
             log_exc('Object doesnt implement IField: %s' % field)
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'delField')
-    def delField(self, name):
-        """Remove a field given by its name """
-
-        assert isinstance(name, StringTypes)
-
-        if not self.has_key(name): 
-            raise KeyError("Schema has no field '%s'" % name)
-
-        del self[name]
-        self._order_fields = None
 
 
     security.declareProtected(CMFCorePermissions.View,
@@ -294,7 +279,11 @@ class Schema(Schemata, DefaultLayerContainer):
                     method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
-                mutator(default)
+                args = (default,)
+                kw = {}
+                if hasattr(field, 'default_content_type'):
+                    kw['mimetype'] = field.default_content_type
+                mutator(*args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')
@@ -320,7 +309,7 @@ class Schema(Schemata, DefaultLayerContainer):
                     (instance.portal_type, field.getName()))
                 continue
 
-            method = getattr(instance, field.mutator, None)
+            method = field.getMutator(instance)
             if not method:
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
@@ -576,28 +565,6 @@ class Schema(Schemata, DefaultLayerContainer):
     def signature(self):
         from md5 import md5
         return md5(self.toString()).digest()
-
-
-    def getSchemataNames(self):
-        """ return list of schemata names in order of appearing """
-        lst = list()
-        for f in self.fields():
-            if not f.schemata in lst:
-                lst.append(f.schemata)
-        return lst
-
-    def getSchemataFields(self, name):
-        """ return list of fields belong to schema 'name' in order 
-            of appearing 
-        """
-        return [f for f in self.fields()  if f.schemata == name]
-
-    def delSchemata(self, name):
-        """ remove all fields belong to schemata 'name' """
-        for f in self.fields():
-            if f.schemata == name:
-                self.delField(f.getName())
-
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
