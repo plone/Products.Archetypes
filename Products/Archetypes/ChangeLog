@@ -1,3 +1,8 @@
+2003-04-08  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ArchetypeTool.py (process_types): changed the module level fti
+	hook to pass fti[0] as its simpler for the developer
+
 2003-04-07 Sidnei da Silva <sidnei@x3ng.com>
 
         * Made possible to have multiple fieldsets (they are called
