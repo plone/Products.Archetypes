@@ -20,7 +20,7 @@
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
-		    tal:define="binary python: here.isBinary(fieldName);x python:here.ICETools.iceBreakpoint(widget)">
+		    tal:define="binary python: here.isBinary(fieldName)">
             <metal:use use-macro="here/widgets/epoz/macros/edit_area">
                 <metal:fill fill-slot="text_format"/>
             </metal:use>
