@@ -46,6 +46,27 @@ def getLanguage(instance, lang):
         # FIXME : in that case, we would like to get a default language from portal_properties
         return 'en'
 
+def encode(value, instance, **kwargs):
+    """ensure value is an encoded string"""
+    if type(value) is type(u''):
+        encoding = kwargs.get('encoding')
+        if encoding is None:
+            site_props = instance.portal_properties.site_properties
+            encoding = site_props.getProperty('default_charset')
+        value = value.encode(encoding)
+    return value
+
+def decode(value, instance, **kwargs):
+    """ensure value is an unicode string"""
+    if type(value) is type(''):
+        encoding = kwargs.get('encoding')
+        if encoding is None:
+            site_props = instance.portal_properties.site_properties
+            encoding = site_props.getProperty('default_charset')
+        value = unicode(value, encoding)
+    return value
+    
+
 class Field(DefaultLayerContainer):
     """
     Extend `DefaultLayerContainer`.
@@ -332,8 +353,7 @@ class ObjectField(Field):
 
     def getStorage(self):
         return self.storage
-
-
+    
 class StringField(ObjectField):
     """A field that stores strings"""
     _properties = Field._properties.copy()
@@ -343,20 +363,15 @@ class StringField(ObjectField):
         'default_content_type' : 'text/plain',
         })
 
-class MetadataField(ObjectField):
-    """Metadata fields have special storage and explictly no markup as
-    requirements.
-    """
-    __implements__ = ObjectField.__implements__
-
-    _properties = Field._properties.copy()
-    _properties.update({
-        'type' : 'metadata',
-        'isMetadata' : 1,
-        'generateMode' : 'mVc',
-        'mode' : 'rw',
-        'storage' : MetadataStorage(),
-        })
+    def get(self, instance, **kwargs):
+        value = ObjectField.get(self, instance, **kwargs)
+        return encode(value, instance, **kwargs)
+    
+    def set(self, instance, value, **kwargs):
+        kwargs['field'] = self
+        # Remove acquisition wrappers
+        value = decode(aq_base(value), instance, **kwargs)
+        self.storage.set(self.getName(), instance, value, **kwargs)
 
 
 class FileField(StringField):
@@ -420,7 +435,7 @@ class FileField(StringField):
             kwargs['mimetype'] = None
 
         value, mimetype = self._process_input(value,
-                                               default=self.default, \
+                                               default=self.default, 
                                                **kwargs)
         kwargs['mimetype'] = mimetype
 
@@ -452,48 +467,29 @@ class TextField(ObjectField):
     def defaultView(self):
         return self.default_output_type
 
-    def _process_input(self, value, default=None,
-                       mimetype=None, encoding=None, **kwargs):
+    def _process_input(self, value, default=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
+        if ((isinstance(value, FileUpload) and value.filename != '') or
+            (isinstance(value, FileType) and value.name != '')):
+            #OK, its a file, is it empty?
+            if not value.read(1):
+                # This new file has no length, so we keep
+                # the orig
+                return default
+            value.seek(0)
+            return value
+
+        if IBaseUnit.isImplementedBy(value):
+            return value
+        
         if type(value) in STRING_TYPES:
-            if type(value) == type(u''):
-                value = value.encode(encoding or 'UTF-8')
-            else:
-                value = str(value)
-            if mimetype is None:
-                mimetype, enc = guess_content_type('', value, mimetype)
-            if not value:
-                return default, mimetype
-            return value, mimetype
-        else:
-            if ((isinstance(value, FileUpload) and value.filename != '') or
-                (isinstance(value, FileType) and value.name != '')):
-                #OK, its a file, is it empty?
-                f_name = ''
-                if isinstance(value, FileUpload):
-                    f_name = value.filename
-                if isinstance(value, FileType):
-                    f_name = value.name
-                value = value.read()
-                if mimetype is None:
-                    mimetype, enc = guess_content_type(f_name, value, mimetype)
-                size = len(value)
-                if size == 0:
-                    # This new file has no length, so we keep
-                    # the orig
-                    return default, mimetype
-                return value, mimetype
-
-            elif IBaseUnit.isImplementedBy(value):
-                if mimetype is None:
-                    mimetype, enc = guess_content_type('', str(value), mimetype)
-                return value, getattr(aq_base(value), 'mimetype', mimetype)
-
+            return value
+        
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
-
+    
     def getContentType(self, instance):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
@@ -504,6 +500,9 @@ class TextField(ObjectField):
         mimetype = getattr(aq_base(value), 'mimetype', None)
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(value), None)
+        else:
+            # mimetype may be an imimetype object
+            mimetype = str(mimetype)
         return mimetype
 
 
@@ -512,7 +511,7 @@ class TextField(ObjectField):
         kwargs['raw'] = 1
         value = self.get(instance, **kwargs)
         if not kwargs.get('maybe_baseunit', 0) and IBaseUnit.isImplementedBy(value):
-            return value.getRaw()
+            return value.getRaw(encoding=kwargs.get('encoding'))
         return value
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
@@ -527,7 +526,7 @@ class TextField(ObjectField):
             kwargs['field'] = self
             value = self.storage.get(self.getName(), instance, **kwargs)
             if not IBaseUnit.isImplementedBy(value):
-                return value
+                return encode(value, instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
@@ -542,13 +541,10 @@ class TextField(ObjectField):
 
         if not hasattr(value,'transform'): # oldBaseUnits have no transform
             return str(value)
-
         data = value.transform(instance, mimetype)
         if not data and mimetype != 'text/plain':
             data = value.transform(instance, 'text/plain')
-        if not data:
-            return ''
-        return data
+        return data or ''
 
 
     def set(self, instance, value, **kwargs):
@@ -557,38 +553,27 @@ class TextField(ObjectField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
-        if not kwargs.has_key('mimetype'):
-            kwargs['mimetype'] = None
-        try:
-            encoding = kwargs.get('encoding') or \
-                       instance.portal_properties.site_properties.getProperty('default_charset')
-        except AttributeError:
-            import site
-            encoding = site.encoding
+        value = self._process_input(value, default=self.default, **kwargs)
+        encoding = kwargs.get('encoding')
+        if type(value) is type(u'') and encoding is None:
+            encoding = 'UTF-8'
             
-        kwargs['encoding'] = encoding
-        value, mimetype = self._process_input(value,
-                                              default=self.default,
-                                              **kwargs)
-        kwargs['mimetype'] = mimetype
+        if not IBaseUnit.isImplementedBy(value):
+            value = BaseUnit(self.getName(), value, instance=instance,
+                             encoding=encoding,
+                             mimetype=kwargs.get('mimetype'))
 
-        if IBaseUnit.isImplementedBy(value):
-            bu = value
-        else:
-            bu = BaseUnit(self.getName(), value,
-                          mimetype=mimetype,
-                          encoding=encoding,
-                          instance=instance)
+        ObjectField.set(self, instance, value, **kwargs)
 
-        ObjectField.set(self, instance, bu, **kwargs)
-
-        #Invoke the default Transforms, hey, its policy
-        #Note that we stash the product of transforms on
-        #bu.transforms and BU deals with that
-        #tt = getToolByName(self, "transformation_tool")
-        #tt.runChains(MUTATION,
-        #             bu.getRaw(),
-        #             bu.transforms)
+    def setStorage(self, instance, storage):
+        if not IStorage.isImplementedBy(storage):
+            raise ObjectFieldException, "Not a valid Storage method"
+        value = self.getRaw(instance, maybe_baseunit=1)
+        self.unset(instance)
+        self.storage = storage
+        if hasattr(self.storage, 'initializeInstance'):
+            self.storage.initializeInstance(instance)
+        self.set(instance, value)
 
 
 class DateTimeField(ObjectField):
@@ -635,11 +620,15 @@ class LinesField(ObjectField):
         with rest of properties.
         """
         __traceback_info__ = value, type(value)
-        if type(value) == type(''):
+        if type(value) in STRING_TYPES:
             value =  value.split('\n')
-        value = [v.strip() for v in value if v.strip()]
+        value = [decode(v.strip(), instance, **kwargs) for v in value if v.strip()]
         value = filter(None, value)
         ObjectField.set(self, instance, value, **kwargs)
+
+    def get(self, instance, **kwargs):
+        value = ObjectField.get(self, instance, **kwargs)
+        return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -1157,6 +1146,18 @@ class I18NMixIn(ObjectField):
         except:
             pass
 
+    def setStorage(self, instance, storage):
+        if not IStorage.isImplementedBy(storage):
+            raise ObjectFieldException, "Not a valid Storage method"
+        try:
+            value = self.storage.get(self.getName(), instance)
+            self.storage.unset(self.getName(), instance)
+        except AttributeError:
+            value = PersistentMapping()
+        self.storage = storage
+        if hasattr(self.storage, 'initializeInstance'):
+            self.storage.initializeInstance(instance)
+        self.storage.set(self.getName(), instance, value)
 
     def _get_mapping(self, instance):
         try:
@@ -1184,7 +1185,6 @@ class I18NMixIn(ObjectField):
 
 
 class I18NStringField(I18NMixIn, StringField): pass
-class I18NMetadataField(I18NMixIn, MetadataField): pass
 class I18NFileField(I18NMixIn, FileField): pass
 class I18NTextField(I18NMixIn, TextField): pass
 class I18NLinesField(I18NMixIn, LinesField): pass
@@ -1479,12 +1479,12 @@ class PhotoField(ObjectField):
 
 InitializeClass(PhotoField)
 
-__all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField',
+__all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
            'CMFObjectField', 'ImageField',
-           'I18NStringField', 'I18NMetadataField',
+           'I18NStringField', 
            'I18NFileField', 'I18NTextField', 'I18NLinesField',
            'I18NImageField',
            )
