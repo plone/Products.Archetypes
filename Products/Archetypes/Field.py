@@ -652,11 +652,12 @@ class FileField(ObjectField):
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
+            filename = kwargs.get('filename', '')
             if mimetype is None:
-                mimetype, enc = guess_content_type('', value, mimetype)
+                mimetype, enc = guess_content_type(filename, value, mimetype)
             if not value:
-                return default, mimetype, ''
-            return value, mimetype, ''
+                return default, mimetype, filename
+            return value, mimetype, filename
         elif IBaseUnit.isImplementedBy(value):
             return value.getRaw(), value.getContentType(), value.getFilename()
         elif ((isinstance(value, FileUpload) and value.filename != '') or
@@ -691,7 +692,6 @@ class FileField(ObjectField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
-
         if not value:
             return
 
@@ -699,7 +699,7 @@ class FileField(ObjectField):
             kwargs['mimetype'] = None
 
         value, mimetype, filename = self._process_input(value,
-                                                      default=self.getDefault,
+                                                      default=self.getDefault(instance),
                                                       **kwargs)
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
@@ -757,6 +757,12 @@ class FileField(ObjectField):
             # BaseUnit hasn't have a fix for long so we might have an old name
             filename = filename.split("\\")[-1]
         return filename
+
+    def setFilename(self, instance, filename):
+        """
+        """
+        bu = self.getBaseUnit(instance)
+        bu.setFilename(filename)
 
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()

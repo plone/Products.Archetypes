@@ -50,11 +50,7 @@ class BaseUnit(File):
         self.raw  = data
         self.size = len(data)
         # taking care of stupid IE
-        if type(filename) is StringType:
-            self.filename = filename.split("\\")[-1]
-        else:
-            self.filename = filename
-
+        self.setFilename(filename)
 
     def transform(self, instance, mt):
         """Takes a mimetype so object.foo.transform('text/plain') should return
@@ -157,12 +153,21 @@ class BaseUnit(File):
     def getFilename(self):
         return self.filename
     
+    def setFilename(self, filename):
+        """
+        """
+        if type(filename) is StringType:
+            self.filename = filename.split("\\")[-1]
+        else:
+            self.filename = filename
+ 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
         filename = self.filename
         if self.filename:
+            print self.filename
             RESPONSE.setHeader('Content-Disposition',
                                'attachment; filename=%s' % self.getFilename())
         RESPONSE.setHeader('Content-Type', self.getContentType())
