@@ -31,7 +31,7 @@ from ZODB.PersistentMapping import PersistentMapping
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
-from transform.interfaces import idatastream
+from Products.PortalTransforms.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
 
@@ -246,6 +246,7 @@ class ObjectField(Field):
         if self.accessor is not None:
             accessor = self.getAccessor(instance)
         else:
+            # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
         if accessor is None:
             return self.get(instance, **kwargs)
