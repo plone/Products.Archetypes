@@ -32,7 +32,7 @@
         <div tal:attributes="class python:test(field.required, 'required label', 'label')">
              <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
              <div id="title_help" class="help" style="visibility: hidden;"
-                  tal:content="python:widget.Description(here)"
+                  tal:content="structure python:widget.Description(here)"
                   tal:attributes="id string:${fieldName}_help">Help tooltip</div>
         
              <span tal:condition="field/workflowable|nothing"
