@@ -41,7 +41,7 @@ class IOrderedContainer(Interface):
     collections.
     """
 
-    def moveObjectsByDelta(ids, delta):
+    def moveObjectsByDelta(ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
 
         If delta is higher than the possible maximum, objects will be moved to
@@ -53,6 +53,8 @@ class IOrderedContainer(Interface):
         of ids corresponds to their original order.
 
         If an object with id doesn't exist an error will be raised.
+        
+        XXX subset_ids
 
         Permission -- Manage properties
 
