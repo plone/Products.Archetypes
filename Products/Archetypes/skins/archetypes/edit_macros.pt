@@ -141,8 +141,8 @@
             <tal:comment replace="nothing">
               Stores lastests referer to remmber where to go back
             </tal:comment>
-            <input type="hidden" name="lastest_referer:list"
-                   tal:define="referer request/HTTP_REFERER"
+            <input type="hidden" name="lastest_referer"
+                   tal:define="referer request/form/HTTP_REFERER | request/HTTP_REFERER"
                    tal:attributes="value python:referer and referer or here.aq_parent.absolute_url()"
                    />
 

@@ -34,6 +34,15 @@ if (not state.kwargs.get('reference_source_url') and
         context=context,
         portal_status_message=portal_status_message)
 
+# save data form, portal_factory will use that later
+# hey, don't forget to increment object number for sessions
+form_data = {'HTTP_REFERER':REQUEST.get('lastest_referer', None)}
+for field in context.schema.values():
+    fieldname = field.getName()
+    if REQUEST.has_key(fieldname):
+        form_data[fieldname] = REQUEST.get(fieldname)
+REQUEST.SESSION.set(context.getId(), form_data)
+
 fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference['field']]
@@ -84,6 +93,7 @@ for k, v in info.items():
         env[k].append(v)
     else:
         env[k] = [v]
+
 
 return state.set(
     status='created',
