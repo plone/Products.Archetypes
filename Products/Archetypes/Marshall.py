@@ -29,6 +29,18 @@ class Marshaller:
             delattr(instance, 'demarshall_hook')
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
+            
+    def demarshall(self, instance, data, **kwargs):
+        raise NotImplemented
+        
+    def marshall(self, instance, **kwargs):
+        raise NotImplemented
+        
+    def initializeField(self, instance, field):
+        pass
+    
+    def cleanupField(self, instance, field):
+        pass
 
 class PrimaryFieldMarshaller(Marshaller):
 
