@@ -15,7 +15,7 @@
 		      thousands_commas widget/thousands_commas;
 		      if_format python:dollars_and_cents or whole_dollars or thousands_commas;
 		      result accessor;
-		      formatted python:float(result);
+		      formatted python:result;
 		      pps modules/Products/PythonScripts/standard;
 		      formatted python:(dollars_and_cents and pps.dollars_and_cents(formatted)) or formatted;
 		      formatted python:(whole_dollars and pps.whole_dollars(formatted)) or formatted;
