@@ -256,7 +256,7 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-
+    
     >>> dl = DisplayList()
 
     Add some keys
@@ -291,16 +291,23 @@ class DisplayList:
     >>> dl.items()
     (('foo', 'bar'), ('fobar', 'spam'))
 
+    Install warning hook for the next tests since they will raise a warning
+    and I don't want to spoil the logs.
+    >>> from Testing.ZopeTestCase.warnhook import WarningsHook
+    >>> w = WarningsHook(); w.install()
+
     Using ints as DisplayList keys works but will raise an deprecation warning
     You should use IntDisplayList for int keys
+    
     >>> idl = DisplayList()
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
 
     >>> idl.items()
     ((1, 'number one'), (2, 'just the second'))
-
-
+    
+    Remove warning hook
+    >>> w.uninstall(); del w
     """
 
     security = ClassSecurityInfo()
@@ -555,7 +562,12 @@ class IntDisplayList(DisplayList):
             pass
         else:
             raise TypeError("Key must be string or int")
-        return DisplayList.getValue(self, key, default)
+        v = self._keys.get(key, None)
+        if v: return v[1]
+        for k, v in self._keys.items():
+            if repr(key) == repr(k):
+                return v[1]
+        return default
 
 class Vocabulary(DisplayList):
     """
