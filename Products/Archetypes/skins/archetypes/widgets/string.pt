@@ -26,6 +26,8 @@
 		 tal:attributes="name fieldName;
 	    value value;
 	    tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
 	    "
 	    />
 	</div>

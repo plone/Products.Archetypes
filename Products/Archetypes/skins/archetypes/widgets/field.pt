@@ -28,32 +28,35 @@
     </div>
     
     <div metal:define-macro="edit">
-      <div tal:condition="python: 'edit' in widget.modes"
-           tal:attributes="class python:test(field.required, 'required
-	label', 'label')">
-	<span i18n:translate="" tal:content="string:${widget/label}"></span>
-        <span tal:condition="field/workflowable|nothing"
-              tal:omit-tag="">
-        (<a href="#"
-        tal:define="wf_tool here/portal_workflow;
-                    obj python:accessor();
-                    review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-        tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
-                        class python:test(review_state, review_state, 'private')"
-        tal:content="review_state">
-        review_state
-        </a>)
-        </span>
+        <div class="row" tal:condition="python: 'edit' in widget.modes">
+        <div tal:attributes="class python:test(field.required, 'required label', 'label')">
+             <span i18n:translate="" tal:content="string:${widget/label}"></span>
+             <div id="title_help" class="help" style="visibility: hidden;"
+                  tal:content="string:${widget/description}"
+                  tal:attributes="id string:${fieldName}_help">Help tooltip</div>
+        
+             <span tal:condition="field/workflowable|nothing"
+                   tal:omit-tag="">
+             (<a href="#"
+                 tal:define="wf_tool here/portal_workflow;
+                             obj python:accessor();
+                             review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+                 tal:attributes="href string:${obj/absolute_url}/portal_form/content_status_history;
+                                 class python:test(review_state, review_state, 'private')"
+                 tal:content="review_state">review_state</a>)
+             </span>
+        </div> 
 	<div class="field"
 	     tal:define="error python:errors.get(fieldName);
-	  value python:request.get(fieldName, accessor())"
-	  tal:attributes="class python:test(error, 'field error', 'field')" >
-	  <span tal:condition="error" tal:replace="error" />
-           <div metal:define-slot="widget_body"/>
-          </div></div>
-	  <br/>
-      </div>
-  </body>
-  
+	                 value python:request.get(fieldName, accessor())"
+	     tal:attributes="class python:test(error, 'field error', 'field')" >
+	     <span tal:condition="error" tal:replace="error" />
+             <div metal:define-slot="widget_body"></div>
+        </div>
+        </div>
+    </div>    
+
+
+   </body>
 </html>
 

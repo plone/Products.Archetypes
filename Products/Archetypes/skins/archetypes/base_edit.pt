@@ -37,9 +37,9 @@
 
         <span class="legend" tal:content="here/archetype_name"></span>
 
-	<div tal:repeat="field python: here.Schema().filterFields(isMetadata=0)">
-	  <span metal:use-macro="python: here.widget(field.name, mode='edit')"/>
-	</div>
+	<tal:fields repeat="field python: here.Schema().filterFields(isMetadata=0)">
+	    <tal:fieldMacro metal:use-macro="python: here.widget(field.name, mode='edit')"/>
+        </tal:fields>
 
 	
 
