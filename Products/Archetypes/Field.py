@@ -814,7 +814,7 @@ class BooleanField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         """If value is not defined or equal to 0, set field to false; 
-        otherwise, set to true.
+        otherwise, set to true."""
         if not value or value == '0':
             value = None ## False
         else:
