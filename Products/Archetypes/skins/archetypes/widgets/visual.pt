@@ -65,7 +65,7 @@
 	  </div>
 
 	  <tal:block >
-	    <div metal:use-macro="here/wysiwyg_support/macros/textFormatSelector">
+	    <div metal:use-macro="here/widgets/visual/macros/area_format">
 	      Format box, if needed
 	    </div>
 	  </tal:block>
