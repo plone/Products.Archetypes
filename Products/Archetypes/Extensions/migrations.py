@@ -58,9 +58,13 @@ def migrateReferences(portal, out):
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
                 count+=1        
-        print >>out, "%s old references migrated." % count
+                # avoid eating up all RAM
+                if not count % 250:
+                    get_transaction().commit(1) 
+                print >>out, "%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
+        get_transaction().commit()
         return
     
     return
@@ -141,6 +145,10 @@ def migrateUIDs(portal, out):
         obj._register()            # creates a new UID
         obj._updateCatalog(portal) # to be sure
         count+=1
+        # avoid eating up all RAM
+        if not count % 250:
+            get_transaction().commit(1) 
+    get_transaction().commit()        
     print >>out, count, "UID's migrated."
 
 def removeOldUIDs(portal, out):
@@ -160,16 +168,18 @@ def removeOldUIDs(portal, out):
         delattr(obj, olduididx)
         obj._updateCatalog(portal) 
         count+=1
+        # avoid eating up all RAM
+        if not count % 250:
+            get_transaction().commit(1) 
+    get_transaction().commit()
     print >>out, count, "old UID attributes removed."
 
 def migrateSchemas(portal, out):
     at = getToolByName(portal, TOOL_NAME)
     msg = at.manage_updateSchema(update_all=1)    
+    get_transaction().commit()
     print >>out, msg
 
-def migrateMetadata(portal,out):
-    print >>out, "Migration of metadata is not implemented."
-    
 def migrate(self):
     """migrate an AT site"""
     out = StringIO()
@@ -180,7 +190,6 @@ def migrate(self):
     fixArchetypesTool(portal, out)
     reinstallArchetypes(portal,out)
     migrateSchemas(portal, out)
-    migrateMetadata(portal, out)
     migrateUIDs(portal, out)
     migrateReferences(portal,out)
     removeOldUIDs(portal, out)
