@@ -224,7 +224,7 @@ def install_indexes(self, out, types):
                         except:
                             pass
 
-                    parts = alternative.split('|')
+                    parts = schema[0].split('|')
 
                     for itype in parts:
                         try:
