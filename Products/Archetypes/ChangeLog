@@ -1,3 +1,7 @@
+2003-08-04 Sylvain Thénault <syt@logilab.fr>
+
+    * added minimal README file
+
 2003-07-30  Sylvain Thénault  <syt@logilab.fr>
 
 	* add distutils setup script and debian packaging files
