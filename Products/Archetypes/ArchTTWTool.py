@@ -30,6 +30,7 @@ class ArchTTWTool(UniqueObject, Folder):
 
     fields_template = PageTemplateFile('fields_xml', _www)
     widgets_template = PageTemplateFile('widgets_xml', _www)
+    storages_template = PageTemplateFile('storages_xml', _www)
     validators_template = PageTemplateFile('validators_xml', _www)
     types_template = PageTemplateFile('types_xml', _www)
     type_template = PageTemplateFile('type_xml', _www)
@@ -56,6 +57,17 @@ class ArchTTWTool(UniqueObject, Folder):
         """ Return XML representation of the widget registry """
         widgets = self.widgets()
         return self.widgets_template(widgets=widgets)
+
+    def storages(self):
+        from Registry import availableStorages
+        storages = [v for k, v in availableStorages()]
+        return storages
+
+    security.declarePublic('storages_xml')
+    def storages_xml(self):
+        """ Return XML representation of the storage registry """
+        storages = self.storages()
+        return self.storages_template(storages=storages)
 
     def validators(self):
         from Registry import availableValidators
@@ -85,6 +97,7 @@ class ArchTTWTool(UniqueObject, Folder):
         options = {}
         options['fields'] = self.fields()
         options['widgets'] = self.widgets()
+        options['storages'] = self.storages()
         options['validators'] = self.validators()
         options['types'] = self.types()
         return self.registry_template(**options)

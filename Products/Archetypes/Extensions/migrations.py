@@ -1,4 +1,4 @@
-from ZODB.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from StringIO import StringIO
 from Products.Archetypes.Extensions.utils import install_catalog
 from Products.Archetypes.Extensions.utils import install_referenceCatalog
@@ -22,10 +22,10 @@ def toReferenceCatalog(portal, out):
     if not hasattr(portal, REFERENCE_CATALOG):
         install_referenceCatalog(portal, out)
         print >>out, "Added Reference Catalog"
-        
+
         rc = getattr(portal, REFERENCE_CATALOG)
         uc = getattr(portal, UID_CATALOG)
-        
+
         #Now map the old references on AT to the RC
         at = portal.archetype_tool
         refs = getattr(at, 'refs', None)
@@ -47,7 +47,7 @@ def toReferenceCatalog(portal, out):
             rc.registerObject(sourceObj)
             sourceObj.reindexObject() #try for a UID update
 
-            
+
         for brain in allbrains:
             sourceObj = brain.getObject()
             sourceUID = getattr(sourceObj.aq_base, '_uid', None)
@@ -67,15 +67,16 @@ def toReferenceCatalog(portal, out):
         uc.manage_reindexIndex()
         rc.manage_reindexIndex()
         print >>out, "Migrated References"
-                
+
 def migrate(self):
     """migrate an AT site"""
     out = StringIO()
     portal = self
-    print >>out, "Being Migration"
-    
+
+    print >>out, "Begin Migration"
+
     fixArchetypesTool(portal, out)
     toReferenceCatalog(portal, out)
-    
+
     print >>out, "Archetypes Migration Successful"
     return out.getvalue()

@@ -220,6 +220,10 @@ class ExtensibleMetadata(Persistence.Persistent):
         """cmf/backward compat: ignore setFormat"""
         pass
 
+    def Identifer(self):
+        """ dublin core getId method"""
+        return self.getId()
+
     #  DublinCore utility methods #############################################
 
     security.declareProtected(CMFCorePermissions.View,

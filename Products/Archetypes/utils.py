@@ -9,7 +9,21 @@ import sys
 import os.path
 import types
 from ExtensionClass import ExtensionClass
+import time, random, md5, socket
 from inspect import getargs
+
+try:
+    _v_network = socket.gethostbyname(socket.gethostbyname())
+except:
+    _v_network = random.random() * 100000000000000000L
+
+def make_uuid(*args):
+    t = long(time.time() * 1000)
+    r = long(random.random()*100000000000000000L)
+    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
+    data = md5.md5(data).hexdigest()
+    return data
+
 
 _marker = []
 
@@ -209,7 +223,7 @@ class DisplayList:
         v = self._values.get(value, None)
         if v: return v[1]
         for k, v in self._values.items():
-            if str(value) == str(k):
+            if repr(value) == repr(k):
                 return v[1]
         return default
 
@@ -218,7 +232,7 @@ class DisplayList:
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
-            if str(key) == str(k):
+            if repr(key) == repr(k):
                 return v[1]
         return default
 

@@ -18,8 +18,18 @@ from Products.CMFCore.DiscussionTool import DiscussionTool
 from DateTime import DateTime
 from copy import deepcopy
 
+default_text = """
+Title
+=====
+
+Subtitle
+--------
+"""
+
 schema = BaseSchema + Schema((
     TextField('atextfield',
+              default_content_type='text/x-rst',
+              default=default_text,
               widget=RichWidget(description="Just a text field for the testing",
                                   label="A Text Field",
                                   )),
@@ -133,7 +143,7 @@ class ClassGenTest( ArchetypesTestCase ):
     def test_linesfield(self):
         obj = self._dummy
         obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnlessEqual(obj.getAlinesfield(), ['Bla', 'Ble', 'Bli'])
+        self.failUnlessEqual(obj.getAlinesfield(), ('Bla', 'Ble', 'Bli'))
 
     def test_datefield(self):
         obj = self._dummy

@@ -9,7 +9,7 @@ from os import curdir
 from os.path import join, abspath, dirname
 
 # this trigger zope imports
-from test_classgen import Dummy, gen_dummy
+from test_classgen import Dummy, gen_dummy, default_text
 
 from Products.Archetypes.public import *
 
@@ -32,6 +32,9 @@ class ContentTypeTest( ArchetypesTestCase ):
 
     def test_textfieldwithmime(self):
         obj = self._dummy
+        self.assertEqual(obj.getField('atextfield').getContentType(obj),
+                         'text/x-rst')
+        self.assertEqual(obj.getField('atextfield').getRaw(obj), default_text)
         obj.setAtextfield('Bla', mimetype='text/x-rst')
         self.assertEqual(obj.getField('atextfield').getContentType(obj),
                          'text/x-rst')

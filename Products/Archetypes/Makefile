@@ -1,17 +1,17 @@
 NAME=archetypes
-MAJOR_VERSION=1.2
-MINOR_VERSION=3
-RELEASE_TAG=final
+MAJOR_VERSION=1.3
+MINOR_VERSION=0
+RELEASE_TAG=a1
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}_${RELEASE_TAG}
 
 PYTHON="/usr/bin/python"
 TMPDIR=~/tmp
 
-CURDIR=~/src/archetypes/1_2/Archetypes
+CURDIR=~/src/archetypes/head/Archetypes
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=~/src/zope/2_7/lib/python
-INSTANCE_HOME=~/src/instance/test
-PACKAGES=Archetypes validation generator ArchExample ArchGenXML
+INSTANCE_HOME=~/src/instance/head
+PACKAGES=Archetypes validation generator ArchExample ArchGenXML I18NArchetypes
 
 
 RM=rm -f
