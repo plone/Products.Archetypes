@@ -1,7 +1,6 @@
 import types
 
 from Products.Archetypes.utils import className
-from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
 def getDoc(klass):
@@ -89,7 +88,7 @@ class WidgetDescription:
         self.description = description or getDoc(klass)
         self.used_for = used_for
 
-        
+
     def properties(self):
         from Products.Archetypes.Registry import getPropertyType
         props = []
@@ -183,6 +182,7 @@ class TypeRegistry:
         pass
 
     def items(self):
+        from Products.Archetypes.ArchetypeTool import listTypes
         return [(className(t['klass']),
                  TypeDescription(t['klass'],
                                  title=t['name'],

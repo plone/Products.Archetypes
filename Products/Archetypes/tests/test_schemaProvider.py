@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.7 2004/04/14 20:37:56 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.8 2004/04/20 04:43:36 bcsaller Exp $
 """
 
 import os, sys
@@ -16,12 +16,12 @@ import Products.Archetypes.config as config
 from Products.Archetypes.public import *
 from Products.Archetypes.examples.DDocument import schema as DDocumentSchema
 from Products.Archetypes.SchemaProvider import *
-
+from Products.Archetypes.Schema.Collection import getAxisManagers
 
 class MementoTool:
     def __init__(self):
         self.storage = {}
-        
+
     def setMemento(self, instance, memento):
         uid = instance.UID()
         self.storage[uid] = memento
@@ -29,7 +29,7 @@ class MementoTool:
     def getMemento(self, instance):
         uid = instance.UID()
         return self.storage.get(uid)
-    
+
 
 class SchemaProviderTests(ArcheSiteTestCase):
     def afterSetUp(self):
@@ -41,11 +41,21 @@ class SchemaProviderTests(ArcheSiteTestCase):
     def init_collectors(self):
         site = self.getPortal()
         at = site.archetype_tool
-        at.registerSchemaCollector(SelfCollector())
-        at.registerSchemaCollector(TypeCollector())
-        at.registerSchemaCollector(AcquisitionCollector())
-        at.registerSchemaCollector(ReferenceCollector())
-        
+        for axis in getAxisManagers():
+            at.registerSchemaAxis(axis)
+
+        pmap = {
+            'instance' : 0,
+            'portal_type' : 1,
+            "containment": 2,
+            'reference' : 3,
+            }
+        # now assign these priorities to the policy
+        p = at._getPolicyMemento("archetype_policy")
+        p.update(pmap)
+
+
+
     def test_singleSchemaTest(self):
         # Test that the baseline get Schema Continues to Function
         # When no schema collector is associated with the object
@@ -53,32 +63,30 @@ class SchemaProviderTests(ArcheSiteTestCase):
         site = self.getPortal()
         obja = makeContent(site, "DDocument", "obja")
         objb = makeContent(site, "SimpleType", "objb")
-        
+
         assert obja.Schema() == DDocumentSchema
         assert objb.Schema() != DDocumentSchema
 
     def test_aqCollector(self):
         site = self.getPortal()
         at = site.archetype_tool
-        
+
         folder = makeContent(site, "SimpleFolder", "folder")
         objb = makeContent(folder, "DDocument", "objb")
 
-        #Lets say that folder is a schema provider for objB
-        # (but in this case provides nothing)
-        objb.setSchemaCollector('acquisition')
         assert objb.Schema() == DDocumentSchema
-        
+
         # Now we need to make folder a provider of a new Schemata
         # and assert those fields appear on objb
         f = TextField('newField')
         testSchema = Schema ((f,))
-        
-        at.provideSchema(folder, testSchema)
-        folder.setSchemaPriority(11) # low low pri
+
+        at.provideSchema('containment', instance=folder, schema=testSchema)
+
         g = objb.Schema()['newField']
         assert g.type == "text"
         assert g.getName() == f.getName()
+        # Assert something about the priority
         assert g is objb.Schema().fields()[-1]
         mutator = g.getMutator(objb)
         accessor = g.getAccessor(objb)
@@ -99,31 +107,27 @@ class SchemaProviderTests(ArcheSiteTestCase):
     def testReferenceCollector(self):
         site = self.getPortal()
         at = site.archetype_tool
-        
+
         folder = makeContent(site, "SimpleFolder", "folder")
         obja = makeContent(folder, "DDocument", "obja")
         objb = makeContent(folder, "DDocument", "objb")
 
-        objb.setSchemaCollector('reference')
 
         a = TextField('FieldA')
         b = TextField('FieldB')
         testSchemaA = Schema ((a,))
         testSchemaB = Schema ((b,))
 
-        folder.setSchemaPriority(11) # low low pri
-        obja.setSchemaPriority(12) # and lower still pri
+        at.provideSchema('reference', instance=objb, source=folder,
+                   schema=testSchemaA)
+        at.provideSchema('reference', instance=objb, source=obja,
+                   schema=testSchemaB)
 
-        at.provideSchema(folder, testSchemaA)
-        at.provideSchema(obja, testSchemaB)
-
-        objb.addReference(folder, relationship='schema_provider')
-        objb.addReference(obja, relationship='schema_provider')
-        
         schema = objb.Schema()
-        assert schema.fields()[-2].getName() ==  a.getName()
-        assert schema.fields()[-1].getName() ==  b.getName()
-        
+        assert schema['FieldA']
+        assert schema['FieldB']
+
+
 
     def testChainedProviders(self):
         site = self.getPortal()
@@ -133,52 +137,42 @@ class SchemaProviderTests(ArcheSiteTestCase):
         # x (p ref s,t) -> y(p aq SchemaY) -> z(p aq Schema Z) -> Document(i aq)
         # s (p - SchemaS)
         # t (p - SchemaT)
-        
+        # The older collector model included x.s, x.t in i's schema,
+        # this was wrong, because it traversed axes. A policy could do
+        # this by doing aq walks and collecting schema on other axes,
+        # but this will not be the default
+
         x = makeContent(site, "SimpleFolder", 'x')
         y = makeContent(x, "SimpleFolder", 'y')
         z = makeContent(y, "SimpleFolder", 'z')
         i = makeContent(z, "DDocument", 'i')
         s = makeContent(site, "DDocument", 's')
         t = makeContent(site, "DDocument", 't')
-        
-        x.addReference(s, relationship="schema_provider")
-        x.addReference(t, relationship="schema_provider")
-        
+
         SchemaS = Schema((TextField('FieldS'),))
         SchemaT = Schema((TextField('FieldT'),))
-        at.provideSchema(s, SchemaS)
-        at.provideSchema(t, SchemaT)
+
+        at.provideSchema('reference', instance=x, source=s,
+                         schema=SchemaS)
+        at.provideSchema('reference', instance=x, source=t,
+                         schema=SchemaT)
 
         SchemaY = Schema((TextField('FieldY'),))
-        at.provideSchema(y, SchemaY)
+        at.provideSchema('containment', instance=y, schema=SchemaY)
 
         SchemaZ = Schema((TextField('FieldZ'),))
-        at.provideSchema(z, SchemaZ)
+        at.provideSchema('containment', instance=z, schema=SchemaZ)
 
-        x.setSchemaCollector('reference')
-        y.setSchemaCollector('acquisition')
-        z.setSchemaCollector('acquisition')
-        i.setSchemaCollector('acquisition')
-
-        i.setSchemaPriority(1)
-        z.setSchemaPriority(2)
-        y.setSchemaPriority(3)
-        x.setSchemaPriority(4)
-        s.setSchemaPriority(5)
-        t.setSchemaPriority(6)
-        
-        # then assert that schema == i + z + y + s + t
+        ## then assert that schema == i + z + y + s + t (DEPRECATED)
+        ## now we expect i + y + z
         schema = i.Schema()
-        expected = DDocumentSchema + SchemaZ + SchemaY + SchemaS + SchemaT
+        expected = DDocumentSchema + SchemaY + SchemaZ
         assert schema == expected
 
         # assert that we can still tell where these fields come from
-        assert schema['FieldY'].provider == y.UID()
-        assert schema['FieldZ'].provider == z.UID()
+        assert schema['FieldY'].provider == ('containment', y.UID())
+        assert schema['FieldZ'].provider == ('containment', z.UID())
 
-        providers = i.getSchemaProviders()
-        assert y in providers
-        assert z in providers
 
     def test_TypeCollector(self):
         site = self.getPortal()
@@ -188,9 +182,10 @@ class SchemaProviderTests(ArcheSiteTestCase):
         z = makeContent(site, "SimpleType", 'z')
 
         SchemaA = Schema((TextField('FieldA'),))
-        at.provideSchema(z.meta_type, SchemaA)
-        z.setSchemaCollector('type')
-        
+
+
+        at.provideSchema('portal_type', portal_type=z.portal_type, schema=SchemaA)
+
         assert y.Schema() == DDocumentSchema
         assert z.Schema()['FieldA']
 
@@ -202,9 +197,8 @@ class SchemaProviderTests(ArcheSiteTestCase):
         z = makeContent(site, "SimpleType", 'z')
 
         SchemaA = Schema((TextField('FieldA'),))
-        at.provideSchema(z.meta_type, SchemaA)
-        z.setSchemaCollector('type')
 
+        at.provideSchema('portal_type', portal_type=z.portal_type, schema=SchemaA)
         # Z now has our new schema, this important
         # because we want to TTW add additional fields
         # to SchemaA
@@ -230,13 +224,12 @@ class SchemaProviderTests(ArcheSiteTestCase):
         at = site.archetype_tool
         x = makeContent(site, "SimpleFolder", 'x')
         z = makeContent(x, "SimpleType", 'z')
-        
+
         SchemaA = Schema((TextField('FieldA',
                                     default="fofofo",
                                     widget=StringWidget(description="desc",
                                                         label="label")),))
-        at.provideSchema(x, SchemaA)
-        z.setSchemaCollector('acquisition')
+        at.provideSchema('containment', instance=x, schema=SchemaA)
 
         schema = z.Schema()
         assert schema['FieldA']
@@ -260,20 +253,8 @@ class SchemaProviderTests(ArcheSiteTestCase):
         assert f.widget.Description(z) == 'desc'
 
 
-##    def testTypeProvider(self):
-##        site = self.getPortal()
-##        at = site.archetype_tool
-##        x = makeContent(site, "SimpleType", 'x')
-##        y = makeContent(site, "SimpleType", 'y')
-        
-##        SchemaA = Schema((TextField('FieldA',
-##                                    default="fofofo",
-##                                    widget=StringWidget(description="desc",
-##                                                        label="label")),))
-##        at.provideSchema(x, SchemaA)
-##        x.setSchemaCollector('acquisition')
-        
-        
+
+
 if __name__ == '__main__':
     framework()
 else:

@@ -1,262 +1,53 @@
 from Acquisition import aq_inner, aq_parent
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.Schema import Schema
+from Products.Archetypes.Schema import Schema, SchemaSource, ArchetypesCollectionPolicy
+
 from Acquisition import Implicit
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Schema.Editor import SchemaEditor
 from Persistence import Persistent
 
+
 from types import StringTypes, ListType, TupleType
 import md5
 
-HIGH_PRIORITY = 1
-LOW_PRIORITY  = 10
 
-class SchemaSource(Persistent):
-    __slots__ = ('priority', 'schema', 'checksum', 'provider')
-    
-    def __init__(self, priority=None, schema=None, checksum=None, provider=None):
-	self.priority = priority
-	self.schema = schema
-	self.checksum = checksum
-	self.provider = provider
-
-    def __hash__(self):
-        return self.checksum
-
-    def __cmp__(self, other):
-        return cmp(self.priority, other.priority)
-    
-
-
-class Collector(Implicit):
-    """Collect relevent schema providers and trigger them as needed
-
-    The process is
-    Get Providers -> providers
-    Get Schema for each provider
-    return a  schema result set
-    """
-    name = None
-
-    def getProviders(self, instance, providers=None):
-        return providers
-
-    def getSchemas(self, instance):
-        providers = self.getProviders(instance)
-        results = []
-        at = getToolByName(instance, TOOL_NAME)
-        self._getSchema(instance, at)
-        return results
-
-    def checksum(self, instance):
-        providers = self.getProviders(instance)
-        return self._checksum([p.schema for p in providers]), providers
-
-    # Utils
-    def _checksum(self, schemas):
-        if type(schemas) not in (ListType, TupleType):
-            schemas = (schemas,)
-        ck = md5.new()
-        for schema in schemas:
-            ck.update(schema.toString())
-        return ck.hexdigest()
-
-    def _getSchema(self, provider, tool=None):
-        """Get the schema provided by a provider"""
-        if tool is None:
-            tool = getToolByName(provider, TOOL_NAME)
-        return tool.getProvidedSchema(provider) 
-
-    def _defaultSchema(self, instance, providers):
-        if providers is None:
-            sr = SchemaSource(instance.getSchemaPriority(),
-                              instance.schema,
-                              self._checksum(instance.schema),
-                              instance)
-            providers = [sr]
-        return providers
-    
-class SelfCollector(Collector):
-    name = "self"
-    def getProviders(self, instance, providers=None):
-        providers = self._defaultSchema(instance, providers)
-        return providers
-
-class TypeCollector(Collector):
-    name = "type"
-    def getProviders(self, instance, providers=None):
-        providers = self._defaultSchema(instance, providers)
-        at = getToolByName(instance, TOOL_NAME)
-        schema = at.getProvidedSchema(instance.meta_type)
-        if schema:
-            sr = SchemaSource(LOW_PRIORITY,
-                              schema,
-                              self._checksum(instance.schema),
-                              at)
-            providers.insert(0, sr)
-            
-        return providers
-    
-
-class AcquisitionCollector(Collector):
-    name = "acquisition"
-    def getProviders(self, instance, providers=None):
-        providers = self._defaultSchema(instance, providers)
-        provider = instance.aq_parent
-        schema = self._getSchema(provider)
-        if schema:
-            providers.insert(0, SchemaSource(provider.getSchemaPriority(),
-                                             schema,
-                                             self._checksum(schema),
-                                             provider))
-            # and recurse
-            collector = provider.getSchemaCollector()
-            collector.getProviders(provider, providers)
-            
-        return providers
-
-class ContainerCollector(Collector):
-    name = "container"
-    def getProviders(self, instance, providers=None):
-        providers = self._defaultSchema(instance, providers)
-        provider = aq_parent(aq_inner(instance))
-        schema = self._getSchema(provider)
-        if schema:
-            providers.insert(0, SchemaSource(provider.getSchemaPriority(),
-                                             schema,
-                                             self._checksum(schema),
-                                             provider))
-            # and recurse
-            collector = provider.getSchemaCollector()
-            collector.getProviders(provider, providers)
-            
-        return providers
-    
-class ReferenceCollector(Collector):
-    name = "reference"
-    def getProviders(self, instance, providers=None):
-        providers = self._defaultSchema(instance, providers)
-
-        refs = instance.getRefs(relationship="schema_provider")
-        for provider in refs:
-            schema = self._getSchema(provider)
-            if schema:
-                providers.insert(0, SchemaSource(provider.getSchemaPriority(),
-                                                 schema,
-                                                 self._checksum(schema),
-                                                 provider))
-                # and recurse
-                collector = provider.getSchemaCollector()
-                collector.getProviders(provider, providers)
-                
-        return providers
-        
-                
 class SchemaProvider(Persistent):
     ## This is the base mixin that allows for schema composites
 
     def __init__(self):
-        self._collector = SelfCollector()
-        self._schema = None
-        self._priority = LOW_PRIORITY
-        self._checksum = None
-        
+        self._schemaPolicy = ArchetypesCollectionPolicy()
+        self._schema   = None
+
     ## Schema Provider Hooks
     ##
-    def setSchemaCollector(self, collector):
-        if type(collector) in StringTypes:
-            at = getToolByName(self, TOOL_NAME)
-            collector = at.getSchemaCollector(collector)
-            
-        self._collector = collector
-
-    def getSchemaCollector(self):
-        return self._collector
-
-    def getSchemaPriority(self):
-        """
-        Elements from this schema will be composited at the associated priority,
-        TTW elements should be composited at a lower priority than filesystem based
-        schema entries, but this is controlable
-        """
-        return self._priority
-
-    def setSchemaPriority(self, priority):
-        self._priority = int(priority)
-
-
-    def getSchemaProviders(self):
-        """all the schema providers used by this object"""
-        collector = self.getSchemaCollector()
-        providers = collector.getProviders(self)
-        return [p.provider for p in providers]
-
     def getSchemaEditor(self):
         """override if you need an enhanced editor"""
-	return SchemaEditor(self.Schema(), self)
+        return SchemaEditor(self.Schema(), self)
 
 
-
-    def __setstate__(self, data):
-        self.Schema()
-        return Persistent.__setstate__(self, data)
 
     def _getSchema(self):
-        """return the schema assocaited with this instance"""
-        checksum = None
-
+        """return the schema associated with this instance"""
+        #if hasattr(self, '_v_schema'): return self._v_schema
         # PHASE: Collect
-        # if this doesn't work (no aq for example) we have to use the cached version
-        collector = self.getSchemaCollector()
-        #     PHASE: Cache Interaction
-        checksum, schemaSet = collector.checksum(self)
-        if checksum == self._checksum:
-            # cache hit
-            return self._schema
+        # using the policy
+        schemaSources = self._schemaPolicy.collect(self)
+        ### XXX Each axis should hand back a token that we can
+        ## resubmit to validate our cache, but I will punt now
+        ## and do full composite. Fake something for now
+
 
         # PHASE: Composite
         # we cache to avoid doing this...
         # this should also keep the relative ordering of fields
-        pri = {}
-        for sr in schemaSet:
-            schema = sr.schema
-            for f in sr.schema.fields():
-                pri.setdefault(sr.priority, []).append(f)
-
-        schema = Schema()
-        keys = pri.keys()
-        keys.sort()
-        current_fields = {}
-        for level in keys:
-            for field in pri[level]:
-                if field.getName() not in current_fields:
-                    schema.addField(field)
-                    current_fields[field.getName()] = True
-
-        # PHASE: Regenerate
-	#se = SchemaEditor(schema, self)
-	#se.regen(self)
-                
+        schema = self._schemaPolicy.compose(self, schemaSources)
         # PHASE: Cache
-        self._schema = schema
-        self._checksum = checksum
-
-        return self._schema
+        self.schema = schema #we will cache persistently
+        # but for now if its in the _v then its good
+        self._v_schema = schema
+        return schema
 
     def Schema(self):
-        """Public (and safe) version of Schema"""
-        try:
-            schema = self._getSchema()
-        except:
-            # We are in an error state or w/o aq
-            # and using the cached schema, but we still need to regen
-            try:
-                schema = self._schema
-            except AttributeError:
-                schema = self.schema
-            #se = SchemaEditor(schema, self)
-            #se.regen(self)
-            
-            
-        return schema
+        """Public version of Schema"""
+        return self._getSchema()

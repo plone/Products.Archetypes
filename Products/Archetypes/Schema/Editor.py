@@ -13,10 +13,10 @@ class SchemaEditor(object):
     Field Reordering is not important to me now, so I will skip it
 
     Setting the storage on an entire schema is important
-    
+
     """
     __allow_access_to_unprotected_subobjects__ = 1
-    
+
     def __init__(self, schema, context):
         self.schema = schema
         self.context = context
@@ -28,35 +28,6 @@ class SchemaEditor(object):
             results.append(method(field, *args, **kwargs))
         return results
 
-    def regen(self, instance):
-        """regenerate the methods of schema for an instance"""
-        import pdb;pdb.set_trace()
-        gen = Generator()
-        for field in self.schema.fields():
-            change = 0
-            name = field.getName()
-            
-            if not field.accessor or not hasattr(instance, field.accessor):
-                mn = '_v_%s_accessor' % name
-                gen.makeMethod(instance.__class__, field, 'r', mn, instance)
-                field.edit_accessor = field.accessor = mn
-                change += 1
-                
-            if not field.mutator or not hasattr(instance, field.mutator):
-                mn = '_v_%s_mutator' % name
-                gen.makeMethod(instance.__class__, field, 'w', mn, instance)
-                field.mutator = mn
-                change += 1
-
-            # Check if we need to update our own properties
-            if change:
-                try:
-                    field.get(instance)
-                except ConflictError, E:
-                    raise
-                except:
-                    field.set(instance, field.default)
-
     def getProvidedSchemaForField(self, fieldName):
         """
         given a schema (that may be a composite) resolve the real schema
@@ -64,8 +35,12 @@ class SchemaEditor(object):
         """
         at = getToolByName(self.context, TOOL_NAME)
         field = self.schema[fieldName]
-        providerUUID = field.provider
-        subschema = at.getProvidedSchema(providerUUID)
+        # XXX from here to end is fragile and will break unless I
+        # shore up the interfaces to real methods, the [0] policy
+        # is in conflict with other goals as well...
+        axis, key = field.provider
+        memento = at._getAxisMemento(axis)
+        subschema = memento[key][0]
         return subschema
 
     def getSchemaEditorForSubSchema(self, fieldName):
@@ -73,7 +48,7 @@ class SchemaEditor(object):
         subschema = self.getProvidedSchemaForField(fieldName)
         if not subschema: return None
         return SchemaEditor(subschema, self.context)
-    
+
 
     #Convience methods
     def assignStorage(self, storage, *args, **kwargs):
@@ -86,18 +61,11 @@ class SchemaEditor(object):
                     if s.title == storage:
                         storage = s.klass(*args, **kwargs)
                         break
-                    
+        #XXX on a storage change (don't do that) we need to migrate values
         def setStorage(field, storage=storage):
             field.storage = storage
         self.enum(setStorage)
-        
-    def assignProvider(self, provider):
-        """Assign the provider UUID to each field element"""
-        def setProvider(field, provider=provider):
-            field.provider = provider
-        self.enum(setProvider)
-        
-    
+
     # Form interaction
     def process_form(self, data):
         """Process form data,
@@ -117,7 +85,6 @@ class SchemaEditor(object):
                 pass
 
         ## Apply the diffset
-        #import pdb;pdb.set_trace()        
         for name, data in diff_set.iteritems():
             field, fv, fw = data
             widget = field.widget
@@ -134,7 +101,6 @@ class SchemaEditor(object):
                     # We might want to get the value and call the new mutator here
                     # but this could trigger too much
                     self.schema.replaceField(field.getName(), f)
-                    
-        #self.regen(self.context)
+
         self.context._p_changed = 1
-        
+

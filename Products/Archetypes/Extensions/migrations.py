@@ -16,6 +16,9 @@ def fixArchetypesTool(portal, out):
     if not hasattr(at, 'catalog_map'):
         at.catalog_map = PersistentMapping()
 
+    #XXX reuse this patten everywhere...
+    at._initSchemaProviderSystem()
+
     install_catalog(portal, out)
 
 def toReferenceCatalog(portal, out):
