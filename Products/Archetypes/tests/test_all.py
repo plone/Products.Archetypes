@@ -15,7 +15,8 @@ def test_suite():
         'test_baseunit',
         'test_classgen',
         'test_contenttype',
-        'test_referenceable',
+        'test_i18n_fields',
+        'test_referenceable', 
         'test_referenceEngine',
         'test_rename',
         'test_storage',
@@ -24,6 +25,7 @@ def test_suite():
         'test_schemata',
         'test_sitepolicy',
         'test_sqlstorage',
+        #'test_update_schema2',
         'test_utils',
         'test_utils2',
         ])
