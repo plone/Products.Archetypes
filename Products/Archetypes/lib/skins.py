@@ -40,6 +40,9 @@ from Products.CMFCore.DirectoryView import addDirectoryViews
 from Products.CMFCore.DirectoryView import registerDirectory
 from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
 
+# file entries that should get ignored by default (ie not added to skin paths)
+DEFAULT_FILE_OMISSIONS = ('.svn', 'CVS')
+
 class _SkinManager:
     """Functionality for manipulating skins and skin paths mostly consisting
     of working with SkinsTool (portal_skins).
@@ -255,8 +258,9 @@ class _SkinManager:
             self.setSkinPaths(context, newPaths, skinName)
 
     def installPathsFromDir(self, context, dirPath,
-                            paths=None, skinNames=None, position=None,
-                            globals=types_globals):
+                            paths=None, skinName=None, position=None,
+                            globals=types_globals,
+                            omissions=DEFAULT_FILE_OMISSIONS):
         """Adds all subdirectories found at dirPath as paths.  The paths type
         should be one of list, tuple, or string.  If the paths type is string,
         all elements should be separated by a comma (ie "abc, def, ghi").  The
@@ -268,35 +272,59 @@ class _SkinManager:
         before the found item.  If no position is specified then the items
         get appended to the end.
 
+
+        Set up a skin path and ensure its set correctly.
         >>> setSkinPaths(portal, 'oneentry')
         >>> getSkinPaths(portal, 'Nouvelle')
         ('oneentry',)
-        >>> installPathsFromDir(portal, portal, 'input/skins')
+
+        Install all paths from a directory and ensure the skin paths got
+        updated accordingly.
+        >>> installPathsFromDir(portal, 'tests/input/skins')
         >>> getSkinPaths(portal, 'Nouvelle')
-        ('oneentry', 'skinpath1', 'skinpath2',)
+        ('oneentry', 'skinpath1', 'skinpath2')
+
+        Test to ensure that the directory views got added to the skins tool
+        properly.
+        >>> from Products.CMFCore.utils import getToolByName
+        >>> skinsTool = getToolByName(portal, 'portal_skins')
+        >>> ids = skinsTool.objectIds()
+        >>> 'skinpath1' in ids and 'skinpath2' in ids
+        True
+                
         """
 
         skinsTool = getToolByName(context, 'portal_skins')
 
         absPath = os.path.join(package_home(globals), dirPath)
+        pathList = None
+        if paths:
+            if isinstance(paths, list) or isinstance(paths, tuple):
+                pathList = paths
+            else:
+                pathList = [i.strip() for i in paths.split(',')]
+        else:
+            pathList = os.listdir(absPath)
+            if omissions:
+                x = 0
+                while x < len(pathList):
+                    if pathList[x] in omissions:
+                        del pathList[x]
+                        x = 0
+                    else:
+                        x = x + 1
+
+        self.addSkinPaths(context, pathList,
+                          skinName=skinName, position=position)
+
         relDirPath = minimalpath(absPath)
 
         registered_directories = manage_listAvailableDirectories()
         if relDirPath not in registered_directories:
-            try:
-                registerDirectory(dirPath, globals)
-            except OSError, ex:
-                if ex.errno == 2: # No such file or directory
-                    return
-                raise
+            registerDirectory(dirPath, globals)
         
-        try:
-            addDirectoryViews(skinsTool, dirPath, globals)
-        except BadRequestException, e:
-            pass  # directory view has already been added
-        
-        
-        pass
+        addDirectoryViews(skinsTool, dirPath, globals)
+
     
 
     def _getPathList(self, skinsTool, skinName):
