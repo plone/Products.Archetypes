@@ -1,33 +1,37 @@
-1.3.1 - Unreleased
+1.3.1 - 2004-10-14
 ==================
 
  * Fixed [ 1037265 ] Bug in ArchetypeTool:getWidgets(). Thanks to Tommy from
    IBAS for the catch.
    [dtremea]
 
- * Fixed a bug with TemplateMixin on folderish types: in navtree and on view 
-   tab the choosen template has been ignored, cause it felt back to an action 
+ * Fixed a bug with TemplateMixin on folderish types: in navtree and on view
+   tab the choosen template has been ignored, cause it felt back to an action
    folderlisting, which now is set to view instead.
    [yenzenz]
 
- * Applied patch contributed in [ 1038107 ] Problems with addable_types 
+ * Applied patch contributed in [ 1038107 ] Problems with addable_types
    handling in ReferenceWidget. Thanks to Alec Mitchell for the patch.
    [yenzenz]
 
- * Added Archetypes Site customization policy
+ * Added Archetypes Site customization policy.
    [tiran]
 
- * Fixed [ 1042076 ] missing import in SQLMethod.py: atoi and time were missing
+ * Changed it so that Title is not shown twice in view mode (once in the headline
+   is fine, thank you ;)
+   [limi]
+
+ * Fixed [ 1042076 ] missing import in SQLMethod.py: atoi and time were missing.
    [tiran]
 
- * Fixed [ 1043114 ] WEBDAV folder creation broken
+ * Fixed [ 1043114 ] WEBDAV folder creation broken.
    [tiran]
 
  * Updated quickref. Thx to Jean Jordaan for his great work!
    [neaj, tiran]
 
  * Fixed [ 1037803 ] "AT Document Details" should be "Document Details" in edit
-   Now Archetypes is using the portal type name by default instead of the 
+   Now Archetypes is using the portal type name by default instead of the
    archetype_name. You can change the new behavior by using a different
    type_name var in the templates.
    [tiran]
@@ -38,11 +42,11 @@
    [tiran]
 
  * Fixed [ 1038404 ] BaseFolder.mange_delObjects proteced by wrong permission.
-   Now the method is protected by CMFCorePermissions.DeleteObjects instead of 
-   CMFCorePermissions.ModifyPortalContent which is exactly like Plone 2.x
+   Now the method is protected by CMFCorePermissions.DeleteObjects instead of
+   CMFCorePermissions.ModifyPortalContent which is exactly like Plone 2.x.
    [tiran]
 
- * Fixed [ 1038428 ] Unicode string in Subjects break base_metadata page
+ * Fixed [ 1038428 ] Unicode string in Subjects break base_metadata page.
    [tiran]
 
  * Partly fixed [ 1038450 ] Unauthorized due to BaseObject.__bobo_traverse__.
@@ -54,6 +58,10 @@
    1.2.4rc5->1.3.0 to BaseUnit. Somehow and sometimes the binary attribute gets
    lost magically.
    [tiran]
+
+ * Extensions/utils.py (install_additional_templates): Added a method to
+   automagically register classes that inherit from TemplateMixin.
+   [dtremea]
 
 1.3.0 - 2004-09-30
 ==================
