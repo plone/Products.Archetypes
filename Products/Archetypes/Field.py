@@ -43,6 +43,14 @@ from Products.CMFCore  import CMFCorePermissions
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
 
+try:
+    True
+except NameError:
+    True=1
+    False=0
+    
+_marker = []
+
 __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
@@ -201,25 +209,29 @@ class Field(DefaultLayerContainer):
         if res is not None:
             return res
 
-##        isEmpty = 0
-##        if not self.required:
-##            if type(value) in STRING_TYPES:
-##                isEmpty = not value.strip()
-##            else:
-##                isEmpty = not value
-##
-##        if not self.required and isEmpty:
-##            # Don't check the value using the validators if the value is not
-##            # required and if it's empty
-##            # else it break because an empty email address doesn't validate but
-##            # the email address isn't required
-##            pass
-##        else:
-        for v in self.validators:
-            res = validation.validate(v, value, instance=instance,
-                                      errors=errors, field=self, **kwargs)
-            if res != 1:
-                return res
+        # check if we are allowed to use the validators
+        # Don't validate if the field is empty and not required
+        # XXX: This is a temporary fix. Need to be fixed right for AT 2.0
+        #      content_edit / BaseObject.processForm() calls widget.process_form
+        #      a second time!
+        useValidators = True
+        if self.validators and not self.required:
+            widget = self.widget
+            # XXX: required for unit test
+            request = getattr(instance, 'REQUEST', None)
+            if request:
+                form   = request.form
+                result = widget.process_form(instance, self, form,
+                                             empty_marker=_marker)
+                if result is _marker or result is None: # FileWidget returns None
+                    useValidators = False
+
+        if useValidators:
+            for v in self.validators:
+                res = validation.validate(v, value, instance=instance,
+                                          errors=errors, field=self, **kwargs)
+                if res != 1:
+                    return res
 
     def validate_required(self, instance, value, errors):
         if not value:
