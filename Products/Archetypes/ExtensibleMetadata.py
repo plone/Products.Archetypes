@@ -7,9 +7,7 @@ from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
-
 from interfaces.metadata import IExtensibleMetadata
-
 from debug import log, log_exc
 import Persistence
 
@@ -169,7 +167,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         # Return effective_date if specificall set, modification date otherwise
         date = self.EffectiveDate()
-        if date is None or date == CEILING_DATE:
+        if date is None or date == 'None' or date == CEILING_DATE:
             date = self.modified()
         return date.ISO()
 
