@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.2 2003/03/28 21:25:43 dreamcatcher Exp $
+$Id: test_sitepolicy.py,v 1.3 2003/04/07 20:07:24 dreamcatcher Exp $
 """
 
 import unittest
@@ -19,9 +19,6 @@ def makeContent(site, portal_type, id='document', **kw ):
 
     site.invokeFactory( type_name=portal_type, id=id )
     content = getattr( site, id )
-
-    if getattr( aq_base( content ), 'editMetadata', None ) is not None:
-        content.editMetadata( **kw )
 
     return content
 
