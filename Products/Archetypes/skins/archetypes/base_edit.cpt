@@ -20,11 +20,11 @@
       <div metal:define-macro="main"
 	   tal:define="errors options/state/getErrors|nothing;
 	   Iterator python:modules['Products.Archetypes'].IndexIterator;
-	   tabindex python:Iterator();
+	   tabindex tabindex|python:Iterator();
 	   schematas here/Schemata;
-	   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
-	   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
+	   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
 	   fieldset request/fieldset|options/fieldset|default_fieldset;
+	   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
 	   portal_type python:here.getPortalTypeName().lower();
 	   edit_template python:'%s_edit' % portal_type;
 	   edit_macros python:path('here/%s/macros|here/edit_macros/macros' % edit_template);"

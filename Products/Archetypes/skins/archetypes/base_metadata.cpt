@@ -21,7 +21,7 @@
 	   tal:define="rejection here/rejectAnonymous;
 	   errors options/state/getErrors|nothing;
 	   Iterator python:modules['Products.Archetypes'].IndexIterator;
-	   tabindex python:Iterator();
+	   tabindex tabindex|python:Iterator();
 	   fieldset request/fieldset|options/fieldset|string:metadata;
 	   schematas here/Schemata;
 	   metadata_macros python:path('here/metadata_macros/macros|nothing');"
