@@ -49,11 +49,12 @@ class BaseFolderMixin(CatalogMultiplex,
         recursive calls for _notifyOfCopyTo to address that
         problem.
         """
+        BaseObject._notifyOfCopyTo(self, container, op=op)
+        SkinnedFolder._notifyOfCopyTo(self, container, op=op)
         if op==1: # For efficiency, remove if op==0 needs something
             for child in self.contentValues():
                 if IReferenceable.isImplementedBy(child):
                     child._notifyOfCopyTo(self, op)
-            return Referenceable._notifyOfCopyTo(self, container, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):

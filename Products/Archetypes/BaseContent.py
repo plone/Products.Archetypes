@@ -17,9 +17,9 @@ from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
 
 class BaseContentMixin(CatalogMultiplex,
-                       BaseObject,
-                       PortalContent,
-                       Historical):
+                    BaseObject,
+                    PortalContent,
+                    Historical):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
@@ -46,6 +46,11 @@ class BaseContentMixin(CatalogMultiplex,
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
+    def _notifyOfCopyTo(self, container, op=0):
+        """OFS.CopySupport notify
+        """
+        BaseObject._notifyOfCopyTo(self, container, op=op)
+        PortalContent._notifyOfCopyTo(self, container, op=op)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
