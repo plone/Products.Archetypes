@@ -233,7 +233,11 @@ class BaseObject(Implicit):
 
         #This is the access mode used by external editor. We need the
         #handling provided by BaseUnit when its available
-        value = accessor(raw=1)
+        try:
+            value = accessor(raw=1)
+        except TypeError:
+            value = accessor()
+            
         return value
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
