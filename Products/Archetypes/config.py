@@ -22,5 +22,8 @@ UUID_ATTR = "_at_uid"
 ##for backward compatibility reasons only
 USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
 
-# XXX TO IMPLEMENT
+## In zope 2.6.3+ and 2.7.0b4+ a lines field returns a tuple not a list. Per
+## default archetypes returns a tuple, too. If this breaks your software you
+## can disable the change.
+## See http://zope.org/Collectors/Zope/924
 ZOPE_LINES_IS_TUPLE_TYPE = 1
