@@ -16,13 +16,16 @@
 
             <div class="content odd">
 
-             <metal:block metal:define-macro="i18nContentChooser">
+             <metal:block metal:define-macro="i18nContentChooser" 
+              tal:condition="python:hasattr(here, 'hasI18NContent') and here.hasI18NContent()">
+
               <form name="i18ncontentselector" method="POST" action="setI18NCookie" 
                     tal:attributes="action string:${here/absolute_url}/setI18NCookie"
                     tal:define="languages languages | here/getFilteredLanguages;
                                 current   lang | here/getLanguage;
                                 form_name string:i18ncontentselector;
-                                attr_name string:lang">
+                                attr_name string:lang"
+                    tal:condition="python:len(languages) > 1">
 
                 <div metal:define-macro="i18nLangSelect" class="lang_selector" align="right">
 		  <select name="lang"
