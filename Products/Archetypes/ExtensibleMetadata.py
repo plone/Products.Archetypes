@@ -287,25 +287,25 @@ class ExtensibleMetadata(Persistence.Persistent):
     def CreationDate(self):
         """ Dublin Core element - date resource created.
         """
-        creation = self.getField('creation_date').get()
+        creation = self.getField('creation_date').get(self)
         # XXX return unknown if never set properly
-        return creation is None and 'Unknown' or cdate.ISO()
+        return creation is None and 'Unknown' or creation.ISO()
 
     security.declarePublic( CMFCorePermissions.View, 'EffectiveDate')
     def EffectiveDate(self):
         """ Dublin Core element - date resource becomes effective.
         """
-        effective = self.getField('effectiveDate').get()
+        effective = self.getField('effectiveDate').get(self)
         # XXX None? FLOOR_DATE
-        return effective is None and 'None' or efdate.ISO()
+        return effective is None and 'None' or effective.ISO()
 
     security.declarePublic( CMFCorePermissions.View, 'ExpirationDate')
     def ExpirationDate(self):
         """Dublin Core element - date resource expires.
         """
-        expires = self.getField('expirationDate').get()
+        expires = self.getField('expirationDate').get(self)
         # XXX None? CEILING_DATE
-        return expires is None and 'None' or efdate.ISO()
+        return expires is None and 'None' or expires.ISO()
 
     security.declareProtected(CMFCorePermissions.View, 'Date')
     def Date(self):
@@ -314,7 +314,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         # Return effective_date if specifically set, modification date
         # otherwise
-        effective = self.getField('effectiveDate').get()
+        effective = self.getField('effectiveDate').get(self)
         if effective is None:
             effective = self.modified()
         return effective is None and DateTime() or effective.ISO()
@@ -368,17 +368,17 @@ class ExtensibleMetadata(Persistence.Persistent):
         returned as DateTime.
         """
         # allow for non-existent creation_date, existed always
-        cdate = self.getField('creation_date').get(self)
-        return cdate is None and FLOOR_DATE or cdate
+        created = self.getField('creation_date').get(self)
+        return created is None and FLOOR_DATE or created
 
     security.declareProtected(CMFCorePermissions.View, 'modified')
     def modified(self):
         """Dublin Core element - date resource last modified,
         returned as DateTime.
         """
-        mdate = self.getField('modification_date').get(self)
+        modified = self.getField('modification_date').get(self)
         # XXX may return None
-        return mdate
+        return modified
 
     security.declareProtected(CMFCorePermissions.View, 'effective')
     def effective(self):
@@ -450,16 +450,16 @@ class ExtensibleMetadata(Persistence.Persistent):
         self.getField('creation_date').set(self, created)
 
     security.declarePrivate( '_datify' )
-    def _datify(self, attrib):
+    def _datify(self, date):
         """Try to convert something into a DateTime instance or None
         """
         # stupid web
-        if attrib == 'None':
-            attrib = None
-        if not isinstance(attrib, DateTime):
-            if attrib is not None:
-                attrib = DateTime(attrib)
-        return attrib
+        if date == 'None':
+            date = None
+        if not isinstance(date, DateTime):
+            if date is not None:
+                date = DateTime(date)
+        return date
 
     #
     #  DublinCore interface query methods
