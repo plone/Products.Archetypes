@@ -1,4 +1,11 @@
+2004-07-02 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+  * Improve vocabulary. Now you can mix every types of keys in a DisplayList.
+  
+  * Add 18n msg ids in allow_discussion vocabulary.
+
 2004-07-01 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
   * Fix bug 890592. Now DisplayList can have None as key. All keys are converted
     into string
 
