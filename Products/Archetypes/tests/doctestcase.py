@@ -48,6 +48,11 @@ __docformat__ = 'restructuredtext'
 ##
 import warnings
 import unittest
+import os, sys
+
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 
 from Testing.ZopeTestCase import TestCase
 from Testing.ZopeTestCase import ZopeTestCase
@@ -85,7 +90,7 @@ def ZopeDocTestSuite(*modules, **kw):
             name = 'ZDT%s' % name
         test_class = type(name, (TestCase, test_class), {})
 
-    # If the test_class does not have a runTest attribute, 
+    # If the test_class does not have a runTest attribute,
     # we add one.
     #if not hasattr(test_class, 'runTest'):
     setattr(test_class, 'runTest', None)
@@ -108,7 +113,7 @@ def ZopeDocTestSuite(*modules, **kw):
             kwsetUp(test_instance)
 
     kw['setUp'] = setUp
-    
+
     # tearDown
     kwtearDown = kw.get('tearDown')
     def tearDown(test):
@@ -117,7 +122,7 @@ def ZopeDocTestSuite(*modules, **kw):
         test_instance.tearDown()
 
     kw['tearDown'] = tearDown
-    
+
     # other options
     if 'optionflags' not in kw:
         kw['optionflags'] = (doctest.ELLIPSIS
@@ -131,4 +136,38 @@ def ZopeDocTestSuite(*modules, **kw):
 
     return suite
 
-__all__ = ('ZopeDocTestSuite',)
+## Doc Test Support (from ztc)
+## look in doc and try to build doctests from the files in there
+import os
+from Testing.ZopeTestCase import ZopeDocFileSuite
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+
+def findDocTests(suite):
+    if os.path.exists('docs'):
+        basedir = "docs"
+    else:
+        basedir = os.path.join('..', 'docs')
+
+    doctests = os.listdir(basedir)
+    tests = [os.path.join("docs", n) for n in doctests if
+             n.endswith('.txt') or n.endswith('.rst')]
+
+    for test in tests:
+        unit = ZopeDocFileSuite(test,
+                                       package="Products.Archetypes",
+                                       test_class=ATSiteTestCase)
+        if unit.countTestCases():
+            suite.addTest(unit)
+
+    return suite
+
+
+if __name__ == '__main__':
+    import unittest
+    TestRunner = unittest.TextTestRunner
+    suite = unittest.TestSuite()
+    findDocTests(suite)
+    TestRunner().run(suite)
+
+__all__ = ('ZopeDocTestSuite',
+           'findDocTests')

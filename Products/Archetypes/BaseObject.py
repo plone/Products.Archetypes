@@ -41,6 +41,8 @@ from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
 
+from Products.Eventually.events import ObjectCreated, ObjectDelete, ObjectChanged
+
 _marker = []
 
 class AttributeValidator(Implicit):
@@ -136,11 +138,19 @@ class BaseObject(Referenceable):
     def __init__(self, oid, **kwargs):
         self.id = oid
 
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool
         """
+        # @eventive_branch
+        # Make sure the object has loaded its schema
+        ## Not needed till I cut the providers in
+        #self.getSchema()
+        self.fireEvent(ObjectCreated(instance=self,
+                                      container=aq_parent(self)))
+
         try:
             self.initializeLayers()
             self.setDefaults()
@@ -940,6 +950,30 @@ class BaseObject(Referenceable):
 
         # Nothing has been found. Raise an AttributeError and be done with it.
         raise AttributeError(name)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              "fireEvent")
+    def fireEvent(self, payload):
+        """Fire an event with a given payload (see Archetypes/events)
+        The event is returned after processing.
+        """
+        try:
+            return self.eventually.fireEvent(self, payload)
+        except AttributeError:
+            # its possible that the event service is not present
+            pass
+
+
+    security.declarePrivate("invalidatePolicy")
+    def invalidatePolicy(self, event):
+        # The event contains the policy object so we can know if the
+        # schema or the behavior changed, but for now we just
+        # invalidate both.
+        self.invalidateSchema()
+        self.invalidateBehavior()
+
+
+
 
 InitializeClass(BaseObject)
 

@@ -1,0 +1,224 @@
+==============================
+PolicyEngnine
+==============================
+
+:Author: Benjamin Saller
+:Contact: bcsaller@objectrealms.net
+:Date: 2005-03-21 12:00:00 -0400 (Mon, 21 Mar 2005) 
+:Web site: http://sourceforge.net/projects/archetypes
+
+
+The policy engine exists to be able to provide answers to questions
+like:
+
+    Where does an objects schema come from?
+
+    Where does an objects behavior come from?
+
+
+The design of the Policy Engine is such that information can flow into
+objects from a number of different sources and get composited in a way
+that makes sense. Each source or channel of information is called a
+Provider Axis or just Axis for short. 
+
+The Policy Engine is able to register axes, determine if they provide
+information to an object relative to a given request or operation and
+then composite or combine that information into a single actionable
+whole.
+
+
+
+Use Cases
+---------
+
+The design of the system is use case driven. Here are some of the use
+cases that drive the system.
+
+1. Introduce Schemas to Types. We want to be able to define schema
+   elements and associate them with objects as needed. The source
+   should not matter. We should be able to acquire behavior based on:
+	  
+	  The Type of object
+	  The Objects Containment
+	  A Reference relationship to another Object
+	  Anything else we can think of
+ 
+   It shouldn't matter if these elements are defined on the filesystem or
+   through the websites online interface.
+
+2. Introduce behavior to Types. We want to be able to add, modify and
+   configure the behavior of actions on a type. The source of the
+   behavior should not matter. We should be able to acquire behavior
+   for the object based on:
+
+	  The Type of object
+	  The Objects Containment
+	  A Reference relationship to another Object
+	  The type of Field the operation relates to
+	  Anything else we can think of
+
+
+3. We want to define a totally new type TTW. Add a type (select from
+   existing schema as building blocks (BaseSchema for example)) and
+   then add in new fields.
+
+4. We want access to the types information and behavior in such a way
+   that we can edit it on the file system and move it from one system
+   to another.
+
+
+To support flowing in schema and behavior information along so many
+axes allows for quite complex deployments. To help manage this the
+ideas behind manipulating an axis must be clearly laid out.
+
+
+The Model
+---------
+
+
+Policy Lifecycle
+~~~~~~~~~~~~~~~~
+
+Policy is gathered in objects using in standard phases.
+       
+       1. *Collect* all the axes that apply to this object
+       
+       2. *Compose* all the provided information into a single object
+
+       3. *Cache* the result with an event triggered invalidation model
+
+
+
+Axis Managers
+-------------
+
+Each axis manager is responsible for the flow of policy in an out of
+the system (and into their respective objects) via a single channel.
+For example there might be an axis manager for providing schema to
+objects based on their type (which is how Archetypes has always
+worked), or based on their containment, or another specification. 
+
+The axis manager is responsible for identifying objects for which it
+should supply policy and for keeping an efficient mapping to those
+objects. In some cases this is quite clear cut. An axis manager that
+provides policy to objects based on a reference might follow a strict
+uuid<->uuid mapping. Other cases are less obvious where the axis
+manager might need to create a mapping between an object that has
+registered to provide policy on a given axis and all its children (a
+containment strategy). To make this work each axis has a way to
+register an object as a provider of policy using that axis' policy to
+determine what objects it binds to.
+
+There are two primary use cases that need to be covered by axis managers.
+
+AM1. "The Event Case"
+
+In the event case an object has been modified which may or may not
+need to consume policy from the Axis. The axis needs a way to evaluate
+the according to some criteria if the object matches any of the policy
+it can provide. This is called the event case because this is the mode
+of operation that binds to objectCreated and objectDelete.
+
+
+AM2. "Policy Change Case"
+
+The other primary case axis managers need to support is one of
+invalidation. In this case a policy unit managed by the axis has
+changed. We need to notify each instance that has consumed policy from
+this object of the change and invalidate their cache so they can
+recompute. Because the rate of persistent policy change is expected to
+drop off quickly relative to the size of result set we will on policy
+change synchronously resolve each object to invalidate its cache
+rather than always force each object to attempt a resolution (though
+this might not turn out to be much more expensive if done properly).
+
+
+Policy Engine Impl Notes
+------------------------
+
+Each field and schema object will have a uuid.  
+Each instance of an Archetype will a uuid.
+
+To find Policy for an object each axis is scanned in the in the
+collect phase. If it has contributions to make to the object in
+question this information is recorded.
+
+When a finalized policy object is updated, changed, removed a mapping
+between the axis and the uuids of its subscribers are followed and
+sent an invalidation method.
+
+To support online editing of schema elements we need not only a way to
+view the finalized schema, but a way to record changes back to the
+provider that originated them. This information cannot be stored in the
+schema elements (such as fields) themselves as they are not unique to
+an instance. To this end the uuid of the object is mapped from the
+object that consumes it to the axis that provided it.
+
+
+Illustrated Example
+--------------------
+
+This example shows how the default system is installed into the site
+by the installer giving some notes on what the various parts are and
+how they work.
+
+>>> from Products.Archetypes.policy import PolicyEngine, Composer
+>>> from Products.Archetypes.policy import ArchetypesPolicyManager
+>>> from Products.Archetypes.policy import AxisManager
+
+First a policy Engine is built
+>>> pe = PolicyEngine()
+>>> self.portal._setOb('policy_engine', pe)
+>>> pe = self.portal._getOb('policy_engine')
+
+
+Lets register some default Axes for testing
+>>> from Products.Archetypes.tests.test_policyengine import MockTypeAxis
+>>> from Products.Archetypes.tests.test_policyengine import MockContainmentAxis
+>>> pe.registerAxis(MockTypeAxis())
+>>> pe.registerAxis(MockContainmentAxis())
+
+The the policy manager is installed. This manages each of the axes
+registered with the engine.
+
+>>> pm = ArchetypesPolicyManager()
+
+We need to register a composer next. In Archetypes Proper we will
+register a composer for each general category of objects we wish to
+compose into actionable policy. For example Schema would have an
+object (a composer) that knows how to knit them together as might the
+behavioral chains.
+
+>>> class SimpleComposer(Composer):
+...     __name__= "Simple Composer"
+...     def interested(self, object):
+...         return True
+... 
+...     def compose(self, sourceSet):
+...         # return a list with all the source set info
+...         # ordered by priority
+...         sourceSet.sort()
+...         return [b[2] for b in sourceSet], {}
+... 
+
+>>> pm.registerComposer(SimpleComposer())
+>>> pe.registerManager(pm)
+>>> pe.setDefaultPolicyManager(pm.__name__)
+
+And because the Archetypes Policy Manager is priority based we will
+assign a priority to each of the axes we registered.
+
+>>> pm.assignAxisPriorities(pe, type=1, containment=2)
+
+We are just going to test that the system is working at all. The mock
+axes will just return their registered names when invoked. We should
+be able to test that the priority ordering we put in place is working.
+
+>>> policy = pe.getPolicy(None)
+>>> assert policy == ['type', 'containment']
+
+And if we change the priorities.
+>>> pm.assignAxisPriorities(pe, type=2, containment=1)
+>>> policy = pe.getPolicy(None)
+>>> assert policy == ['containment', 'type']
+

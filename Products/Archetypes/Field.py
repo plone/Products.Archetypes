@@ -61,6 +61,7 @@ from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
@@ -77,6 +78,7 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 from Products.generator import i18n
+
 
 try:
     import PIL.Image
@@ -175,6 +177,8 @@ class Field(DefaultLayerContainer):
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
+        self.uuid = make_uuid()
+
         DefaultLayerContainer.__init__(self)
 
         if name is None:
