@@ -13,19 +13,20 @@
 <body>
 
    <div metal:fill-slot="main" 
-        tal:define="master_language here/getMasterLanguage">
+        tal:define="master_language here/getMasterLanguage;
+                    current here/getContentLanguage;">
       <div metal:define-macro="main"
 	   tal:define="errors python:request.get('errors', {});
-                   Iterator python:modules['Products.CMFPlone'].IndexIterator;
-                   tabindex python:Iterator();
-                   schematas here/Schemata;
-                  default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
-                   fieldset request/fieldset|options/fieldset|default_fieldset;
-                   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
+                       Iterator python:modules['Products.CMFPlone'].IndexIterator;
+                       tabindex python:Iterator();
+                       schematas here/Schemata;
+                       default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
+                       fieldset request/fieldset|options/fieldset|default_fieldset;
+                       fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
            tal:omit-tag="">
 
       <h1 i18n:translate="heading_edit_item">
-      Edit
+      Translate
           <span i18n:name="itemtype">
               <span i18n:translate=""
                     tal:content="here/archetype_name"
@@ -48,10 +49,9 @@
      <!-- translation language selector -->
      <div tal:condition="here/hasI18NContent">
        <form name="contentlanguageselector" method="POST" action="setCurrentLanguage" 
-             tal:define="current request/new_lang | here/getContentLanguage;
-                        languages python:list(here.availableLanguages());
-                        dummy python:languages.remove((master_language, here.languageDescription(master_language)));
-                        form_name string:translation_language;"
+             tal:define="languages python:list(here.availableLanguages());
+                         dummy python:languages.remove((master_language, here.languageDescription(master_language)));
+                         form_name string:translation_language;"
              tal:attributes="action string:${here/absolute_url}/setCurrentLanguage;
 		 	     name form_name">
          <metal:block use-macro="here/i18n_slot/macros/i18nLangSelect"/>
@@ -79,8 +79,12 @@
 
         <tal:fields tal:repeat="field python: schematas[fieldset].fields()">
           <tal:block tal:condition="field/hasI18NContent">
-            <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
-            <span metal:use-macro="python: here.widget(field.getName(), mode='view', use_label=0)"/>
+            <metal:dummy tal:define="dummy python:here.setCurrentLanguage(current, redirect=0);">
+              <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+            </metal:dummy>
+            <metal:dummy tal:define="dummy python:here.setCurrentLanguage(master_language, redirect=0);">
+              <span metal:use-macro="python: here.widget(field.getName(), mode='view', use_label=0)"/>
+            </metal:dummy>
           </tal:block>
           <tal:block tal:condition="python:not field.hasI18NContent() and field.required">
   	    <input type="hidden" tal:attributes="name field/getName;
