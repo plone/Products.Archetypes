@@ -1,6 +1,6 @@
 <tal:block define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
-                   tabindex python:Iterator();
+                   
                    schematas here/Schemata;
                    fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
@@ -24,7 +24,9 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       metal:use-macro="here/main_template/macros/master"
+      tal:define="tabindex tabindex|python:Iterator();"
       i18n:domain="plone">
+
 
   <metal:block fill-slot="javascript_head_slot"
                tal:define="css python:here.getUniqueWidgetAttr(fields, 'helper_css');
