@@ -66,8 +66,7 @@ class BaseContent(BaseObject,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mimetype = REQUEST.get_header('Content-Type', None)
-
+        
         file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)
@@ -75,7 +74,7 @@ class BaseContent(BaseObject,
 
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
+        ddata = marshaller.demarshall(self, data, mimetype=None,
                                       filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:

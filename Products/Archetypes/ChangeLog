@@ -1,3 +1,9 @@
+2003-10-03    <demo@bazil.runyaga.org>
+
+	* BaseContent.py (BaseContent.PUT): Dont Trust Content-Type Sent
+	By Client. We have the filename, so we can figure it out.
+	
+
 2003-10-03  Sidnei da Silva  <sidnei@dreamcatcher.homeunix.org>
 
 	* BaseUnit.py (newBaseUnit.update): Go with defaults, as we may
