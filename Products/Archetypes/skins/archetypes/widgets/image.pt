@@ -19,9 +19,38 @@
 
 
     <!-- Image Widgets -->
+
+    <div class="field" metal:define-macro="image_view">
+      <metal:label define-slot="widget_label" />
+      <tal:define define="unit accessor">
+        <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
+                           icon unit/getBestIcon | nothing;
+                           filename unit/filename | nothing"
+                   condition="python:size &gt; 0">
+
+          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName">
+            <img tal:condition="icon" src=""
+                 tal:attributes="src string:${here/portal_url}/$icon"/>
+              <tal:i18n i18n:translate="">View</tal:i18n>
+              <tal:filename tal:replace="filename | fieldName"/>
+          </a>
+          (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+          <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+          <a href=""
+             tal:condition="python:field.checkExternalEditor(here)"
+             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
+             tal:define="edit here/edit.gif">
+            <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+            <tal:i18n i18n:translate="">Edit</tal:i18n>
+          </a>
+
+        </tal:block>
+      </tal:define>
+    </div>
+
     <metal:define define-macro="view">
       <metal:display use-macro="here/widgets/image/macros/image_display" />
-      <metal:file use-macro="here/widgets/file/macros/file_view">download link</metal:file>
+      <metal:file use-macro="here/widgets/image/macros/image_view">download link</metal:file>
     </metal:define>
 
     <metal:define define-macro="edit">
@@ -32,7 +61,7 @@
               <br />
 	        </metal:display>
 	      </div>
-	      <metal:block metal:use-macro="here/widgets/file/macros/file_view"/> 
+	      <metal:block metal:use-macro="here/widgets/image/macros/image_view"/> 
           <div tal:condition="accessor">
             <input class="noborder"
                    type="checkbox"
