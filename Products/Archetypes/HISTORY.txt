@@ -48,6 +48,18 @@
    to a new method _validateOnAdd().
    [tiran]
 
+ * Added Danish translation. Thx to stonor!
+   [tiran]
+
+ * Added 'de-de' as fallback to the German translation
+   [tiran]
+
+ * Applied fix from [ 924832 ] Widget:isVisible always returns 'visible' for not
+   DictType which is fixing a broken behavior for Widget.isVisible()
+
+ * Fixed [ 1012570 ] Widget.py ReferenceField is horribly inefficient
+   [runyan]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

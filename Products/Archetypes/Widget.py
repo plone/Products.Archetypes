@@ -178,6 +178,7 @@ class ReferenceWidget(TypesWidget):
         'checkbox_bound': 5,
 
         'addable' : False, # create createObject link for every addable type
+        'destination_types' : None,
         'destination' : None, # may be:
                               # - ".", context object;
                               # - None, any place where
@@ -194,49 +195,69 @@ class ReferenceWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    security.declarePublic('addableTypes')
-    def addableTypes(self, instance, field):
-        """Returns a list of dictionaries which maps portal_type to its human readable
-        form."""
-        def lookupDestinationsFor(typeinfo, tool, purl):
-            """
-            search where the user can add a typeid instance
-            """
-            # first, discover who can contain the type
-            searchFor = []
+    def lookupDestinationsFor(self, typeinfo, tool, purl, destination_types=None):
+        """
+        search where the user can add a typeid instance
+        """
+        searchFor = []
+        
+        # first, discover who can contain the type
+        print 'lookup', destination_types
+        if destination_types is not None:
+            if type(destination_types) in (type(()), type([])):
+                searchFor += list(destination_types[:])
+            else:
+                searchFor.append(destination_types)
+        else:
             for regType in tool.listTypeInfo():
                 if typeinfo.globalAllow():
                     searchFor.append(regType.getId())
                 elif regType.filter_content_types and \
                     typeinfo.getId() in regType.allowed_content_types:
                     searchFor.append(regType.getId())
-            # after, gimme the path/s
-            containers = []
-            for wanted in searchFor:
-                for brain in \
-                    instance.portal_catalog(portal_type=wanted):
-                    obj = brain.getObject()
-                    if obj != None and \
-                        hasattr(obj.aq_explicit,'isPrincipiaFolderish'):
-                        containers.append(purl.getRelativeUrl(obj))
-            # ok, go on...
-            return containers
 
+        #pid = purl.getPortalObject().getId()
+        catalog = getToolByName(purl, 'portal_catalog')
+        containers = []
+        print searchFor
+        for wanted in searchFor:
+            for brain in catalog(portal_type=wanted):
+                containers.append(brain.relative_url)
+
+        return containers
+
+    security.declarePublic('addableTypes')
+    def addableTypes(self, instance, field):
+        """ Returns a list of dictionaries which maps portal_type 
+            to a human readable form.
+        """
         tool = getToolByName(instance, 'portal_types')
         purl = getToolByName(instance, 'portal_url')
+
+        lookupDestinationsFor = self.lookupDestinationsFor
+        getRelativeContentURL = purl.getRelativeContentURL
+
+        # if destination_types is None (by default) it will do
+        # N-portal_types queries to the catalog which is horribly inefficient
+        destination_types = getattr(field, 'destination_types', None)
+        destination = self.destination
         types = []
 
         options = {}
         for typeid in field.allowed_types:
-            if self.destination == None:
+            _info = tool.getTypeInfo(typeid)
+            if _info is None:                #XXX How could this be?
+                log("Warning: in Archetypes.Widget.lookupDestinationsFor: " \
+                    "portal type %s not found" % typeid )
+
+            if destination == None:
                 options[typeid]=[None]
-            elif isinstance(self.destination, DictType):
-                options[typeid]=self.destination.get(typeid, [None])
-            elif isinstance(self.destination, ListType):
-                options[typeid]=self.destination
+            elif isinstance(destination, DictType):
+                options[typeid]=destination.get(typeid, [None])
+            elif isinstance(destination, ListType):
+                options[typeid]=destination
             else:
-                place = getattr(aq_base(instance), self.destination,
-                    self.destination)
+                place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
                     place = place()
                 if isinstance(place, ListType):
@@ -244,34 +265,28 @@ class ReferenceWidget(TypesWidget):
                 else:
                     options[typeid] = [place]
 
-        for typeid in field.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                log("Warning: in Archetypes.Widget.lookupDestinationsFor: portal type %s not found" % typeid )
-                continue
-
             value = {}
             value['id'] = typeid
-            value['name'] = info.Title()
+            value['name'] = _info.Title()
             value['destinations'] = []
 
             for option in options.get(typeid):
+                print option, 'going to search'
                 if option == None:
                     value['destinations'] = value['destinations'] + \
-                        lookupDestinationsFor(info, tool, purl)
+                        lookupDestinationsFor(_info, tool, purl,
+                                          destination_types=destination_types)
                 elif option == '.':
-                    value['destinations'].append(
-                        purl.getRelativeContentURL(instance) )
+                    value['destinations'].append(getRelativeContentURL(instance))
                 else:
-                    place = getattr(aq_base(instance), self.destination,
-                        self.destination)
+                    place = getattr(aq_base(instance), destination, destination)
                     if callable(place):
                         place = place()
                     if isinstance(place, ListType):
-                        value['destinations'] = place + \
-                             value['destinations']
-                    else:
-                        value['destinations'].append(place)
+                        value['destinations'] = place + value['destinations']
+                    else:  
+                        #XXX Might as well check for type, doing it everywhere else
+                        value['destinations'].append(place) 
 
             if value['destinations']:
                 types.append(value)
