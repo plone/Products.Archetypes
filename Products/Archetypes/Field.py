@@ -697,7 +697,7 @@ class TextField(ObjectField):
         # fix for external editor support
         # set mimetype to the last state if the mimetype in kwargs is None or 'None'
         mimetype = kwargs.get('mimetype', None)
-        if not mimetype or mimetype == 'None':
+        if mimetype == 'None':
             kwargs['mimetype'] = self.getContentType(instance)
 
         if not IBaseUnit.isImplementedBy(value):
