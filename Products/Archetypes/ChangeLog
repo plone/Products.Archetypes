@@ -1,4 +1,10 @@
-2003-06-04  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
+2003-06-04  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* SQLStorage.py (BaseSQLStorage.unmap_fixedpoint): Was causing an
+	error if not yet initialized. There is a deep problem in
+	archetypes that we need to solve, which is to postpone
+	initialization until the object is in the ZODB, currently it is
+	being done on a not very friendly order.
 
 	* ArchetypeTool.py (ArchetypeTool.lookupObject): Return None if an
 	empty uid was passed.

@@ -36,6 +36,8 @@ class BaseSQLStorage(StorageLayer):
 
     def unmap_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
+        if value is None: # maybe not initialized
+            return (0, 0)
         split = 10 ** field.precision
         return (value / split), (value % split)
 
