@@ -820,6 +820,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return res
 
 
-
+    def lookupObject(self,uid):
+        import warnings
+        warnings.warn('ArchetypeTool.lookupObject is dreprecated',DeprecationWarning)
+        return self.reference_catalog.lookupObject(uid)
+    
+    getObject=lookupObject
 
 InitializeClass(ArchetypeTool)
