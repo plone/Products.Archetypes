@@ -32,7 +32,7 @@
 	       tal:attributes="name fieldName;
 	       value value;
 	       size widget/size;
-	       maxlength widget/maxlength;
+	       maxlength widget/maxlength|nothing;
 	       tabindex tabindex/next;"
 	       />
       </metal:use>

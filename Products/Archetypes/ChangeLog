@@ -1,5 +1,8 @@
 2003-12-06  Sidnei da Silva  <sidnei@awkly.org>
 
+	* Widget.py (ImageWidget.process_form): Added maxlength and size
+	to some widgets.
+
 	* BaseObject.py (BaseObject.getCharset): Ops, protect with view
 	permission, not Private. 
 

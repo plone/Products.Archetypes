@@ -351,6 +351,7 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
+        """ Return site default charset, or utf-8 """
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()
         if getattr(container, 'getCharset', None):

@@ -27,19 +27,28 @@ class TypesWidget(macrowidget):
         return className(self)
 
     def bootstrap(self, instance):
-        """Override if your widget needs data from the instance."""
-        return
+        if not self.description or not self.label:
+            field = self.findField(instance)
+            name = field.getName()
+            if not self.label:
+                self.label = capitalize(name)
+            if not self.description:
+                self.description = "Enter a value for %s" % self.label
 
-    def populateProps(self, field):
-        """This is called when the field is created."""
-        name = field.getName()
-        if not self.label:
-            self.label = capitalize(name)
-        if not self.description:
-            self.description = 'Enter a value for %s' % self.label
+
+    def findField(self, instance):
+        #This is a sad hack, I don't want widgets to have to take a
+        #reference to a field or its own name
+        for field in instance.Schema().fields():
+            if not hasattr(field, 'widget'):
+                continue
+            if field.widget is self:
+                return field
+        return None
 
     def isVisible(self, instance, mode='view'):
-        """decide if a field is visible in a given mode -> 'state' visible, hidden, invisible"""
+        """decide if a field is visible in a given mode -> 'state'
+        visible, hidden, invisible"""
         # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
         vis_dic = getattr(aq_base(self), 'visible', None)
         state = 'visible'
@@ -69,6 +78,7 @@ class DecimalWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/decimal",
         'size' : '5',
+        'maxlength' : '255',
         })
 
 class IntegerWidget(TypesWidget):
@@ -76,6 +86,7 @@ class IntegerWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/integer",
         'size' : '5',
+        'maxlength' : '255',
         })
 
 class ReferenceWidget(TypesWidget):
@@ -169,13 +180,16 @@ class KeywordWidget(TypesWidget):
         name = field.getName()
         existing_keywords = form.get('%s_existing_keywords' % name, empty_marker)
         if existing_keywords is empty_marker:
-            return empty_marker
+            existing_keywords = []
         new_keywords = form.get('%s_keywords' % name, empty_marker)
         if new_keywords is empty_marker:
-            return empty_marker
+            new_keywords = []
 
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
+
+        if not value: return empty_marker
+
         return value, {}
 
 
@@ -320,6 +334,8 @@ class PasswordWidget(TypesWidget):
         'modes' : ('edit',),
         'populate' : 0,
         'postback' : 0,
+        'size' : 20,
+        'maxlength' : '255',
         })
 
 class VisualWidget(TextAreaWidget):
