@@ -210,7 +210,8 @@ class ReferenceWidget(TypesWidget):
                     else:
                         value['destinations'].append(place)
 
-            types.append(value)
+            if value['destinations']:
+                types.append(value)
 
         return types
 
