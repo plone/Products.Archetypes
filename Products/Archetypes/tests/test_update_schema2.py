@@ -98,12 +98,12 @@ class test_update_schema2(SecurityRequestTest):
         self.failUnless(hasattr(t1, 'b'))
         self.failUnless(hasattr(t1, 'getA'))
         self.failUnless(hasattr(t1, 'getB'))
-        
+
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(DisplayListTest),
+        unittest.makeSuite(test_update_schema2),
         ))
 
 if __name__ == '__main__':
-    unittest.main()        
+    unittest.main()
