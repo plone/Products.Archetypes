@@ -38,7 +38,6 @@ class SchemaProvider(Persistent):
         ## resubmit to validate our cache, but I will punt now
         ## and do full composite. Fake something for now
         if self._schemaPolicy.validate(self, schemaSources):
-            print "HIT"
             return self.schema
 
         # PHASE: Composite
