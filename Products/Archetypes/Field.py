@@ -321,7 +321,7 @@ class TextField(ObjectField):
             if value == '':
                 return default, mime_type
             return value, mime_type
-        raise TextFieldException('Value is not File, String or BaseUnit: %r' % type(value))
+        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.name, type(value)))
 
     def set(self, instance, value, **kwargs):
         if not kwargs.has_key('mime_type'):
