@@ -49,9 +49,17 @@ Requires
 
   * MimetypesRegistry
 
+  * docutils > 0.3.3 (see notes)
+
   **Note:** Installing generator and validation as Python packages is no
   longer supported by Archetypes. If they are installed as Python packages,
   they will be silently ignored.
+
+  Note to docutils: You have to install a new version of docutils for Zope 2.7.0!
+  Zope 2.7.1+ will be shipped with docutils 0.3.3. You can download docutils at
+  http://docutils.sf.net/. Either you have to remove
+  ZOPE_HOME/lib/python/docutils after installing docutils or you have to replace
+  Zope's version by docutils 0.3.3+.
 
 Quickstart
 
