@@ -6,6 +6,7 @@ from common import *
 from utils import *
 from Products.Archetypes.public import *
 from Products.Archetypes.config import *
+from Products.Archetypes.BaseObject import BaseObject
 
 from Products.validation import validation, interfaces
 

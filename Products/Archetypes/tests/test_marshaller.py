@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.4 2004/02/08 12:26:55 dreamcatcher Exp $
+$Id: test_marshaller.py,v 1.5 2004/03/26 04:36:32 chrism Exp $
 """
 
 import os, sys
@@ -10,6 +10,7 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
+from Products.Archetypes.public import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
@@ -21,8 +22,13 @@ import Products.Archetypes.config as config
 from Products.Archetypes.examples.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
+from ZPublisher.HTTPRequest import HTTPRequest
+from ZPublisher.HTTPResponse import HTTPResponse
+from ZPublisher.BaseRequest import RequestContainer
 from Testing.makerequest import makerequest
 
+
+import sys
 from os import curdir
 from os.path import join, abspath, dirname, split
 import urllib
@@ -36,15 +42,15 @@ else:
     # Test was called by another test.
     _prefix = abspath(dirname(__file__))
 
-
-def putfile(file, mime_type):
-    class fooFile:
-        def __init__(self, file):
-            self.headers  = {'content-type' : mime_type}
-            self.filename = file.name
-            self.file = file
-    return FileUpload(fooFile(file))
-
+def aputrequest(file, content_type):
+    resp = HTTPResponse(stdout=sys.stdout)
+    environ = {}
+    environ['SERVER_NAME']='foo'
+    environ['SERVER_PORT']='80'
+    environ['REQUEST_METHOD'] = 'PUT'
+    environ['CONTENT_TYPE'] = content_type
+    req = HTTPRequest(stdin=file, environ=environ, response=resp)
+    return req
 
 class MarshallerTests(ArcheSiteTestCase):
     def afterSetUp(self):
@@ -53,7 +59,7 @@ class MarshallerTests(ArcheSiteTestCase):
         user = self.getManagerUser()
         newSecurityManager(None, user)
 
-    def test_objectReplace(self):
+    def test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
         site = self.getPortal()
         obj1 = makeContent(site, portal_type='DDocument', id='obj1')
@@ -63,20 +69,18 @@ class MarshallerTests(ArcheSiteTestCase):
         data = wordFile.read()
         wordFile.seek(0)
 
-
-        rc = makerequest(site)
-        request = rc.REQUEST
+        # put requests don't have the luxury of being able to specify a
+        # content type
+        request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        request.form['BODYFILE'] = putfile(wordFile, 'application/msword')
         word = site.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
-        assert word.getContentType('body') == 'application/msword'
-        assert word.getRawBody() == data
+        self.assertEqual(word.getContentType('body'), 'application/msword')
+        self.assertEqual(word.getRawBody(), data)
 
-
-    def test_rstreplace(self):
+    def test_textFieldObjectRSTreplace(self):
         ## And again with an RST
         site = self.getPortal()
         obj1 = makeContent(site, portal_type='DDocument', id='obj1')
@@ -86,16 +90,33 @@ class MarshallerTests(ArcheSiteTestCase):
         data = rstFile.read()
         rstFile.seek(0)
 
-        rc = makerequest(site)
-        request = rc.REQUEST
-        request.form['BODYFILE'] = putfile(rstFile, 'text/x-rst')
+        request = aputrequest(rstFile, 'text/x-rst')
+        request.processInputs()
         rst = site.obj1
         rst.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
-        assert rst.getContentType('body') == 'text/x-rst'
-        assert rst.getRawBody().strip() == data.strip()
+        self.assertEqual(rst.getContentType('body'), 'text/x-rst')
+        self.assertEqual(rst.getRawBody().strip(), data.strip())
 
+    def test_fileFieldObjectWordReplace(self):
+        #test that uploading to an existing object works
+        site = self.getPortal()
+        obj1 = makeContent(site, portal_type='SimpleFile', id='obj1')
+
+        wordFilePath = join(_prefix, "input", "word.doc")
+        wordFile = open(wordFilePath, 'r')
+        data = wordFile.read()
+        wordFile.seek(0)
+
+        request = aputrequest(wordFile, 'application/msword')
+        request.processInputs()
+        word = site.obj1
+        word.PUT(request, request.RESPONSE)
+
+        #and we can get the stuff back
+        self.assertEqual(word.getContentType('body'), 'application/msword')
+        self.assertEqual(str(word.getRawBody()), data)
 
     def setupCTR(self):
         #Modify the CTR to point to SimpleType
@@ -127,9 +148,9 @@ class MarshallerTests(ArcheSiteTestCase):
         site._setObject('test', obj)
 
         obj = site['test']
-        request = site.REQUEST
-        request['BODYFILE'] = wordFile
-        obj.PUT()
+        request = aputrequest(wordFile, 'application/msword')
+        request.processInputs()
+        obj.PUT(request, request.RESPONSE)
 
         wordFile.seek(0)
         data = wordFile.read()
@@ -138,6 +159,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
         self.assertEqual(word.archetype_name, DDocument.archetype_name)
         self.assertEqual(str(word.getBody(raw=1)), data)
+        self.assertEqual(word.getContentType('body'), 'application/msword')
 
 
 if __name__ == '__main__':

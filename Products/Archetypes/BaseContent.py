@@ -64,6 +64,9 @@ class BaseContentMixin(BaseObject,
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
 
         file = REQUEST['BODYFILE']
+        # XXX should we maybe not accept PUT requests without a
+        # content type?
+        mimetype = REQUEST.get_header('content-type', None)
         data = file.read()
         file.seek(0)
         try:
@@ -74,7 +77,7 @@ class BaseContentMixin(BaseObject,
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=None,
+        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
                                       filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
