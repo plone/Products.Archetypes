@@ -154,7 +154,6 @@ class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
             reloaded.append((id, o.module))
         return reloaded
 
-
     # mimetype oriented conversions ###########################################
 
     def registerTransform(self, name, transform):
@@ -428,8 +427,9 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     security.declareProtected(CMFCorePermissions.ManagePortal, 'reload')
     def reload(self):
         """ reload the module where the transformation class is defined """
-        log('Reloading transform %s' % self)
+        log('Reloading transform %s' % self.module)
         m = import_from_name(self.module)
         reload(m)
+        Transform.__init__(self, self.id, self.module)
 
 InitializeClass(Transform)

@@ -1,3 +1,9 @@
+2003-06-02  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* TransformTool.py (Transform.reload): Got TransformTool and
+	MimeTypesTool into a working state, so we can start from
+	something. Also, fixed reload method of TransformTool.
+
 2003-05-16  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* utils.py (DisplayList.__add__): Typo. mgsids -> msgids.
