@@ -26,7 +26,7 @@
 	  <div tal:condition="brefs">
 	    <strong>Cited By</strong>
 	    <div class="even" tal:repeat="ref brefs">
-	      <a hrf="#" tal:attributes="href python:ref.getSourceObject().absolute_url()"><img tal:attributes="src python: ref.getSourceObject().getIcon()"/> <span tal:content="python: ref.getSourceObject().Title()"/></a>
+	      <a href="#" tal:attributes="href python:ref.getSourceObject().absolute_url()"><img tal:attributes="src python: ref.getSourceObject().getIcon()"/> <span tal:content="python: ref.getSourceObject().Title()"/></a>
 	    </div>
 	  </div>
 	</div>
