@@ -2,7 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
-from Products.CMFCore.PortalFolder import PortalFolder
+from OFS.Folder import Folder
 from Referenceable import Referenceable
 from CatalogMultiplex  import CatalogMultiplex
 from ExtensibleMetadata import ExtensibleMetadata
@@ -16,7 +16,7 @@ class BaseFolderMixin(BaseObject,
                       Referenceable,
                       CatalogMultiplex,
                       SkinnedFolder,
-                      PortalFolder
+                      Folder
                       ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
@@ -38,21 +38,21 @@ class BaseFolderMixin(BaseObject,
     def manage_afterAdd(self, item, container):
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
-        PortalFolder.manage_afterAdd(self, item, container)
+        Folder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        PortalFolder.manage_afterClone(self, item)
+        Folder.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        PortalFolder.manage_beforeDelete(self, item, container)
+        Folder.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
     security.declareProtected(CMFCorePermissions.View, 'Title')
