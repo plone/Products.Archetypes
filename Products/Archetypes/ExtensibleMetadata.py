@@ -158,11 +158,13 @@ class ExtensibleMetadata(Persistence.Persistent):
         # standard schema which leads to AttributeStorage
         DateTimeField(
             'creation_date',
-            schemata='metadata',
             accessor='created',
             mutator='setCreationDate',
             default_method=DateTime,
             languageIndependent=True,
+            isMetadata=True,
+            schemata='metadata',
+            generateMode='mVc',
             widget=CalendarWidget(
                 label="Creation Date",
                 description=("Date this object was created"),
@@ -173,12 +175,13 @@ class ExtensibleMetadata(Persistence.Persistent):
         ),
         DateTimeField(
             'modification_date',
-            schemata='metadata',
             accessor='modified',
             mutator = 'setModificationDate',
             default_method=DateTime,
             languageIndependent=True,
             isMetadata=True,
+            schemata='metadata',
+            generateMode='mVc',
             widget=CalendarWidget(
                 label="Modification Date",
                 description=("Date this content was modified last"),
