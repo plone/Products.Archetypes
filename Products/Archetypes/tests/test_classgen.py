@@ -13,8 +13,9 @@ from Products.Archetypes import listTypes
 
 from DateTime import DateTime
 import unittest
+from copy import deepcopy
 
-content_type = BaseSchema + FieldList((
+schema = BaseSchema + Schema((
     TextField('atextfield',
               widget=StringWidget(description="Just a text field for the testing",
                                   label="A Text Field",
@@ -35,14 +36,17 @@ content_type = BaseSchema + FieldList((
 
 
 class Dummy(BaseContent):
-    type = content_type
-    
+    pass
+
+def gen_dummy():
+    Dummy.type = deepcopy(schema)
+    registerType(Dummy)
+    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
    
 class ClassGenTest( unittest.TestCase ):
 
     def setUp( self ):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        gen_dummy()
         self._dummy = Dummy(oid='dummy')
 
     def test_methods(self):

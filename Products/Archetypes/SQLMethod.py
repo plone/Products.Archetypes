@@ -169,6 +169,8 @@ class SQLMethod(Aqueduct.BaseQuery):
                                 "argument name in this context")
             else: raise
 
+        __traceback_info__ = query
+
         if src__: return query
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:

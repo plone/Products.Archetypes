@@ -12,20 +12,16 @@ import unittest
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
+from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from test_classgen import ClassGenTest, Dummy, gen_dummy
 
-from Products.Archetypes.Storage import AttributeStorage, MetadataStorage, MySQLStorage
-from test_classgen import ClassGenTest, Dummy
 from DateTime import DateTime
 
 class ChangeStorageTest( unittest.TestCase ):
     def setUp(self):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._old_storages = {}
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                self._old_storages[field.name] = field.getStorage()
 
     def test_changestorage(self):
         dummy = self._dummy
@@ -65,73 +61,32 @@ class ChangeStorageTest( unittest.TestCase ):
         self.failIf(dummy._md.has_key('atextfield'))
         self.failUnless(hasattr(dummy, 'atextfield'))
         
-    def tearDown(self):
-        dummy = self._dummy
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                field.setStorage(dummy, self._old_storages[field.name])
 
 class MetadataStorageTest( ClassGenTest ):
 
     def setUp(self):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        self._old_storages = {}
         for field in dummy.type.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                self._old_storages[field.name] = field.getStorage()
                 field.setStorage(dummy, MetadataStorage())
 
-    def tearDown(self):
-        dummy = self._dummy
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                field.setStorage(dummy, self._old_storages[field.name])
 
 class AttributeStorageTest( ClassGenTest ):
 
     def setUp( self ):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        self._old_storages = {}
         for field in dummy.type.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                self._old_storages[field.name] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
 
-    def tearDown(self):
-        dummy = self._dummy
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                field.setStorage(dummy, self._old_storages[field.name])
 
-
-class SQLStorageTest( ClassGenTest ):
-
-    def setUp( self ):
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        self._dummy = dummy = Dummy(oid='dummy')
-        self._old_storages = {}
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                self._old_storages[field.name] = field.getStorage()
-                field.setStorage(dummy, MySQLStorage())
-
-    def tearDown(self):
-        dummy = self._dummy
-        for field in dummy.type.fields():
-            if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
-                field.setStorage(dummy, self._old_storages[field.name])
-
-        
 def test_suite():
     return unittest.TestSuite((
+        unittest.makeSuite(ChangeStorageTest),
         unittest.makeSuite(MetadataStorageTest),
         unittest.makeSuite(AttributeStorageTest),
-        unittest.makeSuite(ChangeStorageTest),
         ))
 
 if __name__ == '__main__':
