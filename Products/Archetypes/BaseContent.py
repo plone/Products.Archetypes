@@ -13,6 +13,7 @@ from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
+from OFS.PropertyManager import PropertyManager
 
 class BaseContentMixin(BaseObject,
                        Referenceable,
@@ -122,7 +123,8 @@ class BaseContentMixin(BaseObject,
 InitializeClass(BaseContentMixin)
 
 class BaseContent(BaseContentMixin,
-                  ExtensibleMetadata):
+                  ExtensibleMetadata,
+                  PropertyManager):
     """A not-so-basic CMF Content implementation with Dublin Core
     Metadata included"""
 
@@ -130,6 +132,9 @@ class BaseContent(BaseContentMixin,
                       (IExtensibleMetadata,))
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
+
+    manage_options = BaseContentMixin.manage_options + \
+        PropertyManager.manage_options
 
     def __init__(self, oid, **kwargs):
         BaseContentMixin.__init__(self, oid, **kwargs)
