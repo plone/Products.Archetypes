@@ -38,7 +38,7 @@ DEBUG_SECURITY=False
 ## If you have graphviz http://www.research.att.com/sw/tools/graphviz/
 ## and its frontend "dot" installed on your system set this to True
 try:
-    GRAPHVIZ_BINARY = transform_utils.bin_search('dotxx')
+    GRAPHVIZ_BINARY = transform_utils.bin_search('dot')
 except transform_utils.MissingBinary:
     # graphviz not found
     GRAPHVIZ_BINARY = None
