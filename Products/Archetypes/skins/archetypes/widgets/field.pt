@@ -104,8 +104,15 @@
       </tal:condition>
 
       <tal:condition condition="python: visState == 'hidden'">
-        <metal:use use-macro="here/widgets/field/macros/hidden"/>
+        <metal:hiddenmacro
+          tal:define="widget_macro python:path('here/%s/macros' % widget.macro);
+                      default_hidden_macro here/widgets/field/macros/hidden;
+                      hidden_macro widget_macro/hidden | default_hidden_macro;
+                      ">
+              <metal:use use-macro="hidden_macro" />
+        </metal:hiddenmacro>
       </tal:condition>
+
     </metal:define>
 
     <metal:hidden_macro define-macro="hidden">
