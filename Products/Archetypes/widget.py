@@ -68,14 +68,18 @@ class widget:
         return {}
 
     def _translate_attribute(self, instance, name):
-        value = getattr(self, name)
-        if not value:
+        value = getattr(self, name, '')
+        msgid = getattr(self, name+'_msgid', None) or value
+        
+        if not value and not msgid:
             return ''
+        
         domain = (getattr(self, 'i18n_domain', None) or
                   getattr(instance, 'i18n_domain', None))
+                  
         if domain is None:
             return value
-        msgid = getattr(self, name+'_msgid', None) or value
+            
         return i18n.translate(domain, msgid, mapping=instance.REQUEST,
                               context=instance, default=value)
 
@@ -136,7 +140,7 @@ class macrowidget(widget):
                 template = instance.restrictedTraverse(path = path)
                 if template:
                     return template.macros[mode]
-            except Unauthorized:
+            except (Unauthorized, AttributeError):
                 # This means we didn't have access or it doesn't
                 # exit
                 pass
