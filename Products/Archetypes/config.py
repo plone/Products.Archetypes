@@ -78,7 +78,7 @@ HAS_GRAPHVIZ = False
 
 ## detect Python Imaging Libraries
 try:
-    import PIL.Image
+    from PIL import Image
 except ImportError:
     # no PIL, no scaled versions!
     from Products.Archetypes.lib.logging import log
@@ -87,8 +87,8 @@ except ImportError:
     del log
     HAS_PIL=False
 else:
-    del PIL.Image
     HAS_PIL=True
+    del Image
 
 import os
 _www = os.path.join(os.path.dirname(__file__), 'www')
