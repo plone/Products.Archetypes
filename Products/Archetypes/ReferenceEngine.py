@@ -3,17 +3,19 @@ from types import StringType, UnicodeType
 
 from Acquisition import aq_base
 
+from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
     IReference, IContentReference
 
-from Products.Archetypes.utils import make_uuid, getRelURL
+from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
 from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR
+     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
@@ -145,7 +147,8 @@ class Reference(Referenceable, SimpleItem):
         #Referenceable.manage_afterAdd(self, item, container)
         uc = getToolByName(container, UID_CATALOG)
         rc = getToolByName(container, REFERENCE_CATALOG)
-        url = self.getURL()
+        url = getRelURL(self, self.getPhysicalPath())
+
         uc.catalog_object(self, url)
         rc.catalog_object(self, url)
 
@@ -153,7 +156,7 @@ class Reference(Referenceable, SimpleItem):
         Referenceable.manage_beforeDelete(self, item, container)
         # Make sure to uncatalog self as well
         rc = getToolByName(container, REFERENCE_CATALOG)
-        url=  self.getURL()
+        url=  getRelURL(self, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
     def getURL(self):
@@ -457,7 +460,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
-        uc.uncatalog_object(getRelURL(self, object.getPhysicalPath()))
+        uc.uncatalog_object(self.getURL())
 
 
     ######

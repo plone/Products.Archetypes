@@ -1,16 +1,18 @@
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base, aq_chain, aq_parent
+from AccessControl import getSecurityManager,Unauthorized
 from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from OFS.Folder import Folder
-from utils import getRelURL
+from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -70,7 +72,9 @@ class Referenceable(Base):
         if refs:
             return [ref.getTargetObject() for ref in refs]
         return []
-
+    def getURL(self):
+        """the url used as the relative path based uid in the catalogs"""
+        return getRelURL(self, self.getPhysicalPath())
 
     def getBRefs(self, relationship=None):
         """get all the back referenced objects for this object"""
@@ -208,13 +212,13 @@ class Referenceable(Base):
     def _catalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(aq, config.UID_CATALOG)
-        url = getRelURL(aq, self.getPhysicalPath())
+        url = self.getURL()
         uc.catalog_object(self, url)
 
     def _uncatalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(aq, config.UID_CATALOG)
-        url = getRelURL(aq, self.getPhysicalPath())
+        url = self.getURL()
         uc.uncatalog_object(url)
 
     def _catalogRefs(self, aq, uc=None, rc=None, ignoreExceptions=1):
@@ -225,7 +229,7 @@ class Referenceable(Base):
             if not rc:
                 rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
-                url = '/'.join(ref.getPhysicalPath())
+                url = ref.getURL()
                 uc.catalog_object(ref, url)
                 try:
                     rc.catalog_object(ref, url)
