@@ -1,3 +1,11 @@
+2003-09-04  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.__getitem__): Avoid breakage when
+	fields dont take **kw.
+
+	* Marshall.py (RFC822Marshaller.demarshall): A couple more
+	marshalling fixes.
+
 2003-09-02  Sidnei da Silva  <sidnei@plone.org>
 
 	* Field.py (Field.getAccessor): Be more robust about fields

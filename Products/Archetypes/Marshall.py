@@ -47,7 +47,7 @@ class PrimaryFieldMarshaller(Marshaller):
             data   = data.getRaw()
         else:
             log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
-            content_type = guess_content_type(data)
+            content_type = guess_content_type(data) or 'text/plain'
             length = len(data)
             data = str(data)
 
@@ -59,16 +59,18 @@ class RFC822Marshaller(Marshaller):
         from Products.CMFDefault.utils import parseHeadersBody
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
+            if v.strip() == 'None':
+                v = None
             field = instance.getField(k)
             if field is not None:
-                mutator = getattr(instance, field.mutator, None)
+                mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
         kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
         if p is not None:
-            mutator = getattr(instance, p.mutator, None)
+            mutator = p.getMutator(instance)
             if mutator is not None:
                 mutator(body, **kwargs)
 

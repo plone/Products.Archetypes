@@ -204,7 +204,12 @@ class BaseObject(Implicit):
         accessor = self.Schema()[key].getEditAccessor(self)
         if not accessor:
             accessor = self.Schema()[key].getAccessor(self)
-        return accessor(maybe_baseunit=1)
+        try:
+            value = accessor(maybe_baseunit=1)
+        except TypeError:
+            # Fallback to no params call
+            value = accessor()
+        return value
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):
