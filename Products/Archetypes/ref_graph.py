@@ -86,7 +86,7 @@ def local_refernece_graph(inst):
         sob = ref.getSourceObject()
         source = Node(sob)
         if sob.UID() not in nodes:
-            nodes[sob.UID()] = target
+            nodes[sob.UID()] = source
 
         e = Edge(source, node, ref)
         graphs['backward'].setdefault(ref.relationship, []).append(e)
