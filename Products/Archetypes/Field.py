@@ -879,6 +879,9 @@ class ReferenceField(ObjectField):
         'relationship' : None, # required
         'allowed_types' : (),  # a tuple of portal types, empty means allow all
 
+        'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
+                                            # display path as well
+
         'referenceClass' : Reference,
         })
 
@@ -947,12 +950,20 @@ class ReferenceField(ObjectField):
             return self._Vocabulary(content_instance).sortedByValue()
 
     def _Vocabulary(self, content_instance):
-        catalog = getToolByName(content_instance, config.UID_CATALOG)
-        # should be obsolete soon:
-        index = 'portal_type' in catalog.indexes() and 'portal_type' or 'Type'
-        brains = catalog.searchResults(**{index: self.allowed_types})
+        pairs = []
+        pc = getToolByName(content_instance, 'portal_catalog')
+        uc = getToolByName(content_instance, config.UID_CATALOG)
+        brains = pc.searchResults(portal_type=self.allowed_types)
 
-        pairs = [(b.UID, b.Title and b.Title or b.id) for b in brains]
+        if len(brains) > self.vocabulary_display_path_bound:
+            label = lambda b:'%s at %s' % (b.Title or b.id, b.getPath())
+        else:
+            label = lambda b:b.Title or b.id
+        
+        for b in brains:
+            uid = uc.getMetadataForUID(b.getPath())['UID']
+            pairs.append((uid, label(b)))
+
         if not self.required and not self.multiValued:
             pairs.insert(0, ('', '<no reference>'))
 
