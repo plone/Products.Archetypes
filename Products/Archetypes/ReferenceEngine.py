@@ -1,6 +1,8 @@
 import os
 from types import StringType, UnicodeType
 
+from Acquisition import aq_base
+
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
@@ -409,7 +411,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ReferenceResolver, ZCatalog):
 
     def isReferenceable(self, object):
         return (IReferenceable.isImplementedBy(object) or
-                hasattr(object, 'isReferenceable'))
+                hasattr(aq_base(object), 'isReferenceable'))
 
     def reference_url(self, object):
         """return a url to an object that will resolve by reference"""
