@@ -1,0 +1,28 @@
+from Products.Archetypes.public import *
+
+schema = BaseSchema + Schema((
+    ReferenceField('link',
+                   relationship="A",
+                   ),
+
+    ReferenceField('links',
+                   multiValued=1,
+                   relationship="B"
+                   ),
+
+    ReferenceField('adds',
+                   widget=ReferenceWidget(addable=1),
+                   allowed_types=('Refnode', ),
+                   relationship="C",
+                   multiValued=1,
+                   required=1,
+                   ),
+
+    ))
+
+
+class Refnode(BaseContent):
+    """A simple archetype for testing references. It can point to itself"""
+    schema = schema
+
+registerType(Refnode)

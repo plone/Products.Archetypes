@@ -1,37 +1,11 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 from Interface import Interface, Attribute
 
 class IVocabulary(Interface):
-    """ interface for vocabularies used i.e. in fields """
+    """ interface for vocabularies used in fields """
 
     def getDisplayList(self, instance):
         """ returns an object of class DisplayList as defined in
-            Products.Archetypes.lib.vocabulary
+            Products.Archetypes.utils.
 
             The instance of the content is given as parameter.
         """
@@ -51,16 +25,6 @@ class IVocabulary(Interface):
             The instance of the content is given as parameter.
         """
 
-    def getTermByKey(self, key):
-        """ returns a term object implementing IVocabularyTerm
-            The instance of the content is given as parameter.
-        """
-
-    def createTerm(self, key, **kwargs):
-        """ creates a new empty term obj, append it to the vocabulary and
-            returns the IVocabularyTerm implementing object.
-        """
-
     def isFlat(self):
         """ returns true if the underlying vocabulary is flat, otherwise
             if its hierachical (tree-like) it returns false.
@@ -68,24 +32,6 @@ class IVocabulary(Interface):
 
     def showLeafsOnly(self):
         """ returns true for flat vocabularies. In hierachical (tree-like)
-            vocabularies it defines if only leafs should be displayed/selectable,
-            or knots and leafs.
-        """
-
-    def isOrderSignificant(self):
-        """ returns a Boolean whether the ordering of terms is significant.
-            Defaults to False
-        """
-
-class IVocabularyTerm(Interface):
-    """ interface for terms of a vocabulary """
-
-    def getTermKey(self):
-        """ returns the key inside the vocabulary.
-            this might differ from the Zope-id!
-        """
-
-    def getTermValue(self, **kwargs):
-        """ returns the string-value of the vocabulary. This might be language
-            sensitive.
+            vocabularies it defines if only leafs should be displayed, or
+            knots and leafs.
         """

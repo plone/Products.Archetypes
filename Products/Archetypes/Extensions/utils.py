@@ -1,51 +1,20 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import traceback, os
 from os.path import isdir, join
-from types import UnboundMethodType
+from types import *
 
 from Globals import package_home
 from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base, aq_parent
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews
-from Products.CMFCore.DirectoryView import registerDirectory
-from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import minimalpath
-from Products.Archetypes.lib.register import fixActionsForType
-from Products.Archetypes.lib.logging import deprecated
-from Products.Archetypes.lib.skins import SkinManager
+from Products.CMFCore.DirectoryView import addDirectoryViews, \
+     registerDirectory, manage_listAvailableDirectories
+from Products.CMFCore.utils import getToolByName, minimalpath
+from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
-from Products.Archetypes.config import UID_CATALOG
-from Products.Archetypes.config import REFERENCE_CATALOG
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
+from Products.Archetypes.config import *
 
 from Products.CMFFormController.Extensions.Install \
      import install as install_formcontroller
@@ -53,12 +22,10 @@ from Products.MimetypesRegistry.Extensions.Install \
      import install as install_mimetypes_registry
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
-from Products.Marshall.Extensions.Install \
-     import install as install_marshall
 
 
-from Products.Archetypes.refengine.referencecatalog import manage_addReferenceCatalog
-from Products.Archetypes.refengine.uidcatalog import manage_addUIDCatalog
+from Products.Archetypes.ReferenceEngine import \
+     manage_addReferenceCatalog, manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 
@@ -76,7 +43,6 @@ def install_dependencies(self, out, required=1):
             print >>out, install_formcontroller(self)
             print >>out, install_mimetypes_registry(self)
             print >>out, install_portal_transforms(self)
-            print >>out, install_marshall(self)
 
     if not qi.isProductInstalled('CMFFormController'):
         qi.installProduct('CMFFormController',locked=1)
@@ -87,9 +53,6 @@ def install_dependencies(self, out, required=1):
     if not qi.isProductInstalled('PortalTransforms'):
         qi.installProduct('PortalTransforms')
         print >>out, 'Installing PortalTransforms'
-    if not qi.isProductInstalled('Marshall'):
-        qi.installProduct('Marshall')
-        print >>out, 'Installing Marshall'
 
 def install_archetypetool(self, out):
     at = getToolByName(self, 'archetype_tool', None)
@@ -192,7 +155,7 @@ def install_templates(self, out):
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
-    at = getToolByName(self, 'archetype_tool')
+    at = self.archetype_tool
     for t in types:
         klass = t['klass']
         if ITemplateMixin.isImplementedByInstancesOf(klass):
@@ -212,14 +175,39 @@ def install_additional_templates(self, out, types):
             at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
-    """Deprecated.  Please use Archetypes.skins.
-    """
-    
-    deprecated("install_subskin: Please use Archetypes.skins")
-    sm = SkinManager(self)
-    sm.installPathsFromDir(product_skins_dir,
-                           globals=globals, position='custom')
+    skinstool=getToolByName(self, 'portal_skins')
 
+    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
+    productSkinsPath = minimalpath(fullProductSkinsPath)
+    registered_directories = manage_listAvailableDirectories()
+    if productSkinsPath not in registered_directories:
+        try:
+            registerDirectory(product_skins_dir, globals)
+        except OSError, ex:
+            if ex.errno == 2: # No such file or directory
+                return
+            raise
+    try:
+        addDirectoryViews(skinstool, product_skins_dir, globals)
+    except BadRequestException, e:
+        pass  # directory view has already been added
+
+    files = os.listdir(fullProductSkinsPath)
+    for productSkinName in files:
+        if (isdir(join(fullProductSkinsPath, productSkinName))
+            and productSkinName != 'CVS'
+            and productSkinName != '.svn'):
+            for skinName in skinstool.getSkinSelections():
+                path = skinstool.getSkinPath(skinName)
+                path = [i.strip() for i in  path.split(',')]
+                try:
+                    if productSkinName not in path:
+                        path.insert(path.index('custom') +1, productSkinName)
+                except ValueError:
+                    if productSkinName not in path:
+                        path.append(productSkinName)
+                path = ','.join(path)
+                skinstool.addSkinSelection(skinName, path)
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
@@ -278,7 +266,7 @@ def install_indexes(self, out, types):
         for field in cls.schema.fields():
             if field.index:
 
-                if isinstance(field.index, str):
+                if type(field.index) is StringType:
                     index = (field.index,)
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
@@ -446,12 +434,12 @@ def setupEnvironment(self, out, types,
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
-
     install_additional_templates(self, out, types)
 
     ftypes = filterTypes(self, out, types, package_name)
     install_indexes(self, out, ftypes)
     install_actions(self, out, ftypes)
+
 
 ## The master installer
 def installTypes(self, out, types, package_name,
@@ -472,7 +460,7 @@ def installTypes(self, out, types, package_name,
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
     AT based product.
-
+    
     This may take a very long time but it seems to be required under some
     circumstances.
     """
@@ -487,7 +475,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
 
     rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
-
+    
     # because manage_catalogFoundItems sucks we have to do it on our own ...
     func    = rc.catalog_object
     obj     = self
