@@ -65,7 +65,7 @@ def install_catalog(self, out):
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
 
-        for indexName, indexType in indexe_defs:
+        for indexName, indexType in index_defs:
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
             except:
