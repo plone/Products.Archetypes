@@ -848,13 +848,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if key.startswith(prefix):
                 k = key[len(prefix):]
                 v = REQUEST.form.get(key)
-                #if type(v) in (type(''), type(u'')):
-                #    v = v.split('\n')
-                #v = [i.strip() for i in v if i.strip()]
-                self.catalog_map[k] = v
+                self.setCatalogsByType(k, v)
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_catalogs")
 
+    def setCatalogsByType(self, meta_type, catalogList):
+        self.catalog_map[meta_type] = catalogList
+        
+    
     def getCatalogsByType(self, meta_type):
         """Return the catalog objects assoicated with a given type"""
         catalogs = []
