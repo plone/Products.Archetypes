@@ -2,8 +2,8 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
-
 from Referenceable import Referenceable
+from CatalogMultiplex  import CatalogMultiplex
 from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
 from debug import log, log_exc
@@ -11,7 +11,8 @@ from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
+class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
+                 SkinnedFolder, ExtensibleMetadata):
     """ A not-so-basic Folder implementation """
 
     __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata)
@@ -24,8 +25,8 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
     security = ClassSecurityInfo()
 
     def __init__(self, oid, **kwargs):
-        #call skinned first cause baseobject will set new defaults on
-        #those attributes anyway
+        # Call skinned first cause baseobject will set new defaults on
+        # those attributes anyway
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
@@ -35,18 +36,25 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
         SkinnedFolder.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
         SkinnedFolder.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
         SkinnedFolder.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
+
+    def setDescription(self, value, **kwargs):
+        """We have to override setDescription here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)
-

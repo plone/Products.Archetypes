@@ -26,10 +26,10 @@ def doCustomization(self):
     # Always include demo types
     result = installArchetypes(self, include_demo=1)
     print >>out, result
-    
+
     updatePortalProps(self, out)
     updateActions(self, out)
-    
+
     return out.getvalue()
 
 #
@@ -38,7 +38,7 @@ def doCustomization(self):
 def updatePortalProps(portal, out):
     # customize slots
     # add the slots to the portal folder
-    left_slots=( 
+    left_slots=(
         'here/navigation_tree_slot/macros/navigationBox',
         'here/login_slot/macros/loginBox',
         'here/about_slot/macros/aboutBox',
@@ -48,12 +48,12 @@ def updatePortalProps(portal, out):
         'here/calendar_slot/macros/calendarBox',
         'here/workflow_review_slot/macros/review_box',
         )
-    
+
     portal._updateProperty('left_slots', left_slots)
     portal._updateProperty('right_slots', right_slots)
     portal.portal_properties.site_properties._updateProperty('localTimeFormat', '%b. %d, %y')
     portal.portal_properties.site_properties._updateProperty('localLongTimeFormat', '%b. %d, %y %I:%M %p')
-    
+
 
 def updateActions(portal, out):
     actions_tool=getToolByName(portal, 'portal_actions')
@@ -65,8 +65,8 @@ def updateActions(portal, out):
 ##                            CMFCorePermissions.ModifyPortalContent,
 ##                            'folder_buttons',
 ##                            )
-    
-            
-    
+
+
+
 def register(context, app_state):
     addPolicy('Archetypes Site', ArchetypeCustomizationPolicy())

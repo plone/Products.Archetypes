@@ -3,8 +3,8 @@
 #
 # Author: Andreas Jung
 # Contact: andreas@andreas-jung.com
-# Revision: $Revision: 1.2.4.1 $
-# Date: $Date: 2003/07/10 00:02:59 $
+# Revision: $Revision: 1.3 $
+# Date: $Date: 2003/07/10 21:19:13 $
 # Copyright: This module has been placed in the public domain.
 
 """

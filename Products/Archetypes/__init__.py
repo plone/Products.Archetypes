@@ -1,4 +1,5 @@
 from AccessControl import ModuleSecurityInfo
+from AccessControl import allow_class
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
@@ -6,8 +7,27 @@ from Products.CMFCore.TypesTool import TypesTool, typeClasses
 from config import *
 from debug import log, log_exc
 
+# Bootstrap generator and validation package for users installing them in
+# the Products directory
+try:
+    import generator
+    import validation
+except ImportError:
+    import sys
+    from os.path import dirname
+    sys.path.append(dirname(__path__[0]))
+    import generator
+    import validation
+
 # Bootstrap Zope-dependent validators
 import Validators
+
+# Plone compatibility with raw CMF
+try:
+    from Products.CMFPlone.PloneUtilities import IndexIterator
+except:
+    from PloneCompat import IndexIterator
+allow_class(IndexIterator)
 
 try:
     import Products.BTreeFolder2
@@ -20,9 +40,11 @@ from ArchetypeTool import ArchetypeTool, \
                           registerType, \
                           process_types, \
                           listTypes
+from ArchTTWTool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
+    ArchTTWTool,
     )
 
 ###
@@ -35,9 +57,9 @@ types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
-    from Extensions import ArchetypeSite
+##    from Extensions import ArchetypeSite
 
-    ArchetypeSite.register(context, globals())
+##    ArchetypeSite.register(context, globals())
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,
@@ -58,3 +80,7 @@ def initialize(context):
             fti = ftis,
             ).initialize(context)
 
+    from Products.CMFCore.DirectoryView import registerFileExtension
+    from Products.CMFCore.FSFile import FSFile
+    registerFileExtension('xsl', FSFile)
+    registerFileExtension('xul', FSFile)

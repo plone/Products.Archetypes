@@ -55,9 +55,7 @@
 	  tal:attributes="name string:${fieldName}:list;
 	                  id fieldName;
 	                  size widget/size;
-	                  tabindex tabindex/next;
-	                  onfocus string:formtooltip('${fieldName}_help',1);
-	                  onblur string:formtooltip('${fieldName}_help',0);">
+	                  tabindex tabindex/next;">
 	  <option selected=""
 	    tal:repeat="item vocab"
 	    tal:attributes="value item;

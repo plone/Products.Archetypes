@@ -1,11 +1,14 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
+from common import *
+from utils import *
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from test_classgen import Dummy as BaseDummy
+
+from os import curdir
+from os.path import join, abspath, dirname, split
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -15,9 +18,16 @@ from Products.Archetypes import Field
 from OFS.Image import File
 from DateTime import DateTime
 
-import unittest
+try:
+    __file__
+except NameError:
+    # Test was called directly, so no __file__ global exists.
+    _prefix = abspath(curdir)
+else:
+    # Test was called by another test.
+    _prefix = abspath(dirname(__file__))
 
-fields = ['ObjectField', 'StringField', 'MetadataField',
+fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField',
@@ -28,9 +38,12 @@ field_instances = []
 for f in fields:
     field_instances.append(getattr(Field, f)(f.lower()))
 
+stub_file = None
+stub_content = ''
+
 field_values = {'objectfield':'objectfield',
                 'stringfield':'stringfield',
-                'filefield':'filefield',
+                'filefield_file':stub_file,
                 'textfield':'textfield',
                 'datetimefield':'2003-01-01',
                 'linesfield':'bla\nbla',
@@ -41,7 +54,7 @@ field_values = {'objectfield':'objectfield',
 
 expected_values = {'objectfield':'objectfield',
                    'stringfield':'stringfield',
-                   'filefield':'filefield',
+                   'filefield':stub_content,
                    'textfield':'textfield',
                    'datetimefield':DateTime('2003-01-01'),
                    'linesfield':['bla', 'bla'],
@@ -53,20 +66,25 @@ expected_values = {'objectfield':'objectfield',
 
 schema = Schema(tuple(field_instances))
 
-class Dummy(BaseContent):
+class Dummy(BaseDummy):
     schema = schema
 
 class FakeRequest:
     other = {}
     form = {}
 
-class ProcessingTest( unittest.TestCase ):
+class ProcessingTest(ArchetypesTestCase):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
+        global stub_file, stub_content
+        stub_file = file(join(_prefix, 'input', 'rest1.rst'))
+        stub_content = stub_file.read()
+        stub_file.seek(0)
 
     def test_processing(self):
         dummy = self._dummy
@@ -78,7 +96,7 @@ class ProcessingTest( unittest.TestCase ):
             got = dummy.Schema()[k].get(dummy)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v)
+            self.assertEquals(got, v, '[%r] != [%r]'%(got, v))
 
     def test_processing_fieldset(self):
         dummy = self._dummy
@@ -91,15 +109,21 @@ class ProcessingTest( unittest.TestCase ):
             got = dummy.Schema()[k].get(dummy)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v)
+            self.assertEquals(got, v, '[%r] != [%r]'%(got, v))
 
-    def tearDown(self):
+    def beforeTearDown(self):
+        global stub_file
+        stub_file.close()
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ProcessingTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(ProcessingTest))
+        return suite

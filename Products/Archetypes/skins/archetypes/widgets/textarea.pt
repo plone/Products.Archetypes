@@ -24,15 +24,11 @@
 	      id fieldName;
 	      cols widget/cols;
 	      rows widget/rows;
-              tabindex tabindex/next;
-              onfocus string:formtooltip('${fieldName}_help',1);
-              onblur string:formtooltip('${fieldName}_help',0);
-	      "
+	      tabindex tabindex/next;"
 	      tal:define="base python: hasattr(value, 'isUnit');
 	      binary python: base and value.isBinary() or here.isBinary(fieldName);
 	      content python: (base == 1) and value.getRaw() or value ;
-	      content python: (binary == 0) and content or '';
-	      "
+	      content python: (binary == 0) and content or '';"
 	      tal:content="content"/>
     </metal:define>
 
@@ -46,10 +42,13 @@
 	        id string:${fieldName}_text_format;
 	        name string:${fieldName}_text_format;
 	        tabindex tabindex/next;">
-	    <option selected=""
-		    tal:repeat="item mimetypes"
-	            tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
-	            tal:content="item" />
+      <option selected="selected" value=""
+              tal:attributes="value contentType">
+	 (no change)
+      </option>
+      <option tal:repeat="item mimetypes"
+	      tal:attributes="value item"
+	      tal:content="item" />
     </select>
     </tal:define>
     </metal:define>

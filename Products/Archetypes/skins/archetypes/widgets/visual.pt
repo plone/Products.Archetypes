@@ -25,16 +25,11 @@
 	      value value;
 	      cols widget/cols;
 	      rows widget/rows;
-
-              tabindex tabindex/next;
-              onfocus string:formtooltip('${fieldName}_help',1);
-              onblur string:formtooltip('${fieldName}_help',0);
-	      "
+              tabindex tabindex/next;"
 	      tal:define="base python: hasattr(value, 'isUnit');
 	      binary python: base and value.isBinary() or 0;
 	      content python: (base == 1) and value.getRaw() or value ;
-	      content python: (binary == 0) and content or '';
-	      "
+	      content python: (binary == 0) and content or '';"
 	      tal:content="content"/>
     </metal:define>
 
@@ -67,8 +62,6 @@
           <div tal:define="inputname  fieldName;
               formname   string:edit_form;
               inputvalue value;
-              onfocus string:formtooltip('body_help',1);
-              onblur string:formtooltip('body_help',0);
               width widget/width;
               height widget/height;
               tabindex tabindex/next;">

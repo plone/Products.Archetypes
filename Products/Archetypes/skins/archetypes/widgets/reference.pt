@@ -60,16 +60,6 @@
 		&nbsp;
 	     </span>
 
-	    <span tal:condition="field/addable|nothing" tal:omit-tag="">
-              <span tal:repeat="addable field/allowed_types" tal:omit-tag="">
-	      <a href="#" tal:define="create string:createObject?type_name=${addable};
-                                      dest python:test(field.destination,
-                                           '%s%s' % (portal_url, field.destination),
-                                           container.absolute_url())"
-	                  tal:attributes="href string:${dest}/${create}"
-	                  tal:content="string:Add New ${addable}">Add new foo</a>
-             </span>
-	    </span>
 	  </div>
 	  <!-- Pulldown when longer -->
 	  <div tal:condition="python: vlen >= 4">
@@ -83,13 +73,18 @@
 		tal:content="python: vocab.getValue(item)"
 		/>
 	    </select>
-	    <span tal:condition="field/addable|nothing">
-	      <a href="#" tal:repeat="addable field/allowed_types"
-	                  tal:attributes="href string:${field/destination|here/absolute_url}/createObject?type_name=${addable}"
-	                  tal:content="string:Add New ${addable}">Add new foo</a>
-	    </span>
 	  </div>
 
+	  <!-- handle "addable" option -->
+	  <div tal:condition="field/addable|nothing">
+	    <span tal:repeat="addable field/allowed_types" tal:omit-tag="">
+	      <a href="#" tal:define="create string:createObject?type_name=${addable};
+		 dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url())"
+		 tal:attributes="href string:${dest}/${create}"
+		 tal:content="string:Add New ${addable}">
+		Add new foo
+	      </a>
+	    </span>
 	</div>
       </div>
     </div>

@@ -30,6 +30,18 @@ class Marshaller:
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
 
+    def demarshall(self, instance, data, **kwargs):
+        raise NotImplemented
+
+    def marshall(self, instance, **kwargs):
+        raise NotImplemented
+
+    def initializeField(self, instance, field):
+        pass
+
+    def cleanupField(self, instance, field):
+        pass
+
 class PrimaryFieldMarshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
@@ -47,7 +59,10 @@ class PrimaryFieldMarshaller(Marshaller):
             data   = data.getRaw()
         else:
             log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
-            content_type = guess_content_type(data)
+            if hasattr(p, 'getContentType'):
+                content_type = p.getContentType(instance) or 'text/plain'
+            else:
+                content_type = data and guess_content_type(data) or 'text/plain'
             length = len(data)
             data = str(data)
 
@@ -59,16 +74,18 @@ class RFC822Marshaller(Marshaller):
         from Products.CMFDefault.utils import parseHeadersBody
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
+            if v.strip() == 'None':
+                v = None
             field = instance.getField(k)
             if field is not None:
-                mutator = getattr(instance, field.mutator, None)
+                mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
-        kwargs.update({'mimetype': content_type})
+        kwargs.setdefault('mimetype', content_type)
         p = instance.getPrimaryField()
         if p is not None:
-            mutator = getattr(instance, p.mutator, None)
+            mutator = p.getMutator(instance)
             if mutator is not None:
                 mutator(body, **kwargs)
 
@@ -82,6 +99,11 @@ class RFC822Marshaller(Marshaller):
         if IBaseUnit.isImplementedBy(body):
             content_type = str(body.getContentType())
             body   = body.getRaw()
+        else:
+            if p and hasattr(p, 'getContentType'):
+                content_type = p.getContentType(instance) or 'text/plain'
+            else:
+                content_type = body and guess_content_type(body) or 'text/plain'
 
         headers = {}
         fields = [f for f in instance.Schema().fields()

@@ -9,7 +9,7 @@ schema = BaseSchema + Schema((
                                        'text/restructured',
                                        'text/html',
                                        'application/msword'),
-              widget  = RichWidget,
+              widget  = RichWidget(),
               ),
     ))
 
@@ -20,4 +20,3 @@ class SimpleType(BaseContent):
 
 
 registerType(SimpleType)
-

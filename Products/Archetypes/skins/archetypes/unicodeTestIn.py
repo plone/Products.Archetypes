@@ -8,6 +8,6 @@
 ##parameters=value, vocab
 
 value = context.unicodeEncode(value)
-vocab = [context.unicodeEncode(str(v)) for v in vocab]
+vocab = [context.unicodeEncode(v) for v in vocab]
 
 return value in vocab

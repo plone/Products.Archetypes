@@ -19,19 +19,17 @@
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
-        <input metal:fill-slot="widget_body"
-               type="text" 
-	       name="" 
-	       value="" 
-	       size="30" 
-               tabindex="#"
-	       tal:attributes="name string:${fieldName};
-	       value value;
-	       size widget/size;
-               tabindex tabindex/next;
-               onfocus string:formtooltip('${fieldName}_help',1);
-               onblur string:formtooltip('${fieldName}_help',0);
-	"/>
+      <input metal:fill-slot="widget_body"
+	     type="text"
+	     name=""
+	     value=""
+	     size="30"
+	     tabindex="#"
+	     tal:attributes="name string:${fieldName};
+	     value value;
+	     size widget/size;
+	     tabindex tabindex/next;"
+	     />
     </metal:use>
     </metal:define>
     <div metal:define-macro="search">
@@ -42,6 +40,6 @@
 
 
   </body>
-  
+
 </html>
 

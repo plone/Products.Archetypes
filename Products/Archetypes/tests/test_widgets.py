@@ -1,28 +1,28 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
+from common import *
+from utils import *
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_widgets', 'Cannot import ArcheSiteTestCase')
 
 from Products.Archetypes.public import *
 from OFS.Image import File
 from DateTime import DateTime
 from Acquisition import aq_base
 
-import ClientForm
+try:
+    import ClientForm
+except ImportError:
+    raise TestPreconditionFailed('test_widgets', 'Cannot import ClientForm')
 import urllib2
 
-from Products.CMFPlone.Portal import manage_addSite
 
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from thread import start_new_thread
 from utils import start_http
-
-import unittest
 
 field_values = {'objectfield':'objectfield',
                 'stringfield':'stringfield',
@@ -59,23 +59,18 @@ def findEditForm(forms):
             return f
     return None
 
-class WidgetTests( SecurityRequestTest ):
-
-    def setUp(self):
-        SecurityRequestTest.setUp(self)
-        try:
-            self.root.manage_delObjects(ids=('testsite',))
-        except:
-            pass
-        manage_addSite( self.root, 'testsite', \
-                        custom_policy='Archetypes Site' )
-        start_new_thread(start_http, ('127.0.0.1', 8080))
+class WidgetTests(ArcheSiteTestCase):
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self)
+        user = self.getManagerUser()
+        newSecurityManager( None, user )
+        start_new_thread(start_http, ('127.0.0.1', 50080))
 
     def test_widgets(self):
         site = self.root.testsite
         doc = makeContent(site, portal_type='ComplexType', id='demodoc')
         get_transaction().commit()
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
+        request = urllib2.Request("http://127.0.0.1:50080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)
@@ -86,7 +81,7 @@ class WidgetTests( SecurityRequestTest ):
                 control.readonly = 0
             form[k] = v
         response = urllib2.urlopen(form.click("form_submit"))
-        request = urllib2.Request("http://127.0.0.1:8080/testsite/demodoc/portal_form/base_edit")
+        request = urllib2.Request("http://127.0.0.1:50080/testsite/demodoc/base_edit")
         response = urllib2.urlopen(request)
         forms = ClientForm.ParseResponse(response)
         form = findEditForm(forms)
@@ -95,7 +90,7 @@ class WidgetTests( SecurityRequestTest ):
             control = form.find_control(k)
             assert form[k] == v, 'Expected %s on %s, got %s' % (v, k, form[k])
 
-    def tearDown(self):
+    def beforeTearDown(self):
         self.root._delObject('testsite',)
         SecurityRequestTest.tearDown(self)
         try:
@@ -105,11 +100,15 @@ class WidgetTests( SecurityRequestTest ):
         except ImportError:
             from Lifetime import shutdown
             shutdown(exit_code=0, fast=1)
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(WidgetTests),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(WidgetTests))
+        return suite

@@ -79,5 +79,3 @@ class Converter(ContentDriver):
                 log_exc()
 
         return 1
-
-

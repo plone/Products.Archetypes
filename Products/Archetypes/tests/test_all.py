@@ -25,10 +25,11 @@ def test_suite():
         'test_schemata',
         'test_sitepolicy',
         'test_sqlstorage',
-        'test_update_schema1',
+        #'test_update_schema1',
         # 'test_update_schema2', # Can't run both together.
         'test_utils',
         'test_utils2',
+        'test_unicode',
         'test_vocabulary',
         # 'test_widgets', # Run this one with care. It may harm your database.
         ])

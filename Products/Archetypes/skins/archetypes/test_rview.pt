@@ -3,12 +3,29 @@
       lang="en-US"
       metal:use-macro="here/main_template/macros/master">
   <body>
-    <div metal:fill-slot="main">
-      <div tal:define="fields python:here.type.filterFields(isMetadata=0);
-	dummy python: fields.reverse();"
-	tal:repeat="field fields">
-	<span tal:replace="structure python: here.widget(field.name,
-	  mode='view',context=context)"/><br/>
+    <div metal:fill-slot="main"
+         tal:define="portal_type python:here.getPortalTypeName().lower();
+                     view_template python:'%s_view' % portal_type;
+                     view_macros python:path('here/%s/macros|nothing' % view_template);
+                     body_macro view_macros/body|nothing;
+                     errors python:request.get('errors', {})">
+      <div metal:define-macro="main"
+           tal:omit-tag="">
+
+	   <h1 tal:content="here/title_or_id" metal:use-macro="view_macros/header|default" />
+
+	   <div tal:condition="not:body_macro"
+	        tal:define="fields python: here.Schema().filterFields(isMetadata=0); dummy python: fields.reverse();"
+                tal:repeat="field fields">
+	      <span metal:use-macro="python: here.widget(field.getName(), mode='view', use_label=1)"/>
+           </div>
+
+	   <div tal:condition="body_macro">
+               <metal:block use-macro="body_macro" />
+           </div>
+
+	   <metal:block use-macro="view_macros/footer|default" />
+
       </div>
     </div>
   </body>

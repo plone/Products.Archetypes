@@ -2,18 +2,20 @@ from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from debug import log, log_exc
 from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
-
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
+from CatalogMultiplex import CatalogMultiplex
 
-class BaseContent(BaseObject, Referenceable,
+class BaseContent(BaseObject,
+                  Referenceable,
+                  CatalogMultiplex,
                   PortalContent,
                   Historical,
                   ExtensibleMetadata):
@@ -53,15 +55,6 @@ class BaseContent(BaseObject, Referenceable,
         BaseObject.manage_beforeDelete(self, item, container)
         PortalContent.manage_beforeDelete(self, item, container)
 
-    security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
-    def getPrimaryField(self):
-        """The primary field is some object that responds to
-        PUT/manage_FTPget events.
-        """
-        fields = self.Schema().filterFields(primary=1)
-        if fields: return fields[0]
-        return None
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
     def PUT(self, REQUEST, RESPONSE):
@@ -72,19 +65,16 @@ class BaseContent(BaseObject, Referenceable,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mimetype=REQUEST.get_header('Content-Type', None)
 
-        file=REQUEST['BODYFILE']
+        file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)
-        filename = REQUEST._steps[0] #XXX fixme, use a real name
-
-        #transformer = getToolByName(self, 'transform_tool')
-        #mimetype   = transformer.classify(data, mimetype=type)
+        filename = REQUEST._steps[-2] #XXX fixme, use a real name
 
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype)
+        ddata = marshaller.demarshall(self, data, mimetype=None,
+                                      filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
@@ -120,4 +110,3 @@ class BaseContent(BaseObject, Referenceable,
             data=data.next
 
 InitializeClass(BaseContent)
-

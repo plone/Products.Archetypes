@@ -1,7 +1,7 @@
 """
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 
-$Id: OrderedBaseFolder.py,v 1.2 2003/05/13 10:07:25 vladoi Exp $
+$Id: OrderedBaseFolder.py,v 1.3 2003/11/03 18:51:26 dreamcatcher Exp $
 """
 
 from AccessControl import ClassSecurityInfo
@@ -86,7 +86,7 @@ InitializeClass(OrderedFolder)
 
 class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMetadata):
     """ An ordered base Folder implementation """
-    
+
     __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata,
                       IOrderedFolder)
 

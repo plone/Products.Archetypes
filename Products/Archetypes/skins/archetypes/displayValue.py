@@ -7,6 +7,7 @@
 ##bind subpath=traverse_subpath
 ##parameters=vocab, value
 
+
 try:
     # Maybe a string?
     value.capitalize()

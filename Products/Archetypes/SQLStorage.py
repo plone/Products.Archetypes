@@ -26,7 +26,7 @@ class BaseSQLStorage(StorageLayer):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer':'int'}
-    
+
     db_type_map = {'fixedpoint' : 'integer'}
 
     def map_fixedpoint(self, field, value):
@@ -47,7 +47,7 @@ class BaseSQLStorage(StorageLayer):
             return value.ISO()[:-2] + str(value.second())
         except:
             return None
-    
+
     def map_object(self, field, value):
         __traceback_info__ = repr(value)
         return repr(value)
@@ -62,7 +62,7 @@ class BaseSQLStorage(StorageLayer):
 
     map_reference = map_object
     unmap_reference = unmap_object
-    
+
     def map_lines(self, field, value):
         __traceback_info__ = repr(value)
         return '\n'.join(value)
@@ -248,7 +248,7 @@ class GadflySQLStorage(BaseSQLStorage):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer':'integer'}
-    
+
     db_type_map = {'text' : 'varchar',
                    'object' : 'varchar',
                    'string' : 'varchar',
@@ -273,7 +273,7 @@ class MySQLSQLStorage(BaseSQLStorage):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer':'int'}
-    
+
     db_type_map = {'object' : 'blob',
                    'string' : 'text',
                    'reference' : 'text',
@@ -300,7 +300,7 @@ class PostgreSQLStorage(BaseSQLStorage):
                       where <dtml-sqltest UID op="eq" type="string">"""
 
     sqlm_type_map = {'integer': 'int'}
-    
+
     db_type_map = {'object' : 'bytea',
                    'string' : 'text',
                    'reference' : 'text',
