@@ -19,7 +19,7 @@ class BaseUnit(File):
     security = ClassSecurityInfo()
 
     def __init__(self, name, file='', instance=None, **kw):
-        self.id = name
+        self.id = self.__name__ = name
         self.update(file, instance, **kw)
 
     def update(self, data, instance, **kw):
