@@ -17,7 +17,6 @@ from Products.Archetypes.examples import *
 class ReferenceableTests(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self) 
-        get_transaction().begin() 
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
@@ -163,7 +162,6 @@ class ReferenceableTests(ArcheSiteTestCase):
 
     def beforeTearDown(self): 
         noSecurityManager()
-        get_transaction().abort()
         ArcheSiteTestCase.beforeTearDown(self)
 
 
