@@ -222,4 +222,5 @@ class PostgreSQLStorage(BaseSQLStorage):
         'object': 'bytea',
         'fixedpoint': 'integer',
         'reference': 'text',
+        'datetime': 'timestamp',
         }
