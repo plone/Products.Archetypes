@@ -6,7 +6,7 @@ from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from Widget import StringWidget, LinesWidget, \
+from Widget import StringWidget, LinesWidget, DecimalWidget, \
      BooleanWidget, CalendarWidget, ImageWidget, ReferenceWidget
 from utils import capitalize, DisplayList
 from debug import log, log_exc
