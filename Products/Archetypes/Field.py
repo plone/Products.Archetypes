@@ -342,41 +342,41 @@ class Field(DefaultLayerContainer):
     def Vocabulary(self, content_instance=None):
         """
         returns a DisplayList
-        
+
         uses self.vocabulary as source
-        
+
         1) Dynamic vocabulary:
 
             precondition: a content_instance is given.
-            
-            has to return a: 
+
+            has to return a:
                 * DisplayList or
                 * list of strings or
-                * list of 2-tuples with strings: 
+                * list of 2-tuples with strings:
                     '[("key1","value 1"),("key 2","value 2"),]'
-                        
+
             the output is postprocessed like a static vocabulary.
-            
+
             vocabulary is a string:
                 if a method with the name of the string exists it will be called
-                
+
             vocabulary is a class implementing IVocabulary:
                 the "getDisplayList" method of the class will be called.
-                
-                
-        2) Static vocabulary 
-        
+
+
+        2) Static vocabulary
+
             * is already a DisplayList
             * is a list of 2-tuples with strings (see above)
-            * is a list of strings (in this case a DisplayList with key=value 
+            * is a list of strings (in this case a DisplayList with key=value
               will be created)
-        
+
         """
 
         value = self.vocabulary
         if not isinstance(value, DisplayList):
-            
-            
+
+
             if content_instance is not None and type(value) in STRING_TYPES:
                 # dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
@@ -401,7 +401,7 @@ class Field(DefaultLayerContainer):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if len(sample) != 2:
-                    # if not a 2-tuple 
+                    # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
             elif len(sample) and type(sample[0]) == type(''):
@@ -1002,8 +1002,9 @@ class ReferenceField(ObjectField):
 
     """A field for creating references between objects.
 
-    Values used in get() and set() methods are either string or list
-    depending on multiValued. The strings represent UIDs.
+    get() returns the list of objects referenced under the relationship
+    set() converts a list of target UIDs into references under the
+    relationship associated with this field.
 
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
@@ -1027,9 +1028,8 @@ class ReferenceField(ObjectField):
 
 
     def get(self, instance, **kwargs):
-        """Not really publicly useful.
-
-        See IReferenceable for more convenient ways."""
+        """get() returns the list of objects referenced under the relationship
+        """
         return instance.getRefs(relationship=self.relationship)
 
     def set(self, instance, value, **kwargs):
@@ -1045,8 +1045,8 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if not self.multiValued and value:
-            value = (value,)
+        #if not self.multiValued and value:
+        #    value = (value,)
 
         if not value:
             value = ()
@@ -1076,6 +1076,7 @@ class ReferenceField(ObjectField):
 
     def _Vocabulary(self, content_instance):
         pairs = []
+        pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
 
         skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
@@ -1089,9 +1090,21 @@ class ReferenceField(ObjectField):
         else:
             label = lambda b:b.Title or b.id
 
-        for b in brains:
+        # The UID catalog is the correct catalog to pull this
+        # information from, however the workflow and perms are not accounted
+        # for there. We thus check each object in the portal catalog
+        # to ensure it validity for this user.
+        portal_base = getToolByName(content_instance,'portal_url').getPortalPath()
+        path_offset = len(getToolByName(content_instance,'portal_url').getPortalPath())+1
+        abs_paths = {}
+        def assign(x, y): abs_paths[x]=y
+        [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
+
+        pc_brains = pc(path=abs_paths.keys())
+
+        for b in pc_brains:
             #translate abs path to rel path since uid_cat stores paths relative now
-            path=b.getPath()[len(getToolByName(content_instance,'portal_url').getPortalPath())+1:]
+            path=b.getPath()[path_offset:]
             # The reference field will not expose Refrerences by
             # default, this is a complex use-case and makes things too hard to
             # understand for normal users. Because of reference class
@@ -1100,7 +1113,7 @@ class ReferenceField(ObjectField):
             if self.referenceReferences is False and \
                path.find(config.REFERENCE_ANNOTATION) != -1:
                 continue
-            pairs.append((b.UID, label(b)))
+            pairs.append((abs_paths[b.getPath()].UID, label(b)))
 
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
@@ -1108,7 +1121,6 @@ class ReferenceField(ObjectField):
                                           context=content_instance,
                                           default='<no reference>')
             pairs.insert(0, ('', no_reference))
-
 
         return DisplayList(pairs)
 
