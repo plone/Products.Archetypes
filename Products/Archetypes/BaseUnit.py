@@ -39,8 +39,9 @@ class BaseUnit(File):
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
+        context  = kw.get('context', instance)
 
-        adapter = getToolByName(instance, 'mimetypes_registry', None)
+        adapter = getToolByName(context, 'mimetypes_registry')
         if not IMimetypesRegistry.isImplementedBy(adapter):
             raise RuntimeError, \
                 '%s(%s) is not a valid mimetype registry: %s(%s)' % \

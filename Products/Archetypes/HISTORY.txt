@@ -26,6 +26,17 @@
  * Updated quickref. Thx to Jean Jordaan for his great work!
    [neaj, tiran]
 
+ * Fixed [ 1037803 ] "AT Document Details" should be "Document Details" in edit
+   Now Archetypes is using the portal type name by default instead of the 
+   archetype_name. You can change the new behavior by using a different
+   type_name var in the templates.
+   [tiran]
+
+ * Added some ugly hacks to ship around [ 1040623 ] FTP upload broken. You may
+   say it's fixed for AT 1.3 but for AT 1.4 we will have a much better
+   implementation.
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
 
