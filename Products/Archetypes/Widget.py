@@ -425,6 +425,7 @@ class RichWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 1,
+        'allow_file_upload':1, 
         })
 
     security = ClassSecurityInfo()
