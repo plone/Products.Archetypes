@@ -4,7 +4,7 @@ import os, os.path
 import sys
 import traceback
 import pprint
-from zLOG import LOG, INFO, DEBUG
+from zLOG import LOG, INFO, DEBUG, ERROR
 
 from config import DEBUG, PKG_NAME
 
@@ -136,6 +136,9 @@ class ZLogger(ClassLog):
 	for arg in args:
 	    msg += "%s\n" % pprint.pformat(arg)
 	LOG(PKG_NAME, level, msg)
+
+    def log_exc(self, msg=None, *args, **kwargs):
+        LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
 
 	    
 _default_logger = ClassLog()
