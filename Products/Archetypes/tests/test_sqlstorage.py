@@ -27,7 +27,6 @@ from Products.Archetypes import listTypes
 from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.tests.test_rename import RenameTests
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 
@@ -42,6 +41,7 @@ connectors = {}
 # aditional cleanup
 cleanup = {}
 
+
 # Gadfly
 
 try:
@@ -51,7 +51,7 @@ except ImportError:
 else:
     ZopeTestCase.installProduct('ZGadflyDA', 0)
     connectors['Gadfly'] = 'demo'
-    
+
 # Postgresql
 
 try:
@@ -86,10 +86,11 @@ else:
             query, result = method(test__=1, **args)
         cleanup['MySQL'] = cleanupMySQL
 
+
 class Dummy(BaseContent):
     """ A dummy content object for testing """
-
     pass
+
 
 def gen_dummy(storage_class):
 
@@ -147,7 +148,7 @@ def gen_dummy(storage_class):
         storage = storage_class()
         ),
 
-## Xiru: SQLStorage does not support the field types bellow. For
+## Xiru: SQLStorage does not support the field types below. For
 ## FileField, use ObjectManagedStorage or AttributeStorage and for
 ## ImageField and PhotoField use AttributeStorage. They are complex
 ## object and persist their content in a RDBMS is not a trivial task
@@ -173,6 +174,7 @@ def gen_dummy(storage_class):
     registerType(Dummy, PKG_NAME)
 
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
 
 def commonAfterSetUp(self):
 
@@ -218,17 +220,50 @@ def commonAfterSetUp(self):
     obj.__factory_meta_type__ = 'Archetypes Content'   # Is It really needed?
     obj.meta_type = 'Archetypes Content'
 
-class SQLStorageTest(ArcheSiteTestCase):
+
+class GadflyMagic:
+    """ Make Gadfly tests work out of the box """
+
+    gadfly_dir = os.path.join(PACKAGE_HOME, 'gadfly')
+    demo_dir = os.path.join(gadfly_dir, 'demo')
+
+    def setupLocalEnvironment(self):
+        # Patch Gadfly to work off the temp dir
+        from Products.ZGadflyDA import db
+        self._data_dir = db.data_dir
+        db.data_dir = self.gadfly_dir
+        # Create Gadfly database
+        os.mkdir(self.gadfly_dir)
+        os.mkdir(self.demo_dir)
+
+    def afterClear(self):
+        # Restore Gadfly config
+        if hasattr(self, '_data_dir'):
+            from Products.ZGadflyDA import db
+            db.data_dir = self._data_dir
+        # Remove Gadfly database
+        if os.path.isdir(self.gadfly_dir):
+            import shutil
+            shutil.rmtree(self.gadfly_dir, 1)
+
+
+class SQLStorageTestBase(GadflyMagic, ArcheSiteTestCase):
     """ Abstract base class for the tests """
 
     db_name = ''
-    cleanup = ''
+    cleanup = cleanup
 
     def afterSetUp(self):
+        GadflyMagic.setupLocalEnvironment(self)
         commonAfterSetUp(self)
 
     def beforeTearDown(self):
-        get_transaction().abort()
+        clean = self.cleanup.get(self.db_name, None)
+        if clean is not None:
+            clean(self)
+
+
+class SQLStorageTest(SQLStorageTestBase):
 
     def test_objectfield(self):
         dummy = self._dummy
@@ -374,56 +409,22 @@ class SQLStorageTest(ArcheSiteTestCase):
         __traceback_info__ = (self.db_name, repr(value), 0)
         self.failUnless(value == 0)
 
-tests = []
+    def test_rename(self):
+        self.login('manager')
+        dummy = self._dummy
+        content = 'The book is on the table!'
+        dummy.setAtextfield(content)
+        self.failUnless(dummy.getAtextfield() == content)
+        portal = self.portal
+        obj_id = 'dummy'
+        new_id = 'new_dummy'
+        # make sure we have _p_jar
+        get_transaction().commit(1)
+        portal.manage_renameObject(obj_id, new_id)
+        dummy = getattr(portal, new_id)
+        self.failUnless(dummy.getAtextfield() == content)
 
-# test each db
-
-for db_name in connectors.keys():
-
-    class StorageTestSubclass(SQLStorageTest):
-        db_name = db_name
-        cleanup = cleanup
-
-        def beforeTearDown(self):
-            clean = self.cleanup.get(self.db_name, None)
-            if clean is None:
-                SQLStorageTest.beforeTearDown(self)
-            else:
-                clean(self)
-
-    tests.append(StorageTestSubclass)
-
-# test rename with each db
-
-for db_name in connectors.keys():
-
-    class StorageTestRenameSubclass(RenameTests):
-
-        db_name = db_name
-        cleanup = cleanup
-
-        def afterSetUp(self):
-            RenameTests.afterSetUp(self)
-            commonAfterSetUp(self)
-
-            # we need "Add portal content" permission in the site root
-            self.login('manager')
-
-        def test_rename(self):
-            dummy = self._dummy
-            content = 'The book is on the table!'
-            dummy.setAtextfield(content)
-            self.failUnless(dummy.getAtextfield() == content)
-            portal = self.portal
-            obj_id = 'dummy'
-            new_id = 'new_dummy'
-            # make sure we have _p_jar
-            get_transaction().commit(1)
-            portal.manage_renameObject(obj_id, new_id)
-            dummy = getattr(portal, new_id)
-            self.failUnless(dummy.getAtextfield() == content)
-
-## Xiru: These 3 tests bellow need some refactory!
+## Xiru: These 3 tests below need some refactory!
 
 ##         def test_parentUID(self):
 ##             portal = self.portal
@@ -488,13 +489,18 @@ for db_name in connectors.keys():
 ##             __traceback_info__ = (self.db_name, str(PUID), 'None')
 ##             self.failUnless(PUID == 'None')
 
-        def beforeTearDown(self):
-            clean = self.cleanup.get(self.db_name, None)
-            if clean is not None: clean(self)
-            RenameTests.beforeTearDown(self)
-            if clean is None: get_transaction().abort()
 
-    tests.append(StorageTestRenameSubclass)
+# test each db
+
+tests = []
+
+for db_name in connectors.keys():
+
+    class StorageTest(SQLStorageTest):
+        db_name = db_name
+
+    tests.append(StorageTest)
+
 
 # run tests
 
