@@ -32,7 +32,8 @@
 	    </div>
 	    <div class="row">
 	      <div class="label">Upload a File</div>
-	      <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+	      <metal:use use-macro="here/widgets/file/macros/file_upload"/>
+	      <metal:use use-macro="here/widgets/file/macros/file_view"/>
 	    </div>
 	  </div>
 	</metal:fill>
