@@ -58,8 +58,7 @@
                   contentType python:request.get(field_text_format, here.getContentType(fieldName));
                   allowable_ct python:getattr(field, 'allowable_content_types', ());
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
-                  contenttype python:hasattr(field, 'getContentType') and
-                  field.getContentType(here) or ''">
+                  contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
 
         <tal:condition condition="python:len(mimetypes) &gt; 1">
         <div style="text-align: right; margin-right: 0.75em;">
