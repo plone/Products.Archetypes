@@ -1,9 +1,10 @@
 from interface import Interface, Attribute
 
 class IBaseObject(Interface):
-    
-    schema = Attribute('schema', 'Schema of the object')
-    installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
+
+    #XXX windows is strange
+    #schema = Attribute('schema', 'Schema of the object')
+    #installMode = Attribute('installMode', 'Used for installation. List of actions to perform.')
     
     def initializeLayers(item=None, container=None):
         """ Layer initialization. Performed on __init__ """
