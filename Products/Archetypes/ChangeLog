@@ -1,3 +1,22 @@
+2003-06-06  Sylvain Thénault  <syt@logilab.fr>
+
+	* BaseUnit.py: make new base unit working with transforms /
+	mimetypes tool.
+
+	* ClassGen.py: add generation of the edit accessor for field with
+	the 'w' mode. Edit accessor is like the standard accessor but is
+	used before edition of the content. It has been introduced since
+	accessor for TextField (i.e. wrapping a BU) return a html / plain
+	text version of the content. The edit accessor return the BU
+	instance in that case, the same thing as the standard accessor in
+	other cases. 
+
+	* Field.py: add methods to handle the edit accessor. Add
+	transformation in the TextField accessor.
+	
+	* Extensions/utils.py (install_tools): install the transforms tool
+	and the mimetypes registry.
+	
 2003-06-04  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* SQLStorage.py (BaseSQLStorage.unmap_fixedpoint): Was causing an
