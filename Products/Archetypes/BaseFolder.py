@@ -36,6 +36,26 @@ class BaseFolderMixin(CatalogMultiplex,
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
 
+    def _notifyOfCopyTo(self, container, op=0):
+        """In the case of a move (op=1) we need to make sure
+        references are mainained for all referencable objects within
+        the one being moved.
+       
+        manage_renameObject calls _notifyOfCopyTo so that the
+        object being renamed doesn't lose its references. But
+        manage_ renameObject calls _delObject which calls
+        manage_beforeDelete on all the children of the object
+        being renamed which deletes all references for children
+        of the object being renamed. Here is a patch that does
+        recursive calls for _notifyOfCopyTo to address that
+        problem.
+        """
+        if op==1: # For efficiency, remove if op==0 needs something
+            for child in self.contentValues():
+                if IReferenceable.isImplementedBy(child):
+                    child._notifyOfCopyTo(self, op)
+            return Referenceable._notifyOfCopyTo(self, container, op)
+
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
