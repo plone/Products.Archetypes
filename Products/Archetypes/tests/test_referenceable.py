@@ -527,6 +527,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnlessEqual(copy_a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [copy_a])
 
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()

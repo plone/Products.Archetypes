@@ -11,6 +11,7 @@ from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
@@ -316,14 +317,18 @@ class Referenceable(Base):
         # where as references are concerned
         children = []
         if shasattr(self, 'objectValues'):
-            children.extend(self.objectValues())
+            # Only apply to objects that subclass
+            # from Referenceable, and only apply the
+            # method from Referenceable. Otherwise manage_* will get
+            # called multiple times.
+            nc = lambda obj: isinstance(obj, Referenceable)
+            children.extend(filter(nc, self.objectValues()))
         children.extend(self._getReferenceAnnotations().objectValues())
         if children:
             for child in children:
-                if shasattr(child, methodName):
-                    method = getattr(child, methodName)
-                    method(*args, **kwargs)
-
+                if shasattr(Referenceable, methodName):
+                    method = getattr(Referenceable, methodName)
+                    method(*((child,) + args), **kwargs)
 
     # graph hooks
     security.declareProtected(CMFCorePermissions.View,

@@ -39,10 +39,10 @@ class BaseFolderMixin(CatalogMultiplex,
         """In the case of a move (op=1) we need to make sure
         references are mainained for all referencable objects within
         the one being moved.
-       
+
         manage_renameObject calls _notifyOfCopyTo so that the
         object being renamed doesn't lose its references. But
-        manage_ renameObject calls _delObject which calls
+        manage_renameObject calls _delObject which calls
         manage_beforeDelete on all the children of the object
         being renamed which deletes all references for children
         of the object being renamed. Here is a patch that does

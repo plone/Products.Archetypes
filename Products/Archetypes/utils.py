@@ -13,7 +13,7 @@ from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
-
+from Products.Archetypes.debug import log
 import Products.generator.i18n as i18n
 
 try:
@@ -26,7 +26,7 @@ def make_uuid(*args):
     r = str(random()*100000000000000000L)
     data = t +' '+ r +' '+ _v_network +' '+ str(args)
     uid = md5(data).hexdigest()
-    return uid    
+    return uid
 
 # linux kernel uid generator. It's a little bit slower but a little bit better
 KERNEL_UUID = '/proc/sys/kernel/random/uuids'
@@ -40,7 +40,7 @@ if os.path.isfile(KERNEL_UUID):
             fp.seek(0)
             yield uid
     uid_gen = uuid_gen()
-    
+
     def kernel_make_uuid(*args):
         return uid_gen.next()
 else:
@@ -348,10 +348,10 @@ InitializeClass(DisplayList)
 class Vocabulary(DisplayList):
     """
     Wrap DisplayMist class and add internationalisation"""
-    
+
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
-    
+
     def __init__(self, display_list, instance, i18n_domain):
         self._keys = display_list._keys
         self._i18n_msgids = display_list._i18n_msgids
@@ -360,7 +360,7 @@ class Vocabulary(DisplayList):
         self.index = display_list.index
         self._instance = instance
         self._i18n_domain = i18n_domain
-        
+
     def getValue(self, key, default=None):
         """
         Get i18n value
@@ -369,17 +369,17 @@ class Vocabulary(DisplayList):
             raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         value = default
-        if v: 
+        if v:
             value = v[1]
         else:
             for k, v in self._keys.items():
                 if repr(key) == repr(k):
                     value = v[1]
                     break
-                    
+
         if self._i18n_domain and self._instance:
             msg = self._i18n_msgids.get(key, None) or value
-        
+
             return i18n.translate(self._i18n_domain, msg,
                                   context=self._instance, default=value)
         else:
@@ -463,7 +463,7 @@ def getRelURL(self, ppath):
 
 def getPkgInfo(product):
     """Get the __pkginfo__ from a product
-    
+
     chdir before importing the product
     """
     prd_home = product.__path__[0]
@@ -476,7 +476,7 @@ def getPkgInfo(product):
 
 def shasattr(obj, attr, acquire=False):
     """Safe has attribute method
-    
+
     * It's acquisition safe by default because it's removing the acquisition
       wrapper before trying to test for the attribute.
 
@@ -484,12 +484,12 @@ def shasattr(obj, attr, acquire=False):
       the implementation of hasattr is swallowing all exceptions). Instead of
       using hasattr it's comparing the output of getattr with a special marker
       object.
-      
+
     XXX the getattr() trick can be removed when Python's hasattr() is fixed to
     catch only AttributeErrors.
 
     Quoting Shane Hathaway:
-    
+
     That said, I was surprised to discover that Python 2.3 implements hasattr
     this way (from bltinmodule.c):
 
@@ -502,15 +502,42 @@ def shasattr(obj, attr, acquire=False):
     	Py_DECREF(v);
     	Py_INCREF(Py_True);
     	return Py_True;
-    
-    It should not swallow all errors, especially now that descriptors make 
-    computed attributes quite common.  getattr() only recently started catching 
-    only AttributeErrors, but apparently hasattr is lagging behind.  I suggest 
-    the consistency between getattr and hasattr should be fixed in Python, not 
+
+    It should not swallow all errors, especially now that descriptors make
+    computed attributes quite common.  getattr() only recently started catching
+    only AttributeErrors, but apparently hasattr is lagging behind.  I suggest
+    the consistency between getattr and hasattr should be fixed in Python, not
     Zope.
-    
+
     Shane
     """
     if not acquire:
         obj = aq_base(obj)
     return getattr(obj, attr, _marker) is not _marker
+
+
+WRAPPER = '__at_is_wrapper_method__'
+ORIG_NAME = '__at_original_method_name__'
+def isWrapperMethod(meth):
+    return getattr(meth, WRAPPER, False)
+
+def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
+    old_method = getattr(klass, name)
+    if isWrapperMethod(old_method):
+        log('Wrapping already wrapped method at %s.%s' %
+            (klass.__name__, name))
+    new_name = pattern % name
+    setattr(klass, new_name, old_method)
+    setattr(method, ORIG_NAME, new_name)
+    setattr(method, WRAPPER, True)
+    setattr(klass, name, method)
+
+def unwrap_method(klass, name):
+    old_method = getattr(klass, name)
+    if not isWrapperMethod(old_method):
+        raise ValueError, ('Trying to unwrap non-wrapped '
+                           'method at %s.%s' % (klass.__name__, name))
+    orig_name = getattr(old_method, ORIG_NAME)
+    new_method = getattr(klass, orig_name)
+    delattr(klass, orig_name)
+    setattr(klass, name, new_method)
