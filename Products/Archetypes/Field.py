@@ -1385,7 +1385,13 @@ class ReferenceField(ObjectField):
             # so we verify that b is a result that was also returned by uc,
             # hence the check in abs_paths.
             if abs_paths.has_key(b.getPath()):
-                pairs.append((abs_paths[b.getPath()].UID, label(b)))
+                uid = abs_paths[b.getPath()].UID
+                if uid is None:
+                    # XXX igh! TEMPORARY WORKAROUND. FIX ME!
+                    # the brain doesn't have an uid because the catalog has a
+                    # stalled object. THAT IS BAD!
+                    continue
+                pairs.append((uid, label(b)))
          
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
@@ -1394,6 +1400,7 @@ class ReferenceField(ObjectField):
                                           default='<no reference>')
             pairs.insert(0, ('', no_reference))
 
+        __traceback_info__ = (content_instance, self.getName(), pairs)
         return DisplayList(pairs)
 
     security.declarePublic('get_size')
