@@ -123,8 +123,12 @@ class ClassGenerator:
         if not hasattr(klass, 'Schema'):
             def Schema(self):
                 """Return a (wrapped) schema instance for
-                this object instance."""
-                return ImplicitAcquisitionWrapper(self.schema, self)
+                this object instance.
+                """
+                schema = self.schema
+                if hasattr(schema, 'wrapped'):
+                    return self.schema.wrapped(self)
+                return ImplicitAcquisitionWrapper(schema, self)
             klass.Schema = Schema
 
     def generateClass(self, klass):

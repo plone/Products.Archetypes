@@ -86,6 +86,7 @@ def decode(value, instance, **kwargs):
         value = unicode(value, encoding)
     return value
 
+_field_count = 0
 
 class Field(DefaultLayerContainer):
     """
@@ -130,12 +131,17 @@ class Field(DefaultLayerContainer):
         'languageIndependent' : False,
         }
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name=None, **kwargs):
         """
         Assign name to __name__. Add properties and passed-in
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
+
+        if name is None:
+            global _field_count
+            _field_count += 1
+            name = 'field.%s' % _field_count
 
         self.__name__ = name
 
@@ -546,7 +552,7 @@ class ObjectField(Field):
 
     security  = ClassSecurityInfo()
 
-    security.declarePrivate('get')
+    security.declarePublic('get')
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
         try:
