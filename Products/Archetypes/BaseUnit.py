@@ -2,6 +2,7 @@ from types import StringType
 
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
+from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_parent
@@ -31,7 +32,6 @@ class BaseUnit(File):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
         assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
-        assert(dict.has_key('binary'), 'no binary in setstate dict')
         File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
@@ -127,7 +127,17 @@ class BaseUnit(File):
 
     def isBinary(self):
         """return true if this contains a binary value, else false"""
-        return self.binary
+        try:
+            return self.binary
+        except AttributeError:
+            # XXX workaround for "[ 1040514 ] AttributeError on some types after
+            # migration 1.2.4rc5->1.3.0"
+            # Somehow and sometimes the binary attribute gets lost magically
+            self.binary = not str(self.mimetype).startswith('text')
+            log("BaseUnit: Failed to access attribute binary for mimetype %s. "
+                "Setting binary to %s" % (self.mimetype, self.binary),
+                level=ERROR)
+            return self.binary
 
     # File handling
     def get_size(self):
