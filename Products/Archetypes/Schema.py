@@ -216,8 +216,8 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
-
-                field.set(instance, default)
+                mutator = field.getMutator(instance)
+                mutator(default)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
