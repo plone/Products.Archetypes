@@ -1,19 +1,13 @@
 import os
-import sys
-from types import StringType, UnicodeType
 import time
 import urllib
 
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import IReference
 from Products.Archetypes.interfaces.referenceengine import IContentReference
 from Products.Archetypes.interfaces.referenceengine import IReferenceCatalog
-from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 from Products.Archetypes.refengine.pluggablecatalog import PluggableCatalog
-from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import REFERENCE_CATALOG
-from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException

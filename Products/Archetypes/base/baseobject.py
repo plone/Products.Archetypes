@@ -1,5 +1,5 @@
 from Products.Archetypes.annotations import ATAnnotatableMixin
-from Products.Archetypes.debug import log_exc, log, _default_logger
+from Products.Archetypes.debug import log_exc, log
 from Products.Archetypes.field import StringField
 from Products.Archetypes.field import TextField
 from Products.Archetypes.field import STRING_TYPES
@@ -21,14 +21,12 @@ from Products.Archetypes.utils import mapply
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
-from OFS.ObjectManager import ObjectManager
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError

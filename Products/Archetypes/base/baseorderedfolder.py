@@ -1,17 +1,7 @@
-"""
-OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
-OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
-"""
 from types import StringType
 
 from Products.Archetypes.basefolder import BaseFolder
-from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
-from Products.Archetypes.baseobject import BaseObject
-from Products.Archetypes.catalogmultiplex import CatalogMultiplex
-from Products.Archetypes.interfaces.base import IBaseFolder
-from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from DocumentTemplate import sequence
 
@@ -21,8 +11,7 @@ from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
-    ManageProperties
+from Products.CMFCore import CMFCorePermissions
 
 # this import can change with Zope 2.7 to
 try:

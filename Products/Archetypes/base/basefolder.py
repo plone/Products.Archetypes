@@ -17,6 +17,7 @@ from Products.CMFCore.utils import getToolByName
 class BaseFolderMixin(CatalogMultiplex,
                     BaseObject,
                     SkinnedFolder,
+                    # XXX Referenceable # this was disabled in 1.3 - why?
                     ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""

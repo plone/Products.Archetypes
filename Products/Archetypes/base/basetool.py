@@ -19,7 +19,7 @@ class BaseTool(UniqueObject, BaseContentMixin, PropertyManager,
 
 InitializeClass(BaseTool)
 
-class BaseFolderishTool(UniqueObject, BaseContentMixin, PropertyManager,
+class BaseFolderishTool(UniqueObject, BaseFolderMixin, PropertyManager,
     ActionProviderBase):
     """TODO
     """

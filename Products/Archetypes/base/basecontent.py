@@ -6,7 +6,6 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.catalogmultiplex import CatalogMultiplex
 from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
