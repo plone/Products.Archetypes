@@ -26,7 +26,7 @@
             <metal:fill fill-slot="text_format"/>
           </metal:use>
 
-          <div style="text-align: right;"
+          <div style="text-align: right; margin-right: 0.75em;"
                tal:condition="widget/allow_file_upload | python:1">
               <span class="discreet" i18n:translate="label_or">or</span>
 
