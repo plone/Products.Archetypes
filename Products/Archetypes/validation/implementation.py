@@ -28,7 +28,7 @@ import re
 from types import StringType
 from types import FileType
 
-from Products.Archetypes.interfaces.IValidator import IValidator
+from Products.Archetypes.interfaces.validation import IValidator
 
 from Acquisition import aq_base
 from DateTime import DateTime

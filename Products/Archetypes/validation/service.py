@@ -26,8 +26,8 @@
 
 from types import StringType
 
-from Products.Archetypes.interfaces.IValidationService import IValidationService
-from Products.Archetypes.interfaces.IValidator import IValidator
+from Products.Archetypes.interfaces.validation import IValidationService
+from Products.Archetypes.interfaces.validation import IValidator
 from Products.Archetypes.exceptions import UnknowValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError

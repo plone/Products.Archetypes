@@ -41,6 +41,7 @@ from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.translate import translate
+from Products.Archetypes.interfaces.base import IBaseObject
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))
@@ -111,10 +112,40 @@ def mapply(method, *args, **kw):
     return method()
 
 
-def className(klass):
+def getDottedName(klass):
+    """Returns the dotted path to an object
+
+    >>> getDottedName(getDottedName)
+    'Products.Archetypes.lib.utils.getDottedName'
+
+    """
     if type(klass) not in [ClassType, ExtensionClass]:
         klass = klass.__class__
     return "%s.%s" % (klass.__module__, klass.__name__)
+
+# XXX b/w compat
+className = getDottedName
+
+def getDoc(klass):
+    """Return the doc string of an object
+    
+    Or an empty string if the object doesn't have a doc string
+    
+    >>> getDoc(getDoc).startswith("Return the doc string of an object")
+    True
+    
+    """
+    return klass.__doc__ or ''
+
+def findBaseTypes(klass):
+    """XXX
+    """
+    bases = []
+    if hasattr(klass, '__bases__'):
+        for b in klass.__bases__:
+            if IBaseObject.isImplementedByInstancesOf(b):
+                bases.append(className(b))
+    return bases
 
 def productDir():
     module = sys.modules[__name__]

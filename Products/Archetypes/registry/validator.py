@@ -23,35 +23,21 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Validator registry
+"""
 
-class Registry:
+__author__ = 'Christian Heimes'
 
-    def __init__(self, allowed_class):
-        self.__registry = {}
-        self.__allowed_class = allowed_class
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.base import Registry
+from Products.Archetypes.registry.base import RegistryEntry
+from Products.Archetypes.interfaces.validation import IValidator
 
-    def register(self, name, item):
-        if not isinstance(item, self.__allowed_class):
-            raise TypeError, "Invalid value for item: %r (should be %r)" % \
-                  (item, self.__allowed_class)
-        self.__registry[name] = item
+class ValidatorEntry(RegistryEntry):
+    __used_for__ = IValidator
 
-    def unregister(self, name):
-        if self.__registry.has_key(name):
-            del self.__registry[name]
+class ValidatorRegistry(Registry):
+    _entry_class = ValidatorEntry
 
-    def keys(self):
-        return [k for k, v in self.items()]
-
-    def values(self):
-        return [v for k, v in self.items()]
-
-    def items(self):
-        return self.__registry.items()
-
-    def __getitem__(self, name):
-        return self.__registry[name]
-
-    def get(self, name, default=None):
-        return self.__registry.get(name, default)
-
+validatorRegistry = ValidatorRegistry()
+registerRegistry(validatorRegistry)

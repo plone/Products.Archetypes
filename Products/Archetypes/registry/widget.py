@@ -23,21 +23,21 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Widget registry
+"""
 
-from Interface import Interface
-from Interface import Attribute
+__author__ = 'Christian Heimes'
 
-class IValidator(Interface):
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.base import Registry
+from Products.Archetypes.registry.base import RegistryEntry
+from Products.Archetypes.interfaces.widget import IWidget
 
-    name = Attribute("name of the validator")
-    title = Attribute("title or name of the validator")
-    description = Attribute("description of the validator")
+class WidgetEntry(RegistryEntry):
+    __used_for__ = IWidget
 
-    def __call__(value, *args, **kwargs):
-        """return True if valid, error string if not"""
+class WidgetRegistry(Registry):
+    _entry_class = WidgetEntry
 
-
-class IValidationChain(IValidator):
-    """Marker interface for a chain
-    """
-
+widgetRegistry = WidgetRegistry()
+registerRegistry(widgetRegistry)

@@ -36,7 +36,7 @@ from Products.Archetypes.config import *
 from Products.Archetypes.bases.baseobject import BaseObject
 
 from Products.Archetypes.validation import validationService
-from Products.Archetypes.interfaces.IValidator import IValidator
+from Products.Archetypes.interfaces.validation import IValidator
 
 class MyValidator:
     __implements__ = (IValidator,)

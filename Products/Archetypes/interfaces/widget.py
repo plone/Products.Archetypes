@@ -24,9 +24,10 @@
 #
 ################################################################################
 
-from Interface import Interface, Attribute
+from Interface import Interface
+from Interface import Attribute
 
-class IWidget:
+class IWidget(Interface):
     def __call__(instance, context=None):
         """return a rendered fragment that can be included in a larger
         context when called by a renderer.

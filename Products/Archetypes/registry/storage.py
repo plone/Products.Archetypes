@@ -23,35 +23,21 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Storage registry
+"""
 
-class Registry:
+__author__ = 'Christian Heimes'
 
-    def __init__(self, allowed_class):
-        self.__registry = {}
-        self.__allowed_class = allowed_class
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.base import Registry
+from Products.Archetypes.registry.base import RegistryEntry
+from Products.Archetypes.interfaces.storage import IStorage
 
-    def register(self, name, item):
-        if not isinstance(item, self.__allowed_class):
-            raise TypeError, "Invalid value for item: %r (should be %r)" % \
-                  (item, self.__allowed_class)
-        self.__registry[name] = item
+class StorageEntry(RegistryEntry):
+    __used_for__ = IStorage
 
-    def unregister(self, name):
-        if self.__registry.has_key(name):
-            del self.__registry[name]
+class StorageRegistry(Registry):
+    _entry_class = StorageEntry
 
-    def keys(self):
-        return [k for k, v in self.items()]
-
-    def values(self):
-        return [v for k, v in self.items()]
-
-    def items(self):
-        return self.__registry.items()
-
-    def __getitem__(self, name):
-        return self.__registry[name]
-
-    def get(self, name, default=None):
-        return self.__registry.get(name, default)
-
+storageRegistry = StorageRegistry()
+registerRegistry(storageRegistry)

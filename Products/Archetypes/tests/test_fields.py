@@ -37,7 +37,6 @@ from os.path import join, abspath, dirname, split
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-from Products.Archetypes import listTypes
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes import fields

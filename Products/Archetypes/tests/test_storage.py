@@ -34,7 +34,6 @@ from utils import *
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-from Products.Archetypes import listTypes
 from Products.Archetypes.storages import AttributeStorage, MetadataStorage
 from test_classgen import ClassGenTest, Dummy, gen_dummy
 

@@ -38,7 +38,6 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.storages import AttributeStorage, MetadataStorage
-from Products.Archetypes import listTypes
 from Products.Archetypes.widgets import IdWidget, StringWidget, BooleanWidget, \
      KeywordWidget, TextAreaWidget, CalendarWidget, SelectionWidget
 from Products.Archetypes.lib.vocabulary import DisplayList

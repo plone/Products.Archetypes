@@ -30,29 +30,20 @@ try:
     __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
 except NameError:
     __version__ = 'unknown'
-import sys
 
-from Products.Archetypes.config import *
-from Products.Archetypes.lib.vocabulary import DisplayList
-from Products.Archetypes.lib.utils import getPkgInfo
-from Products.Archetypes.lib.logging import INFO
-from Products.Archetypes.lib.logging import log
-from Products.Archetypes.lib.plonecompat import IndexIterator
-from Products.Archetypes.atapi import process_types
-from Products.Archetypes.atapi import listTypes
+import Products.Archetypes.config
 import Products.Archetypes.patches
+import Products.Archetypes.registry
 
-from AccessControl import ModuleSecurityInfo
-from AccessControl import allow_class
-from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.DirectoryView import registerDirectory
 
 ###
 ## security
 ###
+from AccessControl import ModuleSecurityInfo
+from AccessControl import allow_class
 # make log and log_exc public
-#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
-#XXXModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
+ModuleSecurityInfo('Products.Archetypes.lib.logging').declarePublic('log')
+ModuleSecurityInfo('Products.Archetypes.lib.logging').declarePublic('log_exc')
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
@@ -70,22 +61,19 @@ allow_class(transaction_note)
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
+from Products.Archetypes.lib.vocabulary import DisplayList
 allow_class(DisplayList)
-
 
 ###
 # register tools and content types
 ###
+from Products.CMFCore.DirectoryView import registerDirectory
 registerDirectory('skins', globals())
-
-from Products.Archetypes.tools.archetypetool import ArchetypeTool
-from Products.Archetypes.tools.ttwtool import ArchTTWTool
-
 
 ###
 # Test dependencies
 ###
-this_module = sys.modules[__name__]
+from Products.Archetypes.lib.utils import getPkgInfo
 import Products.MimetypesRegistry
 import Products.PortalTransforms
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
@@ -102,6 +90,7 @@ for info in (mtr_info, pt_info ):
 #                           (at_version, info.modname, info.at_versions)
 #                          )
 
+from Products.Archetypes.lib.logging import log
 try:
     import Products.generators
 except ImportError:
@@ -119,6 +108,8 @@ else:
 ###
 # Tools
 ###
+from Products.Archetypes.tools.archetypetool import ArchetypeTool
+from Products.Archetypes.tools.ttwtool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
@@ -129,6 +120,12 @@ types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
+    from Products.CMFCore import CMFCorePermissions
+
+    from Products.Archetypes.atapi import process_types
+    from Products.Archetypes.atapi import listTypes
+    from Products.Archetypes.config import PKG_NAME
+    from Products.Archetypes.config import REGISTER_DEMO_TYPES
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,

@@ -23,20 +23,30 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Property registry
+"""
 
-from Interface import Interface
-from Interface import Attribute
+__author__ = 'Christian Heimes'
 
-class IValidationService(Interface):
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.base import Registry
+from Products.Archetypes.registry.base import RegistryEntry
+from Interface.IInterface import IInterface
 
-    def validate(name_or_validator, value, *args, **kwargs):
-        """call the validator of a given name"""
+class PropertyEntry(RegistryEntry):
+    __used_for__ = IInterface
+    
+    def _checkCls(self, cls):
+        iface = self.__used_for__
+        if isinstance(cls, type):
+            return
+        if iface.isImplementedByInstancesOf(cls):
+            return
+        raise ValueError, "%s does not implement %s" % (cls, getDottedName(iface))
 
-    def validatorFor(name_or_validator):
-        """return the validator for a given name"""
+class PropertyRegistry(Registry):
+    _entry_class = PropertyEntry
 
-    def register(validator):
-        """load a validator for access by name"""
-
-    def unregister(name_or_validator):
-        """unregisters a validator by name"""
+propertyRegistry = PropertyRegistry()
+registerRegistry(PropertyRegistry)
+registerProperty = propertyRegistry.register

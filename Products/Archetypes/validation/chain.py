@@ -28,8 +28,8 @@
 """
 from types import StringType, TupleType, ListType, UnicodeType
 
-from Products.Archetypes.interfaces.IValidator import IValidator
-from Products.Archetypes.interfaces.IValidator import IValidationChain
+from Products.Archetypes.interfaces.validation import IValidator
+from Products.Archetypes.interfaces.validation import IValidationChain
 from Products.Archetypes.validation.service import validationService
 from Products.Archetypes.exceptions import UnknowValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError

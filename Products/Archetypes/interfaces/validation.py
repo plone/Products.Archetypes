@@ -24,34 +24,34 @@
 #
 ################################################################################
 
-class Registry:
+from Interface import Interface
+from Interface import Attribute
 
-    def __init__(self, allowed_class):
-        self.__registry = {}
-        self.__allowed_class = allowed_class
+class IValidationService(Interface):
 
-    def register(self, name, item):
-        if not isinstance(item, self.__allowed_class):
-            raise TypeError, "Invalid value for item: %r (should be %r)" % \
-                  (item, self.__allowed_class)
-        self.__registry[name] = item
+    def validate(name_or_validator, value, *args, **kwargs):
+        """call the validator of a given name"""
 
-    def unregister(self, name):
-        if self.__registry.has_key(name):
-            del self.__registry[name]
+    def validatorFor(name_or_validator):
+        """return the validator for a given name"""
 
-    def keys(self):
-        return [k for k, v in self.items()]
+    def register(validator):
+        """load a validator for access by name"""
 
-    def values(self):
-        return [v for k, v in self.items()]
+    def unregister(name_or_validator):
+        """unregisters a validator by name"""
 
-    def items(self):
-        return self.__registry.items()
+class IValidator(Interface):
 
-    def __getitem__(self, name):
-        return self.__registry[name]
+    name = Attribute("name of the validator")
+    title = Attribute("title or name of the validator")
+    description = Attribute("description of the validator")
 
-    def get(self, name, default=None):
-        return self.__registry.get(name, default)
+    def __call__(value, *args, **kwargs):
+        """return True if valid, error string if not"""
+
+
+class IValidationChain(IValidator):
+    """Marker interface for a chain
+    """
 

@@ -23,35 +23,18 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""Registry package
+"""
+ 
+import Products.Archetypes.registry.attype
+import Products.Archetypes.registry.field
+import Products.Archetypes.registry.property
+import Products.Archetypes.registry.storage
+import Products.Archetypes.registry.widget
+import Products.Archetypes.registry.validator
 
-class Registry:
+from Products.Archetypes.registry.base import register
+from Products.Archetypes.registry.base import registerRegistry
+from Products.Archetypes.registry.property import registerProperty
 
-    def __init__(self, allowed_class):
-        self.__registry = {}
-        self.__allowed_class = allowed_class
-
-    def register(self, name, item):
-        if not isinstance(item, self.__allowed_class):
-            raise TypeError, "Invalid value for item: %r (should be %r)" % \
-                  (item, self.__allowed_class)
-        self.__registry[name] = item
-
-    def unregister(self, name):
-        if self.__registry.has_key(name):
-            del self.__registry[name]
-
-    def keys(self):
-        return [k for k, v in self.items()]
-
-    def values(self):
-        return [v for k, v in self.items()]
-
-    def items(self):
-        return self.__registry.items()
-
-    def __getitem__(self, name):
-        return self.__registry[name]
-
-    def get(self, name, default=None):
-        return self.__registry.get(name, default)
-
+__all__ = ('register', 'registerRegistry', 'registerProperty')

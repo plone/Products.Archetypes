@@ -38,7 +38,7 @@ DEPS = ('CMFCore', 'CMFDefault', 'CMFCalendar', 'CMFTopic',
         'MailHost', 'PageTemplates', 'PythonScripts', 'ExternalMethod',
         )
 DEPS_PLONE = ('GroupUserFolder', 'SecureMailHost', 'CMFPlone',)
-DEPS_OWN = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
+DEPS_OWN = ('MimetypesRegistry', 'PortalTransforms', 'Marshall', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
 
 default_user = ZopeTestCase.user_name
