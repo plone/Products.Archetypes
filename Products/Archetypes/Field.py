@@ -35,6 +35,8 @@ from transform.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
 
+__docformat__ = 'reStructuredText'
+
 class Field(DefaultLayerContainer):
     __implements__ = (IField, ILayerContainer)
 
@@ -165,42 +167,51 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getStorageName')
     def getStorageName(self):
+        """Return the storage name that is configured for this field as a string"""
         return self.storage.getName()
 
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
+        """Return the widget name that is configured for this field as a string"""
         return self.widget.getName()
 
     security.declarePublic('getName')
     def getName(self):
+        """Return the name of this field as a string"""
         return self.__name__
 
     security.declarePublic('getDefault')
     def getDefault(self):
+        """Return the default value to be used for initializing this field"""
         return self.default
 
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
-#        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
+        """Return the accessor method for getting data out of this field"""
         return getattr(instance, self.accessor, None)
 
     security.declarePrivate('getEditAccessor')
     def getEditAccessor(self, instance):
+        """Return the accessor method for getting raw data out of this
+        field e.g.: for editing
+        """
         return getattr(instance, self.edit_accessor, None)
 
     security.declarePublic('getMutator')
     def getMutator(self, instance):
+        """Return the mutator method used for changing the value of this field"""
         return getattr(instance, self.mutator, None)
 
     def hasI18NContent(self):
-        """return true it the field has I18N content"""
+        """Return true it the field has I18N content"""
         return 0
 
-    # Utility method for converting a Field to a string for the purpose of
-    # comparing fields.  This comparison is used for determining whether a
-    # schema has changed in the auto update function.  Right now it's pretty
-    # crude.  XXX fixme
     def toString(self):
+        """Utility method for converting a Field to a string for the purpose of
+        comparing fields.  This comparison is used for determining whether a
+        schema has changed in the auto update function.  Right now it's pretty
+        crude."""
+        # XXX fixme
         s = '%s: {' % self.__class__.__name__
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
@@ -262,7 +273,7 @@ class ObjectField(Field):
 
 
 class StringField(ObjectField):
-    """A string field"""
+    """A field that stores strings"""
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'string',
