@@ -21,11 +21,8 @@ from interfaces.field import IField, IObjectField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException, FileFieldException
-try:
-    from validation import validation
-except ImportError:
-    from Products.validation import validation
+from exceptions import ObjectFieldException, TextFieldException, \
+     FileFieldException
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
@@ -36,6 +33,11 @@ from ComputedAttribute import ComputedAttribute
 from Schema import FieldList, MetadataFieldList
 
 from sys import exc_info
+
+try:
+    from validation import validation
+except ImportError:
+    from Products.validation import validation
 
 try:
     from Products.PortalTransforms.interfaces import idatastream
@@ -951,7 +953,7 @@ class Image(BaseImage):
     title = ComputedAttribute(title, 1)
 
     alt = title_or_id = title
-    
+
     def isBinary(self):
         return 1
 

@@ -1,3 +1,9 @@
+2003-09-22  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.getPrimaryField): Moved
+	getPrimaryField from BaseContent to BaseObject, so it is available
+	to BaseFolder as well.
+
 2003-09-06  Sidnei da Silva  <sidnei@plone.org>
 
 	* skins/archetypes/widgets/field.pt: Edit accessor may be None in

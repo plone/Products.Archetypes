@@ -8,7 +8,7 @@ from debug import log, log_exc
 from BaseObject import BaseObject
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
-from I18NMixin import I18NMixin
+
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
@@ -52,15 +52,6 @@ class BaseContent(BaseObject, Referenceable,
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
         PortalContent.manage_beforeDelete(self, item, container)
-
-    security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
-    def getPrimaryField(self):
-        """The primary field is some object that responds to
-        PUT/manage_FTPget events.
-        """
-        fields = self.Schema().filterFields(primary=1)
-        if fields: return fields[0]
-        return None
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
@@ -121,17 +112,3 @@ class BaseContent(BaseObject, Referenceable,
 
 InitializeClass(BaseContent)
 
-
-class I18NBaseContent(I18NMixin, BaseContent):
-    """ override BaseContent to have I18N title and description,
-    plus I18N related actions
-    """
-    
-    schema = BaseContent.schema + I18NMixin.schema
-    
-    def __init__(self, *args, **kwargs):
-        BaseContent.__init__(self, *args, **kwargs)
-        I18NMixin.__init__(self)
-
-InitializeClass(I18NBaseContent)
-    

@@ -163,6 +163,15 @@ class BaseObject(Implicit):
             return element.getContentType()
         return value
 
+    security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
+    def getPrimaryField(self):
+        """The primary field is some object that responds to
+        PUT/manage_FTPget events.
+        """
+        fields = self.Schema().filterFields(primary=1)
+        if fields: return fields[0]
+        return None
+
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
         pmt = getToolByName(self, 'portal_metadata')
