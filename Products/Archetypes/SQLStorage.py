@@ -24,10 +24,10 @@ class BaseSQLStorage(StorageLayer):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
-    
-    db_type_map = {'fixedpoint' : 'integer'}
+    db_type_map = {'fixedpoint': 'integer'}
 
     def map_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
@@ -43,33 +43,10 @@ class BaseSQLStorage(StorageLayer):
 
     def map_datetime(self, field, value):
         # we don't want to lose even 0.001 second
-        try:
+	try:
             return value.ISO()[:-2] + str(value.second())
-        except:
-            return None
-    
-    def map_object(self, field, value):
-        __traceback_info__ = repr(value)
-        return repr(value)
-
-    def unmap_object(self, field, value):
-        __traceback_info__ = repr(value)
-        # XXX dangerous!
-        try:
-            return eval(value, {})
-        except:
-            return None
-
-    map_reference = map_object
-    unmap_reference = unmap_object
-    
-    def map_lines(self, field, value):
-        __traceback_info__ = repr(value)
-        return '\n'.join(value)
-
-    def unmap_lines(self, field, value):
-        __traceback_info__ = repr(value)
-        return value.split('\n')
+	except:
+	    return None
 
     def table_exists(self, instance):
         raise NotImplemented
@@ -85,9 +62,6 @@ class BaseSQLStorage(StorageLayer):
             return self.getName() in instance.__cleaned
         except AttributeError:
             return None
-
-    def cleanupField(self, instance, field):
-        pass
 
     def _query(self, instance, query, args):
         c_tool = getToolByName(instance, TOOL_NAME)
@@ -192,6 +166,12 @@ class BaseSQLStorage(StorageLayer):
             args['value'] = value
         self._query(instance, self.query_update % sql_type, args)
 
+    def unset(self, name, instance, **kwargs):
+        # probably use drop column here
+        pass
+
+    cleanupField = unset
+
     def cleanupInstance(self, instance, item=None, container=None):
         if self.is_cleaned(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be cleaned twice
@@ -232,6 +212,9 @@ class BaseSQLStorage(StorageLayer):
     def initializeField(self, instance, field):
         pass
 
+    def cleanupField(self, instance, field):
+        pass
+
 class GadflySQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
@@ -246,16 +229,13 @@ class GadflySQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
-    sqlm_type_map = {'integer':'integer'}
-    
-    db_type_map = {'text' : 'varchar',
-                   'object' : 'varchar',
-                   'string' : 'varchar',
-                   'reference' : 'varchar',
-                   'metadata' : 'varchar',
-                   'lines' : 'varchar',
-                   'fixedpoint' : 'integer'}
+    sqlm_type_map = {'integer':'int'}
+    db_type_map = {'text': 'varchar',
+                   'object': 'varchar',
+                   'string': 'varchar'}
+
 
 class MySQLSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
@@ -271,19 +251,52 @@ class MySQLSQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer':'int'}
-    
-    db_type_map = {'object' : 'blob',
-                   'string' : 'text',
-                   'reference' : 'text',
-                   'metadata' : 'text',
-                   'lines' : 'text',
-                   'fixedpoint' : 'integer'}
+    db_type_map = {
+        'object': 'text',
+        'fixedpoint': 'float',
+        'reference': 'text',
+        'datetime': 'datetime',
+        'string': 'text',
+        }
+
+    def map_object(self, field, value):
+        __traceback_info__ = repr(value)
+        return repr(value)
+
+    def unmap_object(self, field, value):
+        __traceback_info__ = repr(value)
+        # XXX dangerous!
+        try:
+            return eval(value, {})
+        except:
+            return None
 
     def table_exists(self, instance):
         result =  [r[0].lower() for r in self._query(instance, '''show tables''', {})]
         return instance.portal_type.lower() in result
+
+class OracleSQLStorage(BaseSQLStorage):
+    __implements__ = BaseSQLStorage.__implements__
+
+    query_create = """create table <dtml-var table> \
+                      (UID char(50) primary key not null, PARENTUID char(50) <dtml-var columns>)"""
+    query_insert = """insert into <dtml-var table> \
+                      set UID=<dtml-sqlvar UID type="string">, \
+                      PARENTUID=<dtml-sqlvar PARENTUID type="string">"""
+    query_select = """select <dtml-var field> from <dtml-var table> \
+                      where <dtml-sqltest UID op="eq" type="string">"""
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
+                      where  <dtml-sqltest UID op="eq" type="string">"""
+    query_delete = """delete from <dtml-var table> \
+                      where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
+
+    sqlm_type_map = {'integer':'int'}
+    db_type_map = {}
+
 
 class PostgreSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
@@ -298,16 +311,30 @@ class PostgreSQLStorage(BaseSQLStorage):
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
+    query_drop   = """drop table <dtml-var table>"""
 
     sqlm_type_map = {'integer': 'int'}
-    
-    db_type_map = {'object' : 'bytea',
-                   'string' : 'text',
-                   'reference' : 'text',
-                   'metadata' : 'text',
-                   'lines' : 'text',
-                   'datetime' : 'timestamp',
-                   'fixedpoint' : 'integer'}
+    db_type_map = {
+        'object': 'bytea',
+        'file': 'bytea',
+        'fixedpoint': 'integer',
+        'reference': 'text',
+        'datetime': 'timestamp',
+        'string': 'text',
+        'metadata': 'text', # eew
+        }
+
+    def map_object(self, field, value):
+        __traceback_info__ = repr(value)
+        return repr(value)
+
+    def unmap_object(self, field, value):
+        __traceback_info__ = repr(value)
+        # XXX dangerous!
+        try:
+            return eval(value, {})
+        except:
+            return None
 
     def table_exists(self, instance):
         return self._query(instance,

@@ -7,18 +7,11 @@
 ##bind subpath=traverse_subpath
 ##parameters=vocab, value
 
-try:
-    # Maybe a string?
-    value.capitalize()
-except AttributeError:
-    try:
-        # Maybe a list?
-        return ', '.join([vocab.getValue(context.unicodeEncode(str(v)),
-                                         context.unicodeEncode(str(v))) \
-                          for v in value if v])
-    except TypeError:
-        pass
 
-# Try to convert to a string and do the dirty job.
-return vocab.getValue(context.unicodeEncode(str(value)),
-                                            context.unicodeEncode(str(value)))
+try:
+    return ', '.join([vocab.getValue(context.unicodeEncode(str(v)),
+                                     context.unicodeEncode(str(v))) for v in value])
+
+except TypeError:
+    return vocab.getValue(context.unicodeEncode(str(value), context.unicodeEncode(str(value))))
+

@@ -115,7 +115,6 @@ def add%s(self, id, **kwargs):
     self._setObject(id, o)
     o = getattr(self, id)
     o.initializeArchetype(**kwargs)
-    return id
 """ % (name, type)
 
     exec ctor in module.__dict__
@@ -410,6 +409,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         # possible problem: assumes fields with same name can be
         # searched with the same widget
+
         widgets = {}
         for t in self.listTypes(package):
             instance = t('fake')

@@ -269,27 +269,22 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 if not member.getProperty('visible_ids', None) and \
                    not (REQUEST and REQUEST.form.get('id', None)):
                     continue
-            if errors and errors.has_key(name): 
-                continue
+            if errors and errors.has_key(name): continue
             error = 0
             value = None
-
             if REQUEST:
                 form = REQUEST.form
                 for postfix in ['_file', '']: ##Contract with FileWidget
                     value = form.get("%s%s" % (name, postfix), None)
                     if type(value) != type(''):
                         if isinstance(value, FileUpload):
-                            if value.filename == '': 
-                                continue
-                            else: 
-                                break
+                            if value.filename == '': continue
+                            else: break
                         else:
                             #Do other types need special handling here
                             pass
 
-                    if value is not None and value != '': 
-                        break
+                    if value is not None and value != '': break
 
             # if no REQUEST, validate existing value
             else:
@@ -330,7 +325,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 if not value:
                     errors[name] =  "%s is required, please correct" % capitalize(name)
                     error = 1
-                    continue
+                    break
 
             #VOCABULARY CHECKS
             if error == 0  and field.enforceVocabulary == 1:
@@ -364,8 +359,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             #Call any field level validation
             if error == 0 and value:
                 try:
-                    res = field.validate(value, instance=instance,
-                                         field=field, REQUEST=REQUEST)
+                    res = field.validate(value)
                     if res:
                         errors[name] = res
                         error = 1
@@ -451,6 +445,13 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     def signature(self):
         from md5 import md5
         return md5(self.toString()).digest()
+    
+    def hasI18NContent(self):
+        """return true it the schema contains at least one I18N field"""
+        for field in self.values():
+            if field.hasI18NContent():
+                return 1
+        return 0
 
 
 #Reusable instance for MetadataFieldList

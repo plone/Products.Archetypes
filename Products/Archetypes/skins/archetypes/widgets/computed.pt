@@ -8,21 +8,15 @@
 
 <!-- Computed Widgets -->
 
-    <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
-      <metal:block use-macro="here/widgets/field/macros/view">
-	<metal:block fill-slot="widget_view">
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
           <tal:block replace="structure accessor">computed element</tal:block>
-	</metal:block>
-      </metal:block>
+	</div>
+      </div>
     </div>
 
     <div metal:define-macro="edit">
-        <tal:block condition="use_label|nothing">
-        <span class="label"
-              tal:content="python:widget.Label(here) + ':'">Field</span>
-        </tal:block>
         <div metal:use-macro="here/widgets/computed/macros/view">
 	It doesn't make any sense to "edit" a computed field
 	</div>

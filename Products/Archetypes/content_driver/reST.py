@@ -2,6 +2,11 @@ from docutils.core import publish_string
 from ContentDriver import ContentDriver
 from Products.Archetypes.debug import log
 import sys
+import sys
+if sys.version_info < (2,2):
+    # fix the types module to make it docutils working with py2.1
+    import types
+    types.StringTypes = (types.UnicodeType, types.StringType)
 
 class Warnings:
     def __init__(self):
@@ -23,7 +28,8 @@ class Converter(ContentDriver):
 
       # do the format
       html = publish_string(writer=Writer(), source=data, settings_overrides=settings_overrides)
-
+      html = html.replace(' class="document"', '', 1)
+        
       # XXX what todo with this?
       #warnings = ''.join(pub.settings.warning_stream.messages)
 

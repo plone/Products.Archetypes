@@ -6,6 +6,7 @@ from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
+from I18NMixin import I18NMixin
 from debug import log, log_exc
 from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
@@ -49,4 +50,17 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
         SkinnedFolder.manage_beforeDelete(self, item, container)
 
 InitializeClass(BaseFolder)
+
+class I18NBaseFolder(I18NMixin, BaseFolder):
+    """ override BaseFolder to have I18N title and description,
+    plus I18N related actions
+    """
+    
+    schema = BaseFolder.schema + I18NMixin.schema
+
+    def __init__(self, *args, **kwargs):
+        BaseFolder.__init__(self, *args, **kwargs)
+        I18NMixin.__init__(self)
+
+InitializeClass(I18NBaseFolder)
 

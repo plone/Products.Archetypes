@@ -8,16 +8,15 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
+
+from Products.PortalTransforms.Extensions.Install import install as install_portal_transforms
+
 from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
 from types import *
 
-try:
-    from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
-    HAS_PORTAL_TRANSFORMS = 1
-except ImportError:
-    HAS_PORTAL_TRANSFORMS = 0
+from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
@@ -121,6 +120,8 @@ def install_validation(self, out, types):
     # Default validation for types
     form_tool.setValidators("base_edit", ["validate_base"])
     form_tool.setValidators("base_metadata", ["validate_base"])
+    form_tool.setValidators("base_translation", ["validate_base"])
+    form_tool.setValidators("manage_translations_form", ["validate_translations"])
 
 
 def install_navigation(self, out, types):
@@ -130,8 +131,10 @@ def install_navigation(self, out, types):
     #Generic Edit
     script = "content_edit"
     nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
-    nav_tool.addTransitionFor('default', "content_edit", 'success', 'action:view')
+    nav_tool.addTransitionFor('default', "content_edit", 'success', 'script:change_lang')
     nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
+
+    nav_tool.addTransitionFor('default', "change_lang", 'success', 'action:view')
 
     nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
     nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
@@ -275,16 +278,7 @@ def filterTypes(self, out, types, package_name):
             print >> out, '%s is not a registered Type Information' % typeinfo_name
             continue
 
-        isBaseObject = 0
         if IBaseObject.isImplementedByInstancesOf(t):
-            isBaseObject = 1
-        else:
-            for k in t.__bases__:
-                if IBaseObject.isImplementedByInstancesOf(k):
-                    isBaseObject = 1
-                    break
-        
-        if isBaseObject:
             filtered_types.append(t)
         else:
             print >> out, """%s doesnt implements IBaseObject. Possible misconfiguration.""" % repr(t) + \
@@ -301,13 +295,13 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
-    install_subskin(self, out, globals, product_skins_dir)
+    if product_skins_dir:
+        install_subskin(self, out, globals, product_skins_dir)
 
     install_indexes(self, out, types)
     install_actions(self, out, types)
 
-    if HAS_PORTAL_TRANSFORMS:
-        install_portal_transforms(self)
+    install_portal_transforms(self)
 
     if isPloneSite(self):
         install_validation(self, out, types)

@@ -74,7 +74,6 @@ class test_update_schema2(SecurityRequestTest):
         t1 = makeContent(site, portal_type='TestClass', id='t1')
 
         self.failUnless(hasattr(t1, 'a'))
-        self.failUnless(t1.Schema().get('a').required == 0)
         self.failIf(hasattr(t1, 'b'))
 
         site.archetype_tool.manage_updateSchema()
@@ -91,18 +90,15 @@ class test_update_schema2(SecurityRequestTest):
         t1 = site.t1
 
         self.failUnless(hasattr(t1, 'a'))
-        self.failUnless(t1.Schema().get('a').required == 0)
         self.failIf(hasattr(t1, 'b'))
 
-        # update schema
         site.archetype_tool.manage_updateSchema()
 
         self.failUnless(hasattr(t1, 'a'))
-        self.failUnless(t1.Schema().get('a').required == 1)
         self.failUnless(hasattr(t1, 'b'))
         self.failUnless(hasattr(t1, 'getA'))
         self.failUnless(hasattr(t1, 'getB'))
-        
+
 
 def test_suite():
     return unittest.TestSuite((
@@ -110,4 +106,4 @@ def test_suite():
         ))
 
 if __name__ == '__main__':
-    unittest.main()        
+    unittest.main()

@@ -16,6 +16,7 @@ def test_suite():
         'test_classgen',
         'test_contenttype',
         'test_fields',
+        'test_i18n_fields',
         'test_referenceable',
         'test_referenceEngine',
         'test_rename',
@@ -25,11 +26,11 @@ def test_suite():
         'test_schemata',
         'test_sitepolicy',
         'test_sqlstorage',
-        'test_update_schema1',
+        #'test_update_schema1',
         # 'test_update_schema2', # Can't run both together.
         'test_utils',
         'test_utils2',
-        'test_vocabulary',
+        'test_unicode',
         # 'test_widgets', # Run this one with care. It may harm your database.
         ])
 

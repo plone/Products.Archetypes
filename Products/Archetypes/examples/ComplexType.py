@@ -1,7 +1,7 @@
 from Products.Archetypes.public import *
 from Products.Archetypes import Field
 
-fields = ['ObjectField', 'StringField', 'MetadataField',
+fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField',
@@ -27,7 +27,7 @@ schema = Schema(tuple(field_instances) + (
 
 class ComplexType(BaseContent):
     """A simple archetype"""
-    schema = schema
+    schema = BaseContent.schema + schema
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'),))

@@ -18,10 +18,14 @@
                    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                    tabindex python:Iterator();
                    schematas here/Schemata;
+                   currentLang here/getCurrentLanguage;
+                   masterLang python:here.hasI18NContent() and here.getMasterLanguage() or currentLang;
+                   dummy python: currentLang != masterLang and here.setCurrentLanguage(lang=masterLang,old_lang=currentLang,referer=0);
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
            tal:omit-tag="">
+
 
       <h1 i18n:translate="heading_edit_item">
       Edit
@@ -50,14 +54,16 @@
 	    enctype="multipart/form-data"
         tal:attributes="action python:here.portal_form_url(template.id)" >
 
+
 <!--
- 	<div tal:condition="errors" class="error">
+	<div tal:condition="errors" class="error">
           <div tal:repeat="error errors/keys">
            <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
 	  </div>
 	</div>
 -->
 
+<!--         <div align="right" tal:content="string: (${currentLang})"/> -->
 
         <span class="legend"
               i18n:translate=""

@@ -1,9 +1,3 @@
-"""
-Unittests for a Referenceable engine.
-
-$Id: test_referenceable.py,v 1.8.2.3 2003/07/10 19:26:22 dreamcatcher Exp $
-"""
-
 import unittest
 import Zope
 
@@ -13,7 +7,8 @@ except: # Zope > 2.6
     pass
 
 from Acquisition import aq_base
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest, newSecurityManager
+from Products.CMFCore.tests.base.testcase import SecurityRequestTest, \
+     newSecurityManager
 from Products.CMFCore.tests.base.security import AnonymousUser
 from Products.CMFCore.MemberDataTool import MemberData
 from Products.Archetypes.tests.test_sitepolicy import makeContent
@@ -36,10 +31,10 @@ class ReferenceableTests( SecurityRequestTest ):
         user.aq_inner.aq_parent.aq_inner.aq_parent.id = 1
         newSecurityManager( None, user )
         #newSecurityManager(None, MemberData(None, 'Anonymous').__of__(self.root).__of__(AnonymousUser()) )
-        manage_addSite(self.root, 'testsite', custom_policy='Archetypes Site')
+        manage_addSite( self.root, 'testsite', \
+                        custom_policy='Archetypes Site' )
 
     def test_hasUID( self ):
-
         site = self.root.testsite
         catalog = site.portal_catalog
 
@@ -51,7 +46,6 @@ class ReferenceableTests( SecurityRequestTest ):
         self.failUnless(getattr(aq_base(doc), '_uid', None))
 
     def test_renamedontchangeUID( self ):
-
         site = self.root.testsite
         catalog = site.portal_catalog
 
@@ -75,7 +69,6 @@ class ReferenceableTests( SecurityRequestTest ):
         self.failUnless(doc.UID() == UID)
 
     def test_UIDclash( self ):
-
         site = self.root.testsite
         catalog = site.portal_catalog
 
@@ -133,7 +126,6 @@ class ReferenceableTests( SecurityRequestTest ):
         assert a.getRefs() == [b]
         assert c.getBRefs() == []
 
-
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
         site = self.root.testsite
@@ -142,7 +134,6 @@ class ReferenceableTests( SecurityRequestTest ):
 
         a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
-
 
         #Add the same ref twice
         a.addReference(b, "KnowsAbout")
@@ -154,7 +145,6 @@ class ReferenceableTests( SecurityRequestTest ):
         a.addReference(b, 'Flogs')
         assert len(a.getRefs('KnowsAbout')) == 1
         assert len(a.getRefs()) == 2
-
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
@@ -188,11 +178,10 @@ class ReferenceableTests( SecurityRequestTest ):
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
-
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest( unittest.makeSuite( ReferenceableTests ) )
+    suite.addTest(unittest.makeSuite(ReferenceableTests))
     return suite
 
 if __name__ == '__main__':
-    unittest.main( defaultTest = 'test_suite' )
+    unittest.main(defaultTest = 'test_suite')

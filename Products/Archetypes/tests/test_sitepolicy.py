@@ -1,23 +1,19 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.3.4.1 2003/07/10 00:03:01 dreamcatcher Exp $
+$Id: test_sitepolicy.py,v 1.5 2003/08/08 11:26:43 syt Exp $
 """
 
 import unittest
-import Zope
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+# trigger zope imports
+import test_classgen
 
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.CMFPlone.Portal import manage_addSite
 from Acquisition import aq_base
+from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
 def makeContent(site, portal_type, id='document', **kw ):
-
     site.invokeFactory( type_name=portal_type, id=id )
     content = getattr( site, id )
 
@@ -49,8 +45,9 @@ class SitePolicyTests( SecurityRequestTest ):
         site = self.root.testsite
         demo_types = ['DDocument', 'SimpleType', 'Fact', 'ComplexType']
         for t in demo_types:
-            makeContent(site, portal_type=t, id=t)
+            content = makeContent(site, portal_type=t, id=t)
             self.failUnless(t in site.contentIds())
+            self.failUnless(not isinstance(content, DefaultDublinCoreImpl))
 
 def test_suite():
     suite = unittest.TestSuite()

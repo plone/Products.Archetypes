@@ -6,6 +6,18 @@ from Products.CMFCore.TypesTool import TypesTool, typeClasses
 from config import *
 from debug import log, log_exc
 
+# Bootstrap generator and validation package for users installing them in 
+# the Products directory
+try:
+    import generator
+    import validation
+except ImportError:
+    import sys
+    from os.path import dirname
+    sys.path.append(dirname(__path__[0]))
+    import generator
+    import validation
+ 
 # Bootstrap Zope-dependent validators
 import Validators
 

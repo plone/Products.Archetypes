@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:metal="http://xml.zope.org/namespaces/metal"
+  i18n:domain="plone">
+  
+  <body>
+    
+    <!-- Epoz Widgets -->
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
+    </div>
+
+    <metal:define define-macro="edit_area">
+      <tal:define define="inputname fieldName;inputvalue python:request.get(fieldName, accessor())">
+	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
+      </tal:define>
+      <input type="hidden" tal:attributes="name string: ${fieldName}_text_format;" value="text/html"/>
+
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
+	<metal:fill  metal:fill-slot="widget_body">
+	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
+	</metal:fill>
+      </metal:use>
+    </metal:define>
+    
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/string/macros/edit">
+      </div>
+    </div>
+    
+  </body>
+  
+</html>
+

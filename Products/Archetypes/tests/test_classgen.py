@@ -4,15 +4,17 @@ import Zope # Sigh, make product initialization happen
 
 try:
     Zope.startup()
-except: # Zope > 2.6
+except AttributeError: # Zope > 2.6
     pass
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
+from Products.PortalTransforms.TransformTool import TransformTool
 
 from DateTime import DateTime
-import unittest
 from copy import deepcopy
 
 schema = BaseSchema + Schema((
@@ -48,10 +50,26 @@ schema = BaseSchema + Schema((
     ))
 
 
-class Dummy(BaseContent):
+class SiteProperties:
+    default_charset = 'UTF-8'
+    def getProperty(self, name, default=None):
+        return getattr(self, name, default)
+    
+class PortalProperties:
+    site_properties = SiteProperties()
 
-    def __init__(self, oid, init_transforms=0, **kwargs):
+class Dummy(BaseContent):
+    portal_properties = PortalProperties()
+    mimetypes_registry = MimeTypesTool()
+    
+    def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
+        self.portal_transforms = TransformTool()
+        if init_transforms:
+            from Products.PortalTransforms import transforms
+            transforms.initialize(self.portal_transforms)
+
+BaseUnit.portal_properties = PortalProperties()
 
 def gen_dummy():
     Dummy.schema = deepcopy(schema)
@@ -97,38 +115,38 @@ class ClassGenTest( unittest.TestCase ):
         
     def test_textfield(self):
         obj = self._dummy
-        obj.setAtextfield('Bla')
-        self.failUnless(str(obj.getAtextfield()) == 'Bla')
+        obj.setAtextfield('Bla', mimetype="text/plain")
+        self.failUnlessEqual(str(obj.getAtextfield()), 'Bla')
 
     def test_filefield(self):
         obj = self._dummy
         obj.setAfilefield('Bla')
-        self.failUnless(str(obj.getAfilefield()) == 'Bla')
+        self.failUnlessEqual(str(obj.getAfilefield()), 'Bla')
 
     def test_linesfield(self):
         obj = self._dummy
         obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnless(obj.getAlinesfield() == ['Bla', 'Ble', 'Bli'])
+        self.failUnlessEqual(obj.getAlinesfield(), ['Bla', 'Ble', 'Bli'])
 
     def test_datefield(self):
         obj = self._dummy
         obj.setAdatefield('2002/01/01')
-        self.failUnless(obj.getAdatefield() == DateTime('2002/01/01'))
+        self.failUnlessEqual(obj.getAdatefield(), DateTime('2002/01/01'))
 
     def test_objectfield(self):
         obj = self._dummy
         obj.setAnobjectfield('bla')
-        self.failUnless(obj.getAnobjectfield() == 'bla')
+        self.failUnlessEqual(obj.getAnobjectfield(), 'bla')
 
     def test_fixedpointfield(self):
         obj = self._dummy
         obj.setAfixedpointfield('26.05')
-        self.failUnless(obj.getAfixedpointfield() == '26.05')
+        self.failUnlessEqual(obj.getAfixedpointfield(), '26.05')
 
     def test_writeonlyfield(self):
         obj = self._dummy
         obj.setAwriteonlyfield('bla')
-        self.failUnless(obj.getRawAwriteonlyfield() == 'bla')
+        self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
         
     def tearDown( self ):
         del self._dummy

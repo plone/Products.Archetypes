@@ -8,17 +8,17 @@
 
 <!-- Rich Widgets -->
 
-    <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
-     <metal:block use-macro="here/widgets/field/macros/view">
-	<metal:block fill-slot="widget_view"
+    <div metal:define-macro="view">
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view"
              tal:define="transformable python: here.isTransformable(fieldName);">
 	  <span tal:condition="transformable"
                 tal:replace="structure accessor"/>
-	  <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
-	</metal:block>
-      </metal:block>
+	    <tal:condition condition="nothing">
+	      <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
+	    </tal:condition>
+	</div>
+      </div>
     </div>
 
     <metal:define define-macro="edit">
@@ -28,10 +28,7 @@
         <div class="group">
 	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
             <div class="row">
-                <metal:use use-macro="here/widgets/textarea/macros/area_edit"/>
-            </div>
-            <div class="row">
-	            <metal:use use-macro="here/widgets/textarea/macros/area_format"/>
+                <metal:use use-macro="here/widgets/epoz/macros/edit_area"/>
             </div>
             <div class="row">
                 <strong>OR</strong>

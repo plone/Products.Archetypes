@@ -24,28 +24,28 @@ class ChangeStorageTest( unittest.TestCase ):
 
     def test_changestorage(self):
         dummy = self._dummy
-        dummy.setAtextfield('sometext')
+        dummy.setAtextfield('sometext', mimetype="text/plain")
         dummy.setAdatefield('2003-01-01')
         dummy.setAlinesfield(['bla','bla','bla'])
         dummy.setAnobjectfield('someothertext')
 
-        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
-        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
-        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
-        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
+        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
+        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
+        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
+        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
         for field in dummy.schema.fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
-                self.failUnless(field.getStorage().getName() == 'AttributeStorage')
+                self.failUnlessEqual(field.getStorage().getName(), 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
-                self.failUnless(field.getStorage().getName() == 'MetadataStorage')
+                self.failUnlessEqual(field.getStorage().getName(), 'MetadataStorage')
 
-        self.failUnless(str(dummy.getAtextfield()) == 'sometext')
-        self.failUnless(dummy.getAdatefield() == DateTime('2003-01-01'))
-        self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
-        self.failUnless(dummy.getAnobjectfield() == 'someothertext')
+        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
+        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
+        self.failUnlessEqual(dummy.getAlinesfield(), ['bla','bla','bla'])
+        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
     def test_unset(self):
         dummy = self._dummy

@@ -158,7 +158,6 @@ def gen_dummy(storage_class):
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
 class DummyTool:
-
     def __init__(self, db_name):
         self.sql_connection = connectors[db_name]
         # to ensure test atomicity
@@ -233,6 +232,14 @@ class SQLStorageTest(unittest.TestCase):
         __traceback_info__ = repr(value)
         self.failUnless(value == '2.30')
 
+    def test_referencefield(self):
+        dummy = self._dummy
+        self.failUnless(dummy.getAreferencefield() is None)
+        dummy.setAreferencefield('Bla')
+        value = dummy.getAreferencefield()
+        __traceback_info__ = repr(value)
+        self.failUnless(str(value) == 'Bla')
+
     def test_booleanfield(self):
         dummy = self._dummy
         self.failUnless(dummy.getAbooleanfield() is None)
@@ -284,14 +291,6 @@ for db_name in connectors.keys():
                                                 id='Dummy',
                                                 typeinfo_name='CMFDefault: Document')
             dummy.__factory_meta_type__ = 'ArchExample Content'
-
-	def test_referencefield(self):
-            dummy = self._dummy
-            self.failUnless(dummy.getAreferencefield() is None)
-            dummy.setAreferencefield('Bla')
-            value = dummy.getAreferencefield()
-            __traceback_info__ = repr(value)
-            self.failUnless(str(value) == 'Bla')
 
         def test_rename(self):
             site = self.root.testsite

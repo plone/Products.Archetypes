@@ -12,15 +12,8 @@ if value is not None and \
     return 1
 
 try:
-    # Maybe string?
-    value.capitalize()
-except AttributeError:
-    # Maybe list?
-    try:
-        for v in value:
-            if unicode(str(item)) == unicode(str(v)):
-                return 1
-    except TypeError:
-        pass
-
-return not not unicode(str(value)) == unicode(str(item))
+    for v in value:
+        if unicode(str(item)) == unicode(str(v)):
+            return 1
+except TypeError:
+    return 0

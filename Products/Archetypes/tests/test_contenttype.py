@@ -1,15 +1,11 @@
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
-
 import unittest
 from os import curdir
 from os.path import join, abspath, dirname
-from Products.Archetypes.public import *
+
+# this trigger zope imports
 from test_classgen import Dummy, gen_dummy
+
+from Products.Archetypes.public import *
 
 try:
     __file__
@@ -29,14 +25,14 @@ class ContentTypeTest( unittest.TestCase ):
 
     def test_textfieldwithmime(self):
         obj = self._dummy
-        obj.setAtextfield('Bla', mimetype='text/restructured')
-        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
-        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/restructured')
+        obj.setAtextfield('Bla', mimetype='text/x-rst')
+        self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/x-rst')
+        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
 
     def test_textfieldwithmime2(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype='text/structured')
-        self.assertEqual(str(obj.getField('atextfield').getRaw(obj)), 'Bla')
+        self.assertEqual(obj.getField('atextfield').getRaw(obj), 'Bla')
         self.assertEqual(obj.getField('atextfield').getContentType(obj), 'text/structured')
 
     def test_textfieldwithoutmime(self):
@@ -54,9 +50,9 @@ class ContentTypeTest( unittest.TestCase ):
 
     def test_filefieldwithmime(self):
         obj = self._dummy
-        obj.setAfilefield('Bla', mimetype='text/restructured')
+        obj.setAfilefield('Bla', mimetype='text/x-rst')
         self.assertEqual(str(obj.getAfilefield()), 'Bla')
-        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'text/restructured')
+        self.assertEqual(obj.getField('afilefield').getContentType(obj), 'text/x-rst')
 
     def test_filefieldwithmime2(self):
         obj = self._dummy

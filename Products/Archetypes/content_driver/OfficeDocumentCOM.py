@@ -21,8 +21,6 @@ class OfficeDocument:
         os.mkdir(self.tmpdir)
         if not self.name.endswith('.doc'):
             name = self.name + ".doc"
-            if name == '.doc':
-                name = 'word.doc'
         self.filedest = open("%s" % os.path.join(self.tmpdir, name), "wb")
         self.file     = self.filedest.name
         self.filedest.write(data)

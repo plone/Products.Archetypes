@@ -8,25 +8,23 @@
 
 <!-- Selection Widgets -->
 
-    <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
-     <metal:block use-macro="here/widgets/field/macros/view">
-	<metal:block fill-slot="widget_view"
+    <metal:define define-macro="view">
+      <metal:use use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view"
    	     tal:define="vocab python:field.Vocabulary(here);
                          value python:accessor();
 	                 display python:here.displayValue(vocab, value);">
           <span tal:replace="structure display"/>
-	</metal:block>
-     </metal:block>
-    </div>
+	</div>
+      </metal:use>
+    </metal:define>
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
     <metal:fill fill-slot="widget_body"
        tal:define="vocab python:field.Vocabulary(here);
                    format python:test(field.widget.format,field.widget.format,'select');
-                   vlen  python: len(vocab)">
+                   vlen  python: len(vocab);">
 
         <input type="hidden"
                value=""
@@ -34,21 +32,15 @@
                tal:attributes="name string:$fieldName:default:list;" />
         <span tal:repeat="item vocab" tal:omit-tag=""
               tal:condition="python:format=='checkbox'">
-        <tal:block tal:define="tabindex tabindex/next">
         <input
            tal:attributes="type string:checkbox;
                            name string:$fieldName:list;
-                           id string:${fieldName}_${tabindex};
-                           tabindex tabindex;
+                           id fieldName;
+                           tabindex tabindex/next;
                            checked python:test(here.unicodeTestIn(item, value), 'checked', None);
-                           value item;" 
-          />
- 	<label for="field"
-               tal:attributes="for string:${fieldName}_${tabindex}" 
-               tal:content="python:vocab.getValue(item)" />
-	<br />
-        </tal:block>
-	</span>
+                           value python:vocab.getValue(item);" />
+	      <br>
+	  </span>
 
         <select multiple="multiple"
 	  tal:condition="python:format=='select'"

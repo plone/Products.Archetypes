@@ -2,9 +2,9 @@ Archetypes Basic Reference
 ==========================
 
 :Author: Sidnei da Silva
-:Contact: sidnei@plone.org
-:Date: $Date: 2003/08/09 19:12:59 $
-:Version: $Revision: 1.6.4.4 $
+:Contact: sidnei@x3ng.com
+:Date: $Date: 2003/08/04 15:45:35 $
+:Version: $Revision: 1.9 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -27,6 +27,7 @@ found under the under the `docs`_ directory of Archetypes.
 .. _Archetypes Project: http://sourceforge.net/projects/archetypes
 .. _docs: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/Archetypes/docs
 
+
 Installation
 ------------
 
@@ -36,11 +37,19 @@ Requirements
 Archetypes is currently being tested and run in various environments
 using the following combination:
 
-- Zope 2.6.2+
+- Zope 2.6
 
-- CMFPlone 1.0.4
+- CMFPlone 1.0.2
 
 - CMF 1.3.1
+
+It is also known to work smoothly with Zope 2.5.
+
+You should install the *validation* and *generator* packages available 
+on the archetypes'sourceforge page before installing Archetypes itself. 
+WARNING: those packages was used to be installed as Zope products, this 
+not the case anymore. They should be installed as regular python package 
+(look at the packages'README file for more info).
 
 Using the tarball
 *****************
@@ -54,19 +63,12 @@ Using the tarball
      Archetypes
      ArchExample
 
-3. You should install the *validation* and *generator* packages available
-   on the `Archetypes Project`_ page before installing Archetypes itself.
+3. Restart your Zope.
 
-   **WARNING**: those packages used to be installed as Zope products, this
-   not the case anymore. They should be installed as regular python package
-   (look at the packages README file for more info).
-
-4. Restart your Zope.
-
-5. Check in the ``Control Panel`` of your Zope if everything imported
+4. Check in the ``Control Panel`` of your Zope if everything imported
    just fine.
 
-6. Good luck!
+5. Good luck!
 
 Checking out from CVS
 *********************
@@ -143,7 +145,7 @@ vocabulary
   The contents of the vocabulary are used as the values which can be
   choosen from to fill this field.
 
-  An example for a ``DisplayList`` usage can be found in the
+  An example for a ``DisplayList`` usage can be found in the 
   ``ArchExample`` directory in ``config.py``.
 
 enforceVocabulary
@@ -166,9 +168,9 @@ edit_accessor
   Name of the method that will be used for getting data out
   of the field just before edition. Unlike the standard accessor
   method which could apply some transformation to the accessed data,
-  this method should return the raw data without any transformation.
+  this method should return the raw data without any transformation. 
   If the method already exists, nothing is done. If the method
-  doesn't exist, Archetypes will generate a basic method for you.
+  doesn't exist, Archetypes will generate a basic method for you. 
 
 mutator
   Name of the method that will be used for changing the value
@@ -483,9 +485,14 @@ ObjectManagedStorage
 
 ``*SQLStorage``
   Experimental storage layer, which puts the data inside
-  SQL. Available variations are: MySQL and PostgreSQL. There's an initial
+  SQL. Available variations are: MySQL and PostGRES. There's an initial
   implementation of an Oracle storage, but it isn't tested at the
   moment.
+
+How to write your own SQLStorage
+********************************
+
+XXX Not written yet.
 
 Marshall
 --------
@@ -567,8 +574,6 @@ Examples can be found on the ArchExample product, that is included in
 the download. You can also `browse the cvs repository`_.
 
 .. _browse the cvs repository: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/
-
-
 
 Special Thanks
 --------------
