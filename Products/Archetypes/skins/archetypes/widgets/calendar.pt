@@ -43,7 +43,7 @@
 	    <tal:from define="id fieldName;
 	      inputname  fieldName;
 	      formname   string:search_form;
-	      inputvalue python: '';
+	      inputvalue python: request.get(fieldName + '_from', '');
 	      tabindex tabindex/next; 
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
@@ -56,7 +56,7 @@
 	    <tal:to define="id fieldName;
 	      inputname  string:$fieldName:list;
 	      formname   string:search_form;
-	      inputvalue python: '';
+	      inputvalue python: request.get(fieldName + '_to', '');
 	      tabindex tabindex/next; 
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
