@@ -207,8 +207,9 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
         BaseFolder.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
-    security.declarePrivate('manage_renameObject')
+    security.declareProtected(ModifyPortalContent, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
+        """ rename the object """
         objidx = self.getObjectPosition(id)
         result = BaseFolder.manage_renameObject(self, id, new_id, REQUEST)
         self.moveObject(new_id, objidx)
