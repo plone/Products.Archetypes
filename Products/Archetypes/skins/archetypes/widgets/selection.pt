@@ -24,34 +24,32 @@
 
             <metal:fill fill-slot="widget_body"
                         tal:define="vocab python:field.Vocabulary(here);
-                                    index python:vocab.getIndex(value);
                                     vlen python:len(vocab);
                                     format python:field.widget.format">
 
                 <tal:shortVocab condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')">
 
                     <!-- Radio when the vocab is short < 4 -->
-                    
+
                     <tal:radios repeat="item vocab">
-                      
+
                         <input class="noborder"
                                tabindex=""
                                type="radio"
-                               tal:define="item_index python:vocab.getIndex(item);
-                                           tabindex tabindex/next"
-                               tal:attributes="name string:$fieldName;
+                               tal:define="tabindex tabindex/next"
+                               tal:attributes="name fieldName;
                                                id string:${fieldName}_${tabindex};
-                                               checked python:test(item_index==index, 'checked', '');
-                                               value item_index;
+                                               checked python:here.checkSelected(item, value);
+                                               value item;
                                                tabindex tabindex;"
                                />
-                        
+
                         <label i18n:translate=""
                                tal:content="python:vocab.getValue(item)"
                                tal:attributes="for string:${fieldName}_${tabindex/pos}" />
 
                         <br />
-                      
+
                     </tal:radios>
 
                 </tal:shortVocab>
@@ -60,17 +58,17 @@
 
                     <!-- Pulldown when longer -->
 
-                    <select tal:attributes="name string:$fieldName;
+                    <select tal:attributes="name fieldName;
                                             id fieldName;
                                             tabindex tabindex/next;">
-                      <tal:block tal:repeat="item vocab">
-                        <option tal:define="item_index python:vocab.getIndex(item)"
-                                tal:attributes="value item_index;
-                                                selected python:test(item_index==index, 'selected', None);"
+
+                        <option tal:repeat="item vocab"
+                                tal:attributes="value item;
+                                                selected python:test(here.checkSelected(item, value), 'selected', None);"
                                 tal:content="python:vocab.getValue(item)"
                                 i18n:translate=""
                                 />
-                      </tal:block>
+
                     </select>
 
                 </tal:longVocab>
