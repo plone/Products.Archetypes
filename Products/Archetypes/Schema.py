@@ -185,6 +185,17 @@ class Schemata(UserDict):
         else:
             log_exc('Object doesnt implement IField: %s' % field)
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'delField')
+    def delField(self, name):
+        """Remove a field given by its name """
+
+        if not self.has_key(name): 
+            raise KeyError("Schema has no field '%s'" % name)
+
+        del self[name]
+        self._order_fields = None
+
 
     security.declareProtected(CMFCorePermissions.View,
                               'searchable')
@@ -561,6 +572,16 @@ class Schema(Schemata, DefaultLayerContainer):
     def signature(self):
         from md5 import md5
         return md5(self.toString()).digest()
+
+
+    def getSchemataNames(self):
+        """ return list of schemata names in order of appearing """
+        lst = list()
+        for f in self.fields():
+            if not f.schemata in lst:
+                lst.append(f.schemata)
+        return lst
+
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
