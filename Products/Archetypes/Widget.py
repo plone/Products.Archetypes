@@ -178,9 +178,17 @@ class VisualWidget(TypesWidget):
         'format': 0,
         })
 
+class EpozWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/epoz",
+        })
+
+
+
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
-           'LabelWidget', 'PasswordWidget', 'VisualWidget')
+           'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget')
