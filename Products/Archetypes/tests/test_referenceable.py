@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.1 2003/03/28 15:28:43 dreamcatcher Exp $
+$Id: test_referenceable.py,v 1.2 2003/03/29 00:11:55 dreamcatcher Exp $
 """
 
 import unittest
@@ -50,7 +50,10 @@ class ReferenceableTests( SecurityRequestTest ):
         UID = doc.UID()
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
         # ensure object has a _p_jar
-        get_transaction().commit(1)
+        doc._p_jar = site._p_jar = self.root._p_jar
+        new_oid = self.root._p_jar.new_oid
+        site._p_oid = new_oid()
+        doc._p_oid = new_oid()
         site.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(site, new_id)
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
@@ -70,7 +73,10 @@ class ReferenceableTests( SecurityRequestTest ):
 
         UID = doc.UID()
         # ensure object has a _p_jar
-        get_transaction().commit(1)
+        doc._p_jar = site._p_jar = self.root._p_jar
+        new_oid = self.root._p_jar.new_oid
+        site._p_oid = new_oid()
+        doc._p_oid = new_oid()
         site.manage_renameObject(id=obj_id, new_id=new_id)
 
         #now, make a new one with the same ID and check it gets a different UID
