@@ -1,6 +1,10 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Use method getFilename in at_download.pt instead of direkt attribute access, 
+   which ignores BaseUnit.
+   [yenzenz]
+
  * Fixed 1084278 In www/generateDebug.zpt error in getTypeInfo(type['name'])
    [yenzenz]
 
