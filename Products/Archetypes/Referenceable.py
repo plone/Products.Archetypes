@@ -4,8 +4,8 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 
 
-from Acquisition import aq_base, aq_chain, aq_parent
-from AccessControl import getSecurityManager,Unauthorized
+from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
+from AccessControl import getSecurityManager, Unauthorized
 from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
@@ -132,6 +132,38 @@ class Referenceable(Base):
 
     def UID(self):
         return getattr(self, config.UUID_ATTR, None)
+
+    def _setUID(self, uid):
+        old_uid = self.UID()
+        if old_uid is None:
+            # Nothing to be done.
+            return
+        # Update forward references
+        fw_refs = self.getReferenceImpl()
+        for ref in fw_refs:
+            assert ref.sourceUID == old_uid
+            ref.sourceUID = uid
+            item = ref
+            container = aq_parent(aq_inner(ref))
+            # We call manage_afterAdd to inform the
+            # reference catalog about changes.
+            ref.manage_afterAdd(item, container)
+        # Update back references
+        back_refs = self.getBackReferenceImpl()
+        for ref in back_refs:
+            assert ref.targetUID == old_uid
+            ref.targetUID = uid
+            item = ref
+            container = aq_parent(aq_inner(ref))
+            # We call manage_afterAdd to inform the
+            # reference catalog about changes.
+            ref.manage_afterAdd(item, container)
+        setattr(self, config.UUID_ATTR, uid)
+        item = self
+        container = aq_parent(aq_inner(item))
+        # We call manage_afterAdd to inform the
+        # reference catalog about changes.
+        self.manage_afterAdd(item, container)
 
     def _updateCatalog(self, container):
         """Update catalog after copy, rename ...

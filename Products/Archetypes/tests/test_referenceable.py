@@ -145,15 +145,91 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(UID in uniq)
         self.failUnless(UID2 in uniq)
 
+    def test_setUID_keeps_relationships(self):
+        obj_id   = 'demodoc'
+        known_id = 'known_doc'
+        owned_id = 'owned_doc'
+
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=obj_id)
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=known_id)
+        c = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=owned_id)
+
+        #Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+        b.addReference(a, "KnowsAbout")
+        a.addReference(c, "Owns")
+
+        refs = a.getRefs()
+        assert b in refs
+        assert c in refs
+        assert a.getRefs('KnowsAbout') == [b]
+        assert b.getRefs('KnowsAbout') == [a]
+        assert a.getRefs('Owns') == [c]
+        assert c.getBRefs('Owns')== [a]
+
+        old_uid = a.UID()
+
+        # Check existing forward refs
+        fw_refs = a.getReferenceImpl()
+        old_refs = []
+        [old_refs.append(o.sourceUID) for o in fw_refs
+         if not o.sourceUID in old_refs]
+        self.assertEquals(len(old_refs), 1)
+        self.assertEquals(old_refs[0], old_uid)
+
+        # Check existing backward refs
+        fw_refs = a.getBackReferenceImpl()
+        old_refs = []
+        [old_refs.append(o.targetUID) for o in fw_refs
+         if not o.targetUID in old_refs]
+        self.assertEquals(len(old_refs), 1)
+        self.assertEquals(old_refs[0], old_uid)
+
+        new_uid = '9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9'
+        a._setUID(new_uid)
+        self.assertEquals(a.UID(), new_uid)
+
+        # Check existing forward refs got reassigned
+        fw_refs = a.getReferenceImpl()
+        new_refs = []
+        [new_refs.append(o.sourceUID) for o in fw_refs
+         if not o.sourceUID in new_refs]
+        self.assertEquals(len(new_refs), 1)
+        self.assertEquals(new_refs[0], new_uid)
+
+        # Check existing backward refs got reassigned
+        fw_refs = a.getBackReferenceImpl()
+        new_refs = []
+        [new_refs.append(o.targetUID) for o in fw_refs
+         if not o.targetUID in new_refs]
+        self.assertEquals(len(new_refs), 1)
+        self.assertEquals(new_refs[0], new_uid)
+
+        refs = a.getRefs()
+        assert b in refs
+        assert c in refs
+        assert a.getRefs('KnowsAbout') == [b]
+        assert b.getRefs('KnowsAbout') == [a]
+        assert a.getRefs('Owns') == [c]
+        assert c.getBRefs('Owns')== [a]
+
+        self.verifyBrains()
+
     def test_relationships(self):
 
         obj_id   = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
 
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id=obj_id)
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id=known_id)
-        c = makeContent( self.folder, portal_type='DDocument',title='Foo', id=owned_id)
+        a = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=obj_id)
+        b = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=known_id)
+        c = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=owned_id)
 
         #Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -180,11 +256,17 @@ class ReferenceableTests(ArcheSiteTestCase):
         future_payment_id = 'cta_receber'
         payment2_id = 'quitacao'
 
-        account = makeContent( self.folder, portal_type='DDocument',title='Account', id=account_id)
-        invoice = makeContent( self.folder, portal_type='DDocument',title='Invoice', id=invoice_id)
-        payment = makeContent( self.folder, portal_type='DDocument',title='Payment', id=payment_id)
-        future_payment = makeContent( self.folder, portal_type='DDocument',title='Future Payment', id=future_payment_id)
-        payment2 = makeContent( self.folder, portal_type='DDocument',title='Payment 2', id=payment2_id)
+        account = makeContent( self.folder, portal_type='DDocument',
+                               title='Account', id=account_id)
+        invoice = makeContent( self.folder, portal_type='DDocument',
+                               title='Invoice', id=invoice_id)
+        payment = makeContent( self.folder, portal_type='DDocument',
+                               title='Payment', id=payment_id)
+        future_payment = makeContent( self.folder, portal_type='DDocument',
+                                      title='Future Payment',
+                                      id=future_payment_id)
+        payment2 = makeContent( self.folder, portal_type='DDocument',
+                                title='Payment 2', id=payment2_id)
 
         invoice.addReference(payment, "Owns")
         invoice.addReference(future_payment, "Owns")
@@ -383,7 +465,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnlessEqual(b.getBRefs(), [])
 
     def test_copyPasteSupport(self):
-        # copy/paste behaviour test 
+        # copy/paste behaviour test
         # in another folder, pasted object should lose all references
         # added by GL (for bug #985393)
         org_folder = makeContent(self.folder,
