@@ -185,7 +185,6 @@ class Schemata(UserDict):
         else:
             log_exc('Object doesnt implement IField: %s' % field)
 
-    __setitem__ = addField
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'delField')
@@ -199,8 +198,6 @@ class Schemata(UserDict):
 
         del self[name]
         self._order_fields = None
-
-    __delitem__ = delField
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateField')
