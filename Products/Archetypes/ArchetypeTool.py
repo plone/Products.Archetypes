@@ -629,16 +629,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     security.declarePublic('getSearchWidgets')
-    def getSearchWidgets(self, package=None, type=None, context=None):
+    def getSearchWidgets(self, package=None, type=None, context=None, nosort=None):
         """Empty widgets for searching"""
         return self.getWidgets(package=package, type=type,
-                               context=context, mode='search')
+                               context=context, mode='search', nosort=nosort)
 
     security.declarePublic('getWidgets')
     def getWidgets(self, instance=None,
                    package=None, type=None,
                    context=None, mode='edit',
-                   fields=None, schemata=None):
+                   fields=None, schemata=None, nosort=None):
         """Empty widgets for standalone rendering"""
 
         widgets = []
@@ -696,7 +696,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     instance=instance,
                     field=field,
                     accessor=accessor)))
-        if mode == 'search':
+        if mode == 'search' and nosort == None:
             widgets.sort()
         return [widget for name, widget in widgets]
 
@@ -947,10 +947,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         catalogs = []
         catalog_map=getattr(self,'catalog_map',None)
         if catalog_map:
-            names = self.catalog_map.get(meta_type, ['portal_catalog',]
-                                         )
+            names = self.catalog_map.get(meta_type, ['portal_catalog',
+                                                     UID_CATALOG])
         else:
-            names = ['portal_catalog', ]
+            names = ['portal_catalog', UID_CATALOG]
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))

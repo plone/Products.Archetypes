@@ -13,24 +13,35 @@
     <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define define-macro="area_edit">
+      <tal:define tal:define="base python:hasattr(value, 'isUnit');
+                    binary python:base and value.isBinary() or here.isBinary(fieldName);
+                    content python:(base == 1) and value.getRaw() or value;
+                    content python:(binary == 0) and content or '';">
+
+      <fieldset tal:condition="python:hasattr(widget,'append_only') and widget.append_only">
+        <legend tal:content="widget/label">label</legend>
+        <span tal:content="content">content</span>
+      </fieldset>
+
       <textarea tabindex="#"
         tal:attributes="name fieldName;
                         id fieldName;
                         cols widget/cols;
                         rows widget/rows;
-                        tabindex tabindex/next"
-        tal:define="base python:hasattr(value, 'isUnit');
-                    binary python:base and value.isBinary() or here.isBinary(fieldName);
-                    content python:(base == 1) and value.getRaw() or value;
-                    content python:(binary == 0) and content or ''"
+                        tabindex tabindex/next;"
+	tal:define="content python:(widget.append_only == 0) and content or '';"
         tal:content="content">content</textarea>
+
+      </tal:define>
     </metal:define>
 
     <metal:define define-macro="area_format">
       <tal:define define="field_text_format string:${fieldName}_text_format;
                           contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                          mimetypes python:[t for t in getattr(field, 'allowable_content_types', ()) if t.startswith('text/')];
-                          contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
+                          mimetypes python:[t for t in getattr(field, 'allowable_content_types', ())
+                                           if t.startswith('text/')];
+                          contenttype python:hasattr(field, 'getContentType') and
+                                             field.getContentType(here) or ''">
 
         <tal:condition condition="python:len(mimetypes) &gt; 1">
           <label i18n:translate="label_format">Text Format</label>
@@ -73,7 +84,9 @@
     <metal:define define-macro="search">
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
+
           <metal:block use-macro="here/widgets/textarea/macros/area_edit" />
+
         </metal:fill>
       </metal:use>
     </metal:define>

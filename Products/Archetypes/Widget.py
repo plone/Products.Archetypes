@@ -226,6 +226,7 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
+        'append_only':0,
         })
 
     def process_form(self, instance, field, form, empty_marker=None,
@@ -251,6 +252,14 @@ class TextAreaWidget(TypesWidget):
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
+        """ handle append_only  """
+        # SPANKY: It would be nice to add a datestamp too
+        if (hasattr(field.widget, 'append_only') and field.widget.append_only):
+            divider = "\r\r====================================\r\r"
+            form_value = form.get(field.getName(), empty_marker)
+            data_value = field.get(instance)
+            value = form_value + divider + data_value
+            
         return value, kwargs
 
 class LinesWidget(TypesWidget):
@@ -484,8 +493,9 @@ class VisualWidget(TextAreaWidget):
         'rows'  : 25,      #rows of TextArea if VE is not available
         'cols'  : 80,      #same for cols
         'width' : '507px', #width of VE frame (if VE is avalilable)
-        'height': '400px' ,#same for height
+        'height': '400px', #same for height
         'format': 0,
+        'append_only':0, #creates a textarea you can only add to, not edit
         })
 
 class EpozWidget(TextAreaWidget):
@@ -681,6 +691,7 @@ registerPropertyType('rows', 'integer', RichWidget)
 registerPropertyType('cols', 'integer', RichWidget)
 registerPropertyType('rows', 'integer', TextAreaWidget)
 registerPropertyType('cols', 'integer', TextAreaWidget)
+registerPropertyType('append_only', 'boolean', TextAreaWidget)
 registerPropertyType('rows', 'integer', LinesWidget)
 registerPropertyType('cols', 'integer', LinesWidget)
 registerPropertyType('rows', 'integer', VisualWidget)
