@@ -8,15 +8,15 @@ class renderer:
 
         context = self.setupContext(field_name, mode, widget,
                                     instance, field, accessor, **kwargs)
-            
+
         result = widget(mode, instance, context)
 
         del context
         return result
 
-        
+
     def setupContext(self, field_name, mode, widget, instance, field, accessor,
                      **kwargs):
         return {}
-    
-    
+
+
