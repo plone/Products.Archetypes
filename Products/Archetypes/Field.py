@@ -1626,7 +1626,7 @@ class ImageField(FileField):
 
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            self.removeScales(image)
+            self.removeScales(instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
@@ -1761,7 +1761,7 @@ class ImageField(FileField):
         ObjectField.set(self, instance, image, **kwargs)
 
     security.declarePrivate('removeScales')
-    def removeScales(self, instance):
+    def removeScales(self, instance, **kwargs):
         """Remove the scaled image
         """
         sizes = self.getAvailableSizes(instance)
