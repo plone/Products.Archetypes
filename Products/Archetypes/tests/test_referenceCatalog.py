@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.5 2003/12/06 17:00:29 dreamcatcher Exp $
+$Id: test_referenceCatalog.py,v 1.6 2004/01/19 17:59:29 bcsaller Exp $
 """
 
 import os, sys
@@ -171,6 +171,13 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         assert len(sourceRefs) == 0
         assert len(targetRefs) == 0
+
+        #also make sure there is nothing in the reference Catalog
+        assert len(rc.getReferences(uid1)) == 0
+        assert len(rc.getBackReferences(uid1)) == 0
+        assert len(rc.getReferences(uid2)) == 0
+        assert len(rc.getBackReferences(uid2)) == 0
+        
 
 
 if __name__ == '__main__':

@@ -165,6 +165,40 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
+
+    def test_folderishDeleteCleanup(self):
+        site = self.getPortal()
+        site.invokeFactory(type_name="Folder", id="reftest")
+        folder = getattr(site, "reftest")
+
+        a = makeContent(folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent(folder, portal_type='DDocument',title='Bar', id='b')
+        a.addReference(b, "KnowsAbout")
+
+        #again, lets assert the sanity of the UID and Ref Catalogs
+        uc = site.uid_catalog
+        rc = site.reference_catalog
+
+        uids = uc.uniqueValuesFor('UID')
+        assert a.UID() in uids
+        assert b.UID() in uids
+
+        refs = rc.objectValues()
+        assert len(refs) == 1
+        ref = refs[0]
+        assert ref.targetUID == b.UID()
+        assert ref.sourceUID == a.UID()
+
+        #Now Kill the folder and make sure it all went away
+        site._delObject("reftest")
+        uids = uc.uniqueValuesFor('UID')
+
+        assert len(uids) == 0
+        assert len(rc.objectValues()) == 0
+        
+        
+        
+
     def beforeTearDown(self):
         noSecurityManager()
         ArcheSiteTestCase.beforeTearDown(self)

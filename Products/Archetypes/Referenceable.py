@@ -104,8 +104,8 @@ class Referenceable(Base):
             (Called when the object is deleted or moved.)
         """
         rc = getattr(container, config.REFERENCE_CATALOG)
-        references = rc.getReferences(item)
-        back_references = rc.getBackReferences(item)
+        references = rc.getReferences(self)
+        back_references = rc.getBackReferences(self)
 
         storeRefs = getattr(self, '_cp_refs', None)
         if storeRefs is None:
@@ -118,11 +118,10 @@ class Referenceable(Base):
                 if back_references:
                     for ref in back_references:
                         ref.beforeTargetDeleteInformSource()
+
+                self._unregister()
             except ReferenceException, E:
                 raise BeforeDeleteException(E)
-
-
-        if not storeRefs: self._unregister()
 
         #and reset the flag
         self._cp_refs = None

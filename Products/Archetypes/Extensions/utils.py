@@ -57,22 +57,20 @@ def install_catalog(self, out):
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
-
+        schema = catalog.schema()
         for indexName, indexType in ( ('UID', 'FieldIndex'),
                                       ('Type', 'FieldIndex'),
+                                      ('id', 'FieldIndex'),
                                       ('Title', 'FieldIndex'),
                                       ('portal_type', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
+                if not indexName in schema:
+                    catalog.addColumn(indexName)
             except:
                 pass
 
-        try:
-            if not 'UID' in catalog.schema():
-                catalog.addColumn('UID')
-        except:
-            pass
 
         catalog.manage_reindexIndex(ids=('UID',))
 

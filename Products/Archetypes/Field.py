@@ -838,12 +838,9 @@ class ReferenceField(ObjectField):
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
-        results = [(r, r.getObject()) for r in results]
-        value = [(r.UID, obj and (str(obj.Title().strip()) or \
-                                  str(obj.getId()).strip())  or \
-                  log('Field %r: Object at %r could not be found' % \
-                      (self.getName(), r.getURL())) or \
-                  r.Title or r.UID) for r, obj in results]
+
+        value = [(r.UID, r.Title and r.Title or r.id) for r in results]
+        
         if not self.required and not self.multiValued:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)

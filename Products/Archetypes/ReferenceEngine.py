@@ -16,10 +16,24 @@ from exceptions import ReferenceException
 
 from Globals import InitializeClass
 
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+import os
+
+_www = os.path.join(os.path.dirname(__file__), 'www')
 
 STRING_TYPES = (StringType, UnicodeType)
 
 class Reference(SimpleItem):
+    security = ClassSecurityInfo()
+    
+    manage_options = (
+        (
+        {'label':'View', 'action':'manage_view',
+         },
+        )+
+        SimpleItem.manage_options
+        )
+    
     def __init__(self, id, sid, tid, relationship, **kwargs):
         self.id = id
         self.sourceUID = sid
@@ -73,12 +87,25 @@ class Reference(SimpleItem):
         """called when the refering source Object is about to be deleted"""
         pass
 
-
-#class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
-class ReferenceCatalog(UniqueObject, ZCatalog):
+    ###
+    # Manage View
+    # Lets see something in the ZMI
+    
+    
+class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
 
+    manage_options = (
+        (BTreeFolder2.manage_options[0],) +
+        (ZCatalog.manage_options[1:])
+        )
+
+    def __init__(self, id, title, vocab_id, extra):
+        BTreeFolder2.__init__(self, id)
+        ZCatalog.__init__(self, id, title, vocab_id, extra)
+        
+    
     ###
     ## Public API
     def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):
@@ -243,10 +270,10 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         else:
             self.uncatalog_object(referenceObject.getId())
             self._delObject(referenceObject.getId())
-
+            
 
     def _resolveBrains(self, brains):
-        objects = None
+        objects = []
         if brains:
             objects = [b.getObject() for b in brains]
             objects = [b for b in objects if b]
