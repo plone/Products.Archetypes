@@ -4,6 +4,7 @@ from Products.Archetypes.interfaces.layer import ILayer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
+from ExtensionClass import Base
 
 _marker = []
 
@@ -31,7 +32,7 @@ class BaseRenderer:
         return {}
 
 
-class ArchetypesRenderer(BaseRenderer):
+class ArchetypesRenderer(Base, BaseRenderer):
     # XXX it says it's implementing layer but it doesn't implement the required
     # methods!
     #__implements__ = ILayer
@@ -68,7 +69,3 @@ class ArchetypesRenderer(BaseRenderer):
         return context
 
 InitializeClass(ArchetypesRenderer)
-
-
-
-

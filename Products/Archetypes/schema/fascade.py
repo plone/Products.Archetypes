@@ -1,12 +1,13 @@
 __metaclass__ = type
 
-from Products.Archetypes.schema import BasicSchema
+from Products.Archetypes.schema.schema import BasicSchema
 from Products.Archetypes.field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
-from Products.Archetypes.storage.Facade import FacadeMetadataStorage
+from Products.Archetypes.storage.facade import FacadeMetadataStorage
 from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.CMFCorePermissions import View
 
@@ -176,3 +177,5 @@ class FacadeMetadataSchema(BasicSchema):
         set = pm.getMetadataSet(self.set_id)
         set.validate(self.set_id, field_data, errors)
         return errors
+    
+InitializeClass(FacadeMetadataSchema)

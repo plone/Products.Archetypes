@@ -1,17 +1,15 @@
-from copy import deepcopy
+
 from types import DictType, FileType, ListType
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression
-from Products.CMFCore.Expression import createExprContext
 
-from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
-from Products.Archetypes.utils import capitalize
-from Products.Archetypes.renderer.widget import macrowidget
+
+from Products.Archetypes.widget.base import TypesWidget
 from Products.Archetypes.debug import log
 from Products.Archetypes.registry import registerPropertyType
 from Products.Archetypes.registry import registerWidget
+from Products.Archetypes.widget.base import TypesWidget
 
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
@@ -19,124 +17,10 @@ from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
 
+
+
 _marker = []
 
-class TypesWidget(macrowidget, Base):
-    _properties = macrowidget._properties.copy()
-    _properties.update({
-        'modes' : ('view', 'edit'),
-        'populate' : True,  # should this field be populated in edit and view?
-        'postback' : True,  # should this field be repopulated with POSTed
-                         # value when an error occurs?
-        'show_content_type' : False,
-        'helper_js': (),
-        'helper_css': (),
-        })
-
-    security = ClassSecurityInfo()
-
-    security.declarePublic('getName')
-    def getName(self):
-        return self.__class__.__name__
-
-    security.declarePublic('getType')
-    def getType(self):
-        """Return the type of this field as a string"""
-        return className(self)
-
-    security.declarePublic('bootstrap')
-    def bootstrap(self, instance):
-        """Override if your widget needs data from the instance."""
-        return
-
-    security.declarePublic('populateProps')
-    def populateProps(self, field):
-        """This is called when the field is created."""
-        name = field.getName()
-        if not self.label:
-            self.label = capitalize(name)
-
-    security.declarePublic('isVisible')
-    def isVisible(self, instance, mode='view'):
-        """decide if a field is visible in a given mode -> 'state'
-
-        Return values are visible, hidden, invisible
-
-        The value for the attribute on the field may either be a dict with a
-        mapping for edit and view::
-
-            visible = { 'edit' :'hidden', 'view' : 'invisible' }
-
-        Or a single value for all modes::
-
-            True/1:  'visible'
-            False/0: 'invisible'
-            -1:      'hidden'
-
-        The default state is 'visible'.
-        """
-        vis_dic = getattr(aq_base(self), 'visible', _marker)
-        state = 'visible'
-        if vis_dic is _marker:
-            return state
-        if type(vis_dic) is DictType:
-            state = vis_dic.get(mode, state)
-        elif not vis_dic:
-            state = 'invisible'
-        elif vis_dic < 0:
-            state = 'hidden'
-        #assert(state in ('visible', 'hidden', 'invisible',),
-        #      'Invalid view state %s' % state
-        #      )
-        return state
-
-    # XXX
-    security.declarePublic('setCondition')
-    def setCondition(self, condition):
-        """Set the widget expression condition."""
-        self.condition = condition
-
-    security.declarePublic('getCondition')
-    def getCondition(self):
-        """Return the widget text condition."""
-        return self.condition
-
-    security.declarePublic('testCondition')
-    def testCondition(self, folder, portal, object):
-        """Test the widget condition."""
-        try:
-            if self.condition:
-                __traceback_info__ = (folder, portal, object, self.condition)
-                ec = createExprContext(folder, portal, object)
-                return Expression(self.condition)(ec)
-            else:
-                return True
-        except AttributeError:
-            return True
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
-        """Basic impl for form processing in a widget"""
-        value = form.get(field.getName(), empty_marker)
-        if value is empty_marker:
-            return empty_marker
-        if emptyReturnsMarker and value == '':
-            return empty_marker
-        return value, {}
-
-    security.declarePublic('copy')
-    def copy(self):
-        """
-        Return a copy of widget instance, consisting of field name and
-        properties dictionary.
-        """
-        cdict = dict(vars(self))
-        properties = deepcopy(cdict)
-        return self.__class__(**properties)
-
-InitializeClass(TypesWidget)
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()

@@ -11,6 +11,12 @@ from Products.Archetypes.registry import setSecurity
 
 _marker = []
 
+type_map = {'text':'string',
+            'datetime':'date',
+            'lines':'lines',
+            'integer':'int'
+            }
+
 #XXX subclass from Base?
 class Storage:
     """Basic, abstract class for Storages. You need to implement

@@ -1,15 +1,18 @@
 from types import ListType, TupleType
 
-from Products.Archetypes.schema import Schema
-from Products.Archetypes.interfaces.layer import ILayerContainer, \
-     ILayerRuntime
-from Products.Archetypes.interfaces.schema import ICompositeSchema, \
-     IBindableSchema
-
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from Acquisition import Implicit, aq_parent, aq_inner
-from Products.CMFCore.CMFCorePermissions import View, ModifyPortalContent
+from Acquisition import Implicit
+from Acquisition import aq_parent
+from Acquisition import aq_inner
+from Products.CMFCore import CMFCorePermissions
+
+from Products.Archetypes.schema.schema import Schema
+from Products.Archetypes.interfaces.layer import ILayerContainer
+from Products.Archetypes.interfaces.layer import ILayerRuntime
+from Products.Archetypes.interfaces.schema import ICompositeSchema
+from Products.Archetypes.interfaces.schema import IBindableSchema
+
 
 class CompositeSchema(Implicit):
     """Act on behalf of a set of Schemas, pretending it
@@ -45,7 +48,7 @@ class CompositeSchema(Implicit):
         for schema in schemas:
             self._schemas.append(schema)
 
-    security.declareProtected(View, 'getName')
+    security.declareProtected(CMFCorePermissions.View, 'getName')
     def getName(self):
         """Return Schemata name"""
         return '-'.join([s.getName() for s in self.getSchemas()])
@@ -56,14 +59,14 @@ class CompositeSchema(Implicit):
         c.addSchemas((self, other))
         return c
 
-    security.declareProtected(View, 'getName')
+    security.declareProtected(CMFCorePermissions.View, 'getName')
     def copy(self):
         """Return a deep copy"""
         c = CompositeSchema()
         c.addSchemas([s.copy() for s in self._schemas()])
         return c
 
-    security.declareProtected(View, 'fields')
+    security.declareProtected(CMFCorePermissions.View, 'fields')
     def fields(self):
         """Return a list of fields"""
         result = []
@@ -71,7 +74,7 @@ class CompositeSchema(Implicit):
             result.extend(s.fields())
         return result
 
-    security.declareProtected(View, 'widgets')
+    security.declareProtected(CMFCorePermissions.View, 'widgets')
     def widgets(self):
         """Return a dictionary that contains a widget for
         each field, using the field name as key.
@@ -84,7 +87,7 @@ class CompositeSchema(Implicit):
             result.update(s.widgets())
         return result
 
-    security.declareProtected(View, 'filterFields')
+    security.declareProtected(CMFCorePermissions.View, 'filterFields')
     def filterFields(self, *predicates, **values):
         """Returns a subset of self.fields(), containing only fields that
         satisfy the given conditions.
@@ -114,7 +117,7 @@ class CompositeSchema(Implicit):
                 return
         self.getSchemas()[0][name] = field
 
-    security.declareProtected(ModifyPortalContent, 'addField')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'addField')
     def addField(self, field):
         """Add a field (possibly overriding an existing one)"""
         name = field.getName()
@@ -124,7 +127,7 @@ class CompositeSchema(Implicit):
                 return
         self.getSchemas()[0].addField(field)
 
-    security.declareProtected(ModifyPortalContent, 'updateField')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateField')
     updateField = addField
 
     def __delitem__(self, name):
@@ -135,7 +138,7 @@ class CompositeSchema(Implicit):
                 return
         del self.getSchemas()[0][name]
 
-    security.declareProtected(ModifyPortalContent, 'delField')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'delField')
     delField = __delitem__
 
     def __getitem__(self, name):
@@ -148,7 +151,7 @@ class CompositeSchema(Implicit):
                 return s[name]
         return self.getSchemas()[0][name]
 
-    security.declareProtected(View, 'get')
+    security.declareProtected(CMFCorePermissions.View, 'get')
     def get(self, name, default=None):
         """Get field by name, using a default value
         for missing
@@ -158,7 +161,7 @@ class CompositeSchema(Implicit):
                 return s.get(name)
         return self.getSchemas()[0].get(name, default)
 
-    security.declareProtected(View, 'has_key')
+    security.declareProtected(CMFCorePermissions.View, 'has_key')
     def has_key(self, name):
         """Check if a field by the given name exists"""
         for s in self.getSchemas():
@@ -167,7 +170,7 @@ class CompositeSchema(Implicit):
         return self.getSchemas()[0].has_key(name)
 
 
-    security.declareProtected(View, 'keys')
+    security.declareProtected(CMFCorePermissions.View, 'keys')
     def keys(self, name):
         """Return the names of the fields present
         on this schema
@@ -177,7 +180,7 @@ class CompositeSchema(Implicit):
             result.extend(s.keys())
         return result
 
-    security.declareProtected(View, 'searchable')
+    security.declareProtected(CMFCorePermissions.View, 'searchable')
     def searchable(self):
         """Return a list containing names of all
         the fields present on this schema that are
@@ -188,7 +191,7 @@ class CompositeSchema(Implicit):
             result.extend(s.searchable())
         return result
 
-    security.declareProtected(ModifyPortalContent, 'edit')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
         """Call the mutator by name on instance,
         setting the value.
@@ -196,7 +199,7 @@ class CompositeSchema(Implicit):
         if self.has_key(name):
             instance[name] = value
 
-    security.declareProtected(ModifyPortalContent, 'setDefaults')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDefaults')
     def setDefaults(self, instance):
         """Only call during object initialization.
 
@@ -205,7 +208,7 @@ class CompositeSchema(Implicit):
         for s in self.getSchemas():
             s.setDefaults(instance)
 
-    security.declareProtected(ModifyPortalContent, 'updateAll')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
         """This method mutates fields in the given instance.
 
@@ -219,10 +222,10 @@ class CompositeSchema(Implicit):
         for s in self.getSchemas():
             s.updateAll(instance, **kwargs)
 
-    security.declareProtected(View, 'allow')
+    security.declareProtected(CMFCorePermissions.View, 'allow')
     allow = has_key
 
-    security.declareProtected(ModifyPortalContent, 'validate')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'validate')
     def validate(self, instance=None, REQUEST=None,
                  errors=None, data=None, metadata=None):
         """Validate the state of the entire object.

@@ -23,9 +23,9 @@ from Products.Archetypes.schema import BasicSchema
 from Products.Archetypes.schema import Schema
 from Products.Archetypes.schema import MetadataSchema
 from Products.Archetypes.schema import ManagedSchema
-from Products.Archetypes.schema.Composite import CompositeSchema
-from Products.Archetypes.schema.Facade import FacadeMetadataSchema
-from Products.Archetypes.schema.VariableSchemaSupport import VariableSchemaSupport
+from Products.Archetypes.schema import CompositeSchema
+from Products.Archetypes.schema import FacadeMetadataSchema
+from Products.Archetypes.schema import VariableSchemaSupport
 # marshaller
 from Products.Archetypes.marshall import PrimaryFieldMarshaller
 from Products.Archetypes.marshall import RFC822Marshaller

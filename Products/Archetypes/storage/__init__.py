@@ -7,151 +7,27 @@ from Acquisition import aq_base
 from Globals import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.registry import registerStorage
-from Products.Archetypes.storage.BaseStorage import Storage, StorageLayer, _marker
-from Products.Archetypes.storage.AnnotationStorage import AnnotationStorage
-from Products.Archetypes.storage.AnnotationStorage import MetadataAnnotationStorage
+from Products.Archetypes.storage.base import Storage
+from Products.Archetypes.storage.base import StorageLayer
+from Products.Archetypes.storage.base import type_map
+from Products.Archetypes.storage.storage import ReadOnlyStorage
+from Products.Archetypes.storage.storage import AttributeStorage
+from Products.Archetypes.storage.storage import ObjectManagedStorage
+from Products.Archetypes.storage.storage import MetadataStorage
+from Products.Archetypes.storage.annotation import AnnotationStorage
+from Products.Archetypes.storage.annotation import MetadataAnnotationStorage
+from Products.Archetypes.storage.aggregated import AggregatedStorage
+from Products.Archetypes.storage.fascade import FacadeMetadataStorage
+from Products.Archetypes.storage.sql.storage import BaseSQLStorage
+from Products.Archetypes.storage.sql.storage import GadflySQLStorage
+from Products.Archetypes.storage.sql.storage import MySQLSQLStorage
+from Products.Archetypes.storage.sql.storage import PostgreSQLStorage
+from Products.Archetypes.storage.sql.storage import SQLServerStorage
 
 
-type_map = {'text':'string',
-            'datetime':'date',
-            'lines':'lines',
-            'integer':'int'
-            }
-
-_marker = []
-
-class ReadOnlyStorage(Storage):
-    """A marker storage class for used for read-only fields."""
-    __implements__ = IStorage
-
-    security = ClassSecurityInfo()
-
-class AttributeStorage(Storage):
-    """Stores data as an attribute of the instance. This is the most
-    commonly used storage"""
-
-    __implements__ = IStorage
-
-    security = ClassSecurityInfo()
-
-    security.declarePrivate('get')
-    def get(self, name, instance, **kwargs):
-        if not shasattr(instance, name):
-            raise AttributeError(name)
-        return getattr(instance, name)
-
-    security.declarePrivate('set')
-    def set(self, name, instance, value, **kwargs):
-        # Remove acquisition wrappers
-        value = aq_base(value)
-        setattr(aq_base(instance), name, value)
-        instance._p_changed = 1
-
-    security.declarePrivate('unset')
-    def unset(self, name, instance, **kwargs):
-        try:
-            delattr(aq_base(instance), name)
-        except AttributeError:
-            pass
-        instance._p_changed = 1
-
-class ObjectManagedStorage(Storage):
-    """Stores data using the Objectmanager interface. It's usually
-    used for BaseFolder-based content"""
-
-    __implements__ = IStorage
-
-    security = ClassSecurityInfo()
-
-    security.declarePrivate('get')
-    def get(self, name, instance, **kwargs):
-        try:
-            return instance._getOb(name)
-        except Exception, msg:
-            raise AttributeError(msg)
-
-    security.declarePrivate('set')
-    def set(self, name, instance, value, **kwargs):
-        # Remove acquisition wrappers
-        value = aq_base(value)
-        try:
-            instance._delObject(name)
-        except (AttributeError, KeyError):
-            pass
-        instance._setObject(name, value)
-        instance._p_changed = 1
-
-    security.declarePrivate('unset')
-    def unset(self, name, instance, **kwargs):
-        instance._delObject(name)
-        instance._p_changed = 1
-
-class MetadataStorage(StorageLayer):
-    """Storage used for ExtensibleMetadata. Attributes are stored on
-    a persistent mapping named ``_md`` on the instance."""
-
-    __implements__ = IStorage, ILayer
-
-    security = ClassSecurityInfo()
-
-    security.declarePrivate('initializeInstance')
-    def initializeInstance(self, instance, item=None, container=None):
-        if not shasattr(instance, "_md"):
-            instance._md = PersistentMapping()
-            instance._p_changed = 1
-
-    security.declarePrivate('initializeField')
-    def initializeField(self, instance, field):
-        # Check for already existing field to avoid  the reinitialization
-        # (which means overwriting) of an already existing field after a
-        # copy or rename operation
-        base = aq_base (instance)
-        if not base._md.has_key(field.getName()):
-            self.set(field.getName(), instance, field.getDefault(instance))
-
-    security.declarePrivate('get')
-    def get(self, name, instance, **kwargs):
-        base = aq_base(instance)
-        try:
-            value = base._md[name]
-        except KeyError, msg:
-            # We are acting like an attribute, so
-            # raise AttributeError instead of KeyError
-            raise AttributeError(name, msg)
-        return value
-
-    security.declarePrivate('set')
-    def set(self, name, instance, value, **kwargs):
-        base = aq_base(instance)
-        # Remove acquisition wrappers
-        base._md[name] = aq_base(value)
-        base._p_changed = 1
-
-    security.declarePrivate('unset')
-    def unset(self, name, instance, **kwargs):
-        if not shasattr(instance, "_md"):
-            log("Broken instance %s, no _md" % instance)
-        else:
-            del instance._md[name]
-            instance._p_changed = 1
-
-    security.declarePrivate('cleanupField')
-    def cleanupField(self, instance, field, **kwargs):
-        # Don't clean up the field self to avoid problems with copy/rename. The
-        # python garbarage system will clean up if needed.
-        pass
-
-    security.declarePrivate('cleanupInstance')
-    def cleanupInstance(self, instance, item=None, container=None):
-        # Don't clean up the instance self to avoid problems with copy/rename. The
-        # python garbarage system will clean up if needed.
-        pass
-
-__all__ = ('ReadOnlyStorage', 'ObjectManagedStorage', 'MetadataStorage',
-           'AttributeStorage', 'AnnotationStorage', 'MetadataAnnotationStorage',
+__all__ = ('Storage', 'StorageLayer', 'ReadOnlyStorage', 'ObjectManagedStorage',
+           'MetadataStorage', 'AttributeStorage', 'AnnotationStorage',
+           'MetadataAnnotationStorage', 'AggregatedStorage', 
+           'FacadeMetadataStorage', 'BaseSQLStorage', 'GadflySQLStorage',
+           'PostgreSQLStorage', 'SQLServerStorage',
           )
-
-for name in __all__:
-    storage = locals()[name]
-    registerStorage(storage)

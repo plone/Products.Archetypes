@@ -1,13 +1,16 @@
+from Acquisition import aq_base
+from AccessControl import ClassSecurityInfo
+
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
-from Products.Archetypes.storage.BaseStorage import Storage, StorageLayer, _marker
-from Products.Archetypes.ATAnnotations import AT_ANN_STORAGE, AT_MD_STORAGE
-
-from Acquisition import aq_base
-
-from AccessControl import ClassSecurityInfo
+from Products.Archetypes.storage.base import Storage
+from Products.Archetypes.storage.base import StorageLayer
+from Products.Archetypes.storage.base import _marker
+from Products.Archetypes.ATAnnotations import AT_ANN_STORAGE
+from Products.Archetypes.ATAnnotations import AT_MD_STORAGE
 from Products.Archetypes.registry import setSecurity
+from Products.Archetypes.registry import registerStorage
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
@@ -51,7 +54,9 @@ class AnnotationStorage(BaseAnnotationStorage):
     _key = AT_ANN_STORAGE
     
     security = ClassSecurityInfo()
-    
+
+registerStorage(AnnotationStorage)
+
 class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
     """Stores metadata as ATAnnotations on the object
     """
@@ -88,4 +93,4 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         # python garbarage system will clean up if needed.
         pass
 
-__all__ = ('AnnotationStorage', 'MetadataAnnotationStorage', )
+registerStorage(MetadataAnnotationStorage)

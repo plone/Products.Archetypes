@@ -13,7 +13,7 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
-from Products.Archetypes.storage.SQLStorageConfig import SQLStorageConfig
+from Products.Archetypes.storage.sql.config import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
