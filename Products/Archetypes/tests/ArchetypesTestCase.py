@@ -4,111 +4,106 @@
 # $Id$
 
 from Testing import ZopeTestCase
+from Products.CMFTestCase import CMFTestCase
 
 DEPS = ('CMFCore', 'CMFDefault', 'CMFCalendar', 'CMFTopic',
         'DCWorkflow', 'CMFActionIcons', 'CMFQuickInstallerTool',
-        'CMFFormController', 'GroupUserFolder', 'ZCTextIndex',
-        'TextIndexNG2', 'SecureMailHost', 'CMFPlone', 'MailHost',
-        'PageTemplates', 'PythonScripts', 'ExternalMethod',)
+        'CMFFormController',  'ZCTextIndex', 'TextIndexNG2',
+        'MailHost', 'PageTemplates', 'PythonScripts', 'ExternalMethod',
+        )
+DEPS_PLONE = ('GroupUserFolder', 'SecureMailHost', 'CMFPlone',)
 DEPS_OWN = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
-
-for product in DEPS + DEPS_OWN:
-    ZopeTestCase.installProduct(product, 1)
-
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-from Acquisition import aq_base
-import time
-from StringIO import StringIO
 
 default_user = ZopeTestCase.user_name
 default_role = 'Member'
 
+# install products
+for product in DEPS + DEPS_OWN:
+    CMFTestCase.installProduct(product)
+CMFTestCase.setupCMFSite()
 
+import time
+from StringIO import StringIO
+from Products.CMFTestCase.setup import portal_name, portal_owner
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+from Acquisition import aq_base
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.public import listTypes
+from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.Extensions.utils import installTypes
-
+from Products.Archetypes.Extensions.Install import install as installArchetypes
+from Products.CMFCore.utils import getToolByName
 
 class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
     '''Simple AT test case'''
 
-
-try:
-    from Products.CMFPlone.tests import PloneTestCase
-except ImportError:
-    pass # No Plone?
-else:
-    from Products.Archetypes.Extensions.Install import install as installArchetypes
-
-    portal_name = PloneTestCase.portal_name
-    portal_owner = PloneTestCase.portal_owner
-
-    class ArcheSiteTestCase(PloneTestCase.PloneTestCase):
-        '''AT test case with Plone site'''
-
-        def getPortal(self):
-            '''Returns the portal object to the bootstrap code.
-               You should NOT call this method but use the 
-               self.portal attribute to access the site object.
-            '''
-            return PloneTestCase.PloneTestCase.getPortal(self)
-        
-        def getPermissionsOfRole(self, role):
-            perms = self.portal.permissionsOfRole(role)
-            return [p['name'] for p in perms if p['selected']]
-
-        def _setup(self):
-            '''Extends the portal setup.'''
-            PloneTestCase.PloneTestCase._setup(self)
-            # Add a manager user
-            uf = self.portal.acl_users
-            uf._doAddUser('manager', 'secret', ['Manager'], [])
-
-        # XXX Don't break third party tests
-
-        def getManagerUser(self):
-            # b/w compat
-            uf = self.portal.acl_users
-            return uf.getUserById('manager').__of__(uf)
-
-        def getMemberUser(self):
-            # b/w compat
-            uf = self.portal.acl_users
-            return uf.getUserById(default_user).__of__(uf)
+class ArcheSiteTestCase(CMFTestCase.CMFTestCase):
+    """AT test case inside a CMF site
+    """
+    def login(self, name=ZopeTestCase.user_name):
+        '''Logs in.'''
+        uf = self.getPortal().acl_users
+        user = uf.getUserById(name)
+        if not hasattr(user, 'aq_base'):
+            user = user.__of__(uf)
+        newSecurityManager(None, user)
 
 
-    def setupArchetypes(app, id=portal_name, quiet=0):
-        '''Installs the Archetypes product into the portal.'''
-        portal = app[id]
-        if not hasattr(aq_base(portal), 'archetype_tool'):
-            _start = time.time()
-            if not quiet: ZopeTestCase._print('Adding Archetypes ... ')
-            # Login as portal owner
-            user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
-            newSecurityManager(None, user)
-            # Install Archetypes
-            installArchetypes(portal, include_demo=1)
-            # Log out
-            noSecurityManager()
-            get_transaction().commit()
-            if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
-        elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
-            _start = time.time()
-            if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
-            # Login as portal owner
-            user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
-            newSecurityManager(None, user)
-            # Install Archetypes
-            out = StringIO()
-            installTypes(portal, out, listTypes(PKG_NAME), PKG_NAME)
-            # Log out
-            noSecurityManager()
-            get_transaction().commit()
-            if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
+def setupArchetypes(app, id=portal_name, quiet=0):
+    '''Installs the Archetypes product into the portal.'''
+    portal = app[id]
+    user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
+    qi = getToolByName(portal, 'portal_quickinstaller', default=None)
+    # install quick installer
+    if qi is None:
+        start = time.time()
+        if not quiet: ZopeTestCase._print('Adding Quickinstaller Tool ... ')
+        factory = portal.manage_addProduct['CMFQuickInstallerTool']
+        newSecurityManager(None, user)
+        factory.manage_addTool('CMF QuickInstaller Tool')
+        noSecurityManager()
+        get_transaction().commit()
+        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
 
+    qi = getToolByName(portal, 'portal_quickinstaller')
+    installed = qi.listInstallableProducts(skipInstalled=True)
+    if 'CMFFormController' not in installed:
+        start = time.time()
+        if not quiet: ZopeTestCase._print('Adding CMFFormController ... ')
+        # Login as portal owner
+        newSecurityManager(None, user)
+        # Install Archetypes
+        qi.installProduct('CMFFormController')
+        # Log out
+        noSecurityManager()
+        get_transaction().commit()
+        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
 
-    app = ZopeTestCase.app()
-    setupArchetypes(app)
-    ZopeTestCase.close(app)
+    if 'Archetypes' not in installed:
+        start = time.time()
+        if not quiet: ZopeTestCase._print('Adding Archetypes ... ')
+        # Login as portal owner
+        newSecurityManager(None, user)
+        # Install Archetypes
+        installArchetypes(portal, include_demo=1)
+        # Log out
+        noSecurityManager()
+        get_transaction().commit()
+        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
+    elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
+        _start = time.time()
+        if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
+        # Login as portal owner
+        newSecurityManager(None, user)
+        # Install Archetypes
+        out = StringIO()
+        installTypes(portal, out, listTypes(PKG_NAME), PKG_NAME)
+        # Log out
+        noSecurityManager()
+        get_transaction().commit()
+        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
+
+app = ZopeTestCase.app()
+setupArchetypes(app)
+ZopeTestCase.close(app)

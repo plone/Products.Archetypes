@@ -5,9 +5,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
-
 import test_classgen
 
 from DateTime import DateTime

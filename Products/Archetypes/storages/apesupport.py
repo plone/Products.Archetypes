@@ -31,8 +31,7 @@ ArchGenXML has support for APE:
 ApeSupport is tested with Ape 1.0 and PostgreSQL
 """
 
-from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from types import ClassType
 
 from apelib.core.interfaces import ISerializer

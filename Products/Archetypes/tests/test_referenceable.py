@@ -5,12 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
-
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 
 class BaseReferenceableTests(ArcheSiteTestCase):
 

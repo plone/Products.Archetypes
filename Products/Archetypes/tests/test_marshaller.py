@@ -13,9 +13,6 @@ from utils import *
 
 from Products.Archetypes.atapi import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
-
 from Products.Archetypes import config
 from Products.Archetypes.examples.DDocument import DDocument
 

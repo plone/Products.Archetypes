@@ -11,10 +11,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 import types
-
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_copying', 'Cannot import ArcheSiteTestCase')
-
+from Products.CMFTestCase.setup import portal_owner, portal_name
 
 class CutPasteCopyPasteTests(ArcheSiteTestCase):
 
@@ -54,9 +51,11 @@ class PortalCopyTests(ArcheSiteTestCase):
         
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')
         self._image = open(imgpath).read()
+        
+        portal = self.getPortal()
 
-        self.portal.invokeFactory('DDocument', id='document')
-        doc = self.portal.document
+        portal.invokeFactory('DDocument', id='document')
+        doc = portal.document
         doc.setBody('testdata', mimetype='text/x-rst')
         doc.setImage(self._image, mimetype='image/gif')
 
@@ -72,15 +71,16 @@ class PortalCopyTests(ArcheSiteTestCase):
         self.failUnless(bodyfield.getContentType(doc), 'text/x-rst')
         
     def test_created_doc(self):
-        self.failUnless(hasattr(aq_base(self.portal), 'document'))
-        doc = self.portal.document
+        portal = self.getPortal()
+        self.failUnless(portal, 'document')
+        doc = portal.document
         self._test_doc(doc)
         
     def test_clone_portal(self):
         app = self.app
-        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
         newSecurityManager(None, user)
-        app.manage_clone(self.app.portal, 'newportal')
+        app.manage_clone(self.getPortal(), 'newportal')
         noSecurityManager()
         get_transaction().commit(1)
         
@@ -98,7 +98,7 @@ class PortalCopyTests(ArcheSiteTestCase):
         app = self.app
         user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
         newSecurityManager(None, user)
-        cp = app.manage_copyObjects(ids=['portal'])
+        cp = app.manage_copyObjects(ids=[portal_name])
         app.manage_pasteObjects(cb_copy_data=cp)
 
         noSecurityManager()
@@ -116,9 +116,9 @@ class PortalCopyTests(ArcheSiteTestCase):
 
     def test_cut_paste_portal(self):
         app = self.app
-        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
         newSecurityManager(None, user)
-        cp = app.manage_cutObjects(ids=['portal'])
+        cp = app.manage_cutObjects(ids=[portal_name])
         app.manage_pasteObjects(cb_copy_data=cp)
 
         noSecurityManager()

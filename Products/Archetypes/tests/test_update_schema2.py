@@ -5,20 +5,19 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
-
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.public import listTypes, registerType
+from Products.Archetypes.atapi import listTypes, registerType
+import shutil
+
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
-    raise TestPreconditionFailed('test_update_schema2', 'Cannot import from ArchetypesTestUpdateSchema')
-import sys, os, shutil
-
+    hasATTUS = False
+else:
+    hasATTUS = True
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
@@ -84,7 +83,8 @@ class TestUpdateSchema2(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(TestUpdateSchema2))
+    if hasATTUS:
+        suite.addTest(makeSuite(TestUpdateSchema2))
     return suite
 
 if __name__ == '__main__':

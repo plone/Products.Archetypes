@@ -5,10 +5,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_widgets',
-                                 'Cannot import ArcheSiteTestCase')
-
 from os import curdir
 from os.path import join, abspath, dirname, split
 
@@ -17,7 +13,7 @@ stub_text_content = ''
 stub_bin_file = None
 stub_bin_content = ''
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from OFS.Image import File
 from DateTime import DateTime
 

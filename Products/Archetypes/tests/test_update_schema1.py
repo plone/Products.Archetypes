@@ -2,22 +2,24 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from Testing import ZopeTestCase
+
 from common import *
 from utils import *
-
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
+import shutil
 
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.public import listTypes, registerType
+from Products.Archetypes.atapi import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema')
-import sys, os, shutil
+    hasATTUS = False
+else:
+    hasATTUS = True
+
 
 
 # We are breaking up the update schema test into 2 separate parts, since
@@ -70,7 +72,8 @@ class TestUpdateSchema1(ZopeTestCase.Sandboxed, ArcheSiteTestCase):
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(TestUpdateSchema1))
+    if hasATTUS:
+        suite.addTest(makeSuite(TestUpdateSchema1))
     return suite
 
 if __name__ == '__main__':

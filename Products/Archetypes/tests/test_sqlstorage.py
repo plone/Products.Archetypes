@@ -7,10 +7,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sqlstorage',
-                                 'Cannot import ArcheSiteTestCase')
-
 from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__
 def pretty_exc(self, exc):
@@ -23,11 +19,11 @@ def pretty_exc(self, exc):
 import unittest
 unittest.TestResult._exc_info_to_string = pretty_exc
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME, TOOL_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes import SQLStorage
-from Products.Archetypes.SQLMethod import SQLMethod
+from Products.Archetypes.storages.sql import storage as SQLStorage
+from Products.Archetypes.storages.sql import method as SQLMethod
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.test_sitepolicy import makeContent

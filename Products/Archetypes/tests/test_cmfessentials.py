@@ -7,12 +7,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-try:
-    from Products.CMFTestCase import CMFTestCase
-except ImportError:
-    raise TestPreconditionFailed('test_cmfessentials',
-                                 'Cannot import CMFTestCase')
-
+from Products.CMFTestCase import CMFTestCase
 from Products.SiteErrorLog.SiteErrorLog import manage_addErrorLog
 from Products.Archetypes.Extensions.Install import install as installArchetypes
 
@@ -21,29 +16,10 @@ from Products.CMFCore.CMFCorePermissions \
      import View, AccessContentsInformation, ModifyPortalContent
 import Products.CMFCore.CMFCorePermissions as CMFCorePermissions
 
-from Products.Archetypes.tests.ArchetypesTestCase import DEPS, DEPS_OWN
-
-# install products
-for product in DEPS + DEPS_OWN:
-    CMFTestCase.installProduct(product)
-CMFTestCase.setupCMFSite()
-
-class BaseCMFTest(CMFTestCase.CMFTestCase):
-
-    def loginPortalOwner(self):
-        '''Use if you need to manipulate the portal itself.'''
-        uf = self.app.acl_users
-        user = uf.getUserById(portal_owner).__of__(uf)
-        newSecurityManager(None, user)
+class BaseCMFTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         # install AT within portal
-        self.loginPortalOwner()
-        manage_addErrorLog(self.portal)
-        self.portal.manage_addProduct['CMFQuickInstallerTool'].manage_addTool(
-            'CMF QuickInstaller Tool', None)
-        installArchetypes(self.portal, include_demo=1)
-        self.logout()
         self.login()
 
 
