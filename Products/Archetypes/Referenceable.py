@@ -124,11 +124,16 @@ class Referenceable(Base):
     def _getReferenceAnnotations(self):
         """given an object extract the bag of references for which it
         is the source"""
-        if not hasattr(aq_base(self), config.REFERENCE_ANNOTATION):
+        if not getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
             setattr(self, config.REFERENCE_ANNOTATION, Folder(config.REFERENCE_ANNOTATION))
 
         return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
-
+    
+    def _delReferenceAnnotations(self):
+        """Removes annotation from self
+        """
+        if getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
+            delattr(self, config.REFERENCE_ANNOTATION)
 
     def UID(self):
         return getattr(self, config.UUID_ATTR, None)
@@ -205,6 +210,11 @@ class Referenceable(Base):
         if not hasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
             #if the object has no UID or the UID already exists, get a new one
             setattr(self, config.UUID_ATTR, None)
+        
+        # remove annotations from current object
+        # It's required because we want to loose all references on a copy/clone
+        # operation but an annotation object would resurrect the references.
+        self._delReferenceAnnotations()
 
         self._register()
         self._updateCatalog(self)
