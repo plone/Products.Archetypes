@@ -78,6 +78,8 @@ class BaseObject(Implicit):
             if kwargs:
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
+        except ConflictError:
+            raise
         except:
             log_exc()
 
