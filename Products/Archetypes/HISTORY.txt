@@ -104,6 +104,19 @@
    Storing mimetype item objects in BaseUnit seemed to lead to memory leaks.
    [tiran]
 
+ * Reenabled ints as DisplayList and Vocabulary keys. 
+   XXX: Add a comment to the documentation that users should take care when
+   mixing strings and ints!
+   [tiran]
+
+ * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
+   to InAndOutWidget.
+   [ender]
+
+ * Removed old and deprecated old_OrderedBaseFolder implementation from
+   Archetypes.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 
