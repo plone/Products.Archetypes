@@ -1507,6 +1507,9 @@ class ImageField(FileField):
         object/image_normal
         object/image_big
         object/image_maxi
+        
+        sizes may be the name of a method in the instance or a callable which
+        returns a dict.
 
         Scaling will only be available if PIL is installed!
 
@@ -1613,6 +1616,29 @@ class ImageField(FileField):
         kwargs['mimetype'] = mimetype
         return kwargs
 
+    security.declareProtected(CMFCorePermissions.View, 'getAvailableSizes')
+    def getAvailableSizes(self, instance):
+        """Get sizes
+        
+        Supports:
+            self.sizes as dict
+            A method in instance called like sizes that returns dict
+            A callable
+        """
+        sizes = self.sizes
+        if type(sizes) is DictType:
+            return sizes
+        elif type(sizes) is StringType:
+            assert(hasattr(aq_base(instance), sizes))
+            method = getattr(instances, sizes)
+            data = method()
+            assert(type(data) is DictType)
+            return data
+        elif callable(sizes):
+            return sizes()
+        else:
+            raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'rescaleOriginal')
     def rescaleOriginal(self, value, **kwargs):
         """rescales the original image and sets the data
@@ -1657,8 +1683,9 @@ class ImageField(FileField):
     def removeScales(self, instance):
         """Remove the scaled image
         """
-        if self.sizes:
-            for name, size in self.sizes.items():
+        sizes = self.getAvailableSizes(instance)
+        if sizes:
+            for name, size in sizes.items():
                 id = self.getName() + "_" + name
                 try:
                     # the following line may throw exceptions on types, if the
@@ -1675,13 +1702,14 @@ class ImageField(FileField):
     def createScales(self, instance):
         """creates the scales and save them
         """
-        if not has_pil or not self.sizes:
+        sizes = self.getAvailableSizes(instance)
+        if not has_pil or not sizes:
             return
         img = self.getRaw(instance)
         if not img:
             return
         data = str(img.data)
-        for n, size in self.sizes.items():
+        for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
             imgdata, format = self.scale(data, w, h)
