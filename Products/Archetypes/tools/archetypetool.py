@@ -375,7 +375,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         widgets = []
         w_keys = {}
-        context = context is None and context or self
+        context = context is not None and context or self
         instances = instance is not None and [instance] or []
         f_names = fields
         if not instances:

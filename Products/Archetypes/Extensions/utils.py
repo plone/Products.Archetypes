@@ -7,10 +7,12 @@ from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base, aq_parent
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName, minimalpath
-from Products.Archetypes.ArchetypeTool import fixActionsForType
+from Products.CMFCore.DirectoryView import addDirectoryViews
+from Products.CMFCore.DirectoryView import registerDirectory
+from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import minimalpath
+from Products.Archetypes.lib.register import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.config import *
@@ -23,8 +25,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 
-from Products.Archetypes.ReferenceEngine import \
-     manage_addReferenceCatalog, manage_addUIDCatalog
+from Products.Archetypes.refengine.referencecatalog import manage_addReferenceCatalog
+from Products.Archetypes.refengine.uidcatalog import manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 

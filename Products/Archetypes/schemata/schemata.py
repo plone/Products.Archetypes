@@ -201,9 +201,7 @@ class Schemata(Base):
                           "unsupported relationship var type in field '%s'. "\
                           "The relationship qualifer must be a non empty "\
                           "string." % name
-                      ) 
-        
-        
+                      )
 
     def __delitem__(self, name):
         if not self._fields.has_key(name):

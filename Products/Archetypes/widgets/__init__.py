@@ -122,7 +122,7 @@ class ReferenceWidget(TypesWidget):
 
         # if destination_types is None (by default) it will do
         # N-portal_types queries to the catalog which is horribly inefficient
-        destination_types = getattr(field, 'destination_types', None)
+        destination_types = getattr(self, 'destination_types', None)
         destination = self.destination
         types = []
 
@@ -140,12 +140,14 @@ class ReferenceWidget(TypesWidget):
                 options[typeid]=[None]
             elif isinstance(destination, DictType):
                 options[typeid]=destination.get(typeid, [None])
+                if not isinstance(options[typeid], ListType):
+                    options[typeid] = [options[typeid]]
             elif isinstance(destination, ListType):
                 options[typeid]=destination
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
-                    #restore acq.wrapper 
+                    # restore acq.wrapper
                     place = getattr(instance, destination)
                     place = place()
                 if isinstance(place, ListType):
@@ -166,11 +168,14 @@ class ReferenceWidget(TypesWidget):
                 elif option == '.':
                     value['destinations'].append(getRelativeContentURL(instance))
                 else:
-                    place = getattr(aq_base(instance), destination, destination)
+                    try:
+                        place = getattr(aq_base(instance), option, option)
+                    except TypeError:
+                        place = option
                     if callable(place):
-                        #restore acq.wrapper 
-                        place = getattr(instance, destination)
-                        place = place()
+                        # restore acq.wrapper
+                        place = getattr(instance, option)
+                        place = place()                    
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:

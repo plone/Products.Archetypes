@@ -12,6 +12,7 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes import fields
 from Products.Archetypes.fields import ScalableImage, Image
@@ -79,9 +80,20 @@ if not ZOPE_LINES_IS_TUPLE_TYPE:
 
 
 schema = Schema(tuple(field_instances))
+sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
+class sampleInterfaceVocabulary:
+    __implements__ = IVocabulary
+    def getDisplayList(self, instance):
+        return sampleDisplayList
+ 
 class Dummy(BaseContentMixin):
-    def Title(self): return 'Spam' # required for ImageField
+    def Title(self):
+        # required for ImageField 
+        return 'Spam'
+    
+    def aMethod(self):
+        return sampleDisplayList
 
 
 class FakeRequest:
@@ -196,6 +208,46 @@ class ProcessingTest(ArcheSiteTestCase):
             if f_name not in err_fields:
                 failures.append(f_name)
         self.failIf(failures, "%s failed to report error." % failures)
+
+    def test_static_vocabulary(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.Schema().fields()[0]
+
+        # Default
+        self.failUnlessEqual(field.Vocabulary(), DisplayList())
+        # DisplayList  
+        field.vocabulary = sampleDisplayList()
+        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+        # List  
+        field.vocabulary = ['e1', 'element2'] 
+        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+        # 2-Tuples  
+        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
+        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+
+    def test_dynamic_vocabulary(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.Schema().fields()[0]
+
+        # Default
+        self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
+        # Method
+        field.vocabulary = 'aMethod'
+        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        # DisplayList  
+        field.vocabulary = sampleDisplayList()
+        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        # List  
+        field.vocabulary = ['e1', 'element2'] 
+        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        # 2-Tuples  
+        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
+        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        # Interface
+        field.vocabulary = sampleInterfaceVocabulary()
+        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
 
 
 def test_suite():

@@ -1,6 +1,5 @@
 from __future__ import nested_scopes
 from types import ListType, TupleType, StringType
-import warnings
 
 from Products.Archetypes.storages import MetadataStorage
 from Products.Archetypes.lib.layer import DefaultLayerContainer
@@ -16,6 +15,7 @@ from Products.Archetypes.lib.vocabulary import OrderedDict
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.logging import log
+from Products.Archetypes.lib.logging import warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.schemata.schemata import Schemata
@@ -59,11 +59,15 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                msg = 'You are passing positional arguments to the ' \
-                      'Schema constructor. ' \
-                      'Please consult the docstring for %s.BasicSchema.__init__' % \
-                      (self.__class__.__module__,)
-                warnings.warn(msg, UserWarning)
+                msg = ('You are passing positional arguments '
+                       'to the Schema constructor. '
+                       'Please consult the docstring '
+                       'for %s.BasicSchema.__init__' %
+                       (self.__class__.__module__,))
+                level = 3
+                if self.__class__ is not BasicSchema:
+                    level = 4
+                warn(msg, level=level)
                 for field in args:
                     self.addField(args[0])
 
