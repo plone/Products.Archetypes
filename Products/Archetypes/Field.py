@@ -753,7 +753,7 @@ class ReferenceField(ObjectField):
         'default': None,
         'widget' : ReferenceWidget,
         'allowed_types' : (),
-        'allowed_type_column' : 'Type',
+        'allowed_type_column' : 'portal_type',
         'addable': 0,
         'destination': None,
         'relationship':None

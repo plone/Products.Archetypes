@@ -52,27 +52,40 @@ def install_tools(self, out):
     install_catalog(self, out)
 
 def install_catalog(self, out):
+
+    index_defs=(('UID', 'FieldIndex'),
+                 ('Type', 'FieldIndex'),
+                 ('id', 'FieldIndex'),
+                 ('Title', 'FieldIndex'),
+                 ('portal_type', 'FieldIndex'),
+             )    
+    
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = getToolByName(self, UID_CATALOG)
-        schema = catalog.schema()
-        for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                      ('Type', 'FieldIndex'),
-                                      ('id', 'FieldIndex'),
-                                      ('Title', 'FieldIndex'),
-                                      ('portal_type', 'FieldIndex'),
-                                      ):
-            try:
+        
+    catalog = getToolByName(self, UID_CATALOG)
+    schema = catalog.schema()
+    indexes = catalog.indexes()
+    schemaFields = []
+        
+    for indexName, indexType in ( ('UID', 'FieldIndex'),
+                                  ('Type', 'FieldIndex'),
+                                  ('id', 'FieldIndex'),
+                                  ('Title', 'FieldIndex'),
+                                  ('portal_type', 'FieldIndex'),
+                                  ):
+        try:
+            if indexName not in indexes:
                 catalog.addIndex(indexName, indexType, extra=None)
-                if not indexName in schema:
-                    catalog.addColumn(indexName)
-            except:
-                pass
+            if not indexName in schema:
+                catalog.addColumn(indexName)
+                schemaFields.append(indexName)
+        except:
+            pass
 
-
-        catalog.manage_reindexIndex(ids=('UID',))
+    catalog.manage_reindexIndex(ids=schemaFields)
 
 def install_templates(self, out):
     at = self.archetype_tool
