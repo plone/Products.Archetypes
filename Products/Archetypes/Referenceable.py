@@ -1,4 +1,4 @@
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_chain
 from AccessControl import getSecurityManager
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
@@ -26,6 +26,10 @@ class Referenceable(Base):
         """like absoluteURL, but return a link to the object with this UID"""
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.reference_url(self)
+
+    def hasRelationshipTo(self, target, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.hasRelationshipTo(self, target, relationship)
     
     def addReference(self, object, relationship=None):
         tool = getToolByName(self, config.TOOL_NAME)
@@ -53,7 +57,7 @@ class Referenceable(Base):
         """get all the back referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
         return [tool.getObject(ref) for ref in tool.getBRefs(self, relationship)]
-    
+
     def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
         if hasattr(aq_base(self), '_uid') and self._uid is not None:
@@ -77,8 +81,8 @@ class Referenceable(Base):
             log_exc()
         
     def UID(self):
-        #self._register() #Comment out soon
-        return self._getUID()
+        uid = self._getUID()
+        return uid
     
     def _getUID(self):
         return getattr(aq_base(self), '_uid', None)

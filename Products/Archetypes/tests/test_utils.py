@@ -94,8 +94,8 @@ class DisplayListTest( unittest.TestCase ):
     def test_getmsgid(self):
         ta = (('a','a',), ('b','b','bb'), ('c', 'c'))
         dl = DisplayList(ta)
-        self.failUnless(dl.getMsgId('a') == 'a')
-        self.failUnless(dl.getMsgId('b') == 'bb')
+        self.assertEquals(dl.getMsgId('a'), 'a')
+        self.assertEquals(dl.getMsgId('b'), 'bb')
 
     def test_concat(self):
         a = (('a','a',), ('b','b','bb'), ('c', 'c'))

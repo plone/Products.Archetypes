@@ -78,7 +78,7 @@ class RFC822Marshaller(Marshaller):
                 if mutator is not None:
                     mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
-        kwargs.update({'mime_type': content_type})
+        kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
         mutator = getattr(instance, p.mutator, None)
         if mutator is not None:

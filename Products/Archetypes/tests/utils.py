@@ -23,3 +23,48 @@ def showdiff(a, b):
         if a and b:
             print '---'
         ndiff.dump('>', b, blo, bhi)
+
+def start_http(address, port):
+    import sys
+    from ZServer import asyncore
+    from ZServer import zhttp_server, zhttp_handler
+    import socket
+
+    import Zope # Sigh, make product initialization happen
+    try:
+        Zope.startup()
+    except: # Zope > 2.6
+        pass
+
+    from ZServer import setNumberOfThreads
+    setNumberOfThreads(4)
+
+    try:
+        hs = zhttp_server(
+            ip=address,
+            port=port,
+            resolver=None,
+            logger_object=None)
+    except socket.error, why:
+        if why[0] == 98: # address in use
+            raise port_err % {'port':port,
+                              'socktype':'TCP',
+                              'protocol':'HTTP',
+                              'switch':'-w'}
+        raise
+    # Handler for a published module. zhttp_handler takes 3 arguments:
+    # The name of the module to publish, and optionally the URI base
+    # which is basically the SCRIPT_NAME, and optionally a dictionary
+    # with CGI environment variables which override default
+    # settings. The URI base setting is useful when you want to
+    # publish more than one module with the same HTTP server. The CGI
+    # environment setting is useful when you want to proxy requests
+    # from another web server to ZServer, and would like the CGI
+    # environment to reflect the CGI environment of the other web
+    # server.
+    zh = zhttp_handler('Zope', '', {})
+    zh._force_connection_close = 1
+    hs.install_handler(zh)
+    sys.ZServerExitCode=0
+    asyncore.loop()
+    sys.exit(sys.ZServerExitCode)

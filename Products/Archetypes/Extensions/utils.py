@@ -4,7 +4,6 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -13,6 +12,12 @@ from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
 from types import *
+
+try:
+    from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
+    HAS_PORTAL_TRANSFORMS = 1
+except ImportError:
+    HAS_PORTAL_TRANSFORMS = 0
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
@@ -37,7 +42,6 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
-
 
     #and the tool uses an index
     catalog = getToolByName(self, 'portal_catalog')
@@ -127,6 +131,7 @@ def install_navigation(self, out, types):
     script = "content_edit"
     nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
     nav_tool.addTransitionFor('default', "content_edit", 'success', 'action:view')
+    nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
 
     nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
     nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
@@ -159,10 +164,10 @@ def install_actions(self, out, types):
                 cmfver=getCMFVersion()
 
                 for action in portal_type.actions:
-                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased': 
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
-                        
+
                         #change action and condition into expressions,
                         #if they are still strings
                         if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
@@ -241,6 +246,11 @@ def isPloneSite(self):
     for base in self.__class__.__bases__:
         if base.__name__ == "PloneSite":
             return 1
+    if 'plone_utils' in self.objectIds():
+        # Possibly older PloneSite
+        # It may be risky to assert this, but the user should
+        # have upgrade anyway, so its his fault :)
+        return 1
     return 0
 
 
@@ -285,6 +295,9 @@ def setupEnvironment(self, out, types,
 
     install_indexes(self, out, types)
     install_actions(self, out, types)
+
+    if HAS_PORTAL_TRANSFORMS:
+        install_portal_transforms(self)
 
     if isPloneSite(self):
         install_validation(self, out, types)

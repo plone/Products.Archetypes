@@ -11,7 +11,7 @@ NuxDocument     -- ideas, the base model for the content driver
 
 --PEOPLE--
 Alan Runyan                     -- Plone development, support, promotion  and encouragement
-Geoff Davis                     -- PloneOMatic, consultation
+Geoff Davis                     -- PloneOMatic, consultation, patches
 Philipp Auersperg               -- Some of the action handling code
 Sidnei da Silva & Lalo Martins  -- SQLStorage, code cleanup and testing
 Bill Schindler                  -- Testing and lots of patches

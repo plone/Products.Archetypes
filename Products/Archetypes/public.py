@@ -1,4 +1,5 @@
 from AccessControl import ClassSecurityInfo
+from Products.CMFCore import CMFCorePermissions
 from ArchetypeTool import registerType, process_types, listTypes
 
 from BaseContent import BaseContent
@@ -20,3 +21,16 @@ BaseBTreeFolderSchema = BaseBTreeFolder.schema
 BaseFolderSchema = BaseFolder.schema
 
 BaseSchema = BaseContent.schema
+
+I18NCONTENT_ACTIONS = ({ 'id': 'translate',
+                       'name': 'Translate',
+                       'action': 'portal_form/base_translation',
+                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
+                       },
+                     { 'id': 'translations',
+                       'name': 'Translations',
+                       'action': 'portal_form/manage_translations_form',
+                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
+                       },
+                     )
+

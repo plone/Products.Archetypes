@@ -8,13 +8,15 @@ except: # Zope > 2.6
     pass
 
 from Products.Archetypes.public import *
-from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from Products.Archetypes.BaseUnit import BaseUnit
 from StringIO import StringIO
 from os.path import join, abspath, dirname, split
 from os import curdir
 import glob
 from utils import normalize_html, showdiff
+
+from test_classgen import Dummy, gen_dummy
 
 try:
     __file__
@@ -28,12 +30,16 @@ else:
 class BaseUnitTest( unittest.TestCase ):
 
     def testSame(self):
+        gen_dummy()
+        dummy = Dummy(oid='dummy', init_transforms=1)
         input = open(self.input)
-        bu = BaseUnit(name='test', file=input, mime_type='text/restructured')
+        bu = BaseUnit(name='test', file=input, mimetype='text/restructured',
+                      instance=dummy)
         input.close()
-
-        got = normalize_html(bu())
-
+        if USE_NEW_BASEUNIT:
+            got = normalize_html(bu.transform(dummy, 'text/html'))
+        else:
+            got = normalize_html(bu())
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()

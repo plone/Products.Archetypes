@@ -224,10 +224,10 @@
       <br>
     </p>
   <div class="code">
-    self.Schema()[field.name].accessor
-    self.Schema()[field.name].mutator
+    self.Schema()[field.getName()].accessor
+    self.Schema()[field.getName()].mutator
 
-    accessor = getattr(self, self.Schema()[field.name].accessor)
+    accessor = getattr(self, self.Schema()[field.getName()].accessor)
   </div>
   <p>
       <br>
@@ -241,8 +241,8 @@
       <br>
     </p>
   <div class="code">
-      def accessor(self): return self.Schema()[field.name].get(self)
-      def mutator(self, value): self.Schema()[field.name].set(self, value)
+      def accessor(self): return self.Schema()[field.getName()].get(self)
+      def mutator(self, value): self.Schema()[field.getName()].set(self, value)
   </div>
     <p>
       <br>
@@ -255,11 +255,11 @@
     </p>
 
   <div class="code">
-    def get(self, instance): return self.storage.get(self.name, instance)  
+    def get(self, instance): return self.storage.get(self.getName(), instance)  
   </div>
 
     <p>
-      Where <i>self.name</i> is the name of that field as it was registered
+      Where <i>self.getName()</i> is the name of that field as it was registered
       in the schema. Here we delegate to the storage concern which can be
       defined/overridden in the schema again. A sample of what a storage
       <i>get</i> method might look like is shown below.</p>

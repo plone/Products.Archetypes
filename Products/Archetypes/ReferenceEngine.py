@@ -8,10 +8,18 @@ from interfaces.referenceable import IReferenceable
 from utils import unique
 from types import StringType
 
+
 class ReferenceEngine(Base):
     def __init__(self):
         self.refs = PersistentMapping()
         self.bref = PersistentMapping()
+
+
+    def hasRelationshipTo(self, object, target, relationship=None):
+        if type(target) != StringType:
+            target = target.UID()
+        refs = self.getRefs(object, relationship)
+        return target in refs
 
     def getRefs(self, object, relationship=None):
         refs = []
@@ -55,14 +63,14 @@ class ReferenceEngine(Base):
 
         refs = self.refs.get(oid, [])
 
-        
+
         add_hook = getattr(target, 'beforeAddReference', None)
         if add_hook and callable(add_hook):
             try:
                 add_hook(object, relationship)
             except:
                 return
-            
+
         if tid not in refs:
             self._addRef(oid, tid, refs=refs, relationship=relationship)
             self._addBref(oid, tid, relationship=relationship)
@@ -77,7 +85,7 @@ class ReferenceEngine(Base):
     def _addRef(self, object, target, refs=None, relationship=None):
         if not refs:
             refs = self.refs.get(object, [])
-            
+
         key = (target, relationship)
         if key in refs:
             return
@@ -91,7 +99,7 @@ class ReferenceEngine(Base):
         key = (object, relationship)
         brefs = self.bref.get(target, [])
         if key in brefs:
-            return 
+            return
         brefs.insert(0, key)
         self.bref[target] = brefs
 
@@ -105,8 +113,8 @@ class ReferenceEngine(Base):
                     refs.remove((k,r))
         else:
             refs.remove((target, relationship))
-            
-        self.refs[object] = refs            
+
+        self.refs[object] = refs
 
 
     def _delBref(self, object, target, relationship=None):
@@ -118,9 +126,9 @@ class ReferenceEngine(Base):
                     brefs.remove((k,r))
         else:
             brefs.remove((target, relationship))
-            
+
         self.bref[object] = brefs
-        
+
     def _delReferences(self, object, relationship=None):
         #Delete all back refs and all refs
         if type(object) != StringType:
@@ -136,14 +144,14 @@ class ReferenceEngine(Base):
             if not relationship or rel == relationship:
                 self._delRef(b, oid)
                 self._delBref(oid, b)
-            
+
         #Every thing that 'object' points at
         refs = list(self.refs.get(oid, []))
         for r, rel in refs:
             if not relationship or rel == relationship:
                 self._delRef(oid, r)
                 self._delBref(r, oid)
-            
+
 
     def deleteReferences(self, object, relationship=None):
         """remove all reference to and from object"""
@@ -180,7 +188,7 @@ class ReferenceEngine(Base):
     def isReferenceable(self, object):
         return IReferenceable.isImplementedBy(object) or hasattr(object, 'isReferenceable')
 
-    
+
     def getRelationships(self, object):
         refs = []
         try:
@@ -192,4 +200,4 @@ class ReferenceEngine(Base):
 
         refs = [grp for r,grp in refs]
         return unique(refs)
-    
+

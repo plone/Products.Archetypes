@@ -5,100 +5,97 @@ from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-from Products.transform import transformer, registry
-from Products.transform.interfaces import idatastream
-from Products.transform.sourceAdapter import sourceAdapter
 from StringIO import StringIO
 from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
 from debug import log, log_exc
 from interfaces.base import IBaseUnit
-from adapters import TransformCache
 from types import DictType
 from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
 import os.path
 import re
+import site
 import urllib
 
 from config import *
 
+try:
+    from Products.PortalTransforms.interfaces import idatastream
+except ImportError:
+    if USE_NEW_BASEUNIT:
+        raise ImportError('The PortalTransforms package is required with new base unit')
+    from interfaces.interface import Interface
+    class idatastream(Interface):
+        """ Dummy idatastream for when PortalTransforms isnt available """
+
+    
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', mime_type=None):
+    def __init__(self, name, file='', instance=None,
+                 mimetype=None, encoding=site.encoding):
         self.id = name
-        self.update(file, mime_type)
+        self.update(file, instance, mimetype, encoding)
 
-    def update(self, data, mimetype=None):
+    def update(self, data, instance,
+               mimetype=None, encoding=site.encoding):
         #Convert from file/str to str/unicode as needed
-        data, filename, mimetype = sourceAdapter()(data, mimetype=mimetype)
+        adapter = getToolByName(instance, 'mimetypes_registry')
+        data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
 
         self.mimetype = mimetype
-        self.raw  = data and str(data) or ''
+        self.encoding = encoding
+        # XXXFIXME: data may have been translated to unicode by the adapter method
+        #            why encode it here ??
+        try:
+            self.raw  = data and str(data) or ''
+        except UnicodeError:
+            self.raw = data.encode(encoding)
+
         self.size = len(data)
         self.filename = filename
 
-        ##force default transform policy, this needs to come out
-        str(self)
 
-    def __getitem__(self, key):
-        return self.transform(key)
-
-    def transform(self, mt, cache=0):
+    def transform(self, instance, mt):
         """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
         """
-        cache = TransformCache(self)
-        data = cache.getCache(mt)
         #Do we have a cached transform for this key?
-        if data is None:
-            data = transformer.convertTo(mt,
-                                         self.raw,
-                                         usedby=self.id,
-                                         mimetype=self.mimetype,
-                                         filename=self.filename)
-
-            ## XXX the transform tool should keep the cache policy
-            if cache:
-                cache.setCache(mt, data)
+        transformer = getToolByName(instance, 'portal_transforms')
+        data = transformer.convertTo(mt, self.raw, object=self, usedby=self.id,
+                                     mimetype=self.mimetype,
+                                     filename=self.filename)
 
         if data:
-            data = data.getData()
-            if type(data) == DictType and data.has_key('html'):
-                return data['html']
-            return data
+            assert idatastream.isImplementedBy(data)
+            _data = data.getData()
+            instance.addSubObjects(data.getSubObjects())
+            return _data
 
-        #XXX debug
+        # we have not been able to transform data
+        # return the raw data if it's not binary data
+        registry = getToolByName(instance, 'mimetypes_registry')
         mt = registry.lookup(mt)
-        if mt and mt[0].binary:
+        if mt and not mt[0].binary:
             return self.raw
 
         return None
 
     def __str__(self):
-        ## XXX make sure default view points to a RFC-2046 name
-        data = self.transform('text/html', cache=1)
-        if not data:
-            data = self.transform('text/plain', cache=1)
-        if not data:
-            return ''
-
-        if idatastream.isImplementedBy(data):
-            data = data.getData()
-        if type(data) == DictType and data.has_key('html'):
-            return data['html']
-        return data
-
-    # Hook needed for catalog
-    __call__ = __str__
+        return self.raw
 
     def isBinary(self):
-        mt = registry.lookup(self.getContentType())
-        if not mt: return 1 #if we don't hear otherwise its binary
-        return mt[0].binary
+        try:
+            return self.getContentType().binary
+        except AttributeError:
+            return 1
+##         registry = getToolByName('mimetypes_registry')
+##         mt = registry.lookup(self.getContentType())
+##         if not mt: return 1 #if we don't hear otherwise its binary
+##         return mt[0].binary
 
     # File handling
     def get_size(self):
@@ -109,9 +106,6 @@ class newBaseUnit(File):
 
     def getContentType(self):
         return self.mimetype
-
-    def SearchableText(self):
-        return self.transform('text/plain')
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
@@ -132,12 +126,12 @@ class newBaseUnit(File):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mime_type=REQUEST.get_header('Content-Type', None)
+        mimetype=REQUEST.get_header('Content-Type', None)
 
         file=REQUEST['BODYFILE']
         data = file.read()
 
-        self.update(data, mime_type=mime_type)
+        self.update(data, mimetype=mimetype)
 
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)
@@ -160,14 +154,14 @@ class oldBaseUnit(File, ObjectManager):
     __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
-    def __init__(self, name, file='', mime_type=None):
+    def __init__(self, name, file='', instance=None, mimetype=None, encoding=None):
         self.id = name
         self.filename = ''
         self.data = ''
         self.size = 0
-        self.content_type = None
-        self.mimetype = mime_type
-        self.update(file, mime_type)
+        self.content_type = mimetype
+        self.mimetype = mimetype
+        self.update(file, mimetype)
 
     def __str__(self):
         #This should return the default transform for the type,
@@ -184,30 +178,30 @@ class oldBaseUnit(File, ObjectManager):
         self.aq_parent.reindexObject()
         return self.getHTML()
 
-    def update(self, file, mime_type=None):
+    def update(self, file, mimetype=None):
         if file and (type(file) is not type('')):
             if hasattr(file, 'filename') and file.filename != '':
                 self.fullfilename = getattr(file, 'filename')
                 self.filename = basename(self.fullfilename)
 
-        driver, mime_type = self._driverFromType(mime_type, file)
+        driver, mimetype = self._driverFromType(mimetype, file)
 
-        self.content_type = mime_type
-        self._update_data(file, mime_type, driver)
+        self.content_type = mimetype
+        self._update_data(file, mimetype, driver)
 
-    def _driverFromType(self, mime_type, file=None):
+    def _driverFromType(self, mimetype, file=None):
         driver = None
         try:
-            plugin = selectPlugin(file=file, mime_type=mime_type)
-            mime_type = str(plugin)
+            plugin = selectPlugin(file=file, mimetype=mimetype)
+            mimetype = str(plugin)
             driver    = plugin.getConverter()
         except:
             log_exc()
             plugin = lookupContentType('text/plain')
-            mime_type = str(plugin)
+            mimetype = str(plugin)
             driver    = plugin.getConverter()
 
-        return driver, mime_type
+        return driver, mimetype
 
 
     def _update_data(self, file, content_type, driver):
@@ -319,8 +313,8 @@ class oldBaseUnit(File, ObjectManager):
 
         file=REQUEST['BODYFILE']
         data = file.read()
-        driver, mime_type = self._driverFromType(type, file)
-        self._update_data(data, mime_type, driver)
+        driver, mimetype = self._driverFromType(type, file)
+        self._update_data(data, mimetype, driver)
         self.size = len(data)
 
         self.aq_parent.reindexObject()
