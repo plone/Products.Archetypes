@@ -542,9 +542,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View,
                               'lookupTemplates')
     def lookupTemplates(self, instance=None):
+        """
+        lookup templates by giving an instance or a portal_type 
+        returns a DisplayList 
+        """        
         results = []
+        import pdb
+        #pdb.set_trace()
         if type(instance) is not StringType:
-            instance = instance.portal_type
+            instance = instance.meta_type
         try:
             templates = self._templates[instance]
         except KeyError:
@@ -597,7 +603,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     ## Type/Schema Management
     security.declareProtected(CMFCorePermissions.View,
                               'listRegisteredTypes')
-    def listRegisteredTypes(self, inProject=None):
+    def listRegisteredTypes(self, inProject=False):
         """Return the list of sorted types"""        
 
         def type_sort(a, b):
