@@ -1,7 +1,7 @@
 
 modname = 'Archetypes'
-version = open('version.txt').read().strip()
-numversion = version.split('.')
+version = '1.3.0-beta3'
+numversion = (1, 3, 0, -47)
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003 Benjamin Saller <bcsaller@yahoo.com>'''
