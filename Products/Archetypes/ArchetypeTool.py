@@ -562,8 +562,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for t in self.listTypes(package, type):
             instance = t('fake')
             instance = instance.__of__(context)
-	    if isinstance(instance, DefaultDublinCoreImpl):
-		DefaultDublinCoreImpl.__init__(instance)
+            if isinstance(instance, DefaultDublinCoreImpl):
+                DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
             schema = instance.Schema().copy()
             fields = [f for f in schema.fields()

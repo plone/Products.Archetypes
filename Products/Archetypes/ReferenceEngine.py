@@ -123,7 +123,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         [self._deleteReference(b) for b in
          (self.getReferences(object) or []) +
          (self.getBackReferences(object) or [])]
-            
+
     def getReferences(self, object, relationship=None):
         """return a collection of reference objects"""
         sID, sobj = self._uidFor(object)
