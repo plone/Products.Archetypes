@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.9 2003/11/03 21:44:22 dreamcatcher Exp $
+$Id: test_rename.py,v 1.10 2003/11/03 21:59:47 dreamcatcher Exp $
 """
 
 import os, sys
@@ -23,7 +23,6 @@ class RenameTests(ArcheSiteTestCase):
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
-    # XXX test is not running: ValueError: can not change oid of cached object
     def test_rename(self):
         site = self.getPortal()
         obj_id = 'demodoc'
@@ -35,7 +34,6 @@ class RenameTests(ArcheSiteTestCase):
         #make sure we have _p_jar
         doc._p_jar = site._p_jar = self.app._p_jar
         new_oid = self.app._p_jar.new_oid
-        site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(obj_id, new_id)
         doc = getattr(site, new_id)
