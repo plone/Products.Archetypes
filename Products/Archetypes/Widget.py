@@ -1,6 +1,7 @@
 from types import FileType
 from types import DictType # needed for ugly hack in class TypesWidget
                            # def isVisible
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
