@@ -25,6 +25,20 @@ COLORS = {
 
 norm  = "\033[00m"
 
+class SafeFileWrapper:
+    def __init__(self, fp):
+        self.fp = fp
+	
+    def write(self, msg):
+	"""If for some reason we can't log, just deal with it"""
+	try:
+	    self.fp.write(msg)
+	except IOError, E:
+	    pass
+
+    def close(self):
+	self.fp.close()
+
 class Log:
     closeable = 0
     fp = None
@@ -41,8 +55,10 @@ class Log:
             fp = open(self.target, "a+")
             self.closeable = 1
         else:
-            self.fp = self.target
+            fp = self.target
 
+	self.fp = SafeFileWrapper(fp)
+	
 
     def _close(self):
         if self.closeable:
