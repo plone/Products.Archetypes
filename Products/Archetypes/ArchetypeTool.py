@@ -14,7 +14,7 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.ClassGen import generateClass, generateCtor, \
      generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config import TOOL_NAME, UID_CATALOG
+from Products.Archetypes.config import TOOL_NAME, UID_CATALOG, HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict, DisplayList, mapply
 from Products.Archetypes.Renderer import renderer
@@ -101,9 +101,10 @@ base_factory_type_information = (
 
                      { 'id': 'references',
                        'name': 'References',
-                       'action': 'string:${object_url}/reference_edit',
-                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       'visible' : 0,
+                       'action': 'string:${object_url}/reference_graph',
+                       'condition': 'object/archetype_tool/has_graphviz',
+                       'permissions': (CMFCorePermissions.View,),
+                       'visible' : 1,
                        },
                      )
       }, )
@@ -291,10 +292,10 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     # will fail if oldId wasn't registered
     old_type = [ t for t in _types.values()
                  if t['portal_type'] == old_portal_type ][0]
-    
+
     # rename portal type
     old_type['portal_type'] = new_portal_type
-    
+
     # copy old templates to new portal name without references
     old_templates = at_tool._templates.get(old_portal_type)
     at_tool._templates[new_portal_type] = deepcopy(old_templates)
@@ -955,4 +956,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     getObject=lookupObject
 
+
+    def has_graphviz(self):
+        """runtime check for graphviz, used in condition on tab"""
+        return HAS_GRAPHVIZ
 InitializeClass(ArchetypeTool)

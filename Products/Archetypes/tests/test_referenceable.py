@@ -262,6 +262,21 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
+
+    def test_graph(self):
+        if HAS_GRAPHVIZ:
+            # This just asserts that nothing went wrong
+            a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+            b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+            c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
+
+            #Two made up kinda refs
+            a.addReference(b, "KnowsAbout")
+            c.addReference(a, "Owns")
+            assert a.getReferenceMap()
+            assert a.getReferencePng()
+
+
     def test_folderishDeleteCleanup(self):
         self.folder.invokeFactory(type_name="Folder", id="reftest")
         folder = getattr(self.folder, "reftest")

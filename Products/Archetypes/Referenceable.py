@@ -22,6 +22,8 @@ from AccessControl import ClassSecurityInfo
 ##                a delete to lose refs
 ####
 
+#include graph supporting methods
+from ref_graph import get_cmapx, get_png
 
 class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
@@ -281,5 +283,19 @@ class Referenceable(Base):
                     method(*args, **kwargs)
 
 
+    # graph hooks
+    security.declareProtected(CMFCorePermissions.View,
+                              'getReferenceMap')
+    def getReferenceMap(self):
+        """The client side map for this objects references"""
+        return get_cmapx(self)
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'getReferencePng')
+    def getReferencePng(self, REQUEST=None):
+        """A png of the references for this object"""
+        if REQUEST:
+            REQUEST.RESPONSE.setHeader('content-type', 'image/png')
+        return get_png(self)
 
 InitializeClass(Referenceable)

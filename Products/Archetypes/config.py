@@ -32,3 +32,13 @@ MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
 ## Debug security settings of Fields, Widgets and Storages?
 DEBUG_SECURITY=False
 #DEBUG_SECURITY=True
+
+
+## If you have graphviz http://www.research.att.com/sw/tools/graphviz/
+## and its frontend "dot" installed on your system set this to True
+GRAPHVIZ_BINARY = "/usr/bin/dot"
+# XXX: add autodetect code?
+HAS_GRAPHVIZ = False
+#HAS_GRAPHVIZ = True
+
+
