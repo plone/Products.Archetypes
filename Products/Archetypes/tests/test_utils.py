@@ -3,12 +3,12 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 
 from Products.Archetypes.utils import DisplayList
 
-class DisplayListTest( ArchetypesTestCase ):
+class DisplayListTest(ArchetypesTestCase):
 
     def test_cmp(self):
         ta = ('a', 'b', 'c')
@@ -102,6 +102,26 @@ class DisplayListTest( ArchetypesTestCase ):
         self.failUnless(wahaaa.getMsgId('b') == 'bb')
         self.failUnless(wahaaa.getMsgId('a') == 'aa')
 
+    def test_sort(self):
+        a = (('a','a',), ('b','b'), ('c', 'c'))
+        b = (('z','Z',), ('y','Y'), ('x', 'X'))
+        c = (('a','Z',), ('c','Y'), ('b', 'X'))
+        dla = DisplayList(a)
+        dlb = DisplayList(b)
+        dlc = DisplayList(c)
+
+        assert dla.values() == ['a', 'b', 'c']
+        dlb_s = dlb.sortedByValue()
+        assert dlb_s.values() == ['X', 'Y', 'Z']
+        dlc_s = dlc.sortedByKey()
+        assert dlc_s.values() == ['Z', 'X', 'Y']
+
+
+def test_suite():
+    return unittest.TestSuite((
+        unittest.makeSuite(DisplayListTest),
+        ))
+
 if __name__ == '__main__':
     framework()
 else:
@@ -111,4 +131,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(DisplayListTest))
-        return suite 
+        return suite

@@ -1,7 +1,7 @@
 """
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 
-$Id: OrderedBaseFolder.py,v 1.2.6.1 2003/10/08 14:39:34 syt Exp $
+$Id: OrderedBaseFolder.py,v 1.3 2003/11/03 18:51:26 dreamcatcher Exp $
 """
 
 from AccessControl import ClassSecurityInfo
@@ -86,7 +86,7 @@ InitializeClass(OrderedFolder)
 
 class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMetadata):
     """ An ordered base Folder implementation """
-    
+
     __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata,
                       IOrderedFolder)
 
@@ -123,19 +123,3 @@ class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMeta
         OrderedFolder.manage_beforeDelete(self, item, container)
 
 InitializeClass(OrderedBaseFolder)
-
-
-from I18NMixin import I18NMixin
-
-class I18NOrderedBaseFolder(I18NMixin, OrderedBaseFolder):
-    """ override BaseFolder to have I18N title and description,
-    plus I18N related actions
-    """
-    
-    schema = OrderedBaseFolder.schema + I18NMixin.schema
-
-    def __init__(self, *args, **kwargs):
-        OrderedBaseFolder.__init__(self, *args, **kwargs)
-        I18NMixin.__init__(self)
-
-InitializeClass(I18NOrderedBaseFolder)

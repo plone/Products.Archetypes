@@ -3,10 +3,10 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_sqlstorage', 'Cannot import ArcheSiteTestCase') 
+    raise TestPreconditionFailed('test_sqlstorage', 'Cannot import ArcheSiteTestCase')
 
 import unittest
 from zExceptions.ExceptionFormatter import format_exception
@@ -39,14 +39,14 @@ connectors = {}
 cleanup = {}
 
 try:
-  # gadfly storage is currently b0rked, we don't want to test it yet
-  if 0:
-    from Products.ZGadflyDA.DA import Connection
-    connectors['Gadfly'] = Connection(id=connection_id,
-                                      title='connection',
-                                      connection_string='demo', # default connection
-                                      check=1, # connect immediatly
-                                      )
+    # gadfly storage is currently b0rked, we don't want to test it yet
+    if 0:
+        from Products.ZGadflyDA.DA import Connection
+        connectors['Gadfly'] = Connection(id=connection_id,
+                                          title='connection',
+                                          connection_string='demo', # default connection
+                                          check=1, # connect immediatly
+                                          )
 except ImportError:
     pass
 
@@ -70,11 +70,11 @@ try:
     # are failing.
     transactional = 0
     if transactional:
-            connectors['MySQL'] = Connection(id=connection_id,
-                                             title='connection',
-                                             connection_string='+demo@localhost demo demo',
-                                             check=1, # connect immediatly
-                                             )
+        connectors['MySQL'] = Connection(id=connection_id,
+                                         title='connection',
+                                         connection_string='+demo@localhost demo demo',
+                                         check=1, # connect immediatly
+                                         )
     if not transactional:
         connectors['MySQL'] = Connection(id=connection_id,
                                          title='connection',
@@ -178,7 +178,7 @@ class SQLStorageTest(ArchetypesTestCase):
     db_name = ''
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
+        ArchetypesTestCase.afterSetUp(self)
         storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
         gen_dummy(storage_class)
         self._storage_class = storage_class
@@ -187,7 +187,7 @@ class SQLStorageTest(ArchetypesTestCase):
         dummy_tool.setup(dummy)
         dummy.initializeArchetype()
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         db = getattr(self._dummy, connection_id)()
         db.tpc_abort()
         ArchetypesTestCase.beforeTearDown(self)
@@ -255,11 +255,11 @@ for db_name in connectors.keys():
         db_name = db_name
         cleanup = cleanup
 
-    def beforeTearDown(self): 
-            clean = self.cleanup.get(self.db_name, None)
-            if clean is None:
-                SQLStorageTest.tearDown(self)
-            ArchetypesTestCase.beforeTearDown(self)
+    def beforeTearDown(self):
+        clean = self.cleanup.get(self.db_name, None)
+        if clean is None:
+            SQLStorageTest.tearDown(self)
+        ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestSubclass)
 
@@ -295,7 +295,7 @@ for db_name in connectors.keys():
             dummy.setAreferencefield('Bla')
             value = dummy.getAreferencefield()
             __traceback_info__ = repr(value)
-            self.failUnless(str(value) == 'Bla') 
+            self.failUnless(str(value) == 'Bla')
 
         def test_rename(self):
             site = self.root.testsite
@@ -377,15 +377,15 @@ for db_name in connectors.keys():
             PUID = f.get(doc)
             self.failUnless(PUID is None)
 
-    def beforeTearDown(self): 
-            cleanup = self.cleanup.get(self.db_name, None)
-            if cleanup is None:
-                db = getattr(self._dummy, connection_id)()
-                db.tpc_abort()
-            else:
-                cleanup(self)
-            RenameTests.tearDown(self)
-            ArchetypesTestCase.beforeTearDown(self)
+    def beforeTearDown(self):
+        cleanup = self.cleanup.get(self.db_name, None)
+        if cleanup is None:
+            db = getattr(self._dummy, connection_id)()
+            db.tpc_abort()
+        else:
+            cleanup(self)
+        RenameTests.tearDown(self)
+        ArchetypesTestCase.beforeTearDown(self)
 
     tests.append(StorageTestRenameSubclass)
 
@@ -401,5 +401,5 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         for test in tests:
-            suite.addTest(unittest.makeSuite(test)) 
-        return suite 
+            suite.addTest(unittest.makeSuite(test))
+        return suite

@@ -1,14 +1,9 @@
-"""
-Unittests for a Referenceable engine.
-
-$Id: test_sitepolicy.py,v 1.5.4.3 2003/10/21 15:22:36 tiran Exp $
-"""
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
@@ -26,9 +21,9 @@ def makeContent(site, portal_type, id='document', **kw ):
 
 class SitePolicyTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
-        newSecurityManager( None, user ) 
+        newSecurityManager( None, user )
 
     def test_new( self ):
         site = self.getPortal()
@@ -62,4 +57,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(SitePolicyTests))
-        return suite 
+        return suite

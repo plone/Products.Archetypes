@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -13,15 +13,15 @@ from Products.Archetypes import listTypes
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema 
+schema = BaseSchema
 
 class Dummy(BaseContent):
     schema = schema
-   
+
 class SchemataTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -32,7 +32,7 @@ class SchemataTest( ArchetypesTestCase ):
         keys = schemata.keys()
         keys.sort()
         self.assertEqual(keys, ['default', 'metadata'])
-        
+
     def test_nameschemata(self):
         dummy = self._dummy
         schemata = dummy.Schemata()
@@ -49,14 +49,15 @@ class SchemataTest( ArchetypesTestCase ):
         dummy = self._dummy
         schemata = dummy.Schemata()
         meta_names = getNames(schemata['metadata'])
-        self.assertEqual(meta_names, ['allowDiscussion', 'subject', 'description', \
-                                      'contributors', 'effectiveDate', 'expirationDate', \
+        self.assertEqual(meta_names, ['allowDiscussion', 'subject',
+                                      'description', 'contributors',
+                                      'effectiveDate', 'expirationDate',
                                       'language', 'rights'])
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         del self._dummy
         ArchetypesTestCase.beforeTearDown(self)
-                
+
 if __name__ == '__main__':
     framework()
 else:
@@ -66,4 +67,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(SchemataTest))
-        return suite 
+        return suite

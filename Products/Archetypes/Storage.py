@@ -55,8 +55,6 @@ class StorageLayer(Storage):
     def cleanupField(self, instance, field):
         raise NotImplementedError('%s: cleanupField' % self.getName())
 
-
-
 class AttributeStorage(Storage):
     __implements__ = IStorage
 
@@ -75,48 +73,6 @@ class AttributeStorage(Storage):
         except AttributeError:
             pass
         instance._p_changed = 1
-
-
-class I18NStorage(Storage):
-    """basically the same as attribute storage but attribute's value is a
-    mapping  with language id as key and translation for this language as value
-    """
-    __implements__ = IStorage
-
-    def _get_mapping(self, name, instance):
-        if not hasattr(instance, name):
-            setattr(instance, name, PersistentMapping())
-            instance._p_changed = 1
-        return getattr(instance, name)
-
-    def get(self, name, instance, lang=None, **kwargs):
-        lang = instance.getContentLanguage(lang)
-        mapping = self._get_mapping(name, instance)
-        try:
-            return mapping[lang].getRaw(instance, **kwargs)
-        except KeyError:
-            return self._i18n_default
-
-    def set(self, name, instance, value, lang=None, **kwargs):
-        value = value or self._i18n_default
-        lang = instance.getContentLanguage(lang)
-        mapping = self._get_mapping(name, instance)
-        mapping[lang] = value
-        instance._p_changed = 1
-
-    def unset(self, name, instance, lang=None, **kwargs):
-        lang = instance.getContentLanguage(lang)
-        mapping = self._get_mapping(name, instance)
-        try:
-            del mapping[lang]
-        except:
-            pass
-        instance._p_changed = 1
-        
-    def getDefinedLanguages(self, instance):
-        """return a list of defined language ids for the given instance"""
-        return self._get_mapping(instance).keys()
-
 
 class ObjectManagedStorage(Storage):
     __implements__ = IStorage

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_widgets', 'Cannot import ArcheSiteTestCase')
@@ -61,7 +61,7 @@ def findEditForm(forms):
 
 class WidgetTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
         newSecurityManager( None, user )
         start_new_thread(start_http, ('127.0.0.1', 50080))
@@ -90,7 +90,7 @@ class WidgetTests(ArcheSiteTestCase):
             control = form.find_control(k)
             assert form[k] == v, 'Expected %s on %s, got %s' % (v, k, form[k])
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         self.root._delObject('testsite',)
         SecurityRequestTest.tearDown(self)
         try:
@@ -111,4 +111,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(WidgetTests))
-        return suite 
+        return suite

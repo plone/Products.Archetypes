@@ -2,16 +2,17 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+import glob
+from os import curdir
+from os.path import join, abspath, dirname, split
+
 from common import *
 from utils import *
- 
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from Products.Archetypes.BaseUnit import BaseUnit
 from StringIO import StringIO
-from os.path import join, abspath, dirname, split
-from os import curdir
-import glob
 
 from test_classgen import Dummy, gen_dummy
 
@@ -22,15 +23,21 @@ except NameError:
     _prefix = abspath(curdir)
 else:
     # Test was called by another test.
-    _prefix = abspath(dirname(__file__))    
+    _prefix = abspath(dirname(__file__))
 
 class BaseUnitTest( ArchetypesTestCase ):
 
     def testSame(self):
         gen_dummy()
-        dummy = Dummy(oid='dummy', init_transforms=1)
+        # The new BaseUnit expects 'instance' to be
+        # acquisition wrapped, or else it does return
+        # the untransformed text -- this was introduced
+        # for compatibility with APE.
+        parent = Dummy(oid='parent')
+        dummy = Dummy(oid='dummy', init_transforms=1).__of__(parent)
         input = open(self.input)
-        bu = BaseUnit(name='test', file=input, mimetype='text/restructured',
+        bu = BaseUnit(name='test', file=input,
+                      mimetype='text/restructured',
                       instance=dummy)
         input.close()
         if USE_NEW_BASEUNIT:
@@ -66,4 +73,4 @@ else:
         suite = unittest.TestSuite()
         for test in tests:
             suite.addTest(unittest.makeSuite(test))
-        return suite 
+        return suite

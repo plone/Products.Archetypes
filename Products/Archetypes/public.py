@@ -1,11 +1,10 @@
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore import CMFCorePermissions
 from ArchetypeTool import registerType, process_types, listTypes
 
-from BaseContent import BaseContent, I18NBaseContent
-from BaseFolder import BaseFolder, I18NBaseFolder
-from BaseBTreeFolder import BaseBTreeFolder, I18NBaseBTreeFolder
-from OrderedBaseFolder import OrderedBaseFolder, I18NOrderedBaseFolder
+from BaseContent import BaseContent
+from BaseFolder import BaseFolder
+from BaseBTreeFolder import BaseBTreeFolder
+from OrderedBaseFolder import OrderedBaseFolder
 
 from ExtensibleMetadata import ExtensibleMetadata
 
@@ -21,19 +20,3 @@ BaseBTreeFolderSchema = BaseBTreeFolder.schema
 BaseFolderSchema = BaseFolder.schema
 
 BaseSchema = BaseContent.schema
-
-I18NBaseSchema = I18NBaseContent.schema
-
-
-I18NCONTENT_ACTIONS = ({ 'id': 'translate',
-                       'name': 'Translate',
-                       'action': 'portal_form/base_translation',
-                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       },
-                     { 'id': 'translations',
-                       'name': 'Translations',
-                       'action': 'portal_form/manage_translations_form',
-                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       },
-                     )
-

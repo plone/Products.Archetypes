@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- File Widgets -->
+
+    <div class="field" metal:define-macro="file_view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <tal:define define="unit accessor">
+     <tal:block define="size unit/get_size | python: unit and len(unit) or 0;
+	            icon unit/getBestIcon | nothing;
+		    filename value/filename|nothing"
+	 tal:condition="python:size>0">
+	<a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
+        <img tal:condition="icon" src=""
+             tal:attributes="src string:${here/portal_url}/${icon}"/>
+		<span i18n:translate="" tal:omit-tag="">View</span> <span tal:replace="fieldName"/>
+	 </a>
+        (<tal:filename content="string:${filename} " condition="filename">myfile.pdf
+         </tal:filename><span tal:content="python: field.getContentType(here)">ContentType</span> <tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
+	<a href="" 
+       tal:condition="python:field.checkExternalEditor(here)"
+       tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
+	   tal:define="edit here/edit.gif">
+	    <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+        <span i18n:translate="" tal:omit-tag="">Edit</span>
+	</a>
+    </tal:block>
+    </tal:define>
+    </div>
+
+    <metal:define define-macro="file_edit">
+    <input type="file" 
+	   size="30" 
+	   tabindex="" 
+	   tal:attributes=" name string:${fieldName}_file;
+	   tabindex tabindex/next;"
+	   />
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+    </metal:define>
+
+    <metal:define define-macro="view">
+    <metal:use use-macro="here/widgets/field/macros/view">
+    <metal:fill fill-slot="widget_view">
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
+
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body">
+	  <metal:block metal:use-macro="here/widgets/file/macros/file_edit"/>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
+    
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/file/macros/edit">
+      </div>
+    </div>
+
+  </body>
+  
+</html>
+

@@ -15,7 +15,7 @@ class TestSomething(ArchetypesTestCase):
         ArchetypesTestCase.afterSetUp(self)
         # more
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         # more
         ArchetypesTestCase.beforeTearDown(self)
 
@@ -23,7 +23,7 @@ class TestSomething(ArchetypesTestCase):
         # Test something
         self.failUnless(1==1)
 
-            
+
 if __name__ == '__main__':
     framework()
 else:
@@ -34,4 +34,3 @@ else:
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(TestSomething))
         return suite
-

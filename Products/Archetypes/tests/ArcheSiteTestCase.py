@@ -2,16 +2,17 @@
 # ArcheSiteTestCase
 #
 
-# $Id: ArcheSiteTestCase.py,v 1.1.2.3 2003/10/21 15:22:36 tiran Exp $
+# $Id: ArcheSiteTestCase.py,v 1.2 2003/11/03 21:44:22 dreamcatcher Exp $
+
+import time
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
-import time 
+from Testing import ZopeTestCase
 
 from Products.Archetypes.Extensions.Install import install as installArchetypes
 
-from Testing import ZopeTestCase
 from Products.CMFPlone.tests import PloneTestCase
 
 class ArcheSiteTestCase(PloneTestCase.PloneTestCase):
@@ -23,21 +24,21 @@ class ArcheSiteTestCase(PloneTestCase.PloneTestCase):
 
     def getMemberUser(self):
         uf = self.portal.acl_users
-        return uf.getUserById('PloneMember').__of__(uf) 
-    
+        return uf.getUserById('PloneMember').__of__(uf)
+
 def setupArchetypes(app, quiet=0):
     if not hasattr(app.portal, 'archetype_tool'):
         get_transaction().begin()
         _start = time.time()
-        if not quiet: ZopeTestCase._print('Adding Archetypes ... ') 
-        
+        if not quiet: ZopeTestCase._print('Adding Archetypes ... ')
+
         uf = app.portal.acl_users
         # setup
-        uf._doAddUser('PloneMember', '', ['Members'], []) 
-        uf._doAddUser('PloneManager', '', ['Manager'], []) 
+        uf._doAddUser('PloneMember', '', ['Members'], [])
+        uf._doAddUser('PloneManager', '', ['Manager'], [])
         # login as manager
         user = uf.getUserById('PloneManager').__of__(uf)
-        newSecurityManager(None, user) 
+        newSecurityManager(None, user)
         # add Archetypes
         installArchetypes(app.portal, include_demo=1)
         # Log out
@@ -47,4 +48,4 @@ def setupArchetypes(app, quiet=0):
 
 app = ZopeTestCase.app()
 setupArchetypes(app)
-ZopeTestCase.close(app) 
+ZopeTestCase.close(app)

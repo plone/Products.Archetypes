@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
@@ -21,10 +21,10 @@ class ReferenceEngine(ReferenceEngine):
 
 class TestReferenceEngine(ArchetypesTestCase):
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
+        ArchetypesTestCase.afterSetUp(self)
         self.re = ReferenceEngine()
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         del self.re
         ArchetypesTestCase.beforeTearDown(self)
 
@@ -90,4 +90,3 @@ else:
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(TestReferenceEngine))
         return suite
- 

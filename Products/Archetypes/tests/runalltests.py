@@ -4,13 +4,13 @@
 # Execute like:
 #   python runalltests.py
 #
-# Alternatively use the testrunner: 
+# Alternatively use the testrunner:
 #   python /path/to/Zope/utilities/testrunner.py -qa
 #
 
 import os, sys
 if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py')) 
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import TestPreconditionFailed, Xprint
 
@@ -31,4 +31,3 @@ for test in tests:
 
 if __name__ == '__main__':
     TestRunner(verbosity=2).run(suite)
-

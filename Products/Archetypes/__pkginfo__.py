@@ -1,7 +1,7 @@
 
 modname = 'Archetypes'
 version = open('version.txt').read().strip()
-numversion = version.split('.') 
+numversion = version.split('.')
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003 Benjamin Saller <bcsaller@yahoo.com>'''
@@ -28,7 +28,6 @@ Features
     * Power and flexibility with lowered incidental complexity.
     * Integration with rich content sources such as Office Product Suites.
     * Full automatic form generation
-    * i18n content on a field basis
 """
 
 web = "http://www.sourceforge.net/projects/archetypes"

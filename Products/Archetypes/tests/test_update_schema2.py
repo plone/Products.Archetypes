@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
@@ -17,20 +17,21 @@ from Products.Archetypes.public import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
-    raise TestPreconditionFailed('test_update_schema2', 'Cannot import from ArchetypesTestUpdateSchema') 
+    raise TestPreconditionFailed('test_update_schema2', 'Cannot import from ArchetypesTestUpdateSchema')
 import sys, os, shutil
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-# XXX
 class test_update_schema2(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
-        newSecurityManager( None, user ) 
-
+        newSecurityManager(None, user)
+        portal = self.getPortal()
+        qi = getToolByName(portal, 'portal_quickinstaller')
+        qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
         import Products.ArchetypesTestUpdateSchema
@@ -49,7 +50,7 @@ class test_update_schema2(ArcheSiteTestCase):
 
 
     def test_update_schema(self):
-        site = self.getPortal() 
+        site = self.getPortal()
         self._setClass(1)
 
         t1 = makeContent(site, portal_type='TestClass', id='t1')
@@ -94,4 +95,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(test_update_schema2))
-        return suite 
+        return suite

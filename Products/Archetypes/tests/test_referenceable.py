@@ -3,20 +3,19 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_referenceable', 'Cannot import ArcheSiteTestCase')
+    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
 
 from Acquisition import aq_base
-#from Products.CMFCore.MemberDataTool import MemberData
-from Products.Archetypes.tests.test_sitepolicy import makeContent
 
+from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.examples import *
 
 class ReferenceableTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
@@ -30,24 +29,23 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(hasattr(aq_base(doc), '_uid'))
         self.failUnless(getattr(aq_base(doc), '_uid', None))
 
-    # XXX test is not running: ValueError: can not change oid of cached object
+
     def test_renamedontchangeUID( self ):
         site = self.getPortal()
         catalog = site.uid_catalog
 
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
-        doc = makeContent( site
-                           , portal_type='DDocument'
-                           , title='Foo'
-                           , id=obj_id)
+        doc = makeContent(site
+                          , portal_type='DDocument'
+                          , title='Foo'
+                          , id=obj_id)
 
         UID = doc.UID()
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
         # ensure object has a _p_jar
         doc._p_jar = site._p_jar = self.app._p_jar
         new_oid = self.app._p_jar.new_oid
-        site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(site, new_id)
@@ -69,7 +67,6 @@ class ReferenceableTests(ArcheSiteTestCase):
         # ensure object has a _p_jar
         doc._p_jar = site._p_jar = self.app._p_jar
         new_oid = self.app._p_jar.new_oid
-        site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(id=obj_id, new_id=new_id)
 
@@ -135,8 +132,10 @@ class ReferenceableTests(ArcheSiteTestCase):
         site = self.getPortal()
         at = site.archetype_tool
 
-        folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
-        nonRef = makeContent( folder, portal_type='DDocument',title='Foo', id='nonRef')
+        folder = makeContent( site, portal_type='SimpleFolder',
+                              title='Foo', id='folder')
+        nonRef = makeContent( folder, portal_type='DDocument',
+                              title='Foo', id='nonRef')
 
         ## This is really broken and I can't easily fix it
         assert folder.UID() == 'folder'
@@ -160,7 +159,7 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
-    def beforeTearDown(self): 
+    def beforeTearDown(self):
         noSecurityManager()
         ArcheSiteTestCase.beforeTearDown(self)
 
@@ -174,4 +173,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(ReferenceableTests))
-        return suite 
+        return suite

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 
 from Products.Archetypes.public import *
@@ -46,12 +46,12 @@ schema = BaseSchema + Schema((
                                          label="A Fixed Point Field"),
                     ),
     StringField('awriteonlyfield', mode="w"),
-    
+
     StringField('areadonlyfield', mode="r"),
     ))
 
 class DummyDiscussionTool:
-    def isDiscussionAllowedFor( self, content ): 
+    def isDiscussionAllowedFor( self, content ):
         return False
     def overrideDiscussionFor(self, content, allowDiscussion):
         pass
@@ -60,7 +60,7 @@ class SiteProperties:
     default_charset = 'UTF-8'
     def getProperty(self, name, default=None):
         return getattr(self, name, default)
-    
+
 class PortalProperties:
     site_properties = SiteProperties()
 
@@ -68,7 +68,6 @@ class Dummy(BaseContent):
     portal_properties = PortalProperties()
     mimetypes_registry = MimeTypesTool()
     portal_discussion = DummyDiscussionTool()
-    
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
@@ -86,7 +85,7 @@ def gen_dummy():
 class ClassGenTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self) 
+        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -120,7 +119,7 @@ class ClassGenTest( ArchetypesTestCase ):
         self.failUnless(hasattr(obj, 'getRawAfixedpointfield'))
         self.failUnless(hasattr(obj, 'getRawAwriteonlyfield'))
         self.failUnless(not hasattr(obj, 'getRawAreadonlyfield'))
-        
+
     def test_textfield(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype="text/plain")
@@ -155,8 +154,8 @@ class ClassGenTest( ArchetypesTestCase ):
         obj = self._dummy
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
-         
-    def beforeTearDown(self): 
+
+    def beforeTearDown(self):
         del self._dummy
         ArchetypesTestCase.beforeTearDown(self)
 
@@ -169,4 +168,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(ClassGenTest))
-        return suite 
+        return suite

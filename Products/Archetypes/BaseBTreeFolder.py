@@ -77,22 +77,7 @@ if has_btree:
         security.declareProtected(View, 'index_html')
         index_html = SkinnedFolder.index_html
 
-
-
 if not has_btree:
     class BaseBTreeFolder(BaseFolder):
         """ Just so it doenst break when BTreeFolder isnt available """
         pass
-
-from I18NMixin import I18NMixin
-class I18NBaseBTreeFolder(I18NMixin, BaseBTreeFolder):
-    """ override BaseBaseFolder to have I18N title and description,
-    plus I18N related actions
-    """
-
-    schema = BaseBTreeFolder.schema + I18NMixin.schema
-
-    def __init__(self, *args, **kwargs):
-        BaseFolder.__init__(self, *args, **kwargs)
-        I18NMixin.__init__(self)
-

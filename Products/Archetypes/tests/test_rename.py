@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.8.4.3 2003/10/21 15:22:36 tiran Exp $
+$Id: test_rename.py,v 1.11 2003/11/03 22:14:27 dreamcatcher Exp $
 """
 
 import os, sys
@@ -9,7 +9,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
@@ -19,11 +19,10 @@ from Products.Archetypes.tests.test_sitepolicy import makeContent
 
 class RenameTests(ArcheSiteTestCase):
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self) 
+        ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
-    # XXX test is not running: ValueError: can not change oid of cached object
     def test_rename(self):
         site = self.getPortal()
         obj_id = 'demodoc'
@@ -35,7 +34,6 @@ class RenameTests(ArcheSiteTestCase):
         #make sure we have _p_jar
         doc._p_jar = site._p_jar = self.app._p_jar
         new_oid = self.app._p_jar.new_oid
-        site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(obj_id, new_id)
         doc = getattr(site, new_id)
@@ -50,4 +48,4 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         suite.addTest(unittest.makeSuite(RenameTests))
-        return suite 
+        return suite

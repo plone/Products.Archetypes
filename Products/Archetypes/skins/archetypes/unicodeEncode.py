@@ -1,5 +1,5 @@
 ## Script (Python) "unicodeEncode"
-##title=Return an encoded string using the site charset
+##title=Test if a unicode string is in a unicode list
 ##bind container=container
 ##bind context=context
 ##bind namespace=
@@ -7,11 +7,11 @@
 ##bind subpath=traverse_subpath
 ##parameters=value
 
-site_charset = context.portal_properties.site_properties.default_charset
+site_charset = context.getCharset()
 
 if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
     value = str(value)
-    
+
 if hasattr(value, 'decode'): # type(value) is type('')
     for charset in [site_charset, 'latin-1', 'utf-8']:
         try:
@@ -19,6 +19,8 @@ if hasattr(value, 'decode'): # type(value) is type('')
             break
         except UnicodeError:
             pass
+    # that should help debugging unicode problem
+    # remove it if you feel not
     else:
         raise UnicodeError('Unable to decode %s' % value)
 

@@ -3,7 +3,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
-from utils import * 
+from utils import *
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -98,5 +98,5 @@ else:
     def test_suite():
         suite = unittest.TestSuite()
         for test in tests:
-            suite.addTest(unittest.makeSuite(test)) 
-        return suite 
+            suite.addTest(unittest.makeSuite(test))
+        return suite

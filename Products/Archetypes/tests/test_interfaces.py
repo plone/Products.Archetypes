@@ -35,6 +35,7 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.Validators import DateValidator
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.public import registerType
 
 def className(klass):
     """ get the short class name """
@@ -47,17 +48,17 @@ tests = []
 
 class InterfaceTest(ZopeTestCase.ZopeTestCase):
     """general interface testing class
-    
+
     klass - the class object to test
-    forcedImpl - a list of interface class objects that the class klass 
+    forcedImpl - a list of interface class objects that the class klass
         *must* implement to fullfil this test
-    
+
     This test class doesn't implement a test* method so you have to provide
     a test method in your implementation. See above for two examples. One
     example uses the special magic of setattr::
-    
+
         setattr(MyClass, MyMethodName, lambda self: self._testStuff())
-        
+
     """
 
     klass = None    # test this class
@@ -72,10 +73,10 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         # verify if the implementation is correct
         try:
             verifyClass(interface, klass)
-        except (BrokenImplementation, DoesNotImplement, 
+        except (BrokenImplementation, DoesNotImplement,
           BrokenMethodImplementation), errmsg:
             self.fail('The class %s does not implement %s correctly: \n%s'
-                % (className(klass), className(interface), errmsg)) 
+                % (className(klass), className(interface), errmsg))
 
     def interfaceImplementedBy(self, instance, interface):
         """ tests if the instance implements the interface in the right way """
@@ -85,16 +86,16 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         # verify if the implementation is correct
         try:
             verifyObject(interface, instance)
-        except (BrokenImplementation, DoesNotImplement, 
+        except (BrokenImplementation, DoesNotImplement,
           BrokenMethodImplementation), errmsg:
             self.fail('The instance of %s does not implement %s correctly: \n%s'
-                % (className(instance), className(interface), errmsg)) 
+                % (className(instance), className(interface), errmsg))
 
     def getImplementsOfInstanceOf(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
         impl = getImplementsOfInstances(klass)
         if type(impl) is not TupleType:
-             impl = (impl,)
+            impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
 
@@ -102,10 +103,10 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         """ returns the interfaces implemented by the instance (flat)"""
         impl = getImplements(instance)
         if type(impl) is not TupleType:
-             impl = (impl,)
+            impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
-        
+
     def doesImplementByInstanceOf(self, klass, interfaces):
         """ make shure that the klass implements at least these interfaces"""
         if type(interfaces) is not TupleType:
@@ -141,7 +142,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
-    
+
     klass = Field.Field # not used but set to class Field
     forcedImpl = ()
 
@@ -157,53 +158,63 @@ tests.append(FieldInterfaceTest)
 # format: (class object, (list interface objects))
 testClasses = [
     (BaseObject, ()),
-    (newBaseUnit, ()), (oldBaseUnit, ()), 
-    (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()), 
-    (Schema, ()), 
-    (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()), 
+    (newBaseUnit, ()), (oldBaseUnit, ()),
+    (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()),
+    (Schema, ()),
+    (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()),
         (AttributeStorage, ()), (ObjectManagedStorage, ()),
         (MetadataStorage, ()),
     (BaseSQLStorage, ()), (GadflySQLStorage, ()), (MySQLSQLStorage, ()),
-        (PostgreSQLStorage, ()), 
-    (DateValidator, ()), 
+        (PostgreSQLStorage, ()),
 ]
 
-# format: (instance object, (list interface objects)) 
+PROJECTNAME = 'Archetypes.tests'
+class EM(ExtensibleMetadata): pass
+registerType(EM, PROJECTNAME)
+class BC(BaseContent): pass
+registerType(BC, PROJECTNAME)
+class BF(BaseFolder): pass
+registerType(BF, PROJECTNAME)
+class OBF(OrderedBaseFolder): pass
+registerType(OBF, PROJECTNAME)
+
+# format: (instance object, (list interface objects))
 # take care: you must provide an instance, not a class!
 testInstances = [
-    (ExtensibleMetadata(), ()),
-    (BaseContent('test'), ()),
-    (BaseFolder('test'), ()), 
-    (OrderedBaseFolder('test'), ()),
+    # (EM(), ()), XXX See comment on ExtensibleMetadata
+    (BC('test'), ()),
+    (BF('test'), ()),
+    (OBF('test'), ()),
+    (DateValidator('isValidDate'), ()),
 ]
 
 for testClass in testClasses:
     klass, forcedImpl = testClass
     name = className(klass)
     funcName = 'test%sInterface' % name
-    
+
     class KlassInterfaceTest(InterfaceTest):
         """ implementation for %s """ % name
         klass      = klass
         forcedImpl = forcedImpl
-    
+
     # add the testing method to the class to get a nice name
-    setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())  
-    tests.append(KlassInterfaceTest) 
+    setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())
+    tests.append(KlassInterfaceTest)
 
 for testInstance in testInstances:
     instance, forcedImpl = testInstance
     name = className(instance)
     funcName = 'test%sInterface' % name
-    
+
     class InstanceInterfaceTest(InterfaceTest):
         """ implementation for %s """ % name
         instance   = instance
         forcedImpl = forcedImpl
-    
+
     # add the testing method to the class to get a nice name
-    setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())  
-    tests.append(InstanceInterfaceTest)       
+    setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())
+    tests.append(InstanceInterfaceTest)
 
 if __name__ == '__main__':
     framework()

@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.8 2003/10/27 20:35:45 tiran Exp $
+# $Id: common.py,v 1.3 2003/11/03 22:14:27 dreamcatcher Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -16,8 +16,8 @@ else:
 
 def Xprint(s):
     """print helper
-    
-    print data via print is not possible, you have to use 
+
+    print data via print is not possible, you have to use
     ZopeTestCase._print or this function
     """
     ZopeTestCase._print(str(s)+'\n')
@@ -27,6 +27,7 @@ from AccessControl.SecurityManagement import noSecurityManager
 
 from Testing import ZopeTestCase
 from ArchetypesTestCase import ArchetypesTestCase
+
 try:
     from ArcheSiteTestCase import ArcheSiteTestCase
     hasArcheSiteTestCase = True
@@ -54,10 +55,11 @@ except ImportError:
     class DoesNotImplement(Execption): pass
     class BrokenMethodImplementation(Execption): pass
 else:
-    from Interface.Implements import getImplementsOfInstances, getImplements, flattenInterfaces
+    from Interface.Implements import getImplementsOfInstances, \
+         getImplements, flattenInterfaces
     from Interface.Verify import verifyClass, verifyObject
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
-    from Interface.Exceptions import BrokenMethodImplementation  
+    from Interface.Exceptions import BrokenMethodImplementation
 
 class TestPreconditionFailed(Exception):
     """ some modules are missing or other preconditions have failed """
@@ -66,16 +68,14 @@ class TestPreconditionFailed(Exception):
         self.precondition = precondition
 
     def __str__(self):
-        return "Some modules are missing or other preconditions for the test %s \
-have failed: '%s' " % (self.test, self.precondition)
+        return ("Some modules are missing or other preconditions "
+                "for the test %s have failed: '%s' "
+                % (self.test, self.precondition))
 
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
-           'verifyClass', 'verifyObject', 'getImplements', 'BrokenImplementation',
-           'DoesNotImplement', 'BrokenMethodImplementation', 
-           'getImplementsOfInstances', 'flattenInterfaces',
-           'newSecurityManager', 'noSecurityManager', 
+           'verifyClass', 'verifyObject', 'getImplements',
+           'BrokenImplementation', 'DoesNotImplement',
+           'BrokenMethodImplementation', 'getImplementsOfInstances',
+           'flattenInterfaces', 'newSecurityManager', 'noSecurityManager',
            'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
            + __all__Boolean
-
-
-
