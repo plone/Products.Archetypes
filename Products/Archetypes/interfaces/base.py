@@ -198,7 +198,7 @@ class IBaseUnit(Interface):
         """Return the imimetype object for this BU
         """
 
-    def setContentType(value):
+    def setContentType(instance, value):
         """
         """
 
