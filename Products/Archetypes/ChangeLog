@@ -1,3 +1,8 @@
+2003-04-18  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* public.py: Added BaseBTreeFolderSchema. Fixed BaseFolderSchema
+	and BaseSchema, now that we have added ExtensibleMetadata in the classes.
+
 2003-04-17  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* ArchetypeTool.py (listTypes): deprecated old listTypes, but keep

@@ -23,7 +23,7 @@ class DisplayListTest( unittest.TestCase ):
         self.failUnless(DisplayList(zip(ta, ta)) == DisplayList(zip(td, td)))
         self.failUnless(DisplayList(zip(tb, ta)) == DisplayList(zip(tb, ta)))
         self.assertRaises(TypeError, cmp, DisplayList(), '')
-        
+
     def test_slice(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)

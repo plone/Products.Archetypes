@@ -70,5 +70,7 @@ if has_btree:
         index_html = SkinnedFolder.index_html
 
 if not has_btree:
-    BaseBTreeFolder = BaseFolder
+    class BaseBTreeFolder(BaseFolder):
+        """ Just so it doenst break when BTreeFolder isnt available """
+        pass
 

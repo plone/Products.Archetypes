@@ -4,7 +4,7 @@ from ArchetypeTool import registerType, process_types, listTypes
 from BaseContent import BaseContent
 from BaseFolder import BaseFolder
 from BaseBTreeFolder import BaseBTreeFolder
-    
+
 from ExtensibleMetadata import ExtensibleMetadata
 
 from Schema import Schema, MetadataSchema
@@ -14,6 +14,8 @@ from Storage import *
 
 from utils import DisplayList
 
-BaseFolderSchema = BaseFolder.schema + ExtensibleMetadata.schema
+BaseBTreeFolderSchema = BaseBTreeFolder.schema
 
-BaseSchema = BaseContent.schema + ExtensibleMetadata.schema
+BaseFolderSchema = BaseFolder.schema
+
+BaseSchema = BaseContent.schema
