@@ -22,7 +22,7 @@ if not state.kwargs.get('original_url') and REQUEST.get('original_url'):
 fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference.field]
-destination = field.widget.destination
+destination = field.widget.getDestination(context)
 mutator = field.getMutator(context)
 accessor = field.getAccessor(context)
 

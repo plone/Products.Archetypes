@@ -1,6 +1,7 @@
 from types import FileType
 from types import DictType # needed for ugly hack in class TypesWidget
                            # def isVisible
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
@@ -109,15 +110,15 @@ class ReferenceWidget(TypesWidget):
 
     def getDestination(self, instance):
         if not self.destination:
-            return aq_parent(instance).absolute_url()
+            purl = getToolByName(instance, 'portal_url')
+            return purl.getRelativeUrl(aq_parent(instance))
         else:
-            portal_url = instance.portal_url()
             value = getattr(aq_base(instance), self.destination,
                             self.destination)
             if callable(value):
                 value = value()
 
-            return portal_url + value
+            return value
 
 
 class ComputedWidget(TypesWidget):
