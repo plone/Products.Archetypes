@@ -1,7 +1,7 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.8 2003/06/24 11:57:23 dreamcatcher Exp $
+$Id: test_referenceable.py,v 1.8.2.1 2003/07/04 09:52:36 syt Exp $
 """
 
 import unittest
@@ -13,15 +13,30 @@ except: # Zope > 2.6
     pass
 
 from Acquisition import aq_base
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
+from Products.CMFCore.tests.base.testcase import SecurityRequestTest, newSecurityManager
+from Products.CMFCore.tests.base.security import AnonymousUser
+from Products.CMFCore.MemberDataTool import MemberData
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.CMFPlone.Portal import manage_addSite
 
+
 site = None
 
+class CatalogAwareAnonymousUser(AnonymousUser):
+    def getRoles(self):
+        # need this method for user to interact with the catalog
+        return ('Anonymous',)
+    
 class ReferenceableTests( SecurityRequestTest ):
     def setUp(self):
         SecurityRequestTest.setUp(self)
+        self.root.id = 'trucmuche'
+        user = CatalogAwareAnonymousUser().__of__( self.root )
+        # need this to work with AccessControl.Owned.ownerInfo
+        # FIXME: there must be a cleaner way to do this
+        user.aq_inner.aq_parent.aq_inner.aq_parent.id = 1
+        newSecurityManager( None, user )
+        #newSecurityManager(None, MemberData(None, 'Anonymous').__of__(self.root).__of__(AnonymousUser()) )
         manage_addSite( self.root, 'testsite', \
                         custom_policy='Archetypes Site' )
 

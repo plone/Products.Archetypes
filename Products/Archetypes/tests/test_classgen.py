@@ -10,6 +10,8 @@ except: # Zope > 2.6
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
+from Products.Archetypes.MimeTypesTool import MimeTypesTool
+from Products.Archetypes.TransformTool import TransformTool
 
 from DateTime import DateTime
 import unittest
@@ -42,11 +44,21 @@ schema = BaseSchema + Schema((
                     widget=DecimalWidget(description="A fixed point field",
                                          label="A Fixed Point Field"),
                     ),
+    StringField('awriteonlyfield', mode="w"),
+    
+    StringField('areadonlyfield', mode="r"),
     ))
 
 
 class Dummy(BaseContent):
-    pass
+
+    def __init__(self, oid, init_transforms=0, **kwargs):
+        BaseContent.__init__(self, oid, **kwargs)
+        self.mimetypes_registry = MimeTypesTool()
+        self.portal_transforms = TransformTool()
+        if init_transforms:
+            from transform import transforms
+            transforms.initialize(self.portal_transforms)
 
 def gen_dummy():
     Dummy.schema = deepcopy(schema)
@@ -69,6 +81,8 @@ class ClassGenTest( unittest.TestCase ):
         self.failUnless(hasattr(obj, 'setAdatefield'))
         self.failUnless(hasattr(obj, 'setAnobjectfield'))
         self.failUnless(hasattr(obj, 'setAfixedpointfield'))
+        self.failUnless(hasattr(obj, 'setAwriteonlyfield'))
+        self.failUnless(not hasattr(obj, 'setAreadonlyfield'))
         #getters
         self.failUnless(hasattr(obj, 'getAtextfield'))
         self.failUnless(hasattr(obj, 'getAfilefield'))
@@ -76,7 +90,18 @@ class ClassGenTest( unittest.TestCase ):
         self.failUnless(hasattr(obj, 'getAdatefield'))
         self.failUnless(hasattr(obj, 'getAnobjectfield'))
         self.failUnless(hasattr(obj, 'getAfixedpointfield'))
-
+        self.failUnless(not hasattr(obj, 'getAwriteonlyfield'))
+        self.failUnless(hasattr(obj, 'getAreadonlyfield'))
+        #raw getters
+        self.failUnless(hasattr(obj, 'getRawAtextfield'))
+        self.failUnless(hasattr(obj, 'getRawAfilefield'))
+        self.failUnless(hasattr(obj, 'getRawAlinesfield'))
+        self.failUnless(hasattr(obj, 'getRawAdatefield'))
+        self.failUnless(hasattr(obj, 'getRawAnobjectfield'))
+        self.failUnless(hasattr(obj, 'getRawAfixedpointfield'))
+        self.failUnless(hasattr(obj, 'getRawAwriteonlyfield'))
+        self.failUnless(not hasattr(obj, 'getRawAreadonlyfield'))
+        
     def test_textfield(self):
         obj = self._dummy
         obj.setAtextfield('Bla')
@@ -107,6 +132,11 @@ class ClassGenTest( unittest.TestCase ):
         obj.setAfixedpointfield('26.05')
         self.failUnless(obj.getAfixedpointfield() == '26.05')
 
+    def test_writeonlyfield(self):
+        obj = self._dummy
+        obj.setAwriteonlyfield('bla')
+        self.failUnless(obj.getRawAwriteonlyfield() == 'bla')
+        
     def tearDown( self ):
         del self._dummy
 
