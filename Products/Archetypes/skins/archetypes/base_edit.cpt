@@ -35,7 +35,7 @@
       <style type="text/css"
              media="all"
              tal:condition="python:exists('portal/%s' % item)"
-             tal:content="string:@import url($portal_url/$item)">
+             tal:content="string:@import url($portal_url/$item);">
       </style>
     </tal:block>
     <tal:block condition="js"
