@@ -1,6 +1,7 @@
 from Products.Archetypes.debug import log_exc, log, _default_logger
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.utils import DisplayList, mapply, fixSchema
+from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
+    getRelURL, getRelPath 
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
@@ -742,7 +743,7 @@ class BaseObject(Referenceable):
         if objects:
             if REQUEST is None:
                 REQUEST = self.REQUEST
-            key = '/'.join(self.getPhysicalPath())
+            key = getRelURL(self, self.getPhysicalPath())
             session = REQUEST.SESSION
             defined = session.get(key, {})
             defined.update(objects)
@@ -753,7 +754,7 @@ class BaseObject(Referenceable):
         """Get a dictionary of objects from the session
         """
         try:
-            data = REQUEST.SESSION[self.absolute_url()][name]
+            data = REQUEST.SESSION[getRelURL(self, self.getPhysicalPath())][name]
         except AttributeError:
             return
         except KeyError:
