@@ -248,7 +248,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         dtool = getToolByName(self, 'portal_discussion')
         try:
             dtool.overrideDiscussionFor(self, allowDiscussion)
-        except KeyError, err:
+        except (KeyError, AttributeError), err:
             if allowDiscussion is None:
                 # work around a bug in CMFDefault.DiscussionTool. It's using
                 # an unsafe hasattr() instead of a more secure getattr() on an
@@ -271,7 +271,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             #
             # XXX: Should we have our own implementation of
             #      overrideDiscussionFor?
-            log_exc('Catched Unauthorized on disussiontool.' \
+            log_exc('Catched Unauthorized on discussiontool.' \
                     'overrideDiscussionFor(%s)' % self.absolute_url(1),
                     level=ERROR)
 
