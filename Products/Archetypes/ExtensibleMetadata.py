@@ -406,7 +406,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         For now, change the modification_date.
         """
         # XXX This could also store the id of the user doing modifications.
-        self.setModificationDate()
+        self.setModificationDate(None)
 
     # XXX Could this be simply protected by ModifyPortalContent ?
     security.declarePrivate('setModificationDate')
