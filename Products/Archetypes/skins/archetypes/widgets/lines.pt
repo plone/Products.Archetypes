@@ -18,6 +18,7 @@
 	  <textarea
 	   tabindex="#"
 	   tal:attributes="name string:$fieldName:lines;
+	   id fieldName;
 	   cols widget/cols;
 	   rows widget/rows;
 	  tabindex tabindex/next;"><span tal:replace="python:'\n'.join(value)"></span></textarea>
