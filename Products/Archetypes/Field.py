@@ -842,7 +842,7 @@ class ReferenceField(ObjectField):
                   log('Field %r: Object at %r could not be found' % \
                       (self.getName(), r.getURL())) or \
                   r.Title or r.UID) for r, obj in results]
-        if not self.required:
+        if not self.required and not self.multiValued:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
 
