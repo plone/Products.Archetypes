@@ -51,9 +51,8 @@ class SchemataTest( ArchetypesTestCase ):
         meta_names = getNames(schemata['metadata'])
         self.assertEqual(meta_names, ['allowDiscussion', 'subject',
                                       'description', 'contributors',
-                                      'creators', 'effectiveDate',
-                                      'expirationDate', 'language',
-                                      'rights'])
+                                      'effectiveDate', 'expirationDate',
+                                      'language', 'rights'])
 
     def beforeTearDown(self):
         del self._dummy

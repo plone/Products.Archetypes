@@ -16,7 +16,6 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.utils import capitalize, DisplayList, \
      OrderedDict, mapply
 from Products.Archetypes.debug import log, log_exc
-from Products.generator.i18n import translate
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
@@ -337,8 +336,8 @@ class BasicSchema(Schemata):
         """
         Initialize a Schema.
 
-        The first positional argument may be a sequence of
-        Fields. (All further positional arguments are ignored.)
+        The first positional argument may be a sequence of Fields. Otherwise,
+        args is taken to be a list of Fields.
 
         Keyword arguments are added to my properties.
         """
@@ -352,7 +351,8 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                self.addField(args[0])
+                for field in args:
+                    self.addField(args[0])
 
     def __add__(self, other):
         c = BasicSchema()
@@ -506,7 +506,6 @@ class BasicSchema(Schemata):
             res = field.validate(instance=instance,
                                  value=value,
                                  errors=errors,
-                                 field=field,
                                  REQUEST=REQUEST)
             if res:
                 errors[field.getName()] = res

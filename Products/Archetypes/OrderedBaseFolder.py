@@ -37,7 +37,7 @@ except ImportError:
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
-    from interfaces.orderedfolder import IOrderedContainer
+    from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
 
 class OrderedFolder(SkinnedFolder):
     """ DEPRECATED, may be removed in next releaeses """
@@ -286,7 +286,8 @@ class old_OrderedBaseFolder(BaseObject,
 
     __implements__ = (IBaseFolder, IReferenceable,
                       IExtensibleMetadata,
-                      IOrderedFolder)
+                      IOrderedFolder,
+                      IOrderedContainer)
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"

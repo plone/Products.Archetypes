@@ -1,7 +1,8 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5 2003/12/06 16:43:25 dreamcatcher Exp $
+
+# $Id: ArchetypesTestCase.py,v 1.3.2.2 2003/11/20 13:14:30 dreamcatcher Exp $
 
 from Testing import ZopeTestCase
 

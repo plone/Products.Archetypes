@@ -23,7 +23,7 @@ from Products.Archetypes.interfaces.storage import *
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.BaseUnit import newBaseUnit, oldBaseUnit
 from Products.Archetypes import Field # use __all__ field
 from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
@@ -158,7 +158,7 @@ tests.append(FieldInterfaceTest)
 # format: (class object, (list interface objects))
 testClasses = [
     (BaseObject, ()),
-    (BaseUnit, ()),
+    (newBaseUnit, ()), (oldBaseUnit, ()),
     (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()),
     (Schema, ()),
     (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()),

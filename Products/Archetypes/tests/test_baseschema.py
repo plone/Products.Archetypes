@@ -130,7 +130,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == ())
+        self.failUnless(field.default == [])
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -188,7 +188,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == ())
+        self.failUnless(field.default == [])
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())

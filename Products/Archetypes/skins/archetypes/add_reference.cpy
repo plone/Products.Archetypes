@@ -34,7 +34,7 @@ if (not state.kwargs.get('reference_source_url') and
         context=context,
         portal_status_message=portal_status_message)
 
-# save data form, portal_factory will use that later
+# save data form, portal_factory will use that later, when back
 # hey, don't forget to increment object number for sessions
 form_data = {'HTTP_REFERER':REQUEST.get('lastest_referer', None)}
 for field in context.schema.values():
@@ -75,10 +75,10 @@ ref = reference_object.UID()
 
 # If the field is multiValued, we must pass the existing
 # references in addition to the new one.
-if field.multiValued:
-    existing = tuple(accessor())
-    ref = (ref,)
-    ref = existing and ref + existing or ref
+#if field.multiValued:
+#    existing = tuple(accessor())
+#    ref = (ref,)
+#    ref = existing and ref + existing or ref
 
 # set a reference to the newly-created object
 # ANDRE: and if I cancel the newly-created object?
@@ -93,7 +93,6 @@ for k, v in info.items():
         env[k].append(v)
     else:
         env[k] = [v]
-
 
 return state.set(
     status='created',

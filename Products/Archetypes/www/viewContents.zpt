@@ -30,7 +30,7 @@
 	  </td>
 	<td tal:content="python: object.getObject().title_or_id()"/>
 	<td>	
-	    <a href="#" tal:attributes="href string:${here/absolute_url}/manage_inspect?UID=${object/UID}">Inspect</a>
+	    <a href="#" tal:attributes="href string:${here/absolute_url}/manage_inspect	?UID=${object/UID}">Inspect</a>
 	</td>	
 	</tal:condition>
 	</tr>

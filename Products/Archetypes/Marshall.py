@@ -1,11 +1,10 @@
-from types import StringType, ListType, TupleType
-
-from Products.Archetypes.interfaces.marshall import IMarshall
-from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.debug import log
-
 from Acquisition import aq_base
+from interfaces.marshall import IMarshall
+from interfaces.layer import ILayer
+from interfaces.base import IBaseUnit
+from StringIO import StringIO
+from types import StringType, ListType, TupleType
+from debug import log
 from OFS.content_types import guess_content_type
 
 class Marshaller:
@@ -44,6 +43,7 @@ class Marshaller:
         pass
 
 class PrimaryFieldMarshaller(Marshaller):
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)

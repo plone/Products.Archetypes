@@ -11,14 +11,14 @@
 
 	<metal:header_macro define-macro="header">
 	  <h1 tal:content="title_string|here/title_or_id" />
-          <div metal:use-macro="here/document_actions/macros/document_actions">
-              Document actions (print, sendto etc)
-          </div>
+	  <div metal:use-macro="here/document_actions/macros/document_actions">
+	    Document actions (print, sendto etc)
+	  </div>
 	</metal:header_macro>
 
 	<metal:body_macro metal:define-macro="body"
 			  tal:define="field_macro field_macro|here/widgets/field/macros/view;"
-			  tal:repeat="field python:here.Schema().filterFields(lambda field:field.schemata !='metadata')">
+			  tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
 	  <tal:if_visible define="mode string:view;
 			  visState python: field.widget.isVisible(here, mode);"
 			  condition="python: visState == 'visible'">

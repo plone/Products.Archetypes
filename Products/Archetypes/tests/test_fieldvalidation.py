@@ -24,14 +24,14 @@ class MyValidator:
 validation.register(MyValidator('v1', lambda val:val))
 # always validates
 validation.register(MyValidator('v2', lambda val:1))
-
-class FakeType(BaseObject):
-    def unicodeEncode(self, v): return v # don't
+# never validates
+validation.register(MyValidator('v3', lambda val:[]))
 
 settings = [
-    {'field': {},
+    {'field': {}, # this is the dict of field properties
      'value': None,
-     'assertion': lambda result:result is None},
+     'assertion': lambda result:result is None, # result of field.validate()
+     }, 
 
     {'field': {'required': 1},
      'value': None,
@@ -67,27 +67,35 @@ for req in 0,1:
          'assertion': lambda result:result is not None}
         )
 
+class FakeType(BaseObject):
+    def unicodeEncode(self, v): return v # don't
 
-class TestFieldValidation(ArchetypesTestCase):
-
+class TestSettings(ArchetypesTestCase):
     def afterSetUp(self):
         ArchetypesTestCase.afterSetUp(self)
         self.instance = FakeType('fake')
 
-    def beforeTearDown(self):
-        ArchetypesTestCase.beforeTearDown(self)
-
     def testSettings(self):
         for setting in settings:
-            errors = {}
             field = Field('orchestra', **setting['field'])
-            result = field.validate(setting['value'], self.instance,
-                                    errors, field=field)
+            result = field.validate(setting['value'], self.instance, errors={})
             msg = 'Assertion failed for setting:\n%s.\nResult was "%s".' % \
                   (setting, result)
             
             self.assert_(setting['assertion'](result),
                          setting.get('failmsg', msg))
+
+class TestValidation(ArchetypesTestCase):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
+        self.instance = FakeType('fake')
+
+    def testIntegerZeroInvalid(self):
+        # attach a validator that never validates, so any value must fail
+        field = IntegerField('integer', validators=('v3',))
+
+        self.assert_(field.validate(1, self.instance, errors={}) is not None)
+        self.assert_(field.validate(0, self.instance, errors={}) is not None)
 
 if __name__ == '__main__':
     framework()
@@ -97,5 +105,6 @@ else:
     import unittest
     def test_suite():
         suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(TestFieldValidation))
+        suite.addTest(unittest.makeSuite(TestSettings))
+        suite.addTest(unittest.makeSuite(TestValidation))
         return suite

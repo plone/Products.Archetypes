@@ -10,7 +10,7 @@
     <metal:view_macro define-macro="view" />
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body" />
       </metal:use>
     </metal:define>

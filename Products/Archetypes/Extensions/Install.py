@@ -3,7 +3,7 @@ from Products.Archetypes.public import listTypes
 from Products.Archetypes.Extensions.utils import installTypes, setupEnvironment
 from StringIO import StringIO
 
-def install(self, include_demo=None, require_dependencies=1):
+def install(self, include_demo=None):
     out=StringIO()
 
     if not hasattr(self, "_isPortalRoot"):
@@ -12,12 +12,10 @@ def install(self, include_demo=None, require_dependencies=1):
 
     if include_demo or INSTALL_DEMO_TYPES:
         print >> out, "Installing %s" % listTypes(PKG_NAME)
-        installTypes(self, out, listTypes(PKG_NAME), PKG_NAME,
-                     require_dependencies=require_dependencies)
+        installTypes(self, out, listTypes(PKG_NAME), PKG_NAME)
         print >> out, 'Successfully installed the demo types.'
     else:
-        setupEnvironment(self, out, [], PKG_NAME,
-                         require_dependencies=require_dependencies)
+        setupEnvironment(self, out, [], PKG_NAME)
 
     print >> out, 'Successfully installed %s' % PKG_NAME
 

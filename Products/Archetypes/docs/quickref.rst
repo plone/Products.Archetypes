@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2004/04/01 12:31:47 $
-:Version: $Revision: 1.10.10.1 $
+:Date: $Date: 2004/03/08 14:46:58 $
+:Version: $Revision: 1.10.2.1 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -212,21 +212,14 @@ validators
   One of the `Validators`_. You can also create your own validator.
 
 index
-  A string specifying the kind of index to create on a catalog for this field. By default, indexes are created in portal_catalog, 
-  but an alternative catalog may be used by beginning the string with the catalog name and a trailing slash: ``member_catalog/FieldIndex``. 
-
-  To include in catalog metadata, append ``:brains``, as in ``FieldIndex:brains``. You can specify
+  A string specifying the kind of index to create on
+  ``portal_catalog`` for this field. To include in catalog metadata,
+  append ``:schema``, as in ``FieldIndex:schema``. You can specify
   another field type to try if the first isn't available by using the
-  ``|`` character. All three combinations can be used together,   as in::
+  ``|`` character. Both combinations can be used together, as in::
 
     ...
-    index="member_catalog/TextIndex|FieldIndex:brains",
-    ...
-   
-   To inject an index into multiple catalog, specify each index specification in a tuple.
-
-    ...
-    index=("TextIndex|FieldIndex:brains","member_catalog/TextIndex|FieldIndex:brains")
+    index="TextIndex|FieldIndex:schema",
     ...
 
 schemata

@@ -1,26 +1,26 @@
 import sha
 
-from Products.Archetypes import registerType
-from Products.Archetypes.BaseContent import BaseContent
-from Products.Archetypes.interfaces.base import IBaseContent
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.Field import *
-from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schemata
-from Products.Archetypes.ClassGen import ClassGenerator, Generator
-from Products.Archetypes.debug import log
-from Products.Archetypes.ClassGen import _modes
-
 from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
 from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
-from DateTime import DateTime
-from Globals import InitializeClass
-
 from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
      _verifyActionPermissions
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore import CMFCorePermissions
+from Products.Archetypes import registerType
+from Products.Archetypes.BaseContent import BaseContent
+from Products.Archetypes.interfaces.base import IBaseContent
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.Field       import *
+from Products.Archetypes.Widget      import *
+from Products.Archetypes.Schema import Schemata
+from Products.Archetypes.ClassGen import ClassGenerator, Generator
 
+from Globals import InitializeClass
+
+from Products.Archetypes.debug import log
+from DateTime import DateTime
+
+from Products.Archetypes.ClassGen import _modes
 
 class VarClassGen(ClassGenerator):
 
