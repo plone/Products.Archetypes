@@ -3,23 +3,16 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
-
   <head><title></title></head>
-
   <body>
 
-    <div class="field" metal:define-macro="view">
-      <metal:block define-slot="widget_label">
-      </metal:block>
-      <metal:block use-macro="here/widgets/field/macros/view">
-        <metal:block fill-slot="widget_view"
-                     tal:define="vocab python:field.Vocabulary(here);
-                                 value python:accessor();
-                                 display python:here.displayValue(vocab, value);">
-          <span tal:replace="structure display" />
-        </metal:block>
-      </metal:block>
-    </div>
+<!-- Picklist Widgets -->
+
+    <metal:view_macro define-macro="view"
+		      tal:define="vocab python:field.Vocabulary(here);
+		      value python:accessor();
+		      display python:here.displayValue(vocab, value);"
+		      tal:replace="structure display" />
 
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
@@ -72,14 +65,16 @@
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')">
 
-                  <option tal:repeat="item vocab"
-                          selected="selected"
-                          tal:define="label python:vocab.getValue(item)"
-                          tal:condition="python:test(here.unicodeTestIn(item, value), 1, 0)"
-                          tal:attributes="value item;"
-                          tal:content="label">
-                    option
-                  </option>
+                  <tal:block tal:repeat="vocab_item vocab">
+                    <option
+                      tal:define="label python:vocab.getValue(vocab_item)"
+                      tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 1, 0)"
+                      tal:attributes="value vocab_item;"
+                      tal:content="label" 
+		      selected="selected">
+                      option
+                    </option>
+                  </tal:block>
                 </select>
               </td>
             </tr>
