@@ -30,20 +30,35 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
-DEPS = ('CMFCore', 'CMFDefault', 'CMFCalendar', 'CMFTopic',
-        'DCWorkflow', 'CMFActionIcons', 'CMFQuickInstallerTool',
-        'CMFFormController',  'ZCTextIndex', 'TextIndexNG2',
-        'MailHost', 'PageTemplates', 'PythonScripts', 'ExternalMethod',
-        )
-DEPS_PLONE = ('GroupUserFolder', 'SecureMailHost', 'CMFPlone',)
-DEPS_OWN = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
+# Use either plain CMF or Plone to run the portal tests
+# You have to install:
+#  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
+#  * Plone and PloneTestCase for Plone tests
+USE_PLONETESTCASE = False
+
+if not USE_PLONETESTCASE:
+    # setup is installing some required products
+    import Products.CMFTestCase.setup
+    # install the rest manually
+    ZopeTestCase.installProduct('CMFCalendar')
+    ZopeTestCase.installProduct('CMFTopic')
+    ZopeTestCase.installProduct('DCWorkflow')
+    ZopeTestCase.installProduct('CMFActionIcons')
+    ZopeTestCase.installProduct('CMFQuickInstallerTool')
+    ZopeTestCase.installProduct('CMFFormController')
+    ZopeTestCase.installProduct('ZCTextIndex')
+    ZopeTestCase.installProduct('PageTemplates', quiet=1)
+    ZopeTestCase.installProduct('PythonScripts', quiet=1)
+    ZopeTestCase.installProduct('ExternalMethod', quiet=1)
+else:
+    # setup is installing all required products
+    import Products.PloneTestCase.setup
+
+DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
 
-default_user = ZopeTestCase.user_name
-default_role = 'Member'
-
 # install products
-for product in DEPS + DEPS_OWN:
+for product in DEPS_AT:
     ZopeTestCase.installProduct(product)
 
 # Fixup zope 2.7+ configuration
@@ -65,6 +80,9 @@ class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests
     """
     __implements__ = Functional.__implements__ + ATTestCase.__implements__ 
+
+default_user = ZopeTestCase.user_name
+default_role = 'Member'
     
-__all__ = ('default_user', 'default_role', 'ATTestCase',
+__all__ = ('USE_PLONETESTCASE', 'default_user', 'default_role', 'ATTestCase',
            'ATFunctionalTestCase', )

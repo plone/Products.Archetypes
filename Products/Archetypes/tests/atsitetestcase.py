@@ -30,21 +30,32 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 
 from Testing.ZopeTestCase.functional import Functional
-from Products.CMFTestCase import CMFTestCase
-from Products.CMFTestCase.setup import portal_name, portal_owner
 from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.attestcase import USE_PLONETESTCASE
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 
-# setup a CMF site 
-CMFTestCase.setupCMFSite()
+if not USE_PLONETESTCASE:
+    from Products.CMFTestCase import CMFTestCase
+    from Products.CMFTestCase.setup import portal_name
+    from Products.CMFTestCase.setup import portal_owner
+    # setup a CMF site 
+    CMFTestCase.setupCMFSite()
+    PortalTestClass = CMFTestCase.CMFTestCase
+else:
+    from Products.PloneTestCase import PloneTestCase
+    from Products.PloneTestCase.setup import portal_name
+    from Products.PloneTestCase.setup import portal_owner
+    # setup a Plone site 
+    PloneTestCase.setupPloneSite()
+    PortalTestClass = PloneTestCase.PloneTestCase
 
-class ATSiteTestCase(CMFTestCase.CMFTestCase, ATTestCase):
+class ATSiteTestCase(PortalTestClass, ATTestCase):
     """AT test case inside a CMF site
     """
     
-    __implements__ = CMFTestCase.CMFTestCase.__implements__ + \
+    __implements__ = PortalTestClass.__implements__ + \
                      ATTestCase.__implements__
     
     def login(self, name=ZopeTestCase.user_name):
@@ -128,8 +139,10 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         get_transaction().commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
 
+# Install Archetypes
 app = ZopeTestCase.app()
 setupArchetypes(app)
 ZopeTestCase.close(app)
 
-__all__ = ('ATSiteTestCase', 'ATFunctionalSiteTestCase', )
+__all__ = ('ATSiteTestCase', 'ATFunctionalSiteTestCase', 'portal_name',
+           'portal_owner')

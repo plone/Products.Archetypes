@@ -139,7 +139,7 @@ class PortalCopyTests(ATSiteTestCase):
         get_transaction().commit(1)
 
         self.failUnless(hasattr(aq_base(self.app), 'copy_of_%s' % portal_name))
-        self.newportal = self.app.copy_of_cmf
+        self.newportal = getattr(self.app, 'copy_of_%s' % portal_name)
         # check if we really have new portal!
         self.failIf(aq_base(self.newportal) is aq_base(self.portal))
         self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
@@ -159,7 +159,7 @@ class PortalCopyTests(ATSiteTestCase):
         get_transaction().commit(1)
 
         self.failUnless(hasattr(aq_base(self.app), portal_name))
-        self.newportal = self.app.cmf
+        self.newportal = getattr(self.app, portal_name)
 
         self.failUnless(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document

@@ -1,4 +1,5 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: ISO-8859-1 -*-
+# XXX change encoding to UTF-8
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
