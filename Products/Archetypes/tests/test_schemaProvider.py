@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.5 2004/04/01 02:24:47 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.6 2004/04/01 23:53:05 bcsaller Exp $
 """
 
 import os, sys
@@ -222,8 +222,39 @@ class SchemaProviderTests(ArcheSiteTestCase):
         mutator('monkeybutter')
         assert accessor() == 'monkeybutter'
         assert str(mt.storage[z.UID()]['FieldA']) == 'monkeybutter'
-        
 
+    def test_FormProcessing(self):
+        site = self.getPortal()
+        at = site.archetype_tool
+        x = makeContent(site, "SimpleFolder", 'x')
+        z = makeContent(x, "SimpleType", 'z')
+        
+        SchemaA = Schema((TextField('FieldA', widget=StringWidget(description="desc", label="label")),))
+        at.provideSchema(x, SchemaA)
+        z.setSchemaCollector('acquisition')
+
+        schema = z.Schema()
+        assert schema['FieldA']
+
+        se = z.getSchemaEditor()
+        # we want to test that with the correct form data we would mutate fieldA to something
+        # different
+        #set a value into FieldA
+        f = schema['FieldA']
+        f.getMutator(z)('lard')
+
+        data = {
+            'FieldA_ftype' : 'Products.Archetypes.Field.StringField',
+            'FieldA_wtype' : 'Products.Archetypes.Widget.EpozWidget',
+            }
+        se.process_form(data)
+        f = schema['FieldA']
+        
+        assert str(f.getAccessor(z)()) == 'lard'
+        assert f.widget.Label(z) == 'label'
+        assert f.widget.Description(z) == 'desc'
+                         
+        
 if __name__ == '__main__':
     framework()
 else:
