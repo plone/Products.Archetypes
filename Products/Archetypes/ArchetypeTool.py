@@ -140,7 +140,10 @@ def fixActionsForType(portal_type, typesTool):
             #Update Aliases
             if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                 if hasattr(portal_type,'aliases'):
-                    typeInfo.setMethodAliases(portal_type.aliases)
+                    # XXX raises an error with archetypes examples
+                    #typeInfo.setMethodAliases(portal_type.aliases)
+                    pass
+                    
             
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = 1
