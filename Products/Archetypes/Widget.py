@@ -89,7 +89,7 @@ class ReferenceWidget(TypesWidget):
         
         'addable' : 0, # create createObject link for every addable type
         'destination' : None, # may be name of method on instance or string.
-                              # destination is where createObject is invoked
+                              # destination is relative to portal root
         })
 
     def addableTypes(self, instance, field):
@@ -109,15 +109,15 @@ class ReferenceWidget(TypesWidget):
 
     def getDestination(self, instance):
         if not self.destination:
-            return aq_parent(instance).absolute_url()
+            purl = getToolByName(instance, 'portal_url')
+            return purl.getRelativeUrl(aq_parent(instance))
         else:
-            portal_url = instance.portal_url()
             value = getattr(aq_base(instance), self.destination,
                             self.destination)
             if callable(value):
                 value = value()
 
-            return portal_url + value
+            return value
 
 
 class ComputedWidget(TypesWidget):
