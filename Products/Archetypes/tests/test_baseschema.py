@@ -27,13 +27,20 @@ from Products.validation import ValidationChain
 EmptyValidator = ValidationChain('isEmpty')
 EmptyValidator.appendSufficient('isEmpty')
 
-class BaseSchemaTest(ArchetypesTestCase):
+class BaseSchemaTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
+        portal = self.portal
+        dummy = Dummy(oid='dummy')
+        # put dummy in context of portal
+        dummy = dummy.__of__(portal)
+        portal.dummy = dummy
+        
+        dummy.initializeArchetype()
+        self._dummy = dummy
+        
 
     def test_id(self):
         dummy = self._dummy
