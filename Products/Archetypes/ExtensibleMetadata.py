@@ -311,6 +311,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
+
     def _effective_date(self):
         """Computed attribute accessor
         """

@@ -410,6 +410,7 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
+
         if type(key) is IntType:
             deprecated('Using ints as DisplayList keys is deprecated (msgid)')
         if type(key) not in (StringType, UnicodeType, IntType):
