@@ -81,7 +81,7 @@
              <label for="" 
                     tal:attributes="for string:${fieldName}_nochange;" 
                     i18n:translate="nochange_image">
-                    no change
+                    Don't change
              </label>
              <br/>
             <input class="noborder"
@@ -96,7 +96,7 @@
              <label for="" 
                     tal:attributes="for string:${fieldName}_delete;" 
                     i18n:translate="delete_image">
-                    delete current image
+                    Delete current image
              </label><br />
             <input class="noborder"
                    type="radio"
@@ -110,7 +110,7 @@
                     tal:attributes="for string:${fieldName}_upload;
                                     " 
                     i18n:translate="upload_image">
-                    upload new image:
+                    Replace with new image:
              </label>
              <div style="padding-left:1.5em;padding-top:0.5em;">
                 <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
