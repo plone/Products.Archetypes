@@ -757,7 +757,7 @@ class ImageField(ObjectField):
             imgdata=value
 
         image = Image(self.name, self.name, imgdata, mime_type)
-        image.filename = value.filename
+        image.filename = hasattr(value, 'filename') and value.filename or ''
         ObjectField.set(self, instance, image, **kwargs)
 
         # now create the scaled versions
