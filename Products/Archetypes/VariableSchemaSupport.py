@@ -81,7 +81,7 @@ class VariableSchemaSupport:
         for f in schema.fields():
             sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, self)
 
         return schemata
 
