@@ -20,15 +20,6 @@ from DateTime import DateTime
 
 from test_classgen import Dummy as BaseDummy
 
-try:
-    __file__
-except NameError:
-    # Test was called directly, so no __file__ global exists.
-    _prefix = abspath(curdir)
-else:
-    # Test was called by another test.
-    _prefix = abspath(dirname(__file__))
-
 fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
@@ -40,9 +31,9 @@ field_instances = []
 for name in fields:
     field_instances.append(getattr(Field, name)(name.lower()))
 
-txt_file = open(join(_prefix, 'input', 'rest1.rst'))
+txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
-img_file = open(join(_prefix, 'input', 'tool.gif'))
+img_file = open(join(PACKAGE_HOME, 'input', 'tool.gif'))
 img_content = img_file.read()
 
 field_values = {'objectfield':'objectfield',

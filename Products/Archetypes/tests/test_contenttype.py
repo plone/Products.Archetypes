@@ -13,15 +13,6 @@ from test_classgen import Dummy, gen_dummy, default_text
 
 from Products.Archetypes.public import *
 
-try:
-    __file__
-except NameError:
-    # Test was called directly, so no __file__ global exists.
-    _prefix = abspath(curdir)
-else:
-    # Test was called by another test.
-    _prefix = abspath(dirname(__file__))
-
 
 class ContentTypeTest( ArchetypesTestCase ):
 
@@ -55,7 +46,7 @@ class ContentTypeTest( ArchetypesTestCase ):
                          'text/plain')
 
     def test_textfielduploadwithoutmime(self):
-        file = open(join(_prefix, "input", "rest1.tgz"), 'r')
+        file = open(join(PACKAGE_HOME, "input", "rest1.tgz"), 'r')
         obj = self._dummy
         obj.setAtextfield(file)
         file.close()
@@ -84,7 +75,7 @@ class ContentTypeTest( ArchetypesTestCase ):
                          'text/plain')
 
     def test_filefielduploadwithoutmime(self):
-        file = open(join(_prefix, "input", "rest1.tgz"), 'r')
+        file = open(join(PACKAGE_HOME, "input", "rest1.tgz"), 'r')
         obj = self._dummy
         obj.setAfilefield(file)
         file.close()

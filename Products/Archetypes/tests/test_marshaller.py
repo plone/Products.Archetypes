@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.5.6.1 2004/05/13 15:59:16 shh42 Exp $
+$Id: test_marshaller.py,v 1.5.6.2 2004/05/31 17:19:46 shh42 Exp $
 """
 
 import os, sys
@@ -31,14 +31,6 @@ from os import curdir
 from os.path import join, abspath, dirname, split
 import urllib
 
-try:
-    __file__
-except NameError:
-    # Test was called directly, so no __file__ global exists.
-    _prefix = abspath(curdir)
-else:
-    # Test was called by another test.
-    _prefix = abspath(dirname(__file__))
 
 def aputrequest(file, content_type):
     resp = HTTPResponse(stdout=sys.stdout)
@@ -57,7 +49,7 @@ class MarshallerTests(ArcheSiteTestCase):
         #test that uploading to an existing object works
         obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
-        wordFilePath = join(_prefix, "input", "word.doc")
+        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -77,7 +69,7 @@ class MarshallerTests(ArcheSiteTestCase):
         ## And again with an RST
         obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
-        rstFilePath = join(_prefix, "input", "rest1.rst")
+        rstFilePath = join(PACKAGE_HOME, "input", "rest1.rst")
         rstFile = open(rstFilePath, 'r')
         data = rstFile.read()
         rstFile.seek(0)
@@ -95,7 +87,7 @@ class MarshallerTests(ArcheSiteTestCase):
         #test that uploading to an existing object works
         obj1 = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
 
-        wordFilePath = join(_prefix, "input", "word.doc")
+        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -130,7 +122,7 @@ class MarshallerTests(ArcheSiteTestCase):
         ctr = self.setupCTR()
 
         #now trigger the creation of a content type akin to DAV
-        wordFilePath = join(_prefix, "input", "word.doc")
+        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
 
         obj = self.folder.PUT_factory('test', 'application/msword', wordFile)
