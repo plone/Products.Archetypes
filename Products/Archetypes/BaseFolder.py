@@ -92,7 +92,7 @@ class BaseFolderMixin(CatalogMultiplex,
             if not mt.checkPermission(CMFCorePermissions.DeleteObjects, item):
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
-        SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
+        return SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
     security.declareProtected(CMFCorePermissions.ListFolderContents,
                               'listFolderContents')

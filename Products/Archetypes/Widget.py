@@ -211,9 +211,10 @@ class ReferenceWidget(TypesWidget):
             for regType in tool.listTypeInfo():
                 if typeinfo.globalAllow():
                     searchFor.append(regType.getId())
-                elif regType.filter_content_types and \
-                    typeinfo.getId() in regType.allowed_content_types:
-                    searchFor.append(regType.getId())
+                elif regType.filter_content_types and regType.allowed_content_types:
+                    act_dict = dict([ (act, 0) for act in regType.allowed_content_types ])
+                    if act_dict.has_key(typeinfo.getId()):
+                        searchFor.append(regType.getId())
 
         catalog = getToolByName(purl, 'portal_catalog')
         containers = []
