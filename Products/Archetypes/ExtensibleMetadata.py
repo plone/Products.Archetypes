@@ -155,7 +155,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             accessor='created',
             mutator='setCreationDate',
-            languageIndependent = True,
+            languageIndependent=True,
+            isMetadata=True,
             widget=CalendarWidget(
                 label="Creation Date",
                 description=("Date this object was created"),
@@ -170,6 +171,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor='modified',
             mutator = 'setModificationDate',
             languageIndependent = True,
+            isMetadata=True,
             widget=CalendarWidget(
                 label="Modification Date",
                 description=("Date this content was modified last"),
