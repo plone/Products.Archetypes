@@ -4,6 +4,7 @@ title = Edit
 [validators]
 validators = validate_base
 validators..form_add =
+validators..cancel =
 
 [actions]
 action.success = traverse_to:string:content_edit
