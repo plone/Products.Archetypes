@@ -1,8 +1,10 @@
+from AccessControl import ClassSecurityInfo
+from Products.CMFCore  import CMFCorePermissions
 from Schema import Schema
 from Field import I18NStringField, I18NTextField
 from Widget import TextAreaWidget, StringWidget
 from Storage import MetadataStorage
-from Products.CMFCore import CMFCorePermissions
+from BaseObject import BaseObject
 
 i18n_schema = Schema((
     I18NStringField('title',
@@ -32,13 +34,14 @@ i18n_schema = Schema((
 
 
 class I18NMixin:
-    """ handle :
+    """ I18NMixin for content objects
+
+    handle :
       _ methods specific to objects with I18N content
       _ I18N title and description
       _ I18N related actions
     """
     schema = i18n_schema
-
     actions = ({ 'id': 'translate',
                  'name': 'Translate',
                  'action': 'portal_form/base_translation',
@@ -50,31 +53,47 @@ class I18NMixin:
                  'permissions': (CMFCorePermissions.ModifyPortalContent,),
                  },
                )
+
+    security = ClassSecurityInfo()
+    
+    # we need to override some Dublin Core methods to make them works cleanly i18nized
+    
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
     def setDescription(self, text, mimetype=None, lang=None):
+        "Dublin Core element - resource summary"
         descr_field = self.Schema()['description']
         if text or descr_field.getRaw(self):
             # FIXME: pb if we try to call set before the object was added
             # (try to access to the mimetypes tool)
             descr_field.set(self, text, mimetype=mimetype, lang=lang)
         
+    security.declarePublic('Description')
     def Description(self):
+        "Dublin Core element - resource summary"
         descr_field = self.Schema()['description']
         return descr_field.get(self)
     
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
     def setTitle(self, text, mimetype=None, lang=None):
+        "Dublin Core element - resource name"
         title_field = self.Schema()['title']
         if text or title_field.getRaw(self):
             # FIXME: pb if we try to call set before the object was added
             # (try to access to the mimetypes tool)
             title_field.set(self, text, lang=lang)
         
+    security.declarePublic('Title')
     def Title(self):
+        "Dublin Core element - resource name"
         title_field = self.Schema()['title']
         return title_field.get(self)
+
+    # i18n content management method ##########################################
     
+    security.declarePublic('getFilteredLanguages')
     def getFilteredLanguages(self, REQUEST=None):
         """return a list of all existant languages for this instance
-        each language is a tupe (id, label)
+        each language is a tuple (id, label)
         """
         langs = {}
         for field in self.Schema().values():
@@ -89,6 +108,7 @@ class I18NMixin:
                 continue
         return result
 
+    security.declarePublic('getMasterLanguage')
     def getMasterLanguage(self):
         """return the id for the master language"""
         if getattr(self, '_master_language', None) is not None:
@@ -99,6 +119,7 @@ class I18NMixin:
         except AttributeError:
             return 'en'
 
+    security.declarePublic('getTranslationState')
     def getTranslationState(self, lang=None):
         """return the string describing the translation state"""
         lang = self.getContentLanguage(lang)
@@ -109,6 +130,7 @@ class I18NMixin:
                 return "master translation"
             return ''
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'manage_translations')
     def manage_translations(self, REQUEST=None, **kwargs):
         """delete given translations or set the master translation"""
         if not kwargs:
@@ -135,6 +157,7 @@ class I18NMixin:
 
     # path / url redirection methods ##########################################
     
+    security.declarePublic('needLanguageRedirection')
     def needLanguageRedirection(self):
         """notify that the language as changed, so a redirection is needed to
         make the correct language appears in the url
@@ -158,22 +181,24 @@ class I18NMixin:
 
     def __bobo_traverse__(self, REQUEST, name):
         """
-        This will make this container traversable
+        allow access to different translations of the object by adding the lang
+        code to its url
         """
-        if not hasattr(self, '_no_lang_traversal'):
-            self._no_lang_traversal = 0
-        target = getattr(self, name, None)
+        # FIXME: beurk
+        
+        target = BaseObject.__bobo_traverse__(self, REQUEST, name)
         if target is not None:
             return target
-        else:
-            # is it a given translation
-            try:
-                self.languageDescription(name)
-                if not self._no_lang_traversal:
-                    self.setCurrentLanguage(name, redirect=0)
-                return self
-            except:
-                # this is not a valid language id
-                pass
-        REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
+        # FIXME : backward compat
+        if not hasattr(self, '_need_redirect'):
+            self._need_redirect = 0
+        # is it a given translation
+        try:
+            self.languageDescription(name)
+            if not self._need_redirect:
+                self.setCurrentLanguage(name, redirect=0)
+            return self
+        except:
+            # this is not a valid language id
+            REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 

@@ -14,7 +14,7 @@ from types import FileType
 import operator
 
 from Schema import Schema, Schemata
-from Field import StringField
+from Field import StringField, TextField
 from Widget import IdWidget, StringWidget
 from utils import DisplayList
 from interfaces.base import IBaseObject
@@ -137,6 +137,11 @@ class BaseObject(Implicit):
         elif mimetype and mimetype.find('text') >= 0:
             return 0
         return 1
+
+    security.declareProtected(CMFCorePermissions.View, 'isTransformable')
+    def isTransformable(self, name):
+        field = self.getField(name)
+        return isinstance(field, TextField)  or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", **kwargs):
@@ -322,6 +327,7 @@ class BaseObject(Implicit):
 
         form_keys = form.keys()
         base_lang = self.getContentLanguage()
+        # FIXME put this out of BaseObject
         if self.hasI18NContent():
             # FIXME : update existant objects, remove latter
             if not hasattr(self, '_translations_states'):
@@ -545,5 +551,70 @@ class BaseObject(Implicit):
         if not date:
             date = self.modified()
         return date.ISO()
+
+    # subobject access ########################################################
+    #
+    # some temporary objects could be set by fields (for instance additional
+    # images that may result from the transformation of a pdf field to html)
+    #
+    # those objects are specific to a session
+    
+    def addSubObjects(self, objects, REQUEST=None):
+        """add a dictionnary of objects to session variable
+        """
+        if REQUEST is None:
+            REQUEST = self.REQUEST
+        key = self.absolute_url()
+        session = REQUEST.SESSION
+        defined = session.get(key, {})
+        defined.update(objects)
+        session[key] = defined
+
+    def getSubObject(self, name, REQUEST, RESPONSE=None):
+        """add a dictionnary of objects to session variable
+        """
+        try:
+            data = REQUEST.SESSION[self.absolute_url()][name]
+        except AttributeError:
+            return
+        except KeyError:
+            return
+        mtr = self.mimetypes_registry
+        mt = mtr.classify(data, filename=name)
+        return Wrapper(data, name, mt or 'application/octet')
+
+    def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
+        """ transparent access to session subobjects 
+        """
+        # is it a registered sub object
+        data = self.getSubObject(name, REQUEST, RESPONSE)
+        if data is not None:
+            return data
+        # or a standard attribute (maybe acquired...)
+        target = getattr(self, name, None)
+        if target is not None:
+            return target
+        if RESPONSE is not None:
+            RESPONSE.notFoundError("%s\n%s" % (name, ''))
+        
+
+class Wrapper:
+    """wrapper object for access to sub objects """
+    def __init__(self, data, filename, mimetype):
+        self._data = data
+        self._filename = filename
+        self._mimetype = mimetype
+        
+    def __call__(self, REQUEST=None, RESPONSE=None):
+        if RESPONSE is None:
+            RESPONSE = REQUEST.RESPONSE
+        if RESPONSE is not None:
+            mt = self._mimetype
+            name =self._filename
+            print 'SET HEADERS !!', mt,name
+            RESPONSE.setHeader('Content-type', str(mt))
+            RESPONSE.setHeader('Content-Disposition',
+                               'inline;filename=%s' % name)
+        return self._data
 
 InitializeClass(BaseObject)

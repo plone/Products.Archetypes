@@ -76,15 +76,16 @@ class newBaseUnit(File):
                 cache.setCache(mt, data)
 
         if data:
-            data = data.getData()
-            if type(data) == DictType and data.has_key('html'):
-                return data['html']
-            return data
+            assert idatastream.isImplementedBy(data)
+            _data = data.getData()
+            instance.addSubObjects(data.getSubObjects())
+            return _data
 
-        #XXX debug
+        # we have not been able to transform data
+        # return the raw data if it's not binary data
         registry = getToolByName(instance, 'mimetypes_registry')
         mt = registry.lookup(mt)
-        if mt and mt[0].binary:
+        if mt and not mt[0].binary:
             return self.raw
 
         return None
