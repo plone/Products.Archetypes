@@ -18,8 +18,8 @@
                    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                    tabindex python:Iterator();
                    schematas here/Schemata;
-                   masterLang here/getMasterLanguage;
                    currentLang here/getCurrentLanguage;
+                   masterLang python:here.hasI18NContent() and here.getMasterLanguage() or currentLang;
                    dummy python: currentLang != masterLang and here.setCurrentLanguage(lang=masterLang,old_lang=currentLang,referer=0);
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
