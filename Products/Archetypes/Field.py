@@ -537,15 +537,10 @@ class TextField(ObjectField):
             return str(value)
 
         data = value.transform(instance, mimetype, cache=1)
-        if not data:
+        if not data and mimetype != 'text/plain':
             data = value.transform(instance, 'text/plain', cache=1)
         if not data:
             return ''
-
-        if idatastream.isImplementedBy(data):
-            data = data.getData()
-        if type(data) == type({}) and data.has_key('html'):
-            return data['html']
         return data
 
 
