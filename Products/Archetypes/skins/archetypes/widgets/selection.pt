@@ -8,41 +8,44 @@
 
 <!-- Selection Widgets -->
 
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor"/>
-	</div>
-      </div>
-    </div>
+    <metal:define define-macro="view">
+    <metal:use use-macro="here/widgets/field/macros/view">
+    <metal:fill fill-slot="widget_view"> 
+        <span tal:replace="structure accessor"/>
+	</metal:fill>
+    </metal:use>
+    </metal:define>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body" 
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body" 
 	  tal:define="	  
 	  vocab python:field.Vocabulary(here);
 	  vlen  python: len(vocab);
 	  ">
-	  <div tal:condition="python: vlen < 4">
+	<tal:shortVocab condition="python: vlen < 4">
 	    <!-- Radio when the vocab is short < 4 -->
-	    <span tal:repeat="item vocab" 
-	      tal:omit-tag="">
-	      <input class="noborder"
-		     tabindex=""
-		     type="radio"
-		     tal:attributes="name fieldName; 
+        <tal:radios repeat="item vocab">
+	        <input class="noborder"
+		           tabindex=""
+		           type="radio"
+		           tal:attributes="name fieldName; 
 		checked python: str(value) == str(item); 
 		value python:str(item);
-		tabindex tabindex/next;"
-		/><span tal:content="python: vocab.getValue(item)"/>
-		<br />
-		</span>
-		
-	  </div>
-	  <!-- Pulldown when longer -->
-	  <div tal:condition="python: vlen >= 4">
+        tabindex tabindex/next;
+        onfocus string:formtooltip('${fieldName}_help',1);
+        onblur string:formtooltip('${fieldName}_help',0);"
+        /><span tal:replace="python: vocab.getValue(item)"/><br />
+		</tal:radios>
+    </tal:shortVocab>
+
+    <tal:longVocab condition="python: vlen >= 4">
+        <!-- Pulldown when longer -->
 	    <select tal:attributes="name fieldName; id fieldName;
-	      tabindex tabindex/next;">
+            tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
+            ">
 	      <option 
 		      selected=""
 		      tal:repeat="item vocab"
@@ -50,11 +53,11 @@
 		tal:content="python: vocab.getValue(item)"
 		/> 
 	    </select>
-	  </div>
+	</tal:longVocab>
 	  
-	</div>
-      </div>
-    </div>
+	</metal:fill>
+    </metal:use>
+    </metal:define>
   </body>
   
 </html>
