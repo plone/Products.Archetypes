@@ -1,6 +1,22 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Updated the requirements to Zope 2.7.4+. It may work with older versions of
+   Zope 2.7.4 but due some serious memory leaks and some important bug fixes
+   you should really use Zope 2.7.4!
+   [tiran]
+
+ * Backported CMFTestCase/PloneTestCase based test suite from AT 1.4 branch to
+   AT 1.3. The unit test suite of AT 1.3 was horrible. Yeah you are allowed to
+   beat me up but in excuse I must say it was first try in using ZopeTestCase.
+   I've learned my lessons. In order to run the unit tests you have to install
+   either CMF 1.4.7 + CMFTestCase + ZopeTestCase or Plone 2.0.5 + PloneTestCase
+   + ZopeTestCase. For now only the CVS versions from sf.net collective are
+   working properly.
+   To run the unit tests go into the root of your testing instance and run:
+   ZOPE_HOME/bin/test.py -v -C etc/zope.conf --libdir Products/Archetypes/
+   [tiran]
+
  * Fixed [ 1103955 ] ObjectManager raises (usually) AttributeError
    [dmaurer]
 

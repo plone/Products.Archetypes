@@ -30,11 +30,11 @@ Features
 
 Requires
 
-  * Plone 2.0+
+  * Plone 2.0.4+
 
   * CMF 1.4.7+
 
-  * Zope 2.7.4+
+  * Zope 2.7.4+ (may work with Zope 2.7.0+)
 
   * CMFFormController 1.0.3-beta+
 
@@ -44,13 +44,23 @@ Requires
   
   * PortalTransforms
 
+  * generator
+
+  * validation
+
   * MimetypesRegistry
 
-  * Marshall
+  * docutils > 0.3.3 (see notes)
 
-  * For unit testing: ZopeTestCase and CMFTestCase from collective's cvs.
+  **Note:** Installing generator and validation as Python packages is no
+  longer supported by Archetypes. If they are installed as Python packages,
+  they will be silently ignored.
 
-  **Note:** You should remove the deprecated generator and validation products.
+  Note to docutils: You have to install a new version of docutils for Zope 2.7.0!
+  Zope 2.7.1+ will be shipped with docutils 0.3.3. You can download docutils at
+  http://docutils.sf.net/. Either you have to remove
+  ZOPE_HOME/lib/python/docutils after installing docutils or you have to replace
+  Zope's version by docutils 0.3.3+.
 
 Quickstart
 
@@ -65,6 +75,18 @@ Quickstart
   3. Create an external method, module Archetypes.Install, function: install
 
   4. Run it
+
+Unit testing
+
+ * Install ZopeTestCase into ZOPE_HOME/lib/python/Testing
+ 
+ * Install the PloneTestCase product
+
+ * Go into the root of your instance and run 
+   ZOPE_HOME/bin/test.py -v -C etc/zope.conf --libdir Products/Archetypes/
+
+ You can find ZopeTestCase and PloneTestCase at http://sf.net/projects/collective/
+ For now you have to get the cvs versions!
 
 Documentation
 
