@@ -9,7 +9,10 @@
                    dummy python:here.at_isEditable(fields);
                    portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
                    type_name here/getPortalTypeName|here/archetype_name;
+                   use_preload python:getattr(here,'USE_PRELOAD_SCHEMATA_UI',0)==1;
                    base_macros here/edit_macros/macros;
+                   base_macros2 here/edit_macros/macros;
+                   base_macros python:test(use_preload,base_macros2,base_macros);
                    edit_template python:'%s_edit' % portal_type;
                    edit_macros python:path('here/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;
@@ -39,6 +42,12 @@
   </metal:head>
   
   <metal:head fill-slot="javascript_head_slot">
+
+    <script type="text/javascript" charset="iso-8859-1"
+            tal:condition="use_preload"
+            tal:attributes="src string:$portal_url/preload_js.js">
+    </script>
+
     <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
