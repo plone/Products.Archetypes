@@ -271,15 +271,17 @@ class BaseObject(Implicit):
             if field.searchable != 1:
                 continue
             method = getattr(self, field.accessor)
-            if field.hasI18NContent():
-                for lang_id in field.getDefinedLanguages(self):
-                    datum = text_data(method, lang_id)
-                    if datum:
-                        data.append(datum)
-            else:
-                datum = text_data(method)
-                if datum:
-                    data.append(datum)
+            try:
+                datum =  method(mimetype="text/plain")
+            except TypeError:
+                # retry in case typeerror was raised because accessor doesn't
+                # handle the mimetype argument
+                try:
+                    datum =  method()
+                except:
+                    datum =  ''
+            if datum:
+                data.append(datum)
 
         data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
@@ -594,22 +596,6 @@ class BaseObject(Implicit):
             setattr(self, name, value)
             return
         raise ValueError, 'name = %s, value = %s' % (name, value)
-
-
-def text_data(accessor, lang_id=None):
-    """return plain text data from an accessor"""
-    if lang_id is not None:
-        try:
-            return accessor(lang=lang_id, mimetype="text/plain")
-        except TypeError:
-            # retry in case typeerror was raised because accessor doesn't
-            # handle the mimetype argument
-            try:
-                return method(lang=lang_id)
-            except:
-                return ''
-        except:
-            return ''
 
 
 InitializeClass(BaseObject)
