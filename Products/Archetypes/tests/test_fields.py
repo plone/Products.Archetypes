@@ -18,6 +18,7 @@ from Products.Archetypes import fields
 from Products.Archetypes.fields import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
+from Products.CMFTestCase.setup import portal_name
 
 test_fields = [
           ('ObjectField', 'objectfield'),
@@ -70,8 +71,8 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="portal/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
-                   'photofield':'<img src="portal/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name, # this only works for Plone b/c of monkeypatch
+                   'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name}
 
 empty_values = {'objectfield':None,
                    'stringfield':'',
@@ -99,12 +100,12 @@ class sampleInterfaceVocabulary:
     __implements__ = IVocabulary
     def getDisplayList(self, instance):
         return sampleDisplayList
- 
+
 class Dummy(BaseContentMixin):
     def Title(self):
-        # required for ImageField 
+        # required for ImageField
         return 'Spam'
-    
+
     def aMethod(self):
         return sampleDisplayList
 
@@ -147,11 +148,11 @@ class ProcessingTest(ArcheSiteTestCase):
 ##        request.form.update(field_values)
 ##        dummy.REQUEST = request
 ##        dummy.processForm(data=1)
-##        
+##
 ##        request.form.update(empty_values)
 ##        dummy.REQUEST = request
 ##        dummy.processForm(data=1)
-##        
+##
 ##        for k, v in empty_values.items():
 ##            got = dummy.Schema()[k].get(dummy)
 ##            if isinstance(got, (File)) and not got.data:
@@ -229,14 +230,14 @@ class ProcessingTest(ArcheSiteTestCase):
 
         # Default
         self.failUnlessEqual(field.Vocabulary(), DisplayList())
-        # DisplayList  
+        # DisplayList
         field.vocabulary = sampleDisplayList()
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
-        # List  
-        field.vocabulary = ['e1', 'element2'] 
+        # List
+        field.vocabulary = ['e1', 'element2']
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
-        # 2-Tuples  
-        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
+        # 2-Tuples
+        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
 
     def test_dynamic_vocabulary(self):
@@ -249,14 +250,14 @@ class ProcessingTest(ArcheSiteTestCase):
         # Method
         field.vocabulary = 'aMethod'
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # DisplayList  
+        # DisplayList
         field.vocabulary = sampleDisplayList()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # List  
-        field.vocabulary = ['e1', 'element2'] 
+        # List
+        field.vocabulary = ['e1', 'element2']
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
-        # 2-Tuples  
-        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')] 
+        # 2-Tuples
+        field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
         # Interface
         field.vocabulary = sampleInterfaceVocabulary()

@@ -13,6 +13,7 @@ First, we are going to setup an environment so we can test that stuff
 is acquired or not acquired at the right times.
 
   >>> from Testing.ZopeTestCase import user_name, user_password
+  >>> from Products.CMFTestCase.setup import portal_name
   >>> self.setRoles(['Manager'])
 
   >>> self.portal.invokeFactory('DDocument', 'test_document',
@@ -30,11 +31,8 @@ XML-RPC
 XML-RPC is basically a ``POST`` with content-type text/xml. It should
 be allowed to acquire content from higher-level hierarchies:
 
-  >>> print self.portal.title_or_id()
-  portal
-
   >>> print http(r"""
-  ... POST /portal HTTP/1.0
+  ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml
   ...
@@ -45,7 +43,7 @@ be allowed to acquire content from higher-level hierarchies:
   ... </params>
   ...
   ... </methodCall>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...portal...
 
@@ -56,7 +54,7 @@ be allowed to acquire content from higher-level hierarchies:
   Root Document
 
   >>> print http(r"""
-  ... POST /portal HTTP/1.0
+  ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml
   ...
@@ -67,7 +65,7 @@ be allowed to acquire content from higher-level hierarchies:
   ... </params>
   ...
   ... </methodCall>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -75,7 +73,7 @@ be allowed to acquire content from higher-level hierarchies:
   False
 
   >>> print http(r"""
-  ... POST /portal HTTP/1.0
+  ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml
   ...
@@ -86,7 +84,7 @@ be allowed to acquire content from higher-level hierarchies:
   ... </params>
   ...
   ... </methodCall>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -94,7 +92,7 @@ be allowed to acquire content from higher-level hierarchies:
   False
 
   >>> print http(r"""
-  ... POST /portal HTTP/1.0
+  ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml
   ...
@@ -105,7 +103,7 @@ be allowed to acquire content from higher-level hierarchies:
   ... </params>
   ...
   ... </methodCall>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -116,12 +114,12 @@ For testing Browser access, we are going to just try using the ``GET``
 method instead.
 
   >>> print self.portal.title_or_id()
-  portal
+  Portal
 
   >>> print http(r"""
-  ... GET /portal/title_or_id HTTP/1.0
+  ... GET /%s/title_or_id HTTP/1.0
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...portal...
 
@@ -132,9 +130,9 @@ method instead.
   Root Document
 
   >>> print http(r"""
-  ... GET /portal/test_document/title_or_id HTTP/1.0
+  ... GET /%s/test_document/title_or_id HTTP/1.0
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -142,9 +140,9 @@ method instead.
   False
 
   >>> print http(r"""
-  ... GET /portal/simple_folder/test_document/title_or_id HTTP/1.0
+  ... GET /%s/simple_folder/test_document/title_or_id HTTP/1.0
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -152,9 +150,9 @@ method instead.
   False
 
   >>> print http(r"""
-  ... GET /portal/simple_btree_folder/test_document/title_or_id HTTP/1.0
+  ... GET /%s/simple_btree_folder/test_document/title_or_id HTTP/1.0
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.0 200 OK
   ...Root Document...
 
@@ -167,7 +165,7 @@ content, because that would completely break creation of content
 through WebDAV.
 
   >>> print http(r"""
-  ... PROPFIND /portal/test_document HTTP/1.1
+  ... PROPFIND /%s/test_document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml; charset="utf-8"
   ... Depth: 0
@@ -177,12 +175,12 @@ through WebDAV.
   ...      xmlns:zope="http://www.zope.org/propsets/default">
   ...      <DAV:prop><zope:title/></DAV:prop>
   ...   </DAV:propfind>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 207 Multi-Status
   ...Root Document...
 
   >>> print http(r"""
-  ... PROPFIND /portal/simple_folder/test_document HTTP/1.1
+  ... PROPFIND /%s/simple_folder/test_document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml; charset="utf-8"
   ... Depth: 0
@@ -192,12 +190,12 @@ through WebDAV.
   ...      xmlns:zope="http://www.zope.org/propsets/default">
   ...      <DAV:prop><zope:title/></DAV:prop>
   ...   </DAV:propfind>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 404 Not Found
   ...
 
   >>> print http(r"""
-  ... PROPFIND /portal/simple_btree_folder/test_document HTTP/1.1
+  ... PROPFIND /%s/simple_btree_folder/test_document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/xml; charset="utf-8"
   ... Depth: 0
@@ -207,7 +205,7 @@ through WebDAV.
   ...      xmlns:zope="http://www.zope.org/propsets/default">
   ...      <DAV:prop><zope:title/></DAV:prop>
   ...   </DAV:propfind>
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 404 Not Found
   ...
 
@@ -228,13 +226,13 @@ Create a CTR predicate to map any content to ``DDocument``:
   >>> ctr.reorderPredicate(p_id, 0)
 
   >>> print http(r"""
-  ... PUT /portal/simple_folder/test_document HTTP/1.1
+  ... PUT /%s/simple_folder/test_document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/plain; charset="utf-8"
   ... Depth: 0
   ...
   ... Simple Folder Document Content
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
@@ -250,13 +248,13 @@ Create a CTR predicate to map any content to ``DDocument``:
   <BLANKLINE>
 
   >>> print http(r"""
-  ... PUT /portal/simple_btree_folder/test_document HTTP/1.1
+  ... PUT /%s/simple_btree_folder/test_document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/plain; charset="utf-8"
   ... Depth: 0
   ...
   ... BTree Folder Document Content
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
@@ -282,13 +280,13 @@ AT-based folder.
   None
 
   >>> print http(r"""
-  ... PUT /portal/simple_folder/index_html HTTP/1.1
+  ... PUT /%s/simple_folder/index_html HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/plain; charset="utf-8"
   ... Depth: 0
   ...
   ... Simple Folder Index
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
@@ -310,13 +308,13 @@ Now for a BTreeFolder:
   None
 
   >>> print http(r"""
-  ... PUT /portal/simple_btree_folder/index_html HTTP/1.1
+  ... PUT /%s/simple_btree_folder/index_html HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/plain; charset="utf-8"
   ... Depth: 0
   ...
   ... Simple BTree Folder Index
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
@@ -338,9 +336,9 @@ Creating folders should work the same way. And the newly created folder
 should be of the same kind as the parent:
 
   >>> print http(r"""
-  ... MKCOL /portal/simple_folder/simple_folder HTTP/1.1
+  ... MKCOL /%s/simple_folder/simple_folder HTTP/1.1
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
@@ -349,9 +347,9 @@ should be of the same kind as the parent:
   SimpleFolder
 
   >>> print http(r"""
-  ... MKCOL /portal/simple_btree_folder/simple_btree_folder HTTP/1.1
+  ... MKCOL /%s/simple_btree_folder/simple_btree_folder HTTP/1.1
   ... Authorization: Basic %s:%s
-  ... """ % (user_name, user_password))
+  ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 201 Created
   ...
 

@@ -44,14 +44,14 @@ class CutPasteCopyPasteTests(ArcheSiteTestCase):
 from Testing.ZopeTestCase.ZopeTestCase import user_name
 
 class PortalCopyTests(ArcheSiteTestCase):
-    
+
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
         self.setRoles(['Manager',])
-        
+
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')
         self._image = open(imgpath).read()
-        
+
         portal = self.getPortal()
 
         portal.invokeFactory('DDocument', id='document')
@@ -62,20 +62,20 @@ class PortalCopyTests(ArcheSiteTestCase):
     def _test_doc(self, doc):
         bodyfield = doc.getField('body')
         imagefield = doc.getField('image')
-        
+
         self.failUnlessEqual(doc.getContentType(), 'text/x-rst')
-        
+
         self.failUnlessEqual(doc.getRawBody(), 'testdata')
         self.failUnless(doc.getImage().data, self._image)
-        
+
         self.failUnless(bodyfield.getContentType(doc), 'text/x-rst')
-        
+
     def test_created_doc(self):
         portal = self.getPortal()
         self.failUnless(portal, 'document')
         doc = portal.document
         self._test_doc(doc)
-        
+
     def test_clone_portal(self):
         app = self.app
         user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
@@ -83,13 +83,13 @@ class PortalCopyTests(ArcheSiteTestCase):
         app.manage_clone(self.getPortal(), 'newportal')
         noSecurityManager()
         get_transaction().commit(1)
-        
+
         self.failUnless(hasattr(aq_base(app), 'newportal'))
         self.newportal = app.newportal
         # check if we really have new portal!
         self.failIf(aq_base(self.newportal) is aq_base(self.portal))
         self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
-        
+
         self.failUnless(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
@@ -103,13 +103,13 @@ class PortalCopyTests(ArcheSiteTestCase):
 
         noSecurityManager()
         get_transaction().commit(1)
-        
-        self.failUnless(hasattr(aq_base(self.app), 'copy_of_portal'))
-        self.newportal = self.app.copy_of_portal
+
+        self.failUnless(hasattr(aq_base(self.app), 'copy_of_%s' % portal_name))
+        self.newportal = self.app.copy_of_cmf
         # check if we really have new portal!
         self.failIf(aq_base(self.newportal) is aq_base(self.portal))
         self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
-        
+
         self.failUnless(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
@@ -124,9 +124,9 @@ class PortalCopyTests(ArcheSiteTestCase):
         noSecurityManager()
         get_transaction().commit(1)
 
-        self.failUnless(hasattr(aq_base(self.app), 'portal'))
-        self.newportal = self.app.portal
-       
+        self.failUnless(hasattr(aq_base(self.app), portal_name))
+        self.newportal = self.app.cmf
+
         self.failUnless(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
