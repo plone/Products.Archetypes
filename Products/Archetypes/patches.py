@@ -32,12 +32,22 @@ PortalFolder._notifyOfCopyTo = _notifyOfCopyTo
 ##############################################################################
 # patch 2:
 # module aliases for persistence
+import sys
 
-# XXX TODO
-# archetype tool
-# archetype ttw tool
-# reference catalog
-# uid catalog
-# reference objects
+# import list of modules
+from Products.Archetypes.tool import archetypetool
+from Products.Archetypes.tool import ttwtool
+from Products.Archetypes.refengine import engine
+from Products.Archetypes.refengine import references
 
+# alias mapping
+mapping = {
+    'Products.Archetypes.ArchetypeTool'   : archetypetool,
+    'Products.Archetypes.ArchTTWTool'     : ttwtool,
+    'Products.Archetypes.ReferenceEngine' : engine,
+    'Products.Archetypes.references'      : references,
+    }
 
+# create aliases from dottedpath to module
+for dottedpath, module in mapping.keys():
+    sys.modules[dottedpath] = module
