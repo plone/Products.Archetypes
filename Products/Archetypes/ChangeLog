@@ -1,5 +1,7 @@
 2003-09-04  Sidnei da Silva  <sidnei@plone.org>
 
+	* Marshall.py (RFC822Marshaller.marshall): And more marshalling fixes.
+
 	* BaseObject.py (BaseObject.__getitem__): Avoid breakage when
 	fields dont take **kw.
 
