@@ -20,6 +20,7 @@
       <textarea  
 		tabindex="#"
 		tal:attributes="name fieldName;
+	id fieldName;
 	value value;
 	cols widget/cols;
 	rows widget/rows;
@@ -35,7 +36,7 @@
     
     <div metal:define-macro="area_format">
       <div tal:omit-tag="" 
-	tal:define="contentType python:here.getContentType(fieldName);
+	tal:define="contentType python:request.get('%s_text_format' % fieldName, here.getContentType(fieldName));
 	mimetypes python: getattr(field, 'allowable_content_types', ());"
 	tal:condition="python: len(mimetypes) > 1">
 	<div class="label">Text Format</div>

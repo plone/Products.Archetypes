@@ -20,7 +20,7 @@
 	<div metal:fill-slot="widget_body">
 	  <div class="group">
 	    <div tal:replace="structure value"/>
-	      <br/>
+	      <br/><br/>
 	    <div metal:use-macro="here/widgets/file/macros/file_edit"/>
 	      
 	    </div>

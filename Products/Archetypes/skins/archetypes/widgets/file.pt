@@ -24,17 +24,17 @@
 	name string:${fieldName}_file;
 	tabindex tabindex/next;" 
 	/>
-	<div tal:omit-tag="" tal:define="unit accessor"
-	  tal:condition="python: hasattr(unit, 'isUnit')">      
+	<div tal:omit-tag="" tal:define="unit accessor;
+	  binary python: here.isBinary(fieldName);">
 	  <div tal:condition="python: binary == 1"
-	    tal:define="size unit/get_size;
-	    icon unit/getIcon;"
+	    tal:define="size unit/get_size | python: 0;
+	    icon unit/getIcon | nothing;"
 	    >
 	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
-	      <img src="" tal:attributes="src
+	      <img tal:condition="icon" src="" tal:attributes="src
 	      string:${here/portal_url}/${icon}"/>Download <span
 	      tal:replace="fieldName"/>
-	    </a> (<span tal:content="value/filename"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
+	    </a> (<span tal:content="value/filename|nothing"/> <span tal:content="python: str(size /1024) + 'Kb'">0Kb</span>)
 	    
 	    <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
 	      tal:define="edit here/edit.gif">
@@ -46,8 +46,8 @@
 
     <div metal:define-macro="edit">
       <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body"
-	  tal:define="binary python: here.isBinary(fieldName);"
+	<div metal:fill-slot="widget_body">
+
 	  >
 	  <metal:block metal:use-macro="here/widgets/file/macros/file_edit"/>
 	</div>
