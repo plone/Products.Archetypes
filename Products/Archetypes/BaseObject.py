@@ -341,10 +341,18 @@ class BaseObject(Implicit):
                     datum =  method()
                 except:
                     continue
+
             if datum:
                 type_datum = type(datum)
+                vocab = field.Vocabulary(self)
                 if type_datum is type([]) or type_datum is type(()):
+                    # Unmangle vocabulary: we index key AND value
+                    vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
+                    datum.extend(vocab_values)
                     datum = ' '.join(datum)
+                elif type_datum in (type(''), type(u''), ):
+                    datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
+                    
                 # FIXME: we really need an unicode policy !
                 if type_datum is type(u''):
                     datum = datum.encode(charset)
