@@ -4,8 +4,8 @@ Schema Provider Design
 
 :Author: Benjamin Saller
 :Contact: bcsaller@objectrealms.net
-:Date: $Date: 2004/04/20 04:43:35 $
-:Version: $Revision: 1.1.2.3 $
+:Date: $Date: 2004/04/20 15:37:16 $
+:Version: $Revision: 1.1.2.4 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 This is the design for the schema provider model, an abstraction to allow
@@ -53,6 +53,11 @@ UC5 We have UC4 situation and then wish to modify an instance of such a composit
 
 UC6 An object w/o a schema can have one provided to it as an
 annotation on it through an adapter or interceptor
+
+UC7 We want to define a totally new type TTW. Add a type (select from
+existing schema as building blocks (BaseSchema for example)) and then
+add in new fields.
+
 
 Use Case Comments
 ------------------------------

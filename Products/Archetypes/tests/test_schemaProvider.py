@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.8 2004/04/20 04:43:36 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.9 2004/04/20 15:37:16 bcsaller Exp $
 """
 
 import os, sys
@@ -188,7 +188,6 @@ class SchemaProviderTests(ArcheSiteTestCase):
 
         assert y.Schema() == DDocumentSchema
         assert z.Schema()['FieldA']
-
 
     def test_Editor(self):
         site = self.getPortal()

@@ -6,7 +6,7 @@ from Acquisition import Implicit
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Schema.Editor import SchemaEditor
 from Persistence import Persistent
-
+from ZODB.PersistentMapping import PersistentMapping
 
 from types import StringTypes, ListType, TupleType
 import md5
@@ -17,7 +17,7 @@ class SchemaProvider(Persistent):
 
     def __init__(self):
         self._schemaPolicy = ArchetypesCollectionPolicy()
-        self._schema   = None
+        self._schemaCache = PersistentMapping()
 
     ## Schema Provider Hooks
     ##
@@ -26,26 +26,31 @@ class SchemaProvider(Persistent):
         return SchemaEditor(self.Schema(), self)
 
 
+    def _getSchemaCache(self):
+        return self._schemaCache
 
     def _getSchema(self):
         """return the schema associated with this instance"""
-        #if hasattr(self, '_v_schema'): return self._v_schema
         # PHASE: Collect
         # using the policy
         schemaSources = self._schemaPolicy.collect(self)
         ### XXX Each axis should hand back a token that we can
         ## resubmit to validate our cache, but I will punt now
         ## and do full composite. Fake something for now
-
+        if self._schemaPolicy.validate(self, schemaSources):
+            print "HIT"
+            return self.schema
 
         # PHASE: Composite
         # we cache to avoid doing this...
         # this should also keep the relative ordering of fields
         schema = self._schemaPolicy.compose(self, schemaSources)
         # PHASE: Cache
+        cache = self._getSchemaCache()
+        for source in schemaSources:
+            cache[source.axis.getId()] = source.axis.timestamp
+
         self.schema = schema #we will cache persistently
-        # but for now if its in the _v then its good
-        self._v_schema = schema
         return schema
 
     def Schema(self):

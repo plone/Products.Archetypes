@@ -6,6 +6,7 @@ from copy import deepcopy
 from types import StringType, StringTypes
 from md5 import md5
 from DateTime import DateTime
+import datetime
 from StringIO import StringIO
 
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
@@ -918,6 +919,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # fields with its key in this axis (as a function of the axis)
         schema = schema.copy()
         axis.provide(memento, schema, *args, **kwargs)
+        axis.timestamp = datetime.datetime.now()
 
     ## Memento Code
     def _getAxisMemento(self, axis):

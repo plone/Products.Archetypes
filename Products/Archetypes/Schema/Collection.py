@@ -7,6 +7,7 @@ from sets import Set
 from types import ListType
 from Schema import Schema
 from Source import SchemaSource
+import datetime
 
 # Global Strategy Registration Interfaces
 _v_strategies = {}
@@ -45,8 +46,13 @@ class CollectionAxisManager(Persistent):
     Collect Schema along a given axis - indicated by name
     """
 
+    def __init__(self):
+        self.timestamp = datetime.datetime.now()
+
+
     def getId(self):
         return self.__name__
+
     def setId(self, name):
         self.__name__ = name
 
@@ -78,9 +84,11 @@ class CollectionAxisManager(Persistent):
 
     def annotate(self, schema, provider):
         """mark a field with enough info to find its provider later"""
+        # We only do this on schema copies so we can annotate
+        # everything here
         for field in schema.fields():
             field.provider = provider
-
+        schema.provider = provider
 
 
 class NullCollector(CollectionAxisManager):
@@ -235,6 +243,10 @@ class CollectorPolicy(Persistent):
         """return a schema... your schema..."""
         pass
 
+    def validate(self, object, sources):
+        """Given an object and a  set of sources determine if our
+        cached schema is valid"""
+        return False
 
 
 class ArchetypesCollectionPolicy(CollectorPolicy):
@@ -298,3 +310,17 @@ class ArchetypesCollectionPolicy(CollectorPolicy):
 
 
         return schema
+
+    def validate(self, object, sources):
+        # We will say that any change on the axis
+        at = getToolByName(object, TOOL_NAME)
+        cache = object._getSchemaCache()
+        for source in sources:
+            ts = cache.get(source.axis.getId())
+            if ts != source.axis.timestamp: return False
+
+        return True
+
+
+
+
