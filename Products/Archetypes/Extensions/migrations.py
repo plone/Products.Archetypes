@@ -2,8 +2,7 @@ from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.Extensions.utils import install_catalog
-from Products.Archetypes.Extensions.utils import install_referenceCatalog
+from Products.Archetypes.Extensions.utils import install_uidcatalog
 from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
@@ -33,7 +32,7 @@ def fixArchetypesTool(portal, out):
     if not hasattr(at, 'catalog_map'):
         at.catalog_map = PersistentMapping()
 
-    install_catalog(portal, out)
+    install_uidcatalog(portal, out)
 
 
 def migrateReferences(portal, out):
