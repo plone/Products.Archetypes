@@ -2,6 +2,7 @@
 
 	* skins/archetypes/base_edit.pt: Show 'default' schemata when
 	there is more than one.
+	Ops. That wasn't quite it. Fixed accordingly now.
 
 	* skins/archetypes/widgets/multiselection.pt: <input> can't have
 	tal:content. I guess it should be value, so changed it to that. It
