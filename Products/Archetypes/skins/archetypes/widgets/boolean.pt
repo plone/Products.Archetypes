@@ -43,8 +43,8 @@
 		 tabindex=""
 		 tal:attributes="tabindex tabindex/next;
 		 name string:${fieldName}_visible;
-		 onClick string:toggle_boolean('${fieldName}_checkbox', '${fieldName}_hidden');; return true;
-		 id string:${fieldName}_checkbox;
+		 onClick string:toggle_boolean('${fieldName}', '${fieldName}_hidden');; return true;
+		 id fieldName;
 		 checked python:str(value) == '1';"
 		 />
 
