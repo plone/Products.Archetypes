@@ -37,9 +37,12 @@ install: build
 	dh_clean -k
 	dh_installdirs
 	
-	python2.1 setup.py -q install --no-compile --root=debian/python2.1-generator
-	python2.2 setup.py -q install --no-compile --root=debian/python2.2-generator
-	python2.3 setup.py -q install --no-compile --root=debian/python2.3-generator
+	python2.1 setup.py -q install_lib --no-compile --install-dir=debian/python2.1-generator/usr/lib/python2.1/site-packages/
+	python2.1 setup.py -q install_headers --install-dir=debian/python2.1-generator/usr/include/
+	python2.2 setup.py -q install_lib --no-compile --install-dir=debian/python2.2-generator/usr/lib/python2.2/site-packages/
+	python2.2 setup.py -q install_headers --install-dir=debian/python2.2-generator/usr/include/
+	python2.3 setup.py -q install_lib --no-compile --install-dir=debian/python2.3-generator/usr/lib/python2.3/site-packages/
+	python2.3 setup.py -q install_headers --install-dir=debian/python2.3-generator/usr/include/
 	
 	
 	
@@ -51,7 +54,6 @@ binary-indep: build install
 	dh_testdir
 	dh_testroot
 	dh_install
-	
 	
 	
 	
@@ -73,7 +75,6 @@ binary-arch: build install
 	dh_testdir 
 	dh_testroot 
 	dh_install
-	
 	
 	
 	

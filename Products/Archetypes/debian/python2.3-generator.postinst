@@ -4,8 +4,7 @@
 # Written 1998 by Gregor Hoffleit <flight@debian.org>.
 #
 VERSION=2.3
-PACKAGE=python2.3-generator
-DIRLIST="/usr/lib/python$VERSION/site-packages"
+DIRLIST="/usr/lib/python$VERSION/site-packages/generator"
 
 
 
@@ -22,8 +21,6 @@ case "$1" in
         exit 1
     ;;
 esac
-
-
 
 
 
