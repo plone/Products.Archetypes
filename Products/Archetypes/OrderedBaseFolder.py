@@ -2,7 +2,7 @@
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 
-$Id: OrderedBaseFolder.py,v 1.4 2003/11/17 10:10:29 yenzenz Exp $
+$Id: OrderedBaseFolder.py,v 1.5 2003/11/17 23:56:06 tiran Exp $
 """
 
 from AccessControl import ClassSecurityInfo, Permissions
@@ -270,7 +270,6 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     def __init__(self, oid, **kwargs):
         #call skinned first cause baseobject will set new defaults on
         #those attributes anyway
-        OrderedFolder.__init__(self, oid, self.Title())
         BaseFolder.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
