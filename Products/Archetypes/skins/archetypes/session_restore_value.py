@@ -1,4 +1,12 @@
+## Script (Python) "session_save_form"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
 ##parameters=fieldName,default
+##title=Return field value previously stored on session by session_save_form
+##
 id = context.getId()
 SESSION = context.REQUEST.SESSION
 session_data = None

@@ -41,9 +41,6 @@ fieldset = REQUEST.get('fieldset', 'default')
 field = context.Schemata()[fieldset][add_reference['field']]
 
 destination = add_reference.destination
-#destination = field.widget.getDestination(context)
-#if hasattr(add_reference, 'destination'):
-#    destination = add_reference.destination
 
 # get the portal object
 portal = context.portal_url.getPortalObject()

@@ -1,12 +1,19 @@
+## Script (Python) "session_save_form"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Introspect context schema and saves on session REQUESTs values 
+##
 REQUEST = context.REQUEST
 # hey, don't forget to increment object number for sessions
-form_data = {'HTTP_REFERER':REQUEST.get('lastest_referer', None)}
+form_data = {'HTTP_REFERER':REQUEST.get('referrer', None)}
 to_store = [f for f in context.schema.values() if f.type != 'computed']
 for field in to_store:
     fieldname = field.getName()
-    # is there other way to know if field is KeywordWidget here?
-    # this is so ugly :~/
-    if field.widget.macro == 'widgets/keyword':
+    if field.widget.getName() == 'KeywordWidget':
         fieldname = '%s_keywords' % field.getName()
         data = []
         if REQUEST.has_key(fieldname):

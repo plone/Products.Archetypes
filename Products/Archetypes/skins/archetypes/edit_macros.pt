@@ -166,12 +166,12 @@
             </tal:env>
 
             <tal:comment replace="nothing">
-              Stores lastests referer to remember where to go back
+              Store referrer to remember where to go back
             </tal:comment>
             <input type="hidden"
-                   name="lastest_referer"
-                   tal:define="referer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
-                   tal:attributes="value python:referer and referer or here.aq_parent.absolute_url()"
+                   name="referrer"
+                   tal:define="referrer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
+                   tal:attributes="value python:referrer and referrer or here.aq_parent.absolute_url()"
                    />
 
             <metal:block define-slot="buttons"

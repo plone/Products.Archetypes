@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind state=state
 ##bind subpath=traverse_subpath
-##parameters=lastest_referer
+##parameters=referrer
 ##title=Go Back
 ##
 SESSION = context.REQUEST.SESSION
@@ -18,7 +18,7 @@ if old_id in cflag.keys():
     portal_status_message=context.translate(
         msgid='message_edit_item_cancelled',
         domain='archetypes',
-        default='Add new item operation was cancelled, object was removed')
+        default='Add new item operation was cancelled, object was removed.')
 elif hasattr(context, 'isTemporary'):
     portal_status_message=context.translate(
         msgid='message_add_new_item_cancelled',
@@ -28,10 +28,10 @@ else:
     portal_status_message=context.translate(
         msgid='message_edit_item_cancelled',
         domain='archetypes',
-        default='Item edition was cancelled')
+        default='Item edition was cancelled.')
 
 kwargs = {
-    'next_action':'redirect_to:string:%s' % lastest_referer,
+    'next_action':'redirect_to:string:%s' % referrer,
     'portal_status_message':portal_status_message,
     }
 
