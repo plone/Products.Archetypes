@@ -62,6 +62,7 @@ from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
