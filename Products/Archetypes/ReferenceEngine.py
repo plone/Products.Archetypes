@@ -449,7 +449,12 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     def addReference(self, source, target, relationship=None,
                      referenceClass=None, **kwargs):
         sID, sobj = self._uidFor(source)
+        if not sID or sobj is None:
+            raise ReferenceException('Invalid source UID')
+
         tID, tobj = self._uidFor(target)
+        if not tID or tobj is None:
+            raise ReferenceException('Invalid target UID')
 
         objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
         if objects:
