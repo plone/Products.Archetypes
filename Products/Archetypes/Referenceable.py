@@ -11,6 +11,7 @@ from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
+from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
@@ -25,7 +26,8 @@ from AccessControl import ClassSecurityInfo
 #include graph supporting methods
 from ref_graph import get_cmapx, get_png
 
-class Referenceable(Base):
+
+class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
@@ -195,30 +197,19 @@ class Referenceable(Base):
         Get a UID
         (Called when the object is created or moved.)
         """
+        isCopy = getattr(item, '_v_is_cp', None)
+        if isCopy:
+            setattr(self, config.UUID_ATTR, None)
+            self._delReferenceAnnotations()
+
         ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
         self._updateCatalog(container)
         self._referenceApply('manage_afterAdd', item, container)
 
     def manage_afterClone(self, item):
+        """XXX dummy method
         """
-        Get a new UID (effectivly dropping reference)
-        (Called when the object is cloned.)
-        """
-        uc = getToolByName(self, config.UID_CATALOG)
-
-        if not shasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
-            #if the object has no UID or the UID already exists, get a new one
-            setattr(self, config.UUID_ATTR, None)
-        
-        # remove annotations from current object
-        # It's required because we want to loose all references on a copy/clone
-        # operation but an annotation object would resurrect the references.
-        self._delReferenceAnnotations()
-
-        self._register()
-        self._updateCatalog(self)
-
 
     def manage_beforeDelete(self, item, container):
         """
@@ -301,6 +292,11 @@ class Referenceable(Base):
                 rc.uncatalog_object(url)
 
     # CopyPaste hack
+    def _getCopy(self, container):
+        ob = CopySource._getCopy(self, container)
+        ob._v_is_cp = 1
+        return ob
+
     def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
         because in those cases we need to keep refs"""
@@ -345,3 +341,5 @@ class Referenceable(Base):
         return get_png(self)
 
 InitializeClass(Referenceable)
+
+

@@ -88,6 +88,12 @@
    inspection it seems like we *SHOULD NOT* raise a notFoundError, but instead,
    return None and leave acquisition do it's job.
    [dreamcatcher]
+
+ * Fixed [ 1011111 ] mishandling of UID W.R.T layers.
+   The reference engine is now using _getCopy() mark the copy of an object with
+   a marker _v_is_cp so manage_afterAdd() can detect copies in order to reassign
+   a new UUID and remove the reference annotations.
+   [bcsaller, rochael]
   
 
 1.3.0-rc1 - 2004-08-16

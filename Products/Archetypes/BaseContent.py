@@ -37,7 +37,7 @@ class BaseContentMixin(CatalogMultiplex,
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        BaseObject.manage_afterClone(self, item)
+##        BaseObject.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
