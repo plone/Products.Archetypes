@@ -192,13 +192,15 @@ def install_types(self, out, types, package_name):
         sp = getattr(pt, 'site_properties', None)
         if sp is None:
             return
-        folders = sp.getProperty('use_folder_tabs', None)
-        if folders is None:
-            return
-        folders = list(folders)
-        folders.extend(folderish)
-        folders = tuple(dict(zip(folders, folders)).keys())
-        sp._updateProperty('use_folder_tabs', folders)
+        props = ('use_folder_tabs', 'typesLinkToFolderContentsInFC')
+        for prop in props:
+            folders = sp.getProperty(prop, None)
+            if folders is None:
+                continue
+            folders = list(folders)
+            folders.extend(folderish)
+            folders = tuple(dict(zip(folders, folders)).keys())
+            sp._updateProperty(prop, folders)
 
 
 def install_actions(self, out, types):
