@@ -1,3 +1,8 @@
+2003-04-12  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (PrimaryFieldMarshaller.marshall): Fixing a broken
+	import plus moving interface declaration to interfaces subdir.
+
 2003-04-08  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* ArchetypeTool.py (process_types): changed the module level fti
