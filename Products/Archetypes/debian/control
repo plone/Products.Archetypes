@@ -7,7 +7,7 @@ Standards-Version: 3.6.0
 
 Package: zope-cmfarchetypes
 Architecture: all
-Depends: zope, zope-cmfplone, python2.1-validation, python2.1-generator, zope-cmftransforms
+Depends: zope (>= 2.6.2), zope-cmfplone, python2.2-validation, python2.2-generator, zope-cmftransforms
 Description: A developers framework for rapidly developing and deploying rich, full featured content types within the context of Zope/CMF and Plone
  Archetypes
  Formerly known as CMFTypes, Archetypes is a developers framework
@@ -28,6 +28,8 @@ Description: A developers framework for rapidly developing and deploying rich, f
  * Integration with rich content sources such as Office Product Suites.
  * Full automatic form generation
  * i18n content on a field basis
- 
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+
 
 
