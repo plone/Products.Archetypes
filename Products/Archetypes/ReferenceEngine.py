@@ -55,7 +55,6 @@ class Reference(SimpleItem):
         if brains:
             return brains[0].getObject()
         else:
-            self.aq_parent._deleteReferenceId(self.getId())
             return None
 
     def getTargetObject(self):
@@ -64,7 +63,6 @@ class Reference(SimpleItem):
         if brains:
             return brains[0].getObject()
         else:
-            self.aq_parent._deleteReferenceId(self.getId())
             return None
 
     ###
@@ -288,7 +286,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             brains = uid_catalog(UUID=uuid)
             obj = brains[0].getObject()
 
-        return uuid, object
+        return uuid, obj
 
     def _getUUIDFor(self, object):
         """generate and attach a new uid to the object returning it"""
