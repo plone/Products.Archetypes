@@ -18,32 +18,38 @@
       </tal:block>
     </div>
 
-    <div metal:define-macro="edit">
-      <div tal:define="value python:request.get(fieldName, accessor())">
-      <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
+    <metal:define define-macro="edit">
+    <div class="row" tal:define="value python:request.get(fieldName, accessor())">
+        <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
 	<div tal:attributes="class python:test(field.required, 'required
 	  label', 'label')">
-	  <span i18n:translate="" tal:content="widget/label"></span>
-	  <div class="field"
-	       tal:define="error errors/fieldName | nothing;"
-	    tal:attributes="class python:test(error, 'field error', 'field')" >
-	    <span tal:condition="error" tal:replace="error" />
-	      <input type="text" 
-		     name="" 
-		     value="" 
-		     size="30" 
-		     tabindex="#"
-		     tal:attributes="name fieldName;
-		value value;
-		tabindex tabindex/next;
-		"
-		/>
-	  </div></div>
-      </tal:block>
-      <tal:block  tal:condition="python:not here.portal_membership.getAuthenticatedMember().visible_ids">
-	<input type="hidden" tal:attributes="name fieldName; value value;"/>
-      </tal:block>
-      </div></div>
+	     <span i18n:translate="" tal:content="widget/label"></span>
+             <div id="title_help" class="help" style="visibility: hidden;"
+                  tal:content="string:${widget/description}"
+                  tal:attributes="id string:${fieldName}_help">Help tooltip</div>
+        </div>
+	<div class="field"
+	     tal:define="error errors/fieldName | nothing;"
+	     tal:attributes="class python:test(error, 'field error', 'field')" >
+	     <span tal:condition="error" tal:replace="error" />
+	     <input type="text" 
+	            name="" 
+		    value="" 
+		    size="30" 
+		    tabindex="#"
+		    tal:attributes="name fieldName;
+		    value value;
+		    tabindex tabindex/next;
+                    onfocus string:formtooltip('${fieldName}_help',1);
+                    onblur string:formtooltip('${fieldName}_help',0);
+             "/>
+	 </div>
+         </tal:block>
+         <tal:block  tal:condition="python:not here.portal_membership.getAuthenticatedMember().visible_ids">
+	 <input type="hidden" tal:attributes="name fieldName; value value;"/>
+         </tal:block>
+    </div>
+    </metal:define>
 
   </body>
   

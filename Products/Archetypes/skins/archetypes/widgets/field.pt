@@ -27,8 +27,8 @@
       </div>
     </div>
     
-    <div metal:define-macro="edit">
-        <div class="row" tal:condition="python: 'edit' in widget.modes">
+    <metal:define define-macro="edit">
+    <div class="row" tal:condition="python: 'edit' in widget.modes">
         <div tal:attributes="class python:test(field.required, 'required label', 'label')">
              <span i18n:translate="" tal:content="string:${widget/label}"></span>
              <div id="title_help" class="help" style="visibility: hidden;"
@@ -53,8 +53,8 @@
 	     <span tal:condition="error" tal:replace="error" />
              <div metal:define-slot="widget_body"></div>
         </div>
-        </div>
-    </div>    
+    </div>
+    </metal:define>    
 
 
    </body>
