@@ -50,17 +50,19 @@ class UnicodeLinesFieldTest( ArchetypesTestCase ):
         f = LinesField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         if ZOPE_LINES_IS_TUPLE_TYPE:
-            out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+            out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
+            iso = ('héhéhé',)
         else:
-            out = ['h\xc3\xa9h\xc3\xa9h\xc3\xa9']
+            out = ['h\xc3\xa9h\xc3\xa9h\xc3\xa9',]
+            iso = ['héhéhé',]
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), ['héhéhé'])
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, 'héhéhé', encoding='ISO-8859-1')
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), ['héhéhé'])
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, u'héhéhé')
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), ['héhéhé'])
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
     def test_set2(self):
         f = LinesField('test')
