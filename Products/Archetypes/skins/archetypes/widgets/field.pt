@@ -106,7 +106,7 @@
         </div>
       </tal:condition>
 
-      <tal:condition condition="python: visState == 'hidden'">
+      <tal:condition condition="python: visState == 'hidden' or not visCondition">
         <metal:hiddenmacro
           tal:define="widget_macro python:path('here/%s/macros' % widget.macro);
                       default_hidden_macro here/widgets/field/macros/hidden;

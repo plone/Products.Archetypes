@@ -155,8 +155,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             accessor='created',
             mutator='setCreationDate',
-            languageIndependent=True,
-            isMetadata=True,
+            languageIndependent = True,
             widget=CalendarWidget(
                 label="Creation Date",
                 description=("Date this object was created"),
@@ -171,7 +170,6 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor='modified',
             mutator = 'setModificationDate',
             languageIndependent = True,
-            isMetadata=True,
             widget=CalendarWidget(
                 label="Modification Date",
                 description=("Date this content was modified last"),
@@ -408,7 +406,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         For now, change the modification_date.
         """
         # XXX This could also store the id of the user doing modifications.
-        self.setModificationDate(None)
+        self.setModificationDate()
 
     # XXX Could this be simply protected by ModifyPortalContent ?
     security.declarePrivate('setModificationDate')
