@@ -19,38 +19,74 @@ class MyValidator:
     def __call__(self, value, instance, field, *args, **kwargs):
         return self.fun(value)
 
+# never validates
+validation.register(MyValidator('v1', lambda val:val))
+# always validates
+validation.register(MyValidator('v2', lambda val:1))
+
 class FakeType(BaseObject):
-    pass
+    def unicodeEncode(self, v): return v # don't
+
+settings = [
+    {'field': {},
+     'value': None,
+     'assertion': lambda result:result is None},
+
+    {'field': {'required': 1},
+     'value': None,
+     'assertion': lambda result:result is not None},
+
+    ]
+
+for req in 0,1:
+    for validator in (('v2', 'v1'), ('v1',)):
+        settings.append(
+            {'field': {'required': req, 'validators': validator},
+             'value': 'bass',
+             'assertion': lambda result:result == 'bass'}
+            )
+
+    settings.append(
+        {'field': {'required': req, 'enforceVocabulary': 1},
+         'value': 'cello',
+         'assertion': lambda result:result is not None}
+        )
+
+    settings.append(
+        {'field': {'required': req, 'enforceVocabulary': 1,
+                   'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
+         'value': 'trombone',
+         'assertion': lambda result:result is None}
+        )
+
+    settings.append(
+        {'field': {'required': req, 'enforceVocabulary': 1,
+                   'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
+         'value': 'tuba',
+         'assertion': lambda result:result is not None}
+        )
+
 
 class TestFieldValidation(ArchetypesTestCase):
 
     def afterSetUp(self):
         ArchetypesTestCase.afterSetUp(self)
-        self.field = StringField('somefield')
         self.instance = FakeType('fake')
 
     def beforeTearDown(self):
         ArchetypesTestCase.beforeTearDown(self)
 
-    def testRequiredPlusValidator(self):
-        instance = FakeType('fake')
-        validation.register(MyValidator('myv', lambda val:val))
-        self.field.validators = ('myv',)
-        errors = {}
-
-        self.field.required = 0
-        result = self.field.validate('horn', instance, errors,
-                                     field=self.field)
-        self.assertEquals(result, 'horn',
-                          "The value of our validator was not returned.")
-
-        errors.clear()
-        self.field.required = 1
-        result = self.field.validate('horn', instance, errors,
-                                     field=self.field)
-        self.assertEquals(result, 'horn',
-                          "The value of our validator was not returned.")
-
+    def testSettings(self):
+        for setting in settings:
+            errors = {}
+            field = Field('orchestra', **setting['field'])
+            result = field.validate(setting['value'], self.instance,
+                                    errors, field=field)
+            msg = 'Assertion failed for setting:\n%s.\nResult was "%s".' % \
+                  (setting, result)
+            
+            self.assert_(setting['assertion'](result),
+                         setting.get('failmsg', msg))
 
 if __name__ == '__main__':
     framework()
