@@ -107,7 +107,8 @@ def unique(s):
     equality-testing.  Then unique() will usually work in quadratic
     time.
     """
-    # taken from ASPN Python Cookbook, http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
+    # taken from ASPN Python Cookbook,
+    # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52560
 
     n = len(s)
     if n == 0:

@@ -24,18 +24,14 @@ Features
 
 Requires
 
-	Plone 2.0+
-	CMF 1.4+
-  Zope 2.6.1+
+  Plone 2.0+
+  CMF 1.4+
+  Zope 2.7.0+
 
   CMFFormController (from collective CVS)
 
   You have to install the "PortalTransforms", "generator" and
-  "validation" python packages available on SF Archetypes CVS.
-
-  You should also install the I18NTExtIndexNG product if you
-  want to use the i18n content features of archetypes. All that
-  products are also available on SF Archetypes CVS.
+  "validation" Products available on SF Archetypes CVS.
 
 Quickstart
 

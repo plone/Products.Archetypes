@@ -50,7 +50,7 @@ class Reference(SimpleItem):
         return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
 
     ###
-    # Convience methods
+    # Convenience methods
     def getSourceObject(self):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=self.sourceUID)
@@ -85,11 +85,13 @@ class Reference(SimpleItem):
     # OFS Operations Policy Hooks
     # These Hooks are experimental and subject to change
     def beforeTargetDeleteInformSource(self):
-        """called before target object is deleted so the source can have a say"""
+        """called before target object is deleted so
+        the source can have a say"""
         pass
 
     def beforeSourceDeleteInformTarget(self):
-        """called when the refering source Object is about to be deleted"""
+        """called when the refering source Object is
+        about to be deleted"""
         pass
 
 
@@ -109,7 +111,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 
     ###
     ## Public API
-    def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):
+    def addReference(self, source, target, relationship=None,
+                     referenceClass=None, **kwargs):
         sID, sobj = self._uidFor(source)
         tID, tobj = self._uidFor(target)
 
@@ -189,7 +192,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 
 
     def isReferenceable(self, object):
-        return IReferenceable.isImplementedBy(object) or hasattr(object, 'isReferenceable')
+        return (IReferenceable.isImplementedBy(object) or
+                hasattr(object, 'isReferenceable'))
 
     def reference_url(self, object):
         """return a url to an object that will resolve by reference"""
@@ -220,7 +224,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             return None
         return brains[0].getObject()
 
-    def _queryFor(self, sid=None, tid=None, relationship=None, targetId=None, merge=1):
+    def _queryFor(self, sid=None, tid=None, relationship=None,
+                  targetId=None, merge=1):
         """query reference catalog for object matching the info we are
         given, returns brains
 
@@ -268,7 +273,8 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
     def _deleteReference(self, referenceObject):
 
         try:
-            referenceObject.delHook(self, referenceObject.getSourceObject(), referenceObject.getTargetObject())
+            referenceObject.delHook(self, referenceObject.getSourceObject(),
+                                    referenceObject.getTargetObject())
         except ReferenceException:
             pass
         else:
