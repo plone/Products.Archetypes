@@ -8,6 +8,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import *
+from ReferenceEngine import Reference
 from utils import capitalize, DisplayList, className, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
@@ -761,7 +762,8 @@ class ReferenceField(ObjectField):
         'allowed_type_column' : 'portal_type',
         'addable': 0,
         'destination': None,
-        'relationship':None
+        'relationship':None,
+        'referenceClass':Reference,
         })
 
     def containsValueAsString(self, value, attrval):
@@ -784,6 +786,8 @@ class ReferenceField(ObjectField):
         if not value:
             value=None
         __traceback_info__ = (instance, self.getName(), value)
+
+        kwargs.setdefault('referenceClass', self.referenceClass)
 
         # Establish the relation through the ReferenceEngine
         tool=getToolByName(instance, REFERENCE_CATALOG)
