@@ -149,13 +149,13 @@ class ProcessingTest(ArchetypesTestCase):
             f_names.append(name)
         errors = {}
         dummy.validate(errors=errors)
-        self.failUnless(errors, errors)
+        self.failUnless(errors, "Errors dictionary is empty.")
         err_fields = errors.keys()
         failures = []
         for f_name in f_names:
             if f_name not in err_fields:
                 failures.append(f_name)
-        self.failIf(failures, failures)
+        self.failIf(failures, "%s failed to report error." % failures)
 
     def beforeTearDown(self):
         global stub_file

@@ -578,7 +578,7 @@ class FileField(StringField):
         ObjectField.set(self, instance, value, **kwargs)
 
     def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
+        value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
