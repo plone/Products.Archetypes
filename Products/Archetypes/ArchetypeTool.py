@@ -321,6 +321,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
+        self._registeredTemplates = PersistentMapping()
         self.catalog_map = PersistentMapping() # meta_type -> [names of CatalogTools]
 
         self._types = {}
@@ -346,36 +347,59 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return self.manage_dumpSchemaForm(**options)
 
     ## Template Management
-    def registerTemplate(self, template, name, portal_type=None):
-        # types -> { set of template names }
-        if type(portal_type) not in  [type(()), type([])]:
-            portal_type = (portal_type,)
-
-        for p in portal_type:
-            self._templates.setdefault(p,
-                                       PersistentMapping())[template] = name
+    ## Views can be pretty generic by iterating the schema
+    ## so we don't register by type anymore, we just create
+    ## per site selection lists
+    ##
+    ## we keep two lists, all register templates and their names/titles
+    ## and the mapping of type to template bindings
+    ## both are persistent 
+    def registerTemplate(self, template, name=None):
+        #lookup the template by name
+        obj = self.unrestrictedTraverse(template, None)
+        if not obj: return
+        if not name:
+            name = obj.title_or_id()
+        self._registeredTemplates[template] = name
+    
 
     def lookupTemplates(self, instance=None):
         results = []
         if type(instance) is not StringType:
             instance = instance.portal_type
-
-        results += self._templates.get(instance, {}).items()
-        results += self._templates.get(None, {}).items()
+        try:
+            templates = self._templates[instance]
+        except KeyError:
+            return DisplayList()
+            #XXX look this up in the types tool later
+            #self._templates[instance] = ['base_view',]
+            #templates = self._templates[instance]
+            
+        for t in templates:
+            results.append((t, self._registeredTemplates[t]))
+        
         return DisplayList(results).sortedByValue()
 
     def listTemplates(self):
         """list all the templates"""
-        results = []
-        for d in self._templates.values():
-            for p in d.items():
-                results.append(p)
-        results = unique(results)
-        return DisplayList(results).sortedByValue()
+        return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
-    def listCatalogs(self):
-        """show the catalog mapping"""
-        return self.catalog_map
+    def manage_templates(self, REQUEST=None):
+        """set all the template/type mappings"""
+        prefix = 'template_names_'
+        for key in REQUEST.form.keys():
+            if key.startswith(prefix):
+                k = key[len(prefix):]
+                v = REQUEST.form.get(key)
+                self._templates[k] = v
+
+        add = REQUEST.get('addTemplate')
+        name = REQUEST.get('newTemplate')
+        if add and name:
+            self.registerTemplate(name)
+            
+        return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_templateForm")
+
 
 
 
@@ -425,6 +449,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def getSchema(self, sid):
         return self._schemas[sid]
+    
+    security.declareProtected('manage_installType', CMFCorePermissions.ManagePortal)
+    def manage_installType(self, typeName, package=None, uninstall=None, REQUEST=None):
+        """un/install a type ttw"""
+        typesTool = getToolByName(self, 'portal_types')
+        try:
+            typesTool._delObject(typeName)
+        except:
+            pass
+        if uninstall is not None:
+            if REQUEST:
+                return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_debugForm")
+            return
+        
+        typeinfo_name="%s: %s" % (package, typeName)
+
+        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
+                                            id=typeName,
+                                            typeinfo_name=typeinfo_name)
+        # set the human readable title explicitly
+        #t = getattr(typesTool, typeName, None)
+        #if t:
+        #    t.title = type.archetype_name
+
+        if REQUEST:
+            return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_debugForm")
+
+
 
     def getSearchWidgets(self, package=None):
         """empty widgets for searching"""
@@ -582,31 +634,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return REQUEST.RESPONSE.redirect(self.absolute_url() + \
                                              "/manage_workspace")
 
-    def manage_templates(self, submit, REQUEST=None):
-        """template mgmt method"""
-        if submit == "Add Template":
-            name = REQUEST.form.get('name')
-            vis = REQUEST.form.get('vis')
-            types = REQUEST.form.get('types')
-
-            if name and vis:
-                self.registerTemplate(name, vis, types)
-
-        if submit == "Unregister":
-            list = REQUEST.form.get('template')
-            clean = []
-            for d in self._templates.values():
-                for k, v in d.items():
-                    if k in list:
-                        clean.append((d, k))
-
-            for d, k in clean:
-                del d[k]
-
-
-        if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() + \
-                                             "/manage_templateForm")
 
 
     def manage_doGenerate(self, sids=(), REQUEST=None):
@@ -724,6 +751,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._types[klass.meta_type] = {'signature':sig, 'update':update}
         self._p_changed = 1
 
+
+
+    #Catalog management
+    def listCatalogs(self):
+        """show the catalog mapping"""
+        return self.catalog_map
 
 
     def manage_updateCatalogs(self, REQUEST=None):
