@@ -79,6 +79,10 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "content_icon"):
         fti[0]['content_icon'] = klass.content_icon
 
+    if hasattr(klass, "global_allow"):
+        allow = klass.global_allow
+        fti[0]['global_allow'] = allow
+
     if hasattr(klass, "allowed_content_types"):
         allowed = klass.allowed_content_types
         fti[0]['allowed_content_types'] = allowed

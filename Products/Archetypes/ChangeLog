@@ -1,3 +1,8 @@
+2003-05-12  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* ArchetypeTool.py (modify_fti): Get 'global_allow' from the class
+	definition, if possible.
+
 2003-05-08  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* Schema.py (Schema.setDefaults): ok, we really do need callable
