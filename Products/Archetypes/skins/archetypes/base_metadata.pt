@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
-      metal:use-macro="here/main_template/macros/master">
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
 <body>
 
    <div metal:fill-slot="main" 
@@ -10,7 +11,7 @@
                     Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();">
 
-      <h1>Edit Properties</h1>
+      <h1 i18n:translate="heading_edit_properties">Edit Properties</h1>
 
       <form class="group"
 	    name="edit_form"
@@ -27,7 +28,7 @@
 	</div>
 -->
 
-	  <span class="legend" tal:content="here/archetype_name"></span>
+	  <span class="legend" i18n:translate="legend_item_properties">Item Properties</span>
 	  
 	  <div tal:repeat="field python: here.Schema().filterFields(isMetadata=1)">
 	    <span metal:use-macro="python: here.widget(field.name, mode='edit')"/>
@@ -42,6 +43,7 @@
 		       tabindex=""
 		       type="submit" 
 		       name="Change" 
+                       i18n:attributes="value"
 		       value="Save" 
 		       tal:attributes="tabindex tabindex/next;" /> 
 	      </div>

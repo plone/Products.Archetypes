@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
-      metal:use-macro="here/main_template/macros/master">
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
 <metal:block fill-slot="javascript_head_slot">
 <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing" tal:condition="macro">
   <metal:block use-macro="macro" />
@@ -16,8 +17,16 @@
 		    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();"
            tal:omit-tag="">
-      <h1 tal:content="string:Edit ${here/archetype_name}"></h1>
-	
+
+      <h1 i18n:translate="heading_edit_item">
+      Edit
+          <span i18n:name="itemtype">
+                <span i18n:translate=""         
+                      tal:content="here/archetype_name" 
+                      tal:omit-tag="">Item type</span>
+          </span> 
+      </h1>
+
       <p tal:content="string:Fill in the details of this ${here/archetype_name}."></p>  
 
       <form class="group"
@@ -34,7 +43,7 @@
 	</div>
 -->
 
-        <span class="legend" tal:content="here/archetype_name"></span>
+        <span class="legend" i18n:translate="" tal:content="here/archetype_name"></span>
 
 	<tal:fields repeat="field python: here.Schema().filterFields(isMetadata=0)">
 	    <metal:fieldMacro use-macro="python: here.widget(field.name, mode='edit')"/>
@@ -52,6 +61,7 @@
 		     tabindex=""
 		     type="submit" 
 		     name="Change" 
+                     i18n:attributes="value"
 		     value="Save" 
 		     tal:attributes="tabindex tabindex/next;" /> 
             </div>
