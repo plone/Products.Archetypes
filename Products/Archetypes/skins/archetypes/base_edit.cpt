@@ -25,6 +25,13 @@
       tal:define="tabindex tabindex|python:Iterator(pos=7000);"
       i18n:domain="plone">
 
+  <metal:head fill-slot="top_slot">
+    <tal:block define="macro edit_macros/topslot | nothing"
+                    condition="macro">
+	<metal:block use-macro="macro" />
+    </tal:block>
+  </metal:head>
+  
   <metal:head fill-slot="javascript_head_slot"
                tal:define="css python:here.getUniqueWidgetAttr(fields, 'helper_css');
                            js python:here.getUniqueWidgetAttr(fields, 'helper_js')">
