@@ -389,6 +389,20 @@ class IntegerField(ObjectField):
         
         ObjectField.set(self, instance, value, **kwargs)
 
+class FloatField(ObjectField):
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'float'
+        })
+
+    def set(self, instance, value, **kwargs):
+        try:
+            value = float(value)
+        except TypeError:
+            value = None
+        
+        ObjectField.set(self, instance, value, **kwargs)
+
 class FixedPointField(ObjectField):
     __implements__ = ObjectField.__implements__
 
