@@ -443,9 +443,17 @@ class Field(DefaultLayerContainer):
     def getDefault(self, instance):
         """Return the default value to be used for initializing this
         field"""
-        if self.default_method:
-            method = getattr(instance, self.default_method)
-            return method()
+        dm = self.default_method
+        if dm:
+            if type(dm) is StringType and hasattr(instance, dm):
+                method = getattr(instance, dm)
+                return method()
+            elif callable(dm):
+                return dm()
+            else:
+                raise ValueError('%s.default_method is neither a method of %s'
+                                 ' nor a callable' % (self.getName(),
+                                                      instance.__class__))
         else:
             return self.default
 
