@@ -443,7 +443,10 @@ class Field(DefaultLayerContainer):
     def getDefault(self):
         """Return the default value to be used for initializing this
         field"""
-        return self.default
+        if self.default_method:
+            return self.default_method()
+        else:
+            return self.default
 
     security.declarePublic('getAccessor')
     def getAccessor(self, instance):
@@ -516,8 +519,8 @@ class ObjectField(Field):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default, _initializing_=1, **kwargs)
-            return self.default
+                self.set(instance, self.getDefault(), _initializing_=1, **kwargs)
+            return self.getDefault()
 
     def getRaw(self, instance, **kwargs):
         if self.accessor is not None:
@@ -686,7 +689,7 @@ class FileField(ObjectField):
             kwargs['mimetype'] = None
 
         value, mimetype, filename = self._process_input(value,
-                                                      default=self.default,
+                                                      default=self.getDefault,
                                                       **kwargs)
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
@@ -719,7 +722,7 @@ class FileField(ObjectField):
         if not filename:
             filename = self.getName()
         mimetype = self.getContentType(instance, fromBaseUnit=False)
-        value = self.getRaw(instance) or self.default
+        value = self.getRaw(instance) or self.getDefault()
         if isinstance(aq_base(value), File):
             value = str(aq_base(value).data)
         bu = BaseUnit(filename, aq_base(value), instance,
@@ -821,8 +824,8 @@ class TextField(FileField):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default, _initializing_=1, **kwargs)
-            return self.default
+                self.set(instance, self.getDefault(), _initializing_=1, **kwargs)
+            return self.getDefault()
 
         if raw:
             return value
@@ -847,7 +850,7 @@ class TextField(FileField):
         pass to processing method without one and add mimetype
         returned to kwargs. Assign kwargs to instance.
         """
-        value = self._process_input(value, default=self.default, **kwargs)
+        value = self._process_input(value, default=self.getDefault(), **kwargs)
         encoding = kwargs.get('encoding')
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
@@ -984,7 +987,7 @@ class FixedPointField(ObjectField):
     def _to_tuple(self, value):
         """ COMMENT TO-DO """
         if not value:
-            value = self.default # Does this sounds right?
+            value = self.getDefault() # Does this sounds right?
         value = value.split('.')
         __traceback_info__ = (self, value)
         if len(value) < 2:
@@ -1003,7 +1006,7 @@ class FixedPointField(ObjectField):
         template = '%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
-        if value is None: return self.default
+        if value is None: return self.getDefault()
         if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
 
@@ -1249,7 +1252,7 @@ class CMFObjectField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
-        value = self._process_input(value, default=self.default, \
+        value = self._process_input(value, default=self.getDefault(), \
                                     **kwargs)
         if value is None or value == '':
             # do nothing

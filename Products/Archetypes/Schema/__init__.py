@@ -398,11 +398,12 @@ class BasicSchema(Schemata):
                     continue
                 #if not hasattr(aq_base(instance), field.getName()) and \
                 #   getattr(instance, field.getName(), None):
-                default = field.default
-                if field.default_method:
-                    method = getattr(instance, field.default_method, None)
-                    if method:
-                        default = method()
+                default = field.getDefault()
+                # now handled by getDefault()
+                ##if field.default_method:
+                ##    method = getattr(instance, field.default_method, None)
+                ##    if method:
+                ##        default = method()
                 args = (default,)
                 kw = {'field': field.__name__}
                 if hasattr(field, 'default_content_type'):
