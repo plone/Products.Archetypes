@@ -284,6 +284,13 @@ def registerType(klass, package=None):
         }
 
     key = "%s.%s" % (package, data['meta_type'])
+    if key in _types.keys():
+        existing = _types[key]
+        existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
+        override_name = '%s.%s' % (data['module'].__name__, data['name'])
+        zLOG.LOG('ArchetypesTool', zLOG.WARNING, ('Trying to register "%s" which '
+                 'has already been registered.  The new type %s '
+                 'is going to override %s') % (key, override_name, existing_name))
     _types[key] = data
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
@@ -491,9 +498,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # Lookup the template by name
         if not name:
             obj = self.unrestrictedTraverse(template, None)
-            if obj:
+            try:
                 name = obj.title_or_id()
-            else:
+            except:
                 name = template
 
         self._registeredTemplates[template] = name
