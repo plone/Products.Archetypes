@@ -42,6 +42,30 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
         self.failUnless(doc.UID() == UID)
 
+    def test_renamecontainerKeepsReferences( self ):
+        # test for #956677: renaming the container causes contained objects
+        #                   to lose their refs
+        container = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='container')
+        obj1 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='obj1')
+        obj2 = makeContent(self.folder,
+                           portal_type='SimpleType',
+                           title='Foo',
+                           id='obj2')
+
+        obj1.addReference(obj2)
+        self.assertEquals(obj2.getBRefs(), [obj1])
+
+        get_transaction().commit(1)
+        self.folder.manage_renameObject(id='container', new_id='cont4iner')
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
     def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
 
