@@ -9,7 +9,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from types import ListType, TupleType
+from types import TupleType
 
 from Products.Archetypes.interfaces.base import *
 from Products.Archetypes.interfaces.field import *
@@ -39,23 +39,33 @@ def className(klass):
     """ get the short class name """
     return str(klass).split('.')[-1].split(' ')[0]
 
+# list of tests
+tests = []
 
 class InterfaceTest(ArchetypesTestCase):
-
-    def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
-        # more
-
-    def beforeTearDown(self): 
-        # more
-        ArchetypesTestCase.beforeTearDown(self)
-
-    # helper methods
+    """general interface testing class
     
+    klass - the class object to test
+    forcedImpl - a list of interface class objects that the class klass 
+        *must* implement to fullfil this test
+    
+    This test class doesn't implement a test* method so you have to provide
+    a test method in your implementation. See above for two examples. One
+    example uses the special magic of setattr::
+    
+        setattr(MyClass, MyMethodName, lambda self: self._testStuff())
+        
+    """
+
+    klass = None    # test this class
+    forcedImpl = () # class must implement this tuple of interfaces
+
     def _testInterfaceImplementation(self, klass, interface):
         """ tests if the klass implements the interface in the right way """
+        # is the class really implemented by the given interface?
         self.failUnless(interface.isImplementedByInstancesOf(klass),
             '%s does not implement %s' % (className(klass), className(interface)))
+        # verify if the implementation is correct
         try:
             verifyClass(interface, klass)
         except (BrokenImplementation, DoesNotImplement, 
@@ -66,139 +76,75 @@ class InterfaceTest(ArchetypesTestCase):
     def _getImplements(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
         impl = getImplementsOfInstances(klass)
-        if type(impl) not in (ListType, TupleType):
-             impl = [impl]
+        if type(impl) is not TupleType:
+             impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
         
-    def _doesImplement(self, klass, lst):
+    def _doesImplement(self, klass, interfaces):
         """ make shure that the klass implements at least these interfaces"""
+        if type(interfaces) is not TupleType:
+            interfaces = (interfaces)
         impl = self._getImplements(klass)
-        for iface in lst:
+        for iface in interfaces:
             self.failUnless(iface in impl, '%s does not implement %s' % (className(klass), className(iface)))
 
-    # tests
+    def _testStuff(self):
+        """ test self.klass """
+        if self.forcedImpl:
+           self._doesImplement(self.klass, self.forcedImpl)
+        for iface in self._getImplements(self.klass):
+           self._testInterfaceImplementation(self.klass, iface)
 
-    def testSchemaInterface(self):
-        klass = Schema
-        impl  = (ILayerRuntime, ILayerContainer)
-        self._doesImplement(klass, impl)
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
+###############################################################################
+###                         testing starts here                             ###
+###############################################################################
 
-    def testOrderedBaseFolderInterface(self):
-        klass = OrderedBaseFolder
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
+class FieldInterfaceTest(InterfaceTest):
+    """ test all field classes from Field.Field.__all__"""
+    
+    klass = Field.Field # not used but set to class Field
+    forcedImpl = ()
 
-    def testMarshallerInterface(self):
-        klass = Marshaller
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testPrimaryFieldMarshallerInterface(self):
-        klass = PrimaryFieldMarshaller
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testRFC822MarshallerInterface(self):
-        klass = RFC822Marshaller
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testFieldsInterface(self):
-        impl = IField, ILayerContainer
+    def testFieldInterface(self):
         for fieldname in Field.__all__:
             klass = getattr(Field, fieldname)
-            self._doesImplement(klass, impl)
+            self._doesImplement(klass, self.forcedImpl)
             for iface in self._getImplements(klass):
                 self._testInterfaceImplementation(klass, iface)
-            
-    def testNewBaseUnitInterface(self):
-        klass = newBaseUnit
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-        
-    def testOldBaseUnitInterface(self):
-        klass = oldBaseUnit
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
 
-    def testBaseFolderInterface(self):
-        klass = BaseFolder
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
+tests.append(FieldInterfaceTest)
 
-    def testI18NBaseFolderInterface(self):
-        klass = I18NBaseFolder
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-        
-    def testBaseContentInterface(self):
-        klass = BaseContent
-        impl = self._getImplements(klass)
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testI18NBaseContentInterface(self):
-        klass = I18NBaseContent
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testBaseObjectInterface(self):
-        klass = BaseObject
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testBaseSQLStorageInterface(self):
-        klass = BaseSQLStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testGadflySQLStorageInterface(self):
-        klass = GadflySQLStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testMySQLSQLStorageInterface(self):
-        klass = MySQLSQLStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-            
-    def testPostgreSQLStorageInterface(self):
-        klass = PostgreSQLStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testStorageInterface(self):
-        klass = Storage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testReadOnlyStorageInterface(self):
-        klass = ReadOnlyStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testStorageLayerInterface(self):
-        klass = StorageLayer
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testAttributeStorageInterface(self):
-        klass = AttributeStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testObjectManagedStorageInterface(self):
-        klass = ObjectManagedStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
-
-    def testMetadataStorageInterface(self):
-        klass = MetadataStorage
-        for iface in self._getImplements(klass):
-            self._testInterfaceImplementation(klass, iface)
+# format: (class object, (list interface objects))
+testClasses = [
+    (BaseObject, ()),
+    (BaseContent, ()), (I18NBaseContent, ()), 
+    (BaseFolder, ()), (I18NBaseFolder, ()), 
+    (newBaseUnit, ()), (oldBaseUnit, ()), 
+    (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()), 
+    (OrderedBaseFolder, ()), 
+    (Schema, ()), 
+    (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()), 
+        (AttributeStorage, ()), (ObjectManagedStorage, ()),
+        (MetadataStorage, ()),
+    (BaseSQLStorage, ()), (GadflySQLStorage, ()), (MySQLSQLStorage, ()),
+        (PostgreSQLStorage, ()), 
+    (DateValidator, ()), 
+]
+ 
+for testClass in testClasses:
+    klass, forcedImpl = testClass
+    name = className(klass)
+    funcName = 'test%sInterface' % name
+    
+    class KlassInterfaceTest(InterfaceTest):
+        """ implementation for %s """ % name
+        klass      = klass
+        forcedImpl = forcedImpl
+    
+    # add the testing method to the class to get a nice name
+    setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())  
+    tests.append(KlassInterfaceTest)
             
 
 if __name__ == '__main__':
@@ -209,6 +155,6 @@ else:
     import unittest
     def test_suite():
         suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(InterfaceTest))
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
         return suite
-
