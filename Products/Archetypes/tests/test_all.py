@@ -31,6 +31,7 @@ def test_suite():
         'test_utils',
         'test_utils2',
         'test_unicode',
+        'test_vocabulary',
         # 'test_widgets', # Run this one with care. It may harm your database.
         ])
 
