@@ -95,12 +95,10 @@ class WidgetTests(ArcheSiteTestCase):
         #I feel fine...
 
     def test_appendtextarea_widget(self):
-        site = self.getPortal()
         request = FakeRequest()
-        
         mystring = str('<<<<this is a test string>>>>')
         
-        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
+        doc = makeContent(self.folder, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
         
