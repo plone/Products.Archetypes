@@ -125,7 +125,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 description_msgid="help_language",
                 i18n_domain="plone"),
         ),
-        StringField(
+        TextField(
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
