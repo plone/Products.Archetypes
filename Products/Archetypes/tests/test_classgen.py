@@ -1,4 +1,3 @@
-import os, sys
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
@@ -32,6 +31,7 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 
+import os, sys
 from copy import deepcopy
 
 from DateTime import DateTime
