@@ -13,7 +13,7 @@
 
 	   <h1 tal:content="here/title_or_id" metal:use-macro="view_macros/header|default" />
 
-	   
+
 	   <div tal:condition="not:body_macro"
                 tal:repeat="field python: here.Schema().filterFields(isMetadata=0)">
 	      <span metal:use-macro="python: here.widget(field.name, mode='view', use_label=1)"/>

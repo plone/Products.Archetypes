@@ -21,13 +21,13 @@ except ImportError:
         from os.path import join
         from Globals import package_home
         from Products.CMFCore import cmfcore_globals
-    
+
         path=join(package_home(cmfcore_globals),'version.txt')
         file=open(path, 'r')
         _version=file.read()
         file.close()
         return _version.strip()
-    
+
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
@@ -154,11 +154,11 @@ def install_actions(self, out, types):
                 else:
                     # if no standard actions are wished - dont display them
                     new=[]
-        
+
                 cmfver=getCMFVersion()
 
                 for action in type.actions:
-                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased': 
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
                         if hits:
@@ -167,7 +167,7 @@ def install_actions(self, out, types):
                             if action.has_key('name'):
                                 action['title']=action['name']
                                 del action['name']
-                                
+
                             new.append (ActionInformation(**action))
                     else:
                         hit = findDict(new, 'id', action['id'])
@@ -175,7 +175,7 @@ def install_actions(self, out, types):
                             hit.update(action)
                         else:
                             new.append(action)
-                            
+
                 typeInfo._actions = tuple(new)
                 typeInfo._p_changed = 1
 
@@ -196,27 +196,32 @@ def install_indexes(self, out, types):
                     index = (field.index,)
                 else:
                     index = field.index
+
                 for alternative in index:
-                    parts = alternative.split('|',1)
-                    itype = parts[0]
-                    ischema = None
-                    if len(parts) == 2:
-                        schemaFlag=  parts[1]
-                        if schemaFlag == "schema":
-                            ischema = 1
+                    installed = None
+                    schema = alternative.split(':', 1)
+                    if len(schema) == 2 and schema[1] == 'schema':
+                        try:
+                            if ischema and field.accessor not in catalog.schema():
+                                catalog.addColumn(field.accessor)
+                        except:
+                            pass
 
-                    #Check for the index and add it if missing
-                    try:
-                        catalog.addIndex(field.accessor, itype,
-                                         extra=None)
-                        if ischema and field.accessor not in catalog.schema():
-                            catalog.addColumn(field.accessor)
+                    parts = alternative.split('|')
 
-                        catalog.manage_reindexIndex(ids=(field.accessor,))
-                    except:
-                        pass
-                    else:
-                        # index installed, don't try the others
+                    for itype in parts:
+                        try:
+                            #Check for the index and add it if missing
+                            catalog.addIndex(field.accessor, itype,
+                                             extra=None)
+                            catalog.manage_reindexIndex(ids=(field.accessor,))
+                        except:
+                            pass
+                        else:
+                            installed = 1
+                            break
+
+                    if installed:
                         break
 
 
