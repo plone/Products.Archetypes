@@ -39,6 +39,7 @@ from Renderer import renderer
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
+
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
@@ -534,7 +535,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typeinfo_name="%s: %s" % (package, typeName)
 
         #We want to run the process/modify_fti code which might not have been called
-        typeDesc = getType(typeName)
+        typeDesc = getType(typeName, package)
         process_types([typeDesc], package)
 
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
@@ -772,7 +773,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'manage_updateSchema')
     def manage_updateSchema(self):
         """Make sure all objects' schema are up to date"""
-        from StringIO import StringIO
         out = StringIO()
         print >> out, 'Updating schema...'
 
@@ -900,6 +900,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         res.sort()
 
         return res
+
+
 
 
 InitializeClass(ArchetypeTool)
