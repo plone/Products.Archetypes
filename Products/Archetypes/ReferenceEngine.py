@@ -4,6 +4,8 @@ from Products.CMFCore.utils import getToolByName
 from debug import log, log_exc
 from ExtensionClass import Base
 
+from interfaces.referenceable import IReferenceable
+from utils import unique
 from types import StringType
 
 class ReferenceEngine(Base):
@@ -163,3 +165,18 @@ class ReferenceEngine(Base):
         self._delRef(oid, tid)
         self._delBref(tid, oid)
 
+    def isReferenceable(self, object):
+        return IReferenceable.isImplementedBy(object)
+    
+    def getRelationships(self, object):
+        refs = []
+        try:
+            if type(object) != StringType:
+                object = object.UID()
+            refs = self.refs.get(object, [])
+        except AttributeError:
+            pass
+
+        refs = [grp for r,grp in refs]
+        return unique(refs)
+    

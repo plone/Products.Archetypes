@@ -1,3 +1,9 @@
+2003-04-28  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Referenceable changes: added before Add/Delete hooks for
+	target. Added getRelationships which is a list of all types of
+	relationships managed for this object.
+
 2003-04-27  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Marshall.py (RFC822Marshaller.demarshall): Use the mutator

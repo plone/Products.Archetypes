@@ -22,6 +22,11 @@ class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
+    def reference_url(self):
+        """like absoluteURL, but return a link to the object with this UID"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.reference_url(self)
+    
     def addReference(self, object, relationship=None):
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.addReference(self, object, relationship)
@@ -30,6 +35,10 @@ class Referenceable(Base):
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.deleteReference(self, object)
 
+    def getRelationships(self):
+        """What kinds of relationships do this object have"""
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.getRelationships(self)
     
     def getRefs(self, relationship=None):
         """get all the referenced objects for this object"""
