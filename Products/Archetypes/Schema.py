@@ -178,14 +178,14 @@ class Schemata(UserDict):
         """Adds a given field to my dictionary of fields."""
 
         if IField.isImplementedBy(field):
-            if self.has_key(field.getName()):
-                raise KeyError('Field already exists: %s' % field.getName())
             self[field.getName()] = field
             field._index = self._index
             self._index +=1
             self._order_fields = None
         else:
             log_exc('Object doesnt implement IField: %s' % field)
+
+    __setitem__ = addField
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'delField')
@@ -199,6 +199,8 @@ class Schemata(UserDict):
 
         del self[name]
         self._order_fields = None
+
+    __delitem__ = delField
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateField')
