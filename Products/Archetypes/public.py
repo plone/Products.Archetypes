@@ -11,6 +11,8 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Storage import *
 from Products.Archetypes.utils import DisplayList
 
+from ClassGen import AT_GENERATE_METHOD
+
 BaseBTreeFolderSchema = BaseBTreeFolder.schema
 BaseFolderSchema = BaseFolder.schema
 BaseSchema = BaseContent.schema

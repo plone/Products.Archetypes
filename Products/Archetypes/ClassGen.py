@@ -9,6 +9,10 @@ from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
+# marker that AT should generate a method -- used to discard unwanted
+#  inherited methods
+AT_GENERATE_METHOD = []
+
 
 _modes = {
     'r' : { 'prefix'   : 'get',
@@ -131,7 +135,8 @@ class ClassGenerator:
             methodName = generator.computeMethodName(field, mode)
 
         # Avoid name space conflicts
-        if not hasattr(klass, methodName):
+        if not hasattr(klass, methodName) \
+               or getattr(klass, methodName) is AT_GENERATE_METHOD:
             if type.has_key(methodName):
                 raise GeneratorError("There is a conflict"
                                      "between the Field(%s) and the attempt"
