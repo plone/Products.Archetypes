@@ -16,31 +16,29 @@
       </div>
     </div>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body" 
-	  tal:define="binary python: here.isBinary(fieldName);">
-	  <div class="group">
-	      <div>Choose a format and enter text for
-	      the <span tal:content="widget/label"/></div>
-		<br/>
-		  <metal:block
-		    metal:use-macro="here/widgets/textarea/macros/area_format"/>
-	      <metal:block
-		metal:use-macro="here/widgets/textarea/macros/area_edit"/>
-		
-
-		<br/>
-		  <strong>OR</strong><br/><br/>
-
-		<div class="label">Upload a File</div>
-		<metal:block
-		  metal:use-macro="here/widgets/file/macros/file_edit"/>
-		  <br/>
-	  </div>
-	</div>
-      </div>
-    </div>
+    <metal:define define-macro="edit">
+    <metal:use use-macro="here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body" 
+	        tal:define="binary python: here.isBinary(fieldName);">
+        <div class="group">
+	        <div class="row">Enter text and choose a format for the <span tal:content="widget/label"/></div>
+            <div class="row">
+                <metal:use use-macro="here/widgets/textarea/macros/area_edit"/>
+            </div>
+            <div class="row">
+	            <metal:use use-macro="here/widgets/textarea/macros/area_format"/>
+            </div>
+            <div class="row">
+                <strong>OR</strong>
+            </div>
+            <div class="row">
+	        <div class="label">Upload a File</div>
+                <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+            </div>
+        </div>
+    </metal:fill>
+    </metal:use>
+    </metal:define>
 
   </body>
   
