@@ -160,8 +160,13 @@ class BaseFolderMixin(CatalogMultiplex,
         a PortalFolder.
         """
         ti = self.getTypeInfo()
-        method = ti and ti.getMethodURL('mkdir') or None
-        if method:
+        # XXX getMethodURL is part of CMF 1.5 but AT 1.3 should be compatible
+        # with CMF 1.4
+        try:
+            method = ti and ti.getMethodURL('mkdir') or None
+        except AttributeError:
+            method = None
+        if method is not None:
             # call it
             getattr(self, method)(id=id)
         else:
