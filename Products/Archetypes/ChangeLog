@@ -1,5 +1,8 @@
 2003-07-29  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* tests/test_sqlstorage.py (DummyTool.getConnFor): Fix
+	SQLStorageTests by adding the ReferenceEngine as Mixin to the DummyTool.
+
 	* Field.py (ImageField.get): Bah, fixing last minute change that
 	broke existing image fields.
 

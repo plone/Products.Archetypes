@@ -26,6 +26,7 @@ from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
 from Products.Archetypes.tests.test_sitepolicy import makeContent
+from Products.Archetypes.ReferenceEngine import ReferenceEngine
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 
 from DateTime import DateTime
@@ -157,9 +158,11 @@ def gen_dummy(storage_class):
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
-class DummyTool:
+class DummyTool(ReferenceEngine):
+
     def __init__(self, db_name):
         self.sql_connection = connectors[db_name]
+        ReferenceEngine.__init__(self)
         # to ensure test atomicity
         # XXX Need a way to make this work with MySQL when non-transactional
         # self.sql_connection().tpc_abort()
@@ -170,6 +173,7 @@ class DummyTool:
     def setup(self, instance):
         setattr(instance, TOOL_NAME, self)
         setattr(instance, connection_id, self.sql_connection)
+
 
 class SQLStorageTest(unittest.TestCase):
     # abstract base class for the tests
