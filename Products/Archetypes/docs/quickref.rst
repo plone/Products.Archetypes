@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/16 13:59:14 $
-:Version: $Revision: 1.3 $
+:Date: $Date: 2003/05/16 16:36:17 $
+:Version: $Revision: 1.4 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -29,6 +29,20 @@ included in the download under the `docs`_ directory.
 
 Installation
 ------------
+
+Requirements
+************
+
+Archetypes is currently being tested and run in various environments
+using the following combination:
+
+- Zope 2.6
+
+- CMFPlone 1.0.2
+
+- CMF 1.3.1
+
+It is also known to work smoothly with Zope 2.5.
 
 Using the tarball
 *****************
@@ -532,6 +546,13 @@ one of the arguments for the Schema. For example::
             ),
             marshall = RFC822Marshaller())
 
+Examples and more information
+-----------------------------
+
+Examples can be found on the ArchExample product, that is include in
+the download. You can also `browse the cvs repository`_.
+
+.. _browse the cvs repository: http://cvs.sf.net/cgi-bin/viewcvs.cgi/archetypes/
 
 
 ..
