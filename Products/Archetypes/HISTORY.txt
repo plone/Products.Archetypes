@@ -1,6 +1,11 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Commented out the View/Edit links for ordinary display - feel free to
+    enable these in your site, but they should definitely not be there by
+    default.
+    [limi]
+
  * Added the last (and only) info that isn't being handled by AT for FTI:
    allow_discussion. Now you can define it at class level, as any other
    FTI property. The module level modify_fti method still exists for any
