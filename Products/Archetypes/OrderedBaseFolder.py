@@ -23,33 +23,21 @@ from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore import CMFCorePermissions
 
-# this import can change with Zope 2.7 to
-try:
-    from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-    hasZopeOrderedSupport=1
-except ImportError:
-    hasZopeOrderedSupport=0
+from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
     
-try:
-    from zExceptions import NotFound
-except ImportError:
-    class NotFound(Exception): pass
+from zExceptions import NotFound
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
 # OrderedBaseFolder work without Plone 2.0
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
-    from interfaces.orderedfolder import IOrderedContainer
+    from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
+
 
 class OrderedContainer:
 
-    if hasZopeOrderedSupport:
-        # got the IOrderedContainer interface from zope 2.7, too
-        # make shure this implementation fullfilles both interfaces
-        __implements__  = IOrderedContainer, IZopeOrderedContainer
-    else:
-        __implements__  = IOrderedContainer
+    __implements__  = (IOrderedContainer, IZopeOrderedContainer)
 
     security = ClassSecurityInfo()
 

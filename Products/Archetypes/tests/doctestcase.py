@@ -56,8 +56,12 @@ from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
-ExtensionClass.Base.__module__ = ExtensionClass
-ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+try:
+    ExtensionClass.Base.__module__ = ExtensionClass
+    ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+except TypeError:
+    # fails with Zope 2.8 on. Probably also not really needed then.
+    pass
 
 def ZopeDocTestSuite(*modules, **kw):
     """Based on Sid's FunctionalDocFileSuite
@@ -99,7 +103,7 @@ def ZopeDocTestSuite(*modules, **kw):
         test.globs['self'] = test_instance
         test.globs['app'] = test_instance.app
         if ztc_interfaces.IPortalTestCase.isImplementedBy(test_instance):
-            test.globs['portal'] = test_instance.getPortal()
+            test.globs['portal'] = test_instance.portal
         if kwsetUp is not None:
             kwsetUp(test_instance)
 

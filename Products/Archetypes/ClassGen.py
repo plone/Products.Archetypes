@@ -3,7 +3,9 @@ import re
 from types import FunctionType as function
 
 from Products.Archetypes.utils import capitalize
-
+from Products.Archetypes.utils import _getSecurity
+from Products.Archetypes.debug import warn
+from Products.Archetypes.debug import deprecated
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -97,15 +99,21 @@ class Generator:
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
-        if not klass.__dict__.has_key('security'):
-            security = klass.security = ClassSecurityInfo()
-        else:
-            security = klass.security
+        security = _getSecurity(klass)
 
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
-        security.declareProtected(perm, methodName)
-        #security.setDefaultAccess("deny")
+        # Check copied from SecurityInfo to avoid stomping over
+        # existing permissions.
+        if security.names.get(methodName, perm) != perm:
+            warn('The method \'%s\' was already protected by a '
+                 'different permission than the one declared '
+                 'on the field. Assuming that the explicit '
+                 'permission declared is the correct one and '
+                 'has preference over the permission declared '
+                 'on the field.' % methodName)
+        else:
+            security.declareProtected(perm, methodName)
 
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
@@ -114,11 +122,8 @@ class ClassGenerator:
         # backward compatibility, should be removed later on
         if klass.__dict__.has_key('type') and \
            not klass.__dict__.has_key('schema'):
-            import warnings
-            warnings.warn('Class %s has type attribute, should be schema' % \
-                          klass.__name__,
-                          DeprecationWarning,
-                          stacklevel = 4)
+            deprecated('Class %s has type attribute, should be schema' % \
+                       klass.__name__, level = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
             def Schema(self):
@@ -186,7 +191,12 @@ class ClassGenerator:
 
             # Make a method for this klass/field/mode
             generator.makeMethod(klass, field, mode, methodName)
-            self.updateSecurity(klass, field, mode, methodName)
+
+        # Update security regardless of the method being generated or
+        # not. Not protecting the method by the permission defined on
+        # the field may leave security open and lead to misleading
+        # bugs.
+        self.updateSecurity(klass, field, mode, methodName)
 
         # Note on the class what we did (even if the method existed)
         attr = _modes[mode]['attr']

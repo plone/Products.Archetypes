@@ -48,3 +48,11 @@ HAS_GRAPHVIZ = False
 
 ## protect attributes of AttributeStorage from unallowed access?
 ATTRIBUTE_SECURITY = False
+
+## set language default for metadata, it will be overwritten by portal-settings!
+## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't
+## like default here. They expect None. If your product relies on the old
+## behaviour and you dont need content-i18n it's save to use 'en'.Otherwise keep
+## it None for future. In future versions this will be None!
+LANGUAGE_DEFAULT=None
+#LANGUAGE_DEFAULT='en'

@@ -3,19 +3,22 @@ import os, os.path
 import socket
 from random import random, randint
 from time import time
-from inspect import getargs
+from inspect import getargs, getmro
 from md5 import md5
 from types import TupleType, ListType, ClassType, IntType, NoneType
-from types import UnicodeType, StringType
+from types import UnicodeType, StringType, MethodType
 from UserDict import UserDict as BaseDict
-import warnings
 
 from AccessControl import ClassSecurityInfo
+from AccessControl.SecurityInfo import ACCESS_PUBLIC
+
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import deprecated
+from Products.Archetypes.config import DEBUG_SECURITY
 import Products.generator.i18n as i18n
 
 try:
@@ -256,7 +259,7 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-    
+
     >>> dl = DisplayList()
 
     Add some keys
@@ -298,7 +301,7 @@ class DisplayList:
 
     Using ints as DisplayList keys works but will raise an deprecation warning
     You should use IntDisplayList for int keys
-    
+
     >>> idl = DisplayList()
     >>> idl.add(1, 'number one')
     >>> idl.add(2, 'just the second')
@@ -308,7 +311,7 @@ class DisplayList:
 
     >>> idl.getMsgId(1)
     'number one'
-    
+
     Remove warning hook
     >>> w.uninstall(); del w
     """
@@ -362,8 +365,7 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (add)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (add)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -395,8 +397,7 @@ class DisplayList:
     def getValue(self, key, default=None):
         "get value"
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -410,8 +411,7 @@ class DisplayList:
     def getMsgId(self, key):
         "get i18n msgid"
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (msgid)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (msgid)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -612,8 +612,7 @@ class Vocabulary(DisplayList):
         Get i18n value
         """
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
-                          DeprecationWarning, stacklevel=3)
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -763,9 +762,9 @@ def shasattr(obj, attr, acquire=False):
                     Py_INCREF(Py_False);
                     return Py_False;
             }
-    	Py_DECREF(v);
-    	Py_INCREF(Py_True);
-    	return Py_True;
+        Py_DECREF(v);
+        Py_INCREF(Py_True);
+        return Py_True;
 
     It should not swallow all errors, especially now that descriptors make
     computed attributes quite common.  getattr() only recently started catching
@@ -826,3 +825,88 @@ def insert_zmi_tab_after(label, new_option, options):
     position = _get_position_after(label, options)
     _options.insert(position, new_option)
     return tuple(_options)
+
+def _getSecurity(klass, create=True):
+    # a Zope 2 class can contain some attribute that is an instance
+    # of ClassSecurityInfo. Zope 2 scans through things looking for
+    # an attribute that has the name __security_info__ first
+    info = vars(klass)
+    security = None
+    for k, v in info.items():
+        if hasattr(v, '__security_info__'):
+            security = v
+            break
+    # Didn't found a ClassSecurityInfo object
+    if security is None:
+        if not create:
+            return None
+        # we stuff the name ourselves as __security__, not security, as this
+        # could theoretically lead to name clashes, and doesn't matter for
+        # zope 2 anyway.
+        security = ClassSecurityInfo()
+        setattr(klass, '__security__', security)
+        if DEBUG_SECURITY:
+            print '%s has no ClassSecurityObject' % klass.__name__
+    return security
+
+def mergeSecurity(klass):
+    # This method looks into all the base classes and tries to
+    # merge the security declarations into the current class.
+    # Not needed in normal circumstances, but useful for debugging.
+    bases = list(getmro(klass))
+    bases.reverse()
+    security = _getSecurity(klass)
+    for base in bases[:-1]:
+        s = _getSecurity(base, create=False)
+        if s is not None:
+            if DEBUG_SECURITY:
+                print base, s.names, s.roles
+            # Apply security from the base classes to this one
+            s.apply(klass)
+            continue
+        cdict = vars(base)
+        b_perms = cdict.get('__ac_permissions__', ())
+        if b_perms and DEBUG_SECURITY:
+            print base, b_perms
+        for item in b_perms:
+            permission_name = item[0]
+            security._setaccess(item[1], permission_name)
+            if len(item) > 2:
+                security.setPermissionDefault(permission_name, item[2])
+        roles = [(k, v) for k, v in cdict.items() if k.endswith('__roles__')]
+        for k, v in roles:
+            name = k[:-9]
+            security.names[name] = v
+
+def setSecurity(klass, defaultAccess=None, objectPermission=None):
+    """Set security of classes
+
+    * Adds ClassSecurityInfo if necessary
+    * Sets default access ('deny' or 'allow')
+    * Sets permission of objects
+    """
+    security = _getSecurity(klass)
+    if defaultAccess:
+        security.setDefaultAccess(defaultAccess)
+    if objectPermission:
+        if objectPermission == 'public':
+            security.declareObjectPublic()
+        elif objectPermission == 'private':
+            security.declareObjectPrivate()
+        else:
+            security.declareObjectProtected(objectPermission)
+
+    InitializeClass(klass)
+
+    if DEBUG_SECURITY:
+        if getattr(klass, '__allow_access_to_unprotected_subobjects__', False):
+            print '%s: Unprotected access is allowed: %s' % (
+                  klass.__name__, klass.__allow_access_to_unprotected_subobjects__)
+        for name in klass.__dict__.keys():
+            method = getattr(klass, name)
+            if name.startswith('_') or type(method) != MethodType:
+                continue
+            if not security.names.has_key(name):
+                print '%s.%s has no security' % (klass.__name__, name)
+            elif security.names.get(name) is ACCESS_PUBLIC:
+                print '%s.%s is public' % (klass.__name__, name)

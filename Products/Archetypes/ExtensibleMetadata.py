@@ -9,7 +9,8 @@ from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import ERROR
-
+from Products.Archetypes.debug import deprecated
+from Products.Archetypes import config
 import Persistence
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -19,6 +20,7 @@ from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
+from ComputedAttribute import ComputedAttribute
 
 _marker=[]
 
@@ -70,6 +72,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'subject',
             multiValued=1,
             accessor="Subject",
+            searchable=True,
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
@@ -137,8 +140,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            default="en",
-            default_method="defaultLanguage",
+            # Apecial default here, cite limi: "If you don't add any language to
+            # an item, the template that renders the Plone page will fall back
+            # to the declared portal-wide language setting. This is the
+            # behaviour we want, and thus setting language explicitly is not
+            # necessary. (I fixed this behaviour in Plone 2.0.5, IIRC)"
+            # So I keep it backward compatible if needed and adding a
+            # configureable behaviour for 1.3.x. (Jensens)
+            default = config.LANGUAGE_DEFAULT,
+            default_method ='defaultLanguage',
             vocabulary='languages',
             widget=SelectionWidget(
                 label='Language',
@@ -205,6 +215,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     def defaultLanguage(self):
         """Retrieve the default language, or fall back to the default setting"""
         default = self.getField('language').default
+        if default is None:
+            return default
         try:
             properties = getToolByName(self, 'portal_properties')
             return getattr(properties.site_properties, 'default_language', default)
@@ -299,6 +311,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
+    def _effective_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('effectiveDate').get(self)
+
+    security.declarePublic(CMFCorePermissions.View, 'effective_date')
+    effective_date = ComputedAttribute(_effective_date, 1)
+
+
     security.declarePublic( CMFCorePermissions.View, 'ExpirationDate')
     def ExpirationDate(self):
         """Dublin Core element - date resource expires.
@@ -306,6 +327,14 @@ class ExtensibleMetadata(Persistence.Persistent):
         expires = self.getField('expirationDate').get(self)
         # XXX None? CEILING_DATE
         return expires is None and 'None' or expires.ISO()
+
+    def _expiration_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('expirationDate').get(self)
+
+    security.declarePublic(CMFCorePermissions.View, 'expiration_date')
+    expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(CMFCorePermissions.View, 'Date')
     def Date(self):

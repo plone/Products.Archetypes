@@ -1,5 +1,7 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
+from Products.CMFCore.CMFCorePermissions import setDefaultRoles
+from AccessControl import ClassSecurityInfo
 
 schema = BaseSchema + Schema((
     TextField('body',
@@ -20,3 +22,26 @@ class SimpleType(BaseContent):
     schema = schema
 
 registerType(SimpleType, PKG_NAME)
+
+TestView = 'Archetypes Tests: Protected Type View'
+setDefaultRoles(TestView, ('Anonymous', 'Manager',))
+
+class SimpleProtectedType(SimpleType):
+
+    security = ClassSecurityInfo()
+
+    attr_security = AttributeValidator()
+    security.setDefaultAccess(attr_security)
+    # Delete so it cannot be accessed anymore.
+    del attr_security
+
+    archetype_name = portal_type = meta_type = 'SimpleProtectedType'
+    schema = schema.copy()
+    for f in schema.fields():
+        f.read_permission = TestView
+
+    security.declareProtected(TestView, 'foo')
+    def foo(self):
+        return 'bar'
+
+registerType(SimpleProtectedType, PKG_NAME)
