@@ -148,7 +148,11 @@ class DisplayList:
         else: #assume a seq
             b = tuple(zip(other, other))
 
+        msgids = self._i18n_mgsids
+        msgids.update(getattr(other, '_i18n_msgids', {})
+
         v = DisplayList(a + b)
+        v._i18n_msgids = msgids
         return v
 
     def index_sort(self, a, b):
