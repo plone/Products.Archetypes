@@ -120,7 +120,8 @@
  * Fixed [ 1015956 ] getBestIcon can fail
    [ctheuni]
 
- * Fixed [ 1015292 ] boolean widget error and another problem with field.pt value
+ * Fixed [ 1015292 ] boolean widget error, [ 1015394 ] 1.3 branch field.pt sets
+   value = None inappropriately and another problem with field.pt value
    [tiran, alecacct]
 
 1.3.0-rc1 - 2004-08-16
