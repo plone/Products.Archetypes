@@ -13,7 +13,12 @@ REQUEST = context.REQUEST
 new_context = context.portal_factory.doCreate(context, id)
 new_context.processForm()
 
-portal_status_message = REQUEST.get('portal_status_message', 'Content changes saved.')
+portal_status_message = context.translate(
+    msgid='message_content_changes_saved',
+    domain='archetypes',
+    default='Content changes saved.')
+
+portal_status_message = REQUEST.get('portal_status_message', portal_status_message)
 
 # handle navigation for multi-page edit forms
 next = not REQUEST.get('form_next', None) is None
@@ -56,12 +61,20 @@ if reference_source_url is not None:
     reference_source_field = env['reference_source_field'].pop()
     reference_source_fieldset = env['reference_source_fieldset'].pop()
     portal = context.portal_url.getPortalObject()
-    new_context = portal.restrictedTraverse(reference_source_url)
-    return state.set(status='success_add_reference',
-                     context=new_context,
-                     portal_status_message='Reference Added.',
-                     fieldset=reference_source_fieldset,
-                     field=reference_source_field)
+    reference_obj = portal.restrictedTraverse(reference_source_url)
+    portal_status_message = context.translate(
+        msgid='message_reference_added',
+        domain='archetypes',
+        default='Reference Added.')
+    kwargs = {
+        'status':'success_add_reference',
+        'context':reference_obj,
+        'portal_status_message':portal_status_message,
+        'fieldset':reference_source_fieldset,
+        'field':reference_source_field,
+        reference_source_field:new_context.UID(),
+        }
+    return state.set(**kwargs)
 
 if state.errors:
     errors = state.errors
