@@ -11,8 +11,6 @@ try:
 except ImportError:
     log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
 
-
-
 registerDirectory('skins', globals())
 
 from ArchetypeTool import ArchetypeTool, \
@@ -56,7 +54,4 @@ def initialize(context):
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
-
-
-
 

@@ -303,7 +303,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                         if IBaseUnit.isImplementedBy(unit):
                             if unit.filename != '' or unit.get_size():
                                 value = 1 #value doesn't matter
-                                
+
                         elif hasattr(aq_base(unit), 'get_size') and \
                                  unit.get_size():
                             value = unit
@@ -336,7 +336,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 #                    values = field.multiValued == 1  and value or [value]
                     vocab = field.Vocabulary(instance)
                     for val in values:
-                        error = 1 
+                        error = 1
                         for v in vocab:
                             if type(v) in [type(()), type([])]:
                                 valid = v[0]
@@ -431,7 +431,7 @@ MDS = MetadataStorage()
 
 class MetadataSchema(Schema):
     """ Schema that enforces MetadataStorage """
-    
+
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
         markup and make sure each field is marked as such for
@@ -441,7 +441,7 @@ class MetadataSchema(Schema):
                        'storage': MetadataStorage(),
                        'schemata': 'metadata',
                        'generateMode': 'mVc'}
-                       
+
         field.__dict__.update(_properties)
         field.registerLayer('storage', field.storage)
 

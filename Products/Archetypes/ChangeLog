@@ -1,3 +1,7 @@
+2003-05-16  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* TemplateMixin.py: Changed references from FieldList to Schema.
+
 2003-05-15  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Schema.py (Schema.validate): Dont fail if visible_ids is False
@@ -93,7 +97,7 @@
 	different relationships. The delete case was also broken by the
 	introduction of relationship types, this has been fixed and a test
 	added.
-	
+
 
 2003-04-30  Sidnei da Silva  <sidnei@x3ng.com>
 
@@ -108,7 +112,7 @@
 2003-04-27  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Marshall.py (RFC822Marshaller.demarshall): Use the mutator
-	instead of field.set(). 
+	instead of field.set().
 	(RFC822Marshaller.marshall): Add a new line.
 
 2003-04-25  Sidnei da Silva  <sidnei@x3ng.com>
@@ -143,8 +147,8 @@
 	IMPORTANT: The old storage format for reference is no longer
 	supported. It should possible to convert to the new model using a
 	script and a default relationship type though
-		
-	
+
+
 2003-04-22  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Marshall.py (Marshaller.initializeInstance): Method was not
@@ -239,7 +243,7 @@
 2003-04-15  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* Made widget.Description more runtime callable by looking for an
-	optional method on the class of its name and returning its value. 
+	optional method on the class of its name and returning its value.
 
 2003-04-15  Sidnei da Silva  <sidnei@x3ng.com>
 
@@ -276,7 +280,7 @@
 
 2003-04-12  Sidnei da Silva  <sidnei@x3ng.com>
 
-	* *.py: Removed trailing whitespace and rewrapped some long lines. 
+	* *.py: Removed trailing whitespace and rewrapped some long lines.
 
 	* Marshall.py (PrimaryFieldMarshaller.marshall): Fixing a broken
 	import plus moving interface declaration to interfaces subdir.
@@ -365,7 +369,7 @@
 
 	* Generator.py (Generator.__init__): All references to editable
 	are removed from generator and the templates. The str method on
-	BaseUnits mostly covers this as we always return the raw object. 
+	BaseUnits mostly covers this as we always return the raw object.
 
 	* ClassGen.py (Generator.makeMethod): Generate uniform lambda for
 	the created methods, this works now that we delegate to the schema
@@ -383,7 +387,7 @@
 
 	* Extensions/utils.py (install_navigation): changes to all the
 	external method calls to skip most of the special metadata
-	handling. 
+	handling.
 
 	* ExtensibleMetadata.py: Its just called 'type' now, metadata type
 	is deprecated and we have more uniform handling of data/metadata.
@@ -451,13 +455,13 @@
 	indirection can be overridden on a per field basis to alter the
 	way storage is handled. With the right tool it should be a simple
 	task to store large fields on the filesystem or in a RDB of some
-	sort. 
+	sort.
 
 	* Field.py (FieldList.setDefaults): Simplfied setDefaults, but now
 	it really only should be called when object is uninitalized (which
 	I may want to track)
 
-	* BaseUnit.py (BaseUnit.PUT): Fixed PUT to use new driver code	
+	* BaseUnit.py (BaseUnit.PUT): Fixed PUT to use new driver code
 
 	* __init__.py (listTypes): Updated to use generatorTool, still
 	generates on initalize though

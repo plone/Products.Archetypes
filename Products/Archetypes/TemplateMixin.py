@@ -1,10 +1,11 @@
-from Field import FieldList, ObjectField
+from Schema import Schema
+from Field import ObjectField
 from Widget import SelectionWidget
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from config import TOOL_NAME
 
-type_mixin = FieldList((
+type_mixin = Schema((
     ObjectField('layout',
                 accessor="getLayout",
                 mutator="setLayout",
@@ -24,14 +25,14 @@ class TemplateMixin:
           'permissions': (CMFCorePermissions.View,),
           },
         )
-    
+
     def __call__(self):
         """return a view based on layout"""
         v = getTemplateFor(self, self.getLayout())
         return v(self, self.REQUEST)
 
     def templates(self):
-        at = getToolByName(self, TOOL_NAME) 
+        at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
 def getTemplateFor(self, pt):

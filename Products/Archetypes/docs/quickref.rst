@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/13 20:36:37 $
-:Version: $Revision: 1.2 $
+:Date: $Date: 2003/05/16 13:59:14 $
+:Version: $Revision: 1.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -218,35 +218,6 @@ Here is an example of a schema (from 'examples/SimpleType.py')::
      accessor -> getTitle()          here/getTitle
      mutator  -> setTitle(value)
 
-
-Widgets
--------
-
-When Archetypes generates a form from a schema, it uses one of the
-available Widgets for each field. You can tell Archetypes which widget
-to use for your field using the ``widget`` field property. Note,
-though, that a field cannot use just any widget, only one that yields
-data appropriate to its type. Below is a list of possible widget
-properties, with their default values (see 'generator/widget.py').
-Individual widgets may have additional properties.
-
-attributes
-   Used for??
-
-description: The tooltip for this field. Appears onFocus.
-
-description_msgid
-  i18n id for the description
-
-label
-  Is used as the label for the field when rendering the form
-
-label_msgid
-  i18n id for the label
-
-visible
-  Defaults to 1. Use 0 to render a hidden field, and -1 to skip rendering.
-
 Validators
 ----------
 
@@ -327,6 +298,75 @@ Then you need to register it in FooProduct/__init__.py method initialize::
     validation.register(FooValidator('isFoo'))
 
 The validator is now registered, and can be used in the schema of your type.
+
+Widgets
+-------
+
+When Archetypes generates a form from a schema, it uses one of the
+available Widgets for each field. You can tell Archetypes which widget
+to use for your field using the ``widget`` field property. Note,
+though, that a field cannot use just any widget, only one that yields
+data appropriate to its type. Below is a list of possible widget
+properties, with their default values (see 'generator/widget.py').
+Individual widgets may have additional properties.
+
+attributes
+   Used for??
+
+description: The tooltip for this field. Appears onFocus.
+
+description_msgid
+  i18n id for the description
+
+label
+  Is used as the label for the field when rendering the form
+
+label_msgid
+  i18n id for the label
+
+visible
+  Defaults to 1. Use 0 to render a hidden field, and -1 to skip rendering.
+
+Views
+-----
+
+Views are auto-generated for you by default, based on the options you
+specified on your ``Schema`` (Widgets, Fields, widget labels, etc.) if
+you use the default FTI actions (eg: dont provide an ``actions``
+attribute in your class. See `Additional notes about Factory Type
+Information`_).
+
+Customizing Views
+*****************
+
+If you want only to override a few parts of the
+generated View, like the header or footer you can:
+
+1. Create a template named ``${your_portal_type_lowercase}_view`` [#]_
+
+2. On this template you may provide the following macros::
+
+     header
+     body
+     footer
+
+3. When building the auto-generated view, archetypes will look for
+   these macros and include them in the view if available. Note that
+   the body macro overrides the auto-generated list of fields/values.
+
+.. [#] Currently, this is only implemented for the auto-generated
+   ``view`` template.
+
+or, for customizing only a widget:
+
+1. Set the attributes ``macro_view`` or ``macro_edit`` to the location
+   of your custom macro upon instantiation of the Widget.
+
+2. Your custom macro template must contain a macro with the same name
+   as the mode where it will be used. Eg: a template that is being
+   used on ``macro_view`` must have a macro named ``view``. The same
+   applies to ``macro_edit`` and ``edit``.
+
 
 Class Attributes
 ----------------
@@ -419,45 +459,78 @@ How to write your own SQLStorage
 
 XXX Not written yet.
 
-Views
------
+Marshall
+--------
 
-Views are auto-generated for you by default, based on the options you
-specified on your ``Schema`` (Widgets, Fields, widget labels, etc.) if
-you use the default FTI actions (eg: dont provide an ``actions``
-attribute in your class. See `Additional notes about Factory Type
-Information`_). 
+From The Free On-line Dictionary of Computing (09 FEB 02) [foldoc]:
 
-Customizing Views
-*****************
+  marshalling
 
-If you want only to override a few parts of the
-generated View, like the header or footer you can:
+     <communications> (US -ll- or -l-) The process of packing one
+     or more items of data into a message {buffer}, prior to
+     transmitting that message buffer over a communication channel.
+     The packing process not only collects together values which
+     may be stored in non-consecutive memory locations but also
+     converts data of different types into a standard
+     representation agreed with the recipient of the message.
 
-1. Create a template named ``${your_portal_type_lowercase}_view`` [#]_
+Marshalling is used in Archetypes to convert data into a single file
+for example, when someone fetches the content object via FTP or
+WebDAV. The inverse process is called ``Demarshalling``.
 
-2. On this template you may provide the following macros::
+Archetypes currently has a few sample marshallers, but they are
+somewhat experimental (there are no tests to confirm that they work,
+and that they will keep working). One of the sample marshallers is the
+``RFC822Marshaller``, which does a job very similar to what CMF does
+when using FTP and WebDAV with content types. Here's what happen,
+basically:
 
-     header
-     body
-     footer
+1. Find the primary field for the content object, if any.
 
-3. When building the auto-generated view, archetypes will look for
-   these macros and include them in the view if available. Note that
-   the body macro overrides the auto-generated list of fields/values.
+2. Get the content type for the primary field and its content.
 
-.. [#] Currently, this is only implemented for the auto-generated
-   ``view`` template.
+3. Build a dict with all the other fields and its values.
 
-or, for customizing only a widget:
+4. use the function ``formatRFC822Headers`` from ``CMFCore.utils`` to
+   encode the dict into RFC822-like fields.
 
-1. Set the attributes ``macro_view`` or ``macro_edit`` to the location
-   of your custom macro upon instantiation of the Widget.
+5. Append the primary field content as the body.
 
-2. Your custom macro template must contain a macro with the same name
-   as the mode where it will be used. Eg: a template that is being
-   used on ``macro_view`` must have a macro named ``view``. The same
-   applies to ``macro_edit`` and ``edit``.
+6. Return the result, content_type and data.
+
+When putting content back, the inverse is done:
+
+1. The body is separated from the headers, using ``parseHeadersBody``
+from ``CMFCore.utils``.
+
+2. The body, with the content type, is passed to the mutator of the
+primary field.
+
+3. For each of the headers, we call the mutator of the given matching
+field with the header value.
+
+Thats it.
+
+An example of using a Marshaller
+********************************
+
+To use a Marshaller, you just need to pass a Marshaller instance as
+one of the arguments for the Schema. For example::
+
+    from Products.Archetypes.Marshall import RFC822Marshaller
+    class Story(BaseContent):
+        schema = BaseSchema + Schema ((
+
+            TextField('story_description',
+                      primary = 1,
+                      default_output_type = 'text/plain',
+                      allowable_content_types = ('text/plain', 'text/restructured',),
+                widget = TextAreaWidget(label = 'Description',
+                                        description = 'A short story.'
+                                        )),
+
+            ),
+            marshall = RFC822Marshaller())
 
 
 
