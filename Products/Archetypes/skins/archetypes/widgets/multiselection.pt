@@ -11,7 +11,7 @@
     <metal:define define-macro="view">
       <metal:use use-macro="here/widgets/field/macros/view">
 	<metal:fill fill-slot="widget_view">
-	  <span tal:replace="python:', '.join(accessor())"/>
+	  <span tal:replace="python:', '.join([unicode(str(v)) for v in accessor()])"/>
 	</metal:fill>
       </metal:use>
     </metal:define>
