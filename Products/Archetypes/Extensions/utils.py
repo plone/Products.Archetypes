@@ -7,7 +7,8 @@ from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from OFS.ObjectManager import BadRequestException
 from Globals import package_home
-import sys, traceback, os, types
+import sys, traceback, os
+from types import *
 
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
@@ -153,7 +154,7 @@ def install_indexes(self, out, types):
         
         for field in cls.schema.fields():
             if field.index:
-                if type(field.index) is types.StringType:
+                if type(field.index) is StringType:
                     index = (field.index,)
                 else:
                     index = field.index
