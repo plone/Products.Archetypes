@@ -132,9 +132,14 @@ def install_actions(self, out, types):
                 #Look for each action we define in type.actions
                 #in typeInfo.action replacing it if its there and
                 #just adding it if not
-                new = list(typeInfo._actions)
+                if getattr(type,'include_default_actions',1):
+                    new = list(typeInfo._actions)
+                else:
+                    # if no standard actions are wished - dont display them
+                    new=[]
+
                 for action in type.actions:
-                    hit = findDict(typeInfo._actions, 'id', action['id'])
+                    hit = findDict(new, 'id', action['id'])
                     if hit:
                         hit.update(action)
                     else:
