@@ -21,6 +21,7 @@ from Products.Archetypes import listTypes
 from Products.Archetypes import SQLStorage
 from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.tests.test_rename import RenameTests
+from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 
 from DateTime import DateTime
@@ -258,14 +259,14 @@ for db_name in connectors.keys():
 
         def setUp(self):
             RenameTests.setUp(self)
+            site = self.root.testsite
             storage_class = getattr(SQLStorage, self.db_name + 'SQLStorage')
             gen_dummy(storage_class)
             self._storage_class = storage_class
-            self._dummy = dummy = Dummy(oid='dummy')
+            self._nwdummy = dummy = Dummy(oid='dummy')
+            self._dummy = dummy.__of__(site)
             dummy_tool = DummyTool(self.db_name)
-            dummy_tool.setup(dummy)
-            dummy.initalizeArchetype()
-            site = self.root.testsite
+            dummy_tool.setup(site)
             typesTool = site.portal_types
             typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id='Dummy',
@@ -274,10 +275,11 @@ for db_name in connectors.keys():
             
         def test_rename(self):
             site = self.root.testsite
-            obj_id = 'demodoc'
+            obj_id = 'dummy'
             new_id = 'new_demodoc'
-            site._setObject(obj_id, self._dummy)
+            site._setObject(obj_id, self._nwdummy)
             doc = getattr(site, obj_id)
+            doc.initalizeArchetype()
             content = 'The book is on the table!'
             doc.setAtextfield(content)
             self.failUnless(str(doc.getAtextfield()) == content)
@@ -286,6 +288,60 @@ for db_name in connectors.keys():
             site.manage_renameObject(obj_id, new_id)
             doc = getattr(site, new_id)
             self.failUnless(str(doc.getAtextfield()) == content)
+
+        def test_parentUID(self):
+            site = self.root.testsite
+            makeContent(site, portal_type='SimpleFolder', id='folder1')
+            folder1 = getattr(site, 'folder1')
+            makeContent(site, portal_type='SimpleFolder', id='folder2')
+            folder2 = getattr(site, 'folder2')
+            obj_id = 'dummy'
+            folder1._setObject(obj_id, self._nwdummy)
+            doc = getattr(folder1, obj_id)
+            doc.initalizeArchetype()
+            PUID1 = folder1.UID()
+            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            PUID = f.get(doc)
+            print repr(PUID), repr(PUID1)
+            self.failUnless(PUID == PUID1)
+            #make sure we have _p_jar
+            get_transaction().commit(1)
+            cb = folder1.manage_cutObjects(ids=(obj_id,))
+            folder2.manage_pasteObjects(cb)
+            PUID2 = folder2.UID()
+            doc = getattr(folder2, obj_id)
+            PUID = f.get(doc)
+            self.failUnless(PUID2 == PUID)
+
+        def test_emptyPUID(self):
+            site = self.root.testsite
+            obj_id = 'dummy'
+            site._setObject(obj_id, self._nwdummy)
+            doc = getattr(site, obj_id)
+            doc.initalizeArchetype()
+            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            PUID = f.get(doc)
+            self.failUnless(PUID is None)
+
+        def test_nomoreparentUID(self):
+            site = self.root.testsite
+            makeContent(site, portal_type='SimpleFolder', id='folder1')
+            folder1 = getattr(site, 'folder1')
+            obj_id = 'dummy'
+            folder1._setObject(obj_id, self._nwdummy)
+            doc = getattr(folder1, obj_id)
+            doc.initalizeArchetype()
+            PUID1 = folder1.UID()
+            f = ObjectField('PARENTUID', storage=doc.Schema()['atextfield'].storage)
+            PUID = f.get(doc)
+            self.failUnless(PUID == PUID1)
+            #make sure we have _p_jar
+            get_transaction().commit(1)
+            cb = folder1.manage_cutObjects(ids=(obj_id,))
+            site.manage_pasteObjects(cb)
+            doc = getattr(site, obj_id)
+            PUID = f.get(doc)
+            self.failUnless(PUID is None)
 
         def tearDown(self):
             SQLStorageTest.tearDown(self)

@@ -164,6 +164,7 @@ class ObjectField(Field):
 
     def get(self, instance, **kwargs):
         try:
+            kwargs['field'] = self
             return self.storage.get(self.name, instance, **kwargs)
         except AttributeError: # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
@@ -171,9 +172,11 @@ class ObjectField(Field):
             return self.default
         
     def set(self, instance, value, **kwargs):
+        kwargs['field'] = self
         self.storage.set(self.name, instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
+        kwargs['field'] = self
         self.storage.unset(self.name, instance, **kwargs)
 
     def setStorage(self, instance, storage):

@@ -59,9 +59,8 @@ class BaseObject(Implicit):
         if kwargs:
             self.update(**kwargs)
 
-    
     def manage_afterAdd(self, item, container):
-        self.initalizeLayers()
+        self.initalizeLayers(item, container)
         
     def manage_afterClone(self, item):
         pass
@@ -70,13 +69,13 @@ class BaseObject(Implicit):
         # should provide a hook for removing object
         # from database. Eg: when we are using
         # SQLStorage for a field.
-        self.cleanupLayers()
+        self.cleanupLayers(item, container)
 
-    def initalizeLayers(self):
-        self.Schema().initalizeLayers(self)
+    def initalizeLayers(self, item=None, container=None):
+        self.Schema().initalizeLayers(self, item, container)
 
-    def cleanupLayers(self):
-        self.Schema().cleanupLayers(self)
+    def cleanupLayers(self, item=None, container=None):
+        self.Schema().cleanupLayers(self, item, container)
 
     security.declarePublic("title_or_id")
     def title_or_id(self):

@@ -1,4 +1,4 @@
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
 from SQLMethod import SQLMethod
 from interfaces.storage import IStorage, ISQLStorage
@@ -14,9 +14,10 @@ class BaseSQLStorage(StorageLayer):
     __implements__ = (ISQLStorage, ILayer)
 
     query_create = """create table <dtml-var table> \
-                      (UID char(50) primary key not null <dtml-var columns>)"""
+                      (UID char(50) primary key not null, PARENTUID char(50), <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
-                      set UID=<dtml-sqlvar UID type="string">"""
+                      set UID=<dtml-sqlvar UID type="string">, \
+                      PARENTUID=<dtml-sqlvar PARENTUID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
@@ -68,7 +69,7 @@ class BaseSQLStorage(StorageLayer):
         query, result = method(test__=1, **args)
         return result
     
-    def initalizeInstance(self, instance):
+    def initalizeInstance(self, instance, item=None, container=None):
         if self.is_initialized(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be initialized twice
             return
@@ -81,6 +82,8 @@ class BaseSQLStorage(StorageLayer):
             type = self.db_type_map.get(field.type, field.type)
             name = field.name
             columns.append('%s %s' % (name, type))
+        parent = container or aq_parent(aq_inner(instance))
+        args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
         args['columns'] = ', ' + ', '.join(columns)
@@ -120,7 +123,7 @@ class BaseSQLStorage(StorageLayer):
             # ignore all calls before we're initialized - some manage_afterAdd() methods
             # try to get and set fields and we can't allow that to break
             return None
-        field = instance.getField(name)
+        field = kwargs.get('field', instance.getField(name))
         default = field.default
         args = {}
         args['table'] = instance.portal_type
@@ -139,7 +142,7 @@ class BaseSQLStorage(StorageLayer):
             # ignore all calls before we're initialized - some manage_afterAdd() methods
             # try to get and set fields and we can't allow that to break
             return None
-        field = instance.getField(name)
+        field = kwargs.get('field', instance.getField(name))
         mapper = getattr(self, 'map_' + field.type, None)
         if mapper is not None:
             value = mapper(field, value)
@@ -167,7 +170,7 @@ class BaseSQLStorage(StorageLayer):
 
     cleanupField = unset
     
-    def cleanupInstance(self, instance):
+    def cleanupInstance(self, instance, item=None, container=None):
         if self.is_cleaned(instance) or getattr(instance, '_is_fake_instance', None):
             # duh, we don't need to be cleaned twice
             return
@@ -214,9 +217,10 @@ class GadflySQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
-                      (UID varchar <dtml-var columns>)"""
+                      (UID varchar, PARENTUID varchar <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
-                      set UID=<dtml-sqlvar UID type="string">"""
+                      set UID=<dtml-sqlvar UID type="string">, \
+                      PARENTUID=<dtml-sqlvar PARENTUID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
@@ -235,9 +239,10 @@ class MySQLSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
-                      (UID char(50) primary key not null <dtml-var columns>)"""
+                      (UID char(50) primary key not null, PARENTUID char(50) <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
-                      set UID=<dtml-sqlvar UID type="string">"""
+                      set UID=<dtml-sqlvar UID type="string">, \
+                      PARENTUID=<dtml-sqlvar PARENTUID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
@@ -255,6 +260,18 @@ class MySQLSQLStorage(BaseSQLStorage):
         'string': 'text',
         }
 
+    def map_object(self, field, value):
+        __traceback_info__ = repr(value)
+        return repr(value)
+    
+    def unmap_object(self, field, value):
+        __traceback_info__ = repr(value)
+        # XXX dangerous!
+        try:
+            return eval(value, {})
+        except:
+            return None
+
     def table_exists(self, instance):
         result =  [r[0].lower() for r in self._query(instance, '''show tables''', {})]
         return instance.portal_type.lower() in result
@@ -263,9 +280,10 @@ class OracleSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
-                      (UID char(50) primary key not null <dtml-var columns>)"""
+                      (UID char(50) primary key not null, PARENTUID char(50) <dtml-var columns>)"""
     query_insert = """insert into <dtml-var table> \
-                      set UID=<dtml-sqlvar UID type="string">"""
+                      set UID=<dtml-sqlvar UID type="string">, \
+                      PARENTUID=<dtml-sqlvar PARENTUID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
@@ -282,9 +300,9 @@ class PostgreSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = """create table <dtml-var table> \
-                      (UID text primary key not null <dtml-var columns>)"""
-    query_insert = """insert into <dtml-var table> (UID) values\
-                      (<dtml-sqlvar UID type="string">)"""
+                      (UID text primary key not null, PARENTUID text <dtml-var columns>)"""
+    query_insert = """insert into <dtml-var table> (UID, PARENTUID) values\
+                      (<dtml-sqlvar UID type="string">, <dtml-sqlvar PARENTUID type="string">)"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
     query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \

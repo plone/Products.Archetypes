@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.1 2003/03/28 15:28:44 dreamcatcher Exp $
+$Id: test_sitepolicy.py,v 1.2 2003/03/28 21:25:43 dreamcatcher Exp $
 """
 
 import unittest
@@ -42,6 +42,7 @@ class SitePolicyTests( SecurityRequestTest ):
         portal_types = [ x for x in site.portal_types.listContentTypes()]
         self.failUnless('DDocument' in portal_types)
         self.failUnless('SimpleType' in portal_types)
+        self.failUnless('SimpleFolder' in portal_types)
         self.failUnless('Fact' in portal_types)
         
     def test_creationdemotypes(self):

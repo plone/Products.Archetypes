@@ -328,7 +328,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                     errors[name] = E
 
     #ILayerRuntime
-    def initalizeLayers(self, instance):
+    def initalizeLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
         # optionally call its initalizeInstance method and
         # then the initalizeField method
@@ -341,7 +341,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 for layer, object in layers:
                     if ILayer.isImplementedBy(object):
                         if not called((layer, object)):
-                            object.initalizeInstance(instance)
+                            object.initalizeInstance(instance, item, container)
                             # Some layers may have the same name, but different classes,
                             # so, they may still need to be initialized
                             initalizedLayers.append((layer, object))
@@ -353,10 +353,10 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             for layer, object in self.registeredLayers():
                 if not called((layer, object)) \
                    and ILayer.isImplementedBy(object):
-                    object.initalizeInstance(instance)
+                    object.initalizeInstance(instance, item, container)
                     initalizedLayers.append((layer, object))
 
-    def cleanupLayers(self, instance):
+    def cleanupLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers
         # optionally call its cleanupInstance method and
         # then the cleanupField method
@@ -375,13 +375,13 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
         for layer, object in queuedLayers:
             if ILayer.isImplementedBy(object):
-                object.cleanupInstance(instance)
+                object.cleanupInstance(instance, item, container)
                     
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
                 if not queued((layer, object)) and ILayer.isImplementedBy(object):
-                    object.cleanupInstance(instance)
+                    object.cleanupInstance(instance, item, container)
                     cleanedLayers.append((layer, object))
 
 #Reusable instance for MetadataFieldList
