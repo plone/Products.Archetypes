@@ -18,8 +18,9 @@
         <tal:if_use_label condition="use_label|nothing">
           <metal:use_label use-macro="label_macro" />
         </tal:if_use_label>
+	<metal:use_data use-macro="data_macro|default" />
       </tal:if_perm>
-      <metal:use_data use-macro="data_macro|default" />
+
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
