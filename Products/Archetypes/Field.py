@@ -148,10 +148,12 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given
+        instantiate the widget if a class was given and call widget.populate
         """
-        if hasattr(self, 'widget') and type(self.widget) == ClassType:
-            self.widget = self.widget()
+        if hasattr(self, 'widget'):
+            if type(self.widget) == ClassType:
+                self.widget = self.widget()
+            self.widget.populate(self)
 
     def _validationLayer(self):
         """
