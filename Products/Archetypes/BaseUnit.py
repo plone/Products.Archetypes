@@ -188,7 +188,7 @@ class BaseUnit(File, ObjectManager):
     __call__ = __str__
 
     def reConvert(self):
-        """reconvet an existing field"""
+        """reconvert an existing field"""
         driver = self.content_type.getConverter()
         self._update_data(self.data, self.content_type, driver)
         self.aq_parent.reindexObject()

@@ -11,7 +11,7 @@ try:
 except ImportError:
     log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
 
-    
+
 
 registerDirectory('skins', globals())
 
@@ -19,8 +19,6 @@ from ArchetypeTool import ArchetypeTool, \
                           registerType, \
                           process_types, \
                           listTypes
-
-
 
 tools = (
     ArchetypeTool,
@@ -46,11 +44,11 @@ def initialize(context):
                    ).initialize(context)
 
     if REGISTER_DEMO_TYPES:
-        import examples        
+        import examples
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)
-        
+
         utils.ContentInit(
             '%s Content' % PKG_NAME,
             content_types = content_types,
