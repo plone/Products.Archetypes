@@ -220,15 +220,20 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             return None
         return brains[0].getObject()
 
-    def _queryFor(self, sid=None, tid=None, relationship=None, merge=1):
+    def _queryFor(self, sid=None, tid=None, relationship=None, targetId=None, merge=1):
         """query reference catalog for object matching the info we are
-        given, returns brains"""
+        given, returns brains
+
+        Note: targetId is the actual id of the target object, not its UID
+        """
 
         q = {}
         if sid: q['sourceUID'] = sid
         if tid: q['targetUID'] = tid
         if relationship: q['relationship'] = relationship
+        if targetId: q['targetId'] = targetId
         brains = self.searchResults(q, merge=merge)
+
         return brains
 
 

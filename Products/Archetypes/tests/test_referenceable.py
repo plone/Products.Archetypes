@@ -110,7 +110,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         a.deleteReference(c, "Owns")
 
         assert a.getRefs() == [b]
-        assert c.getBRefs() == None
+        assert c.getBRefs() == []
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again

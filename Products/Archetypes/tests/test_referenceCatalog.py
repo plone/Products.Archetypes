@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.6 2004/01/19 17:59:29 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.7 2004/01/26 17:10:52 bcsaller Exp $
 """
 
 import os, sys
@@ -160,7 +160,7 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         # Assert that the reference is gone, that the UID is gone and
         # that the content is gone
-        self.failUnless(obj2.getBRefs() == None)
+        self.failUnless(obj2.getBRefs() == [])
         self.failIf(obj1.id in site.contentIds())
 
         self.failIf(uid1 in uc.uniqueValuesFor('UID'))

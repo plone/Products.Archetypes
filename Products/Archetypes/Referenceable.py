@@ -52,7 +52,7 @@ class Referenceable(Base):
         refs = tool.getReferences(self, relationship)
         if refs:
             return [ref.getTargetObject() for ref in refs]
-        return None
+        return []
 
     def getBRefs(self, relationship=None):
         """get all the back referenced objects for this object"""
@@ -60,7 +60,7 @@ class Referenceable(Base):
         refs = tool.getBackReferences(self, relationship)
         if refs:
             return [ref.getSourceObject() for ref in refs]
-        return None
+        return []
 
 
     def _register(self, reference_manager=None):
