@@ -31,7 +31,7 @@ from ZODB.PersistentMapping import PersistentMapping
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
-from transform.interfaces import idatastream
+from Products.PortalTransforms.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
 """Mime-types currently supported"""
@@ -509,7 +509,9 @@ class TextField(ObjectField):
         """
         Return value of object, transformed into requested mime type.
         If no requested type, then return value in default type. If raw 
-        format is specified, then return data unprocessed.
+        format is specified, try to transform data into the default output type
+        or to plain text. If we are unable to transform data, return an empty
+        string.
         """
         try:
             kwargs['field'] = self
@@ -633,6 +635,7 @@ class LinesField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class IntegerField(ObjectField):
+    """A field that stores an integer"""
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()

@@ -5,7 +5,7 @@ from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
-from transform.interfaces import idatastream
+from Products.PortalTransforms.interfaces import idatastream
 from StringIO import StringIO
 from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
