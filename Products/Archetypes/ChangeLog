@@ -1,3 +1,8 @@
+2003-07-07  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Extensions/utils.py: Removed hard dependencies on
+	PortalTransform. We will make it optional for 1.0
+
 2003-06-25  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* skins/archetypes/widgets/calendar.pt: Updated macro location to

@@ -4,7 +4,6 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-from Products.PortalTransforms.Extensions.Install import install as install_portal_transforms
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -13,6 +12,11 @@ from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
 from types import *
+
+try:
+    from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
+except:
+    def install_portal_transfoms(self): pass
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
