@@ -11,6 +11,7 @@ from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
 from Products.CMFPlone.PloneFolder import PloneFolder
 from DateTime import DateTime
+from Acquisition import aq_base, aq_parent
 
 from test_classgen import Dummy, gen_dummy
 
@@ -61,8 +62,9 @@ class ExtensibleMetadataTest( ArchetypesTestCase ):
         obj = self._dummy
         for field in fieldList:
             accessor = field[0]
-            if not accessor: continue
             fobj = getattr(obj, accessor, None)
+            if not fobj: 
+                self.fail('Missing accessor for field: %s' % str(field))
             self.failUnless(hasattr(obj, accessor), 'Missing accessor %s' % accessor)
             self.failUnless(type(fobj) is FunctionType or hasattr(fobj, '__call__'), 'Accessor %s is not callable' % accessor)
 
@@ -129,12 +131,21 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
         
         self.compareMetadataOf(self._parent, data='parent', time=1001)
         self.compareMetadataOf(self._dummy, data='dummy', time=9998)
+        
+    def testUnwrappedContext(self):
+        self.addMetadataTo(self._parent, data='parent', time=1001)
+        self.addMetadataTo(self._dummy, data='dummy', time=9998)
+        
+        self.compareMetadataOf(aq_base(self._parent), data='parent', time=1001)
+        self.compareMetadataOf(aq_base(self._dummy), data='dummy', time=9998)
+
+    def testIsParent(self):
+        self.failUnless(aq_base(aq_parent(self._dummy)) is aq_base(self._parent), 'Parent is not the parent of dummy! Some tests will give you false results!')
 
     def beforeTearDown(self):
         del self._dummy
         del self._parent
         ArchetypesTestCase.beforeTearDown(self)
-
 
 if __name__ == '__main__':
     framework()
