@@ -51,8 +51,6 @@ class widget:
         }
 
     def __init__(self, **kwargs):
-        # Hey, where's _processed used?!?
-        self._processed  = 0
         self._process_args(**kwargs)
 
     def _process_args(self, **kwargs):
