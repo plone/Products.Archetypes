@@ -12,10 +12,12 @@ from Products.Archetypes.Field import TextField
 from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
+from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.config import ATTRIBUTE_SECURITY
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -30,6 +32,7 @@ from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import _checkPermission as checkPerm
 from ZODB.POSException import ConflictError
 from ComputedAttribute import ComputedAttribute
 
@@ -39,6 +42,43 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 
 _marker = []
+
+class AttributeValidator(Implicit):
+    """ (Ab)Use the security policy implementation
+
+    This class will be used to protect attributes managed by
+    AttributeStorage with the same permission as the accessor method.
+
+    It does so by abusing a feature of the security policy
+    implementation that the
+    '__allow_access_to_unprotected_subobjects__' attribute can be (0,
+    1) or a dictionary of {name: 0|1} or a callable instance taking
+    'name' and 'value' arguments.
+
+    The said attribute is accessed through getattr(), so by
+    subclassing from Implicit we get the accessed object as our
+    aq_parent.
+
+    Next step is to check if the name is indeed a field name, and if
+    so, if it's using AttributeStorage, and if so, check the
+    read_permission against the object being accessed. All other cases
+    return '1' which means allow.
+    
+    Sidney
+    """
+
+    def __call__(self, name, value):
+        context = aq_parent(self)
+        schema = context.Schema()
+        if not schema.has_key(name):
+            return 1
+        field = schema[name]
+        if not isinstance(field.getStorage(), AttributeStorage):
+            return 1
+        perm = field.read_permission
+        if checkPerm(perm, context):
+            return 1
+        return 0
 
 content_type = Schema((
     StringField('id',
@@ -76,6 +116,14 @@ content_type = Schema((
 class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
+
+    # Protect AttributeStorage-based attributes. See the docstring of
+    # AttributeValidator for the low-down.
+    if ATTRIBUTE_SECURITY:
+        attr_security = AttributeValidator()
+        security.setDefaultAccess(attr_security)
+        # Delete so it cannot be accessed anymore.
+        del attr_security
 
     schema = type = content_type
     _signature = None

@@ -7,7 +7,7 @@ from types import StringType
 from zLOG import LOG, INFO, ERROR
 import warnings
 
-from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import PKG_NAME, DEBUG
 
 
 if os.name == 'posix':
@@ -171,7 +171,8 @@ def warn(msg, level=3):
     #   2: the line calling this function
     #   3: the line calling the function that
     #      called this function
-    warnings.warn(msg, UserWarning, level)
+    if DEBUG:
+        warnings.warn(msg, UserWarning, level)
 
 def deprecated(msg, level=3):
     # level is the stack level
@@ -179,7 +180,8 @@ def deprecated(msg, level=3):
     #   2: the line calling this function
     #   3: the line calling the function that
     #      called this function
-    warnings.warn(msg, DeprecationWarning, level)
+    if DEBUG:
+        warnings.warn(msg, DeprecationWarning, level)
 
 _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()

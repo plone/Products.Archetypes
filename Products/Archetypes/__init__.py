@@ -60,6 +60,7 @@ import Products.PortalTransforms
 import Products.generator
 import Products.validation
 
+# odd dependency checking :-/
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
 gen_info = getPkgInfo(Products.generator)

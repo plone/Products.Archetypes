@@ -38,7 +38,7 @@ from Products.Archetypes.tests.utils import makeContent
 
 from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__
-def pretty_exc(self, exc):
+def pretty_exc(self, exc, *args, **kw):
     t, e, tb = exc
     try:
         return ''.join(format_exception(t, e, tb, format_src=1))
