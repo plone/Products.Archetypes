@@ -35,6 +35,14 @@ from transform.interfaces import idatastream
 
 STRING_TYPES = [StringType, UnicodeType]
 
+def getLanguage(instance, lang):
+    try:
+        return instance.getContentLanguage(lang)
+    except AttributeError:
+        # this may occurs during object construction
+        # FIXME : in that case, we would like to get a default language from portal_properties
+        return 'en'
+    
 class Field(DefaultLayerContainer):
     __implements__ = (IField, ILayerContainer)
 
@@ -51,7 +59,7 @@ class Field(DefaultLayerContainer):
         'multiValued' : 0,
         'searchable' : 0,
         'isMetadata' : 0,
-
+        
         'accessor' : None,
         'edit_accessor' : None,
         'mutator' : None,
@@ -873,6 +881,7 @@ class ImageField(ObjectField):
     default_view = "view"
 
     def set(self, instance, value, **kwargs):
+##         instance = self.fixInstance(instance)
         # do we have to delete the image?
         if value=="DELETE_IMAGE":
             ObjectField.set(self, instance, None, **kwargs)
@@ -965,12 +974,6 @@ class I18NMixIn(ObjectField):
     this mix in is a litle bit tricky to allow it's use with any other fields.
     You should use it with care !
     class inheriting from this mixin should not be subclassed.
-
-
-    XXXFIXME for i18n content fields:
-       _ Catalog indexation
-       _ vocabulary
-       _ default value
     """
     def __init__(self, name, **kwargs):
         ObjectField.__init__(self, name, **kwargs)
@@ -1001,7 +1004,7 @@ class I18NMixIn(ObjectField):
 
 
     def get(self, instance, lang=None, **kwargs):
-        lang = instance.getLanguage(lang)
+        lang = getLanguage(instance, lang)
         mapping = self._get_mapping(instance)
         #log('I18Nget %s with %s %s %s from %r at %s' % (self.__name__, instance,
         #                                                lang, kwargs, mapping,
@@ -1009,6 +1012,7 @@ class I18NMixIn(ObjectField):
         try:
             return mapping[lang].get(instance, **kwargs)
         except KeyError:
+            # FIXME : fallback / initialization policy
             master_lang = instance.getMasterLanguage()
             if mapping.has_key(master_lang):
                 return mapping[master_lang].get(instance, **kwargs)
@@ -1019,7 +1023,7 @@ class I18NMixIn(ObjectField):
             return self._i18n_default
 
     def getRaw(self, instance, lang=None, **kwargs):
-        lang = instance.getLanguage(lang)
+        lang = getLanguage(instance, lang)
         mapping = self._get_mapping(instance)
         try:
             return mapping[lang].getRaw(instance, **kwargs)
@@ -1028,7 +1032,7 @@ class I18NMixIn(ObjectField):
 
     def set(self, instance, value, lang=None, **kwargs):
         value = value or self._i18n_default
-        lang = instance.getLanguage(lang)
+        lang = getLanguage(instance, lang)
         #log('I18Nset %s with %s %s %s %s' % (self.__name__, instance, lang, value, kwargs))
         mapping = self._get_mapping(instance)
         field = self._build_lang_field(instance, lang)
@@ -1037,6 +1041,7 @@ class I18NMixIn(ObjectField):
         self.storage.set(self.getName(), instance, mapping)
 
     def unset(self, instance, lang=None, **kwargs):
+        lang = getLanguage(instance, lang)
         mapping = self._get_mapping(instance)
         field = mapping.get(lang, None)
         if field:

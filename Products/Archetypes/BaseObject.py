@@ -318,30 +318,24 @@ class BaseObject(Implicit):
             if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
-        base_lang = self.getLanguage()
+        base_lang = self.getContentLanguage()
         if self.hasI18NContent():
-            # FIXME : update existant objects
+            # FIXME : update existant objects, remove latter
             if not hasattr(self, '_translations_states'):
                 self._translations_states = PersistentMapping()
-            # do we need to update the current language ?
-            lang = form.get('new_lang', form.get('lang', base_lang))
-            if lang != base_lang:
-                # FIXME: check this is a valid language id
-                self.languageDescription(lang)
-                # set language cookie
-                self.setI18NCookie(lang)            
             # set other translations as outdated if we are currently processing
             # the main translation
             m_lang = self.getMasterLanguage()
-            if lang == m_lang:
+            if base_lang == m_lang:
                 for lang_desc in self.getFilteredLanguages():
                     if lang_desc[0] != m_lang:
                         old_value = self._translations_states.get(lang_desc[0], '')
-                        self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
+                        if old_value.find('outdated') == -1:
+                            self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
                         
             # else try to get and set the translation state
             elif form.has_key('_translation_state'):
-                self._translations_states[lang] = form['_translation_state']
+                self._translations_states[base_lang] = form['_translation_state']
 
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
@@ -371,7 +365,7 @@ class BaseObject(Implicit):
                 __traceback_info__ = (self, field, mutator)
                 kwargs = {}
                 if field.hasI18NContent():
-                    kwargs['lang'] = lang
+                    kwargs['lang'] = base_lang
                     
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)
@@ -396,10 +390,7 @@ class BaseObject(Implicit):
     security.declarePublic("hasI18NContent")
     def hasI18NContent(self):
         """return true it the schema contains at least one I18N field"""
-        for field in self.Schema().values():
-            if field.hasI18NContent():
-                return 1
-        return 0
+        return self.Schema().hasI18NContent()
 
     security.declarePublic("getFilteredLanguages")
     def getFilteredLanguages(self, REQUEST=None):
@@ -419,24 +410,6 @@ class BaseObject(Implicit):
                 continue
         return result
 
-    security.declarePublic("getLanguage")
-    def getLanguage(self, lang=None):
-        """return the id for the current language"""
-        if lang:
-            return lang
-        REQUEST = self.REQUEST
-        if REQUEST is not None and hasattr(REQUEST, 'form'):
-            language = REQUEST.form.get('lang')
-            if language is None and hasattr(REQUEST, 'cookies'):
-                language = REQUEST.cookies.get('I18N_CONTENT_LANGUAGE', 'en')
-        else:
-            try:
-                sp = self.portal_properties.site_properties
-                language = sp.getProperty('default_language', 'en')
-            except AttributeError:
-                language = None
-        return language or "en"
-
     security.declarePublic("getMasterLanguage")
     def getMasterLanguage(self):
         """return the id for the master language"""
@@ -451,7 +424,7 @@ class BaseObject(Implicit):
     security.declarePublic("getTranslationState")
     def getTranslationState(self, lang=None):
         """return the string describing the translation state"""
-        lang = self.getLanguage(lang)
+        lang = self.getContentLanguage(lang)
         try:
             return self._translations_states[lang]
         except:
@@ -471,7 +444,10 @@ class BaseObject(Implicit):
             del kwargs["setmaster"]
             if len(kwargs) != 1:
                 raise Exception('You must select one language to set it as the master translation')
-            self._master_language = kwargs.keys()[0]
+            lang = kwargs.keys()[0]
+            # check this is a valid language id
+            self.languageDescription(lang)    
+            self._master_language = lang
         else:
             if kwargs.has_key(self.getMasterLanguage()):
                 raise Exception('You can not delete the master translation')
