@@ -28,3 +28,6 @@ ZOPE_LINES_IS_TUPLE_TYPE = 1
 ## To use connections with ACID transactions you should define it as
 ## INNODB. The MySQL default table type is MyISAM.
 MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
+
+## Debug security settings of Fields, Widgets and Storages?
+DEBUG_SECURITY=False

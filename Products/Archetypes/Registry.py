@@ -8,6 +8,8 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
 
+from config import DEBUG_SECURITY
+
 def getDoc(klass):
     doc = klass.__doc__ or ''
     return doc
@@ -161,7 +163,13 @@ class TypeDescription:
     def basetypes(self):
         return findBaseTypes(self.klass)
 
-def setSecurity(klass, defaultAccess='deny', objectPermission=None):
+def setSecurity(klass, defaultAccess=None, objectPermission=None):
+    """Set security of classes
+    
+    * Adds ClassSecurityInfo if necessary
+    * Sets default access ('deny' or 'allow')
+    * Sets permission of objects
+    """
     if not klass.__dict__.has_key('security'):
         security = klass.security = ClassSecurityInfo()
     else:
@@ -170,30 +178,35 @@ def setSecurity(klass, defaultAccess='deny', objectPermission=None):
         security.setDefaultAccess(defaultAccess)
     if objectPermission:
         security.declareObjectProtected(objectPermission)
-    if hasattr(klass, '__allow_access_to_unprotected_subobjects__'):
-        # XXX debugging code
-        print 'Warning: Unprotected access to %s is allowed' % klass.__name__
-        pass
     InitializeClass(klass)
+    if DEBUG_SECURITY:
+        if hasattr(klass, '__allow_access_to_unprotected_subobjects__'):
+            print '%s: Unprotected access is allowed' % klass.__name__
+        for name in dir(klass):
+            method = getattr(klass, name)
+            if name.startswith('_') or type(method) != types.MethodType:
+                continue
+            if not hasattr(klass, '%s__roles__' % name):
+                print '%s.%s has no security' % (klass.__name__, name)
 
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
-    setSecurity(klass)
+    setSecurity(klass, defaultAccess=None, objectPermission=None)
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
-    setSecurity(klass)
+    setSecurity(klass, defaultAccess=None, objectPermission=None)
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
 def registerStorage(klass, **kw):
-    setSecurity(klass)
+    setSecurity(klass, defaultAccess=None, objectPermission=None)
     storage = StorageDescription(klass, **kw)
     storageDescriptionRegistry.register(storage.id, storage)
 
