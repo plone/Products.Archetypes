@@ -203,7 +203,8 @@ class Field(DefaultLayerContainer):
             return res
 
         for v in self.validators:
-            res = validation.validate(v, value, **kwargs)
+            res = validation.validate(v, value, instance=instance,
+                                      errors=errors, **kwargs)
             if res != 1:
                 return res
         return None
