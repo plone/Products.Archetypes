@@ -135,6 +135,7 @@ class ImageWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/image",
+        'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
 
