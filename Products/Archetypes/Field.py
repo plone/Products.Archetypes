@@ -677,7 +677,9 @@ class FileField(ObjectField):
                 # This new file has no length, so we keep the orig
                 return default, mimetype, filename
             return value, mimetype, filename
-        raise FileFieldException('Value is not File or String')
+        klass = getattr(value, '__class__', None)
+        raise FileFieldException('Value is not File or String (%s - %s)' %
+                                 (type(value), klass))
 
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
