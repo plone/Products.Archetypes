@@ -41,7 +41,7 @@ from Products.CMFCore.utils import minimalpath
 from Products.Archetypes.lib.register import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
+from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
 from Products.Archetypes.config import *
 
 from Products.CMFFormController.Extensions.Install \

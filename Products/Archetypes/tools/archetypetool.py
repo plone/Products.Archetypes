@@ -36,6 +36,7 @@ from StringIO import StringIO
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
 from Products.Archetypes.lib.classgen import generateClass
 from Products.Archetypes.lib.classgen import generateCtor
 from Products.Archetypes.lib.classgen import generateZMICtor
