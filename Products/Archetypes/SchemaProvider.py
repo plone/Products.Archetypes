@@ -1,3 +1,4 @@
+from Acquisition import aq_inner, aq_parent
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.Schema import Schema
 from Acquisition import Implicit
@@ -96,6 +97,23 @@ class AcquisitionCollector(Collector):
     def getProviders(self, instance, providers=None):
         providers = self._defaultSchema(instance, providers)
         provider = instance.aq_parent
+        schema = self._getSchema(provider)
+        if schema:
+            providers.insert(0, SchemaResult(provider.getSchemaPriority(),
+                                             schema,
+                                             self._checksum(schema),
+                                             provider))
+            # and recurse
+            collector = provider.getSchemaCollector()
+            collector.getProviders(provider, providers)
+            
+        return providers
+
+class ContainerCollector(Collector):
+    name = "container""
+    def getProviders(self, instance, providers=None):
+        providers = self._defaultSchema(instance, providers)
+        provider = aq_parent(aq_inner(instance))
         schema = self._getSchema(provider)
         if schema:
             providers.insert(0, SchemaResult(provider.getSchemaPriority(),
