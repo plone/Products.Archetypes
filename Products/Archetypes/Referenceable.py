@@ -11,7 +11,6 @@ from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
