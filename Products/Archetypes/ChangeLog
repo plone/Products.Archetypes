@@ -1,3 +1,10 @@
+2003-04-17  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ArchetypeTool.py (listTypes): deprecated old listTypes, but keep
+	the import working, this should avoid a class of errors coming
+	from 'near misses' on the imports
+
+
 2003-04-16  Sidnei da Silva  <sidnei@x3ng.com>
 
         * BaseFolder.py: Add ExtensibleMetadata.schema to the Folder

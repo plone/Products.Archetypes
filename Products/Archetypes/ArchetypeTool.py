@@ -110,11 +110,11 @@ def process_types(types, pkg_name):
     constructors  = ()
     ftis          = ()
 
-
-    for klass in types:
-        module = sys.modules[klass.__module__]
-        type   = klass.__name__
-
+    for rti in types:
+        typeName = rti['name']
+        klass  = rti['klass']
+        module = rti['module']
+        
         if hasattr(module, "factory_type_information"):
             fti = module.factory_type_information
         else:
@@ -124,11 +124,11 @@ def process_types(types, pkg_name):
         # Add a callback to modifty the fti
         if hasattr(module, "modify_fti"):
             module.modify_fti(fti[0])
-
-        ctor   = getattr(module, "add%s" % capitalize(type),
+        ctor   = getattr(module, "add%s" % capitalize(typeName),
                          None)
         if ctor is None:
-            ctor = generateCtor(type, module)
+            ctor = generateCtor(typeName, module)
+            
 
         content_types += (klass,)
         constructors  += (ctor,)
@@ -148,22 +148,23 @@ def _guessPackage(base):
     return base
 
 
-def registerType(type, package=None):
-    if not package: package = _guessPackage(type.__module__)
-
+def registerType(klass, package=None):
+    if not package: package = _guessPackage(klass.__module__)
+    
     ## registering a class results in classgen doing its thing
     ## Set up accessor/mutators and sane meta/portal_type
-    generateClass(type)
+    generateClass(klass)
 
     data = {
-        'klass' : type,
-        'name'  : type.meta_type,
+        'klass' : klass,
+        'name'  : klass.meta_type,
         'package' : package,
-        'schema' : type.schema,
+        'module' : sys.modules[klass.__module__],
+        'schema' : klass.schema,
         # backward compatibility, remove later
-        'type' : type.schema,
+        'type' : klass.schema,
         }
-    _types[type.meta_type] = data
+    _types[klass.meta_type] = data
 
 def listTypes(package=None):
     values = _types.values()
