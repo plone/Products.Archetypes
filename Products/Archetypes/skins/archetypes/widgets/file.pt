@@ -17,7 +17,8 @@
                            icon unit/getBestIcon | nothing;
                            filename unit/filename | nothing"
                    condition="python:size > 0">
-          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/download">
+
+          <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/at_download">
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
               <tal:i18n i18n:translate="">View</tal:i18n>
@@ -32,6 +33,7 @@
             <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
             <tal:i18n i18n:translate="">Edit</tal:i18n>
           </a>
+
         </tal:block>
       </tal:define>
     </div>
