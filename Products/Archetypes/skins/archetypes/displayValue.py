@@ -15,7 +15,7 @@ except AttributeError:
         # Maybe a list?
         return ', '.join([vocab.getValue(context.unicodeEncode(str(v)),
                                          context.unicodeEncode(str(v))) \
-                          for v in value])
+                          for v in value if v])
     except TypeError:
         pass
 
