@@ -305,7 +305,7 @@ class IntegerField(ObjectField):
         try:
             value = int(value)
         except TypeError:
-            value = None
+            value = self.default
         
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -334,7 +334,9 @@ class FixedPointField(ObjectField):
 
     def get(self, instance, **kwargs):
         template = '%%d.%%0%dd' % self.precision
-        return template % ObjectField.get(self, instance, **kwargs)
+        value = ObjectField.get(self, instance, **kwargs)
+        __traceback_info__ = (template, value)
+        return template % value
 
 class ReferenceField(ObjectField):
     __implements__ = ObjectField.__implements__
@@ -345,6 +347,8 @@ class ReferenceField(ObjectField):
         'default': None,
         'widget' : ReferenceWidget,
         'allowed_types' : (),
+        'addable': 0,
+        'destination': None,
         })
 
     def Vocabulary(self, content_instance=None):
@@ -568,22 +572,20 @@ class ImageField(ObjectField):
 
         # test for scaling it.
         if self.original_size and has_pil:
-            mime_type = kwargs.get('mime_type', 'image/gif')
+            mime_type = kwargs.get('mime_type', 'image/png')
             image = Image(self.name, self.name, value, mime_type)
             data=image.data
             w,h=self.original_size
             imgdata=self.scale(data,w,h)
-            mime_type="image/jpeg"
         else:
-            mime_type = kwargs.get('mime_type', 'image/gif')
+            mime_type = kwargs.get('mime_type', 'image/png')
             imgdata=value
 
         image = Image(self.name, self.name, imgdata, mime_type)
         ObjectField.set(self, instance, image, **kwargs)
 
-
         # now create the scaled versions
-        if not has_pil: 
+        if not has_pil or not self.sizes: 
             return
 
         data=image.data

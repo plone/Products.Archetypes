@@ -124,15 +124,17 @@ class Schema(UserDict, DefaultLayerContainer):
         """
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
-            if not hasattr(aq_base(instance), field.name) and \
-               getattr(instance, field.name, None):
+            if field.name.lower() != 'id':
+                # always set defaults
+                #if not hasattr(aq_base(instance), field.name) and \
+                #   getattr(instance, field.name, None):
                 default = field.default
                 #See if the instance has a method named the default
                 ##default = getattr(instance, default, default)
-                ###if it does call it
+                #if it does call it
                 ##if callable(default):
                 ##    default = default()
-
+            
                 field.set(instance, default)
                 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'updateAll')
@@ -199,12 +201,16 @@ class Schema(UserDict, DefaultLayerContainer):
                     try:
                         accessor = getattr(instance, self.accessor)
                         unit = accessor()
-                        if hasattr(unit, 'isUnit'): ##XXX to implements
+                        if IBaseUnit.isImplementedBy(unit):
                             if unit.filename != '':
                                 value = unit.filename #doesn't matter what it is
+                        elif hasattr(aq_base(unit), 'isBinary') and \
+                             unit.isBinary():
+                            value = unit
                     except:
                         pass
-                if not value and isinstance(value, FileUpload) and value.filename!='':
+                if ((isinstance(value, FileUpload) and value.filename != '') or
+                    (isinstance(value, FileType) and value.name != '')):
                     #OK, its a file, is it empty?
                     value.seek(-1, 2)
                     size = value.tell()

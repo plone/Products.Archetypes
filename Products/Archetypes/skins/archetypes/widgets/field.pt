@@ -9,7 +9,7 @@
     <!-- Base Field Widgets -->
     <div metal:define-macro="view">
       <div tal:condition="python:'view' in widget.modes">
-	<strong tal:content="string:${fieldName/capitalize}:">Field</strong>
+	<strong tal:content="string:${widget/label}:">Field</strong>
         <span tal:condition="field/workflowable|nothing"
               tal:omit-tag="">
         (<a href="#"
