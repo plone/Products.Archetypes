@@ -15,4 +15,4 @@ USE_NEW_BASEUNIT = 1
 ##ordered folder handling
 ##implement the old style ordered folder?
 ##for backward compatibility reasons only
-USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 1
+USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
