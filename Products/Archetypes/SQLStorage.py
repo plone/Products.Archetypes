@@ -141,6 +141,7 @@ class BaseSQLStorage(StorageLayer):
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         args['columns'] = ', ' + ', '.join(columns)
         if not self.table_exists(instance):
             self._query(instance, self.query_create, args)
@@ -181,6 +182,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        args['db_encoding']=kwargs.get('db_encoding',None)
         args['field'] = name
         result = self._query(instance, self.query_select, args)
         result = result[0][0]
@@ -205,6 +207,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         field_name = '%s:%s' % (name, type)
         if default:
             if type == 'string':
@@ -238,6 +241,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
