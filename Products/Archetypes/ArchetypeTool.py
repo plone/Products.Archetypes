@@ -288,9 +288,9 @@ def registerType(klass, package=None):
         existing = _types[key]
         existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
         override_name = '%s.%s' % (data['module'].__name__, data['name'])
-        zLOG.LOG('ArchetypesTool', zLOG.WARNING, ('Trying to register "%s" which '
-                 'has already been registered.  The new type %s '
-                 'is going to override %s') % (key, override_name, existing_name))
+        log('ArchetypesTool: Trying to register "%s" which ' \
+                 'has already been registered.  The new type %s ' \
+                 'is going to override %s' % (key, override_name, existing_name))
     _types[key] = data
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
