@@ -3,6 +3,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
+from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
 
@@ -209,7 +210,8 @@ class ReferenceWidget(TypesWidget):
         for typeid in field.allowed_types:
             info = tool.getTypeInfo(typeid)
             if info is None:
-                raise ValueError, 'No such portal type: %s' % typeid
+                log("Warning: in Archetypes.Widget.lookupDestinationsFor: portal type %s not found" % typeid )
+                continue
 
             value = {}
             value['id'] = typeid
