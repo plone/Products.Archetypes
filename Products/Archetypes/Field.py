@@ -337,10 +337,7 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            if USE_NEW_BASEUNIT:
-                bu = BaseUnit(self.name, instance, value, mimetype=mime_type)
-            else:
-                bu = BaseUnit(self.name, value, mime_type)
+            bu = BaseUnit(self.name, value, mime_type=mime_type)
 
         ObjectField.set(self, instance, bu, **kwargs)
 

@@ -1,3 +1,4 @@
+from Acquisition import aq_base
 from interfaces.marshall import IMarshall
 from interfaces.layer import ILayer
 from interfaces.base import IBaseUnit
@@ -22,8 +23,10 @@ class Marshaller:
         instance.marshall_hook = m_hook
 
     def cleanupInstance(self, instance, item=None, container=None):
-        delattr(instance, 'demarshall_hook')
-        delattr(instance, 'marshall_hook')
+        if hasattr(aq_base(instance), 'demarshall_hook'):
+            delattr(instance, 'demarshall_hook')
+        if hasattr(aq_base(instance), 'marshall_hook'):
+            delattr(instance, 'marshall_hook')
 
 class DublinCoreMarshaller(Marshaller):
     ## XXX TODO -- based on CMFCore.Document

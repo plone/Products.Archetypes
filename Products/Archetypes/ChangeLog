@@ -1,3 +1,11 @@
+2003-04-23  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* Marshall.py (Marshaller.cleanupInstance): Avoid trying to delete
+	the hook twice. XXX Need to find out why it is being called twice.
+
+	* Field.py (TextField.set): The the mime-type parameter is spelled
+	mime_type, also, the new BaseUnit doesnt accepts an instance parameter.
+
 2003-04-22  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* tests/test_referenceable.py
