@@ -14,6 +14,27 @@ class Dummy(BaseContent):
     def __init__(self, oid, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.initializeArchetype()
+
+        self.firstname = ''
+        self.lastname = ''
+
+
+    def get_name(self, name, instance, **kwargs):
+        """ aggregator """
+        print 'inside get_name'
+        print 'x'*100
+        return {'whole_name' : instance.firstname + " " + instance.lastname }
+
+    def set_name(self, name, instance, value, **kwargs):
+        """ disaggregator """
+        print 'inside set_name'
+        print 'x'*100
+        try:
+            firstname, lastname = value.split(' ')
+        except:
+            firstname = lastname = ''
+        setattr(instance, 'firstname', firstname)
+        setattr(instance, 'lastname', lastname)
  
 registerType(Dummy)
 
@@ -23,22 +44,24 @@ class AggregatedStorageTest(unittest.TestCase):
 
     def setUp(self):
         self._storage = AggregatedStorage()
-        self._storage.registerAggregator('firstname', 'ag_firstname')
-        self._storage.registerAggregator('lastname', 'ag_lastname')
-        self._storage.registerDisaggregator('firstname', 'dag_firstname')
-        self._storage.registerDisaggregator('lastname', 'dag_lastname')
+        self._storage.registerAggregator('whole_name', 'get_name')
+        self._storage.registerDisaggregator('whole_name', 'set_name')
 
         
-        schema = Schema( (StringField('firstname', storage=self._storage),
-                          StringField('lastname', storage=self._storage),
+        schema = Schema( (StringField('whole_name', storage=self._storage),
                          )) 
 
         self._instance = Dummy('dummy')
         self._instance.schema = schema
 
     def test_basetest(self):
-#        self.assertRaises(KeyError, self._storage.registerDisaggregator, ('lastname', 'dag_lastname'))
-        pass
+        field = self._instance.Schema()['whole_name']
+        
+        self.assertEqual(field.get(self._instance).strip(), '')
+        field.set(self._instance, 'Donald Duck')
+        self.assertEqual(self._instance.firstname, 'Donald')
+        self.assertEqual(self._instance.lastname, 'Duck')
+        self.assertEqual(field.get(self._instance).strip(), 'Donald Duck')
 
 
 tests.append(AggregatedStorageTest)
