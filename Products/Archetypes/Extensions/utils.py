@@ -168,11 +168,13 @@ def install_additional_templates(self, out, types):
             portal_type = klass.portal_type
             default_view = getattr(klass, 'default_view', 'base_view')
             suppl_views = getattr(klass, 'suppl_views', ())
-            views = ['base_view',]
+            views = []
 
-            if default_view != 'base_view':
-                at.registerTemplate(default_view)
-                views.append(default_view)
+            if not default_view:
+                default_view = 'base_view'
+
+            at.registerTemplate(default_view)
+            views.append(default_view)
 
             for view in suppl_views:
                 at.registerTemplate(view)
