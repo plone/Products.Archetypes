@@ -16,7 +16,6 @@ from utils import DisplayList
 from Products.CMFDefault.utils import _dtmldir
 _marker=[]
 
-
 FLOOR_DATE = DateTime( 1000, 0 ) # always effective
 CEILING_DATE = DateTime( 9999, 0 ) # never expires
 
@@ -35,83 +34,96 @@ class ExtensibleMetadata(Persistence.Persistent):
     # security.declareObjectPublic()
     # security.setDefaultAccess('allow')
 
-    schema = type = MetadataSchema((
-        StringField('allowDiscussion',
-                    accessor="isDiscussable",
-                    mutator="allowDiscussion",
-                    default=None,
-                    enforceVocabulary=1,
-                    vocabulary=DisplayList(((0, 'Disabled'), (1, 'Enabled'),
-                                            (None, 'Default'))),
-                    widget=SelectionWidget(label="Allow Discussion?",
-                                           label_msgid="label_allow_discussion",
-                                           description_msgid="help_allow_discussion",
-                                           i18n_domain="plone"),
-                    ),
+    schema = type = MetadataSchema(
+        (
+        StringField(
+            'allowDiscussion',
+            accessor="isDiscussable",
+            mutator="allowDiscussion",
+            default=None,
+            enforceVocabulary=1,
+            vocabulary=DisplayList(((0,'Disabled'),(1,'Enabled'),
+                                   (None,'Default'))),
+            widget=SelectionWidget(
+                label="Allow Discussion?",
+                label_msgid="label_allow_discussion",
+                description_msgid="help_allow_discussion",
+                i18n_domain="plone"),
+        ),
+        LinesField(
+            'subject',
+            multiValued=1,
+            accessor="Subject",
+            widget=KeywordWidget(
+                label="Keywords",
+                label_msgid="label_keywords",
+                description_msgid="help_keywords",
+                i18n_domain="plone"),
+        ),
+        TextField(
+            'description',
+            default='',
+            searchable=1,
+            accessor="Description",
+            widget=TextAreaWidget(
+                label='Description',
+                description="An administrative summary of the content",
+                label_msgid="label_description",
+                description_msgid="help_description",
+                i18n_domain="plone"),
+        ),
+        LinesField(
+            'contributors',
+            accessor="Contributors",
+            widget=LinesWidget(
+                label='Contributors',
+                label_msgid="label_contributors",
+                description_msgid="help_contributors",
+                i18n_domain="plone"),
+        ),
+        DateTimeField(
+            'effectiveDate',
+            mutator = 'setEffectiveDate',
+            widget=CalendarWidget(
+                label="Effective Date",
+                description=("Date when the content should become available"
+                             "on the public site"),
+                label_msgid="label_effective_date",
+                description_msgid="help_effective_date",
+                i18n_domain="plone"),
+        ),
+        DateTimeField(
+            'expirationDate',
+            mutator = 'setExpirationDate',
+            widget=CalendarWidget(
+                label="Expiration Date",
+                description=("Date when the content should no longer be "
+                             "visible on the public site"),
+                label_msgid="label_expiration_date",
+                description_msgid="help_expiration_date",
+                i18n_domain="plone"),
+        ),
 
-        LinesField('subject',
-                   multiValued=1,
-                   accessor="Subject",
-                   widget=KeywordWidget(label="Keywords",
-                                        label_msgid="label_keywords",
-                                        description_msgid="help_keywords",
-                                        i18n_domain="plone"),
-                   ),
-
-        TextField('description',
-                      default='',
-                      searchable=1,
-                      accessor="Description",
-                      widget=TextAreaWidget(label='Description',
-                                            description="An administrative summary of the content",
-                                            label_msgid="label_description",
-                                            description_msgid="help_description",
-                                            i18n_domain="plone"),
-                      ),
-
-        LinesField('contributors',
-                   accessor="Contributors",
-                   widget=LinesWidget(label='Contributors',
-                                      label_msgid="label_contributors",
-                                      description_msgid="help_contributors",
-                                      i18n_domain="plone"),
-                   ),
-
-        DateTimeField('effectiveDate',
-                      accessor="EffectiveDate",
-#                      default=FLOOR_DATE,
-                      widget=CalendarWidget(label="Effective Date",
-                                            description="Date when the content should become availble on the public site",
-                                            label_msgid="label_effective_date",
-                                            description_msgid="help_effective_date",
-                                            i18n_domain="plone")),
-
-        DateTimeField('expirationDate',
-                      accessor="ExpirationDate",
-#                      default=CEILING_DATE,
-                      widget=CalendarWidget(label="Expiration Date",
-                                            description="Date when the content should no longer be visible on the public site",
-                                            label_msgid="label_expiration_date",
-                                            description_msgid="help_expiration_date",
-                                            i18n_domain="plone")),
-
-        StringField('language',
-                      accessor="Language",
-                      default="en",
-                      vocabulary='languages',
-                      widget=SelectionWidget(label='Language',
-                                             label_msgid="label_language",
-                                             description_msgid="help_language",
-                                             i18n_domain="plone"),
-                      ),
-
-        StringField('rights',
-                      accessor="Rights",
-                      widget=TextAreaWidget(label='Copyright',
-                                            description="A list of copyright info for this content",
-                                            label_msgid="label_copyrights",
-                                            description_msgid="help_copyrights",
-                                            i18n_domain="plone")),
+        StringField(
+            'language',
+            accessor="Language",
+            default="en",
+            vocabulary='languages',
+            widget=SelectionWidget(
+                label='Language',
+                label_msgid="label_language",
+                description_msgid="help_language",
+                i18n_domain="plone"),
+        ),
+        StringField(
+            'rights',
+            accessor="Rights",
+            widget=TextAreaWidget(
+                label='Copyright',
+                description="A list of copyright info for this content",
+                label_msgid="label_copyrights",
+                description_msgid="help_copyrights",
+                i18n_domain="plone")),
         ))
 
     def __init__(self):
@@ -122,12 +134,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(CMFCorePermissions.View,
                               'isDiscussable')
     def isDiscussable(self, encoding=None):
-        result = None
-        try:
-            result = getToolByName(self, 'portal_discussion').isDiscussionAllowedFor(self)
-        except:
-            pass
-        return result
+        dtool = getToolByName(self, 'portal_discussion')
+        return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'allowDiscussion')
@@ -135,12 +143,12 @@ class ExtensibleMetadata(Persistence.Persistent):
         if allowDiscussion is not None:
             try:
                 allowDiscussion = int(allowDiscussion)
-            except:
+            except (TypeError, ValueError):
                 allowDiscussion = allowDiscussion.lower().strip()
-                allowDiscussion = {'on' : 1, 'off': 0,
-                                   'none':None, '':None}.get(allowDiscussion, None)
-        getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)
-
+                d = {'on' : 1, 'off': 0, 'none':None, '':None}
+                allowDiscussion = d.get(allowDiscussion, None)
+        dtool = getToolByName(self, 'portal_discussion')
+        dtool.overrideDiscussionFor(self, allowDiscussion)
 
     # Vocabulary methods ######################################################
 
@@ -149,8 +157,9 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         available_langs = getattr(self, 'availableLanguages', None)
         if available_langs is None:
-            return DisplayList((('en','English'), ('fr','French'), ('es','Spanish'),
-                                ('pt','Portuguese'), ('ru','Russian')))
+            return DisplayList(
+                (('en','English'), ('fr','French'), ('es','Spanish'),
+                 ('pt','Portuguese'), ('ru','Russian')))
         if callable(available_langs):
             available_langs = available_langs()
         return DisplayList(available_langs)
@@ -165,7 +174,25 @@ class ExtensibleMetadata(Persistence.Persistent):
             Dublin Core element - date resource created.
         """
         # return unknown if never set properly
-        return self.creation_date.ISO()
+        return self.creation_date and self.creation_date.ISO() or 'Unknown'
+
+    security.declarePublic( CMFCorePermissions.View,
+                            'EffectiveDate')
+    def EffectiveDate( self ):
+        """
+            Dublin Core element - date resource becomes effective.
+        """
+        ed = self.schema['effectiveDate'].get(self)
+        return ed and ed.ISO() or 'None'
+
+    security.declarePublic( CMFCorePermissions.View,
+                            'ExpirationDate')
+    def ExpirationDate( self ):
+        """
+            Dublin Core element - date resource expires.
+        """
+        ed = self.schema['expirationDate'].get(self)
+        return ed and ed.ISO() or 'None'
 
     security.declareProtected(CMFCorePermissions.View,
                               'Date')
@@ -173,9 +200,10 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         Dublin Core element - default date
         """
-        # Return effective_date if specificall set, modification date otherwise
-        date = self.EffectiveDate()
-        if date is None or date == 'None' or date == CEILING_DATE:
+        # Return effective_date if specifically set, modification date
+        # otherwise
+        date = self.schema['effectiveDate'].get(self)
+        if date is None:
             date = self.modified()
         return date.ISO()
 
@@ -200,10 +228,13 @@ class ExtensibleMetadata(Persistence.Persistent):
                               'isEffective')
     def isEffective( self, date ):
         """ Is the date within the resource's effective range? """
-        eff_date = self.EffectiveDate()
-        if not eff_date:
-            eff_date = FLOOR_DATE
-        return eff_date <= date and not self.isExpired()
+        effectiveDate = self.schema['effectiveDate'].get(self)
+        expirationDate = self.schema['effectiveDate'].get(self)
+        pastEffective = ( effectiveDate is None
+                       or effectiveDate <= date )
+        beforeExpiration = ( expirationDate is None
+                          or expirationDate >= date )
+        return pastEffective and beforeExpiration
 
     security.declareProtected(CMFCorePermissions.View,
                               'isExpired')
@@ -212,10 +243,10 @@ class ExtensibleMetadata(Persistence.Persistent):
         if not date:
             # XXX we need some unittesting for this
             date = DateTime()
-        exp_date = self.ExpirationDate()
-        if not exp_date:
-            exp_date = CEILING_DATE
-        return exp_date < date
+        expirationDate = self.schema['expirationDate'].get(self)
+        if not expirationDate:
+            expirationDate = CEILING_DATE
+        return expirationDate < date
 
     #  CatalogableDublinCore methods ##########################################
 
@@ -246,7 +277,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             Dublin Core element - date resource becomes effective,
               returned as DateTime.
         """
-        return self.EffectiveDate() or FLOOR_DATE
+        effective = self.schema['effectiveDate'].get(self)
+        if effective is None:
+            return FLOOR_DATE
+        return effective
 
     security.declareProtected(CMFCorePermissions.View,
                               'expires')
@@ -255,8 +289,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             Dublin Core element - date resource expires,
               returned as DateTime.
         """
-        return self.ExpirationDate() or CEILING_DATE
-
+        expires = self.schema['expirationDate'].get(self)
+        if expires is None:
+            return CEILING_DATE
+        return expires
 
     ## code below come from CMFDefault.DublinCore.DefaultDublinCoreImpl #######
 

@@ -217,7 +217,6 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.enforceVocabulary == 0)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
-        self.failUnless(field.accessor == 'EffectiveDate')
         self.failUnless(field.mutator == 'setEffectiveDate')
         self.failUnless(field.read_permission == CMFCorePermissions.View)
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
@@ -246,7 +245,6 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.enforceVocabulary == 0)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
-        self.failUnless(field.accessor == 'ExpirationDate')
         self.failUnless(field.mutator == 'setExpirationDate')
         self.failUnless(field.read_permission == CMFCorePermissions.View)
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
@@ -316,6 +314,49 @@ class BaseSchemaTest(ArchetypesTestCase):
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(tuple(vocab) == ())
+
+    # metadata utility accessors (DublinCore)
+    def test_EffectiveDate(self):
+        dummy = self._dummy
+        self.failUnless(dummy.EffectiveDate() == 'None')
+        now = DateTime()
+        dummy.setEffectiveDate(now)
+        self.failUnless(dummy.EffectiveDate() == now.ISO())
+
+    def test_ExpiresDate(self):
+        dummy = self._dummy
+        self.failUnless(dummy.ExpirationDate() == 'None')
+        now = DateTime()
+        dummy.setExpirationDate(now)
+        self.failUnless(dummy.ExpirationDate() == now.ISO())
+
+    def test_Date(self):
+        dummy = self._dummy
+        self.failUnless(isinstance(dummy.Date(), str))
+        dummy.setEffectiveDate(DateTime())
+        self.failUnless(isinstance(dummy.Date(), str))
+
+    def test_isEffective(self):
+        dummy = self._dummy
+        now = DateTime()
+        then = DateTime() + 100
+        self.failUnless(dummy.isEffective(now))
+        dummy.setExpirationDate(then)
+        self.failUnless(dummy.isEffective(now))
+        dummy.setEffectiveDate(now)
+        self.failUnless(dummy.isEffective(now))
+        dummy.setEffectiveDate(then)
+        self.failIf(dummy.isEffective(now))
+
+    def test_isExpired(self):
+        dummy = self._dummy
+        now = DateTime()
+        then = DateTime() + 100
+        self.failIf(dummy.isExpired())
+        dummy.setExpirationDate(then)
+        self.failIf(dummy.isExpired())
+        dummy.setExpirationDate(now)
+        self.failUnless(dummy.isExpired())
 
     def beforeTearDown(self):
         del self._dummy
