@@ -21,6 +21,8 @@ from Products.Archetypes.config import *
 
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
+from Products.MimetypesRegistry.Extensions.Install \
+     import install as install_mimetypes_registry
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
 from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
@@ -38,6 +40,7 @@ def install_dependencies(self, out, required=1):
         else:
             return
     qi.installProduct('CMFFormController',locked=1)
+    qi.installProduct('MimetypesRegistry',)
     qi.installProduct('PortalTransforms',)
 
 def install_tools(self, out):
@@ -363,7 +366,7 @@ def setupEnvironment(self, out, types,
     install_actions(self, out, types)
 
     install_portal_transforms(self)
-
+    install_mimetypes_registry(self)
 
 ## The master installer
 def installTypes(self, out, types, package_name,
