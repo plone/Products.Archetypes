@@ -1,5 +1,7 @@
 2003-11-20  Sidnei da Silva  <sidnei@awkly.org>
 
+	* examples/ComplexType.py (schema): Fix for #843871
+
 	* BaseFolder.py (BaseFolderMixin.manage_afterAdd):
 	CatalogMultiplex inherits from CMFCatalogAware, which
 	SkinnedFolder does as well. So, instead of calling
