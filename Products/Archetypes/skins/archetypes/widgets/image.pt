@@ -6,18 +6,20 @@
   <head><title></title></head>
   <body>
 
-    <div class="field" metal:define-macro="image_display">
-      <metal:block define-slot="widget_label">
-      </metal:block>
-      <tal:def define="img accessor; inline python: img and
-	       (img.getSize() &lt;= widget.display_threshold) and
-	       (request.get('HTTP_ACCEPT', '').find(img.getContentType()) &gt;= 0)">
-	      <img tal:replace="structure img/tag"
-               tal:condition="inline"
-               src="foo.png"
-               alt="image" />
-      </tal:def>
-    </div>
+    <metal:define define-macro="image_display">
+        <div class="field"
+             tal:define="img accessor; 
+                         inline python: img and
+                              (img.getSize() &lt;= widget.display_threshold) and
+                              (request.get('HTTP_ACCEPT', '').find(img.getContentType()) &gt;= 0)"
+             tal:condition="inline">
+            <metal:block define-slot="widget_label">
+            </metal:block>
+            <img tal:replace="structure img/tag"
+                 src="foo.png"
+                 alt="image" />
+        </div>
+    </metal:define>
 
 
     <!-- Image Widgets -->
@@ -35,7 +37,7 @@
 	        </metal:display>
 	      </div>
 	      <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
-          <div tal:condition="accessor">
+          <div tal:condition="python: accessor() and not field.required">
             <input class="noborder"
                    type="checkbox"
                    value="on"
