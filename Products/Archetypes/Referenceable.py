@@ -23,15 +23,14 @@ class Referenceable(CMFCatalogAware, Base):
     isReferenceable = 1
 
     def getRefs(self):
-        """get all the references for this object"""
+        """get all the referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
-        return tool.getRefs(self)
+        return [tool.getObject(ref) for ref in tool.getRefs(self)]
 
-    def getBrefs(self):
-        """get all the back references for this object"""
+    def getBRefs(self):
+        """get all the back referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
-        return tool.getBrefs(self)
-    
+        return [tool.getObject(ref) for ref in tool.getBRefs(self)]
     
 
     
