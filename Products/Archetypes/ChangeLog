@@ -1,3 +1,25 @@
+2004-03-26  Chris McDonough  <chrism@plope.com>
+
+	* BaseContent.py BaseContent.PUT did not take into account that
+	the body of a PUT is not MIME-encoded and thus does not itself
+	contain the content-type of the thing being PUT.  Instead, we
+	needed to look at the request's main content-type header.  The
+	symptom of the bug was that items that were PUT did not have the
+	correct content-type, and would be marked with the most generic of
+	possible content-types (either application/octet-stream or
+	text/plain).
+
+	* Extensions/utils.py Made it possible to install archetypes
+	without installing dependencies (QuickInstallerTool,
+	CMFFormController, PortalTransforms) by passing a (false)
+	"require_dependencies" argument into either setupEnvironment or
+	installTypes.
+
+	* Field.py If a user of a field widget typed a bogus filename into
+	the field upload form element, a traceback was raised somewhere in
+	the bowels of AT/Zope.  Now, we just assume he knows what he's
+	doing and turn the upload into a blank string, for better or worse.
+	
 2004-03-02  Sidnei da Silva  <sidnei@awkly.org>
 
 	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): field_name
