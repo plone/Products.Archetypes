@@ -53,13 +53,6 @@ def install_tools(self, out):
         catalog = getToolByName(self, UID_CATALOG)
         try:
             catalog.addIndex('UID', 'FieldIndex', extra=None)
-            #We also have to add in the fields the indexing code
-            #automatically looks for, this should go away in the
-            #future
-            catalog.addIndex('Type', 'FieldIndex', extra=None)
-            catalog.addIndex('portal_type', 'FieldIndex', extra=None)
-            catalog.addIndex('review_state', 'FieldIndex', extra=None)
-            catalog.addIndex('allowedRolesAndUsers', 'KeywordIndex', extra=None)
         except:
             pass
 
