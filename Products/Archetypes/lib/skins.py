@@ -27,8 +27,7 @@
 """
 __author__ = 'Rocky Burt'
 
-__all__ = ('getSkinPaths', 'setSkinPaths', 'addSkinPaths',
-           'removeSkinPaths', 'installPathsFromDir',)
+__all__ = ('SkinManager',)
 
 import os.path
 
@@ -73,25 +72,34 @@ def _getPathList(skinsTool, skinName):
     return [i.strip() for i in path.split(',')]
 
 
-class _SkinManager:
+class SkinManager(object):
     """Functionality for manipulating skins and skin paths mostly consisting
-    of working with SkinsTool (portal_skins).
+    of working with SkinsTool (portal_skins).  Single constructor expects
+    a context/object which is either a portal instance or has portal attributes
+    acquired.
     """
 
-    def getSkinPaths(self, context, skinName=None):
+    _skinsTool = None
+
+    def __init__(self, context):
+        object.__init__(self)
+        self._skinsTool = getToolByName(context, "portal_skins")
+    
+    def getSkinPaths(self, skinName=None):
         """Returns all of the elements of a path for the named skin in the
         form of a tuple.  If no skinName is requested, then all skins are
         returned as a dict keyed by skin name with tuples as values.
 
-        >>> len(getSkinPaths(portal)) >= 0
+        >>> sm = SkinManager(portal)
+        >>> len(sm.getSkinPaths()) >= 0
         True
-        >>> len(getSkinPaths(portal, 'Nouvelle')) >= 0
+        >>> len(sm.getSkinPaths('Nouvelle')) >= 0
         True
         """
         
         result = None
 
-        skinsTool = getToolByName(context, 'portal_skins')
+        skinsTool = self._skinsTool
         if skinName:
             result = tuple(_getPathList(skinsTool, skinName))
         else:
@@ -101,7 +109,7 @@ class _SkinManager:
                 
         return result
 
-    def setSkinPaths(self, context, paths, skinName=None):
+    def setSkinPaths(self, paths, skinName=None):
         """Sets the path for the named skin.  The paths type should be one of
         list, tuple, or string.  If the paths type is string, all elements
         should be separated by a comma (ie "abc, def, ghi").
@@ -110,23 +118,24 @@ class _SkinManager:
         Set the new paths for all skins to the elements contained within
         testing.
         >>> testing = ['abc', 'def']
-        >>> originalPaths = getSkinPaths(portal)
+        >>> sm = SkinManager(portal)
+        >>> originalPaths = sm.getSkinPaths()
         >>> firstSkin = originalPaths.keys()[0]
-        >>> setSkinPaths(portal, testing)
-        >>> newPaths = getSkinPaths(portal)
+        >>> sm.setSkinPaths(testing)
+        >>> newPaths = sm.getSkinPaths()
         >>> newPaths[firstSkin][0] == testing[0]
         True
         >>> newPaths[firstSkin][1] == testing[1]
         True
 
         Set the new paths for all skins to the value 'onemore'.
-        >>> setSkinPaths(portal, 'onemore', 'Nouvelle')
-        >>> newPaths = getSkinPaths(portal, 'Nouvelle')
+        >>> sm.setSkinPaths('onemore', 'Nouvelle')
+        >>> newPaths = sm.getSkinPaths('Nouvelle')
         >>> len(newPaths) == 1 and newPaths[0] == 'onemore'
         True
         """
         
-        skinsTool = getToolByName(context, 'portal_skins')
+        skinsTool = self._skinsTool
 
         if skinName:
             skinNames = (skinName,)
@@ -139,7 +148,7 @@ class _SkinManager:
             else:
                 skinsTool.addSkinSelection(skinName, str(paths))
 
-    def addSkinPaths(self, context, paths, skinName=None, position=None):
+    def addSkinPaths(self, paths, skinName=None, position=None):
         """Adds the specified paths to the named skin.  The paths type should
         be one of list, tuple, or string.  If the paths type is string,
         all elements should be separated by a comma (ie "abc, def, ghi").  The
@@ -154,11 +163,12 @@ class _SkinManager:
 
         Add all path elements in testing to all skins (will be appended to the
         end).
-        >>> originalPaths = getSkinPaths(portal)
+        >>> sm = SkinManager(portal)
+        >>> originalPaths = sm.getSkinPaths()
         >>> firstSkin = originalPaths.keys()[0]
         >>> testing = ['abc', 'def']
-        >>> addSkinPaths(portal, testing)
-        >>> newPaths = getSkinPaths(portal)
+        >>> sm.addSkinPaths(testing)
+        >>> newPaths = sm.getSkinPaths()
         >>> newPaths[firstSkin][-1] == testing[1]
         True
         >>> newPaths[firstSkin][-2] == testing[0]
@@ -167,8 +177,8 @@ class _SkinManager:
         Insert all path elements in testing to all skins at the very beginning
         of their paths.
         >>> testing = ['ghi', 'jkl']
-        >>> addSkinPaths(portal, testing, position=0)
-        >>> newPaths = getSkinPaths(portal)
+        >>> sm.addSkinPaths(testing, position=0)
+        >>> newPaths = sm.getSkinPaths()
         >>> newPaths[firstSkin][0] == testing[0]        
         True
         >>> newPaths[firstSkin][1] == testing[1]
@@ -177,15 +187,15 @@ class _SkinManager:
         Insert all path elements in testing at the position starting at 2, which
         would be following the elements inserted from the previous example.
         >>> testing = ['aaaa', 'bbbb']
-        >>> addSkinPaths(portal, testing, position=2)
-        >>> newPaths = getSkinPaths(portal)
+        >>> sm.addSkinPaths(testing, position=2)
+        >>> newPaths = sm.getSkinPaths()
         >>> newPaths[firstSkin][2] == testing[0]
         True
         >>> newPaths[firstSkin][3] == testing[1]
         True
         """
         
-        skinsTool = getToolByName(context, 'portal_skins')
+        skinsTool = self._skinsTool
 
         if skinName:
             skinNames = (skinName,)
@@ -210,9 +220,9 @@ class _SkinManager:
                 for x in range(len(pathsToAdd)):
                     newPaths.insert(pos+x, pathsToAdd[x])
 
-            self.setSkinPaths(context, newPaths, skinName)
+            self.setSkinPaths(newPaths, skinName)
 
-    def removeSkinPaths(self, context, paths, skinName=None):
+    def removeSkinPaths(self, paths, skinName=None):
         """Removes the specified paths from the named skin.  The paths type
         should be one of list, tuple, or string.  If the paths type is string,
         all elements should be separated by a comma (ie "abc, def, ghi").  If
@@ -225,29 +235,30 @@ class _SkinManager:
 
         Try removing two items specified by one string and one index
         position.
-        >>> setSkinPaths(portal, ['one', 'two', 'three'], 'Nouvelle')
-        >>> removeSkinPaths(portal, ['two', 2], 'Nouvelle')
-        >>> getSkinPaths(portal, 'Nouvelle')
+        >>> sm = SkinManager(portal)
+        >>> sm.setSkinPaths(['one', 'two', 'three'], 'Nouvelle')
+        >>> sm.removeSkinPaths(['two', 2], 'Nouvelle')
+        >>> sm.getSkinPaths('Nouvelle')
         ('one',)
        
         Try removing two elements by specifying one string with the names
         separated by a comma.
-        >>> setSkinPaths(portal, ['one', 'two', 'three', 'four'], 'Nouvelle')
-        >>> removeSkinPaths(portal, 'three,one', 'Nouvelle')
-        >>> getSkinPaths(portal, 'Nouvelle')
+        >>> sm.setSkinPaths(['one', 'two', 'three', 'four'], 'Nouvelle')
+        >>> sm.removeSkinPaths('three,one', 'Nouvelle')
+        >>> sm.getSkinPaths('Nouvelle')
         ('two', 'four')
         
         Try removing two elements by specifying one string with the names
         separated by a comma.  One of the elements will silently be ignored
         because it does not exist.
-        >>> setSkinPaths(portal, ['one', 'two', 'three', 'four'])
-        >>> removeSkinPaths(portal, 'three,nothere')
-        >>> getSkinPaths(portal, 'Nouvelle')
+        >>> sm.setSkinPaths(['one', 'two', 'three', 'four'])
+        >>> sm.removeSkinPaths('three,nothere')
+        >>> sm.getSkinPaths('Nouvelle')
         ('one', 'two', 'four')
         
         """
 
-        skinsTool = getToolByName(context, 'portal_skins')
+        skinsTool = self._skinsTool
 
         if skinName:
             skinNames = (skinName,)
@@ -256,7 +267,7 @@ class _SkinManager:
             
         pathsToRemove = _getTuple(paths)
         for skinName in skinNames:
-            currentPaths = self.getSkinPaths(context, skinName)
+            currentPaths = self.getSkinPaths(skinName)
             newPaths = list(currentPaths)
             for x in pathsToRemove:
                 if isinstance(x, int):
@@ -277,9 +288,9 @@ class _SkinManager:
                 else:
                     x = x + 1
                 
-            self.setSkinPaths(context, newPaths, skinName)
+            self.setSkinPaths(newPaths, skinName)
 
-    def installPathsFromDir(self, context, dirPath,
+    def installPathsFromDir(self, dirPath,
                             paths=None, skinName=None, position=None,
                             globals=types_globals,
                             omissions=DEFAULT_FILE_OMISSIONS):
@@ -296,14 +307,15 @@ class _SkinManager:
 
 
         Set up a skin path and ensure its set correctly.
-        >>> setSkinPaths(portal, 'oneentry')
-        >>> getSkinPaths(portal, 'Nouvelle')
+        >>> sm = SkinManager(portal)
+        >>> sm.setSkinPaths('oneentry')
+        >>> sm.getSkinPaths('Nouvelle')
         ('oneentry',)
 
         Install all paths from a directory and ensure the skin paths got
         updated accordingly.
-        >>> installPathsFromDir(portal, 'tests/input/skins')
-        >>> getSkinPaths(portal, 'Nouvelle')
+        >>> sm.installPathsFromDir('tests/input/skins')
+        >>> sm.getSkinPaths('Nouvelle')
         ('oneentry', 'skinpath1', 'skinpath2')
 
         Test to ensure that the directory views got added to the skins tool
@@ -316,7 +328,7 @@ class _SkinManager:
                 
         """
 
-        skinsTool = getToolByName(context, 'portal_skins')
+        skinsTool = self._skinsTool
 
         absPath = os.path.join(package_home(globals), dirPath)
         pathList = None
@@ -333,8 +345,7 @@ class _SkinManager:
                     else:
                         x = x + 1
 
-        self.addSkinPaths(context, pathList,
-                          skinName=skinName, position=position)
+        self.addSkinPaths(pathList, skinName=skinName, position=position)
 
         relDirPath = minimalpath(absPath)
 
@@ -348,12 +359,3 @@ class _SkinManager:
             # this will happen often in a reloaded environment, safe to ignore
             pass
 
-
-        
-_skinManager = _SkinManager()
-
-getSkinPaths = _skinManager.getSkinPaths
-setSkinPaths = _skinManager.setSkinPaths
-addSkinPaths = _skinManager.addSkinPaths
-removeSkinPaths = _skinManager.removeSkinPaths
-installPathsFromDir = _skinManager.installPathsFromDir

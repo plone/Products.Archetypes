@@ -39,8 +39,8 @@ from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import minimalpath
 from Products.Archetypes.lib.register import fixActionsForType
-from Products.Archetypes.lib.skins import installPathsFromDir
 from Products.Archetypes.lib.logging import deprecated
+from Products.Archetypes.lib.skins import SkinManager
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
@@ -216,8 +216,9 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     """
     
     deprecated("install_subskin: Please use Archetypes.skins")
-    installPathsFromDir(self, product_skins_dir,
-                        globals=globals, position='custom')
+    sm = SkinManager(self)
+    sm.installPathsFromDir(product_skins_dir,
+                           globals=globals, position='custom')
 
 
 def install_types(self, out, types, package_name):
