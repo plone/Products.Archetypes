@@ -88,6 +88,7 @@ def generateCtor(type, module):
 def add%s(self, id, **kwargs):
     o = %s(id)
     self._setObject(id, o)
+    o = getattr(self, id)
     o.initalizeArchetype(**kwargs)
 """ % (name, type)
 
