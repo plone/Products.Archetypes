@@ -6,7 +6,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-import glob
 from os import curdir
 from os.path import join, abspath, dirname, split
 
@@ -16,7 +15,16 @@ from Products.Archetypes.BaseUnit import BaseUnit
 
 from types import StringType
 
+class DummyDiscussionTool:
+    def isDiscussionAllowedFor( self, content ):
+        return False
+    def overrideDiscussionFor(self, content, allowDiscussion):
+        pass
+
+
 class Dummy(BaseContent):
+   
+    portal_discussion = DummyDiscussionTool()
 
     MULTIPLEFIELD_LIST = DisplayList(
     (
@@ -39,8 +47,8 @@ class Dummy(BaseContent):
                 ))
 
     def getCharset(self):
-        return 'iso-8859-1'
-
+         return 'iso-8859-1'
+         
 class BaseObjectTest( ArchetypesTestCase ):
     
     def test_searchableText(self):
