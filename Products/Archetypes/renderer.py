@@ -4,7 +4,7 @@ class renderer:
             field = instance.Schema()[field_name]
 
         if accessor is None:
-            accessor = getattr(instance, field.accessor)
+            accessor = field.getAccessor(instance)
 
         context = self.setupContext(field_name, mode, widget,
                                     instance, field, accessor, **kwargs)
