@@ -77,6 +77,7 @@ sdist_tgz:
            --exclude=.cvsignore \
            --exclude=makefile \
            --exclude=Makefile \
+           --exclude=debian \
            --exclude=*.pyc \
            --exclude=TAGS \
            --exclude=*~ \

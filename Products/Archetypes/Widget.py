@@ -1,4 +1,4 @@
-from types import DictType, FileType, StringType, UnicodeType
+from types import DictType, FileType, StringType, UnicodeType, ListType
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.debug import log
@@ -67,6 +67,7 @@ class TypesWidget(macrowidget):
         """Test the widget condition."""
         try:
             if self.condition:
+                __traceback_info__ = (folder, portal, object, self.condition)
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
             else:
@@ -74,7 +75,8 @@ class TypesWidget(macrowidget):
         except AttributeError:
             return 1
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
         if value is empty_marker:
@@ -116,19 +118,27 @@ class ReferenceWidget(TypesWidget):
         'macro' : "widgets/reference",
 
         'addable' : 0, # create createObject link for every addable type
-        'destination' : None, # may be name of method on instance or string.
+        'destination' : None, # may be:
+                              # - ".", context object;
+                              # - None, any place where 
+                              #   Field.allowed_types can be added;
+                              # - string path;
+                              # - name of method on instance
+                              #   (it can be a combination list);
+                              # - a list, combining all item above;
+                              # - a dict, where
+                              #   {portal_type:<combination of the items above>}
                               # destination is relative to portal root
         'helper_css' : ('content_types.css',),
         })
 
     def addableTypes(self, instance, field):
-        """Returns a dictionary which maps portal_type to its human readable
+        """Returns a list of dictionaries which maps portal_type to its human readable
         form."""
-        def lookupDestinationsFor(typeinfo, tool):
+        def lookupDestinationsFor(typeinfo, tool, purl):
             """
             search where the user can add a typeid instance
             """
-            purl = getToolByName(instance, 'portal_url')
             # first, discover who can contain the type
             searchFor = []
             for regType in tool.listTypeInfo():
@@ -150,7 +160,26 @@ class ReferenceWidget(TypesWidget):
             return containers
 
         tool = getToolByName(instance, 'portal_types')
+        purl = getToolByName(instance, 'portal_url')
         types = []
+
+        options = {}
+        for typeid in field.allowed_types:
+            if self.destination == None:
+                options[typeid]=[None]
+            elif isinstance(self.destination, DictType):
+                options[typeid]=self.destination.get(typeid, [None])
+            elif isinstance(self.destination, ListType):
+                options[typeid]=self.destination
+            else:
+                place = getattr(aq_base(instance), self.destination,
+                    self.destination)
+                if callable(place):
+                    place = place()
+                if isinstance(place, ListType):
+                    options[typeid] = place
+                else:
+                    options[typeid] = [place]
 
         for typeid in field.allowed_types:
             info = tool.getTypeInfo(typeid)
@@ -160,25 +189,29 @@ class ReferenceWidget(TypesWidget):
             value = {}
             value['id'] = typeid
             value['name'] = info.Title()
-            if self.destination == None:
-                value['destinations'] = lookupDestinationsFor(info,tool)
-            else:
-                value['destinations'] = [self.getDestination(instance)]
+            value['destinations'] = []
+                
+            for option in options.get(typeid):
+                if option == None:
+                    value['destinations'] = value['destinations'] + \
+                        lookupDestinationsFor(info, tool, purl)
+                elif option == '.':
+                    value['destinations'].append(
+                        purl.getRelativeContentURL(instance) )
+                else:
+                    place = getattr(aq_base(instance), self.destination,
+                        self.destination)
+                    if callable(place):
+                        place = place()
+                    if isinstance(place, ListType):
+                        value['destinations'] = place + \
+                             value['destinations']
+                    else:
+                        value['destinations'].append(place)
+
             types.append(value)
 
         return types
-
-    def getDestination(self, instance):
-        """ Destination for adding references """
-        purl = getToolByName(instance, 'portal_url')
-        if not self.destination:
-            return '.'
-        else:
-            value = getattr(aq_base(instance), self.destination,
-                            self.destination)
-            if callable(value):
-                value = value()
-        return purl.getPortalPath() + value
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -193,9 +226,11 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
+        'append_only':0,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """handle text formatting"""
         text_format = None
         value = None
@@ -217,6 +252,14 @@ class TextAreaWidget(TypesWidget):
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
+        """ handle append_only  """
+        # SPANKY: It would be nice to add a datestamp too
+        if (hasattr(field.widget, 'append_only') and field.widget.append_only):
+            divider = "\r\r====================================\r\r"
+            form_value = form.get(field.getName(), empty_marker)
+            data_value = field.get(instance)
+            value = form_value + divider + data_value
+            
         return value, kwargs
 
 class LinesWidget(TypesWidget):
@@ -267,7 +310,8 @@ class KeywordWidget(TypesWidget):
         'roleBasedAdd' : 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
         name = field.getName()
@@ -281,7 +325,7 @@ class KeywordWidget(TypesWidget):
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
 
-        if not value: return empty_marker
+        if not value and emptyReturnsMarker: return empty_marker
 
         return value, {}
 
@@ -293,7 +337,8 @@ class FileWidget(TypesWidget):
         'show_content_type' : 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
@@ -326,7 +371,8 @@ class RichWidget(TypesWidget):
         'format': 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """complex form processing, includes handling for text
         formatting and file objects"""
         # This is basically the old processing chain from base object
@@ -376,11 +422,14 @@ class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/zid",
-        'display_autogenerated' : 1,    # show IDs in edit boxes when they are autogenerated?
-        'is_autogenerated' : 'isIDAutoGenerated',  # script used to determine if an ID is autogenerated
+         # show IDs in edit boxes when they are autogenerated?
+        'display_autogenerated' : 1,
+        # script used to determine if an ID is autogenerated
+        'is_autogenerated' : 'isIDAutoGenerated',
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """the id might be hidden by the widget and not submitted"""
         value = form.get('id', empty_marker)
         if not value or value is empty_marker or not value.strip():
@@ -391,10 +440,12 @@ class ImageWidget(FileWidget):
     _properties = FileWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/image",
-        'display_threshold': 102400, # only display if size <= threshold, otherwise show link
+        # only display if size <= threshold, otherwise show link
+        'display_threshold': 102400,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
         """form processing that deals with image data (and its delete case)"""
         value = None
         ## check to see if the delete hidden was selected
@@ -442,8 +493,9 @@ class VisualWidget(TextAreaWidget):
         'rows'  : 25,      #rows of TextArea if VE is not available
         'cols'  : 80,      #same for cols
         'width' : '507px', #width of VE frame (if VE is avalilable)
-        'height': '400px' ,#same for height
+        'height': '400px', #same for height
         'format': 0,
+        'append_only':0, #creates a textarea you can only add to, not edit
         })
 
 class EpozWidget(TextAreaWidget):
@@ -639,6 +691,7 @@ registerPropertyType('rows', 'integer', RichWidget)
 registerPropertyType('cols', 'integer', RichWidget)
 registerPropertyType('rows', 'integer', TextAreaWidget)
 registerPropertyType('cols', 'integer', TextAreaWidget)
+registerPropertyType('append_only', 'boolean', TextAreaWidget)
 registerPropertyType('rows', 'integer', LinesWidget)
 registerPropertyType('cols', 'integer', LinesWidget)
 registerPropertyType('rows', 'integer', VisualWidget)

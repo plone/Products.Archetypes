@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.5 2004/03/26 04:36:32 chrism Exp $
+$Id: test_marshaller.py,v 1.5.6.1 2004/05/13 15:59:16 shh42 Exp $
 """
 
 import os, sys
@@ -10,15 +10,13 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
+
 from Products.Archetypes.public import *
 
 if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
-from Testing import ZopeTestCase
-from Acquisition import aq_base
-from Products.Archetypes.tests.test_sitepolicy import makeContent
-import Products.Archetypes.config as config
+from Products.Archetypes import config
 from Products.Archetypes.examples.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
@@ -52,17 +50,12 @@ def aputrequest(file, content_type):
     req = HTTPRequest(stdin=file, environ=environ, response=resp)
     return req
 
-class MarshallerTests(ArcheSiteTestCase):
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
 
-        user = self.getManagerUser()
-        newSecurityManager(None, user)
+class MarshallerTests(ArcheSiteTestCase):
 
     def test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        site = self.getPortal()
-        obj1 = makeContent(site, portal_type='DDocument', id='obj1')
+        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
@@ -73,7 +66,7 @@ class MarshallerTests(ArcheSiteTestCase):
         # content type
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = site.obj1
+        word = self.folder.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -82,8 +75,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def test_textFieldObjectRSTreplace(self):
         ## And again with an RST
-        site = self.getPortal()
-        obj1 = makeContent(site, portal_type='DDocument', id='obj1')
+        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         rstFilePath = join(_prefix, "input", "rest1.rst")
         rstFile = open(rstFilePath, 'r')
@@ -92,7 +84,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
         request = aputrequest(rstFile, 'text/x-rst')
         request.processInputs()
-        rst = site.obj1
+        rst = self.folder.obj1
         rst.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -101,8 +93,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def test_fileFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        site = self.getPortal()
-        obj1 = makeContent(site, portal_type='SimpleFile', id='obj1')
+        obj1 = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
 
         wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
@@ -111,7 +102,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = site.obj1
+        word = self.folder.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -120,8 +111,7 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def setupCTR(self):
         #Modify the CTR to point to SimpleType
-        site = self.getPortal()
-        ctr = site.content_type_registry
+        ctr = self.portal.content_type_registry
         ctr.addPredicate('text', 'major_minor' )
         ctr.getPredicate('text' ).edit('text', '' )
         ctr.assignTypeName('text', 'DDocument')
@@ -137,38 +127,33 @@ class MarshallerTests(ArcheSiteTestCase):
     def test_objectCreate(self):
         #create the correct object on upload
         #one day, but this will need a change to the factory
-        site = self.getPortal()
         ctr = self.setupCTR()
 
         #now trigger the creation of a content type akin to DAV
         wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
 
-        obj = site.PUT_factory('test', 'application/msword', wordFile)
-        site._setObject('test', obj)
+        obj = self.folder.PUT_factory('test', 'application/msword', wordFile)
+        self.folder._setObject('test', obj)
+        word = self.folder.test
 
-        obj = site['test']
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        obj.PUT(request, request.RESPONSE)
+        word.PUT(request, request.RESPONSE)
 
         wordFile.seek(0)
         data = wordFile.read()
-
-        word = site.test
 
         self.assertEqual(word.archetype_name, DDocument.archetype_name)
         self.assertEqual(str(word.getBody(raw=1)), data)
         self.assertEqual(word.getContentType('body'), 'application/msword')
 
 
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(MarshallerTests))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(MarshallerTests))
-        return suite

@@ -35,7 +35,7 @@ function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
 
 <dtml-with field><dtml-var getName></dtml-with>_update(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_types'));
 
-<dtml-if "field.getName() in REQUEST.get('reference_source_field', [])">
+<dtml-if "field.getName() == REQUEST.get('reference_focus', None)">
 function focusOnReferenceField() {
   document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').focus();
 }

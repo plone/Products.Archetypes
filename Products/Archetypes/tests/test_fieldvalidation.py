@@ -4,6 +4,7 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import *
 from Products.Archetypes.BaseObject import BaseObject
@@ -76,9 +77,10 @@ for req in 0,1: # 0 == not required, 1 == required
 class FakeType(BaseObject):
     def unicodeEncode(self, v): return v # don't
 
+
 class TestSettings(ArchetypesTestCase):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         self.instance = FakeType('fake')
 
     def testSettings(self):
@@ -92,9 +94,10 @@ class TestSettings(ArchetypesTestCase):
             self.assert_(setting['assertion'](result),
                          setting.get('failmsg', msg))
 
+
 class TestValidation(ArchetypesTestCase):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         self.instance = FakeType('fake')
 
     def testIntegerZeroInvalid(self):
@@ -104,14 +107,13 @@ class TestValidation(ArchetypesTestCase):
         self.assert_(field.validate(1, self.instance, errors={}) is not None)
         self.assert_(field.validate(0, self.instance, errors={}) is not None)
 
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(TestSettings))
+    suite.addTest(makeSuite(TestValidation))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(TestSettings))
-        suite.addTest(unittest.makeSuite(TestValidation))
-        return suite

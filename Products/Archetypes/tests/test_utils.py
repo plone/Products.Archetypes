@@ -5,8 +5,8 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-
 from Products.Archetypes.utils import DisplayList
+
 
 class DisplayListTest(ArchetypesTestCase):
 
@@ -118,17 +118,10 @@ class DisplayListTest(ArchetypesTestCase):
 
 
 def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(DisplayListTest),
-        ))
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(DisplayListTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(DisplayListTest))
-        return suite

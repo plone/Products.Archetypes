@@ -4,21 +4,21 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-
-from test_classgen import Dummy as BaseDummy
 
 from os import curdir
 from os.path import join, abspath, dirname, split
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes import Field
 from Products.Archetypes.Field import ScalableImage, Image
-from OFS.Image import File
+from OFS.Image import File, Image
 from DateTime import DateTime
+
+from test_classgen import Dummy as BaseDummy
 
 try:
     __file__
@@ -71,6 +71,20 @@ expected_values = {'objectfield':'objectfield',
                    'imagefield':'<img src="imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
                    'photofield':'<img src="photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
 
+empty_values = {'objectfield':None,
+                   'stringfield':'',
+                   'filefield':None,
+                   'textfield':'',
+                   'datetimefield':None,
+                   'linesfield':(),
+                   'integerfield': None,
+                   'floatfield': None,
+                   'fixedpointfield': None,
+                   'booleanfield': None,
+                   #XXX'imagefield':"DELETE_IMAGE",
+                   #XXX'photofield':"DELETE_IMAGE",
+               }
+
 if not ZOPE_LINES_IS_TUPLE_TYPE:
     expected_values['linesfield'] = list(expected_values['linesfield'])
 
@@ -89,10 +103,10 @@ class FakeRequest:
         self.other = {}
         self.form = {}
 
+
 class ProcessingTest(ArchetypesTestCase):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         txt_file.seek(0)
@@ -116,6 +130,27 @@ class ProcessingTest(ArchetypesTestCase):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
+
+##    def test_empty_processing(self):
+##        dummy = self.makeDummy()
+##        request = FakeRequest()
+##        request.form.update(field_values)
+##        dummy.REQUEST = request
+##        dummy.processForm(data=1)
+##        
+##        request.form.update(empty_values)
+##        dummy.REQUEST = request
+##        dummy.processForm(data=1)
+##        
+##        for k, v in empty_values.items():
+##            got = dummy.Schema()[k].get(dummy)
+##            if isinstance(got, (File)) and not got.data:
+##                got = None
+##            if not got:
+##                v = None
+##            self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
+##                              (got, v, k))
+
 
     def test_processing_fieldset(self):
         dummy = self.makeDummy()
@@ -162,17 +197,12 @@ class ProcessingTest(ArchetypesTestCase):
                 failures.append(f_name)
         self.failIf(failures, "%s failed to report error." % failures)
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ProcessingTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(ProcessingTest))
-        return suite

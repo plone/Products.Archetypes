@@ -6,11 +6,42 @@
   <head><title></title></head>
   <body>
 
-    <metal:view_macro define-macro="view"
-		      tal:define="vocab python:field.Vocabulary(here);
-		      value python:accessor();
-		      display python:here.displayValue(vocab, value);"
-		      tal:replace="structure display" />
+    <metal:view_macro define-macro="view">
+
+     <tal:block tal:condition="python:hasattr(field, 'relationship')">
+        
+      <tal:block  tal:define="targets python:here.getRefs(field.relationship)"
+                  tal:condition="targets">
+
+        <a href="#"
+           tal:define="obj python:targets[0]"
+           tal:condition="not:field/multiValued"
+           tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+          Sole target object's title
+        </a>
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="obj targets">
+            <a href="#"
+               tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Target Title
+            </a>
+          </li>
+        </ul>
+
+      </tal:block>
+     </tal:block>
+
+      <tal:block 
+            tal:condition="not:python:hasattr(field, 'relationship')"
+            tal:define="vocab python:field.Vocabulary(here);
+                        value python:accessor();
+                        display python:here.displayValue(vocab, value);"
+            tal:replace="structure display" />
+
+    </metal:view_macro>
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
@@ -24,7 +55,7 @@
                  tal:attributes="name string:$fieldName:default:list;" />
 
           <table tal:define="value python:accessor();
-                            vocab python:field.Vocabulary(here);">
+                             vocab python:field.Vocabulary(here);">
             <tr>
               <td>
                 <select

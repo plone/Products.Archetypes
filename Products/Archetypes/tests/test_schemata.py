@@ -18,10 +18,10 @@ schema = BaseSchema
 class Dummy(BaseContent):
     schema = schema
 
+
 class SchemataTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -55,17 +55,12 @@ class SchemataTest( ArchetypesTestCase ):
                                       'expirationDate', 'language',
                                       'rights'])
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(SchemataTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(SchemataTest))
-        return suite

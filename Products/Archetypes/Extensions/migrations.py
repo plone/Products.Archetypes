@@ -1,8 +1,9 @@
 from Globals import PersistentMapping
 from StringIO import StringIO
+from Acquisition import aq_base
 from Products.Archetypes.Extensions.utils import install_catalog
 from Products.Archetypes.Extensions.utils import install_referenceCatalog
-
+from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
 
 def fixArchetypesTool(portal, out):
@@ -18,11 +19,12 @@ def fixArchetypesTool(portal, out):
 
     install_catalog(portal, out)
 
+
 def toReferenceCatalog(portal, out):
+
     if not hasattr(portal, REFERENCE_CATALOG):
         install_referenceCatalog(portal, out)
         print >>out, "Added Reference Catalog"
-
         rc = getattr(portal, REFERENCE_CATALOG)
         uc = getattr(portal, UID_CATALOG)
 
@@ -66,7 +68,49 @@ def toReferenceCatalog(portal, out):
         #Reindex for new UUIDs
         uc.manage_reindexIndex()
         rc.manage_reindexIndex()
-        print >>out, "Migrated References"
+
+    else:
+        # We had a reference catalog, make sure its doing annotation
+        # based references
+        rc = getattr(portal, REFERENCE_CATALOG)
+        uc = getattr(portal, UID_CATALOG)
+        import pdb;pdb.set_trace()
+
+        # looks like its a folder with stuff in it.. old style
+        # we want to do this quickly so we will grab all the
+        # objects for each unique source ID and push them into
+        # that source object
+        sids = rc.uniqueValuesFor('sourceUID')
+        for sid in sids:
+            set = rc(sourceUID=sid)
+            sourceObject = uc(UID=sid)[0].getObject()
+            if not sourceObject: continue
+            annotations = sourceObject._getReferenceAnnotations()
+            for brain in set:
+                # we need to uncatalog the ref at its current path
+                # and then stick it on the new object and index it
+                # again under its new relative pseudo path
+                path = brain.getPath()
+                ref = getattr(rc, path, None)
+                if ref is None: continue
+                if path.find('ref_') != -1:
+                    rc.uncatalog_object(path)
+                    uc.uncatalog_object(path)
+
+                    # make sure id==uid
+                    setattr(ref, UUID_ATTR, make_uuid())
+                    ref.id = ref.UID()
+                    # now stick this in the annotation
+                    # unwrap the ref
+                    ref = aq_base(ref)
+                    annotations[ref.UID()] = ref
+                rc._delOb(path)
+            # I might have to do this each time (to deal with an
+            # edge case), but I suspect not
+            sourceObject._catalogRefs(portal)
+
+
+    print >>out, "Migrated References"
 
 def migrate(self):
     """migrate an AT site"""

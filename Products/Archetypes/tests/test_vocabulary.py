@@ -73,16 +73,14 @@ sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
+
 class VocabularyTest(ArcheSiteTestCase):
+
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager(None, user)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        site = self.getPortal()
-        site.dummy = Dummy(oid='dummy')
-        self._dummy = site.dummy
+        self.portal.dummy = Dummy(oid='dummy')
+        self._dummy = self.portal.dummy
         # XXX doesn't work this way :(
         brains = [DummyBrain(*args) for args in sample_data]
         self._dummy.portal_catalog = DummyCatalog(brains)
@@ -99,17 +97,12 @@ class VocabularyTest(ArcheSiteTestCase):
                                 ('Test125', 'Test125')])
         self.assertEqual(vocab, expected)
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArcheSiteTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(VocabularyTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(VocabularyTest))
-        return suite

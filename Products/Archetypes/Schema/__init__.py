@@ -633,7 +633,7 @@ class ManagedSchema(Schema):
                               'addSchemata')
     def addSchemata(self, name):
         """Create a new schema by adding a new field with schemata 'name' """
-        from Field import StringField
+        from Products.Archetypes.Field import StringField
 
         if name in self.getSchemataNames():
             raise ValueError, "Schemata '%s' already exists" % name

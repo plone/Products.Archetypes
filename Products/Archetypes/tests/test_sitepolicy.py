@@ -10,44 +10,35 @@ if not hasArcheSiteTestCase:
 
 import test_classgen
 
-from Acquisition import aq_base
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
+
 
 class SitePolicyTests(ArcheSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'Complex Type']
 
-    def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager( None, user )
-
     def test_new( self ):
-        site = self.getPortal()
         # catalog should have one entry, for index_html or frontpage
         # and another for Members
-        self.assertEqual( len( site.portal_catalog ), 2 )
+        self.assertEqual( len( self.portal.portal_catalog ), 2 )
 
     def test_availabledemotypes(self):
-        site = self.getPortal()
-        portal_types = site.portal_types.listContentTypes()
+        portal_types = self.portal.portal_types.listContentTypes()
         for t in self.demo_types:
             self.failUnless(t in portal_types,
                             "%s not available in portal_types." % t)
 
     def test_creationdemotypes(self):
-        site = self.getPortal()
         for t in self.demo_types:
-            content = makeContent(site, portal_type=t, id=t)
-            self.failUnless(t in site.contentIds())
+            content = makeContent(self.folder, portal_type=t, id=t)
+            self.failUnless(t in self.folder.contentIds())
             self.failUnless(not isinstance(content, DefaultDublinCoreImpl))
 
     # XXX Tests for some basic methods. Should be moved to
     # a separate test suite.
     def test_ComplexTypeGetSize(self):
-        site = self.getPortal()
-        content = makeContent(site, portal_type='Complex Type', id='ct')
+        content = makeContent(self.folder, portal_type='Complex Type', id='ct')
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
@@ -68,8 +59,7 @@ class SitePolicyTests(ArcheSiteTestCase):
         self.assertEqual(new_size, content.get_size())
 
     def test_SimpleFolderGetSize(self):
-        site = self.getPortal()
-        content = makeContent(site, portal_type='SimpleFolder', id='sf')
+        content = makeContent(self.folder, portal_type='SimpleFolder', id='sf')
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
@@ -87,22 +77,20 @@ class SitePolicyTests(ArcheSiteTestCase):
         from Products.Archetypes.examples import ComplexType
         from Products.Archetypes.ClassGen import generateCtor
         addComplexType = generateCtor('ComplexType', ComplexType)
-        site = self.getPortal()
-        id = addComplexType(site, id='complex_type',
+        id = addComplexType(self.folder, id='complex_type',
                             textfield='Bla', integerfield=1,
                             stringfield='A String')
-        obj = getattr(site, id)
+        obj = getattr(self.folder, id)
         self.assertEqual(obj.getTextfield(), 'Bla')
         self.assertEqual(obj.getStringfield(), 'A String')
         self.assertEqual(obj.getIntegerfield(), 1)
 
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(SitePolicyTests))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(SitePolicyTests))
-        return suite

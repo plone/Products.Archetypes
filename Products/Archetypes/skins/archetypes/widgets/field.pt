@@ -59,7 +59,8 @@
       <tal:condition condition="python:visState == 'visible' and visCondition">
         <div class="field"
              tal:condition="python:'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)"
-             tal:attributes="class python:test(error_id, 'field error', 'field')">
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
+                             id python: 'archetypes-fieldname-' + field.getName()">
           <label i18n:translate=""
                  tal:content="python:widget.Label(here)"
                  tal:attributes="for python:field.getName()">
@@ -78,25 +79,25 @@
             Help
           </div>
 
-          <div class="formHelp">
-            <span tal:condition="field/workflowable | nothing"
-                  tal:omit-tag="">
-              State:
-              <a href="#"
-                 tal:define="wf_tool here/portal_workflow;
-                             obj python:accessor();
-                             review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
-                 tal:attributes="href string:${obj/absolute_url}/content_status_history;
-                                 class python:test(review_state, review_state, 'private')"
-                 tal:content="review_state">
-                review_state
-              </a>
-            </span>
-            <span tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
-                  tal:omit-tag="">
-              Content Type: <span tal:replace="python:field.getContentType(here)" />
-            </span>
-          </div>
+          <span tal:condition="field/workflowable | nothing"
+                tal:omit-tag="">
+            State:
+            <a href="#"
+               tal:define="wf_tool here/portal_workflow;
+                           obj python:accessor();
+                           review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
+               tal:attributes="href string:${obj/absolute_url}/content_status_history;
+                               class python:test(review_state, review_state, 'private')"
+               tal:content="review_state">
+              review_state
+            </a>
+          </span>
+
+          <span tal:condition="python:getattr(widget, 'show_content_type', 0) and hasattr(field, 'getContentType') and field.getContentType(here)"
+                tal:omit-tag="">
+            Content Type: <span tal:replace="python:field.getContentType(here)" />
+          </span>
+
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
             <div tal:content="error_id">Validation Error</div>

@@ -27,6 +27,11 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.uncatalog_object(self.__url())
 
+        # Specially control reindexing to UID catalog
+        # the pathing makes this needed
+        self._uncatalogUID(self)
+
+
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
         if idxs == []:
@@ -47,6 +52,10 @@ class CatalogMultiplex(CMFCatalogAware):
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, self.__url(), idxs=lst)
+
+        # Specially control reindexing to UID catalog
+        # the pathing makes this needed
+        self._catalogUID(self)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):

@@ -23,11 +23,13 @@ from DateTime import DateTime
 
 Dummy.schema = BaseSchema
 
+from Products.validation import ValidationChain
+EmptyValidator = ValidationChain('isEmpty')
+EmptyValidator.appendSufficient('isEmpty')
 
 class BaseSchemaTest(ArchetypesTestCase):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -56,7 +58,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(isinstance(field.storage, AttributeStorage))
         self.failUnless(field.getLayerImpl('storage') == AttributeStorage())
         self.failUnless(ILayerContainer.isImplementedBy(field))
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, IdWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -84,7 +86,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, AttributeStorage))
         self.failUnless(field.getLayerImpl('storage') == AttributeStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == ())
         self.failUnless(isinstance(field.widget, StringWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -116,7 +118,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -147,7 +149,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'lines')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, KeywordWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -176,7 +178,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'text')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, TextAreaWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -205,7 +207,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'lines')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, LinesWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -234,7 +236,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'datetime')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, CalendarWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -263,7 +265,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'datetime')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, CalendarWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -292,7 +294,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -321,7 +323,7 @@ class BaseSchemaTest(ArchetypesTestCase):
         self.failUnless(field.type == 'text')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == {'strategy' : 'and', 'handlers' : ()})
+        self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, TextAreaWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
@@ -370,17 +372,12 @@ class BaseSchemaTest(ArchetypesTestCase):
         dummy.setExpirationDate(now)
         self.failUnless(dummy.contentExpired())
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(BaseSchemaTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(BaseSchemaTest))
-        return suite

@@ -5,7 +5,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
@@ -89,16 +88,17 @@ BaseUnit.portal_properties = PortalProperties()
 
 def gen_class(klass):
     klass.schema = deepcopy(schema)
+    klass.schema = schema
     registerType(klass)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
 def gen_dummy():
     gen_class(Dummy)
 
+
 class ClassGenTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -168,17 +168,12 @@ class ClassGenTest( ArchetypesTestCase ):
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
 
-    def beforeTearDown(self):
-        del self._dummy
-        ArchetypesTestCase.beforeTearDown(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ClassGenTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(ClassGenTest))
-        return suite

@@ -1,10 +1,9 @@
 import re
 from TAL import ndiff
 
-def makeContent(site, portal_type, id='document', **kw ):
-    site.invokeFactory( type_name=portal_type, id=id )
-    content = getattr( site, id )
-    return content
+def makeContent( container, portal_type, id='document', **kw ):
+    container.invokeFactory( type_name=portal_type, id=id )
+    return getattr( container, id )
 
 def normalize_html(s):
     s = re.sub(r"\s+", " ", s)

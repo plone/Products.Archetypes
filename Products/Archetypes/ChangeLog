@@ -1,3 +1,27 @@
+2004-05-09  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Introduced new validators syntax (again). The {'strategy' : 'and', 
+      'handlers' : () } was removed and replaced by a ValidationChain.
+
+      Right now the validators field option support different types:
+
+       * The name of an registered validator
+       * A registered or unregistered instance implementing IValidator
+       * A validator chain object
+       * A list or tuple of strings, validators or validator chains
+       * Optional an argument for the validator or validator name. Required is 
+         the default value:
+
+         validators = (('isEmpty', V_SUFFICIENT), 'isURL')
+
+      The new implementation is adding a isEmpty validator as first validator
+      in sufficient mode to a validator chain for an non required field.
+
+2004-05-09  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Added type description string to BaseObject and base_edit (Merge
+      from AT Content Types)
+
 2004-04-21  Christian Heimes <heimes@faho.rwth-aachen.de>
 
     * Changed syntax for Field.validators. It accepts a dict:

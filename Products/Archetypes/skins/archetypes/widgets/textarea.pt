@@ -13,17 +13,27 @@
     <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define define-macro="area_edit">
+      <tal:define tal:define="base python:hasattr(value, 'isUnit');
+                    binary python:base and value.isBinary() or here.isBinary(fieldName);
+                    content python:(base == 1) and value.getRaw() or value;
+                    content python:(binary == 0) and content or '';
+                    append_only python: getattr(widget, 'append_only', None)">
+
+      <fieldset tal:condition="append_only">
+        <legend tal:content="widget/label">label</legend>
+        <span tal:content="content">content</span>
+      </fieldset>
+
       <textarea tabindex="#"
         tal:attributes="name fieldName;
                         id fieldName;
                         cols widget/cols;
                         rows widget/rows;
-                        tabindex tabindex/next"
-        tal:define="base python:hasattr(value, 'isUnit');
-                    binary python:base and value.isBinary() or here.isBinary(fieldName);
-                    content python:(base == 1) and value.getRaw() or value;
-                    content python:(binary == 0) and content or ''"
+                        tabindex tabindex/next;"
+	tal:define="content python: not append_only and content or '';"
         tal:content="content">content</textarea>
+
+      </tal:define>
     </metal:define>
 
     <metal:define define-macro="area_format">
@@ -73,7 +83,9 @@
     <metal:define define-macro="search">
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
+
           <metal:block use-macro="here/widgets/textarea/macros/area_edit" />
+
         </metal:fill>
       </metal:use>
     </metal:define>

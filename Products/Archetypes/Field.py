@@ -12,6 +12,7 @@ from Products.Archetypes.interfaces.field import IField, IObjectField, \
      IImageField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException, \
      TextFieldException, FileFieldException
 from Products.Archetypes.Widget import *
@@ -24,7 +25,10 @@ from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage, \
      MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
-from Products.validation import validation
+from Products.validation import validation as validationService
+from Products.validation import ValidationChain, UnknowValidatorError, FalseValidatorError
+from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
 import Products.generator.i18n as i18n
 from Products.PortalTransforms.interfaces import idatastream
 
@@ -178,31 +182,40 @@ class Field(DefaultLayerContainer):
 
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
+        chainname = 'Validator_%s' % self.getName
+
         if type(self.validators) is DictType:
-            strategy   = self.validators.get('strategy', 'and').lower()
-            validators = self.validators.get('handlers', ( ))
-        else:
-            strategy  = 'and'
+            raise NotImplementedError, 'Please use the new syntax with validation chains'
+        elif IValidationChain.isImplementedBy(self.validators):
             validators = self.validators
-
-        if type(validators) not in (TupleType, ListType):
-            validators = (validators,)
+        elif IValidator.isImplementedBy(self.validators):
+            validators = ValidationChain(chainname, validators=self.validators)
+        elif type(self.validators) in (TupleType, ListType, StringType):
+            if len(self.validators):
+                # got a non empty list or string - create a chain
+                try:
+                    validators = ValidationChain(chainname, validators=self.validators)
+                except (UnknowValidatorError, FalseValidatorError), msg:
+                    log("WARNING: Disabling validation for %s: %s" % (self.getName(), msg))
+                    validators = ()
+            else:
+                validators = ()
         else:
-            validators = tuple(validators)
+            log('WARNING: Unknow validation %s. Disabling!' % self.validators)
+            validators = ()
 
-        if strategy not in ('and', 'or'):
-            raise ValueError("strategy %s not in ('and', 'or')" % strategy)
+        if not self.required:
+            if validators == ():
+                validators = ValidationChain(chainname)
+            if len(validators):
+                # insert isEmpty validator at position 0 if first validator
+                # is not isEmpty
+                if not validators[0][0].name == 'isEmpty':
+                    validators.insertSufficient('isEmpty')
+            else:
+                validators.insertSufficient('isEmpty')
 
-        for vname in validators:
-            try:
-                v = validation.validatorFor(vname)
-            except KeyError:
-                v = None
-            if not v:
-                log("WARNING: no validator %s for %s" % (vname,
-                self.getName()))
-
-        self.validators = {'strategy' : strategy, 'handlers' : validators }
+        self.validators = validators
 
     def validate(self, value, instance, errors={}, **kwargs):
         """
@@ -228,59 +241,25 @@ class Field(DefaultLayerContainer):
         if res is not None:
             return res
 
-        # check if we are allowed to use the validators
-        # Don't validate if the field is empty and not required
-        # XXX: This is a temporary fix. Need to be fixed right for AT 2.0
-        #      content_edit / BaseObject.processForm() calls
-        #      widget.process_form a second time!
-        isEmpty = False
         if self.validators:
-            widget = self.widget
-            # XXX: the comment below is absurd
-            # XXX: required for unit test
-            request = getattr(instance, 'REQUEST', None)
-            if request:
-                form   = request.form
-                result = widget.process_form(instance, self, form,
-                                             empty_marker=_marker,
-                                             emptyReturnsMarker=True)
-                if result is _marker or result is None:
-                    # XXX: FileWidget returns None
-                    isEmpty = True
+            res = self.validate_validators(value, instance, errors, **kwargs)
+            if res is not True:
+                return res
 
-        return self.validate_validators(value, instance, errors, isEmpty,
-                                        **kwargs)
+        # all ok 
+        return None
 
-    def validate_validators(self, value, instance, errors, isEmpty, **kwargs):
+    def validate_validators(self, value, instance, errors, **kwargs):
         """
         """
-        strategy   = self.validators.get('strategy')
-        validators = self.validators.get('handlers')
-        results    = {}
-
-        if strategy == 'and':
-            # not failed unless explicitly failed
-            failed = 0
+        if self.validators:
+            result = self.validators(value, instance=instance, errors=errors,
+                                     field=self, **kwargs)
         else:
-            # failed unless one test has succeded
-            failed = 1
+            result = True
 
-        for name in validators:
-            results[name] = validation.validate(name, value, instance=instance,
-                                                errors=errors, field=self,
-                                                isEmpty=isEmpty, **kwargs)
-
-        for name, res in results.items():
-            if res != 1 and strategy == 'and':
-                failed = 1
-            if res == 1 and strategy == 'or':
-                failed = 0
-
-        if failed:
-            return '\n'.join(['%s: %s' % (name, res)
-                              for name, res in results.items()
-                              if res != 1 ])
-
+        if result is not True:
+            return result
 
     def validate_required(self, instance, value, errors):
         if not value:
@@ -340,18 +319,55 @@ class Field(DefaultLayerContainer):
 
     def Vocabulary(self, content_instance=None):
         """
-        COMMENT TODO
+        returns a DisplayList
+
+        uses self.vocabulary as source
+
+        1) Dynamic vocabulary:
+
+            precondition: a content_instance is given.
+
+            has to return a:
+                * DisplayList or
+                * list of strings or
+                * list of 2-tuples with strings:
+                    '[("key1","value 1"),("key 2","value 2"),]'
+
+            the output is postprocessed like a static vocabulary.
+
+            vocabulary is a string:
+                if a method with the name of the string exists it will be called
+
+            vocabulary is a class implementing IVocabulary:
+                the "getDisplayList" method of the class will be called.
+
+
+        2) Static vocabulary
+
+            * is already a DisplayList
+            * is a list of 2-tuples with strings (see above)
+            * is a list of strings (in this case a DisplayList with key=value
+              will be created)
+
         """
 
         value = self.vocabulary
         if not isinstance(value, DisplayList):
+
+
             if content_instance is not None and type(value) in STRING_TYPES:
+                # dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
                     kw = {'content_instance' : content_instance,
                           'field' : self}
                     value = mapply(method, *args, **kw)
+            elif content_instance is not None and \
+                 IVocabulary.isImplementedBy(value):
+                # dynamic vocabulary provided by a class that implements
+                # IVocabulary
+                value=value.getDisplayList(content_instance)
 
             # Post process value into a DisplayList, templates will use
             # this interface
@@ -363,6 +379,7 @@ class Field(DefaultLayerContainer):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if len(sample) != 2:
+                    # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
             elif len(sample) and type(sample[0]) == type(''):
@@ -513,6 +530,7 @@ class ObjectField(Field):
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
+        kwargs['mimetype'] = kwargs.get('mimetype', getattr(self, 'default_content_type', 'application/octet'))
         # Remove acquisition wrappers
         value = aq_base(value)
         __traceback_info__ = (self.getName(), instance, value, kwargs)
@@ -547,6 +565,33 @@ class ObjectField(Field):
     def getStorageType(self, instance=None):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
+
+    def getContentType(self, instance):
+        """Return the mime type of object if known or can be guessed;
+        otherwise, return None."""
+        value = ''
+        # ask the BaseUnit for the content type
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            mimetype = str(value.getContentType())
+        else:
+            mimetype = getattr(aq_base(value), 'mimetype', None)
+        # some instances like OFS.Image have a getContentType method
+        if mimetype is None:
+            raw = self.getRaw(instance)
+            getCT = getattr(raw, 'getContentType', None)
+            if callable(getCT):
+                mimetype = getCT()
+        # try to guess
+        if mimetype is None:
+            mimetype, enc = guess_content_type('', str(value), None)
+        else:
+            # mimetype may be an imimetype object
+            mimetype = str(mimetype)
+        # failed
+        if mimetype is None:
+            mimetype = getattr(self, 'default_content_type', 'application/octet')
+        return mimetype
 
 
 class StringField(ObjectField):
@@ -613,13 +658,6 @@ class FileField(StringField):
             return value, mimetype, f_name
         raise FileFieldException('Value is not File or String')
 
-    def getContentType(self, instance):
-        """Return the type of file of this object if known; otherwise,
-        return None."""
-        if hasattr(aq_base(instance), '_FileField_types'):
-            return instance._FileField_types.get(self.getName(), None)
-        return None
-
     def set(self, instance, value, **kwargs):
         """
         Assign input value to object. If mimetype is not specified,
@@ -637,6 +675,7 @@ class FileField(StringField):
                                                       default=self.default,
                                                       **kwargs)
         kwargs['mimetype'] = mimetype
+        kwargs['filename'] = f_name
 
         if value=="DELETE_FILE":
             if hasattr(aq_base(instance), '_FileField_types'):
@@ -644,12 +683,9 @@ class FileField(StringField):
             ObjectField.unset(self, instance, **kwargs)
             return
 
-        # FIXME: ugly hack
-        try:
-            types_d = instance._FileField_types
-        except AttributeError:
-            types_d = {}
-            instance._FileField_types = types_d
+        # remove ugly hack
+        if hasattr(aq_base(instance), '_FileField_types'):
+            del instance._FileField_types
         if value is None:
             # do not send None back as file value if we get a default (None)
             # value back from _process_input.  This prevents
@@ -657,10 +693,30 @@ class FileField(StringField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
-        types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
         setattr(value, 'filename', f_name or self.getName())
+        setattr(value, 'content_type', mimetype)
         ObjectField.set(self, instance, value, **kwargs)
+
+    def getFilename(self, instance):
+        """Get file name of underlaying file object
+        """
+        filename = None
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            filename = value.filename
+        else:
+            filename = getattr(aq_base(value), 'filename', None)
+        # for OFS.Image.*
+        if filename is None:
+            raw = self.getRaw(instance)
+            filename = getattr(raw, 'filename', None)
+        # might still be None
+        if filename:
+            # taking care of stupid IE and be backward compatible
+            # BaseUnit hasn't have a fix for long so we might have an old name
+            filename = filename.split("\\")[-1]
+        return filename
 
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()
@@ -708,21 +764,6 @@ class TextField(ObjectField):
         raise TextFieldException(('Value is not File, String or '
                                   'BaseUnit on %s: %r' % (self.getName(),
                                                           type(value))))
-
-    def getContentType(self, instance):
-        """Return the mime type of object if known or can be guessed;
-        otherwise, return None."""
-        value = ''
-        value = self.getRaw(instance, raw=1)
-        if IBaseUnit.isImplementedBy(value):
-            return str(value.getContentType())
-        mimetype = getattr(aq_base(value), 'mimetype', None)
-        if mimetype is None:
-            mimetype, enc = guess_content_type('', str(value), None)
-        else:
-            # mimetype may be an imimetype object
-            mimetype = str(mimetype)
-        return mimetype
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
@@ -943,8 +984,9 @@ class ReferenceField(ObjectField):
 
     """A field for creating references between objects.
 
-    Values used in get() and set() methods are either string or list
-    depending on multiValued. The strings represent UIDs.
+    get() returns the list of objects referenced under the relationship
+    set() converts a list of target UIDs into references under the
+    relationship associated with this field.
 
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
@@ -963,29 +1005,14 @@ class ReferenceField(ObjectField):
                                             # display path as well
 
         'referenceClass' : Reference,
+        'referenceReferences' : False,
         })
 
 
     def get(self, instance, **kwargs):
-        """Not really publicly useful.
-
-        See IReferenceable for more convenient ways."""
-        tool = getToolByName(instance, REFERENCE_CATALOG)
-        value = [ref.targetUID for ref in
-                 tool.getReferences(instance, self.relationship)]
-
-        if not self.multiValued: # return a string or None if single valued
-            if len(value) > 1:
-                log('%s of %s is single valued but multiple %s relationships '
-                    'exist: %s' %
-                    (self.getName(), instance, self.relationship, value))
-
-            if len(value) == 0:
-                value = None
-            else:
-                value = value[0]
-
-        return value
+        """get() returns the list of objects referenced under the relationship
+        """
+        return instance.getRefs(relationship=self.relationship)
 
     def set(self, instance, value, **kwargs):
         """Mutator.
@@ -1000,8 +1027,8 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if not self.multiValued and value:
-            value = (value,)
+        #if not self.multiValued and value:
+        #    value = (value,)
 
         if not value:
             value = ()
@@ -1022,6 +1049,15 @@ class ReferenceField(ObjectField):
         for uid in sub:
             tool.deleteReference(instance, uid, self.relationship)
 
+    def getRaw(self, instance, **kwargs):
+        """Return the list of UIDs referenced under this fields
+        relationship
+        """
+        rc = getToolByName(instance, REFERENCE_CATALOG)
+        brains = rc(sourceUID=instance.UID(),
+                    relationship=self.relationship)
+        return [b.targetUID for b in brains]
+
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
         if self.vocabulary:
@@ -1033,7 +1069,9 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
-        brains = pc.searchResults(portal_type=self.allowed_types)
+
+        skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
+        brains = uc.searchResults(**skw)
 
         if len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
@@ -1043,9 +1081,30 @@ class ReferenceField(ObjectField):
         else:
             label = lambda b:b.Title or b.id
 
-        for b in brains:
-            uid = uc.getMetadataForUID(b.getPath())['UID']
-            pairs.append((uid, label(b)))
+        # The UID catalog is the correct catalog to pull this
+        # information from, however the workflow and perms are not accounted
+        # for there. We thus check each object in the portal catalog
+        # to ensure it validity for this user.
+        portal_base = getToolByName(content_instance,'portal_url').getPortalPath()
+        path_offset = len(getToolByName(content_instance,'portal_url').getPortalPath())+1
+        abs_paths = {}
+        def assign(x, y): abs_paths[x]=y
+        [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
+
+        pc_brains = pc(path=abs_paths.keys())
+
+        for b in pc_brains:
+            #translate abs path to rel path since uid_cat stores paths relative now
+            path=b.getPath()[path_offset:]
+            # The reference field will not expose Refrerences by
+            # default, this is a complex use-case and makes things too hard to
+            # understand for normal users. Because of reference class
+            # we don't know portal type but we can look for the annotation key in
+            # the path
+            if self.referenceReferences is False and \
+               path.find(config.REFERENCE_ANNOTATION) != -1:
+                continue
+            pairs.append((abs_paths[b.getPath()].UID, label(b)))
 
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
@@ -1368,8 +1427,7 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    value = self.scale(data,w,h)
-
+                    value, format = self.scale(data,w,h)
         return value
 
     def createOriginal(self, instance, value, **kwargs):
@@ -1458,11 +1516,21 @@ class ImageField(ObjectField):
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
 
-    def getContentType(self, instance):
-        img = self.getRaw(instance)
-        if img:
-            return img.getContentType()
-        return ''
+    def getFilename(self, instance):
+        """Get file name of underlaying file object
+        """
+        filename = None
+        value = self.getRaw(instance, raw=1)
+        if IBaseUnit.isImplementedBy(value):
+            filename = value.filename
+        else:
+            filename = getattr(aq_base(value), 'filename', None)
+        # for OFS.Image.*
+        if filename is None:
+            raw = self.getRaw(instance)
+            filename = getattr(raw, 'filename', None)
+        # might still be None
+        return filename
 
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: str(value))()

@@ -121,10 +121,10 @@ class ClassGenerator:
         # before we start, set meta_type, portal_type based on class
         # name, but only if they are not set yet
         if (not getattr(klass, 'meta_type', None) or
-            'meta_type' not in klass.__dict__):
+            'meta_type' not in klass.__dict__.keys()):
             klass.meta_type = klass.__name__
         if (not getattr(klass, 'portal_type', None) or
-            'portal_type' not in klass.__dict__):
+            'portal_type' not in klass.__dict__.keys()):
             klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))

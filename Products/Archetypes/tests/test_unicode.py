@@ -5,11 +5,10 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 
 from test_classgen import Dummy
 
-
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes.Field import *
 from Products.PortalTransforms.MimeTypesRegistry import MimeTypesRegistry
 from Products.Archetypes.BaseUnit import BaseUnit
@@ -26,7 +25,7 @@ class FakeTransformer:
             data = datastream('test')
         data.setData(orig)
         return data
-tests = []
+
 
 class UnicodeStringFieldTest( ArchetypesTestCase ):
 
@@ -42,7 +41,6 @@ class UnicodeStringFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
-tests.append(UnicodeStringFieldTest)
 
 class UnicodeLinesFieldTest( ArchetypesTestCase ):
 
@@ -83,7 +81,6 @@ class UnicodeLinesFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
-tests.append(UnicodeLinesFieldTest)
 
 class UnicodeTextFieldTest( ArchetypesTestCase ):
 
@@ -99,11 +96,10 @@ class UnicodeTextFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.getRaw(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
-tests.append(UnicodeTextFieldTest)
 
 class UnicodeBaseUnitTest(ArchetypesTestCase):
+
     def afterSetUp(self):
-        ArchetypesTestCase.afterSetUp(self)
         self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
 
     def test_store(self):
@@ -127,16 +123,15 @@ class UnicodeBaseUnitTest(ArchetypesTestCase):
         transformed = self.bu.transform(instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
 
-tests.append(UnicodeBaseUnitTest)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(UnicodeStringFieldTest))
+    suite.addTest(makeSuite(UnicodeLinesFieldTest))
+    suite.addTest(makeSuite(UnicodeTextFieldTest))
+    suite.addTest(makeSuite(UnicodeBaseUnitTest))
+    return suite
 
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite

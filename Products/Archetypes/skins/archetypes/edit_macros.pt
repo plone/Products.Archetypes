@@ -25,7 +25,7 @@
             <b>[<span tal:content="set" i18n:translate="" />]</b>
           </tal:current>
           <tal:others condition="python:set != fieldset">
-            <a href="#" tal:attributes="href string:${here/absolute_url}/base_edit?fieldset=${set}">
+            <a href="#" tal:attributes="href string:${here/absolute_url}/${template/getId}?fieldset=${set}">
             [<span tal:content="set" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
@@ -38,6 +38,18 @@
         This item is in use by someone else and cannot be modified
       </p>
 
+    </div>
+
+    <div metal:define-macro="typedescription">
+        <tal:description tal:define="msgid here/typeDescMsgId | nothing;
+                                     default here/typeDescription| nothing;"
+                         tal:condition="default">
+
+          <p tal:content="python:here.translate(msgid=msgid, default=default)">
+            type description
+          </p>
+
+        </tal:description>
     </div>
 
     <div metal:define-macro="body">
@@ -154,12 +166,12 @@
             </tal:env>
 
             <tal:comment replace="nothing">
-              Stores lastests referer to remember where to go back
+              Store referrer to remember where to go back
             </tal:comment>
             <input type="hidden"
-                   name="lastest_referer"
-                   tal:define="referer request/form/HTTP_REFERER | request/HTTP_REFERER"
-                   tal:attributes="value python:referer and referer or here.aq_parent.absolute_url()"
+                   name="last_referer"
+                   tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
+                   tal:attributes="value python:last_referer and last_referer or here.aq_parent.absolute_url()"
                    />
 
             <metal:block define-slot="buttons"
@@ -194,8 +206,7 @@
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
-                <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
-                       class="standalone"
+                <input class="standalone"
                        tabindex=""
                        type="submit"
                        name="form.button.cancel"

@@ -1,20 +1,21 @@
 #
-# PloneTestCase
+# ArchetypesTestCase and ArcheSiteTestCase classes
 #
 
-# $Id: common.py,v 1.3.24.1 2004/04/25 22:07:12 tiran Exp $
+# $Id: common.py,v 1.3.24.3 2004/05/13 15:59:16 shh42 Exp $
 
-# enable nice names for True and False from newer python versions
+from Testing import ZopeTestCase
+
+# Enable nice names for True and False from newer python versions
 try:
     dummy=True
+    del dummy
 except NameError: # python 2.1
     True  = 1
     False = 0
-    __all__Boolean = ('True', 'False',)
-else:
-    __all__Boolean = ()
 
-# fix zope 2.7+ configuration
+
+# Fixup zope 2.7+ configuration
 try:
     from App import config
 except ImportError:
@@ -23,34 +24,14 @@ else:
     config._config.rest_input_encoding = 'ascii'
     config._config.rest_output_encoding = 'ascii'
     config._config.rest_header_level = 3
+    del config
 
-def Xprint(s):
-    """print helper
 
-    print data via print is not possible, you have to use
-    ZopeTestCase._print or this function
-    """
-    ZopeTestCase._print(str(s)+'\n')
-
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-
-from Testing import ZopeTestCase
-from ArchetypesTestCase import ArchetypesTestCase
-
-try:
-    from ArcheSiteTestCase import ArcheSiteTestCase
-    hasArcheSiteTestCase = True
-except ImportError, err:
-    Xprint(err)
-    class ArcheSiteTestCase(ArchetypesTestCase): pass
-    hasArcheSiteTestCase = False
-
-# import Interface for interface testing
+# Import Interface for interface testing
 try:
     import Interface
 except ImportError:
-    # set dummy functions and exceptions for older zope versions
+    # Set dummy functions and exceptions for older zope versions
     def verifyClass(iface, candidate, tentative=0):
         return True
     def verifyObject(iface, candidate, tentative=0):
@@ -70,9 +51,11 @@ else:
     from Interface.Verify import verifyClass, verifyObject
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
     from Interface.Exceptions import BrokenMethodImplementation
+    del Interface
+
 
 class TestPreconditionFailed(Exception):
-    """ some modules are missing or other preconditions have failed """
+    """ Some modules are missing or other preconditions have failed """
     def __init__(self, test, precondition):
         self.test = test
         self.precondition = precondition
@@ -82,10 +65,26 @@ class TestPreconditionFailed(Exception):
                 "for the test %s have failed: '%s' "
                 % (self.test, self.precondition))
 
-__all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
-           'verifyClass', 'verifyObject', 'getImplements',
-           'BrokenImplementation', 'DoesNotImplement',
-           'BrokenMethodImplementation', 'getImplementsOfInstances',
-           'flattenInterfaces', 'newSecurityManager', 'noSecurityManager',
-           'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
-           + __all__Boolean
+
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+from AccessControl import getSecurityManager
+
+from Acquisition import aq_base
+from Acquisition import aq_inner
+from Acquisition import aq_parent
+
+from ArchetypesTestCase import ArchetypesTestCase
+
+from ArchetypesTestCase import default_user
+from ArchetypesTestCase import default_role
+
+try:
+    from ArchetypesTestCase import ArcheSiteTestCase
+except ImportError, err:
+    ZopeTestCase._print('%s\n' % err)
+    hasArcheSiteTestCase = False
+else:
+    from ArchetypesTestCase import portal_name
+    from ArchetypesTestCase import portal_owner
+    hasArcheSiteTestCase = True

@@ -11,7 +11,6 @@ from Products.Archetypes.Schema import Schemata, ManagedSchema, getNames
 from Products.Archetypes import listTypes
 
 from DateTime import DateTime
-import unittest
 
 
 class SchemataManipulationTest( ArchetypesTestCase ):
@@ -123,13 +122,11 @@ class SchemataManipulationTest( ArchetypesTestCase ):
                         ['f1','d','x', 'b','f2','y','c','f','f3'])
 
 
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(SchemataManipulationTest))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(SchemataManipulationTest))
-        return suite

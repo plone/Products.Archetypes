@@ -40,7 +40,8 @@
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
-                         fieldName python:multiVal and fieldName+':list' or fieldName;
+                         fieldName python:fieldName+':list';
+                         uids value;
                          vlen python:len(vocab);">
 
           <input type="hidden"
@@ -58,7 +59,7 @@
                        tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
-                                       checked python:test(value and multiVal and item in value or item==value, value, '');
+                                       checked python:test(item in uids, 1, nothing);
                                        tabindex item_tabindex;
                                        value item;
                                        id item_id;
@@ -83,14 +84,13 @@
               <option selected="selected"
                       tal:repeat="item vocab"
                       tal:attributes="value item;
-                                      selected python:test(value and multiVal and item in value or item==value, 'selected', '')"
+                                      selected python:test((item in uids), 'selected', '')"
                       tal:content="python:vocab.getValue(item)"></option>
             </select>
           </div>
 
-          <div tal:condition="widget/addable"
-               tal:define="types python:widget.addableTypes(here, field)">
-
+          <tal:condition tal:condition="widget/addable">
+            <div tal:define="types python:widget.addableTypes(here, field)">
             <input type="button" class="context"
                 tal:attributes="id string:${field/getName}_link;
                 onclick string:${field/getName}_show();;return false;
@@ -152,6 +152,7 @@
               <script tal:content="structure here/reference_js"></script>
             </div>
           </div>
+          </tal:condition>
         </div>
       </metal:use>
     </metal:edit_macro>

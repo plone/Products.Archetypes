@@ -232,6 +232,7 @@ class DisplayList:
         self._itor.append(key)
         if msgid: self._i18n_msgids[key] = msgid
 
+
     def getKey(self, value, default=None):
         """get key"""
         v = self._values.get(value, None)
@@ -283,7 +284,7 @@ class DisplayList:
         return DisplayList(values)
 
     def sortedByKey(self):
-        """return a new display list sorted by value"""
+        """return a new display list sorted by key"""
         def _cmp(a, b):
             return cmp(a[0], b[0])
         values = list(self.items())
@@ -376,3 +377,15 @@ class OrderedDict(BaseDict):
         return (k, v)
 
 InitializeClass(OrderedDict)
+
+
+def getRelPath(self, ppath):
+    """take something with context (self) and a physical path as a
+    tuple, return the relative path for the portal"""
+    portal_path = self.portal_url.getPortalObject().getPhysicalPath()
+    ppath = ppath[len(portal_path):]
+    return ppath
+
+def getRelURL(self, ppath):
+    return '/'.join(getRelPath(self, ppath))
+
