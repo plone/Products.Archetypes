@@ -1,6 +1,10 @@
 1.4-devel
 =========
 
+ * More OrderedDict fixes... wasn't overriding 'pop' method from base class,
+   causing keys list and data to get out of sync if it were ever called
+   [rafrombrc]
+
  * Filtering schemata from showing up on base_edit unless user actually
    has edit privs to some of the fields
    [rafrombrc]
