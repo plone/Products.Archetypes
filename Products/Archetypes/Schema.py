@@ -172,32 +172,33 @@ class Schemata(UserDict):
 
         return results
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'addField')
-    def addField(self, field):
-        """Adds a given field to my dictionary of fields."""
-
+    def __setitem__(self, name, field):
+        assert name == field.getName()
+        
         if IField.isImplementedBy(field):
-            self[field.getName()] = field
+            UserDict.__setitem__(self, name, field)
             field._index = self._index
             self._index +=1
             self._order_fields = None
         else:
             log_exc('Object doesnt implement IField: %s' % field)
 
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'delField')
-    def delField(self, name):
-        """Remove a field given by its name """
+                              'addField')
+    def addField(self, field):
+        """Adds a given field to my dictionary of fields."""
+        self[field.getName()] = field
 
-        assert isinstance(name, StringTypes)
-
+    def __delitem__(self, name):
         if not self.has_key(name): 
             raise KeyError("Schema has no field '%s'" % name)
 
-        del self[name]
+        UserDict.__delitem__(self, name)
         self._order_fields = None
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'delField')
+    delField = __delitem__
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateField')
