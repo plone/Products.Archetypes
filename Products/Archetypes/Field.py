@@ -1873,6 +1873,7 @@ class ImageField(FileField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
+                    __traceback_info__ = (self, instance, w, h)
                     fvalue, format = self.scale(data,w,h)
                     value = fvalue.read()
         return value
@@ -1921,6 +1922,7 @@ class ImageField(FileField):
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
+            __traceback_info__ = (self, instance, id, w, h)
             try:
                 imgdata, format = self.scale(data, w, h)
             except ConflictError:
@@ -1975,7 +1977,7 @@ class ImageField(FileField):
         #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or 'PNG'
         # decided to only preserve palletted mode
-        # for GIF, could also use   image.format in ('GIF','PNG')
+        # for GIF, could also use image.format in ('GIF','PNG')
         if original_mode == 'P' and format == 'GIF':
             image = image.convert('P')
         thumbnail_file = StringIO()
