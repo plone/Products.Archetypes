@@ -19,6 +19,7 @@ from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
 
+_marker = []
 
 class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
@@ -58,15 +59,35 @@ class TypesWidget(macrowidget, Base):
     security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
-        visible, hidden, invisible"""
-        # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
-        vis_dic = getattr(aq_base(self), 'visible', None)
+        
+        Return values are visible, hidden, invisible
+        
+        The value for the attribute on the field may either be a dict with a 
+        mapping for edit and view::
+        
+            visible = { 'edit' :'hidden', 'view' : 'invisible' }
+        
+        Or a single value for all modes::
+            
+            True/1:  'visible'
+            False/0: 'invisible'
+            -1:      'hidden'
+            
+        The default state is 'visible'.
+        """
+        vis_dic = getattr(aq_base(self), 'visible', _marker)
         state = 'visible'
-        if not vis_dic:
+        if vis_dic is _marker:
             return state
-        # ugly hack ...
-        if type(vis_dic) == DictType:
+        if type(vis_dic) is DictType:
             state = vis_dic.get(mode, state)
+        elif not vis_dic:
+            state = 'invisible'
+        elif vis_dic < 0:
+            state = 'hidden'
+        #assert(state in ('visible', 'hidden', 'invisible',),
+        #      'Invalid view state %s' % state
+        #      )
         return state
 
     # XXX
