@@ -1,5 +1,8 @@
 2004-12-02  Dorneles Treméa  <deo@plonesolutions.com>
 
+	* Field.py (getBaseUnit): Gave precedence to storage when getting
+	filename/mimetype.
+
 	* Field.py (getFilename): Fixed security declaration. Revised
 	docstrings and coments.
 

@@ -6,7 +6,7 @@
 
  * Fixed [ 948385 ] Allow wysiwyg editors to override RichWidget format
    pulldown.
-   [dannybloe]
+   [duncanb, ender]
 
  * Fixed traversal/WebDAV for the nth time, now with tests.
    [dreamcatcher]
@@ -16,6 +16,10 @@
 
  * Added multi-field support to getFilename/setFilename and also
    getContentType/setContentType. Bonus: reformated ChangeLog... ;-)
+   [dtremea]
+
+ * Gave precedence to storage when getting filename/mimetype. This
+   allow each storage to save/restore data as it need.
    [dtremea]
 
 1.3.1-final - 2004-11-15
