@@ -67,11 +67,11 @@ def gen_dummy(storage_class):
                   widget = StringWidget(label = 'atextfield',
                                         description = 'Just a text field for the testing')),
 
-        #DateTimeField('adatetimefield',
-        #              default = DateTime(),
-        #              storage = storage_class(),
-        #              widget = CalendarWidget(label = 'adatetimefield',
-        #                                      description = 'Just a datetime field for the testing')),
+        DateTimeField('adatetimefield',
+                      default = DateTime(),
+                      storage = storage_class(),
+                      widget = CalendarWidget(label = 'adatetimefield',
+                                              description = 'Just a datetime field for the testing')),
 
         #LinesField('alinesfield',
         #           widget = StringWidget(label = 'alinesfield',
@@ -153,6 +153,14 @@ class SQLStorageTest(unittest.TestCase):
         value = dummy.getAtextfield()
         __traceback_info__ = repr(value)
         self.failUnless(str(value) == 'Bla')
+
+    def test_datetimefield(self):
+        dummy = self._dummy
+        now = DateTime()
+        dummy.setAdatetimefield(now)
+        value = dummy.getAdatetimefield()
+        __traceback_info__ = repr(value)
+        self.failUnless(value == now)
 
     def test_integerfield(self):
         dummy = self._dummy
