@@ -416,6 +416,8 @@ class CMFObjectField(ObjectField):
                     # the orig
                     return default
                 return value
+            if value is None:
+                return default
         else:
             if value == '':
                 return default

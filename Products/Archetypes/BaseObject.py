@@ -11,7 +11,7 @@ from types import FileType
 import operator
 
 from Schema import Schema
-from Field import ObjectField
+from Field import StringField
 from Widget import IdWidget, StringWidget
 from utils import DisplayList
 from interfaces.base import IBaseObject
@@ -19,7 +19,7 @@ from interfaces.base import IBaseObject
 from Renderer import renderer
 
 content_type = Schema((
-    ObjectField('id',
+    StringField('id',
                 required=1,
                 mode="rw",
                 accessor="getId",
@@ -28,7 +28,7 @@ content_type = Schema((
                 widget=IdWidget(),
                 ),
     
-    ObjectField('title',
+    StringField('title',
                 required=1,
                 searchable=1,
                 default='',
