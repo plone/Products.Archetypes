@@ -45,8 +45,8 @@ def toReferenceCatalog(portal, out):
             sourceUID = getattr(sourceObj.aq_base, '_uid', None)
             if not sourceUID: continue
             rc.registerObject(sourceObj)
+            sourceObj.reindexObject() #try for a UID update
 
-        uc.manage_reindexIndex()
             
         for brain in allbrains:
             sourceObj = brain.getObject()
