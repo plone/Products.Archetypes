@@ -1,5 +1,5 @@
 from interfaces.layer import ILayer
-from Products.generator.renderer import renderer as base
+from generator.renderer import renderer as base
 from debug import log, log_exc
 import sys
 

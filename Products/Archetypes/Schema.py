@@ -18,7 +18,6 @@ from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
-from Products.validation import validation
 from Products.CMFCore.utils import getToolByName
 
 # Used in fields() method
