@@ -9,17 +9,19 @@
     <!-- Reference Widgets -->
     <metal:view_macro define-macro="view">
       <a href="#"
-	 tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor());"
-	 tal:attributes="href obj/absolute_url"
-	 tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-      tal:condition="python:not field.multiValued and obj is not None"></a>
-      <tal:block tal:condition="python:field.multiValued"
-		 tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in (accessor() or [])]">
-	<a href="#"
-	   tal:attributes="href obj/absolute_url"
-	   tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-	tal:condition="python:obj is not None"></a>
-      </tal:block>
+         tal:define="obj python:accessor() and here.archetype_tool.lookupObject(uid = accessor());"
+         tal:attributes="href obj/absolute_url"
+         tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+         tal:condition="python:not field.multiValued and obj is not None"></a>
+      
+      <ul tal:condition="field/multiValued">
+        <li tal:repeat="obj python:[here.archetype_tool.lookupObject(uid=uid) for uid in (accessor() or [])]">
+          <a href="#"
+	     tal:attributes="href obj/absolute_url"
+	     tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+             tal:condition="python:obj is not None">Target Title</a>
+        </li>
+      </ul>
     </metal:view_macro>
 
     <div metal:define-macro="edit">
