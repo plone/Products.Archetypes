@@ -1,5 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
+
+ * Fixed [ 1114362 ] use format name instaed that mime type inside RichWidget.
+   [dan_t]
+
  * Filtering schemata from showing up on base_edit unless user actually
    has edit privs to some of the fields
    [rafrombrc]
