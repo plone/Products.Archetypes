@@ -245,7 +245,7 @@ class Field(DefaultLayerContainer):
             if res is not True:
                 return res
 
-        # all ok 
+        # all ok
         return None
 
     security.declarePrivate('validate_validators')
@@ -705,9 +705,9 @@ class FileField(ObjectField):
             return value, mimetype, filename
         elif IBaseUnit.isImplementedBy(value):
             return value.getRaw(), value.getContentType(), value.getFilename()
-        
+
         value = aq_base(value)
-        
+
         if ((isinstance(value, FileUpload) and value.filename != '') or
               (type(value) is FileType and value.name != '')):
             filename = ''
@@ -726,7 +726,7 @@ class FileField(ObjectField):
                 return default, mimetype, filename
             else:
                 return value, mimetype, filename
-        
+
         if isinstance(value, File):
             # OFS.Image.File based
             filename = value.filename
@@ -736,7 +736,7 @@ class FileField(ObjectField):
                 return default, mimetype, filename
             else:
                 return data, mimetype, filename
-        
+
         klass = getattr(value, '__class__', None)
         raise FileFieldException('Value is not File or String (%s - %s)' %
                                  (type(value), klass))
@@ -784,7 +784,7 @@ class FileField(ObjectField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
-        obj = self.content_class(self.getName(), '', str(value), mimetype) 
+        obj = self.content_class(self.getName(), '', str(value), mimetype)
         setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         ObjectField.set(self, instance, obj, **kwargs)
@@ -803,7 +803,7 @@ class FileField(ObjectField):
         bu = BaseUnit(filename, aq_base(value), instance,
                       filename=filename, mimetype=mimetype)
         return bu
-        
+
     security.declarePublic('getFileName') # XXX
     def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
@@ -835,11 +835,11 @@ class FileField(ObjectField):
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
-    
+
     security.declarePrivate('download')
     def download(self, instance):
         """Kicks download [PRIVATE]
-        
+
         Writes data including file name and content type to RESPONSE
         """
         bu = self.getBaseUnit(instance)
@@ -857,7 +857,7 @@ class TextField(FileField):
     _properties.update({
         'type' : 'text',
         'default' : '',
-        'widget': StringWidget, 
+        'widget': StringWidget,
         'default_content_type' : 'text/plain',
         'default_output_type'  : 'text/plain',
         'allowable_content_types' : ('text/plain',),
@@ -1178,7 +1178,7 @@ class ReferenceField(ObjectField):
         """get() returns the list of objects referenced under the relationship
         """
         res=instance.getRefs(relationship=self.relationship)
-        
+
         #singlevalued ref fields return only the object, not a list,
         #unless explicitely specified by the aslist option
         if not self.multiValued and not aslist:
@@ -1187,7 +1187,7 @@ class ReferenceField(ObjectField):
                 res=res[0]
             else:
                 res=None
-            
+
         return res
 
     security.declarePrivate('set')
@@ -1209,7 +1209,7 @@ class ReferenceField(ObjectField):
 
         if not value:
             value = ()
-            
+
         #convertobjects to uids if necessary
         uids=[]
         for v in value:
@@ -1305,7 +1305,7 @@ class ReferenceField(ObjectField):
             if self.referenceReferences is False and \
                path.find(config.REFERENCE_ANNOTATION) != -1:
                 continue
-            
+
             pairs.append((abs_paths[b.getPath()].UID, label(b)))
 
         if not self.required and not self.multiValued:
@@ -1339,7 +1339,7 @@ class ComputedField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         """Return computed value"""
-        return eval(self.expression, {'context': instance})
+        return eval(self.expression, {'context': instance, 'here' : instance})
 
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
@@ -1575,7 +1575,7 @@ class ImageField(FileField):
                                                       default=self.getDefault(instance),
                                                       **kwargs)
         #print type(value), mimetype, filename
-        
+
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 
@@ -1689,7 +1689,7 @@ class ImageField(FileField):
         """
         mimetype = kwargs.get('mimetype', 'image/png')
         filename = kwargs.get('filename', '')
-        
+
         image = self.content_class(self.getName(), self.getName(),
                                  str(value), mimetype)
         image.filename = filename
@@ -2141,9 +2141,9 @@ registerField(ImageField,
 
 registerField(PhotoField,
               title='Photo',
-	      description=('Used for storing images. '
-			   'Based on CMFPhoto. ')
-	     )
+              description=('Used for storing images. '
+                           'Based on CMFPhoto. ')
+             )
 
 registerPropertyType('required', 'boolean')
 registerPropertyType('default', 'string')
