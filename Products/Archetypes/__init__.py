@@ -47,9 +47,9 @@ types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
-    from Extensions import ArchetypeSite
+##    from Extensions import ArchetypeSite
 
-    ArchetypeSite.register(context, globals())
+##    ArchetypeSite.register(context, globals())
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,

@@ -41,6 +41,8 @@ Requires
 
 
 Quickstart
+    
+    1) Use the quickinstaller_tool and install archetypes
 
     Or, in an existing Plone site,
 
@@ -49,10 +51,6 @@ Quickstart
     3) Create an external method, module Archetypes.Install, function: install
     4) Run it
 
-    Or,
-
-    Create a new Plone site with ZMI and use the Archetype site customization
-       policy in the Add Plone Site page.
 
 
 Documentation
