@@ -28,7 +28,7 @@ norm  = "\033[00m"
 class SafeFileWrapper:
     def __init__(self, fp):
         self.fp = fp
-	
+
     def write(self, msg):
 	"""If for some reason we can't log, just deal with it"""
 	try:
@@ -41,7 +41,7 @@ class SafeFileWrapper:
 
     def __getattr__(self, key):
 	return getattr(self.fp, key)
-    
+
 
 class Log:
     closeable = 0
@@ -62,7 +62,7 @@ class Log:
             fp = self.target
 
 	self.fp = SafeFileWrapper(fp)
-	
+
 
     def _close(self):
         if self.closeable:

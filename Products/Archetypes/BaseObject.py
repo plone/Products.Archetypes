@@ -27,7 +27,9 @@ from Products.Archetypes.Marshall import RFC822Marshaller
 
 content_type = Schema((
     StringField('id',
-                required=0, ##Still actually required, but the widget will supply the missing value on non-submits
+                required=0, ## Still actually required, but
+                            ## the widget will supply the missing value
+                            ## on non-submits
                 mode="rw",
                 accessor="getId",
                 mutator="setId",
@@ -75,10 +77,7 @@ class BaseObject(Implicit):
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
         except:
-            import traceback
-            import sys
-            sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
-
+            log_exc()
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -222,7 +221,8 @@ class BaseObject(Implicit):
     def __getitem__(self, key):
         """play nice with externaleditor again"""
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
-            return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
+            return getattr(self, key, None) or \
+                   getattr(aq_parent(aq_inner(self)), key, None)
         accessor = self.Schema()[key].getEditAccessor(self)
         if not accessor:
             accessor = self.Schema()[key].getAccessor(self)
@@ -232,16 +232,6 @@ class BaseObject(Implicit):
             # Fallback to no params call
             value = accessor()
         return value
-
-##     security.declareProtected(CMFCorePermissions.View, 'get')
-##     def get(self, key, **kwargs):
-##         """return editable version of content"""
-##         accessor = self.Schema()[key]
-##         return accessor()
-
-##     def set(self, key, value, **kw):
-##         mutator = getattr(self, self.Schema()[key].mutator)
-##         mutator(value, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'edit')
@@ -281,8 +271,8 @@ class BaseObject(Implicit):
                 errors[name] = result
 
 
-    ##Pre/post validate hooks that will need to write errors
-    ##into the errors dict directly using errors[fieldname] = ""
+    ## Pre/post validate hooks that will need to write errors
+    ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
     def pre_validate(self, REQUEST, errors):
         pass
@@ -373,20 +363,20 @@ class BaseObject(Implicit):
 
         for field in fields:
             ## Delegate to the widget for processing of the form element.
-            ## This means that if the widget needs _n_ fields under a naming convention
-            ## it can handle this internally.
+            ## This means that if the widget needs _n_ fields
+            ## under a naming convention it can handle this internally.
             ## The calling API is process_form(instance, field, form)
-            ##    where instance should rarely be needed, field is the field object
-            ##    and form is the dict. of kv_pairs from the REQUEST
+            ## where instance should rarely be needed, field is the field object
+            ## and form is the dict. of kv_pairs from the REQUEST
             ##
             ## The product of the widgets processing should be:
-            ##        (value, **kwargs) which will be passed to the mutator
-            ##        or None which will simply pass
+            ##   (value, **kwargs) which will be passed to the mutator
+            ##   or None which will simply pass
             widget = field.widget
             result = widget.process_form(self, field, form)
             if not result: continue
 
-            #Set things by calling the mutator
+            # Set things by calling the mutator
             mutator = field.getMutator(self)
             __traceback_info__ = (self, field, mutator)
             mutator(result[0], **result[1])
@@ -405,31 +395,6 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
-    # I18N content management #################################################
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'hasI18NContent')
-    def hasI18NContent(self):
-        """return true it the schema contains at least one I18N field"""
-        return self.Schema().hasI18NContent()
-
-    # Handle schema updates ####################################################
-
-#    def _compareDicts(self, d1, d2):
-#        values = {}
-#        for k,v in d1.items():
-#            values[k] = (v,'N/A')
-#        for k,v in d2.items():
-#            if values.has_key(k):
-#                values[k] = (values[k][0],v)
-#            else:
-#                values[k] = ('N/A', v)
-#        keys = values.keys()
-#        keys.sort()
-#        import sys
-#        for k in keys:
-#            sys.stdout.write('%s: %s, %s\n' % (k, str(values[k][0]), str(values[k][1])))
-
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determine whether the current object's schema is up to date."""
@@ -446,26 +411,25 @@ class BaseObject(Implicit):
         product refreshes gracefully (when a product refreshes, you end up with
         both the old version of the class and the new in memory at the same
         time -- you really should restart zope after doing a schema update)."""
-        from Products.Archetypes.ArchetypeTool import getType
+        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
 
         print >> out, 'Updating %s' % (self.getId())
 
         old_schema = self.Schema()
-        new_schema = getType(self.meta_type)['schema']
+        package = _guessPackage(self.__module__)
+        new_schema = getType(self.meta_type, package)['schema']
 
         obj_class = self.__class__
-        current_class = getattr(sys.modules[self.__module__], self.__class__.__name__)
+        current_class = getattr(sys.modules[self.__module__],
+                                self.__class__.__name__)
         if obj_class.schema != current_class.schema:
             # XXX This is kind of brutish.  We do this to make sure that old
             # class instances have the proper methods after a refresh.  The
             # best thing to do is to restart Zope after doing an update, and
             # the old versions of the class will disappear.
-            # print >> out, 'Copying schema from %s to %s' % (current_class, obj_class)
+
             for k in current_class.__dict__.keys():
                 obj_class.__dict__[k] = current_class.__dict__[k]
-#            from Products.Archetypes.ArchetypeTool import generateClass
-#            generateClass(obj_class)
-
 
         # read all the old values into a dict
         values = {}
@@ -476,16 +440,14 @@ class BaseObject(Implicit):
                     values[name] = self._migrateGetValue(name, new_schema)
                 except ValueError:
                     if out != None:
-                        print >> out, 'Unable to get %s.%s' % (str(self.getId()), name)
+                        print >> out, ('Unable to get %s.%s'
+                                       % (str(self.getId()), name))
 
         # replace the schema
-        # print >> out, 'Updating schema'
         from copy import deepcopy
         self.schema = deepcopy(new_schema)
-        # print >> out, 'Reinitializing'
         self.initializeArchetype()
 
-        # print >> out, 'Writing field values'
         for f in new_schema.fields():
             name = f.getName()
             if name not in excluded_fields and values.has_key(name):
@@ -493,7 +455,9 @@ class BaseObject(Implicit):
                     self._migrateSetValue(name, values[name])
                 except ValueError:
                     if out != None:
-                        print >> out, 'Unable to set %s.%s to %s' % (str(self.getId()), name, str(values[name]))
+                        print >> out, ('Unable to set %s.%s to '
+                                       '%s' % (str(self.getId()),
+                                               name, str(values[name])))
         if out:
             return out
 
@@ -511,7 +475,8 @@ class BaseObject(Implicit):
                 # yes -- return the value
                 return accessor()
 
-        # Nope -- see if the new accessor method is present in the current object.
+        # Nope -- see if the new accessor method is present
+        # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
             accessor = new_field.getAccessor(self)
@@ -521,7 +486,8 @@ class BaseObject(Implicit):
                 except:
                     pass
 
-        # Nope -- now see if the current object has an attribute with the same name
+        # Nope -- now see if the current object has an attribute
+        # with the same name
         # as the new field
         if hasattr(self, name):
             return getattr(self, name)

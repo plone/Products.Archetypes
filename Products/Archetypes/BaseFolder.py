@@ -2,19 +2,17 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
-
-
 from Referenceable import Referenceable
 from CatalogMultiplex  import CatalogMultiplex
 from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
-from I18NMixin import I18NMixin
 from debug import log, log_exc
 from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-class BaseFolder(BaseObject, Referenceable, CatalogMultiplex, SkinnedFolder, ExtensibleMetadata):
+class BaseFolder(BaseObject, Referenceable, CatalogMultiplex,
+                 SkinnedFolder, ExtensibleMetadata):
     """ A not-so-basic Folder implementation """
 
     __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata)
@@ -27,8 +25,8 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex, SkinnedFolder, Ext
     security = ClassSecurityInfo()
 
     def __init__(self, oid, **kwargs):
-        #call skinned first cause baseobject will set new defaults on
-        #those attributes anyway
+        # Call skinned first cause baseobject will set new defaults on
+        # those attributes anyway
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
@@ -55,23 +53,9 @@ class BaseFolder(BaseObject, Referenceable, CatalogMultiplex, SkinnedFolder, Ext
         CatalogMultiplex.manage_beforeDelete(self, item, container)
 
     def setDescription(self, value, **kwargs):
-        """we have to override setDescription here to handle arbitrary 
-        arguments since PortalFolder defines it.
-        """ 
+        """We have to override setDescription here to handle arbitrary
+        arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)
-
-class I18NBaseFolder(I18NMixin, BaseFolder):
-    """ override BaseFolder to have I18N title and description,
-    plus I18N related actions
-    """
-
-    schema = BaseFolder.schema + I18NMixin.schema
-
-    def __init__(self, *args, **kwargs):
-        BaseFolder.__init__(self, *args, **kwargs)
-        I18NMixin.__init__(self)
-
-InitializeClass(I18NBaseFolder)
 

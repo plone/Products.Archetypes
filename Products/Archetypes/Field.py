@@ -38,17 +38,9 @@ except ImportError:
     from Products.validation import validation
 
 STRING_TYPES = [StringType, UnicodeType]
-"""Mime-types currently supported"""
+"""String-types currently supported"""
 
 __docformat__ = 'reStructuredText'
-
-def getLanguage(instance, lang):
-    try:
-        return instance.getContentLanguage(lang)
-    except AttributeError:
-        # this may occurs during object construction
-        # FIXME : in that case, we would like to get a default language from portal_properties
-        return 'en'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
@@ -207,11 +199,11 @@ class Field(DefaultLayerContainer):
             # this interface
             sample = value[:1]
             if isinstance(sample, DisplayList):
-                #Do nothing, the bomb is already set up
+                # Do nothing, the bomb is already set up
                 pass
             elif type(sample) in [TupleType, ListType]:
-                #Assume we have ( (value, display), ...)
-                #and if not ('', '', '', ...)
+                # Assume we have ( (value, display), ...)
+                # and if not ('', '', '', ...)
                 if len(sample) != 2:
                     value = zip(value, value)
                 value = DisplayList(value)
@@ -249,18 +241,21 @@ class Field(DefaultLayerContainer):
         pp = getToolByName(instance, 'portal_properties')
         sp = getattr(pp, 'site_properties', None)
         if sp is not None:
-            if getattr(sp, 'ext_editor', None) and self.checkPermission(mode='edit', instance=instance):
+            if getattr(sp, 'ext_editor', None) \
+                   and self.checkPermission(mode='edit', instance=instance):
                 return 1
         return None
 
     security.declarePublic('getStorageName')
     def getStorageName(self):
-        """Return the storage name that is configured for this field as a string"""
+        """Return the storage name that is configured for this field
+        as a string"""
         return self.storage.getName()
 
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
-        """Return the widget name that is configured for this field as a string"""
+        """Return the widget name that is configured for this field as
+        a string"""
         return self.widget.getName()
 
     security.declarePublic('getName')
@@ -275,12 +270,14 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getDefault')
     def getDefault(self):
-        """Return the default value to be used for initializing this field"""
+        """Return the default value to be used for initializing this
+        field"""
         return self.default
 
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
-        """Return the accessor method for getting data out of this field"""
+        """Return the accessor method for getting data out of this
+        field"""
         if self.accessor:
             return getattr(instance, self.accessor, None)
         return None
@@ -302,16 +299,11 @@ class Field(DefaultLayerContainer):
             return getattr(instance, self.mutator, None)
         return None
 
-    def hasI18NContent(self):
-        """Return true it the field has I18N content. Currently not
-        implemented."""
-        return 0
-
     def toString(self):
-        """Utility method for converting a Field to a string for the purpose of
-        comparing fields.  This comparison is used for determining whether a
-        schema has changed in the auto update function.  Right now it's pretty
-        crude."""
+        """Utility method for converting a Field to a string for the
+        purpose of comparing fields.  This comparison is used for
+        determining whether a schema has changed in the auto update
+        function.  Right now it's pretty crude."""
         # XXX fixme
         s = '%s: {' % self.__class__.__name__
         sorted_keys = self._properties.keys()
@@ -512,7 +504,9 @@ class TextField(ObjectField):
         if type(value) in STRING_TYPES:
             return value
 
-        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
+        raise TextFieldException(('Value is not File, String or '
+                                  'BaseUnit on %s: %r' % (self.getName(),
+                                                          type(value))))
 
     def getContentType(self, instance):
         """Return the mime type of object if known or can be guessed;
@@ -538,21 +532,21 @@ class TextField(ObjectField):
         if raw or not IBaseUnit.isImplementedBy(value):
             return value
         try:
-            return value.getRaw(encoding=kwargs.get('encoding'), instance=instance)
+            return value.getRaw(encoding=kwargs.get('encoding'),
+                                instance=instance)
         except TypeError:
-            # FIXME: backward compat, getRaw doesn't take encoding argument on old base units
+            # FIXME: backward compat, getRaw doesn't take encoding
+            # argument on old base units
             value.getRaw()
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
-        """
-        if raw, return the base unit object,
-        else return value of object transformed into requested mime type.
+        """ If raw, return the base unit object, else return value of
+        object transformed into requested mime type.
 
         If no requested type, then return value in default type. If raw
         format is specified, try to transform data into the default output type
         or to plain text.
-        If we are unable to transform data, return an empty string.
-        """
+        If we are unable to transform data, return an empty string. """
         try:
             kwargs['field'] = self
             value = self.storage.get(self.getName(), instance, **kwargs)
@@ -579,10 +573,9 @@ class TextField(ObjectField):
 
 
     def set(self, instance, value, **kwargs):
-        """
-        Assign input value to object. If mimetype is not specified,
-        pass to processing method without one and add mimetype returned
-        to kwargs. Assign kwargs to instance.
+        """ Assign input value to object. If mimetype is not specified,
+        pass to processing method without one and add mimetype
+        returned to kwargs. Assign kwargs to instance.
         """
         value = self._process_input(value, default=self.default, **kwargs)
         encoding = kwargs.get('encoding')
@@ -654,7 +647,8 @@ class LinesField(ObjectField):
         __traceback_info__ = value, type(value)
         if type(value) in STRING_TYPES:
             value =  value.split('\n')
-        value = [decode(v.strip(), instance, **kwargs) for v in value if v.strip()]
+        value = [decode(v.strip(), instance, **kwargs)
+                 for v in value if v.strip()]
         value = filter(None, value)
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -777,11 +771,12 @@ class ReferenceField(ObjectField):
             value=None
         __traceback_info__ = (instance, self.getName(), value)
 
-        #establish the relation through the ReferenceEngine
+        # Establish the relation through the ReferenceEngine
         tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
-        #XXX: thats too cheap, but I need the proof of concept before going on
+        # XXX: thats too cheap, but I need the proof of concept before
+        # going on
         instance.deleteReferences(refname)
         newValue = []
         if self.multiValued:
@@ -801,13 +796,13 @@ class ReferenceField(ObjectField):
                 instance.addReference(target,refname)
                 newValue = value
 
-        #and now do the normal assignment
+        # and now do the normal assignment
         ObjectField.set(self, instance, newValue, **kwargs)
 
     def Vocabulary(self, content_instance=None):
-        #If we have a method providing the list of types go with it,
-        #it can always pull allowed_types if it needs to (not that we
-        #pass the field name)
+        # If we have a method providing the list of types go with it,
+        # it can always pull allowed_types if it needs to (not that we
+        # pass the field name)
         value = ObjectField.Vocabulary(self, content_instance)
         if value:
             return value
@@ -889,7 +884,7 @@ class CMFObjectField(ObjectField):
         if type(value) != StringType:
             if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
-                #OK, its a file, is it empty?
+                # OK, its a file, is it empty?
                 value.seek(-1, 2)
                 size = value.tell()
                 value.seek(0)
@@ -1048,8 +1043,7 @@ class ImageField(ObjectField):
         return image
 
     def set(self, instance, value, **kwargs):
-##         instance = self.fixInstance(instance)
-        # do we have to delete the image?
+        # Do we have to delete the image?
         if value=="DELETE_IMAGE":
             ObjectField.set(self, instance, None, **kwargs)
             return
@@ -1092,7 +1086,8 @@ class ImageField(ObjectField):
                 image = Image(self.getName(), self.getName(), value, mimetype)
                 data = str(image.data)
                 if self.max_size:
-                    if image.width > self.max_size[0] or image.height > self.max_size[1]:
+                    if image.width > self.max_size[0] or \
+                           image.height > self.max_size[1]:
                         factor = min(float(self.max_size[0])/float(image.width),
                                      float(self.max_size[1])/float(image.height))
                         w = int(factor*image.width)
@@ -1142,129 +1137,6 @@ class ImageField(ObjectField):
         return ''
 
 
-class I18NMixIn(ObjectField):
-    """ I18N MixIn to allow internationalized content
-
-    this mix in is a litle bit tricky to allow it's use with any other fields.
-    You should use it with care !
-    class inheriting from this mixin should not be subclassed.
-    """
-    def __init__(self, name, **kwargs):
-        ObjectField.__init__(self, name, **kwargs)
-        assert len(self.__class__.__bases__) == 2
-        # wrapped field class
-        self._wrapped_class = self.__class__.__bases__[-1]
-        # this is to avoid the definition of the __init__ method in the
-        # subclass just to call the __init__ of the two bases classes. So we
-        # call the mixed class __init__ here
-        # I know i'm lazy ;)
-        self._wrapped_class.__init__(self, name, **kwargs)
-        # always store language mapping using the attribute storage
-        self._i18n_storage = self.storage
-        self.storage = AttributeStorage()
-        self._i18n_default = self.default or self._wrapped_class._properties['default']
-        self.default = None
-        self.type = self.__class__.__name__.lower().replace('field', '')
-
-    def getI18NFieldId(self, lang):
-        return '%s__%s'  % (self.__name__, lang)
-
-    def hasI18NContent(self):
-        """return true it the field has I18N content"""
-        return 1
-
-    def getDefinedLanguages(self, instance):
-        """return a list of defined language ids for the given instance"""
-        return self._get_mapping(instance).keys()
-
-    def get(self, instance, lang=None, **kwargs):
-        lang = getLanguage(instance, lang)
-        mapping = self._get_mapping(instance)
-        try:
-            return mapping[lang].get(instance, **kwargs)
-        except KeyError:
-            # FIXME : fallback / initialization policy
-            master_lang = instance.getMasterLanguage()
-            if mapping.has_key(master_lang):
-                return mapping[master_lang].get(instance, **kwargs)
-            langs = mapping.keys()
-            if langs:
-                return mapping[langs[0]].get(instance, **kwargs)
-
-            return self._i18n_default
-
-    def getRaw(self, instance, lang=None, **kwargs):
-        lang = getLanguage(instance, lang)
-        mapping = self._get_mapping(instance)
-        try:
-            return mapping[lang].getRaw(instance, **kwargs)
-        except KeyError:
-            return self._i18n_default
-
-    def set(self, instance, value, lang=None, **kwargs):
-        value = value or self._i18n_default
-        lang = getLanguage(instance, lang)
-        mapping = self._get_mapping(instance)
-        field = self._build_lang_field(instance, lang)
-        field.set(instance, value, **kwargs)
-        mapping[lang] = field
-        self.storage.set(self.getName(), instance, mapping)
-
-    def unset(self, instance, lang=None, **kwargs):
-        lang = getLanguage(instance, lang)
-        mapping = self._get_mapping(instance)
-        field = mapping.get(lang, None)
-        if field:
-            field.unset(instance, **kwargs)
-        try:
-            del mapping[lang]
-        except:
-            pass
-
-    def setStorage(self, instance, storage):
-        if not IStorage.isImplementedBy(storage):
-            raise ObjectFieldException, "Not a valid Storage method"
-        try:
-            value = self.storage.get(self.getName(), instance)
-            self.storage.unset(self.getName(), instance)
-        except AttributeError:
-            value = PersistentMapping()
-        self.storage = storage
-        if hasattr(self.storage, 'initializeInstance'):
-            self.storage.initializeInstance(instance)
-        self.storage.set(self.getName(), instance, value)
-
-    def _get_mapping(self, instance):
-        try:
-            mapping = self.storage.get(self.getName(), instance)
-        except AttributeError:
-            mapping = None
-        if not mapping:
-            mapping = PersistentMapping()
-            self.storage.set(self.getName(), instance, mapping)
-        return mapping
-
-    def _build_lang_field(self, instance, lang):
-        dict = copy(self.__dict__)
-        dict["storage"] = self._i18n_storage
-        dict["default"] = self._i18n_default
-        del dict['__name__']
-        del dict['_i18n_storage']
-        del dict['_i18n_default']
-        del dict['storage']
-        del dict['_wrapped_class']
-        del dict['accessor']
-        del dict['edit_accessor']
-        del dict['mutator']
-        return self._wrapped_class(self.getI18NFieldId(lang), **dict)
-
-
-class I18NStringField(I18NMixIn, StringField): pass
-class I18NFileField(I18NMixIn, FileField): pass
-class I18NTextField(I18NMixIn, TextField): pass
-class I18NLinesField(I18NMixIn, LinesField): pass
-class I18NImageField(I18NMixIn, ImageField): pass
-
 InitializeClass(Field)
 
 # photo field implementation, derived from CMFPhoto by Magnus Heino
@@ -1287,18 +1159,15 @@ except ImportError:
     isPilAvailable = 0
 
 class DynVariantWrapper(Base):
-    """
-        Provide a transparent wrapper from image to dynvariant
-        call it with url ${image_url}/variant/${variant}
+    """Provide a transparent wrapper from image to dynvariant call it
+    with url ${image_url}/variant/${variant}
     """
 
     def __of__(self, parent):
         return parent.Variants()
 
 class DynVariant(Implicit, Traversable):
-    """
-        Provide access to the variants.
-    """
+    """Provide access to the variants."""
 
     def __init__(self):
         pass
@@ -1310,9 +1179,7 @@ class DynVariant(Implicit, Traversable):
             return aq_parent(self)
 
 class ScalableImage(BaseImage):
-    """
-        A scalable image class.
-    """
+    """A scalable image class."""
 
     __implements__ = BaseImage.__implements__
 
@@ -1385,7 +1252,7 @@ class ScalableImage(BaseImage):
     def tag(self, height=None, width=None, alt=None,
             scale=0, xscale=0, yscale=0, css_class=None,
             title=None, size='original', **args):
-        """ Return an HTML img tag (See OFS.Image)"""
+        """Return an HTML img tag (See OFS.Image)"""
 
         # Default values
         w=self.width
@@ -1484,12 +1351,14 @@ class ScalableImage(BaseImage):
             else:
                 if sys.platform == 'win32':
                     from win32pipe import popen2
-                    imgin, imgout = popen2('convert -quality %s -geometry %sx%s - -'
-                                           % (quality, width, height), 'b')
+                    imgin, imgout = popen2(('convert -quality %s '
+                                            '-geometry %sx%s - -'
+                                            % (quality, width, height), 'b'))
                 else:
                     from popen2 import Popen3
-                    convert=Popen3('convert -quality %s -geometry %sx%s - -'
-                                           % (quality, width, height))
+                    convert=Popen3(('convert -quality %s '
+                                    '-geometry %sx%s - -'
+                                    % (quality, width, height)))
                     imgout=convert.fromchild
                     imgin=convert.tochild
 
@@ -1498,33 +1367,35 @@ class ScalableImage(BaseImage):
                 image.write(imgout.read())
                 imgout.close()
 
-                #Wait for process to close if unix. Should check returnvalue for wait
+                # Wait for process to close if unix.
+                # Should check returnvalue for wait
                 if sys.platform !='win32':
                     convert.wait()
 
                 image.seek(0)
 
         except Exception, e:
-            LOG('Archetypes.ScallableField', ERROR, 'Error while resizing image', e)
+            LOG('Archetypes.ScallableField', ERROR,
+                'Error while resizing image', e)
 
         return image
 
-    security.declareProtected(ChangeCacheSettingsPermission, 'ZCacheable_setManagerId')
+    security.declareProtected(ChangeCacheSettingsPermission,
+                              'ZCacheable_setManagerId')
     def ZCacheable_setManagerId(self, manager_id, REQUEST=None):
         '''Changes the manager_id for this object.
            overridden because we must propagate the change to all variants'''
         for size in self._photos.keys():
             variant = self.getPhoto(size).__of__(self)
             variant.ZCacheable_setManagerId(manager_id)
-        return Photo.inheritedAttribute('ZCacheable_setManagerId')(self, manager_id, REQUEST)
+        inherited_attr = Photo.inheritedAttribute('ZCacheable_setManagerId')
+        return inherited_attr(self, manager_id, REQUEST)
 
 
 InitializeClass(ScalableImage)
 
 class PhotoField(ObjectField):
-    """
-        A photo field class.
-    """
+    """A photo field class."""
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1559,9 +1430,6 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
            'CMFObjectField', 'ImageField',
-           'I18NStringField',
-           'I18NFileField', 'I18NTextField', 'I18NLinesField',
-           'I18NImageField',
            )
 
 from Registry import registerField
@@ -1576,7 +1444,8 @@ registerField(FileField,
 
 registerField(TextField,
               title='Text',
-              description='Used for storing text which can be used in transformations')
+              description=('Used for storing text which can be '
+                           'used in transformations'))
 
 registerField(DateTimeField,
               title='Date Time',
@@ -1584,7 +1453,8 @@ registerField(DateTimeField,
 
 registerField(LinesField,
               title='LinesField',
-              description='Used for storing text which can be used in transformations')
+              description=('Used for storing text which can be '
+                           'used in transformations'))
 
 registerField(IntegerField,
               title='Integer',
@@ -1600,11 +1470,13 @@ registerField(FixedPointField,
 
 registerField(ReferenceField,
               title='Reference',
-              description='Used for storing references to other Archetypes Objects')
+              description=('Used for storing references to '
+                           'other Archetypes Objects'))
 
 registerField(ComputedField,
               title='Computed',
-              description='Read-only field, which value is computed from a python expression')
+              description=('Read-only field, which value is '
+                           'computed from a python expression'))
 
 registerField(BooleanField,
               title='Boolean',
@@ -1612,11 +1484,16 @@ registerField(BooleanField,
 
 registerField(CMFObjectField,
               title='CMF Object',
-              description='Used for storing value inside a CMF Object, which can have workflow. Can only be used for BaseFolder-based content objects')
+              description=('Used for storing value inside '
+                           'a CMF Object, which can have workflow. '
+                           'Can only be used for BaseFolder-based '
+                           'content objects'))
 
 registerField(ImageField,
               title='Image',
-              description='Used for storing images. Images can then be retrieved in different thumbnail sizes')
+              description=('Used for storing images. '
+                           'Images can then be retrieved in '
+                           'different thumbnail sizes'))
 
 from Registry import registerPropertyType
 

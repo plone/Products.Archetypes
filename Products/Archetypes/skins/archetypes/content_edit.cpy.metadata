@@ -5,6 +5,6 @@ title = Edit content
 validators = validate_base
 
 [actions]
-action.success = traverse_to:string:change_lang
+action.success = redirect_to_action:string:view
 action.failure = traverse_to_action:string:edit
 action.next_schemata = redirect_to_action:string:edit

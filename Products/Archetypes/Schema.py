@@ -355,7 +355,8 @@ class Schema(Schemata, DefaultLayerContainer):
 
         for name, field in fields:
             if name == 'id':
-                member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
+                m_tool = getToolByName(instance, 'portal_membership')
+                member = m_tool.getAuthenticatedMember()
                 if not member.getProperty('visible_ids', None) and \
                    not (REQUEST and REQUEST.form.get('id', None)):
                     continue
@@ -365,7 +366,7 @@ class Schema(Schemata, DefaultLayerContainer):
             value = None
             if REQUEST:
                 form = REQUEST.form
-                for postfix in ['_file', '']: ##Contract with FileWidget
+                for postfix in ['_file', '']: ## Contract with FileWidget
                     value = form.get("%s%s" % (name, postfix), None)
                     if type(value) != type(''):
                         if isinstance(value, FileUpload):
@@ -374,13 +375,13 @@ class Schema(Schemata, DefaultLayerContainer):
                             else:
                                 break
                         else:
-                            #Do other types need special handling here
+                            # Do other types need special handling here?
                             pass
 
                     if value is not None and value != '':
                         break
 
-            # if no REQUEST, validate existing value
+            # If no REQUEST, validate existing value
             else:
                 accessor = field.getAccessor(instance)
                 if accessor is not None:
@@ -389,25 +390,27 @@ class Schema(Schemata, DefaultLayerContainer):
                     # can't get value to validate -- bail
                     break
 
-            #REQUIRED CHECK
+            # REQUIRED CHECK
             if field.required == 1:
                 if not value or value == "":
-                    ## The only time a field would not be resubmitted with the form is if
-                    ## was a file object from a previous edit. That will not come back.
-                    ## We have to check to see that the field is populated in that case
+                    ## The only time a field would not be resubmitted
+                    ## with the form is if was a file object from a
+                    ## previous edit. That will not come back.  We
+                    ## have to check to see that the field is
+                    ## populated in that case
                     accessor = field.getAccessor(instance)
                     if accessor is not None:
                         unit = accessor()
                         if IBaseUnit.isImplementedBy(unit):
                             if hasattr(aq_base(unit), 'get_size'):
                                 if unit.filename != '' or unit.get_size():
-                                    value = 1 #value doesn't matter
+                                    value = 1 # value doesn't matter
                                 elif unit.get_size():
                                     value = unit
 
                 if ((isinstance(value, FileUpload) and value.filename != '') or
                     (isinstance(value, FileType) and value.name != '')):
-                    #OK, its a file, is it empty?
+                    # OK, its a file, is it empty?
                     value.seek(-1, 2)
                     size = value.tell()
                     value.seek(0)
@@ -419,19 +422,22 @@ class Schema(Schemata, DefaultLayerContainer):
                     error = 1
                     continue
 
-            #VOCABULARY CHECKS
+            # VOCABULARY CHECKS
             if error == 0  and field.enforceVocabulary == 1:
                 if value: ## we need to check this as optional field will be
                           ## empty and thats ok
                     # coerce value into a list called values
                     values = value
-                    if isinstance(value, type('')) or isinstance(value, type(u'')):
+                    if isinstance(value, type('')) or \
+                           isinstance(value, type(u'')):
                         values = [value]
-                    elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
+                    elif not (isinstance(value, type((1,))) or \
+                              isinstance(value, type([]))):
                         raise TypeError("Field value type error")
                     vocab = field.Vocabulary(instance)
                     # filter empty
-                    values = [instance.unicodeEncode(v) for v in values if v.strip()]
+                    values = [instance.unicodeEncode(v)
+                              for v in values if v.strip()]
                     # extract valid values from vocabulary
                     valids = []
                     for v in vocab:
@@ -453,7 +459,7 @@ class Schema(Schemata, DefaultLayerContainer):
                                         " of element: %s") % (val,
                                                               capitalize(name))
 
-            #Call any field level validation
+            # Call any field level validation
             if error == 0 and value:
                 try:
                     res = field.validate(value, instance=instance,
@@ -465,7 +471,7 @@ class Schema(Schemata, DefaultLayerContainer):
                     log_exc()
                     errors[name] = E
 
-            #CUSTOM VALIDATORS
+            # CUSTOM VALIDATORS
             if error == 0:
                 try:
                     instance.validate_field(name, value, errors)
@@ -474,13 +480,13 @@ class Schema(Schemata, DefaultLayerContainer):
                     errors[name] = E
 
 
-    #ILayerRuntime
+    # ILayerRuntime
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeLayers')
     def initializeLayers(self, instance, item=None, container=None):
-        # scan each field looking for registered layers
-        # optionally call its initializeInstance method and
-        # then the initializeField method
+        # scan each field looking for registered layers optionally
+        # call its initializeInstance method and then the
+        # initializeField method
         initializedLayers = []
         called = lambda x: x in initializedLayers
 
@@ -491,12 +497,13 @@ class Schema(Schemata, DefaultLayerContainer):
                     if ILayer.isImplementedBy(object):
                         if not called((layer, object)):
                             object.initializeInstance(instance, item, container)
-                            # Some layers may have the same name, but different classes,
-                            # so, they may still need to be initialized
+                            # Some layers may have the same name, but
+                            # different classes, so, they may still
+                            # need to be initialized
                             initializedLayers.append((layer, object))
                         object.initializeField(instance, field)
 
-        #Now do the same for objects registered at this level
+        # Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
                 if not called((layer, object)) \
@@ -508,9 +515,9 @@ class Schema(Schemata, DefaultLayerContainer):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'cleanupLayers')
     def cleanupLayers(self, instance, item=None, container=None):
-        # scan each field looking for registered layers
-        # optionally call its cleanupInstance method and
-        # then the cleanupField method
+        # scan each field looking for registered layers optionally
+        # call its cleanupInstance method and then the cleanupField
+        # method
         queuedLayers = []
         queued = lambda x: x in queuedLayers
 
@@ -527,7 +534,7 @@ class Schema(Schemata, DefaultLayerContainer):
             if ILayer.isImplementedBy(object):
                 object.cleanupInstance(instance, item, container)
 
-        #Now do the same for objects registered at this level
+        # Now do the same for objects registered at this level
 
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
@@ -535,10 +542,11 @@ class Schema(Schemata, DefaultLayerContainer):
                     object.cleanupInstance(instance, item, container)
                     queuedLayers.append((layer, object))
 
-    # Utility method for converting a Schema to a string for the purpose of
-    # comparing schema.  This comparison is used for determining whether a
-    # schema has changed in the auto update function.  Right now it's pretty
-    # crude.  XXX fixme
+    # Utility method for converting a Schema to a string for the
+    # purpose of comparing schema.  This comparison is used for
+    # determining whether a schema has changed in the auto update
+    # function.  Right now it's pretty crude.
+    # XXX FIXME!
     security.declareProtected(CMFCorePermissions.View,
                               'toString')
     def toString(self):
@@ -554,17 +562,7 @@ class Schema(Schemata, DefaultLayerContainer):
         from md5 import md5
         return md5(self.toString()).digest()
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'hasI18NContent')
-    def hasI18NContent(self):
-        """Return true it the schema contains at least one I18N field."""
-        for field in self.values():
-            if field.hasI18NContent():
-                return 1
-        return 0
-
-
-#Reusable instance for MetadataFieldList
+# Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
 
 class MetadataSchema(Schema):

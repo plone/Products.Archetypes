@@ -100,27 +100,30 @@ def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
         typeInfo = getattr(typesTool, portal_type.__name__)
         if hasattr(portal_type,'actions'):
-            #Look for each action we define in portal_type.actions
-            #in typeInfo.action replacing it if its there and
-            #just adding it if not
+            # Look for each action we define in portal_type.actions
+            # in typeInfo.action replacing it if its there and
+            # just adding it if not
             if getattr(portal_type,'include_default_actions',1):
                 new = list(typeInfo._actions)
             else:
-                # if no standard actions are wished - dont display them
+                # If no standard actions are wished - dont display them
                 new=[]
 
             cmfver=getCMFVersion()
 
             for action in portal_type.actions:
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
-                    #then we know actions are defined new style as ActionInformations
+                    # Then we know actions are defined new style
+                    # as ActionInformations
                     hits = [a for a in new if a.id==action['id']]
 
                     #change action and condition into expressions,
                     #if they are still strings
-                    if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
+                    if action.has_key('action') and \
+                           type(action['action']) in (type(''), type(u'')):
                         action['action']=Expression(action['action'])
-                    if action.has_key('condition') and type(action['condition']) in (type(''), type(u'')):
+                    if action.has_key('condition') and \
+                           type(action['condition']) in (type(''), type(u'')):
                         action['condition']=Expression(action['condition'])
                     if hits:
                         hits[0].__dict__.update(action)

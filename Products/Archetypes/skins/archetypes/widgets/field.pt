@@ -5,7 +5,7 @@
       i18n:domain="plone">
 
 <body>
-    
+
     <!-- Base Field Widgets -->
     <metal:block define-macro="view" tal:define="visState python: widget.isVisible(here, mode)">
       <tal:block condition="python: visState == 'visible'">
@@ -17,8 +17,7 @@
               tal:omit-tag="">
         (<a href="#"
         tal:define="wf_tool here/portal_workflow;
-                    lang master_language | nothing;
-                    obj python:lang and accessor(lang=lang) or accessor();
+                    obj python:accessor();
                     review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
         tal:attributes="href string:${obj/absolute_url}/content_status_history;
                         class python:test(review_state, review_state, 'private')"

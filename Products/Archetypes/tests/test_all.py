@@ -16,7 +16,6 @@ def test_suite():
         'test_classgen',
         'test_contenttype',
         'test_fields',
-        'test_i18n_fields',
         'test_referenceable',
         'test_referenceEngine',
         'test_rename',
