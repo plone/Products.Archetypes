@@ -191,9 +191,7 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
-                       tal:define="cname python:getattr(here.portal_types, here.portal_type).Title()"
                        tal:attributes="tabindex tabindex/next;
-                                       value string:Save ${cname};
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
