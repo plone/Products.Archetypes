@@ -146,10 +146,6 @@ if HAS_GRAPHVIZ:
         g = local_refernece_graph(inst)
         data = build_graph(g, inst)
 
-        fp = open("/tmp/ref.dot", "w")
-        fp.write(data)
-        fp.close()
-
         stdout, stdin = popen2('%s -Gpack -T%s' % (GRAPHVIZ_BINARY, fmt))
         stdin.write(data)
         stdin.close()
