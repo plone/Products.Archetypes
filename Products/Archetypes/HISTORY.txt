@@ -1,6 +1,9 @@
 1.3.2-svn - Unreleased
 ======================
 
+ * Applied patch from [ 1076738 ] PrimaryFieldMarshaller: wrong length
+   [dmaurer]
+ 
  * Changed the reference tab permission to modify or review according to
    [ 1087990 ] 'References' action visible for everyone.
    [tiran]

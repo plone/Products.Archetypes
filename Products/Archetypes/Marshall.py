@@ -77,12 +77,23 @@ class PrimaryFieldMarshaller(Marshaller):
                 content_type = p.getContentType(instance) or 'text/plain'
             else:
                 content_type = data and guess_content_type(data) or 'text/plain'
-            length = len(data)
+            # XXX FIXME
+            # DM 2004-12-01: "FileField"s represent a major field class
+            #  that does not use "IBaseUnit" yet.
+            #  Ensure, the used "File" objects get the correct length.
+            if hasattr(p, 'get_size'):
+                length = p.get_size(instance)
+            else:
+                # DM: this almost surely is stupid!
+                length = len(data)
+
             # ObjectField without IBaseUnit?
-            if hasattr(data, 'data'):
+            if shasattr(data, 'data'):
                 data = data.data
             else:
                 data = str(data)
+                # DM 2004-12-01: recompute 'length' as we now know it definitely
+                length = len(data)
 
         return (content_type, length, data)
 
