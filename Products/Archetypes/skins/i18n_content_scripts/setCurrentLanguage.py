@@ -5,7 +5,7 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=lang, old_lang=None, sync_translation_service=0, cookie=0, referer=1
+##parameters=lang, old_lang=None, sync_translation_service=0, cookie=0, referer=1, redirect=1
 
 REQUEST = context.REQUEST
 
@@ -33,8 +33,12 @@ if cookie:
 
 # FIXME : sync_translation_service
 
-
-if referer:
-    REQUEST.RESPONSE.redirect(REQUEST.environ['HTTP_REFERER'])
-else:
-    REQUEST.RESPONSE.redirect(REQUEST.URL)
+if redirect:
+    try:
+        context.needLanguageRedirection()
+    except:
+        pass
+    if referer:
+        REQUEST.RESPONSE.redirect(REQUEST.environ['HTTP_REFERER'])
+    else:
+        REQUEST.RESPONSE.redirect(REQUEST.URL)
