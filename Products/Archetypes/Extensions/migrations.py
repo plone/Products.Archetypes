@@ -74,7 +74,6 @@ def toReferenceCatalog(portal, out):
         # based references
         rc = getattr(portal, REFERENCE_CATALOG)
         uc = getattr(portal, UID_CATALOG)
-        import pdb;pdb.set_trace()
 
         # looks like its a folder with stuff in it.. old style
         # we want to do this quickly so we will grab all the

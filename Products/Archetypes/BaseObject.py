@@ -574,7 +574,6 @@ class BaseObject(Referenceable):
 
         # read all the old values into a dict
         values = {}
-        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
             if name not in excluded_fields:
@@ -584,9 +583,6 @@ class BaseObject(Referenceable):
                     if out != None:
                         print >> out, ('Unable to get %s.%s'
                                        % (str(self.getId()), name))
-                else:
-                    if hasattr(f, 'getContentType'):
-                        mimes[name] = f.getContentType(self)
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -609,8 +605,7 @@ class BaseObject(Referenceable):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                if mimes.has_key(name):
-                    kw['mimetype'] = mimes[name]
+                kw['mimetype'] = f.getContentType(self)
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:

@@ -1,3 +1,9 @@
+2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
+
+	* BaseObject.py (BaseObject._updateSchema): Moved call to
+	field.getContentType() to the point after self.initializeArchetype(),
+	which effectively fixes migration for me.
+
 2004-06-07   Spanky: SpankyFromBRC in #plone IRC
 	
    * A while back I added a feature for textarea widgets called 'append_only'.
