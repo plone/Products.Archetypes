@@ -1,3 +1,11 @@
+2003-07-29  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* Field.py (ImageField.get): Bah, fixing last minute change that
+	broke existing image fields.
+
+	* skins/archetypes/widgets/multiselection.pt: Fix checkbox
+	handling on multiselection widget.
+
 2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* skins/archetypes/displayValue.py: Whoa. A parentesis was out of order.
