@@ -17,8 +17,10 @@ portal_status_message = REQUEST.get('portal_status_message', 'Content changes sa
 # handle navigation for multi-page edit forms
 next = not REQUEST.get('form_next',None) is None
 previous = not REQUEST.get('form_previous',None) is None
+current = not REQUEST.get('form_current',None) is None
+fieldset = REQUEST.get('fieldset', None)
+
 if next or previous:
-    fieldset = REQUEST.get('fieldset', None)
 
     schematas = [s for s in new_context.Schemata().keys() if s != 'metadata']
 
@@ -28,20 +30,28 @@ if next or previous:
     next_schemata = None
     try:
         index = schematas.index(fieldset)
+        next_schemata = schematas[index]
     except ValueError:
         raise 'Non-existing fieldset: %s' % fieldset
     else:
         index += 1
         if index < len(schematas):
             next_schemata = schematas[index]
-            return state.set(status='next_schemata', \
-                             context=new_context, \
-                             fieldset=next_schemata, \
-                             portal_status_message=portal_status_message)
 
-    if next_schemata == None:
+    if next_schemata != None:
+        return state.set(status='next_schemata', \
+                 context=new_context, \
+                 fieldset=next_schemata, \
+                 portal_status_message=portal_status_message)
+    else:
         raise 'Unable to find next field set after %s' % fieldset
 
+if current:
+    return state.set(status='next_schemata', \
+             context=new_context, \
+             fieldset=fieldset,
+             portal_status_message='')
+    
 return state.set(status='success',\
                  context=new_context,\
                  portal_status_message=portal_status_message)
