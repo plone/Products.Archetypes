@@ -89,17 +89,19 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         sID, sobj = self._uidFor(source)
         tID, tobj = self._uidFor(target)
 
-        brains = self._queryFor(sID, tID, relationship)
-        if brains:
+        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
+        if objects:
             #we want to update the existing reference
             #XXX we might need to being a subtransaction here to
             #    do this properly, and close it later
-            existingId = brains[0].getObject().id
-            self._delObject(existingId)
+            existing = objects[0]
+            if existing:
+                self._delObject(existing.id)
 
         rID = self._makeName(sID, tID)
         if not referenceClass:
             referenceClass = Reference
+
         referenceObject = referenceClass(rID, sID, tID, relationship, **kwargs)
 
         try:
@@ -116,16 +118,16 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         sID, sobj = self._uidFor(source)
         tID, tobj = self._uidFor(target)
 
-        brains = self._queryFor(sID, tID, relationship)
-        if brains:
-            self._deleteReference(brains[0])
+        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
+        if objects:
+            self._deleteReference(objects[0])
 
     def deleteReferences(self, object, relationship=None):
         """delete all the references held by an object"""
         sID, sobj = self._uidFor(object)
-        brains = self._queryFor(sid=sID, relationship=relationship)
-        if brains:
-            [self._deleteReference(b) for b in brains]
+        objects = self._resolveBrains(self._queryFor(sid=sID, relationship=relationship))
+        if objects:
+            [self._deleteReference(b) for b in objects]
             
     def getReferences(self, object, relationship=None):
         """return a collection of reference objects"""
@@ -203,7 +205,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         if sid: q['sourceUID'] = sid
         if tid: q['targetUID'] = tid
         if relationship: q['relationship'] = relationship
-        brains = self.search(q, merge=merge) 
+        brains = self.searchResults(q, merge=merge) 
         return brains
              
             
@@ -237,8 +239,8 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         #uid_catalog.catalog_object(object, self._makeName(uuid))
         return uuid
     
-    def _deleteReference(self, brain):
-        referenceObject = brain.getObject()
+    def _deleteReference(self, referenceObject):
+        
         try:
             referenceObject.delHook(self, referenceObject.getSourceObject(), referenceObject.getTargetObject())
         except ReferenceException:
