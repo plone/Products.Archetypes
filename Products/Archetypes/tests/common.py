@@ -2,15 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.5 2003/10/21 14:28:24 tiran Exp $
-
-from Testing import ZopeTestCase
-from ArchetypesTestCase import ArchetypesTestCase
-from ArcheSiteTestCase import ArcheSiteTestCase
-
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-#from Acquisition import aq_base #, aq_parent, aq_base
+# $Id: common.py,v 1.1.2.6 2003/10/21 15:22:36 tiran Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -21,6 +13,27 @@ except NameError: # python 2.1
     __all__Boolean = ('True', 'False',)
 else:
     __all__Boolean = ()
+
+def Xprint(s):
+    """print helper
+    
+    print data via print is not possible, you have to use 
+    ZopeTestCase._print or this function
+    """
+    ZopeTestCase._print(str(s)+'\n')
+
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+
+from Testing import ZopeTestCase
+from ArchetypesTestCase import ArchetypesTestCase
+try:
+    from ArcheSiteTestCase import ArcheSiteTestCase
+    hasArcheSiteTestCase = True
+except ImportError, err:
+    Xprint(err)
+    class ArcheSiteTestCase(ArchetypesTestCase): pass
+    hasArcheSiteTestCase = False
 
 # import Interface for interface testing
 try:
@@ -44,14 +57,6 @@ else:
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
     from Interface.Exceptions import BrokenMethodImplementation  
 
-def Xprint(s):
-    """print helper
-    
-    print data via print is not possible, you have to use 
-    ZopeTestCase._print or this function
-    """
-    ZopeTestCase._print(str(s))
-
 class TestPreconditionFailed(Exception):
     """ some modules are missing or other preconditions have failed """
     def __init__(self, test, precondition):
@@ -59,15 +64,15 @@ class TestPreconditionFailed(Exception):
         self.precondition = precondition
 
     def __str__(self):
-        return """Some modules are missing or other preconditions for the test %s
-have failed: %s """ % (self.test, self.precondition)
+        return "Some modules are missing or other preconditions for the test %s \
+have failed: '%s' " % (self.test, self.precondition)
 
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
            'verifyClass', 'verifyObject', 'BrokenImplementation',
            'DoesNotImplement', 'BrokenMethodImplementation', 
            'getImplementsOfInstances', 'flattenInterfaces',
            'newSecurityManager', 'noSecurityManager', 
-           'TestPreconditionFailed' ) \
+           'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
            + __all__Boolean
 
 

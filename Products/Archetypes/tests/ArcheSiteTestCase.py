@@ -2,7 +2,7 @@
 # ArcheSiteTestCase
 #
 
-# $Id: ArcheSiteTestCase.py,v 1.1.2.2 2003/10/21 02:18:46 tiran Exp $
+# $Id: ArcheSiteTestCase.py,v 1.1.2.3 2003/10/21 15:22:36 tiran Exp $
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
@@ -12,10 +12,7 @@ import time
 from Products.Archetypes.Extensions.Install import install as installArchetypes
 
 from Testing import ZopeTestCase
-try:
-    from Products.CMFPlone.tests import PloneTestCase
-except ImportError:
-    pass
+from Products.CMFPlone.tests import PloneTestCase
 
 class ArcheSiteTestCase(PloneTestCase.PloneTestCase):
     """ archetypes test case with plone site """

@@ -5,6 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import * 
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_sqlstorage', 'Cannot import ArcheSiteTestCase') 
+
 import unittest
 from zExceptions.ExceptionFormatter import format_exception
 # print __traceback_info__, etc

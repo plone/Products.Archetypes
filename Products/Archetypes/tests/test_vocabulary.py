@@ -5,6 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import * 
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_vocabulary', 'Cannot import ArcheSiteTestCase')
+
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes

@@ -5,6 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import * 
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_widgets', 'Cannot import ArcheSiteTestCase')
+
 from Products.Archetypes.public import *
 from OFS.Image import File
 from DateTime import DateTime

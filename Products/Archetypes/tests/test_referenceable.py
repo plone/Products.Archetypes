@@ -5,6 +5,9 @@ if __name__ == '__main__':
 from common import *
 from utils import * 
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_referenceable', 'Cannot import ArcheSiteTestCase')
+
 from Acquisition import aq_base
 #from Products.CMFCore.MemberDataTool import MemberData
 from Products.Archetypes.tests.test_sitepolicy import makeContent
@@ -14,6 +17,7 @@ from Products.Archetypes.examples import *
 class ReferenceableTests(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self) 
+        get_transaction().begin() 
         user = self.getManagerUser()
         newSecurityManager( None, user )
 
@@ -159,6 +163,7 @@ class ReferenceableTests(ArcheSiteTestCase):
 
     def beforeTearDown(self): 
         noSecurityManager()
+        get_transaction().abort()
         ArcheSiteTestCase.beforeTearDown(self)
 
 

@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.8.4.2 2003/10/21 02:18:46 tiran Exp $
+$Id: test_rename.py,v 1.8.4.3 2003/10/21 15:22:36 tiran Exp $
 """
 
 import os, sys
@@ -10,6 +10,9 @@ if __name__ == '__main__':
 
 from common import *
 from utils import * 
+
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
 from Acquisition import aq_base
 from Products.Archetypes.tests.test_sitepolicy import makeContent

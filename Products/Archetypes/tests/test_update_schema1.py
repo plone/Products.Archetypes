@@ -5,6 +5,8 @@ if __name__ == '__main__':
 from common import *
 from utils import * 
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
 
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.Extensions.Install import install as install_archetypes

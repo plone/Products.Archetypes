@@ -1,7 +1,7 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.5.4.2 2003/10/21 02:18:46 tiran Exp $
+$Id: test_sitepolicy.py,v 1.5.4.3 2003/10/21 15:22:36 tiran Exp $
 """
 import os, sys
 if __name__ == '__main__':
@@ -9,6 +9,9 @@ if __name__ == '__main__':
 
 from common import *
 from utils import * 
+
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_sitepolicy', 'Cannot import ArcheSiteTestCase')
 
 import test_classgen
 
