@@ -30,7 +30,7 @@ class TypesWidget(macrowidget):
         """Override if your widget needs data from the instance."""
         return
 
-    def populate(self, field):
+    def populateProps(self, field):
         """This is called when the field is created."""
         name = field.getName()
         if not self.label:
