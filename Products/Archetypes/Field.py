@@ -198,7 +198,7 @@ class Field(DefaultLayerContainer):
             except KeyError:
                 v = None
             if not v:
-                log("WARNING: no validator %s for %s" % (name,
+                log("WARNING: no validator %s for %s" % (vname,
                 self.getName()))
 
         self.validators = {'strategy' : strategy, 'handlers' : validators }
