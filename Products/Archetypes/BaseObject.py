@@ -52,7 +52,8 @@ class BaseObject(Implicit):
 
     def __init__(self, oid, **kwargs):
         self.id = oid
-
+        self._master_language = None
+        
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         self.initializeLayers()
@@ -311,6 +312,9 @@ class BaseObject(Implicit):
         base_lang = self.getLanguage()
         lang = form.get('new_lang', form.get('lang', base_lang))
         if lang != base_lang:
+            # check this is a valid language id
+            self.languageDescription(lang)
+            # set language cookie
             self.setI18NCookie(lang)
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
@@ -360,6 +364,8 @@ class BaseObject(Implicit):
         return getSchemata(self)
 
 
+    # I18N content management #################################################
+    
     security.declarePublic("hasI18NContent")
     def hasI18NContent(self):
         """return true it the schema contains at least one I18N field"""
@@ -370,7 +376,7 @@ class BaseObject(Implicit):
 
     security.declarePublic("getFilteredLanguages")
     def getFilteredLanguages(self, REQUEST=None):
-        """ return a list of all existant languages for this instance
+        """return a list of all existant languages for this instance
         each language is a tupe (id, label)
         """
         langs = {}
@@ -378,11 +384,17 @@ class BaseObject(Implicit):
             if field.hasI18NContent():
                 for lang in field.getDefinedLanguages(self):
                     langs[lang] = 1
-        return [(lang_id, self.languageDescription(lang_id)) for lang_id in langs.keys()]
+        result = []
+        for lang_id in langs.keys():
+            try:
+                result.append((lang_id, self.languageDescription(lang_id)))
+            except KeyError:
+                continue
+        return result
 
     security.declarePublic("getLanguage")
     def getLanguage(self, lang=None):
-        """ return the id for the current language"""
+        """return the id for the current language"""
         if lang:
             return lang
         REQUEST = self.REQUEST
@@ -392,12 +404,47 @@ class BaseObject(Implicit):
             language = 'en'
         return language
 
+    security.declarePublic("getMasterLanguage")
+    def getMasterLanguage(self):
+        """return the id for the master language"""
+        if getattr(self, '_master_language', None) is not None:
+            return self._master_language
+        try:
+            sp = self.portal_properties.site_properties
+            return sp.getProperty('default_language', 'en')
+        except AttributeError:
+            log('NO SITE PROPERTIES !')
+            return 'en'
 
+    def manage_translations(self, REQUEST=None, **kwargs):
+        """delete given translations"""
+        if not kwargs:
+            kwargs = REQUEST.form
+        try:
+            del kwargs["form_submitted"]
+        except:
+            pass
+        if kwargs.has_key("setmaster"):
+            del kwargs["setmaster"]
+            if len(kwargs) != 1:
+                raise Exception('You must select one language to set it as the master translation')
+            self._master_language = kwargs.keys()[0]
+        else:
+            if kwargs.has_key(self.getMasterLanguage()):
+                raise Exception('You can not delete the master translation')
+            for lang_id in kwargs.keys():
+                for field in self.Schema().values():
+                    if field.hasI18NContent():
+                        field.unset(self, lang=lang_id)
+            
 def text_data(accessor, lang_id=None):
+    """return plain text data from an accessor"""
     if lang_id is not None:
         try:
             return accessor(lang=lang_id, mimetype="text/plain")
         except TypeError:
+            # retry in case typeerror was raised because accessor doesn't
+            # handle the mimetype argument
             try:
                 return method(lang=lang_id)
             except:

@@ -29,7 +29,7 @@
                           tal:define="form_name form_name | nothing"
                           tal:attributes="name attr_name;
                                           onChange python:form_name and (form_name+'.submit()');">
-		    <option value="" i18n:domain="plone" i18n:translate="label_choose_language">Choose Language</option>
+<!-- 		    <option value="" i18n:domain="plone" i18n:translate="label_choose_language">Choose Language</option> -->
 		    <tal:block tal:repeat="lang python:languages">
 		      <option value="" 
                               tal:attributes="value python:lang[0]; 

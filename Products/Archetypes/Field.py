@@ -181,6 +181,7 @@ class Field(DefaultLayerContainer):
         
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
+        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
         return getattr(instance, self.accessor, None)
 
     security.declarePrivate('getEditAccessor')
@@ -221,7 +222,7 @@ class ObjectField(Field):
             return self.default
 
     def getRaw(self, instance, **kwargs):
-        return self.getAccessor(instance)(**kwargs)
+        return self.get(instance, **kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
@@ -401,12 +402,9 @@ class TextField(ObjectField):
 
     def getContentType(self, instance):
         value = ''
-        accessor = self.getAccessor(instance)
+        accessor = self.getEditAccessor(instance)
         if accessor is not None:
-            try:
-                value = accessor(raw=1)
-            except TypeError:
-                value = accessor()
+            value = accessor()
         mimetype = getattr(aq_base(value), 'mimetype', None)
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(value), None)
@@ -415,7 +413,7 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, **kwargs):
         kwargs['raw'] = 1
-        return self.getAccessor(instance)(**kwargs)
+        return self.get(instance, **kwargs)
     
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         try:
@@ -978,7 +976,7 @@ class I18NMixIn(ObjectField):
         return 1
 
     def getDefinedLanguages(self, instance):
-        """return a list of defined language ids for the giveninstance """
+        """return a list of defined language ids for the given instance"""
         return self._get_mapping(instance).keys()
 
 
@@ -991,13 +989,22 @@ class I18NMixIn(ObjectField):
         try:
             return mapping[lang].get(instance, **kwargs)
         except KeyError:
+            master_lang = instance.getMasterLanguage()
+            if mapping.has_key(master_lang):
+                return mapping[master_lang].get(instance, **kwargs)
             langs = mapping.keys()
             if langs:
                 return mapping[langs[0]].get(instance, **kwargs)
+                
             return self._i18n_default
         
-    def getRaw(self, instance, **kwargs):
-        return self.getAccessor(instance)(**kwargs)
+    def getRaw(self, instance, lang=None, **kwargs):
+        lang = instance.getLanguage(lang)
+        mapping = self._get_mapping(instance)
+        try:
+            return mapping[lang].getRaw(instance, **kwargs)
+        except KeyError:
+            return self._i18n_default
 
     def set(self, instance, value, lang=None, **kwargs):
         value = value or self._i18n_default
