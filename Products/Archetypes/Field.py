@@ -661,7 +661,8 @@ class ObjectField(Field):
     security.declarePublic('getContentType')
     def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
-        otherwise, return None."""
+        otherwise, return None.
+        """
         value = ''
         if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
@@ -682,7 +683,8 @@ class ObjectField(Field):
             mimetype = str(mimetype)
         # failed
         if mimetype is None:
-            mimetype = getattr(self, 'default_content_type', 'application/octet')
+            mimetype = getattr(self, 'default_content_type',
+                               'application/octet-stream')
         return mimetype
 
     security.declarePublic('get_size')
@@ -780,7 +782,7 @@ class FileField(ObjectField):
         return '', mimetype, filename
 
     def _process_input(self, value, file=None, default=None,
-                       mimetype=None, **kwargs):
+                       mimetype=None, instance=None, **kwargs):
         if file is None:
             file = self.content_class(self.getName(), '', '')
         filename = kwargs.get('filename', '')
@@ -795,7 +797,12 @@ class FileField(ObjectField):
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
         elif isinstance(value, FileType) or shasattr(value, 'name'):
-            filename = value.name
+            # In this case, give preference to a filename that has
+            # been detected before. Usually happens when coming from PUT().
+            filename = filename or value.name
+            # Should we really special case here?
+            if filename == '<fdopen>':
+                filename = ''
         elif isinstance(value, basestring):
             if mimetype is None:
                 mimetype, enc = guess_content_type(filename, value, mimetype)
@@ -816,8 +823,16 @@ class FileField(ObjectField):
             body = file.data
             if not isinstance(body, basestring):
                 body = body.data
-            mimetype, enc = guess_content_type(filename, body, mimetype)
-            file.content_type = mimetype
+            mtr = getToolByName(instance, 'mimetypes_registry', None)
+            if mtr is not None:
+                kw = {'mimetype':mimetype,
+                      'filename':filename}
+                d, f, mimetype = mtr(body, **kw)
+            else:
+                mimetype, enc = guess_content_type(filename, body, mimetype)
+        mimetype = str(mimetype)
+        setattr(file, 'content_type', mimetype)
+        setattr(file, 'filename', filename)
         return file, mimetype, filename
 
     security.declarePrivate('set')
@@ -851,9 +866,9 @@ class FileField(ObjectField):
             file = self.get(instance)
             assert isinstance(file, factory)
 
-        kwargs['file'] = file
-
-        value, mimetype, filename = self._process_input(value, **kwargs)
+        value, mimetype, filename = self._process_input(value, file=file,
+                                                        instance=instance,
+                                                        **kwargs)
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
@@ -894,7 +909,7 @@ class FileField(ObjectField):
         return obj
 
     security.declarePrivate('getBaseUnit')
-    def getBaseUnit(self, instance):
+    def getBaseUnit(self, instance, full=False):
         """Return the value of the field wrapped in a base unit object
         """
         filename = self.getFilename(instance, fromBaseUnit=False)
@@ -903,7 +918,16 @@ class FileField(ObjectField):
         mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
-            value = str(aq_base(value).data)
+            value = value.data
+            if full:
+                # This will read the whole file in memory, which is
+                # very expensive specially with big files over
+                # ZEO. With small files is not that much of an issue.
+                value = str(data)
+            elif not isinstance(value, basestring):
+                # It's a Pdata object, get only the first chunk, which
+                # should be good enough for detecting the mimetype
+                value = value.data
         bu = BaseUnit(filename, aq_base(value), instance,
                       filename=filename, mimetype=mimetype)
         return bu
@@ -946,18 +970,18 @@ class FileField(ObjectField):
 
         Writes data including file name and content type to RESPONSE
         """
-        bu = self.getBaseUnit(instance)
+        file = self.get(instance)
         if not REQUEST:
             REQUEST = instance.REQUEST
         if not RESPONSE:
             RESPONSE = REQUEST.RESPONSE
-        return bu.index_html(REQUEST, RESPONSE)
+        return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
-        return len(str(self.get(instance)))
+        return self.get(instance).get_size()
 
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of

@@ -449,7 +449,9 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
-        here for indexing purpose"""
+        here for indexing purpose
+        """
+
         data = []
         charset = self.getCharset()
         for field in self.Schema().fields():

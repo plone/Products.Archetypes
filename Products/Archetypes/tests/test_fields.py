@@ -281,6 +281,8 @@ class FileLike:
 class FileFieldTest(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
+        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
+        self.folder.mimetypes_registry = MimeTypesRegistry()
         self.field = Field.FileField('file')
         self.factory = self.field.content_class
 
@@ -288,7 +290,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         from cStringIO import StringIO
         f = StringIO('x' * (1 << 19))
         f.seek(0)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
@@ -297,7 +299,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         from cStringIO import StringIO
         f = StringIO('\x00' + 'x' * (1 << 19))
         f.seek(0)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
@@ -305,7 +307,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
     def test_file_like_text(self):
         f = FileLike('x' * (1 << 19))
         f.seek(0)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
@@ -313,7 +315,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
     def test_file_like_binary(self):
         f = FileLike('\x00' + 'x' * (1 << 19))
         f.seek(0)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
@@ -331,7 +333,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
                    'content-disposition':'attachment; filename=test.txt'}
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.assertEquals(f, 'test.txt')
@@ -349,7 +351,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
                    'content-disposition':'attachment; filename=test.bin'}
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.assertEquals(f, 'test.bin')
@@ -359,20 +361,53 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         fd = TemporaryFile('w+b')
         fd.write('x' * (1 << 19))
         fd.seek(0)
-        v, m, f = self.field._process_input(fd)
+        v, m, f = self.field._process_input(fd, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
-        self.assertEquals(f, fd.name)
+        self.failIf(f)
 
     def test_real_file_binary(self):
         from tempfile import TemporaryFile
         fd = TemporaryFile('w+b')
         fd.write('\x00' + 'x' * (1 << 19))
         fd.seek(0)
-        v, m, f = self.field._process_input(fd)
+        v, m, f = self.field._process_input(fd, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
-        self.assertEquals(f, fd.name)
+        self.failIf(f)
+
+    def test_real_file_force_filename_detect_mime_pdf(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd, instance=self.folder,
+                                            filename='file.pdf')
+        self.failUnless(isinstance(v, self.factory))
+        self.assertEquals(m, 'application/pdf')
+        self.assertEquals(f, 'file.pdf')
+
+    def test_real_file_force_filename_detect_mime_xml(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd, instance=self.folder,
+                                            filename='file.xml')
+        self.failUnless(isinstance(v, self.factory))
+        self.assertEquals(m, 'text/xml')
+        self.assertEquals(f, 'file.xml')
+
+    def test_real_file_force_mimetype(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('\x00' + 'x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd, instance=self.folder,
+                                            mimetype='text/xml')
+        self.failUnless(isinstance(v, self.factory))
+        self.assertEquals(m, 'text/xml')
+        self.failIf(f)
 
     def test_ofs_file_text(self):
         from tempfile import TemporaryFile
@@ -383,7 +418,8 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
         self.folder.f.content_type = 'text/plain'
-        v, m, f = self.field._process_input(self.folder.f)
+        v, m, f = self.field._process_input(self.folder.f,
+                                            instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         # Should retain content type.
         self.assertEquals(m, 'text/plain')
@@ -397,7 +433,8 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = File('f', '', '')
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
-        v, m, f = self.field._process_input(self.folder.f)
+        v, m, f = self.field._process_input(self.folder.f,
+                                            instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.assertEquals(f, self.folder.f.getId())
@@ -410,7 +447,8 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = File('f', '', '')
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
-        v, m, f = self.field._process_input(self.folder.f.data)
+        v, m, f = self.field._process_input(self.folder.f.data,
+                                            instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
@@ -423,41 +461,38 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         f = File('f', '', '')
         self.folder._setObject('f', f)
         self.folder.f.manage_upload(fd)
-        v, m, f = self.field._process_input(self.folder.f.data)
+        v, m, f = self.field._process_input(self.folder.f.data,
+                                            instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
     def test_string_text(self):
         f = 'x' * (1 << 19)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
     def test_string_binary(self):
         f = '\x00' + 'x' * (1 << 19)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
 
     def test_base_unit_text(self):
         from Products.Archetypes.BaseUnit import BaseUnit
-        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
-        self.folder.mimetypes_registry = MimeTypesRegistry()
         f = BaseUnit('f', 'x' * (1 << 19), instance=self.folder)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'text/plain')
         self.failIf(f)
 
     def test_base_unit_binary(self):
         from Products.Archetypes.BaseUnit import BaseUnit
-        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
-        self.folder.mimetypes_registry = MimeTypesRegistry()
         f = BaseUnit('f', '\x00' + 'x' * (1 << 19), instance=self.folder)
-        v, m, f = self.field._process_input(f)
+        v, m, f = self.field._process_input(f, instance=self.folder)
         self.failUnless(isinstance(v, self.factory))
         self.assertEquals(m, 'application/octet-stream')
         self.failIf(f)
