@@ -613,10 +613,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 return t
         return None
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getSchema')
-    def getSchema(self, sid):
-        return self._schemas[sid]
+    # XXX unusable because nothing is writing to _schemas
+    #security.declareProtected(CMFCorePermissions.View,
+    #                          'getSchema')
+    #def getSchema(self, sid):
+    #    return self._schemas[sid]
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_installType')
