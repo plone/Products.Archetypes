@@ -1,5 +1,10 @@
 1.3.2-svn - Unreleased
 ======================
+ * Fixed utils.OrderedDict problems:
+   -  constructor was failing w/ non-empty argument
+   -  infinite loop when copy() was called
+   [rafrombrc]
+
  * Changed UI for Image/File widgets. Should be a lot better now.
    [_ender_]
 
