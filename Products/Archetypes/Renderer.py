@@ -29,6 +29,7 @@ class ArchetypesRenderer(base):
             for k,v in kwargs.items():
                 context.setLocal(k, v)
 
+        del frame
         return context
 
 renderer = ArchetypesRenderer()
