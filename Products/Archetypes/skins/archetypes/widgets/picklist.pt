@@ -27,8 +27,7 @@
                  />
 
           <table>
-            <tr tal:define="value python:accessor();
-                            vocab python:field.Vocabulary(here);">
+            <tr>
               <td>
                 <select
                   multiple="multiple"
