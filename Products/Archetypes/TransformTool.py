@@ -1,8 +1,11 @@
 import os
+from types import ListType, TupleType
 import Products.transform
 from transform.interfaces import itransform, iengine, implements
 from transform.data import datastream
+from transform import transforms
 
+from ExtensionClass import Base
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
@@ -36,6 +39,7 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 
 def import_from_name(module_name):
     """ import and return a module by its name """
+    __traceback_info__ = (module_name, )
     m = __import__(module_name)
     try:
         for sub in module_name.split('.')[1:]:
@@ -44,8 +48,21 @@ def import_from_name(module_name):
         raise ImportError(str(e))
     return m
 
+class bindingMixin(Base):
 
-class TransformTool(UniqueObject, ActionProviderBase, Folder):
+    def getBindings(self):
+        return self._bindings.values()
+
+    def getBinding(self, name):
+        return self._bindings[name]
+
+    def registerTransform(self, name, transform):
+        self._bindings[name] = transform
+
+    def unregisterTransform(self, name):
+        del self._bindings[name]
+
+class TransformTool(bindingMixin, UniqueObject, ActionProviderBase, Folder):
     """ Transform tool, manage mime type oriented content transformation """
 
     id        = 'portal_transforms'
@@ -90,15 +107,6 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
             data = data.getData()
         return data
 
-
-    security.declarePrivate('update_mimetypes_registry')
-    def update_mimetypes_registry(self):
-        """ update engine's registry
-        this method must be called when the mimetypes_registry has been replaced
-        """
-        self.registry = self.mimetypes_registry
-
-
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         """ overload manage_afterAdd to finish initialization when the
@@ -106,21 +114,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         """
         Folder.manage_afterAdd(self, item, container)
         # first initialization
-        if self is item and hasattr(self, 'mimetypes_registry'):
-            # initialize tool with tranforms in the transforms subdirectory
-            self.update_mimetypes_registry()
-            import transforms
-            for file in os.listdir(transforms.__path__[0]):
-                if file[-3:] == '.py' and file != '__init__.py':
-                    transform_id = file[:-3]
-                    module = 'Products.transform.transforms.%s' % transform_id
-                    try:
-                        self.manage_addTransform(transform_id, module)
-                    except ImportError, e:
-                        log("Problem importing %s: %s" % (module, e))
-                    except TransformException, e:
-                        log("Problem importing %s: %s" % (module, e))
-
+        transforms.initialize(self)
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
@@ -165,8 +159,13 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def registerTransform(self, name, transform):
         """ register a new transform """
+        __traceback_info__ = (name, transform)
         bindingMixin.registerTransform(self, name, transform)
         self._mapTransform(transform)
+        if name not in self.objectIds():
+            module = "%s" % transform.__module__
+            transform = Transform(name, module)
+            self._setObject(name, transform)
 
     def unregisterTransform(self, name):
         """ unregister a known transform """
@@ -179,7 +178,8 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         None should rarely be returned as application/octet can be
         used to represent most types
         """
-        return self.registry.classify(data,
+        registry = getToolByName(self, 'mimetypes_registry')
+        return registry.classify(data,
                                       mimetype=mimetype,
                                       filename=filename)
 
@@ -194,7 +194,8 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                                 mimetype=kwargs.get('mimetype'),
                                 filename=kwargs.get('filename'))
 
-        target_mt = self.registry.lookup(target_mimetype)
+        registry = getToolByName(self, 'mimetypes_registry')
+        target_mt = registry.lookup(target_mimetype)
         if target_mt:
             target_mt = target_mt[0]
 
@@ -238,15 +239,16 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def _mapTransform(self, transform):
         SEQ = (ListType, TupleType)
+        registry = getToolByName(self, 'mimetypes_registry')
         for i in transform.inputs:
-            mts = self.registry.lookup(i)
+            mts = registry.lookup(i)
             if type(mts) not in SEQ:
                 mts = (mts,)
 
             for mti in mts:
                 mt_in = self._mtmap.setdefault(mti, PersistentMapping())
                 for o in transform.outputs:
-                    mtss = self.registry.lookup(o)
+                    mtss = registry.lookup(o)
                     if type(mtss) not in SEQ:
                         mtss = (mtss,)
                     for mto in mtss:
@@ -254,15 +256,16 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def _unmapTransform(self, transform):
         SEQ = (ListType, TupleType)
+        registry = getToolByName(self, 'mimetypes_registry')
         for i in transform.inputs:
-            mts = self.registry.lookup(i)
+            mts = registry.lookup(i)
             if type(mts) not in SEQ:
                 mts = (mts,)
 
             for mti in mts:
                 mt_in = self._mtmap.get(mti, {})
                 for o in transform.outputs:
-                    mtss = self.registry.lookup(o)
+                    mtss = registry.lookup(o)
                     if type(mtss) not in SEQ:
                         mtss = (mtss,)
                     for mto in mtss:
@@ -270,6 +273,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def _findPath(self, orig, target, required_transforms=()):
         #return a list of transforms
+        registry = getToolByName(self, 'mimetypes_registry')
         path = []
 
         if not self._mtmap:
@@ -281,8 +285,8 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         #
         # it should be enough since we should not have so much possible paths
         shortest, winner = 9999, None
-        for path in self._getPaths(self.registry.lookup(orig)[0],
-                                  self.registry.lookup(target)[0],
+        for path in self._getPaths(registry.lookup(orig)[0],
+                                  registry.lookup(target)[0],
                                   required_transforms):
             if len(path) < shortest:
                 winner = path
@@ -320,22 +324,6 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
         return result
 
-
-    # binding mixin interface #################################################
-    # FIXME : can't inherite from bindingMixin due to Zope Extension Class
-
-    def getBindings(self):
-        return self._bindings.values()
-
-    def getBinding(self, name):
-        return self._bindings[name]
-
-    def registerTransform(self, name, transform):
-        self._bindings[name] = transform
-
-    def unregisterTransform(self, name):
-        del self._bindings[name]
-
 InitializeClass(TransformTool)
 
 
@@ -365,9 +353,10 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         self.id = id
         self.module = module
         # try to import the module
+        __traceback_info__ = (module, )
         m = import_from_name(module)
         if not hasattr(m, 'register'):
-            raise TransformException('Unvalid transform module : no register function defined')
+            raise TransformException('Unvalid transform module %s: no register function defined' % module)
 
         transform = m.register()
         if not hasattr(transform, '__class__'):
