@@ -12,6 +12,7 @@ from Products.Archetypes.interfaces.field import IField, IObjectField, \
      IImageField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
+from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException, \
      TextFieldException, FileFieldException
 from Products.Archetypes.Widget import *
@@ -340,18 +341,55 @@ class Field(DefaultLayerContainer):
 
     def Vocabulary(self, content_instance=None):
         """
-        COMMENT TODO
+        returns a DisplayList
+        
+        uses self.vocabulary as source
+        
+        1) Dynamic vocabulary:
+
+            precondition: a content_instance is given.
+            
+            has to return a: 
+                * DisplayList or
+                * list of strings or
+                * list of 2-tuples with strings: 
+                    '[("key1","value 1"),("key 2","value 2"),]'
+                        
+            the output is postprocessed like a static vocabulary.
+            
+            vocabulary is a string:
+                if a method with the name of the string exists it will be called
+                
+            vocabulary is a class implementing IVocabulary:
+                the "getDisplayList" method of the class will be called.
+                
+                
+        2) Static vocabulary 
+        
+            * is already a DisplayList
+            * is a list of 2-tuples with strings (see above)
+            * is a list of strings (in this case a DisplayList with key=value 
+              will be created)
+        
         """
 
         value = self.vocabulary
         if not isinstance(value, DisplayList):
+            
+            
             if content_instance is not None and type(value) in STRING_TYPES:
+                # dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
                     kw = {'content_instance' : content_instance,
                           'field' : self}
                     value = mapply(method, *args, **kw)
+            elif content_instance is not None and \
+                 IVocabulary.isImplementedBy(value):
+                # dynamic vocabulary provided by a class that implements
+                # IVocabulary
+                value=value.getDisplayList(content_instance)
 
             # Post process value into a DisplayList, templates will use
             # this interface
@@ -363,6 +401,7 @@ class Field(DefaultLayerContainer):
                 # Assume we have ( (value, display), ...)
                 # and if not ('', '', '', ...)
                 if len(sample) != 2:
+                    # if not a 2-tuple 
                     value = zip(value, value)
                 value = DisplayList(value)
             elif len(sample) and type(sample[0]) == type(''):
