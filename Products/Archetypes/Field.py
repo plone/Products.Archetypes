@@ -518,9 +518,9 @@ class TextField(ObjectField):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
         value = ''
-        accessor = self.getAccessor(instance)
+        accessor = self.getEditAccessor(instance)
         if accessor is not None:
-            value = accessor(raw=1)
+            value = accessor()
         mimetype = getattr(aq_base(value), 'mimetype', None)
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(value), None)
