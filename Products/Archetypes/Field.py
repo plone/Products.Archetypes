@@ -207,7 +207,7 @@ class Field(DefaultLayerContainer):
                 isEmpty = not value.strip()
             else:
                 isEmpty = not value
-        
+
         if not self.required and isEmpty:
             # Don't check the value using the validators if the value is not
             # required and if it's empty
@@ -217,7 +217,7 @@ class Field(DefaultLayerContainer):
         else:
             for v in self.validators:
                 res = validation.validate(v, value, instance=instance,
-                                          errors=errors, **kwargs)
+                                          errors=errors, field=self, **kwargs)
                 if res != 1:
                     return res
 

@@ -506,7 +506,6 @@ class BasicSchema(Schemata):
             res = field.validate(instance=instance,
                                  value=value,
                                  errors=errors,
-                                 field=field,
                                  REQUEST=REQUEST)
             if res:
                 errors[field.getName()] = res
