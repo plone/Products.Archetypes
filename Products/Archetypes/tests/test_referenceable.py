@@ -11,12 +11,6 @@ if not hasArcheSiteTestCase:
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 
-import sys
-import inspect
-from pprint import pprint, pformat
-import textwrap
-
-from debug import chat, quiet
 
 class ReferenceableTests(ArcheSiteTestCase):
 
