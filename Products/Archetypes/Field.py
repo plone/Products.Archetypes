@@ -309,7 +309,8 @@ class FixedPointField(ObjectField):
         'type' : 'fixedpoint',
         'precision' : 2,
         'default' : '0.0',
-        widget : DecimalWidget,
+        'widget' : DecimalWidget,
+        'validators' : ('isDecimal'),
         })
 
     def set(self, instance, value, **kwargs):

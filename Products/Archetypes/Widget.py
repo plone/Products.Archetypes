@@ -36,7 +36,6 @@ class StringWidget(TypesWidget):
         })
 
 class DecimalWidget(TypesWidget):
-    # FIXME: needs validation!
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/decimal",
