@@ -1,6 +1,6 @@
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
-from Acquisition import aq_base, aq_acquire
+from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
 from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
@@ -169,9 +169,8 @@ class BaseObject(Implicit):
 
     def __getitem__(self, key):
         """play nice with externaleditor again"""
-        ## Also play nice with aq again... doh!
         if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
-            return getattr(self, key)
+            return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
         accessor = getattr(self, self.Schema()[key].accessor)
         return accessor()
 

@@ -1,3 +1,15 @@
+2003-04-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* public.py: Make Storages and DisplayList available from public.
+
+	* SQLStorage.py: Import only what is needed from Storage.
+
+	* Storage.py (__all__): Restrict whats going to be imported so we
+	dont pollute the namespace.
+
+	* BaseObject.py (BaseObject.__getitem__): Was not playing nicely
+	with acquisition.
+
 2003-04-12  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* *.py: Removed trailing whitespace and rewrapped some long lines. 
