@@ -919,7 +919,9 @@ class FileField(ObjectField):
                 d, f, mimetype = mtr(body, **kw)
             else:
                 mimetype, enc = guess_content_type(filename, body, mimetype)
-        mimetype = str(mimetype)
+        # mimetype, if coming from request can be like:
+        # text/plain; charset='utf-8'
+        mimetype = str(mimetype).split(';')[0].strip()
         setattr(file, 'content_type', mimetype)
         setattr(file, 'filename', filename)
         return file, mimetype, filename
@@ -1228,7 +1230,9 @@ class TextField(FileField):
                 d, f, mimetype = mtr(body, **kw)
             else:
                 mimetype, enc = guess_content_type(filename, body, mimetype)
-        mimetype = str(mimetype)
+        # mimetype, if coming from request can be like:
+        # text/plain; charset='utf-8'
+        mimetype = str(mimetype).split(';')[0]
         file.update(value, instance, mimetype=mimetype, filename=filename)
         file.setContentType(instance, mimetype)
         file.setFilename(filename)
