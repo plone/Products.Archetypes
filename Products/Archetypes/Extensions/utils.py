@@ -22,6 +22,11 @@ from Products.PortalTransforms.Extensions.Install import install  as install_por
 
 from Products.Archetypes.config import *
 
+def install_dependencies(self, out):
+    qi=getToolByName(self, 'portal_quickinstaller')
+    qi.installProduct('CMFFormController',locked=1)
+    qi.installProduct('PortalTransforms',)
+
 
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
@@ -220,12 +225,16 @@ def setupEnvironment(self, out, types,
                      globals=types_globals,
                      product_skins_dir='skins'):
 
+    install_dependencies(self, out)
+
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
     
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
+
+    
     install_templates(self, out)
 
     install_indexes(self, out, types)
