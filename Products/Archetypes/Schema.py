@@ -403,6 +403,7 @@ class Schema(Schemata, DefaultLayerContainer):
                 continue
             error = 0
             value = None
+            label = field.widget.Label(instance)
             if REQUEST:
                 form = REQUEST.form
                 for postfix in ['_file', '']: ## Contract with FileWidget
@@ -461,9 +462,9 @@ class Schema(Schemata, DefaultLayerContainer):
                 if not value:
                     errors[name] =  translate(
                         'archetypes', 'error_required',
-                        {'name': capitalize(name)}, instance,
+                        {'name': label}, instance,
                         default = "%s is required, please correct."
-                        % capitalize(name),
+                        % label,
                         )
                     error = 1
                     continue
@@ -503,9 +504,9 @@ class Schema(Schemata, DefaultLayerContainer):
                     if error == 1:
                         errors[name] = translate(
                             'archetypes', 'error_vocabulary',
-                            {'val': val, 'name': capitalize(name)}, instance,
+                            {'val': val, 'name': label}, instance,
                             default = "Value %s is not allowed for vocabulary "
-                            "of element %s." % (val, capitalize(name)),
+                            "of element %s." % (val, label),
                             )
 
             # Call any field level validation
