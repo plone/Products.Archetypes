@@ -65,9 +65,11 @@ class Field(DefaultLayerContainer):
 
     def __init__(self, name, **kwargs):
         DefaultLayerContainer.__init__(self)
+
+        self.name = name
+
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
-        self.name = name
 
         self._widgetLayer()
         self._validationLayer()
@@ -149,6 +151,10 @@ class Field(DefaultLayerContainer):
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         return self.widget.getName() 
+
+    security.declarePublic('getDefault')
+    def getDefault(self):
+        return self.default 
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw

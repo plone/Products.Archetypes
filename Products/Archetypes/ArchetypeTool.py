@@ -354,12 +354,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if '' not in field.vocabulary.keys():
                         field.vocabulary = DisplayList([('', '<any>')]) + field.vocabulary
                         field.default = ''
-                    def accessor(*a, **kw):
-                        # thanks 2.1 for lexical scopes!
-                        return field.default
                     widgets[field.name] = WidgetWrapper(field_name=field.name, mode='search',
                                                         widget=field.widget, instance=instance, field=field,
-                                                        accessor=accessor)
+                                                        accessor=field.getDefault)
         widgets = widgets.items()
         widgets.sort()
         return [widget for name, widget in widgets]
