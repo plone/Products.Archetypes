@@ -1,4 +1,5 @@
 import os
+from os.path import exists
 from types import ListType, TupleType
 import Products.transform
 from transform.interfaces import itransform, iengine, implements
@@ -15,6 +16,7 @@ from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Globals import Persistent, InitializeClass
 from ZODB.PersistentMapping import PersistentMapping
+from ZODB.PersistentList import PersistentList
 
 from Acquisition import Implicit, aq_parent
 from OFS.SimpleItem import Item
@@ -291,10 +293,12 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                 mt_in = self._mtmap.setdefault(mti, PersistentMapping())
                 for o in transform.outputs():
                     mtss = registry.lookup(o)
-                    if type(mtss) not in SEQ:
-                        mtss = (mtss,)
                     for mto in mtss:
-                        mt_in.setdefault(mto, []).append(transform)
+                        try:
+                            if not transform in mt_in[mto]:
+                                mt_in[mto].append(transform)
+                        except KeyError:
+                            mt_in[mto] = PersistentList([transform])
 
     def _unmapTransform(self, transform):
         SEQ = (ListType, TupleType)
@@ -308,8 +312,6 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                 mt_in = self._mtmap.get(mti, {})
                 for o in transform.outputs():
                     mtss = registry.lookup(o)
-                    if type(mtss) not in SEQ:
-                        mtss = (mtss,)
                     for mto in mtss:
                         l = mt_in[mto]
                         for i in range(len(l)):
@@ -376,6 +378,21 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 InitializeClass(TransformTool)
 
 
+def make_config_persistent(kwargs):
+    """ iterates on the given dictionnary and replace list by persistent list,
+    dictionary by persistent mapping. 
+    """
+    for key, value in kwargs.items():
+        if type(value) == type({}):
+            p_value = PersistentMapping()
+            p_value.update(value)
+            kwargs[key] = p_value
+        elif type(value) in (type(()), type([])):
+            p_value = PersistentList()
+            for i in value:
+                p_value.append(i)
+            kwargs[key] = p_value
+    
 class Transform(Implicit, Item, RoleManager, Persistent):
     """ a transform is an external method with
         additional configuration information
@@ -397,11 +414,14 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     manage_reloadTransform = PageTemplateFile('reloadTransform', _www)
 
     security = ClassSecurityInfo()
+    __allow_access_to_unprotected_subobjects__ = 1
 
     def __init__(self, id, module, transform=None):
         self.id = id
         self.module = module
         self._config = PersistentMapping()
+        self._config.__allow_access_to_unprotected_subobjects__ = 1
+        self._config_metadata = PersistentMapping()
         self._tr_init(1, transform)
 
     def __setstate__(self, state):
@@ -419,6 +439,7 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         __traceback_info__ = (self.module, )
         if transform is None:
             m = import_from_name(self.module)
+            reload(m)
             if not hasattr(m, 'register'):
                 msg = 'Unvalid transform module %s: no register function defined' % module
                 raise TransformException(msg)
@@ -432,7 +453,13 @@ class Transform(Implicit, Item, RoleManager, Persistent):
         transform.__name__ = self.id
         if set_conf and hasattr(transform, 'config'):
             self._config.update(transform.config)
+            make_config_persistent(self._config)
+            if hasattr(transform, 'config_metadata'):
+                self._config_metadata.update(transform.config_metadata)
+                make_config_persistent(self._config_metadata)
+                
         transform.config = self._config
+        transform.config_metadata = self._config_metadata
         self._transform = transform
         return transform
 
@@ -456,29 +483,59 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     security.declareProtected(CMFCorePermissions.ManagePortal, 'get_parameters')
     def get_parameters(self):
         """ get transform's parameters names """
-        return self._transform.config.keys()
+        keys = self._transform.config.keys()
+        keys.sort()
+        return keys
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'get_parameter_value')
     def get_parameter_value(self, key):
         """ get value of a transform's parameter """
-        return self._transform.config[key]
+        value = self._config[key]
+        type = self.get_parameter_infos(key)[0]
+        # FIXME: this is done to allow access to PersistentMapping and
+        #        PersistentList in templates
+        #        there must be another way to do that
+        # OTH, it avoid external modification of dict and list 
+        if type == 'dict':
+            result = {}
+            for key, val in value.items():
+                result[key] = val
+        elif type == 'list':
+            result = list(value)
+        else:
+            result = value
+        return result
 
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'get_parameter_infos')
+    def get_parameter_infos(self, key):
+        """ get informations about a parameter
+
+        return a tuple (type, label [, type specific data])
+        where type in string, int, list, dict
+        """
+        try:
+            return tuple(self._config_metadata[key])
+        except KeyError:
+            return 'string', ''
+        
     security.declareProtected(CMFCorePermissions.ManagePortal, 'set_parameters')
     def set_parameters(self, REQUEST=None, **kwargs):
         """ set transform's parameters """
         if not kwargs:
             kwargs = REQUEST.form
-
-        transform = self._transform
+        self.preprocess_param(kwargs)
         for param, value in kwargs.items():
-            if transform.config.has_key(param):
-                transform.config[param] = value
-            else:
+            try:
+                self.get_parameter_value(param)
+            except KeyError:
                 log('Warning: ignored parameter %s' % param)
+                continue
+            meta = self.get_parameter_infos(param)
+            self._config[param] = VALIDATORS[meta[0]](value)
                 
         tr_tool = aq_parent(self)
+        # need to remap transform if necessary
         if kwargs.has_key('inputs') or kwargs.has_key('outputs'):
-            # need to remap transform
             # FIXME: not sure map / unmap is a correct access point
             tr_tool._unmapTransform(self)
             tr_tool._mapTransform(self)
@@ -500,13 +557,40 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     def reload(self):
         """ reload the module where the transformation class is defined """
         log('Reloading transform %s' % self.module)
-        m = import_from_name(self.module)
-        reload(m)
         self._tr_init()
 
+    def preprocess_param(self, kwargs):
+        """ preprocess param fetched from an http post to handle optional dictionary
+        """
+        for param in self.get_parameters():
+            if self.get_parameter_infos(param)[0] == 'dict':
+                try:
+                    keys = kwargs[param + '_key']
+                    del kwargs[param + '_key']
+                except:
+                    keys = ()
+                try:
+                    values = kwargs[param + '_value']
+                    del kwargs[param + '_value']
+                except:
+                    values = ()
+                kwargs[param] = dict = {}
+                for key, value in zip(keys, values):
+                    key = key.strip()
+                    if key:
+                        value = value.strip()
+                        if exists(value):
+                            dict[key] = value
 
 InitializeClass(Transform)
 
+    
+VALIDATORS = {
+    'int' : int,
+    'string' : str,
+    'list' : PersistentList,
+    'dict' : PersistentMapping,
+    }
 
 class TransformsChain(Implicit, Item, RoleManager, Persistent):
     """ a transforms chain is suite of transforms to apply in order.
