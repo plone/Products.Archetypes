@@ -1,4 +1,5 @@
-1.3.0-rc1
+1.3.0-rc1 - unreleased
+======================
 
  * Fixed forbidden access to schema methods when the schema was
    acccessed using archetype_tool.lookupType().
@@ -58,7 +59,12 @@
    the installation process of Archetypes to remove invalid catalogs.
    [tiran]
 
+ * Added a check to Field._Vocabulary: A result from portal catalog must be a
+   result from uid catalog, too.
+   [ender]
+
 1.3.0-beta4 - 2004-07-09
+========================
 
  * Fix bug on image deletion [clebeaupin]
 

@@ -1367,10 +1367,10 @@ class ReferenceField(ObjectField):
                 continue
 
             # now check if the results from the pc is the same as in uc.
-            # so we verify that b is a result that was also returned by uc, hence the check in abs_paths.            if abs_paths.has_key(b.getPath()):
+            # so we verify that b is a result that was also returned by uc,            # hence the check in abs_paths.
+            if abs_paths.has_key(b.getPath()):
                 pairs.append((abs_paths[b.getPath()].UID, label(b)))
-
-
+         
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
                                           msgid='label_no_reference',
