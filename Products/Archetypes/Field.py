@@ -43,7 +43,7 @@ from Globals import InitializeClass
 from ComputedAttribute import ComputedAttribute
 from ZPublisher.HTTPRequest import FileUpload
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 
 
 STRING_TYPES = [StringType, UnicodeType]

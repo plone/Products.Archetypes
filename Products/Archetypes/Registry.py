@@ -4,6 +4,10 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
+from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
+from Products.CMFCore import CMFCorePermissions
+
 def getDoc(klass):
     doc = klass.__doc__ or ''
     return doc
@@ -157,21 +161,39 @@ class TypeDescription:
     def basetypes(self):
         return findBaseTypes(self.klass)
 
+def setSecurity(klass, defaultAccess='deny', objectPermission=None):
+    if not klass.__dict__.has_key('security'):
+        security = klass.security = ClassSecurityInfo()
+    else:
+        security = klass.security
+    if defaultAccess:
+        security.setDefaultAccess(defaultAccess)
+    if objectPermission:
+        security.declareObjectProtected(objectPermission)
+    if hasattr(klass, '__allow_access_to_unprotected_subobjects__'):
+        # XXX debugging code
+        print 'Warning: Unprotected access to %s is allowed' % klass.__name__
+        pass
+    InitializeClass(klass)
+
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
+    setSecurity(klass)
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
+    setSecurity(klass)
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
 def registerStorage(klass, **kw):
+    setSecurity(klass)
     storage = StorageDescription(klass, **kw)
     storageDescriptionRegistry.register(storage.id, storage)
 
