@@ -454,7 +454,7 @@ class FileField(StringField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
-        
+
         if not value:
             return
 
