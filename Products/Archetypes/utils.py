@@ -2,7 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
-from types import TupleType
+from types import TupleType, ListType
 from debug import log
 import sys
 import os.path
@@ -116,6 +116,7 @@ class DisplayList:
 
     def __init__(self, data=None):
         self._keys = {}
+        self._i18n_msgids = {}
         self._values = {}
         self._itor   = []
         self.index = 0
@@ -132,8 +133,10 @@ class DisplayList:
         return self
 
     def fromList(self, lst):
-        for k,v in lst:
-            self.add(k,v)
+        for item in lst:
+            if isinstance(item, ListType):
+                item = tuple(item)
+            self.add(*item)
 
     def __len__(self):
         return self.index
@@ -151,7 +154,7 @@ class DisplayList:
     def index_sort(self, a, b):
         return  a[0] - b[0]
 
-    def add(self, key, value):
+    def add(self, key, value, msgid=None):
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -159,6 +162,7 @@ class DisplayList:
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
+        if msgid: self._i18n_msgids[k] = msgid
 
     def getKey(self, value, default=None):
         """get key"""
@@ -171,6 +175,13 @@ class DisplayList:
         v = self._keys.get(key, None)
         if v: return v[1]
         return default
+
+    def getMsgId(self, key):
+        "get i18n msgid"
+        try:
+            return self._i18n_msgids[key]
+        except KeyError:
+            return self._keys[key]
 
     def keys(self):
         "keys"
