@@ -73,6 +73,8 @@ except ImportError:
         file.close()
         return _version.strip()
 
+CMFVER = getCMFVersion()
+
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
 _zmi = os.path.join(_www, 'zmi')
@@ -199,7 +201,13 @@ def fixActionsForType(portal_type, typesTool):
 
 
 def modify_fti(fti, klass, pkg_name):
-    fti[0]['id'] = klass.__name__
+    if CMFVER.startswith('CMF-1.5') or CMFVER.startswith('CMF-1.6'):
+        # remangle for the fti
+        # http://www.zope.org/Collectors/CMF/49/
+        fti[0]['id'] = klass.portal_type
+    else:
+        fti[0]['id'] = klass.__name__
+        
     fti[0]['meta_type'] = klass.meta_type
     fti[0]['description'] = klass.__doc__
     fti[0]['factory'] = 'add%s' % klass.__name__
@@ -702,6 +710,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return
 
         typeinfo_name = '%s: %s' % (package, typeName)
+        #typeinfo_name = '%s: %s (%s)' % (package, typeName, meta_type)
 
         # We want to run the process/modify_fti code which might not
         # have been called
