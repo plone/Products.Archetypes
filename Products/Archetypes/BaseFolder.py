@@ -80,7 +80,7 @@ class BaseFolderMixin(CatalogMultiplex,
         self._v_cp_refs = None
 
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.DeleteObjects,
                               'manage_delObjects')
     def manage_delObjects(self, ids=[], REQUEST=None):
         """ We need to enforce security. """
@@ -89,7 +89,7 @@ class BaseFolderMixin(CatalogMultiplex,
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
-            if not mt.checkPermission(CMFCorePermissions.ModifyPortalContent, item):
+            if not mt.checkPermission(CMFCorePermissions.DeleteObjects, item):
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
         SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)

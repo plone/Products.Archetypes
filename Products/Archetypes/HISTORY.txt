@@ -37,6 +37,11 @@
    implementation.
    [tiran]
 
+ * Fixed [ 1038404 ] BaseFolder.mange_delObjects proteced by wrong permission.
+   Now the method is protected by CMFCorePermissions.DeleteObjects instead of 
+   CMFCorePermissions.ModifyPortalContent which is exactly like Plone 2.x
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
 
