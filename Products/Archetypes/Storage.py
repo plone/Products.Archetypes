@@ -20,6 +20,12 @@ class Storage:
     def getName(self):
         return self.__class__.__name__
 
+    def __repr__(self):
+        return "<Storage %s>" % (self.getName())
+
+    def __cmp__(self, other):
+        return cmp(self.getName(), other.getName())
+
     def get(self, name, instance, **kwargs):
         raise NotImplementedError('%s: get' % self.getName())
 
@@ -89,7 +95,8 @@ class MetadataStorage(StorageLayer):
     __implements__ = (IStorage, ILayer)
 
     def initializeInstance(self, instance, item=None, container=None):
-        if not hasattr(aq_base(instance), "_md"):
+        base = aq_base(instance)
+        if not hasattr(base, "_md"):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
@@ -97,8 +104,9 @@ class MetadataStorage(StorageLayer):
         self.set(field.name, instance, field.default)
 
     def get(self, name, instance, **kwargs):
+        base = aq_base(instance)
         try:
-            value = instance._md[name]
+            value = base._md[name]
         except KeyError, msg:
             # We are acting like an attribute, so
             # raise AttributeError instead of KeyError
@@ -106,21 +114,24 @@ class MetadataStorage(StorageLayer):
         return value
 
     def set(self, name, instance, value, **kwargs):
-        instance._md[name] = value
-        instance._p_changed = 1
+        base = aq_base(instance)
+        base._md[name] = value
+        base._p_changed = 1
 
     def unset(self, name, instance, **kwargs):
-        if not hasattr(aq_base(instance), "_md"):
+        base = aq_base(instance)
+        if not hasattr(base, "_md"):
             log("Broken instance %s, no _md" % instance)
         else:
-            del instance._md[name]
-            instance._p_changed = 1
+            del base._md[name]
+            base._p_changed = 1
 
     def cleanupField(self, instance, field, **kwargs):
         self.unset(field.name, instance)
 
     def cleanupInstance(self, instance, item=None, container=None):
-        del instance._md
+        base = aq_base(instance)
+        del base._md
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)

@@ -322,6 +322,7 @@ class BaseObject(Implicit):
                 #Set things by calling the mutator
                 if not value: continue
                 mutator = getattr(self, field.mutator)
+                __traceback_info__ = (self, field, mutator)
                 if text_format and not isFile:
                     mutator(value, mime_type=text_format)
                 else:

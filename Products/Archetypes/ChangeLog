@@ -1,5 +1,12 @@
 2003-04-23  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* Schema.py (MetadataSchema.addField): Layer was not being
+	registered, which caused it not to be initialized/cleaned.
+
+	* Storage.py (Storage.__repr__): Uniquefy Storage. Storages dont
+	have special attributes, so using two instances need to be like
+	one to initializeLayers and cleanupLayers.
+
 	* Marshall.py (Marshaller.cleanupInstance): Avoid trying to delete
 	the hook twice. XXX Need to find out why it is being called twice.
 

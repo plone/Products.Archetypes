@@ -418,19 +418,22 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 MDS = MetadataStorage()
 
 class MetadataSchema(Schema):
+    """ Schema that enforces MetadataStorage """
+    
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
         markup and make sure each field is marked as such for
         generation and introspcection purposes.
         """
-        field.isMetadata = 1
-        field.storage = MDS
-        field.schemata = 'metadata'
-        if 'm' not in field.generateMode:
-            field.generateMode = 'mVc'
+        _properties = {'isMetadata': 1,
+                       'storage': MetadataStorage(),
+                       'schemata': 'metadata',
+                       'generateMode': 'mVc'}
+                       
+        field.__dict__.update(_properties)
+        field.registerLayer('storage', field.storage)
 
-        FieldList.addField(self, field)
-
+        Schema.addField(self, field)
 
 InitializeClass(Schema)
 
