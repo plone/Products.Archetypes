@@ -1,5 +1,7 @@
 import os
 from types import StringType, UnicodeType
+import time
+import urllib
 
 from Acquisition import aq_base
 
@@ -544,6 +546,60 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     def __nonzero__(self):
         return 1
 
+    def _catalogReferencesFor(self,obj,path):
+        if IReferenceable.isImplementedBy(obj):
+            obj._catalogRefs(self)
+
+    def _catalogReferences(self,root=None,**kw):
+        ''' catalogs all references, where the optional parameter 'root' 
+           can be used to specify the tree that has to be searched for references '''
+           
+        if not root:
+            root=getToolByName(self,'portal_url').getPortalObject()
+
+        path = '/'.join(root.getPhysicalPath())
+
+        results = self.ZopeFindAndApply(root,
+                                        search_sub=1,
+                                        apply_func=self._catalogReferencesFor,
+                                        apply_path=path,**kw)
+            
+        
+
+    def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
+                                 obj_metatypes=None,
+                                 obj_ids=None, obj_searchterm=None,
+                                 obj_expr=None, obj_mtime=None,
+                                 obj_mspec=None, obj_roles=None,
+                                 obj_permission=None):
+
+        """ Find object according to search criteria and Catalog them
+        """
+        
+
+        elapse = time.time()
+        c_elapse = time.clock()
+
+        words = 0
+        obj = REQUEST.PARENTS[1]
+
+        self._catalogReferences(obj,obj_metatypes=obj_metatypes,
+                                 obj_ids=obj_ids, obj_searchterm=obj_searchterm,
+                                 obj_expr=obj_expr, obj_mtime=obj_mtime,
+                                 obj_mspec=obj_mspec, obj_roles=obj_roles,
+                                 obj_permission=obj_permission)
+        
+        elapse = time.time() - elapse
+        c_elapse = time.clock() - c_elapse
+
+        RESPONSE.redirect(
+            URL1 +
+            '/manage_catalogView?manage_tabs_message=' +
+            urllib.quote('Catalog Updated\n'
+                         'Total time: %s\n'
+                         'Total CPU time: %s'
+                         % (`elapse`, `c_elapse`))
+            )
 
 
 InitializeClass(ReferenceCatalog)
