@@ -1,10 +1,6 @@
-2004-06-30 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
-
-   * Vocabulary supports i18n translation. It uses field or widget i18n_domain 
-     property
-   
-   * Improve template to be xhtml compliant: attribute 'for' from <label> is
-     linked to an attribute 'id' from input field
+2004-07-01 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+  * Fix bug 890592. Now DisplayList can have None as key. All keys are converted
+    into string
 
 2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
 
@@ -18,6 +14,14 @@
 	* BaseObject.py (BaseObject._updateSchema): Moved call to
 	field.getContentType() to the point after self.initializeArchetype(),
 	which effectively fixes migration for me.
+
+2004-06-30 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+   * Vocabulary supports i18n translation. It uses field or widget i18n_domain 
+     property
+   
+   * Improve template to be xhtml compliant: attribute 'for' from <label> is
+     linked to an attribute 'id' from input field
 
 2004-06-07   Spanky: SpankyFromBRC in #plone IRC
 	

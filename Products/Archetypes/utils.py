@@ -225,6 +225,9 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         self.index +=1
+        # All keys are changed into string
+        # With this you can use None as key
+        key = str(key)
         k = (self.index, key)
         v = (self.index, value)
 
