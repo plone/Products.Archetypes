@@ -178,6 +178,8 @@ class Schemata(UserDict):
         """Adds a given field to my dictionary of fields."""
 
         if IField.isImplementedBy(field):
+            if self.has_key(field.getName()):
+                raise KeyError('Field already exists: %s' % field.getName())
             self[field.getName()] = field
             field._index = self._index
             self._index +=1

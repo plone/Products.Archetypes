@@ -36,6 +36,11 @@ class SchemataManipulationTest( ArchetypesTestCase ):
         self.assertEqual(self.fields2names(self.schema.fields()), 
                         ['a','d','x', 'b','e','y','c','f','z'])
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
+        self.schema.addField(StringField('p', schemata='waldi'))
+        self.schema.addField(StringField('hello_world', schemata='helloworld'))
+        self.schema.addField(StringField('hello_world1', schemata='helloworld1'))
+        self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar', 'helloworld', 'helloworld1'])
+    
 
     def testSchemataFields(self):
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')),
