@@ -47,7 +47,8 @@ class BaseUnit(File):
             self.original_encoding = None
         self.raw  = data
         self.size = len(data)
-        self.filename = filename
+        # taking care of stupid IE
+        self.filename = filename.split("\\")[-1]
 
 
     def transform(self, instance, mt):

@@ -712,6 +712,10 @@ class FileField(StringField):
             raw = self.getRaw(instance)
             filename = getattr(raw, 'filename', None)
         # might still be None
+        if filename:
+            # taking care of stupid IE and be backward compatible
+            # BaseUnit hasn't have a fix for long so we might have an old name
+            filename = filename.split("\\")[-1]
         return filename
 
     def validate_required(self, instance, value, errors):
