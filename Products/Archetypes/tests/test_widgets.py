@@ -46,7 +46,7 @@ class WidgetTests(ArcheSiteTestCase):
         stub_text_file = file(join(_prefix, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
-        stub_bin_file = file(join(_prefix, 'input', 'pdb.doc'))
+        stub_bin_file = file(join(_prefix, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
 
