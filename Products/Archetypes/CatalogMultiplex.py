@@ -1,5 +1,6 @@
 from Products.Archetypes.config import *
 
+from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.CMFCorePermissions import ModifyPortalContent

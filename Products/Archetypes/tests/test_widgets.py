@@ -192,8 +192,8 @@ class WidgetTests(ArcheSiteTestCase):
 
     def afterClear(self):
         global stub_text_file, stub_bin_file
-        stub_text_file.close()
-        stub_bin_file.close()
+        if stub_text_file is not None: stub_text_file.close()
+        if stub_bin_file is not None: stub_bin_file.close()
 
 
 def test_suite():
