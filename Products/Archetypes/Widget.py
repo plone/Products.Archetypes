@@ -48,7 +48,8 @@ class TypesWidget(macrowidget):
         # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
         vis_dic = getattr(self, 'visible')
         state = 'visible'
-        if not vis_dic: return state
+        if not vis_dic:
+            return state
         state = vis_dic.get(mode, state)
         return state
 
