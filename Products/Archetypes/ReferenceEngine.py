@@ -29,7 +29,7 @@ class Reference(SimpleItem):
 
     def __repr__(self):
         return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
-            
+
     ###
     # Convience methods
     def getSourceObject(self):
@@ -47,17 +47,17 @@ class Reference(SimpleItem):
     def targetId(self):
         target = self.getTargetObject()
         return target.getId()
-    
+
     def targetTitle(self):
         target = self.getTargetObject()
         return target.Title()
-    
+
     ###
     # Policy hooks, subclass away
     def addHook(self, tool, sourceObject=None, targetObject=None):
         #to reject the reference being added raise a ReferenceException
         pass
-    
+
     def delHook(self, tool, sourceObject=None, targetObject=None):
         #to reject the delete raise a ReferenceException
         pass
@@ -68,20 +68,20 @@ class Reference(SimpleItem):
     def beforeTargetDeleteInformSource(self):
         """called before target object is deleted so the source can have a say"""
         pass
-    
+
     def beforeSourceDeleteInformTarget(self):
         """called when the refering source Object is about to be deleted"""
         pass
-    
+
 
 #class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
 class ReferenceCatalog(UniqueObject, ZCatalog):
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-        
+
     ###
     ## Public API
-    def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):        
+    def addReference(self, source, target, relationship=None, referenceClass=None, **kwargs):
         sID, sobj = self._uidFor(source)
         tID, tobj = self._uidFor(target)
 
@@ -124,7 +124,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         objects = self._resolveBrains(self._queryFor(sid=sID, relationship=relationship))
         if objects:
             [self._deleteReference(b) for b in objects]
-            
+
     def getReferences(self, object, relationship=None):
         """return a collection of reference objects"""
         sID, sobj = self._uidFor(object)
@@ -159,7 +159,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             res[b.relationship]=1
 
         return res.keys()
-        
+
 
     def isReferenceable(self, object):
         return IReferenceable.isImplementedBy(object) or hasattr(object, 'isReferenceable')
@@ -168,7 +168,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         """return a url to an object that will resolve by reference"""
         sID, sobj = self._uidFor(object)
         return "%s/lookupObject?uuid=%s" % (self.absolute_url(), sID)
-    
+
     def lookupObject(self, uuid):
         """Lookup an object by its uuid"""
         return self._objectByUUID(uuid)
@@ -182,8 +182,8 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
 
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        
-        
+
+
     ######
     ## Private/Internal
     def _objectByUUID(self, uuid):
@@ -192,7 +192,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         if not brains:
             return None
         return brains[0].getObject()
-        
+
     def _queryFor(self, sid=None, tid=None, relationship=None, merge=1):
         """query reference catalog for object matching the info we are
         given, returns brains"""
@@ -201,10 +201,10 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         if sid: q['sourceUID'] = sid
         if tid: q['targetUID'] = tid
         if relationship: q['relationship'] = relationship
-        brains = self.searchResults(q, merge=merge) 
+        brains = self.searchResults(q, merge=merge)
         return brains
-             
-            
+
+
     def _uidFor(self, object):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
@@ -212,7 +212,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             object = object.aq_base
             if not self.isReferenceable(object):
                 raise ReferenceException
-            
+
             if not hasattr(object, UUID_ATTR):
                 uuid = self._getUUIDFor(object)
             else:
@@ -225,7 +225,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
             object = brains[0].getObject()
 
         return uuid, object
-    
+
     def _getUUIDFor(self, object):
         """generate and attach a new uid to the object returning it"""
         uuid = make_uuid(object.title_and_id())
@@ -236,7 +236,7 @@ class ReferenceCatalog(UniqueObject, ZCatalog):
         return uuid
 
     def _deleteReference(self, referenceObject):
-        
+
         try:
             referenceObject.delHook(self, referenceObject.getSourceObject(), referenceObject.getTargetObject())
         except ReferenceException:
@@ -270,5 +270,5 @@ def manage_addReferenceCatalog(self, id, title,
     if REQUEST is not None:
         return self.manage_main(self, REQUEST,update_menu=1)
 
-        
+
 InitializeClass(ReferenceCatalog)

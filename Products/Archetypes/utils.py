@@ -10,6 +10,7 @@ import os.path
 import types
 from ExtensionClass import ExtensionClass
 import time, random, md5, socket
+from inspect import getargs
 
 try:
     _v_network = socket.gethostbyname(socket.gethostbyname())
@@ -23,6 +24,32 @@ def make_uuid(*args):
     data = md5.md5(data).hexdigest()
     return data
 
+
+_marker = []
+
+def mapply(method, *args, **kw):
+    m = method
+    if hasattr(m, 'im_func'):
+        m = m.im_func
+    code = m.func_code
+    fn_args = getargs(code)
+    call_args = list(args)
+    if fn_args[1] is not None and fn_args[2] is not None:
+        return method(*args, **kw)
+    if fn_args[1] is None:
+        if len(call_args) > len(fn_args[0]):
+            call_args = call_args[:len(fn_args[0])]
+    if len(call_args) < len(fn_args[0]):
+        for arg in fn_args[0][len(call_args):]:
+            value = kw.get(arg, _marker)
+            if value is not _marker:
+                call_args.append(value)
+                del kw[arg]
+    if fn_args[2] is not None:
+        return method(*call_args, **kw)
+    if fn_args[0]:
+        return method(*call_args)
+    return method()
 
 
 def className(klass):

@@ -2,7 +2,7 @@
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 
-$Id: OrderedBaseFolder.py,v 1.5 2003/11/17 23:56:06 tiran Exp $
+$Id: OrderedBaseFolder.py,v 1.6 2003/12/06 16:43:20 dreamcatcher Exp $
 """
 
 from AccessControl import ClassSecurityInfo, Permissions
@@ -11,11 +11,11 @@ from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
      AddPortalContent, ModifyPortalContent, ManageProperties
 from Products.CMFCore.utils import getToolByName
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-
+from BaseFolder import BaseFolder
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
-from BaseFolder import BaseFolder
+from CatalogMultiplex  import CatalogMultiplex
 from debug import log, log_exc
 from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
@@ -31,15 +31,15 @@ try:
     hasZopeOrderedSupport=1
 except ImportError:
     hasZopeOrderedSupport=0
-# atm its safer defining an own so we need an ugly hack to make Archetypes 
-# OrderedBaseFolder work with Plone 2.0 
+# atm its safer defining an own so we need an ugly hack to make Archetypes
+# OrderedBaseFolder work with Plone 2.0
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
 except:
     from interfaces.orderedfolder import IOrderedContainer
 
 # implement this class only in backward compatibility mode
-class OrderedFolder( SkinnedFolder ):
+class OrderedFolder(SkinnedFolder):
     """ DEPRECATED, may be removed in next releaeses """
 
     __implements__ = IOrderedFolder
@@ -262,7 +262,7 @@ InitializeClass(OrderedContainer)
 
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
-    
+
     __implements__ = (OrderedContainer.__implements__, BaseFolder.__implements__,)
 
     security = ClassSecurityInfo()
@@ -279,11 +279,16 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
         OrderedContainer.manage_renameObject(self, item, container)
 
 
-class old_OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMetadata):
-    """ An ordered base Folder implementation 
+class old_OrderedBaseFolder(BaseObject,
+                            Referenceable,
+                            CatalogMultiplex,
+                            OrderedFolder,
+                            ExtensibleMetadata):
+    """ An ordered base Folder implementation
         DEPRECATED, may be removed in next releaeses """
 
-    __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata,
+    __implements__ = (IBaseFolder, IReferenceable,
+                      IExtensibleMetadata,
                       IOrderedFolder)
 
     manage_options = SkinnedFolder.manage_options
@@ -305,23 +310,26 @@ class old_OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, Extensible
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
         OrderedFolder.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
         OrderedFolder.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
         OrderedFolder.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
 
 
 if USE_OLD_ORDEREDFOLDER_IMPLEMENTATION:
     OrderedBaseFolder = old_OrderedBaseFolder
 else:
     OrderedBaseFolder = new_OrderedBaseFolder
-    
+
 InitializeClass(OrderedBaseFolder)

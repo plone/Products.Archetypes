@@ -5,7 +5,7 @@ from types import ListType, TupleType, ClassType, FileType
 from UserDict import UserDict
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from utils import capitalize, DisplayList, OrderedDict
+from utils import capitalize, DisplayList, OrderedDict, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -13,7 +13,7 @@ from types import StringType, StringTypes
 from Storage import AttributeStorage, MetadataStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField
+from interfaces.field import IField, IObjectField, IImageField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
@@ -174,7 +174,7 @@ class Schemata(UserDict):
 
     def __setitem__(self, name, field):
         assert name == field.getName()
-        
+
         if IField.isImplementedBy(field):
             UserDict.__setitem__(self, name, field)
             field._index = self._index
@@ -187,10 +187,16 @@ class Schemata(UserDict):
                               'addField')
     def addField(self, field):
         """Adds a given field to my dictionary of fields."""
-        self[field.getName()] = field
+        if IField.isImplementedBy(field):
+            self[field.getName()] = field
+            field._index = self._index
+            self._index +=1
+            self._order_fields = None
+        else:
+            log_exc('Object doesnt implement IField: %s' % field)
 
     def __delitem__(self, name):
-        if not self.has_key(name): 
+        if not self.has_key(name):
             raise KeyError("Schema has no field '%s'" % name)
 
         UserDict.__delitem__(self, name)
@@ -208,7 +214,7 @@ class Schemata(UserDict):
         field._index = old_field._index
         self[field.getName()] = field
         self._order_fields = None
-        
+
 
     security.declareProtected(CMFCorePermissions.View,
                               'searchable')
@@ -303,7 +309,12 @@ class Schema(Schemata, DefaultLayerContainer):
                     method = getattr(instance, field.default_method, None)
                     if method:
                         default = method()
-                mutator(default)
+                args = (default,)
+                kw = {}
+                if hasattr(field, 'default_content_type'):
+                    # specify a mimetype if the mutator takes a mimetype argument
+                    kw['mimetype'] = field.default_content_type
+                mapply(mutator, *args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')
@@ -329,7 +340,7 @@ class Schema(Schemata, DefaultLayerContainer):
                     (instance.portal_type, field.getName()))
                 continue
 
-            method = getattr(instance, field.mutator, None)
+            method = field.getMutator(instance)
             if not method:
                 log("No method %s on %s" % (field.mutator, instance))
                 continue
@@ -425,7 +436,9 @@ class Schema(Schemata, DefaultLayerContainer):
                     accessor = field.getAccessor(instance)
                     if accessor is not None:
                         unit = accessor()
-                        if IBaseUnit.isImplementedBy(unit):
+                        if (IBaseUnit.isImplementedBy(unit) or
+                            (IImageField.isImplementedBy(field) and
+                             isinstance(unit, field.image_class))):
                             if hasattr(aq_base(unit), 'get_size'):
                                 if unit.filename != '' or unit.get_size():
                                     value = 1 # value doesn't matter
@@ -597,8 +610,8 @@ class Schema(Schemata, DefaultLayerContainer):
 
     security.declareProtected(CMFCorePermissions.View, 'getSchemataFields')
     def getSchemataFields(self, name):
-        """ return list of fields belong to schema 'name' in order 
-            of appearing 
+        """ return list of fields belong to schema 'name' in order
+            of appearing
         """
         return [f for f in self.fields()  if f.schemata == name]
 
@@ -612,7 +625,7 @@ class Schema(Schemata, DefaultLayerContainer):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'addSchemata')
     def addSchemata(self, name):
         """ create a new schema by adding a new field with schemata 'name' """
-        from Field import StringField 
+        from Field import StringField
 
         if name in self.getSchemataNames():
             raise ValueError('Schemata "%s" already exists' % name)
@@ -651,7 +664,7 @@ class Schema(Schemata, DefaultLayerContainer):
             if pos < len(schemata_names):
                 schemata_names.remove(name)
                 schemata_names.insert(pos+1, name)
-                
+
         # remove and re-add
         self.__init__()
 
@@ -692,18 +705,18 @@ class Schema(Schemata, DefaultLayerContainer):
                 lst.insert(pos+1, field)
 
         d[field_schemata_name] = lst
-                
+
         # remove and re-add
         self.__init__()
         for s_name in schemata_names:
             for f in d[s_name]:
                 self.addField(f)
 
-    
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'replaceField')
     def replaceField(self, name, field):
         """ replace field with name 'name' in-place with 'field' """
-                                            
+
         if IField.isImplementedBy(field):
             oldfield = self[name]
             field._index = oldfield._index
@@ -711,7 +724,7 @@ class Schema(Schemata, DefaultLayerContainer):
             self._order_fields = None
         else:
             raise ValueError('wrong field: %s' % field)
-        
+
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

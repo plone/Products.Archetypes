@@ -61,7 +61,7 @@ class Referenceable(Base):
         if refs:
             return [ref.getSourceObject() for ref in refs]
         return None
-    
+
 
     def _register(self, reference_manager=None):
         """register with the archetype tool for a unique id"""
@@ -106,7 +106,7 @@ class Referenceable(Base):
         rc = getattr(container, config.REFERENCE_CATALOG)
         references = rc.getReferences(item)
         back_references = rc.getBackReferences(item)
-        
+
         storeRefs = getattr(self, '_cp_refs', None)
         if storeRefs is None:
             try:
@@ -121,7 +121,7 @@ class Referenceable(Base):
             except ReferenceException, E:
                 raise BeforeDeleteException(E)
 
-                
+
         if not storeRefs: self._unregister()
 
         #and reset the flag

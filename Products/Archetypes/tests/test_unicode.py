@@ -105,7 +105,7 @@ class UnicodeBaseUnitTest(ArchetypesTestCase):
         self.failUnlessEqual(self.bu.getRaw('ISO-8859-1'), 'héhéhé')
 
     def test_transform(self):
-        """check the string given to the transformer is encoded using its 
+        """check the string given to the transformer is encoded using its
         original encoding, and finally returned using the default charset
         """
         instance = Dummy()

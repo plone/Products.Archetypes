@@ -1,76 +1,94 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
     <body>
         <!-- Reference Widgets -->
 
-        <div class="field"
-             metal:define-macro="view">
-            <metal:block define-slot="widget_label"></metal:block>
-            <metal:block use-macro="here/widgets/field/macros/view">
-                <metal:block fill-slot="widget_view">
-                    <a href="#"
-                       tal:define="obj python:here.reference_catalog.lookupObject(uuid = accessor());"
-                       tal:attributes="href obj/absolute_url"
-                       tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-                       tal:condition="python:not field.multiValued and obj is not None"></a>
-                    <tal:block tal:condition="python:field.multiValued"
-                               tal:repeat="obj python:[here.reference_catalog.lookupObject(uuid = uid) for uid in (accessor() or [])]">
-                        <a href="#"
-                           tal:attributes="href obj/absolute_url"
-                           tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-                           tal:condition="python:obj is not None"></a>
-                    </tal:block>
-                </metal:block>
-            </metal:block>
-        </div>
+  <head><title></title></head>
 
-        <div metal:define-macro="edit">
-            <div metal:use-macro="here/widgets/field/macros/edit">
-                <div metal:fill-slot="widget_body"
-                     tal:define=" vocab python:field.Vocabulary(here); 
-                                  fieldName python:test(field.multiValued,fieldName+':list',fieldName); 
-                                  vlen python: len(vocab);">
-                    <input type="hidden"
-                           value=""
-                           tal:condition="python: (not field.required) and field.multiValued"
-                           tal:attributes="name string:$fieldName:default:list" />
-                    <select tal:attributes="name fieldName; 
-                                            id fieldName; 
-                                            multiple python:test(field.multiValued,'multiple',''); 
-                                            tabindex tabindex/next;">
-                        <option selected="selected"
-                                tal:repeat="item vocab"
-                                tal:attributes="selected python:test(field.containsValueAsString(item,value), 'selected', None); 
-                                                value item;"
-                                tal:content="python: vocab.getValue(item)"></option>
-                    </select>
+  <body>
 
-                    <!-- handle "addable" option -->
-                    <div tal:condition="field/addable|nothing">
-                        <span tal:define="types python:field.allowedTypesReadable(here)"
-                              tal:repeat="typename python:types.keys()"
-                              tal:omit-tag="">
-                            <a href="#"
-                               tal:define="create string:createObject?type_name=${typename}; 
-                                           dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url());
-                                           readable_name python:types[typename]"
-                               tal:attributes="href string:${dest}/${create}"
-                               tal:content="string:Add New ${readable_name}">
-                                Add new foo
-                            </a>
-                        </span>
-                    </div>
+    <!-- Reference Widgets -->
+    <div class="field"
+	 metal:define-macro="view">
+      <metal:block define-slot="widget_label"></metal:block>
+      <metal:block use-macro="here/widgets/field/macros/view">
+	<metal:block fill-slot="widget_view">
+	  <a href="#"
+	     tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor());"
+	     tal:attributes="href obj/absolute_url"
+	     tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+	  tal:condition="python:not field.multiValued and obj is not None"></a>
+	  <tal:block tal:condition="python:field.multiValued"
+		     tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in (accessor() or [])]">
+	    <a href="#"
+	       tal:attributes="href obj/absolute_url"
+	       tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
+	    tal:condition="python:obj is not None"></a>
+	  </tal:block>
+	</metal:block>
+      </metal:block>
+    </div>
 
-                </div>
-            </div>
-        </div>
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body"
+	     tal:define="vocab python:field.Vocabulary(here);
+	     fieldName python:test(field.multiValued,fieldName+':list',fieldName);
+	     vlen python: len(vocab);">
+	  <input type="hidden"
+		 value=""
+		 tal:condition="python: (not field.required) and field.multiValued"
+		 tal:attributes="name string:$fieldName:default:list" />
+	  <div tal:condition="python: vlen &lt; 4">
+	    <!-- Radio when the vocab is short < 4 -->
+	    <span tal:repeat="item vocab"
+		  tal:omit-tag="">
+	      <input class="noborder"
+		     tabindex=""
+		     type="radio"
+		     tal:attributes="name fieldName;
+		     checked python: field.containsValueAsString(item,value);
+		     value item; tabindex tabindex/next;
+		     type python:test(field.multiValued,'checkbox','radio');" />
+	      <span tal:content="python: vocab.getValue(item)"></span>&#160;
+	    </span>
+	  </div><!-- Pulldown when longer -->
+	  <div tal:condition="python: vlen &gt;= 4">
+	    <select tal:attributes="name fieldName;
+		    id fieldName;
+		    multiple python:test(field.multiValued,'multiple','');
+		    tabindex tabindex/next;">
+	      <option selected="selected"
+		      tal:repeat="item vocab"
+		      tal:attributes="selected python:test(field.containsValueAsString(item,value), 'selected', None);
+		      value item;"
+	      tal:content="python: vocab.getValue(item)"></option>
+	    </select>
+	  </div><!-- handle "addable" option -->
+	  <div tal:condition="field/addable|nothing">
+	    <span tal:repeat="addable field/allowed_types"
+		  tal:omit-tag="">
+	      <a href="#"
+		 tal:define="create string:createObject?type_name=${addable};
+		 dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url())"
+		 tal:attributes="href string:${dest}/${create}"
+		 tal:content="string:Add New ${addable}">
+		Add new foo
+	      </a>
+	    </span>
+	  </div>
+	</div>
+      </div>
+    </div>
 
-        <div metal:define-macro="search">
-            <div metal:use-macro="here/widgets/reference/macros/edit"></div>
-        </div>
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/reference/macros/edit"></div>
+    </div>
 
-    </body>
+  </body>
 </html>

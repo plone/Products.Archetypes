@@ -29,8 +29,8 @@ class ExternalEditorTest(ArcheSiteTestCase):
         site = self.getPortal()
         obj = makeContent(site, portal_type='SimpleType', id='obj')
         self.failUnless(IBaseUnit.isImplementedBy(obj.body))
-        
-        
+
+
 
 if __name__ == '__main__':
     framework()

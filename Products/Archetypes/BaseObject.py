@@ -9,21 +9,24 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.PersistentMapping import PersistentMapping
+from ZODB.POSException import ConflictError
 from debug import log, log_exc
 from types import FileType
 from DateTime import DateTime
 import operator
+from inspect import getargs
 
 from Schema import Schema, Schemata
 from Field import StringField, TextField
 from Widget import IdWidget, StringWidget
-from utils import DisplayList
+from utils import DisplayList, mapply
 from interfaces.base import IBaseObject, IBaseUnit
 from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
 
 from Products.Archetypes.Marshall import RFC822Marshaller
+from ZPublisher import xmlrpc
 
 _marker = []
 
@@ -135,7 +138,7 @@ class BaseObject(Implicit):
                               'Type')
     def Type( self ):
         """Dublin Core element - Object type
-        
+
         this method is redefined in ExtensibleMetadata but we need this
         at the object level (i.e. with or without metadata) to interact
         with the uid catalog
@@ -246,13 +249,10 @@ class BaseObject(Implicit):
         if not accessor:
             accessor = schema[key].getAccessor(self)
 
-        #This is the access mode used by external editor. We need the
-        #handling provided by BaseUnit when its available
-        try:
-            value = accessor(raw=1)
-        except TypeError:
-            value = accessor()
-            
+        # This is the access mode used by external editor. We need the
+        # handling provided by BaseUnit when its available
+        kw = {'raw':1}
+        value = mapply(accessor, **kw)
         return value
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -274,7 +274,6 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.View,
                               'validate_field')
     def validate_field(self, name, value, errors):
-
         """
         write a method: validate_foo(new_value) -> "error" or None
         If there is a validate method defined for a given field invoke
@@ -321,7 +320,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
-        """full indexable text"""
+        """All fields marked as 'searchable' are concatenated together
+        here for indexing purpose"""
         data = []
         charset = self.getCharset()
         for field in self.Schema().fields():
@@ -349,6 +349,21 @@ class BaseObject(Implicit):
         data = ' '.join(data)
         return data
 
+    security.declareProtected(CMFCorePermissions.View, 'getCharset')
+    def getCharset(self):
+        purl = getToolByName(self, 'portal_url')
+        container = purl.getPortalObject()
+        if getattr(container, 'getCharset', None):
+            return container.getCharset()
+
+        encoding = 'utf-8'
+        p_props = getToolByName(self, 'portal_properties', None)
+        if p_props is not None:
+            site_props = getattr(p_props, 'site_properties', None)
+            if site_props is not None:
+                encoding = site_props.getProperty('default_charset')
+
+        return encoding
 
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
@@ -359,17 +374,21 @@ class BaseObject(Implicit):
             if IBaseUnit.isImplementedBy(value):
                 size += value.get_size()
             else:
-                try:
-                    size += len(value)
-                except (TypeError, AttributeError):
-                    pass
+                if value is not None:
+                    try:
+                        size += len(value)
+                    except (TypeError, AttributeError):
+                        size += len(str(value))
 
         return size
 
     security.declarePrivate('_processForm')
-    def _processForm(self, data=1, metadata=None, REQUEST=None):
+    def _processForm(self, data=1, metadata=None, REQUEST=None, values=None):
         request = REQUEST or self.REQUEST
-        form = request.form
+        if values:
+            form = values
+        else:
+            form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
         schemata = self.Schemata()
@@ -407,9 +426,10 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0, REQUEST=None):
+    def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
+        self._processForm(data=data, metadata=metadata,
+                          REQUEST=REQUEST, values=values)
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
@@ -428,19 +448,33 @@ class BaseObject(Implicit):
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
-        For each field we use the existing accessor to get its value, then we
-        re-initialize the class, then use the new schema mutator for each field
-        to set the values again.  We also copy over any class methods to handle
-        product refreshes gracefully (when a product refreshes, you end up with
-        both the old version of the class and the new in memory at the same
-        time -- you really should restart zope after doing a schema update)."""
+        For each field we use the existing accessor to get its value,
+        then we re-initialize the class, then use the new schema
+        mutator for each field to set the values again.  We also copy
+        over any class methods to handle product refreshes gracefully
+        (when a product refreshes, you end up with both the old
+        version of the class and the new in memory at the same time --
+        you really should restart zope after doing a schema update)."""
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
 
-        print >> out, 'Updating %s' % (self.getId())
+        if out:
+            print >> out, 'Updating %s' % (self.getId())
 
         old_schema = self.Schema()
         package = _guessPackage(self.__module__)
         new_schema = getType(self.meta_type, package)['schema']
+
+        # read all the old values into a dict
+        values = {}
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields:
+                try:
+                    values[name] = self._migrateGetValue(name, new_schema)
+                except ValueError:
+                    if out != None:
+                        print >> out, ('Unable to get %s.%s'
+                                       % (str(self.getId()), name))
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -454,17 +488,6 @@ class BaseObject(Implicit):
             for k in current_class.__dict__.keys():
                 obj_class.__dict__[k] = current_class.__dict__[k]
 
-        # read all the old values into a dict
-        values = {}
-        for f in new_schema.fields():
-            name = f.getName()
-            if name not in excluded_fields:
-                try:
-                    values[name] = self._migrateGetValue(name, new_schema)
-                except ValueError:
-                    if out != None:
-                        print >> out, ('Unable to get %s.%s'
-                                       % (str(self.getId()), name))
 
         # replace the schema
         from copy import deepcopy
@@ -481,6 +504,9 @@ class BaseObject(Implicit):
                         print >> out, ('Unable to set %s.%s to '
                                        '%s' % (str(self.getId()),
                                                name, str(values[name])))
+
+        self._p_changed = 1 # make sure the changes are persisted
+
         if out:
             return out
 
@@ -493,18 +519,61 @@ class BaseObject(Implicit):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
+            # first try the edit accessor
+            try:
+                editAccessor = field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # no luck -- now try the accessor
+            try:
+                accessor = field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # still no luck -- try to get the value directly
             try:
                 return self[field.getName()]
-            except KeyError:
+            except ConflictError:
+                raise
+            except:
                 pass
 
         # Nope -- see if the new accessor method is present
         # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
+            # try the new edit accessor
+            try:
+                editAccessor = new_field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+
+            # nope -- now try the accessor
+            try:
+                accessor = new_field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
-            except KeyError:
+            except ConflictError:
+                raise
+            except:
                 pass
 
         # Nope -- now see if the current object has an attribute
@@ -525,8 +594,13 @@ class BaseObject(Implicit):
         if field:
             mutator = field.getMutator(self)
             if mutator:
-                mutator(value)
-                return
+                try:
+                    mutator(value)
+                    return
+                except ConflictError:
+                    raise
+                except:
+                    log_exc()
         # try setting an existing attribute
         if hasattr(self, name):
             setattr(self, name, value)
@@ -581,6 +655,11 @@ class BaseObject(Implicit):
         target = getattr(self, name, None)
         if target is not None:
             return target
+        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+        if not method in ('GET', 'POST', 'HEAD') and not isinstance(RESPONSE,
+                                                                    xmlrpc.Response):
+            from webdav.NullResource import NullResource
+            return NullResource(self, name, REQUEST).__of__(self)
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
 

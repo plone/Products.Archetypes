@@ -8,7 +8,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
 from Widget import *
-from utils import capitalize, DisplayList, className
+from utils import capitalize, DisplayList, className, mapply
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
@@ -17,7 +17,7 @@ from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
      ReadOnlyStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField
+from interfaces.field import IField, IObjectField, IImageField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
@@ -256,6 +256,10 @@ class Field(DefaultLayerContainer):
         as a string"""
         return self.storage.getName()
 
+    def getStorageType(self):
+        """Return the type of the storage of this field as a string"""
+        return className(self.storage)
+
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         """Return the widget name that is configured for this field as
@@ -349,8 +353,9 @@ class ObjectField(Field):
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
         if accessor is None:
-            return self.get(instance, **kwargs)
-        return accessor(**kwargs)
+            args = [instance,]
+            return mapply(self.get, *args, **kwargs)
+        return mapply(accessor, **kwargs)
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
@@ -753,7 +758,7 @@ class ReferenceField(ObjectField):
         'relationship':None
         })
 
-    def containsValueAsString(self,value,attrval):
+    def containsValueAsString(self, value, attrval):
         """
         checks wether the attribute contains a value
            if the field is a scalar -> comparison
@@ -783,7 +788,7 @@ class ReferenceField(ObjectField):
             targetUIDs=[r.targetUID for r in refs]
         else:
             targetUIDs=[]
-            
+
         newValue = []
 
         if self.multiValued:
@@ -796,10 +801,10 @@ class ReferenceField(ObjectField):
                         target=tool.lookupObject(uuid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
-                        
+
                         instance.addReference(target,refname)
                     newValue.append(uid)
-                
+
                 #delete references
                 for uid in targetUIDs:
                     if uid and uid not in value:
@@ -811,7 +816,7 @@ class ReferenceField(ObjectField):
                 target=tool.lookupObject(uuid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target,refname)
+                instance.addReference(target, refname)
                 newValue = value
 
         # and now do the normal assignment
@@ -848,7 +853,7 @@ class ReferenceField(ObjectField):
         if tool is None:
             msg = "Coudln't get portal_types tool from this context"
             raise AttributeError(msg)
-            
+
         d = {}
         for typeid in self.allowed_types:
             info = tool.getTypeInfo(typeid)
@@ -857,7 +862,7 @@ class ReferenceField(ObjectField):
             d[typeid] = info.Title()
 
         return d
-        
+
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -1057,6 +1062,8 @@ class ImageField(ObjectField):
         will be deleted (None is understood as no-op)
         """
 
+    __implements__ = ObjectField.__implements__ + (IImageField,)
+
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'image',
@@ -1163,12 +1170,17 @@ class ImageField(ObjectField):
         #make sure we have valid int's
         keys = {'height':int(h), 'width':int(w)}
 
+        pilfilter = 0 # NEAREST
+        #check for the pil version and enable antialias if > 1.1.3
+        if PIL.Image.VERSION >= "1.1.3":
+            pilfilter = 1 # ANTIALIAS
+
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
         image = image.convert('RGB')
-        image.thumbnail((keys['width'],keys['height']))
+        image.thumbnail((keys['width'],keys['height']), pilfilter)
         thumbnail_file = StringIO()
-        image.save(thumbnail_file, "JPEG")
+        image.save(thumbnail_file, "JPEG", quality=88)
         thumbnail_file.seek(0)
         return thumbnail_file.read()
 
@@ -1557,4 +1569,5 @@ registerPropertyType('read_permission', 'string')
 registerPropertyType('write_permission', 'string')
 registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
+registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')

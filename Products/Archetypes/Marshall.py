@@ -63,7 +63,11 @@ class PrimaryFieldMarshaller(Marshaller):
             else:
                 content_type = data and guess_content_type(data) or 'text/plain'
             length = len(data)
-            data = str(data)
+            # ObjectField without IBaseUnit?
+            if hasattr(data, 'data'):
+                data = data.data
+            else:
+                data = str(data)
 
         return (content_type, length, data)
 

@@ -29,7 +29,7 @@ class VarSchemataTest( ArchetypesTestCase ):
         self._dummy = Dummy(oid='dummy')
 
     def test_variableschema(self):
-        
+
         dummy = self._dummy
         dummy.update(id='dummy1')
         self.assertEqual(dummy.getId(),'dummy1')

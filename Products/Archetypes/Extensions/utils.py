@@ -25,7 +25,7 @@ from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 
 class Extra:
     """indexes extra properties holder"""
-    
+
 def install_dependencies(self, out):
     qi=getToolByName(self, 'portal_quickinstaller')
     qi.installProduct('CMFFormController',locked=1)
@@ -98,7 +98,7 @@ def install_referenceCatalog(self, out):
                 pass
 
         #catalog.manage_reindexIndex()
-        
+
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
@@ -180,11 +180,11 @@ def install_indexes(self, out, types):
                         except:
                             import traceback
                             traceback.print_exc(file=out)
-                            
+
                     # we may want to add a field to metadata without indexing it
                     if not schema[0]:
                         continue
-                    
+
                     parts = schema[0].split('|')
 
                     for itype in parts:
@@ -279,7 +279,7 @@ def setupEnvironment(self, out, types,
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
     install_referenceCatalog(self, out)
-    
+
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
