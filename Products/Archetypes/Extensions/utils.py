@@ -2,12 +2,7 @@ from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory, \
      createDirectoryView, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
-
-try:
-    from CMFCore.ActionInformation import ActionInformation
-except ImportError:
-    ActionInformation=None
-    raise
+from CMFCore.ActionInformation import ActionInformation
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
@@ -18,6 +13,21 @@ from Globals import package_home
 import sys, traceback, os
 from types import *
 
+try:
+    from Products.CMFPlone.Configuration import getCMFVersion
+except ImportError:
+    # Configuration and getCMFVersion come with Plone 1.1
+    def getCMFVersion():
+        from os.path import join
+        from Globals import package_home
+        from Products.CMFCore import cmfcore_globals
+    
+        path=join(package_home(cmfcore_globals),'version.txt')
+        file=open(path, 'r')
+        _version=file.read()
+        file.close()
+        return _version.strip()
+    
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
@@ -144,10 +154,12 @@ def install_actions(self, out, types):
                 else:
                     # if no standard actions are wished - dont display them
                     new=[]
+        
+                cmfver=getCMFVersion()
 
                 for action in type.actions:
-                    if ActionInformation and type(action) == type(ActionInformation): 
-                        #then we know actions are defined new style as ActionOformations
+                    if cmfver[:7] >= "CMF-1.4": 
+                        #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
                         if hits:
                             hits[0].__dict__.update(action)
