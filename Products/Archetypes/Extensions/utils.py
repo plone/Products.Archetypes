@@ -7,7 +7,7 @@ from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from OFS.ObjectManager import BadRequestException
 from Globals import package_home
-import sys, traceback, os
+import sys, traceback, os, types
 
 def install_tools(self, out):
     if not hasattr(self, "archetype_tool"):
@@ -153,24 +153,32 @@ def install_indexes(self, out, types):
         
         for field in cls.schema.fields():
             if field.index:
-                parts = field.index.split('|',1)
-                itype = parts[0]
-                ischema = None                
-                if len(parts) == 2:
-                    schemaFlag=  parts[1]
-                    if schemaFlag == "schema":
-                        ischema = 1
+                if type(field.index) is types.StringType:
+                    index = (field.index,)
+                else:
+                    index = field.index
+                for alternative in index:
+                    parts = alternative.split('|',1)
+                    itype = parts[0]
+                    ischema = None                
+                    if len(parts) == 2:
+                        schemaFlag=  parts[1]
+                        if schemaFlag == "schema":
+                            ischema = 1
 
-                #Check for the index and add it if missing
-                try:
-                    catalog.addIndex(field.accessor, itype,
-                                     extra=None)
-                    if ischema and field.accessor not in catalog.schema():
-                        catalog.addColumn(field.accessor)
+                    #Check for the index and add it if missing
+                    try:
+                        catalog.addIndex(field.accessor, itype,
+                                         extra=None)
+                        if ischema and field.accessor not in catalog.schema():
+                            catalog.addColumn(field.accessor)
 
-                    catalog.manage_reindexIndex(ids=(field.accessor,))
-                except:
-                    pass
+                        catalog.manage_reindexIndex(ids=(field.accessor,))
+                    except:
+                        pass
+                    else:
+                        # index installed, don't try the others
+                        break
                 
 
 
