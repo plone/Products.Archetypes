@@ -1,3 +1,8 @@
+import os
+import Products.transform
+from transform.interfaces import itransform, iengine, implements
+from transform.data import datastream
+
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
@@ -12,15 +17,11 @@ from OFS.SimpleItem import Item
 from AccessControl.Role import RoleManager
 from AccessControl import ClassSecurityInfo
 
-from Products.transform.interfaces import itransform, iengine, implements
-from Products.transform.data import datastream
+from Products.Archetypes.debug import log, log_exc
 
 class TransformException(Exception) : pass
 
-import os
 _www = os.path.join(os.path.dirname(__file__), 'www')
-
-import engine
 
 """ TODO:
 
@@ -116,9 +117,9 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                     try:
                         self.manage_addTransform(transform_id, module)
                     except ImportError, e:
-                        print "Problem importing %s : %s" % (module, e)
+                        log("Problem importing %s: %s" % (module, e))
                     except TransformException, e:
-                        print "Problem importing %s : %s" % (module, e)
+                        log("Problem importing %s: %s" % (module, e))
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_renameObject')
@@ -128,7 +129,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         """
         Folder.manage_renameObject(self, id, new_id, REQUEST)
         tr = getattr(self, new_id)
-        tr._transform.name = new_id
+        tr._transform.__name__ = new_id
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_addTransform')
@@ -213,7 +214,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         if not path: return None #XXX raise TransformError
         c = chain()
         for t in path:
-            c.registerTransform(t.name, t)
+            c.registerTransform(t.name(), t)
 
         if not data:
             data = self._wrap(target_mimetype)
@@ -301,8 +302,8 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
         for o_mt, transforms in outputs.items():
             for transform in transforms:
                 required = 0
-                if transform.name in requirements:
-                    requirements.remove(transform.name)
+                if transform.name() in requirements:
+                    requirements.remove(transform.name())
                     required = 1
                 if transform in path:
                     # avoid infinite loop...
@@ -314,7 +315,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
                 else:
                     self.getPaths(o_mt, target, requirements, path, result)
                 if required:
-                    requirements.append(transform.name)
+                    requirements.append(transform.name())
         path.pop()
 
         return result
@@ -412,7 +413,7 @@ class Transform(Implicit, Item, RoleManager, Persistent):
             if transform.config.has_key(param):
                 transform.config[param] = value
             else:
-                print 'Warning: ignored parameter %s' % param
+                log('Warning: ignored parameter %s' % param)
         if kwargs.has_key('inputs') or kwargs.has_key('outputs'):
             # need to remap transform
             tr_tool = aq_parent(self)
@@ -438,7 +439,7 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     security.declareProtected(CMFCorePermissions.ManagePortal, 'reload')
     def reload(self):
         """ reload the module where the transformation class is defined """
-        print 'Reloading transform', self
+        log('Reloading transform %s' % self)
         m = import_from_name(self.module)
         reload(m)
 

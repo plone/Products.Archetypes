@@ -303,7 +303,7 @@ class BaseObject(Implicit):
 
         form_keys = form.keys()
         for field in fields:
-            if field.name in form_keys or "%s_file" % field.name in form_keys:
+            if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
                 text_format = None
                 isFile = 0
                 value = None
@@ -312,9 +312,9 @@ class BaseObject(Implicit):
                 if hasattr(field, 'allowable_content_types') and \
                    field.allowable_content_types:
                     #was a mime_type specified
-                    text_format = form.get("%s_text_format" % field.name)
+                    text_format = form.get("%s_text_format" % field.getName())
                 # or a file?
-                fileobj = form.get('%s_file' % field.name)
+                fileobj = form.get('%s_file' % field.getName())
                 if fileobj:
                     filename = getattr(fileobj, 'filename', '')
                     if filename != '':
@@ -322,7 +322,7 @@ class BaseObject(Implicit):
                         isFile = 1
 
                 if not value:
-                    value = form.get(field.name)
+                    value = form.get(field.getName())
 
                 #Set things by calling the mutator
                 if value is None: continue

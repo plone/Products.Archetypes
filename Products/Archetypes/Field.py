@@ -69,7 +69,7 @@ class Field(DefaultLayerContainer):
     def __init__(self, name, **kwargs):
         DefaultLayerContainer.__init__(self)
 
-        self.name = name
+        self.__name__ = name
 
         self.__dict__.update(self._properties)
         self.__dict__.update(kwargs)
@@ -168,7 +168,7 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getName')
     def getName(self):
-        return self.name
+        return self.__name__
 
     security.declarePublic('getDefault')
     def getDefault(self):
@@ -199,22 +199,22 @@ class ObjectField(Field):
     def get(self, instance, **kwargs):
         try:
             kwargs['field'] = self
-            return self.storage.get(self.name, instance, **kwargs)
+            return self.storage.get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance,self.default,_initializing_=1,**kwargs)
+                self.set(instance, self.default,_initializing_=1,**kwargs)
             return self.default
 
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
-        self.storage.set(self.name, instance, value, **kwargs)
+        self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
-        self.storage.unset(self.name, instance, **kwargs)
+        self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
         if not IStorage.isImplementedBy(storage):
@@ -317,8 +317,8 @@ class FileField(StringField):
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
-        types_d[self.name] = mime_type
-        value = File(self.name, '', value, mime_type)
+        types_d[self.getName()] = mime_type
+        value = File(self.getName(), '', value, mime_type)
         ObjectField.set(self, instance, value, **kwargs)
 
 class TextField(ObjectField):
@@ -375,7 +375,7 @@ class TextField(ObjectField):
                     mime_type, enc = guess_content_type('', str(value), mime_type)
                 return value, getattr(aq_base(value), 'mimetype', mime_type)
 
-        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.name, type(value)))
+        raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
 
     def getContentType(self, instance):
         value = ''
@@ -399,7 +399,7 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.name, value, mime_type=mime_type)
+            bu = BaseUnit(self.getName(), value, mime_type=mime_type)
 
         ObjectField.set(self, instance, bu, **kwargs)
 
@@ -627,7 +627,7 @@ class CMFObjectField(ObjectField):
 
     def get(self, instance, **kwargs):
         try:
-            return self.storage.get(self.name, instance, **kwargs)
+            return self.storage.get(self.getName(), instance, **kwargs)
         except AttributeError:
             # object doesnt exists
             tt = getToolByName(instance, 'portal_types', None)
@@ -641,7 +641,7 @@ class CMFObjectField(ObjectField):
             if not hasattr(aq_base(info), 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
-            return info.constructInstance(instance, self.name, **kwargs)
+            return info.constructInstance(instance, self.getName(), **kwargs)
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
@@ -779,7 +779,7 @@ class ImageField(ObjectField):
         # test for scaling it.
         if self.original_size and has_pil:
             mime_type = kwargs.get('mime_type', 'image/png')
-            image = Image(self.name, self.name, value, mime_type)
+            image = Image(self.getName(), self.getName(), value, mime_type)
             data=str(image.data)
             w,h=self.original_size
             imgdata=self.scale(data,w,h)
@@ -787,7 +787,7 @@ class ImageField(ObjectField):
             mime_type = kwargs.get('mime_type', 'image/png')
             imgdata=value
 
-        image = Image(self.name, self.name, imgdata, mime_type)
+        image = Image(self.getName(), self.getName(), imgdata, mime_type)
         image.filename = hasattr(value, 'filename') and value.filename or ''
         ObjectField.set(self, instance, image, **kwargs)
 
@@ -795,14 +795,14 @@ class ImageField(ObjectField):
         if not has_pil or not self.sizes:
             return
 
-        data=str(image.data)
-        for n,size in self.sizes.items():
-            w,h=size
-            id=self.name+"_"+n
-            imgdata=self.scale(data,w,h)
-            image2=Image(id, self.name, imgdata, 'image/jpeg')
+        data= str(image.data)
+        for n, size in self.sizes.items():
+            w, h = size
+            id = self.getName() + "_" + n
+            imgdata = self.scale(data, w, h)
+            image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
             # manually use storage
-            self.storage.set(id,instance,image2)
+            self.storage.set(id, instance, image2)
 
 
     def scale(self,data,w,h):

@@ -25,23 +25,23 @@ class Generator:
     def computeMethodName(self, field, mode):
         if mode not in _modes.keys():
             raise TypeError("Unsupported Mode %s in field: %s (%s)" % \
-                            (field.name, mode))
+                            (field.getName(), mode))
 
         prefix = _modes[mode]['prefix']
-        name   = capitalize(field.name)
+        name   = capitalize(field.getName())
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
         if mode == "r":
-            method = lambda self, field=field.name: \
+            method = lambda self, field=field.getName(): \
                      self.Schema()[field].get(self)
         elif mode == "w":
-            method = lambda self, value, field=field.name, **kw: \
+            method = lambda self, value, field=field.getName(), **kw: \
                      self.Schema()[field].set(self, value, **kw)
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
-                                field.name,
+                                field.getName(),
                                 methodName,
                                 mode))
 

@@ -17,7 +17,7 @@ class TypesWidget(macrowidget):
     def bootstrap(self, instance):
         if not self.description or not self.label:
             field = self.findField(instance)
-            name = field.name
+            name = field.getName()
             if not self.label:
                 self.label = capitalize(name)
             if not self.description:

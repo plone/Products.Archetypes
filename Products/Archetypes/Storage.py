@@ -105,7 +105,7 @@ class MetadataStorage(StorageLayer):
             instance._p_changed = 1
 
     def initializeField(self, instance, field):
-        self.set(field.name, instance, field.default)
+        self.set(field.getName(), instance, field.default)
 
     def get(self, name, instance, **kwargs):
         base = aq_base(instance)
@@ -131,7 +131,7 @@ class MetadataStorage(StorageLayer):
             base._p_changed = 1
 
     def cleanupField(self, instance, field, **kwargs):
-        self.unset(field.name, instance)
+        self.unset(field.getName(), instance)
 
     def cleanupInstance(self, instance, item=None, container=None):
         if hasattr(aq_base(instance), '_md'):

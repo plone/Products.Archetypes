@@ -1,4 +1,11 @@
 from __future__ import nested_scopes
+
+import os.path
+import sys
+import time
+from copy import deepcopy
+from types import StringType
+
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
@@ -8,11 +15,6 @@ from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from copy import deepcopy
-from types import StringType
-import os.path
-import sys
-import time
 from ZODB.PersistentMapping import PersistentMapping
 
 from interfaces.base import IBaseObject, IBaseFolder
@@ -326,7 +328,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         tt = getToolByName(self, "portal_types")
         def isRegistered(type, tt=tt):
             return tt.getTypeInfo(type['name']) != None
-        
+
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
             if v != 0: return v
@@ -341,7 +343,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         values.sort(type_sort)
         if inProject:
             values = [v for v in values if isRegistered(v)]
-            
+
         return values
 
     def getTypeSpec(self, package, type):
@@ -379,7 +381,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             instance.schema = instance.schema.copy()
             instance = instance.__of__(self)
             for field in instance.schema.fields():
-                if field.index and not widgets.has_key(field.name):
+                if field.index and not widgets.has_key(field.getName()):
                     field.required = 0
                     field.addable = 0 # for ReferenceField
                     if not isinstance(field.vocabulary, DisplayList):
@@ -388,7 +390,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                         field.vocabulary = DisplayList([('', '<any>')]) + \
                                            field.vocabulary
                         field.default = ''
-                    widgets[field.name] = WidgetWrapper(field_name=field.name,
+                    widgets[field.getName()] = WidgetWrapper(field_name=field.getName(),
                                                         mode='search',
                                                         widget=field.widget,
                                                         instance=instance,
@@ -422,8 +424,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Return a link to the object by reference"""
         uid = object.UID()
         return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
-    
-    
+
+
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'"""
         catalog = getToolByName(self, 'portal_catalog')
