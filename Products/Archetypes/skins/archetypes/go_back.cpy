@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind state=state
 ##bind subpath=traverse_subpath
-##parameters=referrer
+##parameters=last_referer
 ##title=Go Back
 ##
 SESSION = context.REQUEST.SESSION
@@ -31,7 +31,7 @@ else:
         default='Item edition was cancelled.')
 
 kwargs = {
-    'next_action':'redirect_to:string:%s' % referrer,
+    'next_action':'redirect_to:string:%s' % last_referer,
     'portal_status_message':portal_status_message,
     }
 

@@ -9,7 +9,7 @@
 ##
 REQUEST = context.REQUEST
 # hey, don't forget to increment object number for sessions
-form_data = {'HTTP_REFERER':REQUEST.get('referrer', None)}
+form_data = {'HTTP_REFERER':REQUEST.get('last_referer', None)}
 to_store = [f for f in context.schema.values() if f.type != 'computed']
 for field in to_store:
     fieldname = field.getName()

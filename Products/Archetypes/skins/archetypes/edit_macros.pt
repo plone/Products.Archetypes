@@ -169,9 +169,9 @@
               Store referrer to remember where to go back
             </tal:comment>
             <input type="hidden"
-                   name="referrer"
-                   tal:define="referrer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
-                   tal:attributes="value python:referrer and referrer or here.aq_parent.absolute_url()"
+                   name="last_referer"
+                   tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('HTTP_REFERER', request.get('HTTP_REFERER')))"
+                   tal:attributes="value python:last_referer and last_referer or here.aq_parent.absolute_url()"
                    />
 
             <metal:block define-slot="buttons"
