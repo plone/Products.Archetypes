@@ -24,7 +24,6 @@
 	  <textarea  
 		    tabindex="#"
 		    tal:attributes="name string:$fieldName:lines;
-	    value value;
 	    cols widget/cols;
 	    rows widget/rows;
 	    tabindex tabindex/next;
