@@ -41,27 +41,27 @@
       <metal:field use-macro="here/widgets/field/macros/edit">
 	<metal:slot fill-slot="widget_body">
 	    <tal:from define="id fieldName;
-	      inputname  string:$fieldName:list;
+	      inputname  fieldName;
 	      formname   string:search_form;
-	      inputvalue python: request.get(fieldName + '_from', '');
+	      inputvalue python: min(request.form.get(fieldName, None) or ('1975-05-26',));
 	      tabindex tabindex/next; 
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
 	      tal:omit-tag="">
-	      <metal:box use-macro="here/calendar_support/macros/calendarDatePickerBox">
+	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully
 	      </metal:box>
 	    </tal:from>
 	    -
 	    <tal:to define="id fieldName;
-	      inputname  string:$fieldName:list;
+	      inputname  fieldName;
 	      formname   string:search_form;
-	      inputvalue python: request.get(fieldName + '_to', '');
-	      tabindex tabindex/next; 
+	      inputvalue python:max(request.form.get(fieldName, None) or ('2975-05-26',));
+	      tabindex tabindex/next;
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
 	      tal:omit-tag="">
-	      <metal:box use-macro="here/calendar_support/macros/calendarDatePickerBox">
+	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully
 	      </metal:box>
 	    </tal:to>
