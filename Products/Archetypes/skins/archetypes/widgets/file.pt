@@ -62,7 +62,7 @@
 
     <metal:define define-macro="file_upload">
         <input type="file"
-               size="10"
+               size="11"
                tabindex=""
                tal:attributes="name string:${fieldName}_file;
                                id fieldName;
