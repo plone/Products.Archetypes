@@ -87,7 +87,7 @@ except ImportError:
     print >>sys.stderr, 'Failed to import ZPsycopgDA'
 else:
     ZopeTestCase.installProduct('ZPsycopgDA', 0)
-    connectors['Postgre'] = 'dbname=demo user=root p host=localhost'
+    connectors['Postgre'] = 'dbname=demo user=demo host=gandalf'
 
 # MySQL
 
@@ -99,11 +99,9 @@ else:
     ZopeTestCase.installProduct('ZMySQLDA', 0)
     transactional = 1 # needs INNODB!
     if transactional:
-        #connectors['MySQL'] = '+demo@gandalf demo'
-        connectors['MySQL'] = '+root@localhost sch00l13'
+        connectors['MySQL'] = '+demo@gandalf demo'
     else:
-        #connectors['MySQL'] = '-demo@gandalf demo'
-        connectors['MySQL'] = '-root@localhost sch00l13'
+        connectors['MySQL'] = '-demo@gandalf demo'
         def cleanupMySQL(self):
             instance = self._dummy
             args = {}
@@ -228,7 +226,7 @@ def commonAfterSetUp(self):
     tt.manage_addTypeInformation(
         FactoryTypeInformation.meta_type,
         id = 'Dummy',
-        typeinfo_name = 'CMFDefault: Document (Document)')
+        typeinfo_name = 'CMFDefault: Document')
 
     # set archetype_tool default connection
     at = getToolByName(portal, TOOL_NAME)
@@ -323,13 +321,21 @@ class SQLStorageTest(SQLStorageTestBase):
         self.failUnless(value == 'Bla')
 
     def test_stringfield_bug1003868(self):
-        self.fail('This test fucks up the suite')
-        ##s = unicode('ação!', 'latin1')
-        ##dummy = self._dummy
-        ##dummy.setAstringfield(s)
-        ##value = dummy.getAstringfield()
-        ##__traceback_info__ = (self.db_name, repr(value), s)
-        ##self.failUnless(value == s)
+        s = unicode('ação!', 'latin1')
+        sp = self.portal.portal_properties.site_properties
+        dummy = self._dummy
+
+        sp.default_charset = 'latin1'
+        dummy.setAstringfield(s)
+        value = dummy.getAstringfield()
+        __traceback_info__ = (self.db_name, repr(value), s)
+        self.failUnlessEqual(value, s.encode(sp.default_charset))
+
+        sp.default_charset = 'utf8'
+        dummy.setAstringfield(s)
+        value = dummy.getAstringfield()
+        __traceback_info__ = (self.db_name, repr(value), s)
+        self.failUnlessEqual(value, s.encode(sp.default_charset))
 
     def test_textfield(self):
         dummy = self._dummy
