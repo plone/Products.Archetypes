@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -53,7 +52,6 @@ from Products.Archetypes.refengine.references import Reference
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
-from Products.Archetypes.config import STRING_TYPES
 
 __docformat__ = 'reStructuredText'
 
@@ -124,8 +122,7 @@ class ReferenceField(ObjectField):
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if (not self.multiValued and value and
-            type(value) not in (ListType, TupleType)):
+        if not self.multiValued and value and not isinstance(value, (tuple, list)):
             value = (value,)
 
         if not value:
@@ -134,7 +131,7 @@ class ReferenceField(ObjectField):
         #convertobjects to uids if necessary
         uids=[]
         for v in value:
-            if type(v) in STRING_TYPES:
+            if isinstance(v, basestring):
                 uids.append(v)
             else:
                 uids.append(v.UID())

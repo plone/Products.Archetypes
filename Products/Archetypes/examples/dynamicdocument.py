@@ -25,6 +25,7 @@
 ################################################################################
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('teaser',
@@ -71,4 +72,4 @@ class DDocument(TemplateMixin, BaseContent):
     actions = TemplateMixin.actions
 
 
-registerType(DDocument)
+registerType(DDocument, PKG_NAME)

@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-import string
-
 from Products.Archetypes.fields import *
 from Products.Archetypes.widgets import *
 from Products.Archetypes.schemata import Schema
@@ -577,20 +575,19 @@ class ExtensibleMetadata(Persistence.Persistent):
     def getMetadataHeaders(self):
         """ Return RFC-822-style headers.
         """
-        hdrlist = []
-        hdrlist.append( ( 'Title', self.Title() ) )
-        hdrlist.append( ( 'Subject', string.join( self.Subject(), ', ' ) ) )
-        hdrlist.append( ( 'Publisher', self.Publisher() ) )
-        hdrlist.append( ( 'Description', self.Description() ) )
-        hdrlist.append( ( 'Contributors', string.join(
-            self.Contributors(), '; ' ) ) )
-        hdrlist.append( ( 'Effective_date', self.EffectiveDate() ) )
-        hdrlist.append( ( 'Expiration_date', self.ExpirationDate() ) )
-        hdrlist.append( ( 'Type', self.Type() ) )
-        hdrlist.append( ( 'Format', self.Format() ) )
-        hdrlist.append( ( 'Language', self.Language() ) )
-        hdrlist.append( ( 'Rights', self.Rights() ) )
-        return hdrlist
+        return [
+            ('Title', self.Title()),
+            ('Subject', ', '.join(self.Subject())),
+            ('Publisher', self.Publisher()),
+            ('Description', self.Description()),
+            ('Contributors', '; '.join(self.Contributors())),
+            ('Effective_date', self.EffectiveDate()),
+            ('Expiration_date', self.ExpirationDate()),
+            ('Type', self.Type()),
+            ('Format', self.Format()),
+            ('Language', self.Language()),
+            ('Rights', self.Rights()),
+            ]
 
     #
     #  Management tab methods

@@ -25,6 +25,7 @@
 ################################################################################
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 from DateTime import DateTime
 
 schema = BaseSchema + Schema((
@@ -59,4 +60,4 @@ class Fact(BaseContent):
     schema = schema
 
 
-registerType(Fact)
+registerType(Fact, PKG_NAME)

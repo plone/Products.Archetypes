@@ -25,7 +25,6 @@
 ################################################################################
 
 from __future__ import nested_scopes
-from types import ListType, TupleType, StringType
 
 from Products.Archetypes.storages import MetadataStorage
 from Products.Archetypes.lib.layer import DefaultLayerContainer
@@ -81,7 +80,7 @@ class BasicSchema(Schemata):
         self._props.update(kwargs)
 
         if len(args):
-            if type(args[0]) in [ListType, TupleType]:
+            if isinstance(args[0], (list, tuple)):
                 for field in args[0]:
                     self.addField(field)
             else:

@@ -31,7 +31,7 @@ from random import random, randint
 from time import time
 from inspect import getargs
 from md5 import md5
-from types import TupleType, ListType, StringType, ClassType, IntType, NoneType
+from types import ClassType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -112,19 +112,20 @@ def mapply(method, *args, **kw):
     return method()
 
 
-def getDottedName(klass):
-    """Returns the dotted path to an object
-
-    >>> getDottedName(getDottedName)
-    'Products.Archetypes.lib.utils.getDottedName'
-
+def className(klass):
+    """Returns the dotted path to an object's clsas
     """
     if type(klass) not in [ClassType, ExtensionClass]:
         klass = klass.__class__
     return "%s.%s" % (klass.__module__, klass.__name__)
 
-# XXX b/w compat
-className = getDottedName
+def getDottedName(obj):
+    """XXX
+    """
+    try:
+        return "%s.%s" % (obj.__module__, obj.__name__)
+    except AttributeError:
+        return className(obj)
 
 def getDoc(klass):
     """Return the doc string of an object

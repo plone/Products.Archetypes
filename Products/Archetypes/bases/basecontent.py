@@ -171,7 +171,8 @@ class BaseContentMixin(CatalogMultiplex,
         RESPONSE.setHeader('Content-Type', content_type)
         RESPONSE.setHeader('Content-Length', length)
 
-        if type(data) is type(''): return data
+        if isinstance(data, basestring):
+            return data
 
         while data is not None:
             RESPONSE.write(data.data)

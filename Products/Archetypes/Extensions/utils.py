@@ -26,7 +26,7 @@
 
 import traceback, os
 from os.path import isdir, join
-from types import *
+from types import UnboundMethodType
 
 from Globals import package_home
 from Globals import PersistentMapping
@@ -42,7 +42,8 @@ from Products.Archetypes.lib.register import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
-from Products.Archetypes.config import *
+from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import REFERENCE_CATALOG
 
 from Products.CMFFormController.Extensions.Install \
      import install as install_formcontroller
@@ -294,7 +295,7 @@ def install_indexes(self, out, types):
         for field in cls.schema.fields():
             if field.index:
 
-                if type(field.index) is StringType:
+                if isinstance(field.index, str):
                     index = (field.index,)
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index

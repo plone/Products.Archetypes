@@ -26,7 +26,6 @@
 
 import os
 import sys
-from types import StringType, UnicodeType
 import time
 import urllib
 
@@ -41,7 +40,6 @@ from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.lib.utils import unique
@@ -219,7 +217,7 @@ class ContentReference(ObjectManager, Reference):
 
     def addHook(self, *args, **kw):
         # creates the content instance
-        if type(self.contentType) in (type(''),type(u'')):
+        if isinstance(self.contentType, basestring):
             # type given as string
             tt=getToolByName(self,'portal_types')
             tt.constructContent(self.contentType, self,
@@ -232,7 +230,7 @@ class ContentReference(ObjectManager, Reference):
 
     def delHook(self, *args, **kw):
         # remove the content instance
-        if type(self.contentType) in (type(''),type(u'')):
+        if isinstance(self.contentType, basestring):
             # type given as string
             self._delObject(REFERENCE_CONTENT_INSTANCE_NAME)
         else:

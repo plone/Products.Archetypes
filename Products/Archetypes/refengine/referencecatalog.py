@@ -40,7 +40,6 @@ from Products.Archetypes.refengine.references import Reference
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.exceptions import ReferenceException
@@ -273,17 +272,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     def _uidFor(self, obj):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
-        if type(obj) not in STRING_TYPES:
-            uobject = aq_base(obj)
-            if not self.isReferenceable(uobject):
-                raise ReferenceException, "%r not referenceable" % uobject
-
-            # shasattr() doesn't work here
-            if not getattr(aq_base(uobject), UUID_ATTR, None):
-                uuid = self._getUUIDFor(uobject)
-            else:
-                uuid = getattr(uobject, UUID_ATTR)
-        else:
+        if isinstance(obj, basestring):
             uuid = obj
             obj = None
             #and we look up the object
@@ -293,6 +282,16 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                 res = brain.getObject()
                 if res is not None:
                     obj = res
+        else:
+            uobject = aq_base(obj)
+            if not self.isReferenceable(uobject):
+                raise ReferenceException, "%r not referenceable" % uobject
+
+            # shasattr() doesn't work here
+            if not getattr(aq_base(uobject), UUID_ATTR, None):
+                uuid = self._getUUIDFor(uobject)
+            else:
+                uuid = getattr(uobject, UUID_ATTR)
         return uuid, obj
 
     def _getUUIDFor(self, object):

@@ -31,7 +31,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from types import FunctionType, ListType, TupleType
+from types import FunctionType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.field import IObjectField

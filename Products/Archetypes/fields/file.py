@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -54,8 +53,6 @@ from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.widgets import FileWidget
 from Products.Archetypes.storages import ObjectManagedStorage
 from Products.Archetypes.lib.baseunit import BaseUnit
-from Products.Archetypes.config import STRING_TYPES
-
 __docformat__ = 'reStructuredText'
 
 class FileField(ObjectField):
@@ -95,7 +92,7 @@ class FileField(ObjectField):
             # Pdata is a chain of Pdata objects but we can easily use str()
             # to get the whole string from a chain of Pdata objects
             value = str(value)
-        if type(value) in STRING_TYPES:
+        if isinstance(value, basestring):
             filename = kwargs.get('filename', '')
             if mimetype is None:
                 mimetype, enc = guess_content_type(filename, value, mimetype)

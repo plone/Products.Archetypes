@@ -112,7 +112,7 @@ class BaseFolderMixin(CatalogMultiplex,
     def manage_delObjects(self, ids=[], REQUEST=None):
         """ We need to enforce security. """
         mt=getToolByName(self, 'portal_membership')
-        if type(ids) is str:
+        if isinstance(ids, str):
             ids = [ids]
         for id in ids:
             item = self._getOb(id)

@@ -25,6 +25,7 @@
 ################################################################################
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import fields
 from Products.Archetypes.examples.simpletype import SimpleType
 
@@ -95,4 +96,4 @@ class ComplexType(SimpleType):
         return DisplayList((('Test','Test'),('Test2','Test2'), ))
 
 
-registerType(ComplexType)
+registerType(ComplexType, PKG_NAME)

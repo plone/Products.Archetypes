@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -44,7 +43,7 @@ from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.fields.base import Field
 from Products.Archetypes.fields.base import ObjectField
 from Products.Archetypes.fields.file import FileField
-
+from Products.Archetypes.exceptions import TextFieldException
 # field specific imports
 from types import UnicodeType, StringTypes, FileType
 from Products.Archetypes import config
@@ -58,7 +57,7 @@ __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
-    if type(value) is UnicodeType:
+    if isinstance(value, unicode):
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -72,7 +71,7 @@ def encode(value, instance, **kwargs):
 
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
-    if type(value) is StringType:
+    if isinstance(value, str):
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -152,7 +151,7 @@ class TextField(FileField):
         if IBaseUnit.isImplementedBy(value):
             return value
 
-        if type(value) in StringTypes:
+        if isinstance(value, basestring):
             return value
 
         raise TextFieldException(('Value is not File, String or '
@@ -223,7 +222,7 @@ class TextField(FileField):
 
         value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
-        if type(value) is UnicodeType and encoding is None:
+        if isinstance(value, unicode) and encoding is None:
             kwargs['encoding'] = 'UTF-8'
 
         # fix for external editor support
@@ -272,7 +271,7 @@ class LinesField(ObjectField):
         with rest of properties.
         """
         __traceback_info__ = value, type(value)
-        if type(value) in StringTypes:
+        if isinstance(value, str):
             value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v and v.strip()]

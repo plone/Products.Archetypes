@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -122,7 +121,7 @@ class FixedPointField(ObjectField):
         'precision' : 2,
         'default' : '0.00',
         'widget' : DecimalWidget,
-        'validators' : ('isDecimal'),
+        'validators' : ('isDecimal', ),
         })
 
     security  = ClassSecurityInfo()
@@ -165,7 +164,8 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.getDefault(instance)
-        if type(value) in (StringType,): value = self._to_tuple(instance, value)
+        if isinstance(value, str):
+            value = self._to_tuple(instance, value)
         return template % value
 
     security.declarePrivate('validate_required')

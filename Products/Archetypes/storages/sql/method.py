@@ -24,23 +24,20 @@
 #
 ################################################################################
 
+import sys
+from time import time
+from cStringIO import StringIO
+
 from Products.Archetypes.lib.logging import log_exc
 
 from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
-from cStringIO import StringIO
-import sys, types
+
 from ZODB.POSException import ConflictError
 
-from string import atoi
-from time import time
-
-try:
-    from IOBTree import Bucket
-except:
-    Bucket = lambda:{}
+from IOBTree import Bucket
 
 _defaults = {'max_rows_':1000,
              'cache_time_':0,
@@ -121,12 +118,9 @@ class SQLMethod(Aqueduct.BaseQuery):
         """
         context = self.context
         # paranoid type checking
-        if type(max_rows) is not type(1):
-            max_rows = atoi(max_rows)
-        if type(max_cache) is not type(1):
-            max_cache = atoi(max_cache)
-        if type(cache_time) is not type(1):
-            cache_time = atoi(cache_time)
+        max_rows = int(max_rows)
+        max_cache = int(max_cache)
+        cache_time = int(cache_time)
         class_name = str(class_name)
         class_file = str(class_file)
 
@@ -243,7 +237,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         except AttributeError, KeyError:
             site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
 
-        if type(query) == type(u''):
+        if isinstance(query, unicode):
             if db_encoding:
                 query = query.encode(db_encoding)
             else:
@@ -268,7 +262,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             brain=context._v_sql_brain = getBrain(context.class_file_,
                                                 context.class_name_)
 
-        if type(result) is type(''):
+        if isinstance(result, str):
             f = StringIO()
             f.write(result)
             f.seek(0)
@@ -284,7 +278,7 @@ class SQLMethod(Aqueduct.BaseQuery):
                 for row in result[1]:
                     columns = ()
                     for col in row:
-                        if isinstance(col, types.StringType):
+                        if isinstance(col, str):
                             # coerce column to unicode with database encoding
                             newcol = unicode(col,db_encoding)
                             # Encode column as string with site_encoding

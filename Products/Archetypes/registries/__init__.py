@@ -52,7 +52,7 @@ class FieldDescription:
         default_widget = default_widget or klass._properties.get('widget', None)
         if default_widget is None:
             raise ValueError, '%r Must have a default_widget' % klass
-        if type(default_widget) not in [types.StringType, types.UnicodeType]:
+        if isinstance(default_widget, basestring):
             default_widget = className(default_widget)
         self.default_widget = default_widget
         self.title = title or klass.__name__

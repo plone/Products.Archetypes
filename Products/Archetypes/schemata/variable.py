@@ -26,8 +26,6 @@
 
 import sha
 
-#from Products.Archetypes.fields import *
-#from Products.Archetypes.widgets import *
 from Products.Archetypes.schemata import Schemata
 from Products.Archetypes.schemata import WrappedSchemata
 from Products.Archetypes.lib.classgen import ClassGenerator

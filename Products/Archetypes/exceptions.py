@@ -45,7 +45,7 @@ class SchemaException(Exception):
 class ValidatorError(Exception):
     pass
 
-class UnknowValidatorError(ValidatorError):
+class UnknownValidatorError(ValidatorError):
     pass
 
 class FalseValidatorError(ValidatorError):

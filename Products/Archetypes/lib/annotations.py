@@ -25,7 +25,6 @@
 ################################################################################
 
 from UserDict import DictMixin
-from types import StringType, TupleType
 
 from BTrees.OOBTree import OOBTree
 from  Persistence import Persistent
@@ -84,7 +83,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         return annotations.keys()
 
     def __setitem__(self, key, value):
-        if type(key) is not StringType:
+        if not isinstance(key, basestring):
             raise TypeError('ATAnnotations key must be a string')
         try:
             # XXX do we need an acquisition context?
@@ -127,10 +126,10 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
             obj.get('foo-ham')['egg']
             obj._at_annotations_['foo-ham']['egg']
         """
-        if isinstance(subkeys, StringType):
+        if isinstance(subkeys, basestring):
             k = '%s-%s' % (key, subkeys)
             return self.get(k, default)
-        elif isinstance(subkeys, TupleType):
+        elif isinstance(subkeys, (tuple, list)):
             if len(subkeys) != 2:
                 raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
@@ -145,12 +144,12 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     def setSubkey(self, key, value, subkeys=()):
         """Stores data using a key and one to multiple subkeys
         """
-        if isinstance(subkeys, StringType):
+        if isinstance(subkeys, basestring):
             k = '%s-%s' % (key, subkeys)
             if isinstance(self.get(k, None), OOBTree):
                 raise KeyError('Key %s is already in use as OOBTree' % k)
             self[k] = value
-        elif isinstance(subkeys, TupleType):
+        elif isinstance(subkeys, (tuple, list)):
             if len(subkeys) != 2:
                 raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
@@ -169,10 +168,10 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     def delSubkey(self, key, subkeys=()):
         """Removes a subkey
         """
-        if isinstance(subkeys, StringType):
+        if isinstance(subkeys, basestring):
             k = '%s-%s' % (key, subkeys)
             del self[k]
-        elif isinstance(subkeys, TupleType):
+        elif isinstance(subkeys, (tuple, list)):
             if len(subkeys) != 2:
                 raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])
@@ -184,10 +183,10 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
     def hasSubkey(self, key, subkeys=()):
         """
         """
-        if isinstance(subkeys, StringType):
+        if isinstance(subkeys, basestring):
             k = '%s-%s' % (key, subkeys)
             return self.has_key(k)
-        elif isinstance(subkeys, TupleType):
+        elif isinstance(subkeys, (tuple, list)):
             if len(subkeys) != 2:
                 raise KeyError('Subkeys tuple must have exactly two elements')
             k = '%s-%s' % (key, subkeys[0])

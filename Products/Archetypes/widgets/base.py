@@ -25,7 +25,6 @@
 ################################################################################
 
 from copy import deepcopy
-from types import DictType
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -226,7 +225,7 @@ class TypesWidget(MacroWidget, Base):
         state = 'visible'
         if vis_dic is _marker:
             return state
-        if type(vis_dic) is DictType:
+        if isinstance(vis_dic, dict):
             state = vis_dic.get(mode, state)
         elif not vis_dic:
             state = 'invisible'

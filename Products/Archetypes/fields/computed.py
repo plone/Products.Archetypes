@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base

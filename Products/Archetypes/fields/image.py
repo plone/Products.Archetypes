@@ -25,7 +25,6 @@
 ################################################################################
 
 # common imports
-from types import StringType
 from cStringIO import StringIO
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -187,8 +186,6 @@ class ImageField(FileField):
         value, mimetype, filename = self._process_input(value,
                                                       default=self.getDefault(instance),
                                                       **kwargs)
-        #print type(value), mimetype, filename
-
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 
@@ -241,13 +238,13 @@ class ImageField(FileField):
             A callable
         """
         sizes = self.sizes
-        if type(sizes) is DictType:
+        if isinstance(sizes, dict):
             return sizes
-        elif type(sizes) is StringType:
+        elif isinstance(sizes, basestring):
             assert(shasattr(instance, sizes))
             method = getattr(instances, sizes)
             data = method()
-            assert(type(data) is DictType)
+            assert(isinstance(data, dict))
             return data
         elif callable(sizes):
             return sizes()
@@ -752,7 +749,7 @@ class PhotoField(ObjectField):
 
     security.declarePrivate('set')
     def set(self, instance, value, **kw):
-        if type(value) is StringType:
+        if isinstance(value, str):
             value = StringIO(value)
         image = ScalableImage(self.getName(), file=value,
                               displays=self.displays)

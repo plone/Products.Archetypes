@@ -35,8 +35,8 @@ $Id$
 """
 
 from time import time
-from types import StringType, DictType
 from threading import Lock
+from types import StringType
 
 from Products.Archetypes.storages import Storage
 from Products.Archetypes.registries import Registry
@@ -100,7 +100,7 @@ class AggregatedStorage(Storage):
             raise KeyError('Aggregator "%s" for field "%s" not found' %
                            (methodname, name))
         result = method(name, instance, **kwargs)
-        if not isinstance(result, DictType):
+        if not isinstance(result, dict):
             raise TypeError('Result returned from an aggregator must be '
                             'DictType.')
         return result[name]
@@ -116,7 +116,7 @@ class AggregatedStorage(Storage):
                 raise KeyError('Aggregator "%s" for field "%s" not found' %
                                (methodname, name))
             result = method(name, instance, **kwargs)
-            if not isinstance(result, DictType):
+            if not isinstance(result, dict):
                 raise TypeError('Result returned from an aggregator must be '
                                 'DictType')
 

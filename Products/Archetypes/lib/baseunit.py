@@ -24,11 +24,9 @@
 #
 ################################################################################
 
-from types import StringType
 import os.path
 
 from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.config import *
 from Products.Archetypes.lib.logging import log, ERROR
 
 from AccessControl import ClassSecurityInfo
@@ -79,7 +77,7 @@ class BaseUnit(File):
         self.mimetype = str(mimetype)
         self.binary = mimetype.binary
         if not self.isBinary():
-            assert type(data) is type(u'')
+            assert isinstance(data, unicode)
             if encoding is None:
                 try:
                     encoding = adapter.guess_encoding(data)
@@ -180,7 +178,7 @@ class BaseUnit(File):
             return self.raw
         # FIXME: backward compat, non binary data
         # should always be stored as unicode
-        if not type(self.raw) is type(u''):
+        if not isinstance(self.raw, unicode):
             return self.raw
         if encoding is None:
             if instance is None:
@@ -232,7 +230,7 @@ class BaseUnit(File):
     def setFilename(self, filename):
         """Set the file name.
         """
-        if type(filename) is StringType:
+        if isinstance(filename, basestring):
             filename = os.path.basename(filename)
             self.filename = filename.split("\\")[-1]
         else:

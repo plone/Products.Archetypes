@@ -29,12 +29,13 @@
 __author__ = 'Christian Heimes'
 
 from Interface import Interface
-from Interface.IInterface import IInterface
+#from Interface.IInterface import IInterface
 from Products.Archetypes.interfaces.registry import IRegistry
 from Products.Archetypes.interfaces.registry import IRegistryMultiplexer
 from Products.Archetypes.interfaces.registry import IRegistryEntry
 from Products.Archetypes.lib.utils import getDottedName
 
+_marker = object()
 
 class RegistryEntry(object):
     """See IRegistryEntry
@@ -114,11 +115,17 @@ class RegistryEntry(object):
         if not iface.isImplementedByInstancesOf(cls):
             raise ValueError, "%s does not implement %s" % (cls, getDottedName(iface))
 
-    def __getattr__(self, key, default=None):
+    def __getattr__(self, key, default=_marker):
         try:
             return self._data[key]
         except KeyError:
-            object.__getattr__(self, key, default)
+            try:
+                return object.__getattribute__(self, key)
+            except AttributeError:
+                if default is not _marker:
+                    return marker
+                else:
+                    raise
 
     def process(self, **kw):
         return kw
@@ -222,8 +229,8 @@ class RegistryMultiplexer(dict):
     __implements__ = IRegistryMultiplexer
 
     def __setitem__(self, key, value):
-        if not IInterface.isImplementedBy(key):
-            raise KeyError, 'Key must be an interface, got %s(%s)' % (key, type(key))
+        #if not IInterface.isImplementedBy(key):
+        #    raise KeyError, 'Key must be an interface, got %s(%s)' % (key, type(key))
         if not IRegistry.isImplementedBy(value):
             raise ValueError, 'Value must be an IRegistry based instance'
         dict.__setitem__(self, key, value)

@@ -25,7 +25,6 @@
 ################################################################################
 
 import re
-from types import StringType
 from types import FileType
 
 from Products.Archetypes.interfaces.validation import IValidator
@@ -58,7 +57,7 @@ class RangeValidator:
             return ("Validation failed(%(name)s): could not convert '%(value)r' to number" %
                     { 'name' : self.name, 'value': value})
         if min <= nval < max:
-            return 1
+            return True
 
         return ("Validation failed(%(name)s): '%(value)s' out of range(%(min)s, %(max)s)" %
                 { 'name' : self.name, 'value': value, 'min' : min, 'max' : max,})
@@ -99,7 +98,7 @@ class RegexValidator:
         self.compileRegex()
 
     def __call__(self, value, *args, **kwargs):
-        if type(value) != StringType:
+        if not isinstance(value, str):
             return ("Validation failed(%(name)s): %(value)s of type %(type)s, expected 'string'" %
                     { 'name' : self.name, 'value': value, 'type' : type(value)})
 
@@ -115,7 +114,7 @@ class RegexValidator:
             if not m:
                 return ("Validation failed(%(name)s): '%(value)s' %(errmsg)s' " %
                         { 'name' : self.name, 'value': value, 'errmsg' : self.errmsg})
-        return 1
+        return True
 
 # ****************************************************************************
 
@@ -261,4 +260,4 @@ class TALValidator:
             parser.parseString(value)
         except Exception, err:
             return ("Validation Failed(%s): \n %s" % (self.name, err))
-        return 1
+        return True

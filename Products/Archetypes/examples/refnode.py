@@ -25,6 +25,7 @@
 ################################################################################
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     ReferenceField('link',
@@ -51,4 +52,4 @@ class Refnode(BaseContent):
     """A simple archetype for testing references. It can point to itself"""
     schema = schema
 
-registerType(Refnode)
+registerType(Refnode, PKG_NAME)

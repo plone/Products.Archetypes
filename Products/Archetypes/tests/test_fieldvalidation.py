@@ -51,7 +51,7 @@ class MyValidator:
 # never validates
 validationService.register(MyValidator('v1', lambda val:val))
 # always validates
-validationService.register(MyValidator('v2', lambda val:1))
+validationService.register(MyValidator('v2', lambda val:True))
 # never validates
 validationService.register(MyValidator('v3', lambda val:[]))
 
@@ -131,8 +131,10 @@ class TestValidation(ArchetypesTestCase):
         # attach a validator that never validates, so any value must fail
         field = IntegerField('integer', validators=('v3',))
 
-        self.assert_(field.validate(1, self.instance, errors={}) is not None)
-        self.assert_(field.validate(0, self.instance, errors={}) is not None)
+        result = field.validate(1, self.instance, errors={})
+        self.assert_(result is not None, repr(result))
+        result = field.validate(0, self.instance, errors={})
+        self.assert_(result is not None, repr(result))
 
 
 def test_suite():

@@ -29,7 +29,6 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType
 from DateTime import DateTime
 from StringIO import StringIO
 
@@ -165,10 +164,10 @@ def fixActionsForType(portal_type, typesTool):
                     # Change action and condition into expressions, if
                     # they are still strings
                     if action.has_key('action') and \
-                           type(action['action']) in (type(''), type(u'')):
+                      isinstance(action['action'], basestring):
                         action['action'] = Expression(action['action'])
                     if action.has_key('condition') and \
-                           type(action['condition']) in (type(''), type(u'')):
+                           isinstance(action['condition'], basestring):
                         action['condition'] = Expression(action['condition'])
                     if hits:
                         hits[0].__dict__.update(action)

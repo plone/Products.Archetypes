@@ -29,7 +29,6 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType
 from DateTime import DateTime
 from StringIO import StringIO
 
@@ -227,7 +226,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         Returns a DisplayList.
         """
         results = []
-        if type(instance) is not StringType:
+        if isinstance(instance, basestring):
             instance = instance.meta_type
         try:
             templates = self._templates[instance]

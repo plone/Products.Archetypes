@@ -28,7 +28,6 @@ from Products.Archetypes.lib.annotations import ATAnnotatableMixin
 from Products.Archetypes.lib.logging import log_exc, log
 from Products.Archetypes.fields import StringField
 from Products.Archetypes.fields import TextField
-from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.config import DEFAULT_MARSHALLER
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit
@@ -57,11 +56,6 @@ from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 from ComputedAttribute import ComputedAttribute
-
-from types import TupleType
-from types import ListType
-from types import UnicodeType
-
 from ZPublisher import xmlrpc
 
 _marker = []
@@ -524,22 +518,19 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
                     continue
 
             if datum:
-                type_datum = type(datum)
                 vocab = field.Vocabulary(self)
-                if type_datum is ListType or type_datum is TupleType:
+                if isinstance(datum, (list, tuple)):
                     # Unmangle vocabulary: we index key AND value
                     vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
                     datum = list(datum)
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
-                elif type_datum in STRING_TYPES:
-                    if type_datum is UnicodeType:
+                elif isinstance(datum, basestring):
+                    if isinstance(datum, unicode):
                         datum = datum.encode(charset)
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
-                # FIXME: we really need an unicode policy !
-                type_datum = type(datum)
-                if type_datum is UnicodeType:
+                if isinstance(datum, unicode):
                     datum = datum.encode(charset)
                 data.append(str(datum))
 

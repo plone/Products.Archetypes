@@ -26,7 +26,7 @@
 
 # common imports
 import sys
-from types import ClassType, DictType, TupleType, ListType, StringType
+from types import ClassType
 from copy import deepcopy
 from cStringIO import StringIO
 
@@ -41,6 +41,8 @@ from OFS.content_types import guess_content_type
 from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes.validation import ValidationChain
 from Products.Archetypes.interfaces.validation import IValidator, IValidationChain
+from Products.Archetypes.exceptions import UnknownValidatorError
+from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.registries import registerField
 from Products.Archetypes.registries import registerPropertyType
 from Products.Archetypes.storages import AttributeStorage
@@ -60,7 +62,7 @@ from Products.Archetypes.registries import setSecurity
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.utils import className
-from Products.Archetypes.config import STRING_TYPES
+from Products.Archetypes.lib.logging import log
 
 __docformat__ = 'reStructuredText'
 
@@ -191,18 +193,18 @@ class Field(DefaultLayerContainer):
         """
         chainname = 'Validator_%s' % self.getName()
 
-        if type(self.validators) is DictType:
+        if isinstance(self.validators, dict):
             raise NotImplementedError, 'Please use the new syntax with validation chains'
         elif IValidationChain.isImplementedBy(self.validators):
             validators = self.validators
         elif IValidator.isImplementedBy(self.validators):
             validators = ValidationChain(chainname, validators=self.validators)
-        elif type(self.validators) in (TupleType, ListType, StringType):
+        elif isinstance(self.validators, (tuple, list, str)):
             if len(self.validators):
                 # got a non empty list or string - create a chain
                 try:
                     validators = ValidationChain(chainname, validators=self.validators)
-                except (UnknowValidatorError, FalseValidatorError), msg:
+                except (UnknownValidatorError, FalseValidatorError), msg:
                     log("WARNING: Disabling validation for %s: %s" % (self.getName(), msg))
                     validators = ()
             else:
@@ -294,9 +296,9 @@ class Field(DefaultLayerContainer):
         if value:
             # coerce value into a list called values
             values = value
-            if type(value) in STRING_TYPES:
+            if isinstance(value, basestring):
                 values = [value]
-            elif type(value) not in (TupleType, ListType):
+            elif not isinstance(value, (tuple, list)):
                 raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
             # filter empty
@@ -305,9 +307,9 @@ class Field(DefaultLayerContainer):
             # extract valid values from vocabulary
             valids = []
             for v in vocab:
-                if type(v) in (TupleType, ListType):
+                if isinstance(v, (tuple, list)):
                     v = v[0]
-                if not type(v) in STRING_TYPES:
+                if not isinstance(v, basestring):
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -365,7 +367,7 @@ class Field(DefaultLayerContainer):
 
         value = self.vocabulary
         if not isinstance(value, DisplayList):
-            if content_instance is not None and type(value) in STRING_TYPES:
+            if content_instance is not None and isinstance(value, basestring):
                 # Dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
@@ -385,14 +387,14 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
-            elif type(sample) in (TupleType, ListType):
+            elif isinstance(sample, (tuple, list)):
                 # Assume we have ((value, display), ...)
                 # and if not ('', '', '', ...)
-                if sample and type(sample[0]) not in (TupleType, ListType):
+                if sample and not isinstance(sample[0], (tuple, list)):
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
-            elif len(sample) and type(sample[0]) is StringType:
+            elif len(sample) and isinstance(sample[0], basestring):
                 value = DisplayList(zip(value, value))
             else:
                 log('Unhandled type in Vocab')
@@ -462,7 +464,7 @@ class Field(DefaultLayerContainer):
         field"""
         dm = self.default_method
         if dm:
-            if type(dm) is StringType and shasattr(instance, dm):
+            if isinstance(dm, str) and shasattr(instance, dm):
                 method = getattr(instance, dm)
                 return method()
             elif callable(dm):

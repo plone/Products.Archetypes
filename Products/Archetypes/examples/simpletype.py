@@ -25,6 +25,7 @@
 ################################################################################
 
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('body',
@@ -44,4 +45,4 @@ class SimpleType(BaseContent):
     """A simple archetype"""
     schema = schema
 
-registerType(SimpleType)
+registerType(SimpleType, PKG_NAME)

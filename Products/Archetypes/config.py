@@ -73,7 +73,7 @@ else:
 HAS_GRAPHVIZ = False
 
 ## backward compatibility:
-from types import StringTypes as STRING_TYPES
+#from types import StringTypes as STRING_TYPES
 
 ## detect Python Imaging Libraries
 try:

@@ -26,7 +26,6 @@
 
 import os
 import sys
-from types import StringType, UnicodeType
 import time
 import urllib
 

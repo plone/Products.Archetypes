@@ -23,15 +23,13 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-
 """
 """
-from types import StringType, TupleType, ListType, UnicodeType
 
 from Products.Archetypes.interfaces.validation import IValidator
 from Products.Archetypes.interfaces.validation import IValidationChain
 from Products.Archetypes.validation.service import validationService
-from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import UnknownValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
 
@@ -54,10 +52,10 @@ class ValidationChain:
         self._v_mode = []
         self._chain = []
 
-        if type(validators) not in (TupleType, ListType):
+        if not isinstance(validators, (tuple, list)):
             validators = (validators, )
         for validator in validators:
-            if type(validator) in (TupleType, ListType):
+            if isinstance(validator, (tuple, list)):
                 self.append(validator[0], validator[1])
             else:
                 self.appendRequired(validator)
@@ -163,7 +161,7 @@ class ValidationChain:
         for validator, mode in self:
             name = validator.name
             result = validator(value, *args, **kwargs)
-            if result == True:
+            if result is True or result == 1: # XXX b/w compatibility
                 if mode == V_SUFFICIENT:
                     return True # validation was successful
                 elif mode == V_REQUIRED:
@@ -172,12 +170,12 @@ class ValidationChain:
                     raise ValidatorError, 'Unknown mode %s' % mode
             else:
                 if mode == V_SUFFICIENT:
-                    if type(result) in StringTypes:
+                    if isinstance(result, str):
                         # don't log if validator doesn't return an error msg
                         results[name] = result
                     continue # no fatal error, go on
                 elif mode == V_REQUIRED:
-                    if type(result) in StringTypes:
+                    if isinstance(result, str):
                         # don't log if validator doesn't return an error msg
                         results[name] = result
                     failed = True
@@ -207,7 +205,7 @@ def test():
     assert(v is isEmptyURL)
     assert(v('http://www.example.org') is True)
     assert(v('') is True)
-    assert(type(v('www.example.org')) is StringType) # error
+    assert(isinstance(v('www.example.org'), basestring)) # error
 
     isIntOrEmpty = ValidationChain('isIntOrEmpty')
     isIntOrEmpty.appendSufficient('isEmpty')
@@ -220,8 +218,8 @@ def test():
     assert(v is isIntOrEmpty)
     assert(v('') is True)
     assert(v('1') is True)
-    assert(type(v('-1')) is StringType) # error
-    assert(type(v('a')) is StringType) # error
+    assert(isinstance(v('-1'), basestring)) # error
+    assert(isinstance(v('a'), basestring)) # error
 
 test()
 

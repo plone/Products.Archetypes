@@ -24,11 +24,10 @@
 #
 ################################################################################
 
-from types import StringType
 
 from Products.Archetypes.interfaces.validation import IValidationService
 from Products.Archetypes.interfaces.validation import IValidator
-from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import UnknownValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
 
@@ -49,11 +48,11 @@ class Service:
     __call__ = validate
 
     def validatorFor(self, name_or_validator):
-        if type(name_or_validator) is StringType:
+        if isinstance(name_or_validator, str):
             try:
                 return self._validator[name_or_validator]
             except KeyError:
-                raise UnknowValidatorError, name_or_validator
+                raise UnknownValidatorError, name_or_validator
         elif IValidator.isImplementedBy(name_or_validator):
             return name_or_validator
         else:
@@ -78,7 +77,7 @@ class Service:
         return [v for k, v in self.items()]
 
     def unregister(self, name_or_validator):
-        if type(name_or_validator) is StringType:
+        if isinstance(name_or_validator, str):
             name = name_or_validator
         elif IValidator.isImplementedBy(name_or_validator):
             name = name_or_validator.name

@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-from types import StringType
-
 from Products.Archetypes.bases.basefolder import BaseFolder
 from Products.Archetypes.bases.extensiblemetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
@@ -93,7 +91,7 @@ class OrderedContainer:
         XXX zope 2.7 has a new argument subset_ids which isn't handled by this
         implementation
         """
-        if type(ids) is StringType:
+        if isinstance(ids, string):
             ids = (ids,)
         min_position = 0
         #objects = list(self._objects)

@@ -32,13 +32,14 @@ from Products.Archetypes.registry.base import registerRegistry
 from Products.Archetypes.registry.base import Registry
 from Products.Archetypes.registry.base import RegistryEntry
 from Interface.IInterface import IInterface
+from types import NoneType
 
 class PropertyEntry(RegistryEntry):
     __used_for__ = IInterface
 
     def _checkCls(self, cls):
         iface = self.__used_for__
-        if isinstance(cls, type):
+        if isinstance(cls, (basestring, int, long, float, bool, NoneType)):
             return
         if iface.isImplementedByInstancesOf(cls):
             return
@@ -48,5 +49,5 @@ class PropertyRegistry(Registry):
     _entry_class = PropertyEntry
 
 propertyRegistry = PropertyRegistry()
-registerRegistry(PropertyRegistry)
+#registerRegistry(PropertyRegistry)
 registerProperty = propertyRegistry.register

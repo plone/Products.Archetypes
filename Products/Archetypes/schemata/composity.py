@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-from types import ListType, TupleType
-
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import Implicit
@@ -68,7 +66,7 @@ class CompositeSchema(Implicit):
 
     def addSchemas(self, schemas):
         """Append to the underlying schemas"""
-        if type(schemas) not in [ListType, TupleType]:
+        if not isinstance(schemas, (list, tuple)):
             schemas = (schemas, )
 
         for schema in schemas:

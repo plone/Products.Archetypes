@@ -25,7 +25,7 @@
 ################################################################################
 
 
-from types import DictType, FileType, ListType
+from types import FileType
 
 from Products.CMFCore.utils import getToolByName
 
@@ -113,7 +113,7 @@ class ReferenceWidget(TypesWidget):
 
         # first, discover who can contain the type
         if destination_types is not None:
-            if type(destination_types) in (type(()), type([])):
+            if isinstance(destination_types, (tuple, list)):
                 searchFor += list(destination_types[:])
             else:
                 searchFor.append(destination_types)

@@ -29,7 +29,6 @@ import os
 import sys
 import traceback
 import pprint
-from types import StringType
 from zLOG import LOG, INFO, ERROR
 import warnings
 
@@ -82,7 +81,7 @@ class Log:
         if self.fp is not None and not self.fp.closed:
             return self.fp
 
-        if type(self.target) is StringType:
+        if isinstance(self.target, basestring):
             fp = open(self.target, "a+")
             self.closeable = 1
         else:

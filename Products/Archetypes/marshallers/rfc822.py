@@ -24,7 +24,6 @@
 #
 ################################################################################
 
-from types import ListType, TupleType
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from OFS.content_types import guess_content_type
@@ -80,7 +79,7 @@ class RFC822Marshaller(Marshaller):
                   if f.getName() != pname]
         for field in fields:
             value = instance[field.getName()]
-            if type(value) in [ListType, TupleType]:
+            if isinstance(value, (tuple, list)):
                 value = '\n'.join([str(v) for v in value])
             headers.append((field.getName(), str(value)))
 

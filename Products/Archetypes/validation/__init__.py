@@ -31,7 +31,7 @@ from Products.Archetypes.validation.chain import ValidationChain
 from Products.Archetypes.validation.chain import V_REQUIRED
 from Products.Archetypes.validation.chain import V_SUFFICIENT
 
-from Products.Archetypes.exceptions import UnknowValidatorError
+from Products.Archetypes.exceptions import UnknownValidatorError
 from Products.Archetypes.exceptions import FalseValidatorError
 from Products.Archetypes.exceptions import AlreadyRegisteredValidatorError
 

@@ -205,7 +205,7 @@ class SQLStorageConfig (SimpleItem):
             the portal_type.
         """
         cbt = self._conn_by_type
-        if type(ob) == type(''):
+        if isinstance(ob, basestring):
             pt = ob
         elif hasattr(aq_base(ob), '_getPortalTypeName'):
             pt = ob._getPortalTypeName()

@@ -24,7 +24,8 @@
 #
 ################################################################################
 
-from Products.Archetypes.config import *
+from Products.Archetypes.config import INSTALL_DEMO_TYPES
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.Extensions.utils import installTypes
 from Products.Archetypes.Extensions.utils import setupEnvironment

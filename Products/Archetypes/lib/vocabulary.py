@@ -31,8 +31,6 @@ from random import random, randint
 from time import time
 from inspect import getargs
 from md5 import md5
-from types import TupleType, ListType, ClassType, IntType, NoneType
-from types import UnicodeType, StringType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -71,7 +69,7 @@ class DisplayList:
 
     def fromList(self, lst):
         for item in lst:
-            if isinstance(item, ListType):
+            if isinstance(item, (tuple, list)):
                 item = tuple(item)
             self.add(*item)
 
@@ -96,10 +94,10 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, (basestring, int)):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(msgid) not in (StringType, NoneType):
+        if not (msgid is None or isinstance(msgid, str)):
             raise TypeError('DisplayList msg ids must be strings, got %s' %
                             type(msgid))
         self.index +=1
@@ -123,7 +121,7 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, (basestring, int)):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
@@ -135,7 +133,7 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) is not StringType:
+        if not isinstance(key, str):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         if self._i18n_msgids.has_key(key):
@@ -221,7 +219,7 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, (basestring, int)):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)

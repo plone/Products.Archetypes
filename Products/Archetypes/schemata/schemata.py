@@ -25,7 +25,6 @@
 ################################################################################
 
 from __future__ import nested_scopes
-from types import ListType, TupleType, StringType
 import warnings
 
 from Products.Archetypes.storages import MetadataStorage
@@ -89,7 +88,7 @@ class Schemata(Base):
         self._fields = {}
 
         if fields is not None:
-            if type(fields) not in [ListType, TupleType]:
+            if not isinstance(fields, (tuple, list)):
                 fields = (fields, )
 
             for field in fields:
@@ -232,7 +231,7 @@ class Schemata(Base):
         # Do not allowed unqualified references
         if field.type in ('reference', ):
             relationship = getattr(field, 'relationship', '')
-            if type(relationship) is not StringType or len(relationship) == 0:
+            if not isinstance(relationship, basestring) or len(relationship) == 0:
                 raise ReferenceException("Unqualified relationship or "\
                           "unsupported relationship var type in field '%s'. "\
                           "The relationship qualifer must be a non empty "\

@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-from Products.Archetypes.config import *
+from Products.Archetypes.config import TOOL_NAME
 
 from Globals import InitializeClass
 from Acquisition import aq_base

@@ -39,8 +39,6 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.lib.baseunit import BaseUnit
 
-from types import StringType
-
 class DummyDiscussionTool:
     def isDiscussionAllowedFor( self, content ):
         return False
@@ -96,7 +94,7 @@ class BaseObjectTest(ArcheSiteTestCase):
         searchable = dummy.SearchableText()
 
         # Test searchable type
-        self.assertEquals(type(searchable), StringType)
+        self.failUnless(isinstance(searchable, str), type(searchable))
 
         # Test searchable value
         self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')

@@ -182,7 +182,7 @@ class RemainingState(RemainingBase):
 
         for k in dict.keys():
             v=dict[k]
-            if type(v) == type({}) or ec_isinstance(v,PersistentMapping):
+            if isinstance(v, dict) or ec_isinstance(v,PersistentMapping):
                 v1=self.cleanDictCopy(v)
             elif ec_isinstance(v,BaseUnit):
                 v1=v.getRaw()

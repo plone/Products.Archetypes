@@ -31,7 +31,6 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from types import TupleType
 
 from Interface.Implements import getImplementsOfInstances, \
     getImplements, flattenInterfaces
@@ -121,7 +120,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def getImplementsOfInstanceOf(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
         impl = getImplementsOfInstances(klass)
-        if type(impl) is not TupleType:
+        if not isinstance(impl, tuple):
             impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
@@ -129,14 +128,14 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def getImplementsOf(self, instance):
         """ returns the interfaces implemented by the instance (flat)"""
         impl = getImplements(instance)
-        if type(impl) is not TupleType:
+        if not isinstance(impl, tuple):
             impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
 
     def doesImplementByInstanceOf(self, klass, interfaces):
         """ make shure that the klass implements at least these interfaces"""
-        if type(interfaces) is not TupleType:
+        if not isinstance(interfaces, tuple):
             interfaces = (interfaces)
         impl = self.getImplementsOfInstanceOf(klass)
         for interface in interfaces:
@@ -144,7 +143,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 
     def doesImplementBy(self, instance, interfaces):
         """ make shure that the klass implements at least these interfaces"""
-        if type(interfaces) is not TupleType:
+        if not isinstance(interfaces, tuple):
             interfaces = (interfaces)
         impl = self.getImplementsOf(instance)
         for interface in interfaces:
