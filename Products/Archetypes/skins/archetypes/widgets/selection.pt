@@ -35,7 +35,7 @@
 		value python:str(item);
 		tabindex tabindex/next;"
 		/><span tal:content="python: vocab.getValue(item)"/>
-		&nbsp;
+		<br />
 		</span>
 		
 	  </div>
