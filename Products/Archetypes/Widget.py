@@ -74,7 +74,6 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
-        'use_wysiwyg':0
         })
 
 class LinesWidget(TypesWidget):
@@ -156,9 +155,20 @@ class PasswordWidget(TypesWidget):
         'postback' : 0,
         })
 
+class VisualWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/visual",
+        'rows'  : 25,      #rows of TextArea if VE is not available
+        'cols'  : 80,      #same for cols
+        'width' : '507px', #width of VE frame (if VE is avalilable)
+        'height': '400px' ,#same for height
+        'format': 0,
+        })
+
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
-           'PasswordWidget',)
+           'PasswordWidget', 'VisualWidget')
