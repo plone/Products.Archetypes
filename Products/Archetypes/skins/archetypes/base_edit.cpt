@@ -1,18 +1,18 @@
-<tal:block define="errors options/state/getErrors|nothing;
-                     Iterator python:modules['Products.Archetypes'].IndexIterator;
-                     tabindex python:Iterator();
-                     schematas here/Schemata;
-                     fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
-                     default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
-                     fieldset request/fieldset|options/fieldset|default_fieldset;
-                     fields python:schematas[fieldset].fields();
-                     portal_type python:here.getPortalTypeName().lower();
-                     base_macros here/edit_macros/macros;
-                     edit_template python:'%s_edit' % portal_type;
-                     edit_macros python:path('here/%s/macros|nothing' % edit_template);
-                     header_macro edit_macros/header|header_macro|base_macros/header;
-                     body_macro edit_macros/body|body_macro|base_macros/body;
-                     footer_macro edit_macros/footer|footer_macro|base_macros/footer;">
+<tal:block define="errors options/state/getErrors | nothing;
+                   Iterator python:modules['Products.Archetypes'].IndexIterator;
+                   tabindex python:Iterator();
+                   schematas here/Schemata;
+                   fieldsets python:[key for key in schematas.keys() if key != 'metadata'];
+                   default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
+                   fieldset request/fieldset|options/fieldset|default_fieldset;
+                   fields python:schematas[fieldset].fields();
+                   portal_type python:here.getPortalTypeName().lower();
+                   base_macros here/edit_macros/macros;
+                   edit_template python:'%s_edit' % portal_type;
+                   edit_macros python:path('here/%s/macros | nothing' % edit_template);
+                   header_macro edit_macros/header | header_macro | base_macros/header;
+                   body_macro edit_macros/body | body_macro | base_macros/body;
+                   footer_macro edit_macros/footer | footer_macro | base_macros/footer;">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="en"
@@ -30,36 +30,34 @@
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
-  <tal:block condition="css"
-             repeat="item css">
-    <style type="text/css" media="all"
-           tal:condition="python:exists('portal/%s' % item)"
-           tal:content="string:@import url($portal_url/$item);">
-    </style>
-  </tal:block>
-  <tal:block condition="js"
-             repeat="item js">
-    <script type="text/javascript" charset="iso-8859-1"
-            tal:condition="python:exists('portal/%s' % item)"
-            tal:attributes="src string:$portal_url/$item">
-    </script>
-  </tal:block>
+    <tal:block condition="css"
+               repeat="item css">
+      <style type="text/css" media="all"
+             tal:condition="python:exists('portal/%s' % item)"
+             tal:content="string:@import url($portal_url/$item);">
+      </style>
+    </tal:block>
+    <tal:block condition="js"
+               repeat="item js">
+      <script type="text/javascript" charset="iso-8859-1"
+              tal:condition="python:exists('portal/%s' % item)"
+              tal:attributes="src string:$portal_url/$item">
+      </script>
+    </tal:block>
   </metal:block>
 
   <body>
 
     <div metal:fill-slot="main">
-      <div metal:define-macro="main"
-           tal:omit-tag="">
-
+      <metal:main define-macro="main">
         <metal:use_header use-macro="header_macro" />
-        <div>
-          <metal:use_body use-macro="body_macro" />
-        </div>
-        <metal:block use-macro="footer_macro" />
-      </div>
+        <metal:use_body use-macro="body_macro" />
+        <metal:use_footer use-macro="footer_macro" />
+      </metal:main>
     </div>
 
   </body>
+
 </html>
+
 </tal:block>
