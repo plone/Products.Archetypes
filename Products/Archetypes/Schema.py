@@ -288,8 +288,12 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
             # if no REQUEST, validate existing value
             else:
-                accessor = getattr(instance, field.accessor)
-                value = accessor()
+                accessor = field.getAccessor(instance)
+                if accessor is not None:
+                    value = accessor()
+                else:
+                    # can't get value to validate -- bail
+                    break
 
             #REQUIRED CHECK
             if field.required == 1:
@@ -425,6 +429,22 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
                 if not queued((layer, object)) and ILayer.isImplementedBy(object):
                     object.cleanupInstance(instance, item, container)
                     queuedLayers.append((layer, object))
+
+    # Utility method for converting a Schema to a string for the purpose of
+    # comparing schema.  This comparison is used for determining whether a
+    # schema has changed in the auto update function.  Right now it's pretty
+    # crude.  XXX fixme
+    def toString(self):
+        s = '%s: {' % self.__class__.__name__
+        for f in self.fields():
+            s = s + '%s,' % (f.toString())
+        s = s + '}'
+        return s
+    
+    def signature(self):
+        from md5 import md5
+        return md5(self.toString()).digest()
+
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

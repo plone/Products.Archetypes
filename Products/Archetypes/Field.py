@@ -181,7 +181,7 @@ class Field(DefaultLayerContainer):
         
     security.declarePrivate('getAccessor')
     def getAccessor(self, instance):
-        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
+#        log('%s -> %s (%r)' % (self.__name__, self.accessor, instance))
         return getattr(instance, self.accessor, None)
 
     security.declarePrivate('getEditAccessor')
@@ -195,6 +195,19 @@ class Field(DefaultLayerContainer):
     def hasI18NContent(self):
         """return true it the field has I18N content"""
         return 0
+
+    # Utility method for converting a Field to a string for the purpose of
+    # comparing fields.  This comparison is used for determining whether a
+    # schema has changed in the auto update function.  Right now it's pretty
+    # crude.  XXX fixme
+    def toString(self):
+        s = '%s: {' % self.__class__.__name__
+        sorted_keys = self._properties.keys()
+        sorted_keys.sort()
+        for k in sorted_keys:
+            s = s + '%s:%s,' % (k, self._properties[k])
+        s = s + '}'
+        return s
 
 
 class ObjectField(Field):

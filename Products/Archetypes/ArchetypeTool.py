@@ -5,6 +5,8 @@ import sys
 import time
 from copy import deepcopy
 from types import StringType
+from md5 import md5
+from DateTime import DateTime
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -30,7 +32,6 @@ from utils import capitalize, findDict, DisplayList, unique
 from Renderer import renderer
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
-
 
 # This is the template that we produce our custom types from
 # Never actually used
@@ -148,7 +149,7 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-
+_types_callback = []
 def _guessPackage(base):
     if base.startswith('Products'):
         base = base[9:]
@@ -171,11 +172,16 @@ def registerType(klass, package=None):
         'package' : package,
         'module' : sys.modules[klass.__module__],
         'schema' : klass.schema,
+        'signature' : klass.schema.signature(),
         # backward compatibility, remove later
         'type' : klass.schema,
         }
-    _types[klass.meta_type] = data
 
+    _types[klass.meta_type] = data
+    for tc in _types_callback:
+        tc(klass, package)
+   
+        
 def listTypes(package=None):
     values = _types.values()
     if package:
@@ -241,12 +247,16 @@ class WidgetWrapper:
         __traceback_info__ = self._args
         return renderer.render(**self._args)
 
+last_load = DateTime()
+
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     SQLStorageConfig, Folder, ReferenceEngine):
     """ Archetypes tool, manage aspects of Archetype instances """
     id        = TOOL_NAME
     meta_type = TOOL_NAME.title().replace('_', ' ')
     isPrincipiaFolderish = 1 # Show up in the ZMI
+
+    security = ClassSecurityInfo()
 
     meta_types = all_meta_types = ((
         { 'name'   : 'Schema',
@@ -264,6 +274,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_debugForm',
           },
 
+        { 'label'  : 'Update Schema',
+          'action' : 'manage_updateSchemaForm',
+          },
+
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
            },
@@ -274,7 +288,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     manage_addSchemaForm = PageTemplateFile('addSchema', _www)
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
     manage_debugForm = PageTemplateFile('generateDebug', _www)
+    manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
+
 
     def manage_dumpSchema(self, REQUEST=None):
         """XML Dump Schema of passed in class"""
@@ -293,6 +309,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         ReferenceEngine.__init__(self)
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
+        self._types = {}
+        for t in _types.values():
+            self._types[t['klass'].meta_type] = \
+                {'signature':t['signature'], 'update':1}
+        _types_callback.append(lambda klass, package:self.registerType(klass, package))
+        self.last_types_update = DateTime()
+
 
     ## Template Management
     def registerTemplate(self, template, name, portal_type=None):
@@ -584,8 +607,80 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     index = manage_reindex
 
+
+
+    def getChangedSchema(self):
+        """Get a list of schema that have changed"""
+        list = []
+        for t in self._types.keys():
+            if self._types[t]['update']:
+                list.append(t)
+        return list
+        
+
+    security.declareProtected('Manage portal', 'manage_updateSchema')
+    def manage_updateSchema(self):
+        """Make sure all objects' schema are up to date"""
+        from StringIO import StringIO
+        out = StringIO()
+        print >> out, 'Updating schema...'
+    
+        for t in self._types.keys():
+            if not self._types[t]['update']:
+                continue
+            catalog = getToolByName(self, 'portal_catalog')
+            result = catalog._catalog.searchResults({'meta_type' : t})
+
+            classes = {}
+            for r in result:
+                try:
+                    o = r.getObject()
+                    if hasattr(o, '_updateSchema'):
+                        if not o._isSchemaCurrent():
+                            o._updateSchema(out=out)
+                except KeyError:
+                    pass
+            self._types[t]['update'] = 0
+            self._p_changed = 1
+        return out.getvalue()
+
+
+    def __setstate__(self, v):
+        """Add a callback to track product registrations"""
+        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
+        global _types
+        global _types_callback
+        import sys
+        if hasattr(self, '_types'):
+            if not hasattr(self, 'last_types_update') or self.last_types_update.lessThan(last_load):
+                for t in _types.values():
+#                    if t['klass'].meta_type == 'Survey':
+#                        import pdb
+#                        pdb.set_trace()
+                    meta_type = t['klass'].meta_type
+                    if self._types.has_key(meta_type):
+                        update = (t['signature'] != self._types[meta_type]['signature'])
+                    else:
+                        update = 1
+                    self._types[meta_type] = {'signature':t['signature'], 'update':update}
+                _types_callback.append(lambda klass, package:self.registerType(klass, package))
+                self.last_types_update = DateTime()
+
+
+    def registerType(self, klass, package):
+        """This gets called every time registerType is called as soon as the
+        hook is installed by setstate"""
+        # See if the schema has changed.  If it has, flag it
+        update = 0
+        sig = klass.schema.signature()
+        old_data = self._types.get(klass.meta_type, None)
+        if old_data:
+            update = old_data.get('update', 0)
+            old_sig = old_data.get('signature', None)
+            if sig != old_sig:
+                update = 1
+        self._types[klass.meta_type] = {'signature':sig, 'update':update}
+        self._p_changed = 1
+            
+
 InitializeClass(ArchetypeTool)
-
-
-
-

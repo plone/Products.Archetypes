@@ -1,3 +1,4 @@
+import sys
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
@@ -46,6 +47,7 @@ class BaseObject(Implicit):
     security = ClassSecurityInfo()
 
     schema = type = content_type
+    _signature = None
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
 
     __implements__ = IBaseObject
@@ -56,10 +58,17 @@ class BaseObject(Implicit):
         
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
-        self.initializeLayers()
-        self.setDefaults()
-        if kwargs:
-            self.update(**kwargs)
+        try:
+            self.initializeLayers()
+            self.setDefaults()
+            if kwargs:
+                self.update(**kwargs)
+            self._signature = self.Schema().signature()
+        except:
+            import traceback
+            import sys
+            sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
+            
 
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
@@ -436,6 +445,137 @@ class BaseObject(Implicit):
                 for field in self.Schema().values():
                     if field.hasI18NContent():
                         field.unset(self, lang=lang_id)
+
+
+    # Handle schema updates ####################################################
+
+#    def _compareDicts(self, d1, d2):
+#        values = {}
+#        for k,v in d1.items():
+#            values[k] = (v,'N/A')
+#        for k,v in d2.items():
+#            if values.has_key(k):
+#                values[k] = (values[k][0],v)
+#            else:
+#                values[k] = ('N/A', v)
+#        keys = values.keys()
+#        keys.sort()
+#        import sys
+#        for k in keys:
+#            sys.stdout.write('%s: %s, %s\n' % (k, str(values[k][0]), str(values[k][1])))
+
+    def _isSchemaCurrent(self):
+        """Determine whether the current object's schema is up to date."""
+        from Products.Archetypes.ArchetypeTool import getType
+        return getType(self.meta_type)['signature'] == self._signature
+
+
+    def _updateSchema(self, excluded_fields=[], out=None):
+        """Update an object's schema when the class schema changes.
+        For each field we use the existing accessor to get its value, then we 
+        re-initialize the class, then use the new schema mutator for each field 
+        to set the values again.  We also copy over any class methods to handle
+        product refreshes gracefully (when a product refreshes, you end up with
+        both the old version of the class and the new in memory at the same
+        time -- you really should restart zope after doing a schema update)."""
+        from Products.Archetypes.ArchetypeTool import getType
+
+        print >> out, 'Updating %s' % (self.getId())
+        
+        old_schema = self.Schema()
+        new_schema = getType(self.meta_type)['schema']
+
+        obj_class = self.__class__
+        current_class = getattr(sys.modules[self.__module__], self.__class__.__name__)
+        if obj_class.schema != current_class.schema:
+            # XXX This is kind of brutish.  We do this to make sure that old
+            # class instances have the proper methods after a refresh.  The
+            # best thing to do is to restart Zope after doing an update, and
+            # the old versions of the class will disappear.
+            # print >> out, 'Copying schema from %s to %s' % (current_class, obj_class)
+            for k in current_class.__dict__.keys():
+                obj_class.__dict__[k] = current_class.__dict__[k]
+#            from Products.Archetypes.ArchetypeTool import generateClass
+#            generateClass(obj_class)
+            
+
+        # read all the old values into a dict
+        values = {}
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields:
+                try:
+                    values[name] = self._migrateGetValue(name, new_schema)
+                except ValueError:
+                    if out != None:
+                        print >> out, 'Unable to get %s.%s' % (str(self.getId()), name)
+
+        # replace the schema
+        # print >> out, 'Updating schema'
+        from copy import deepcopy
+        self.schema = deepcopy(new_schema)
+        # print >> out, 'Reinitializing'
+        self.initializeArchetype()
+
+        # print >> out, 'Writing field values'
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields and values.has_key(name):
+                try:
+                    self._migrateSetValue(name, values[name])
+                except ValueError:
+                    if out != None:
+                        print >> out, 'Unable to set %s.%s to %s' % (str(self.getId()), name, str(values[name]))
+        if out:
+            return out
+
+                
+    def _migrateGetValue(self, name, new_schema=None):
+        """Try to get a value from an object using a variety of methods."""
+        schema = self.Schema()
+
+        # First see if the new field name is managed by the current schema
+        field = schema.get(name, None)
+        if field:
+            accessor = field.getAccessor(self)
+            if accessor is not None:
+                # yes -- return the value
+                return accessor()
+        
+        # Nope -- see if the new accessor method is present in the current object.
+        if new_schema:
+            new_field = new_schema.get(name)
+            accessor = new_field.getAccessor(self)
+            if callable(accessor):
+                try:
+                    return accessor()
+                except:
+                    pass
+
+        # Nope -- now see if the current object has an attribute with the same name
+        # as the new field
+        if hasattr(self, name):
+            return getattr(self, name)
+        
+        raise ValueError, 'name = %s' % (name)
+    
+        
+    def _migrateSetValue(self, name, value, old_schema=None):
+        """Try to set an object value using a variety of methods."""
+        schema = self.Schema()
+        field = schema.get(name, None)
+        # try using the field's mutator
+        if field:
+            mutator = field.getMutator(self)
+            if mutator:
+                mutator(value)
+                return
+        # try setting an existing attribute
+        if hasattr(self, name):
+            setattr(self, name, value)
+            return
+        raise ValueError, 'name = %s, value = %s' % (name, value)
+
             
 def text_data(accessor, lang_id=None):
     """return plain text data from an accessor"""
@@ -452,5 +592,6 @@ def text_data(accessor, lang_id=None):
         except:
             return ''
     
-InitializeClass(BaseObject)
 
+
+InitializeClass(BaseObject)
