@@ -1,3 +1,10 @@
+after 1.3.0-rc4
+===============
+ 
+ * Fixed [ 1034649 ] Typo breaks catalog index creation: index_acessor ->
+   index_accessor
+   [ronnix]
+
 1.3.0-rc4 - 2004-09-25
 ======================
 
