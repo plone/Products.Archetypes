@@ -12,7 +12,8 @@ from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
 from BaseUnit import BaseUnit
 from types import StringType
-from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage
+from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
+     ReadOnlyStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
 from interfaces.field import IField, IObjectField
@@ -382,7 +383,7 @@ class ComputedField(ObjectField):
         'expression': None,
         'widget' : ComputedWidget,
         'mode' : 'r',
-        'storage': None,
+        'storage': ReadOnlyStorage(),
         })
     
     def set(self, *ignored, **kwargs):

@@ -28,6 +28,9 @@ class Storage:
     def unset(self, name, instance, **kwargs):
         raise NotImplementedError('%s: unset' % self.getName())
 
+class ReadOnlyStorage(Storage):
+    __implements__ = IStorage
+
 class StorageLayer(Storage):
     __implements__ = (IStorage, ILayer)
 
