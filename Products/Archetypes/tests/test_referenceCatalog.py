@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.16.7 2004/07/01 13:47:18 bcsaller Exp $
+$Id$
 """
 
 import os, sys

@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.12.16.2 2004/08/16 16:46:10 dreamcatcher Exp $
+$Id$
 """
 
 import os, sys

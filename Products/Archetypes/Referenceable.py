@@ -77,6 +77,7 @@ class Referenceable(Base):
         if refs:
             return [ref.getTargetObject() for ref in refs]
         return []
+
     def getURL(self):
         """the url used as the relative path based uid in the catalogs"""
         return getRelURL(self, self.getPhysicalPath())

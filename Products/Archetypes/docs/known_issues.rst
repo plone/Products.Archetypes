@@ -3,7 +3,7 @@ Known Issues
 
 :Author: Sidnei da Silva
 :Contact: sidnei@x3ng.com
-:Date: $Date: 2003/05/29 21:00:05 $
+:Date: $Date$
 :Version: $Revision: 1.1 $
 :Web site: http://sourceforge.net/projects/archetypes
 

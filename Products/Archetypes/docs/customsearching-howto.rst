@@ -4,7 +4,7 @@
 
 :Author: Joel Burton
 :Contact: joel@joelburton.com
-:Date: $Date: 2004/02/09 10:19:00 $
+:Date: $Date$
 :Version: $Revision: 1.3 $
 :Web site: http://sourceforge.net/projects/archetypes
 :Covers: Archetypes 1.2.1

@@ -245,9 +245,12 @@ class ReferenceWidget(TypesWidget):
         options = {}
         for typeid in field.allowed_types:
             _info = tool.getTypeInfo(typeid)
-            if _info is None:                #XXX How could this be?
+            if _info is None:
+                # The portal_type asked for was not
+                # installed/has been removed.
                 log("Warning: in Archetypes.Widget.lookupDestinationsFor: " \
                     "portal type %s not found" % typeid )
+                continue
 
             if destination == None:
                 options[typeid]=[None]
