@@ -14,8 +14,7 @@
 
    <div metal:fill-slot="main">
       <div metal:define-macro="main"
-	   tal:define="rejection here/rejectAnonymous;
-	            errors python:request.get('errors', {});
+	   tal:define="errors python:request.get('errors', {});
 		    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();
                     fieldset request/fieldset|options/fieldset|string:default;
@@ -64,7 +63,6 @@
 	  </div>
 	</div>
 -->
-
         <span class="legend" i18n:translate="" tal:content="here/archetype_name"></span>
 
 	<tal:fields repeat="field python: schematas[fieldset].fields()">
