@@ -861,9 +861,6 @@ class ReferenceField(ObjectField):
 
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
-
-    The storage is never used. get() uses reference_catalog to return the
-    list of target UIDs.
     """
 
     _properties = Field._properties.copy()
@@ -880,7 +877,9 @@ class ReferenceField(ObjectField):
 
 
     def get(self, instance, **kwargs):
-        """"""
+        """Not really publicly useful.
+
+        See IReferenceable for more convenient ways."""
         tool = getToolByName(instance, REFERENCE_CATALOG)
         value = [ref.targetUID for ref in
                  tool.getReferences(instance, self.relationship)]
@@ -906,8 +905,6 @@ class ReferenceField(ObjectField):
 
         Keyword arguments may be passed directly to addReference(), thereby
         creating properties on the reference objects.
-
-        Raises ReferenceFieldException if a target UID is invalid.
         """
 
         tool = getToolByName(instance, REFERENCE_CATALOG)
