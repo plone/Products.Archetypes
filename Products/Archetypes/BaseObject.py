@@ -22,6 +22,8 @@ from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
 
+from Products.Archetypes.Marshall import RFC822Marshaller
+
 content_type = Schema((
     StringField('id',
                 required=1,
@@ -42,8 +44,9 @@ content_type = Schema((
                 widget=StringWidget(label_msgid="label_title",
                                     description_msgid="help_title",
                                     i18n_domain="plone"),
-                ),
-    ))
+                )),
+    marshall = RFC822Marshaller()
+                      )
 
 class BaseObject(Implicit):
     security = ClassSecurityInfo()

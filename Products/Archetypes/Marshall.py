@@ -80,14 +80,16 @@ class RFC822Marshaller(Marshaller):
         content_type = headers.get('Content-Type', 'text/plain')
         kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
-        mutator = getattr(instance, p.mutator, None)
-        if mutator is not None:
-            mutator(body, **kwargs)
+        if p is not None:
+            mutator = getattr(instance, p.mutator, None)
+            if mutator is not None:
+                mutator(body, **kwargs)
 
     def marshall(self, instance, **kwargs):
         from Products.CMFDefault.utils import formatRFC822Headers
         p = instance.getPrimaryField()
-        body = p.get(instance)
+        body = p and p.get(instance) or ''
+        pname = p and p.getName() or None
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(body):
@@ -95,12 +97,13 @@ class RFC822Marshaller(Marshaller):
             body   = body.getRaw()
 
         headers = {}
-        for field in instance.Schema().fields():
-            if field.getName() != p.getName():
-                value = instance[field.getName()]
-                if type(value) in [ListType, TupleType]:
-                    value = '\n'.join([str(v) for v in value])
-                headers[field.getName()] = str(value)
+        fields = [f for f in instance.Schema().fields()
+                  if f.getName() != pname]
+        for field in fields:
+            value = instance[field.getName()]
+            if type(value) in [ListType, TupleType]:
+                value = '\n'.join([str(v) for v in value])
+            headers[field.getName()] = str(value)
 
         headers['Content-Type'] = content_type or 'text/plain'
 

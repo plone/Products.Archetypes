@@ -1,3 +1,11 @@
+2003-07-17  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* BaseObject.py (content_type): Make the RFC822Marshaller the
+	default one. Pending tests.
+
+	* Marshall.py (RFC822Marshaller.marshall): Small fixes to deal
+	with objects without PrimaryField set.
+
 2003-07-16  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* skins/archetypes/unicodeTestIn.py: Trying to fix current unicode
