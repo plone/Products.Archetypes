@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.3 2004/05/24 11:20:57 tiran Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.4 2004/06/20 17:31:54 shh42 Exp $
 
 from Testing import ZopeTestCase
 
@@ -20,7 +20,7 @@ ZopeTestCase.installProduct('MailHost', 1)
 ZopeTestCase.installProduct('PageTemplates', 1)
 ZopeTestCase.installProduct('PythonScripts', 1)
 ZopeTestCase.installProduct('ExternalMethod', 1)
-
+# Archetypes dependencies
 ZopeTestCase.installProduct('MimetypesRegistry', 1)
 ZopeTestCase.installProduct('PortalTransforms', 1)
 ZopeTestCase.installProduct('Archetypes', 1)
