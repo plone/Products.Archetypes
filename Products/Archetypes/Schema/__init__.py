@@ -1,5 +1,6 @@
 from __future__ import nested_scopes
 from types import ListType, TupleType, StringType
+import warnings
 
 from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
@@ -388,8 +389,10 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                log('Schema construction takes a sequence of Fields. ' \
-                    'The chances of you wanting this behavior are slim.')
+                msg = 'You are passing in positional arguements.\n' \
+                      'Please consult the docstring for %s.%s' % \
+                      (self.__class__.__module__, self.__class__.__name__)
+                warnings.warn(msg, UserWarning)
                 for field in args:
                     self.addField(args[0])
 
