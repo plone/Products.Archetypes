@@ -536,9 +536,9 @@ class TextField(ObjectField):
         if not hasattr(value,'transform'): # oldBaseUnits have no transform
             return str(value)
 
-        data = value.transform(instance, mimetype, cache=1)
+        data = value.transform(instance, mimetype)
         if not data and mimetype != 'text/plain':
-            data = value.transform(instance, 'text/plain', cache=1)
+            data = value.transform(instance, 'text/plain')
         if not data:
             return ''
         return data

@@ -11,7 +11,6 @@ from content_driver import getDefaultPlugin, lookupContentType, getConverter
 from content_driver import selectPlugin, lookupContentType
 from debug import log, log_exc
 from interfaces.base import IBaseUnit
-from adapters import TransformCache
 from types import DictType
 from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
@@ -50,30 +49,16 @@ class newBaseUnit(File):
         self.size = len(data)
         self.filename = filename
 
-##         #force default transform policy, this needs to come out
-##         str(self)
 
-##     def __getitem__(self, key):
-##         return self.transform(key)
-
-    def transform(self, instance, mt, cache=0):
+    def transform(self, instance, mt):
         """Takes a mimetype so object.foo['text/plain'] should return
         a plain text version of the raw content
         """
-        cache = TransformCache(self)
-        data = cache.getCache(mt)
         #Do we have a cached transform for this key?
-        if data is None:
-            transformer = getToolByName(instance, 'portal_transforms')
-            data = transformer.convertTo(mt,
-                                         self.raw,
-                                         usedby=self.id,
-                                         mimetype=self.mimetype,
-                                         filename=self.filename)
-
-            ## XXX the transform tool should keep the cache policy
-            if cache:
-                cache.setCache(mt, data)
+        transformer = getToolByName(instance, 'portal_transforms')
+        data = transformer.convertTo(mt, self.raw, object=self, usedby=self.id,
+                                     mimetype=self.mimetype,
+                                     filename=self.filename)
 
         if data:
             assert idatastream.isImplementedBy(data)
@@ -89,23 +74,6 @@ class newBaseUnit(File):
             return self.raw
 
         return None
-
-##     def __str__(self):
-##         ## XXX make sure default view points to a RFC-2046 name
-##         data = self.transform('text/html', cache=1)
-##         if not data:
-##             data = self.transform('text/plain', cache=1)
-##         if not data:
-##             return ''
-
-##         if idatastream.isImplementedBy(data):
-##             data = data.getData()
-##         if type(data) == DictType and data.has_key('html'):
-##             return data['html']
-##         return data
-
-##     # Hook needed for catalog
-##     __call__ = __str__
 
     def __str__(self):
         return self.raw
@@ -129,9 +97,6 @@ class newBaseUnit(File):
 
     def getContentType(self):
         return self.mimetype
-
-##     def SearchableText(self):
-##         return self.transform('text/plain')
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
