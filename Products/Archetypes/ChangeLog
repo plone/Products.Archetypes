@@ -1,5 +1,8 @@
 2003-09-02  Sidnei da Silva  <sidnei@plone.org>
 
+	* Field.py (ReferenceField.Vocabulary): Fixed typo in
+	vocabylary. Patch by philiKON.
+
 	* BaseUnit.py (newBaseUnit.content_type): Provide a content_type
 	method to make ExternalEditor happy (oh, adapters...)
 

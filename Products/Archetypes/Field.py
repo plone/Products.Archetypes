@@ -801,7 +801,7 @@ class ReferenceField(ObjectField):
             results = archetype_tool.Content()
         results = [(r, r.getObject()) for r in results]
         value = [(r.UID, obj and (str(obj.Title().strip()) or \
-                                  str(obj.getId).strip())  or \
+                                  str(obj.getId()).strip())  or \
                   log('Field %r: Object at %r could not be found' % \
                       (self.getName(), r.getURL())) or \
                   r.Title or r.UID) for r, obj in results]
