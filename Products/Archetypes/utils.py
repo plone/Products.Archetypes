@@ -7,8 +7,10 @@ from types import TupleType, ListType
 from UserDict import UserDict as BaseDict
 
 from Products.Archetypes.debug import log
+from Products.Archetypes.Schema import Schemata
 
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
@@ -18,6 +20,15 @@ try:
     _v_network = socket.gethostbyname(socket.gethostbyname())
 except:
     _v_network = random.random() * 100000000000000000L
+
+def fixSchema(schema):
+    """Fix persisted schema from AT < 1.3 (UserDict-based)
+    to work with the new fixed order schema."""
+    if not hasattr(aq_base(schema), '_fields'):
+        fields = schema.data.values()
+        Schemata.__init__(schema, fields)
+        del schema.data
+    return schema
 
 def make_uuid(*args):
     t = long(time.time() * 1000)

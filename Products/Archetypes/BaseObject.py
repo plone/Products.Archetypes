@@ -1,7 +1,7 @@
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import DisplayList, mapply
+from Products.Archetypes.utils import DisplayList, mapply, fixSchema
 from Products.Archetypes.Field import StringField, TextField
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema, Schemata
@@ -469,7 +469,6 @@ class BaseObject(Implicit):
         if out:
             print >> out, 'Updating %s' % (self.getId())
 
-        old_schema = self.Schema()
         package = _guessPackage(self.__module__)
         new_schema = getType(self.meta_type, package)['schema']
 
@@ -531,6 +530,9 @@ class BaseObject(Implicit):
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
+
+        # Migrate pre-AT 1.3 schemas.
+        schema = fixSchema(schema)
 
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
@@ -605,6 +607,10 @@ class BaseObject(Implicit):
     def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
+
+        # Migrate pre-AT 1.3 schemas.
+        schema = fixSchema(schema)
+
         field = schema.get(name, None)
         # try using the field's mutator
         if field:
