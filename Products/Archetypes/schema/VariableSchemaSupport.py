@@ -2,7 +2,7 @@ import sha
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schemata, WrappedSchemata
+from Products.Archetypes.schema import Schemata, WrappedSchemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
 from Products.Archetypes.ClassGen import _modes
 from Products.Archetypes.utils import OrderedDict

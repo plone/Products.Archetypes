@@ -19,13 +19,13 @@ from Products.Archetypes.BaseFolder import BaseFolderSchema
 from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolderSchema
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadataSchema
 # schemata classes
-from Products.Archetypes.Schema import BasicSchema
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Schema import MetadataSchema
-from Products.Archetypes.Schema import ManagedSchema
-from Products.Archetypes.Schema.Composite import CompositeSchema
-from Products.Archetypes.Schema.Facade import FacadeMetadataSchema
-from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
+from Products.Archetypes.schema import BasicSchema
+from Products.Archetypes.schema import Schema
+from Products.Archetypes.schema import MetadataSchema
+from Products.Archetypes.schema import ManagedSchema
+from Products.Archetypes.schema.Composite import CompositeSchema
+from Products.Archetypes.schema.Facade import FacadeMetadataSchema
+from Products.Archetypes.schema.VariableSchemaSupport import VariableSchemaSupport
 # marshaller
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 from Products.Archetypes.Marshall import RFC822Marshaller
@@ -34,13 +34,13 @@ from Products.Archetypes.Field import *
 # widgets
 from Products.Archetypes.Widget import *
 # storage
-from Products.Archetypes.Storage import *
-from Products.Archetypes.AggregatedStorage import AggregatedStorage
-from Products.Archetypes.SQLStorage import BaseSQLStorage
-from Products.Archetypes.SQLStorage import GadflySQLStorage
-from Products.Archetypes.SQLStorage import MySQLSQLStorage
-from Products.Archetypes.SQLStorage import PostgreSQLStorage
-from Products.Archetypes.SQLStorage import SQLServerStorage
+from Products.Archetypes.storage import *
+from Products.Archetypes.storage.AggregatedStorage import AggregatedStorage
+from Products.Archetypes.storage.SQLStorage import BaseSQLStorage
+from Products.Archetypes.storage.SQLStorage import GadflySQLStorage
+from Products.Archetypes.storage.SQLStorage import MySQLSQLStorage
+from Products.Archetypes.storage.SQLStorage import PostgreSQLStorage
+from Products.Archetypes.storage.SQLStorage import SQLServerStorage
 # misc
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.ClassGen import AT_GENERATE_METHOD

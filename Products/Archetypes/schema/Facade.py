@@ -1,9 +1,9 @@
 __metaclass__ = type
 
-from Products.Archetypes.Schema import BasicSchema
+from Products.Archetypes.schema import BasicSchema
 from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
-from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
+from Products.Archetypes.storage.Facade import FacadeMetadataStorage
 from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo

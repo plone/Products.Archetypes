@@ -1,5 +1,5 @@
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.Storage import StorageLayer
+from Products.Archetypes.storage import StorageLayer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.Field import encode

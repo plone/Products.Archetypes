@@ -61,19 +61,19 @@ from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes import config
-from Products.Archetypes.Storage import AttributeStorage
-from Products.Archetypes.Storage import ObjectManagedStorage
-from Products.Archetypes.Storage import ReadOnlyStorage
+from Products.Archetypes.storage import AttributeStorage
+from Products.Archetypes.storage import ObjectManagedStorage
+from Products.Archetypes.storage import ReadOnlyStorage
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerField
 from Products.Archetypes.Registry import registerPropertyType
+from Products.Archetypes.translate import translate
 
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
-from Products.generator import i18n
 
 try:
     import PIL.Image
@@ -315,7 +315,7 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            error = i18n.translate(
+            error = translate(
                 'archetypes', 'error_required',
                 {'name': label}, instance,
                 default = "%s is required, please correct."
@@ -359,7 +359,7 @@ class Field(DefaultLayerContainer):
 
         if error:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = i18n.translate(
+            errors[self.getName()] = error = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
                 default = "Value %s is not allowed for vocabulary "
@@ -1397,7 +1397,7 @@ class ReferenceField(ObjectField):
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
         elif len(brains) > self.vocabulary_display_path_bound:
-            at = i18n.translate(domain='archetypes', msgid='label_at',
+            at = translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
             label = lambda b:'%s %s %s' % (b.Title or b.id, at,
                                            b.getPath())
@@ -1443,7 +1443,7 @@ class ReferenceField(ObjectField):
                 pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
-            no_reference = i18n.translate(domain='archetypes',
+            no_reference = translate(domain='archetypes',
                                           msgid='label_no_reference',
                                           context=content_instance,
                                           default='<no reference>')

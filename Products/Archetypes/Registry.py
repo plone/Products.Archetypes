@@ -2,8 +2,9 @@ import types
 import inspect
 
 from Products.Archetypes.utils import className
-from Products.Archetypes.ArchetypeTool import listTypes
+
 from Products.Archetypes.interfaces.base import IBaseObject
+
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
@@ -149,8 +150,8 @@ class TypeDescription:
         self.module = module
 
     def schemata(self):
-        from Products.Archetypes.Schema import getSchemata
         # Build a temp instance.
+        from Products.Archetypes.schema import getSchemata
         return getSchemata(self.klass('test'))
 
     def signature(self):
@@ -289,6 +290,7 @@ class TypeRegistry:
         pass
 
     def items(self):
+        from Products.Archetypes import listTypes
         return [(className(t['klass']),
                  TypeDescription(t['klass'],
                                  title=t['name'],

@@ -1,6 +1,6 @@
 from types import ListType, TupleType
 
-from Products.Archetypes.Schema import Schema
+from Products.Archetypes.schema import Schema
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime
 from Products.Archetypes.interfaces.schema import ICompositeSchema, \

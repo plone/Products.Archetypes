@@ -2,7 +2,7 @@ from __future__ import nested_scopes
 from types import ListType, TupleType, StringType
 import warnings
 
-from Products.Archetypes.Storage import MetadataStorage
+from Products.Archetypes.storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \

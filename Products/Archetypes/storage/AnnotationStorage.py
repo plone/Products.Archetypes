@@ -1,7 +1,7 @@
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
-from Products.Archetypes.Storage.BaseStorage import Storage, StorageLayer, _marker
+from Products.Archetypes.storage.BaseStorage import Storage, StorageLayer, _marker
 from Products.Archetypes.ATAnnotations import AT_ANN_STORAGE, AT_MD_STORAGE
 
 from Acquisition import aq_base

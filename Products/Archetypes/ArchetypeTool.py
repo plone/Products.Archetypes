@@ -13,7 +13,7 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
-from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
+from Products.Archetypes.storage.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
@@ -21,7 +21,7 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
-from Products.Archetypes.Renderer import renderer
+from Products.Archetypes.renderer import renderService
 
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
@@ -422,7 +422,7 @@ class WidgetWrapper:
 
     def __call__(self):
         __traceback_info__ = self._args
-        return renderer.render(**self._args)
+        return renderService.render(**self._args)
 
 last_load = DateTime()
 

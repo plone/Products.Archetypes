@@ -10,8 +10,8 @@ from Products.Archetypes.utils import shasattr
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Field import TextField
 from Products.Archetypes.Field import STRING_TYPES
-from Products.Archetypes.Renderer import renderer
-from Products.Archetypes.Schema import Schema
+from Products.Archetypes.renderer import renderService
+from Products.Archetypes.schema import Schema
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
@@ -251,7 +251,7 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
         if field is None:
             field = self.Schema()[field_name]
         widget = field.widget
-        return renderer.render(field_name, mode, widget, self, field=field,
+        return renderService.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')

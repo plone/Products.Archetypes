@@ -2,7 +2,7 @@ import sys
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.public
+#import Products.Archetypes.public
 import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
@@ -49,24 +49,22 @@ from Products.Archetypes.ArchTTWTool import ArchTTWTool
 this_module = sys.modules[__name__]
 import Products.MimetypesRegistry
 import Products.PortalTransforms
-import Products.generator
 import Products.validation
 at_info = getPkgInfo(this_module)
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
-gen_info = getPkgInfo(Products.generator)
 val_info = getPkgInfo(Products.validation)
 
 at_version = at_info.version
-for info in (mtr_info, pt_info, gen_info, val_info, ):
+for info in (mtr_info, pt_info, val_info, ):
     if not hasattr(info, 'at_versions'):
         raise RuntimeError('The product %s has no at_versions assigend. ' \
                            'Please update to a newer version.' % info.modname)
-    if at_version not in info.at_versions:
-        raise RuntimeError('The current Archetypes version %s is not in list ' \
-                           'of compatible versions for %s!\nList: %s' % \
-                           (at_version, info.modname, info.at_versions)
-                          )
+#    if at_version not in info.at_versions:
+#        raise RuntimeError('The current Archetypes version %s is not in list ' \
+#                           'of compatible versions for %s!\nList: %s' % \
+#                           (at_version, info.modname, info.at_versions)
+#                          )
 
 ###
 # Tools

@@ -13,8 +13,9 @@ from time import time
 from types import StringType, DictType
 from threading import Lock
 
-from Storage import Storage
-from Registry import Registry
+from Products.Archetypes.storage import Storage
+from Products.Archetypes.Registry import Registry
+from Products.Archetypes.Registry import registerStorage
 
 CACHE_TIMEOUT = 5  # timeout in seconds for cache entries to expire
 
@@ -141,5 +142,4 @@ class AggregatedStorage(Storage):
             del self.cache[key] 
         self._lock.release()
 
-from Registry import registerStorage
 registerStorage(AggregatedStorage)

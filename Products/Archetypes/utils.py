@@ -14,7 +14,7 @@ from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
-import Products.generator.i18n as i18n
+from Products.Archetypes.translate import translate
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))
@@ -386,7 +386,7 @@ class Vocabulary(DisplayList):
         if self._i18n_domain and self._instance:
             msg = self._i18n_msgids.get(key, None) or value
 
-            return i18n.translate(self._i18n_domain, msg,
+            return translate(self._i18n_domain, msg,
                                   context=self._instance, default=value)
         else:
             return value

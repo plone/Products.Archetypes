@@ -2,8 +2,8 @@ import string
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.schema import Schema
+from Products.Archetypes.schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.debug import log

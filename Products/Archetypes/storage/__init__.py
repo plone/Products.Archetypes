@@ -8,9 +8,9 @@ from Globals import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import registerStorage
-from Products.Archetypes.Storage.BaseStorage import Storage, StorageLayer, _marker
-from Products.Archetypes.Storage.AnnotationStorage import AnnotationStorage
-from Products.Archetypes.Storage.AnnotationStorage import MetadataAnnotationStorage
+from Products.Archetypes.storage.BaseStorage import Storage, StorageLayer, _marker
+from Products.Archetypes.storage.AnnotationStorage import AnnotationStorage
+from Products.Archetypes.storage.AnnotationStorage import MetadataAnnotationStorage
 
 
 type_map = {'text':'string',
