@@ -78,6 +78,18 @@ class BaseObject(Implicit):
     def cleanupLayers(self):
         self.Schema().cleanupLayers(self)
 
+    security.declarePublic("title_or_id")
+    def title_or_id(self):
+        """
+        Utility that returns the title if it is not blank and the id
+        otherwise.
+        """
+        if hasattr(aq_base(self), 'Title'):
+            if callable(self.Title):
+                return self.Title() or self.getId()
+
+        return self.getId()
+        
     security.declarePublic("getId")
     def getId(self):
         """get the objects id"""
