@@ -263,7 +263,7 @@ def install_indexes(self, out, types):
                     elif index_accessor == '_at_accessor':
                         accessor = field.accessor
                     elif index_accessor:
-                        if type(index_acessor) is not UnboundMethodType:
+                        if type(index_accessor) is not UnboundMethodType:
                             raise ValueError('The index accessor is not a valid method')
                         accessor = index_accessor
                     else:

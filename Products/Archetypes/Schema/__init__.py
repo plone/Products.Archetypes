@@ -1,7 +1,5 @@
 from __future__ import nested_scopes
 from types import ListType, TupleType, StringType
-import warnings
-
 from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
@@ -11,7 +9,7 @@ from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
-from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log, warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
 
@@ -197,9 +195,9 @@ class Schemata(Base):
                           "unsupported relationship var type in field '%s'. "\
                           "The relationship qualifer must be a non empty "\
                           "string." % name
-                      ) 
-        
-        
+                      )
+
+
 
     def __delitem__(self, name):
         if not self._fields.has_key(name):
@@ -239,7 +237,7 @@ class Schemata(Base):
         """Returns a list containing names of all searchable fields."""
 
         return [f.getName() for f in self.fields() if f.searchable]
-    
+
     def hasPrimary(self):
         """Returns the first primary field or False"""
         for f in self.fields():
@@ -392,11 +390,15 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
-                msg = 'You are passing positional arguments to the ' \
-                      'Schema constructor. ' \
-                      'Please consult the docstring for %s.BasicSchema.__init__' % \
-                      (self.__class__.__module__,)
-                warnings.warn(msg, UserWarning)
+                msg = ('You are passing positional arguments '
+                       'to the Schema constructor. '
+                       'Please consult the docstring '
+                       'for %s.BasicSchema.__init__' %
+                       (self.__class__.__module__,))
+                level = 3
+                if self.__class__ is not BasicSchema:
+                    level = 4
+                warn(msg, level=level)
                 for field in args:
                     self.addField(args[0])
 
