@@ -7,8 +7,9 @@ from Products.Archetypes.interfaces.schema import ICompositeSchema, \
      IBindableSchema
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import Implicit
-from Acquisition import ImplicitAcquisitionWrapper
+from Globals import InitializeClass
+from Acquisition import Implicit, aq_base, aq_parent, aq_inner
+from Products.CMFCore.CMFCorePermissions import View, ModifyPortalContent
 
 class CompositeSchema(Implicit):
     """Act on behalf of a set of Schemas, pretending it
@@ -29,9 +30,10 @@ class CompositeSchema(Implicit):
     def getSchemas(self):
         """Return the underlying schemas"""
         schemas = []
+        context = aq_parent(aq_inner(self))
         for s in self._schemas:
             if IBindableSchema.isImplementedBy(s):
-                s.bind(self)
+                s.bind(context)
             schemas.append(s)
         return schemas
 
@@ -43,6 +45,7 @@ class CompositeSchema(Implicit):
         for schema in schemas:
             self._schemas.append(schema)
 
+    security.declareProtected(View, 'getName')
     def getName(self):
         """Return Schemata name"""
         return '-'.join([s.getName() for s in self.getSchemas()])
@@ -53,12 +56,14 @@ class CompositeSchema(Implicit):
         c.addSchemas((self, other))
         return c
 
+    security.declareProtected(View, 'getName')
     def copy(self):
         """Return a deep copy"""
         c = CompositeSchema()
         c.addSchemas([s.copy() for s in self._schemas()])
         return c
 
+    security.declareProtected(View, 'fields')
     def fields(self):
         """Return a list of fields"""
         result = []
@@ -66,6 +71,7 @@ class CompositeSchema(Implicit):
             result.extend(s.fields())
         return result
 
+    security.declareProtected(View, 'fields')
     def widgets(self):
         """Return a dictionary that contains a widget for
         each field, using the field name as key.
@@ -78,6 +84,7 @@ class CompositeSchema(Implicit):
             result.update(s.widgets())
         return result
 
+    security.declareProtected(View, 'filterFields')
     def filterFields(self, *predicates, **values):
         """Returns a subset of self.fields(), containing only fields that
         satisfy the given conditions.
@@ -107,6 +114,7 @@ class CompositeSchema(Implicit):
                 return
         self.getSchemas()[0][name] = field
 
+    security.declareProtected(ModifyPortalContent, 'addField')
     def addField(self, field):
         """Add a field (possibly overriding an existing one)"""
         name = field.getName()
@@ -116,6 +124,7 @@ class CompositeSchema(Implicit):
                 return
         self.getSchemas()[0].addField(field)
 
+    security.declareProtected(ModifyPortalContent, 'updateField')
     updateField = addField
 
     def __delitem__(self, name):
@@ -126,6 +135,7 @@ class CompositeSchema(Implicit):
                 return
         del self.getSchemas()[0][name]
 
+    security.declareProtected(ModifyPortalContent, 'fields')
     delField = __delitem__
 
     def __getitem__(self, name):
@@ -138,6 +148,7 @@ class CompositeSchema(Implicit):
                 return s[name]
         return self.getSchemas()[0][name]
 
+    security.declareProtected(View, 'get')
     def get(self, name, default=None):
         """Get field by name, using a default value
         for missing
@@ -147,6 +158,7 @@ class CompositeSchema(Implicit):
                 return s.get(name)
         return self.getSchemas()[0].get(name, default)
 
+    security.declareProtected(View, 'has_key')
     def has_key(self, name):
         """Check if a field by the given name exists"""
         for s in self.getSchemas():
@@ -155,6 +167,7 @@ class CompositeSchema(Implicit):
         return self.getSchemas()[0].has_key(name)
 
 
+    security.declareProtected(View, 'keys')
     def keys(self, name):
         """Return the names of the fields present
         on this schema
@@ -164,6 +177,7 @@ class CompositeSchema(Implicit):
             result.extend(s.keys())
         return result
 
+    security.declareProtected(View, 'searchable')
     def searchable(self):
         """Return a list containing names of all
         the fields present on this schema that are
@@ -174,6 +188,7 @@ class CompositeSchema(Implicit):
             result.extend(s.searchable())
         return result
 
+    security.declareProtected(ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
         """Call the mutator by name on instance,
         setting the value.
@@ -181,6 +196,7 @@ class CompositeSchema(Implicit):
         if self.has_key(name):
             instance[name] = value
 
+    security.declareProtected(ModifyPortalContent, 'setDefaults')
     def setDefaults(self, instance):
         """Only call during object initialization.
 
@@ -189,6 +205,7 @@ class CompositeSchema(Implicit):
         for s in self.getSchemas():
             s.setDefaults(instance)
 
+    security.declareProtected(ModifyPortalContent, 'updateAll')
     def updateAll(self, instance, **kwargs):
         """This method mutates fields in the given instance.
 
@@ -202,8 +219,10 @@ class CompositeSchema(Implicit):
         for s in self.getSchemas():
             s.updateAll(instance, **kwargs)
 
+    security.declareProtected(View, 'allow')
     allow = has_key
 
+    security.declareProtected(ModifyPortalContent, 'validate')
     def validate(self, instance=None, REQUEST=None,
                  errors=None, data=None, metadata=None):
         """Validate the state of the entire object.
@@ -217,6 +236,7 @@ class CompositeSchema(Implicit):
                        errors=errors, data=data, metadata=metadata)
         return errors
 
+    security.declarePrivate('toString')
     def toString(self):
         """Utility method for converting a Schema to a string for the
         purpose of comparing schema.
@@ -229,6 +249,7 @@ class CompositeSchema(Implicit):
             result += s.toString()
         return result
 
+    security.declarePrivate('signature')
     def signature(self):
         """Return an md5 sum of the the schema.
 
@@ -238,26 +259,32 @@ class CompositeSchema(Implicit):
         from md5 import md5
         return md5(self.toString()).digest()
 
+    security.declarePrivate('changeSchemataForField')
     def changeSchemataForField(self, fieldname, schemataname):
         """Change the schemata for a field """
         for s in self.getSchemas():
             if s.has_key(name):
                 s.changeSchemataForField(fieldname, schemataname)
 
+    security.declarePrivate('replaceField')
     def replaceField(self, name, field):
         """Replace field under ``name`` with ``field``"""
         for s in self.getSchemas():
             if s.has_key(name):
                 s.replaceField(name, field)
 
+    security.declarePrivate('initializeLayers')
     def initializeLayers(self, instance, item=None, container=None):
         """Layer initialization"""
         for s in self.getSchemas():
             if ILayerContainer.isImplementedBy(s):
                 s.initializeLayers(instance, item, container)
 
+    security.declarePrivate('cleanupLayers')
     def cleanupLayers(self, instance, item=None, container=None):
         """Layer cleaning"""
         for s in self.getSchemas():
             if ILayerContainer.isImplementedBy(s):
                 s.cleanupLayers(instance, item, container)
+
+InitializeClass(CompositeSchema)

@@ -3,6 +3,9 @@ __metaclass__ = type
 from Products.Archetypes.Schema import BasicSchema
 from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
+from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
+from Products.Archetypes.utils import mapply
+from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
@@ -16,13 +19,13 @@ _field_mapping = {'CheckBoxField':BooleanField,
                   'FileField':FileField,
                   'FloatField':FloatField,
                   'IntegerField':IntegerField,
-                  'LinesField':LinesField,
-                  'LinkField':StringField,
-                  'ListField':LinesField,
-                  'ListTextAreaField':LinesField,
+                  'LinesField':StringField,
+                  'LinkField':ObjectField,
+                  'ListField':ObjectField,
+                  'ListTextAreaField':ObjectField,
                   'MethodField':StringField,
                   'MultiCheckBoxField':LinesField,
-                  'MultiListField':LinesField,
+                  'MultiListField':StringField,
                   'PasswordField':StringField,
                   'PatternField':StringField,
                   'RadioField':StringField,
@@ -32,16 +35,23 @@ _field_mapping = {'CheckBoxField':BooleanField,
                   'TALESField':StringField,
                   'TextAreaField':StringField}
 
-def fieldsFromSet(set):
+def getFactory(name):
+    return _field_mapping.get(name)
+
+def fieldsFromSet(set, schema):
     fields = {}
     for element in set.getElements():
-        field = _field_mapping.get(element.field_type)(element.id)
+        factory = getFactory(element.field_type)
+        field = factory(element.id,
+                        storage=schema.storage,
+                        schemata=schema.schemata)
         field.widget.label = element.title_or_id()
         field.widget.description = element.Description()
+        field.required = element.isRequired()
         fields[element.id] = field
     return fields
 
-def fieldNamesFromSet(set):
+def fieldNamesFromSet(set, schema):
     fields = []
     for element in set.getElements():
         fields.append(element.id)
@@ -56,7 +66,15 @@ class CMFMetadataFieldsDescriptor:
         if pm is None:
             return {}
         set = pm.getMetadataSet(obj.set_id)
-        return fieldsFromSet(set)
+        fields = fieldsFromSet(set, obj)
+        # XXX This would *really* benefit from some
+        # caching/timestamp checking.
+        # Calling generateMethods and reconstructing
+        # the fields each time may actually be
+        # *very very* expensive.
+        klass = obj.context.__class__
+        generateMethods(klass, fields.values())
+        return fields
 
 class CMFMetadataFieldNamesDescriptor:
     """A nice descriptor that computes a set of Archetypes
@@ -67,7 +85,7 @@ class CMFMetadataFieldNamesDescriptor:
         if pm is None:
             return []
         set = pm.getMetadataSet(obj.set_id)
-        return fieldNamesFromSet(set)
+        return fieldNamesFromSet(set, obj)
 
 class FacadeMetadataSchema(BasicSchema):
     """A Facade Schema, which adapts CMFMetadata 'Sets'
@@ -85,6 +103,10 @@ class FacadeMetadataSchema(BasicSchema):
     def __init__(self, *args, **kwargs):
         # Everything else is ignored.
         self.set_id = kwargs['set_id']
+        self.schemata = kwargs['schemata']
+        if not kwargs.get('storage'):
+            kwargs['storage'] = FacadeMetadataStorage(self.set_id)
+        self.storage = kwargs['storage']
 
     def bind(self, context):
         self.context = context
