@@ -30,17 +30,18 @@ Features
 
 Requires
 
-  * Plone 2.0+
+  * Plone 2.0.4+
 
   * CMF 1.4+
 
   * Zope 2.7.0+
 
-  * CMFFormController (from collective CVS)
+  * CMFFormController 1.0.3-beta+
 
-  From the SourceForge Archetypes CVS, you must also install the
-  following products to your Zope Products directory.
-
+  Archetypes do not work without the following closely related products. You get 
+  them with the Archetypes release Bundle-tarball. You can also fetch them also
+  from the plone.org subversion repository .
+  
   * PortalTransforms
 
   * generator
