@@ -410,8 +410,8 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failIf(copy_a in b.getBRefs())
 
         # Original object should keep references
-        self.failUnlessEqual(b.getBRefs(), [a])
         self.failUnlessEqual(a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [a])
 
     def test_cutPasteSupport(self):
         # cut/paste behaviour test

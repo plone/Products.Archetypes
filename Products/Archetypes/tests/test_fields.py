@@ -18,8 +18,6 @@ from Products.Archetypes.Field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
-from test_classgen import Dummy as BaseDummy
-
 fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
@@ -59,8 +57,8 @@ expected_values = {'objectfield':'objectfield',
                    'floatfield': 1.5,
                    'fixedpointfield': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
-                   'photofield':'<img src="photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
+                   'imagefield':'<img src="portal/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
+                   'photofield':'<img src="portal/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
 
 empty_values = {'objectfield':None,
                    'stringfield':'',
@@ -80,9 +78,9 @@ if not ZOPE_LINES_IS_TUPLE_TYPE:
     expected_values['linesfield'] = list(expected_values['linesfield'])
 
 
-schema = Schema(tuple(field_instances))# + BaseDummy.schema.copy()
+schema = Schema(tuple(field_instances))
 
-class Dummy(BaseDummy):
+class Dummy(BaseContentMixin):
     schema = schema
     def Title(self): return 'Spam' # required for ImageField
 

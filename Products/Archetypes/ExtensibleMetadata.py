@@ -2,7 +2,7 @@ import string
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.Schema import Schema, MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.debug import log, ERROR
@@ -51,10 +51,11 @@ class ExtensibleMetadata(Persistence.Persistent):
             edit_accessor="editIsDiscussable",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList((('None', 'Default', 'label_discussion_default'),
-                                    ('1',    'Enabled', 'label_discussion_enabled'),
-                                    ('0',    'Disabled', 'label_discussion_disabled'),
-                                   )),
+            vocabulary=DisplayList((
+        ('None', 'Default', 'label_discussion_default'),
+        ('1',    'Enabled', 'label_discussion_enabled'),
+        ('0',    'Disabled', 'label_discussion_disabled'),
+        )),
             widget=SelectionWidget(
                 label="Allow Discussion?",
                 label_msgid="label_allow_discussion",
@@ -148,7 +149,37 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label_msgid="label_copyrights",
                 description_msgid="help_copyrights",
                 i18n_domain="plone")),
+        )) + Schema((
+        DateTimeField(
+            'creation_date',
+            schemata='metadata',
+            accessor='created',
+            mutator='setCreationDate',
+            languageIndependent = True,
+            widget=CalendarWidget(
+                label="Creation Date",
+                description=("Date this object was created"),
+                label_msgid="label_creation_date",
+                description_msgid="help_creation_date",
+                i18n_domain="plone",
+                visible={'edit':'invisible', 'view':'invisible'}),
+        ),
+        DateTimeField(
+            'modification_date',
+            schemata='metadata',
+            accessor='modified',
+            mutator = 'setModificationDate',
+            languageIndependent = True,
+            widget=CalendarWidget(
+                label="Modification Date",
+                description=("Date this content was modified last"),
+                label_msgid="label_modification_date",
+                description_msgid="help_modification_date",
+                i18n_domain="plone",
+                visible={'edit':'invisible', 'view':'invisible'}),
+        ),
         ))
+
 
     def __init__(self):
         now = DateTime()
@@ -170,7 +201,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     def isDiscussable(self, encoding=None):
         dtool = getToolByName(self, 'portal_discussion')
         return dtool.isDiscussionAllowedFor(self)
-    
+
     security.declareProtected(CMFCorePermissions.View,
                               'editIsDiscussable')
     def editIsDiscussable(self, encoding=None):
@@ -198,12 +229,12 @@ class ExtensibleMetadata(Persistence.Persistent):
                 # an unsafe hasattr() instead of a more secure getattr() on an
                 # unwrapped object
                 msg = "Unable to set discussion on %s to None. Already " \
-                      "deleted allow_discussion attribute? Message: %s" % ( 
+                      "deleted allow_discussion attribute? Message: %s" % (
                        self.getPhysicalPath(), str(err))
                 log(msg, level=ERROR)
             else:
                 raise
-            
+
 
     # Vocabulary methods ######################################################
 
@@ -386,10 +417,21 @@ class ExtensibleMetadata(Persistence.Persistent):
         if not modification_date:
             self.modification_date = DateTime()
         else:
-            if not isinstance( modification_date, DateTime ):
-                modification_date = DateTime( modification_date )
+            if not isinstance(modification_date, DateTime):
+                modification_date = DateTime(modification_date)
             self.modification_date = self._datify(modification_date)
 
+    security.declarePrivate('setCreationDate')
+    def setCreationDate(self, creation_date=None):
+        """Set the date when the resource was created.
+        When called without an argument, sets the date to now.
+        """
+        if not creation_date:
+            self.creation_date = DateTime()
+        else:
+            if not isinstance(creation_date, DateTime):
+                creation_date = DateTime(creation_date)
+            self.creation_date = self._datify(creation_date)
 
     security.declarePrivate( '_datify' )
     def _datify(self, attrib):

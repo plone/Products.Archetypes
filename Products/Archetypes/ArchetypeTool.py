@@ -291,8 +291,13 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     at_tool = getToolByName(context, TOOL_NAME)
     __traceback_info__ = (context, old_portal_type, new_portal_type)
     # will fail if oldId wasn't registered
-    old_type = [ t for t in _types.values()
-                 if t['portal_type'] == old_portal_type ][0]
+    old_type = [t for t in _types.values()
+                if t['portal_type'] == old_portal_type]
+
+    if not old_type:
+        return
+
+    old_type = old_type[0]
 
     # rename portal type
     old_type['portal_type'] = new_portal_type

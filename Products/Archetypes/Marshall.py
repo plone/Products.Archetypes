@@ -13,7 +13,7 @@ from AccessControl import ClassSecurityInfo
 
 class Marshaller:
     __implements__ = IMarshall, ILayer
-    
+
     security = ClassSecurityInfo()
     security.declareObjectPrivate()
     security.setDefaultAccess('deny')
@@ -53,7 +53,7 @@ class Marshaller:
 InitializeClass(Marshaller)
 
 class PrimaryFieldMarshaller(Marshaller):
-    
+
     security = ClassSecurityInfo()
     security.declareObjectPrivate()
     security.setDefaultAccess('deny')
@@ -130,18 +130,18 @@ class RFC822Marshaller(Marshaller):
             else:
                 content_type = body and guess_content_type(body) or 'text/plain'
 
-        headers = {}
+        headers = []
         fields = [f for f in instance.Schema().fields()
                   if f.getName() != pname]
         for field in fields:
             value = instance[field.getName()]
             if type(value) in [ListType, TupleType]:
                 value = '\n'.join([str(v) for v in value])
-            headers[field.getName()] = str(value)
+            headers.append((field.getName(), str(value)))
 
-        headers['Content-Type'] = content_type or 'text/plain'
+        headers.append(('Content-Type', content_type or 'text/plain'))
 
-        header = formatRFC822Headers(headers.items())
+        header = formatRFC822Headers(headers)
         data = '%s\n\n%s' % (header, body)
         length = len(data)
 
