@@ -16,9 +16,10 @@
       <tal:define tal:define="base python:hasattr(value, 'isUnit');
                     binary python:base and value.isBinary() or here.isBinary(fieldName);
                     content python:(base == 1) and value.getRaw() or value;
-                    content python:(binary == 0) and content or '';">
+                    content python:(binary == 0) and content or '';
+                    append_only python: getattr(widget, 'append_only', None)">
 
-      <fieldset tal:condition="python:hasattr(widget,'append_only') and widget.append_only">
+      <fieldset tal:condition="append_only">
         <legend tal:content="widget/label">label</legend>
         <span tal:content="content">content</span>
       </fieldset>
@@ -29,7 +30,7 @@
                         cols widget/cols;
                         rows widget/rows;
                         tabindex tabindex/next;"
-	tal:define="content python:(widget.append_only == 0) and content or '';"
+	tal:define="content python: not append_only and content or '';"
         tal:content="content">content</textarea>
 
       </tal:define>
