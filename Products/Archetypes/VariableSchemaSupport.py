@@ -14,6 +14,7 @@ from Products.Archetypes.utils import OrderedDict
 
 from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
 from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
+from Acquisition import ImplicitAcquisitionWrapper
 from DateTime import DateTime
 from Globals import InitializeClass
 
@@ -80,7 +81,7 @@ class VariableSchemaSupport:
         for f in schema.fields():
             sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, self)
 
         return schemata
 

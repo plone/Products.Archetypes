@@ -34,4 +34,20 @@ function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
 }
 
 <dtml-with field><dtml-var getName></dtml-with>_update(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_types'));
+
+<dtml-if "field.getName() in REQUEST.get('reference_source_field', [])">
+function focusOnReferenceField() {
+  document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').focus();
+}
+
+// I think "unRegisterPloneFunction" should live in plone_ecmascripts/plone_javascripts.js. what do you think?
+function unRegisterPloneFunction(func){
+    // uregisters a previous function to fire onload. 
+    if (window.removeEventListener) window.removeEventListener("load",func,false);
+    else if (window.detachEvent) window.detachEvent("onload",func);   
+  }
+
+unRegisterPloneFunction(setFocus);
+registerPloneFunction(focusOnReferenceField);
+</dtml-if>
 -->

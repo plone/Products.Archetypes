@@ -231,11 +231,12 @@ class Field(DefaultLayerContainer):
         # check if we are allowed to use the validators
         # Don't validate if the field is empty and not required
         # XXX: This is a temporary fix. Need to be fixed right for AT 2.0
-        #      content_edit / BaseObject.processForm() calls widget.process_form
-        #      a second time!
+        #      content_edit / BaseObject.processForm() calls
+        #      widget.process_form a second time!
         isEmpty = False
         if self.validators:
             widget = self.widget
+            # XXX: the comment below is absurd
             # XXX: required for unit test
             request = getattr(instance, 'REQUEST', None)
             if request:
@@ -243,11 +244,12 @@ class Field(DefaultLayerContainer):
                 result = widget.process_form(instance, self, form,
                                              empty_marker=_marker,
                                              emptyReturnsMarker=True)
-                if result is _marker or result is None: # FileWidget returns None
+                if result is _marker or result is None:
+                    # XXX: FileWidget returns None
                     isEmpty = True
 
-        return self.validate_validators(value, instance=instance, errors=errors,
-                                 isEmpty=isEmpty, **kwargs)
+        return self.validate_validators(value, instance, errors, isEmpty,
+                                        **kwargs)
 
     def validate_validators(self, value, instance, errors, isEmpty, **kwargs):
         """

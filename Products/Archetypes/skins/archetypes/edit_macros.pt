@@ -49,10 +49,18 @@
 
         <fieldset>
 
-          <legend
-            i18n:translate=""
-            tal:content="python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset or here.archetype_name"
-            />
+          <legend tal:define="iconname python: here.getIcon(1);
+                              icon python: here.portal_url() + '/' + iconname">
+    
+              <img alt="" tal:attributes="src icon" />
+          
+              <tal:legend i18n:translate="legend_type_details">
+              
+                  <span i18n:name="type"
+                        tal:replace="python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset or here.archetype_name" />
+                  Details
+              </tal:legend>
+          </legend>
 
           <!--
             <div tal:condition="errors" class="error">
@@ -183,10 +191,7 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
-                       i18n:attributes="value"
-                       tal:define="cname python:getattr(here.portal_types, here.portal_type).Title()"
                        tal:attributes="tabindex tabindex/next;
-                                       value string:Save ${cname};
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:'portal_factory' in request.get('URL0').split('/')"
@@ -196,7 +201,7 @@
                        name="form.button.cancel"
                        value="Cancel"
                        i18n:attributes="value"
-                       tal:attributes="tabindex tabindex/next;"
+                       tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>
 
@@ -210,8 +215,12 @@
 
     </div>
 
-    <metal:footer_macro define-macro="footer" />
-
+    <metal:footer_macro define-macro="footer">
+      <div metal:use-macro="here/document_byline/macros/byline">
+        Get the byline - contains details about author and modification date.
+      </div>
+    </metal:footer_macro>
+        
   </body>
 
 </html>

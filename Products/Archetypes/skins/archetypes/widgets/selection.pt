@@ -27,7 +27,7 @@
                                     vlen python:len(vocab);
                                     format python:field.widget.format">
 
-                <tal:shortVocab condition="python:(vlen < 4 and format == 'flex') or (format == 'radio')">
+                <tal:shortVocab condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')">
 
                     <!-- Radio when the vocab is short < 4 -->
 

@@ -25,8 +25,7 @@
           <tal:define define="id fieldName;
                               inputname fieldName;
                               formname string:edit_form;
-                              inputvalue python:test(value!='None', value, '');
-                              tabindex tabindex/next">
+                              inputvalue python:test(value!='None', value, '');">
             <metal:use use-macro="here/calendar_slot/macros/calendarDatePickerBox">
               a calendar, hopefully
             </metal:use>

@@ -67,16 +67,28 @@ if reference_source_url is not None:
         domain='archetypes',
         default='Reference Added.')
 
+    edited_reference_message = context.translate(
+        msgid='message_reference_edited',
+        domain='archetypes',
+        default='Reference Edited.')
+
     # update session saved data
+    uid = new_context.UID()
     SESSION = context.REQUEST.SESSION
     saved_dic = SESSION.get(reference_obj.getId(), None)
     if saved_dic:
         saved_value = saved_dic.get(reference_source_field, None)
         if same_type(saved_value, []):
             # reference_source_field is a multiValued field, right!?
-            saved_value.append(new_context.UID())
+            if uid in saved_value:
+                portal_status_message = edited_reference_message
+            else:
+                saved_value.append(uid)
         else:
-            saved_value = new_context.UID()
+            if uid == saved_value:
+                portal_status_message = edited_reference_message
+            else:
+                saved_value = uid
         saved_dic[reference_source_field] = saved_value
         SESSION.set(reference_obj.getId(), saved_dic)
     
@@ -86,7 +98,6 @@ if reference_source_url is not None:
         'portal_status_message':portal_status_message,
         'fieldset':reference_source_fieldset,
         'field':reference_source_field,
-        #reference_source_field:new_context.UID(),
         }
     return state.set(**kwargs)
 
