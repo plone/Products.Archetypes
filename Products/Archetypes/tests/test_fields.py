@@ -1,5 +1,10 @@
-import unittest
-# trigger zope import
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from common import *
+from utils import *
+
 from test_classgen import Dummy as BaseDummy
 
 from os import curdir
@@ -68,9 +73,10 @@ class FakeRequest:
     other = {}
     form = {}
 
-class ProcessingTest( unittest.TestCase ):
+class ProcessingTest(ArchetypesTestCase):
 
-    def setUp(self):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -105,15 +111,19 @@ class ProcessingTest( unittest.TestCase ):
                 got = str(got)
             self.assertEquals(got, v, '[%r] != [%r]'%(got, v))
 
-    def tearDown(self):
+    def beforeTearDown(self):
         global stub_file
         stub_file.close()
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ProcessingTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(ProcessingTest))
+        return suite

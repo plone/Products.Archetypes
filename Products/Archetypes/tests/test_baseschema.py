@@ -1,4 +1,9 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from common import *
+from utils import * 
 
 # need this to initialize new BU for tests
 from test_classgen import Dummy
@@ -15,14 +20,14 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE,CEILING_DATE
 
 from DateTime import DateTime
-import unittest
 
 Dummy.schema = BaseSchema
 
 
-class BaseSchemaTest( unittest.TestCase ):
+class BaseSchemaTest(ArchetypesTestCase):
 
-    def setUp( self ):
+    def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
@@ -311,14 +316,18 @@ class BaseSchemaTest( unittest.TestCase ):
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(tuple(vocab) == ())
-
-    def tearDown( self ):
+ 
+    def beforeTearDown(self): 
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(BaseSchemaTest),
-        ))
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(BaseSchemaTest))
+        return suite 

@@ -1,11 +1,12 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
+from common import *
+from utils import *
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_vocabulary', 'Cannot import ArcheSiteTestCase')
 
 from StringIO import StringIO
 
@@ -53,24 +54,21 @@ class DummyCatalog:
 
     searchResults = __call__
 
-class DummyArchTool:
-
-    def lookupObject(self, uid):
-        return Dummy(uid)
-
-    def deleteReferences(self, obj, reference):
-        pass
-
 sample_data = [('Test123', Dummy('Test123'), '/Test123'),
                ('Test124', None, '/Test124'),
                ('Test125', Dummy('Test125'), '/Test125')]
 
-class VocabularyTest(unittest.TestCase):
-
-    def setUp(self):
+class VocabularyTest(ArcheSiteTestCase):
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self)
+        user = self.getManagerUser()
+        newSecurityManager( None, user )
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        self._dummy = Dummy(oid='dummy')
+        site = self.getPortal()
+        site.dummy = Dummy(oid='dummy')
+        self._dummy = site.dummy
+        # XXX doesn't work this way :(
         brains = [DummyBrain(*args) for args in sample_data]
         self._dummy.portal_catalog = DummyCatalog(brains)
         self._dummy.uid_catalog = DummyCatalog(brains)
@@ -86,13 +84,17 @@ class VocabularyTest(unittest.TestCase):
                                 ('Test125', 'Test125')])
         self.assertEqual(vocab, expected)
 
-    def tearDown(self):
+    def beforeTearDown(self):
         del self._dummy
-
-def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(VocabularyTest),
-        ))
+        ArcheSiteTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(VocabularyTest))
+        return suite

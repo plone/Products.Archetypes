@@ -1,31 +1,31 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.8 2003/08/08 11:26:43 syt Exp $
+$Id: test_rename.py,v 1.9 2003/11/03 21:44:22 dreamcatcher Exp $
 """
 
-import unittest
-import Zope
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+from common import *
+from utils import * 
+
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
 from Acquisition import aq_base
-from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
-from Products.CMFPlone.Portal import manage_addSite
 
-class RenameTests( SecurityRequestTest ):
+class RenameTests(ArcheSiteTestCase):
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self) 
+        user = self.getManagerUser()
+        newSecurityManager( None, user )
 
-    def setUp(self):
-        SecurityRequestTest.setUp(self)
-        manage_addSite( self.root, 'testsite', \
-                        custom_policy='Archetypes Site' )
-
+    # XXX test is not running: ValueError: can not change oid of cached object
     def test_rename(self):
-        site = self.root.testsite
+        site = self.getPortal()
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
         doc = makeContent(site, portal_type='Fact', id=obj_id)
@@ -33,18 +33,21 @@ class RenameTests( SecurityRequestTest ):
         doc.setQuote(content, mimetype="text/plain")
         self.failUnless(str(doc.getQuote()) == str(content))
         #make sure we have _p_jar
-        doc._p_jar = site._p_jar = self.root._p_jar
-        new_oid = self.root._p_jar.new_oid
+        doc._p_jar = site._p_jar = self.app._p_jar
+        new_oid = self.app._p_jar.new_oid
         site._p_oid = new_oid()
         doc._p_oid = new_oid()
         site.manage_renameObject(obj_id, new_id)
         doc = getattr(site, new_id)
         self.failUnless(str(doc.getQuote()) == str(content))
 
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest( unittest.makeSuite( RenameTests ) )
-    return suite
-
 if __name__ == '__main__':
-    unittest.main( defaultTest = 'test_suite' )
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(RenameTests))
+        return suite 

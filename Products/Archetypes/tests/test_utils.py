@@ -1,17 +1,14 @@
-import unittest
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import Zope # Sigh, make product initialization happen
+from common import *
+from utils import * 
 
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
 
 from Products.Archetypes.utils import DisplayList
 
-import unittest
-
-class DisplayListTest( unittest.TestCase ):
+class DisplayListTest(ArchetypesTestCase):
 
     def test_cmp(self):
         ta = ('a', 'b', 'c')
@@ -126,4 +123,12 @@ def test_suite():
         ))
 
 if __name__ == '__main__':
-    unittest.main()
+    framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(DisplayListTest))
+        return suite 
