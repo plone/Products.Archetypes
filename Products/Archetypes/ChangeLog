@@ -1,3 +1,13 @@
+2005-01-22  Dorneles Treméa  <deo@plonesolutions.com>
+
+	* SQLMethod.py (__call__): Fixed to, when db_encoding isn't defined,
+	give precedence to site_encoding and then fallback to utf-8.
+
+	* tests/test_sqlstorage.py (test_stringfield_bug1003868): Improved
+	test to demonstrate the real problem: default_charset isn't respected.
+	Bonus: there's no more need to mess with 'sys.getdefaultencoding()'
+	to make tests run...  ;-)
+
 2004-12-14  Dorneles Treméa  <deo@plonesolutions.com>
 
 	* i18n/archetypes-it.po: Added italian translation file. Thanks	to
