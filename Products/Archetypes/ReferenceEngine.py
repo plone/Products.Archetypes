@@ -59,7 +59,7 @@ class ReferenceEngine(Base):
         add_hook = getattr(target, 'beforeAddReference', None)
         if add_hook and callable(add_hook):
             try:
-                add_hook(object)
+                add_hook(object, relationship)
             except:
                 return
             
@@ -77,7 +77,7 @@ class ReferenceEngine(Base):
     def _addRef(self, object, target, refs=None, relationship=None):
         if not refs:
             refs = self.refs.get(object, [])
-
+            
         key = (target, relationship)
         if key in refs:
             return
@@ -92,53 +92,62 @@ class ReferenceEngine(Base):
         brefs.insert(0, (object, relationship))
         self.bref[target] = brefs
 
-    def _delRef(self, object, target):
+    def _delRef(self, object, target, relationship=None):
         refs = self.refs.get(object, [])
 
         #Scan for the target in the list and remove it
-        for k, r in refs:
-            if k == target:
-                refs.remove((k,r))
-                break
+        if not relationship:
+            for k, r in refs:
+                if k == target:
+                    refs.remove((k,r))
+        else:
+            refs.remove((target, relationship))
+            
         self.refs[object] = refs            
 
 
-    def _delBref(self, object, target):
-        brefs = self.bref.get(object, [])
+    def _delBref(self, object, target, relationship=None):
+        brefs = list(self.bref.get(object, []))
 
-        for k, r in brefs:
-            if k == target:
-                brefs.remove((k,r))
-                break
+        if not relationship:
+            for k, r in brefs:
+                if k == target:
+                    brefs.remove((k,r))
+        else:
+            brefs.remove((target, relationship))
+            
         self.bref[object] = brefs
         
-    def _delReferences(self, object):
+    def _delReferences(self, object, relationship=None):
         #Delete all back refs and all refs
         if type(object) != StringType:
             oid = object.UID()
         else:
             oid = object
 
+        #Everything that points at 'object'
         brefs = list(self.bref.get(oid, []))
-        for b in brefs:
+        for b, rel in brefs:
             # For each backref delete this object from its
             # ref list and then remove it from the back ref list
-            #log("del bref %s" % (b))
-            self._delRef(b, oid)
-            self._delBref(oid, b)
-
+            if not relationship or rel == relationship:
+                self._delRef(b, oid)
+                self._delBref(oid, b)
+            
+        #Every thing that 'object' points at
         refs = list(self.refs.get(oid, []))
-        for r in refs:
-            self._delRef(oid, r)
-            self._delBref(r, oid)
+        for r, rel in refs:
+            if not relationship or rel == relationship:
+                self._delRef(oid, r)
+                self._delBref(r, oid)
+            
 
-
-    def deleteReferences(self, object):
+    def deleteReferences(self, object, relationship=None):
         """remove all reference to and from object"""
-        self._delReferences(object)
+        self._delReferences(object, relationship=relationship)
 
 
-    def deleteReference(self, object, target):
+    def deleteReference(self, object, target, relationship=None):
         """Remove a single ref/backref pair from an object, the
         beforeDeleteReference hook will be called on the target, an
         exception will prevent the reference from being deleted
@@ -157,16 +166,17 @@ class ReferenceEngine(Base):
         del_hook = getattr(target, 'beforeDeleteReference', None)
         if del_hook and callable(del_hook):
             try:
-                del_hook(object)
+                del_hook(object, relationship)
             except:
                 return
 
 
-        self._delRef(oid, tid)
-        self._delBref(tid, oid)
+        self._delRef(oid, tid, relationship)
+        self._delBref(tid, oid, relationship)
 
     def isReferenceable(self, object):
-        return IReferenceable.isImplementedBy(object)
+        return IReferenceable.isImplementedBy(object) or hasattr(object, 'isReferenceable')
+
     
     def getRelationships(self, object):
         refs = []

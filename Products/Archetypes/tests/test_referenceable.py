@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.4 2003/04/28 15:53:31 bcsaller Exp $
+$Id: test_referenceable.py,v 1.5 2003/04/30 22:43:34 bcsaller Exp $
 """
 
 import unittest
@@ -114,15 +114,35 @@ class ReferenceableTests( SecurityRequestTest ):
         rels = a.getRelationships()
         assert "KnowsAbout" in rels
         assert "Owns" in rels
-
+        
         a.deleteReference(c)
 
         assert a.getRefs() == [b]
         assert c.getBRefs() == []
-        
-        
-        
 
+
+    def test_singleReference(self):
+        # If an object is referenced don't record its reference again
+        site = self.root.testsite
+        catalog = site.portal_catalog
+        at = site.archetype_tool
+        
+        a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
+
+
+        #Add the same ref twice
+        a.addReference(b, "KnowsAbout")
+        a.addReference(b, "KnowsAbout")
+
+        assert len(a.getRefs('KnowsAbout')) == 1
+
+        #In this case its a different relationship
+        a.addReference(b, 'Flogs')
+        assert len(a.getRefs('KnowsAbout')) == 1
+        assert len(a.getRefs()) == 2
+
+        
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest( unittest.makeSuite( ReferenceableTests ) )

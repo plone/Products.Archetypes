@@ -19,7 +19,8 @@ def test_suite():
         'test_sqlstorage',
         'test_schemata', 
         'test_sitepolicy', 
-        'test_referenceable', 
+        'test_referenceable',
+        'test_referenceEngine',
         'test_rename', 
         ])
 

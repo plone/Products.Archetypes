@@ -1,3 +1,17 @@
+
+2003-04-30  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ReferenceEngine.py (ReferenceEngine.addReference): changed the
+	before add/del hooks to get passed the name of the
+	relationship. Made delete take the name of the relationship and
+	introduced a slight policy change as seen in test_singleReference.
+	We record a single reference for an (object, relationship) pair,
+	but an object can keep many references to a single object with
+	different relationships. The delete case was also broken by the
+	introduction of relationship types, this has been fixed and a test
+	added.
+	
+
 2003-04-30  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* BaseObject.py (BaseObject._processForm): Mispelling. metdata -> metadata.

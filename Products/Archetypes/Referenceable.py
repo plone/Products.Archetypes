@@ -31,9 +31,13 @@ class Referenceable(Base):
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.addReference(self, object, relationship)
 
-    def deleteReference(self, object):
+    def deleteReference(self, object, relationship=None):
         tool = getToolByName(self, config.TOOL_NAME)
-        return tool.deleteReference(self, object)
+        return tool.deleteReference(self, object, relationship)
+
+    def deleteReferences(self, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.deleteReferences(self, relationship)
 
     def getRelationships(self):
         """What kinds of relationships do this object have"""
