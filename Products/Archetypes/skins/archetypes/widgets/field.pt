@@ -9,7 +9,7 @@
     <!-- Base Field Widgets -->
     <div metal:define-macro="view">
       <div tal:condition="python:'view' in widget.modes">
-	<span class="label" tal:content="string:${widget/Label}:">Field</span>
+	<span class="label" tal:content="python:widget.Label(here) + ':'">Field</span>
         <span tal:condition="field/workflowable|nothing"
               tal:omit-tag="">
         (<a href="#"
@@ -30,9 +30,9 @@
     <metal:define define-macro="edit">
     <div class="row" tal:condition="python: 'edit' in widget.modes">
         <div tal:attributes="class python:test(field.required, 'required label', 'label')">
-             <span i18n:translate="" tal:content="string:${widget/Label}"></span>
+             <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
              <div id="title_help" class="help" style="visibility: hidden;"
-                  tal:content="string:${widget/Description}"
+                  tal:content="python:widget.Description(here)"
                   tal:attributes="id string:${fieldName}_help">Help tooltip</div>
         
              <span tal:condition="field/workflowable|nothing"
