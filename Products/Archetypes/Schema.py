@@ -262,6 +262,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             if metadata:
                 fields.extend([(field.getName(), field) for field in self.filterFields(isMetadata=1)])
 
+        log('%s' % (REQUEST.form.items()) )
         for name, field in fields:
             if name == 'id':
                 member = getToolByName(instance, 'portal_membership').getAuthenticatedMember()
@@ -271,7 +272,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             if errors and errors.has_key(name): continue
             error = 0
             value = None
-
+            log('%s %s' % (name, field) )
             if REQUEST:
                 form = REQUEST.form
                 for postfix in ['_file', '']: ##Contract with FileWidget
@@ -444,6 +445,13 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     def signature(self):
         from md5 import md5
         return md5(self.toString()).digest()
+    
+    def hasI18NContent(self):
+        """return true it the schema contains at least one I18N field"""
+        for field in self.values():
+            if field.hasI18NContent():
+                return 1
+        return 0
 
 
 #Reusable instance for MetadataFieldList
