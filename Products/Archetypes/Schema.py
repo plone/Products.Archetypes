@@ -617,7 +617,7 @@ class Schema(Schemata, DefaultLayerContainer):
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'delSchemata')
     def delSchemata(self, name):
-        """ remove all fields belong to schemata 'name' """
+        """ remove all fields belonging to schemata 'name' """
         for f in self.fields():
             if f.schemata == name:
                 self.delField(f.getName())
@@ -711,7 +711,6 @@ class Schema(Schemata, DefaultLayerContainer):
         for s_name in schemata_names:
             for f in d[s_name]:
                 self.addField(f)
-
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'replaceField')
     def replaceField(self, name, field):
