@@ -15,8 +15,9 @@ from Products.Archetypes.storages import AttributeStorage
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.vocabulary import DisplayList
-from basefields import Field
-from basefields import ObjectField
+from Products.Archetypes.fields.base import Field
+from Products.Archetypes.fields.base import ObjectField
+from Products.Archetypes.fields.file import FileField
 
 # field specific imports
 from types import UnicodeType, StringTypes, FileType
@@ -25,7 +26,7 @@ from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.Archetypes.widgets import StringWidget
 from Products.Archetypes.widgets import LinesWidget
-from filefields import FileField
+
 
 __docformat__ = 'reStructuredText'
 

@@ -1,23 +1,23 @@
 # import the base fields
-from basefields import Field
-from basefields import ObjectField
+from Products.Archetypes.fields.base import Field
+from Products.Archetypes.fields.base import ObjectField
 
 # import concrete fields
-from textfields import StringField
-from textfields import TextField
-from textfields import LinesField
-from numberfields import IntegerField
-from numberfields import FloatField
-from numberfields import FixedPointField
-from numberfields import BooleanField
-from numberfields import DateTimeField
-from filefields import FileField
-from filefields import CMFObjectField
-from imagefields import ImageField
-from imagefields import PhotoField
-from referencefields import ReferenceField
-from computedfields import ComputedField
+from Products.Archetypes.fields.text import StringField
+from Products.Archetypes.fields.text import TextField
+from Products.Archetypes.fields.text import LinesField
+from Products.Archetypes.fields.number import IntegerField
+from Products.Archetypes.fields.number import FloatField
+from Products.Archetypes.fields.number import FixedPointField
+from Products.Archetypes.fields.number import BooleanField
+from Products.Archetypes.fields.number import DateTimeField
+from Products.Archetypes.fields.file import FileField
+from Products.Archetypes.fields.file import CMFObjectField
+from Products.Archetypes.fields.image import ImageField
+from Products.Archetypes.fields.image import PhotoField
+from Products.Archetypes.fields.reference import ReferenceField
+from Products.Archetypes.fields.computed import ComputedField
 
 # import other classes (for backward compatibility)
-from imagefields import ScalableImage, Image
-from textfields import encode, decode
+from Products.Archetypes.fields.image import ScalableImage, Image
+from Products.Archetypes.fields.text import encode, decode

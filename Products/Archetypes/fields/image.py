@@ -15,8 +15,9 @@ from Products.Archetypes.storages import AttributeStorage
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.vocabulary import DisplayList
-from basefields import Field
-from basefields import ObjectField
+from Products.Archetypes.fields.base import Field
+from Products.Archetypes.fields.base import ObjectField
+from Products.Archetypes.fields.file import FileField
 
 # imports specific for this field
 from types import DictType
@@ -31,8 +32,6 @@ from OFS.Traversable import Traversable
 from OFS.Cache import ChangeCacheSettingsPermission
 from Products.Archetypes.config import HAS_PIL
 from Products.Archetypes.widgets import ImageWidget
-from Products.Archetypes.fields import FileField
-from Products.Archetypes.fields.basefields import ObjectField
 if HAS_PIL:
     import PIL
 

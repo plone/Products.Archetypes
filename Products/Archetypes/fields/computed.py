@@ -15,8 +15,8 @@ from Products.Archetypes.storages import AttributeStorage
 from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.lib.vocabulary import DisplayList
-from basefields import Field
-from basefields import ObjectField
+from Products.Archetypes.fields.base import Field
+from Products.Archetypes.fields.base import ObjectField
 
 # field specific imports
 from Products.Archetypes.widgets import ComputedWidget
