@@ -66,6 +66,11 @@ def install_archetypetool(self, out):
         if not hasattr(aq_base(at), 'catalog_map'):
             at.catalog_map = PersistentMapping()
 
+def install_tools(self, out):
+    # Backwards compat. People (eg: me!) may depend on that
+    install_archetypetool(self, out)
+    install_uidcatalog(self, out)
+
 def install_uidcatalog(self, out, rebuild=False):
 
     index_defs=( ('UID', 'FieldIndex'),
