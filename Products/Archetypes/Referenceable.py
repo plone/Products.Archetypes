@@ -22,15 +22,24 @@ class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
-    def getRefs(self):
+    def addReference(self, object, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.addReference(self, object, relationship)
+
+    def deleteReference(self, object):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.deleteReference(self, object)
+
+    
+    def getRefs(self, relationship=None):
         """get all the referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
-        return [tool.getObject(ref) for ref in tool.getRefs(self)]
+        return [tool.getObject(ref) for ref in tool.getRefs(self, relationship)]
 
-    def getBRefs(self):
+    def getBRefs(self, relationship=None):
         """get all the back referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
-        return [tool.getObject(ref) for ref in tool.getBRefs(self)]
+        return [tool.getObject(ref) for ref in tool.getBRefs(self, relationship)]
     
     def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""

@@ -4,39 +4,44 @@ from Products.CMFCore.utils import getToolByName
 from debug import log, log_exc
 from ExtensionClass import Base
 
+from types import StringType
+
 class ReferenceEngine(Base):
     def __init__(self):
         self.refs = PersistentMapping()
         self.bref = PersistentMapping()
 
-    def getRefs(self, object):
+    def getRefs(self, object, relationship=None):
         refs = []
         try:
-            if type(object) != type(''):
+            if type(object) != StringType:
                 object = object.UID()
             refs = self.refs.get(object, [])
         except AttributeError:
             pass
 
+        refs = [r for r,grp in refs if not relationship or (relationship and (grp == relationship))]
         return refs
 
-    def getBRefs(self, object):
+    def getBRefs(self, object, relationship=None):
         brefs = []
         try:
-            if type(object) != type(''):
+            if type(object) != StringType:
                 object = object.UID()
             brefs = self.bref.get(object, [])
         except AttributeError:
             pass
+
+        brefs = [r for r,grp in brefs if not relationship or (relationship and (grp == relationship))]
         return brefs
 
-    def addReference(self, object, target):
-        if type(object) != type(''):
+    def addReference(self, object, target, relationship=None):
+        if type(object) != StringType:
             oid = object.UID()
         else:
             oid = object
 
-        if type(target) != type(''):
+        if type(target) != StringType:
             tid = target.UID()
         else:
             tid = target
@@ -44,8 +49,8 @@ class ReferenceEngine(Base):
         refs = self.refs.get(oid, [])
 
         if tid not in refs:
-            self._addRef(oid, tid, refs=refs)
-            self._addBref(oid, tid)
+            self._addRef(oid, tid, refs=refs, relationship=relationship)
+            self._addBref(oid, tid, relationship=relationship)
 
     def assertId(self, uid):
         catalog = getToolByName(self, 'portal_catalog')
@@ -54,44 +59,47 @@ class ReferenceEngine(Base):
             return 1
         return 0
 
-    def _addRef(self, object, target, refs=None):
+    def _addRef(self, object, target, refs=None, relationship=None):
         if not refs:
             refs = self.refs.get(object, [])
 
-        if target in refs:
+        key = (target, relationship)
+        if key in refs:
             return
 
         if self.assertId(target):
-            refs.insert(0, target)
+            refs.insert(0, key)
             self.refs[object] = refs
 
-    def _addBref(self, object, target):
-        brefs = self.bref.get(target, [])
-        brefs.insert(0, object)
-        self.bref[target] = brefs
 
+    def _addBref(self, object, target, relationship):
+        brefs = self.bref.get(target, [])
+        brefs.insert(0, (object, relationship))
+        self.bref[target] = brefs
 
     def _delRef(self, object, target):
         refs = self.refs.get(object, [])
-        try:
-            refs.remove(target)
-            self.refs[object] = refs
-        except ValueError:
-            pass
+
+        #Scan for the target in the list and remove it
+        for k, r in refs:
+            if k == target:
+                refs.remove((k,r))
+                break
+        self.refs[object] = refs            
 
 
     def _delBref(self, object, target):
         brefs = self.bref.get(object, [])
-        try:
-            brefs.remove(target)
-            self.bref[object] = brefs
-        except ValueError:
-            pass
 
+        for k, r in brefs:
+            if k == target:
+                brefs.remove((k,r))
+                break
+        self.bref[object] = brefs
+        
     def _delReferences(self, object):
-        ##TODO: remove empty ref/bref entries after delete
         #Delete all back refs and all refs
-        if type(object) != type(''):
+        if type(object) != StringType:
             oid = object.UID()
         else:
             oid = object
@@ -117,12 +125,12 @@ class ReferenceEngine(Base):
 
     def deleteReference(self, object, target):
         """Remove a single ref/backref pair from an object"""
-        if type(object) != type(''):
+        if type(object) != StringType:
             oid = object.UID()
         else:
             oid = object
 
-        if type(target) != type(''):
+        if type(target) != StringType:
             tid = target.UID()
         else:
             tid = target

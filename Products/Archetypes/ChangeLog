@@ -1,3 +1,18 @@
+2003-04-22  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* tests/test_referenceable.py
+	(ReferenceableTests.test_relationships): Added tests for and the
+	ability to define the relationship between references. Look at the
+	test for details but know that we can say things like:
+		a.addReference('Owns', b)
+		a.getRefs() = [..all..]
+		a.getRefs('Owns') [b]
+
+	IMPORTANT: The old storage format for reference is no longer
+	supported. It should possible to convert to the new model using a
+	script and a default relationship type though
+		
+	
 2003-04-22  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* Marshall.py (Marshaller.initializeInstance): Method was not
@@ -7,6 +22,7 @@
 
 	* interfaces/layer.py (ILayerRuntime.initializeLayers): Update
 	interfaces to match the real implementation.
+
 
 2003-04-21  Sidnei da Silva  <sidnei@x3ng.com>
 

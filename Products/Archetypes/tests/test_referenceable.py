@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.2 2003/03/29 00:11:55 dreamcatcher Exp $
+$Id: test_referenceable.py,v 1.3 2003/04/22 21:27:48 bcsaller Exp $
 """
 
 import unittest
@@ -88,6 +88,35 @@ class ReferenceableTests( SecurityRequestTest ):
         UID2 = doc2.UID()
         self.failIf(UID == UID2)
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,UID2))
+
+    def test_relationships(self):
+        site = self.root.testsite
+        catalog = site.portal_catalog
+        
+        obj_id   = 'demodoc'
+        known_id = 'known_doc'
+        owned_id = 'owned_doc'
+
+        a = makeContent( site, portal_type='DDocument',title='Foo', id=obj_id)
+        b = makeContent( site, portal_type='DDocument',title='Foo', id=known_id)
+        c = makeContent( site, portal_type='DDocument',title='Foo', id=owned_id)
+
+        #Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+        a.addReference(c, "Owns")
+
+        assert b in a.getRefs()
+        assert c in a.getRefs()
+        assert a.getRefs('Owns') == [c]
+        assert c.getBRefs('Owns')== [a]
+
+        a.deleteReference(c)
+
+        assert a.getRefs() == [b]
+        assert c.getBRefs() == []
+        
+        
+        
 
 def test_suite():
     suite = unittest.TestSuite()
