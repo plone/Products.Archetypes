@@ -238,6 +238,19 @@ class ReferenceableTests(ArcheSiteTestCase):
         #assert len(uids) == 0
         assert len(rc()) == 0
 
+    def test_reindexUIDCatalog(self):
+        site = self.getPortal()
+        catalog = site.uid_catalog
+
+        doc = makeContent(site,
+                          portal_type='DDocument',
+                          id='demodoc')
+        doc.setTitle('sometitle')
+        doc.update() # reindex
+        
+        brain = catalog(UID=doc.UID())[0]
+        self.assertEquals(brain.Title, doc.Title())
+
     def test_referenceReference(self):
         # Reference a reference object for fun (no, its like RDFs
         # metamodel)
@@ -253,7 +266,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         c.addReference(ref)
         ref.addReference(c)
         self.verifyBrains()
-
+        
     def verifyBrains(self):
         site = self.getPortal()
         uc = getattr(site, UID_CATALOG)
