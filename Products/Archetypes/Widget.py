@@ -55,6 +55,12 @@ class ReferenceWidget(TypesWidget):
         'macro' : "widgets/reference",
         })
 
+class ComputedWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/computed",
+        })
+
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -132,4 +138,8 @@ class ImageWidget(TypesWidget):
         })
 
 
-
+__all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
+           'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
+           'LinesWidget', 'BooleanWidget', 'CalendarWidget',
+           'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
+           'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget', )

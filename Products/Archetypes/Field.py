@@ -6,8 +6,7 @@ from UserDict import UserDict
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore  import CMFCorePermissions
 from Globals import InitializeClass
-from Widget import StringWidget, LinesWidget, DecimalWidget, \
-     BooleanWidget, CalendarWidget, ImageWidget, ReferenceWidget, FileWidget
+from Widget import *
 from utils import capitalize, DisplayList
 from debug import log, log_exc
 from ZPublisher.HTTPRequest import FileUpload
@@ -373,6 +372,24 @@ class ReferenceField(ObjectField):
         if not self.required:
             value.insert(0, (None, '<no reference>'))
         return DisplayList(value)
+
+class ComputedField(ObjectField):
+    __implements__ = ObjectField.__implements__
+
+    _properties = Field._properties.copy()
+    _properties.update({
+        'type' : 'computed',
+        'expression': None,
+        'widget' : ComputedWidget,
+        'mode' : 'r',
+        'storage': None,
+        })
+    
+    def set(self, *ignored, **kwargs):
+        pass
+
+    def get(self, instance, **kwargs):
+        return eval(self.expression, {'context': instance})
 
 class BooleanField(ObjectField):
     __implements__ = ObjectField.__implements__
