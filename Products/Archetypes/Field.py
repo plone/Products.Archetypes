@@ -215,14 +215,15 @@ class Field(DefaultLayerContainer):
         #      a second time!
         useValidators = True
         if self.validators and not self.required:
-            print 'Testing %s' % self.getName()
             widget = self.widget
-            form   = instance.REQUEST.form
-            result = widget.process_form(instance, self, form,
-                                         empty_marker=_marker)
-            print 'Result %s - %s' % (str(result), form.get(self.getName()),)
-            if result is _marker or result is None: # FileWidgets returns None
-                useValidators = False
+            # XXX: required for unit test
+            request = getattr(instance, 'REQUEST', None)
+            if request:
+                form   = request.form
+                result = widget.process_form(instance, self, form,
+                                             empty_marker=_marker)
+                if result is _marker or result is None: # FileWidgets returns None
+                    useValidators = False
 
         if useValidators:
             for v in self.validators:
