@@ -6,7 +6,7 @@ from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, Unauthorized
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
@@ -55,6 +55,21 @@ class BaseFolderMixin(CatalogMultiplex,
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
         Folder.manage_beforeDelete(self, item, container)
+
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'manage_delObjects')
+    def manage_delObjects(self, ids=[], REQUEST=None):
+        """ We need to enforce security. """
+        mt=getToolByName(self, 'portal_membership')
+        if type(ids) is str:
+            ids = [ids]
+        for id in ids:
+            item = self._getOb(id)
+            if not mt.checkPermission(CMFCorePermissions.ModifyPortalContent, item):
+                raise Unauthorized, (
+                    "Do not have permissions to remove this object")
+        SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
     security.declareProtected(CMFCorePermissions.ListFolderContents,
                               'listFolderContents')
@@ -126,6 +141,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         """We have to override setDescription here to handle arbitrary
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
+
 
 
 InitializeClass(BaseFolder)
