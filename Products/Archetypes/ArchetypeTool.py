@@ -15,7 +15,7 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.ClassGen import generateClass, generateCtor, \
      generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config  import PKG_NAME, TOOL_NAME, UID_CATALOG
+from Products.Archetypes.config import PKG_NAME, TOOL_NAME, UID_CATALOG
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import capitalize, findDict, DisplayList, \
      unique, mapply
@@ -435,6 +435,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
+        self.catalog_map['Reference'] = [] # References not in portal_catalog
         # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
 ##        for k, t in _types.items():
