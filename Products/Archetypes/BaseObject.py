@@ -425,9 +425,8 @@ class BaseObject(Implicit):
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             __traceback_info__ = (self, field, mutator)
-            result[1].update({'field': field.__name__,
-                              'value': result[0]})
-            mapply(mutator, **result[1])
+            result[1]['field'] = field.__name__
+            mapply(mutator, result[0], **result[1])
 
         self.reindexObject()
 
