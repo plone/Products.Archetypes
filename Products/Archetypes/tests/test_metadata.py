@@ -7,10 +7,11 @@ from utils import *
 
 from types import FunctionType, ListType, TupleType
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime
+from Products.CMFCore.utils import getToolByName
 
 from test_classgen import Dummy, schema
 
@@ -188,7 +189,13 @@ class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
         language = 'no'
 
         portal = self.getPortal()
-        portal.portal_properties.site_properties._updateProperty('default_language', language)
+        try:
+            sp = getToolByName(portal, 'portal_properties').site_properties
+        except AttributeError:
+            # XXX CMF doesn't have site properties
+            pass
+        else:
+            sp._updateProperty('default_language', language)
 
         #Create a proper object
         self.folder.invokeFactory(id="dummy",

@@ -71,7 +71,9 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name, # this only works for Plone b/c of monkeypatch
+                   # this only works for Plone b/c of monkeypatch
+                   #'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name, 
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name, 
                    'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name}
 
 empty_values = {'objectfield':None,

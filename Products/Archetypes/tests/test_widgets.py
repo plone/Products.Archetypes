@@ -23,12 +23,13 @@ from Products.Archetypes.tests.test_fields import FakeRequest
 class WidgetTests(ArcheSiteTestCase):
 
     def afterSetUp(self):
+        # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content
-        stub_text_file = file(join(PACKAGE_HOME, 'input', 'rest1.rst'))
+        stub_text_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
-        stub_bin_file = file(join(PACKAGE_HOME, 'input', 'word.doc'))
+        stub_bin_file = open(join(PACKAGE_HOME, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
         # Make SESSION var available
@@ -186,7 +187,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
         self.assertEqual(str(doc[field.getName()]), stub_text_content)
 
-    def afterClear(self):
+    def beforeTearDown(self):
         global stub_text_file, stub_bin_file
         stub_text_file.close()
         stub_bin_file.close()

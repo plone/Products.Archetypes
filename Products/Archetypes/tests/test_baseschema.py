@@ -8,22 +8,22 @@ from utils import *
 # need this to initialize new BU for tests
 from test_classgen import Dummy
 
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
-from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from Products.Archetypes.storages import AttributeStorage, MetadataStorage
 from Products.Archetypes import listTypes
-from Products.Archetypes.Widget import IdWidget, StringWidget, BooleanWidget, \
+from Products.Archetypes.widgets import IdWidget, StringWidget, BooleanWidget, \
      KeywordWidget, TextAreaWidget, CalendarWidget, SelectionWidget
-from Products.Archetypes.utils import DisplayList
-from Products.CMFCore  import CMFCorePermissions
-from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE,CEILING_DATE
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.CMFCore import CMFCorePermissions
+from Products.Archetypes.bases.extensiblemetadata import FLOOR_DATE,CEILING_DATE
 
 from DateTime import DateTime
 
 Dummy.schema = BaseSchema
 
-from Products.validation import ValidationChain
+from Products.Archetypes.validation import ValidationChain
 EmptyValidator = ValidationChain('isEmpty')
 EmptyValidator.appendSufficient('isEmpty')
 

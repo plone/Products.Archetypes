@@ -20,7 +20,7 @@ default_role = 'Member'
 
 # install products
 for product in DEPS + DEPS_OWN:
-    CMFTestCase.installProduct(product)
+    ZopeTestCase.installProduct(product)
 CMFTestCase.setupCMFSite()
 
 import time

@@ -416,7 +416,7 @@ class SQLStorageTest(SQLStorageTestBase):
         self.failUnless(value == 0)
 
     def test_rename(self):
-        self.login('manager')
+        self.loginAsPortalOwner()
         dummy = self._dummy
         content = 'The book is on the table!'
         dummy.setAtextfield(content)
