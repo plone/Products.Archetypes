@@ -108,6 +108,15 @@ base_factory_type_information = (
                        'permissions': (CMFCorePermissions.View,),
                        'visible' : 1,
                        },
+
+                     { 'id': 'folderlisting',
+                       'name': 'Folder Listing',
+                       'action': 'string:${folder_url}/folder_listing',
+                       'condition': 'object/isPrincipiaFolderish',
+                       'permissions': (CMFCorePermissions.View,),
+                       'category': 'folder',
+                       'visible' : 0,
+                       },
                      )
       }, )
 
@@ -132,6 +141,7 @@ def fixActionsForType(portal_type, typesTool):
                 #  we must not put persistent objects into class attributes.
                 #  Thus, copy "action"
                 action = action.copy()
+                
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -211,6 +221,14 @@ def modify_fti(fti, klass, pkg_name):
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = 0
+
+    # remove folderlisting action from non folderish content types
+    if not getattr(klass,'isPrincipiaFolderish', None):
+        actions = []
+        for action in fti[0]['actions']:
+            if action['id'] != 'folderlisting':
+                actions.append(action)
+        fti[0]['actions'] = tuple(actions)
 
 def process_types(types, pkg_name):
     content_types = ()
