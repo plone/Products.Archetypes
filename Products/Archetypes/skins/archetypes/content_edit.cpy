@@ -87,7 +87,6 @@ if reference_source_url is not None:
 
     # update session saved data
     uid = new_context.UID()
-    SESSION = context.REQUEST.SESSION
     saved_dic = SESSION.get(reference_obj.getId(), None)
     if saved_dic:
         saved_value = saved_dic.get(reference_source_field, None)
@@ -105,7 +104,8 @@ if reference_source_url is not None:
         saved_dic[reference_source_field] = saved_value
         SESSION.set(reference_obj.getId(), saved_dic)
     
-    context.remove_creation_mark(old_id)
+    # XXX disabled mark creation flag
+    ## context.remove_creation_mark(old_id)
 
     kwargs = {
         'status':'success_add_reference',
@@ -132,7 +132,9 @@ if state.errors:
                 context=new_context,
                 portal_status_message=portal_status_message)
 
-context.remove_creation_mark(old_id)
+# XXX disabled mark creation flag
+## context.remove_creation_mark(old_id)
+
 if not state.errors:
     from Products.CMFPlone import transaction_note
     transaction_note('Edited %s %s at %s' % (new_context.meta_type, new_context.title_or_id(), new_context.absolute_url()))

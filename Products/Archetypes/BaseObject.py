@@ -15,7 +15,6 @@ from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
-from Products.Archetypes.ATAnnotations import ATAnnotatableMixin
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
@@ -72,7 +71,7 @@ content_type = Schema((
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Referenceable, ATAnnotatableMixin):
+class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
 
@@ -84,7 +83,7 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = IBaseObject, ATAnnotatableMixin.__implements__, Referenceable.__implements__
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -98,9 +97,11 @@ class BaseObject(Referenceable, ATAnnotatableMixin):
             self.initializeLayers()
             self.setDefaults()
             if kwargs:
-                self.update(**kwargs)
+                self.edit(**kwargs)
             self._signature = self.Schema().signature()
-            self.markCreationFlag()
+            ## XXX mark creation flag makes lot's of noise and problems
+            ## and all functionality is available when using the portal factory
+            ## self.markCreationFlag()
         except ConflictError:
             raise
         except:

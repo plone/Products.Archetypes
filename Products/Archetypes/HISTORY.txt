@@ -6,6 +6,16 @@
    to copy a thread lock.
    [tiran]
 
+ * Finally removed markCreationFlag which was a bad hack to achieve the same
+   effect as portal_factory but w/o using portal_factory. I had a problem with
+   it again and I don't want to have more headache!
+   [tiran]
+
+ * Changed BaseObject.initializeArchetype() to call edit() instead of update().
+   edit() is an alias for update and it's also the standard method to edit a
+   type in CMF. It makes customization like in ATContentTypes much easier.
+   [tiran]
+
 1.3.0-rc2 - 2004-09-04
 ======================
 
