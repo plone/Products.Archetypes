@@ -256,10 +256,13 @@ class TextAreaWidget(TypesWidget):
 
         """ handle append_only  """
         # SPANKY: It would be nice to add a datestamp too, if desired
+
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None) and (value and not value.isspace()):
             if field.get(instance):
-                value = value + field.widget.divider + field.get(instance)
+                # using default_output_type caused a recursive transformation
+                # that sucked, thus mimetype= here to keep it in line
+                value = value + field.widget.divider + field.get(instance, mimetype="text/plain")
             
         return value, kwargs
 
