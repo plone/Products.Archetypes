@@ -27,7 +27,7 @@
         tal:define="vocab python:field.Vocabulary(here);
 	        vlen python:len(vocab);
 		format python:field.widget.format;
-            ">
+	        value python:accessor()">
 	    <tal:shortVocab condition="python: (vlen < 4 and format=='flex') or (format == 'radio')">
 	    <!-- Radio when the vocab is short < 4 -->
             <tal:radios repeat="item vocab">
@@ -35,7 +35,7 @@
 		            tabindex=""
 		            type="radio"
 		            tal:attributes="name fieldName;
-		                checked python: here.checkSelected(item, value);
+		                checked python:here.checkSelected(item, value);
 		                value python:unicode(str(item));
                         tabindex tabindex/next;
                         onfocus string:formtooltip('${fieldName}_help',1);
