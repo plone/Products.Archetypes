@@ -1,0 +1,3 @@
+include README
+include ChangeLog
+include version.txt
