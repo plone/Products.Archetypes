@@ -204,24 +204,24 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
-    # XXX iiiiiigggghhh!
-    # the root of evil security breaches but currently required
-    # FIXME 
-    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
-    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    # XXX check me high > low security order.
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
-    # XXX iiiiiigggghhh!
-    # the root of evil security breaches but currently required
-    # FIXME 
-    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
-    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    # XXX check me high > low security order.
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
