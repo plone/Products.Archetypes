@@ -120,15 +120,6 @@ msgstr "Select what content type you wish to create."
 msgid "help_select_where_to_create"
 msgstr "Select where you want to create that."
 
-
-#: widgets/reference.pt
-#. <a i18n:translate="label_hide_add_form">
-#.  hide add form
-#. </a>
-msgid "label_hide_add_form"
-msgstr "hide add form"
-
-
 #: widgets/reference.pt
 #. <label i18n:translate="label_what">
 #.  What

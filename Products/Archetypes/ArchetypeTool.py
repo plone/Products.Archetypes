@@ -99,13 +99,6 @@ base_factory_type_information = (
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
-                     { 'id': 'references',
-                       'name': 'References',
-                       'action': 'string:${object_url}/reference_graph',
-                       'condition': 'object/archetype_tool/has_graphviz',
-                       'permissions': (CMFCorePermissions.View,),
-                       'visible' : 1,
-                       },
                      )
       }, )
 
