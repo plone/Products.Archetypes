@@ -7,8 +7,8 @@ modname=PRODUCT.__name__
 # -99 for alpha, -49 for beta, -19 for rc and 0 for final
 # increment the release info number by one e.g. -98 for alpha2
 
-major, minor, bugfix =  version.split('.')
-bugfix, release = bugfix.split('-')
+major, minor, bugfix =  version.split('.')[:3]
+bugfix, release = bugfix.split('-')[:2]
 
 relinfo=-99 #alpha
 if 'beta' in release:
