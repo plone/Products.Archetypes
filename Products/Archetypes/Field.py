@@ -176,6 +176,7 @@ class Field(DefaultLayerContainer):
         keyword args to __dict__. Validate assigned validator(s).
         """
         DefaultLayerContainer.__init__(self)
+
         if name is None:
             global _field_count
             _field_count += 1
@@ -1456,10 +1457,10 @@ class ReferenceField(ObjectField):
         elif len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.getId, at,
+            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
                                            b.getPath())
         else:
-            label = lambda b:b.Title or b.getId
+            label = lambda b:b.Title or b.id
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
@@ -1845,7 +1846,7 @@ class ImageField(FileField):
         elif sizes is None:
             return {}
         else:
-            raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
+            raise TypeError, 'Wrong self.sizes has wrong type: %s' % type(sizes)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'rescaleOriginal')
     def rescaleOriginal(self, value, **kwargs):
