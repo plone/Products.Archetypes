@@ -276,8 +276,10 @@ class Field(DefaultLayerContainer):
         result returned by validator
         """
         name = self.getName()
+        ## Can someone explain what this is for ? __gotcha 
         if errors and errors.has_key(name):
             return True
+        ##
 
         if self.required:
             res = self.validate_required(instance, value, errors)
@@ -325,7 +327,9 @@ class Field(DefaultLayerContainer):
                 default = "%s is required, please correct."
                 % label,
                 )
+            ## Can someone explain what this is for ? __gotcha 
             errors[name] = error
+            ##
             return error
         return None
 

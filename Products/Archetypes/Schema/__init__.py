@@ -563,6 +563,12 @@ class BasicSchema(Schemata):
                                  errors=errors,
                                  REQUEST=REQUEST)
             if res:
+                ## tuple needed to allow list of messages to work
+                ## with CMFFormController
+                if type(res) is ListType:
+                    res = (res, [])
+                else:
+                    res = ([res], [])
                 errors[field.getName()] = res
         return errors
 

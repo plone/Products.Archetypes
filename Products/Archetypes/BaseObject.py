@@ -95,6 +95,7 @@ content_type = Schema((
     description_msgid="help_shortname",
     visible={'view' : 'invisible'},
     i18n_domain="plone"),
+#    validators="isValidId",
                 ),
 
     StringField('title',

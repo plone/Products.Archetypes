@@ -67,6 +67,7 @@
                     value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
                     visCondition python:field.widget.testCondition(here, portal, template);
                     error_messages python:errors.get(fieldName)">
+                    <!--p class="error" tal:content="python:repr(errors)" /-->
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
