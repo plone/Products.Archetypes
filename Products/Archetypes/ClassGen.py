@@ -45,26 +45,17 @@ class Generator:
         if mode == "r":
             def generatedAccessor(self, **kw):
                 """Default Accessor."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
-                    kw['schema'] = schema
-                return schema[name].get(self, **kw)
+                return self.Schema()[name].get(self, **kw)
             method = generatedAccessor
         elif mode == "m":
             def generatedEditAccessor(self, **kw):
                 """Default Edit Accessor."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
-                    kw['schema'] = schema
-                return schema[name].getRaw(self, **kw)
+                return self.Schema()[name].getRaw(self, **kw)
             method = generatedEditAccessor
         elif mode == "w":
             def generatedMutator(self, value, **kw):
                 """Default Mutator."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
-                    kw['schema'] = schema
-                return schema[name].set(self, value, **kw)
+                return self.Schema()[name].set(self, value, **kw)
             method = generatedMutator
         else:
             raise GeneratorError("""Unhandled mode for method creation:
@@ -116,10 +107,8 @@ class ClassGenerator:
                                        self.generateName(klass))
 
         self.checkSchema(klass)
-        fields = klass.schema.fields()
-        self.generateMethods(klass, fields)
 
-    def generateMethods(self, klass, fields):
+        fields = klass.schema.fields()
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
@@ -177,4 +166,3 @@ def add%s(self, id, **kwargs):
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass
-generateMethods = _cg.generateMethods

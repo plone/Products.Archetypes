@@ -283,12 +283,15 @@ class BaseObject(Implicit):
 
         methodName = "validate_%s" % name
 
+        res = 1
         if hasattr(aq_base(self), methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
                 errors[name] = result
-
+                res = 0
+        return res
+        
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
@@ -422,9 +425,8 @@ class BaseObject(Implicit):
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             __traceback_info__ = (self, field, mutator)
-            result[1].update({'field': field.__name__,
-                              'value': result[0]})
-            mapply(mutator, **result[1])
+            result[1]['field'] = field.__name__
+            mapply(mutator, result[0], **result[1])
 
         self.reindexObject()
 

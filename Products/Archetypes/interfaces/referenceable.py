@@ -2,10 +2,10 @@ from interface import Interface, Attribute
 
 class IReferenceable(Interface):
 
-    def getRefs():
+    def getRefs(relationship=None):
         """get all the referenced objects for this object"""
 
-    def getBRefs():
+    def getBRefs(relationship=None):
         """get all the back referenced objects for this object"""
 
 

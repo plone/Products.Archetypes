@@ -177,14 +177,12 @@ class Field(DefaultLayerContainer):
                 log("WARNING: no validator %s for %s" % (v,
                 self.getName()))
 
-    def validate(self, value, **kwargs):
+    def validate(self, value, instance, errors={}, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-        errors = kwargs['errors']
-        instance = kwargs['instance']
         name = self.getName()
 
         if errors and errors.has_key(name):
@@ -205,7 +203,8 @@ class Field(DefaultLayerContainer):
             return res
 
         for v in self.validators:
-            res = validation.validate(v, value, **kwargs)
+            res = validation.validate(v, value, instance=instance,
+                                      errors=errors, **kwargs)
             if res != 1:
                 return res
         return None
@@ -418,7 +417,6 @@ class ObjectField(Field):
         })
 
     def get(self, instance, **kwargs):
-        __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
             return self.storage.get(self.getName(), instance, **kwargs)
@@ -444,12 +442,10 @@ class ObjectField(Field):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
-        __traceback_info__ = (self.getName(), instance, value, kwargs)
         self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
-        __traceback_info__ = (self.getName(), instance, kwargs)
         self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
@@ -493,7 +489,7 @@ class FileField(StringField):
     _properties = StringField._properties.copy()
     _properties.update({
         'type' : 'file',
-        'default' : '',
+        'default' : None,
         'primary' : 0,
         'widget' : FileWidget,
         })
@@ -541,6 +537,10 @@ class FileField(StringField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+
+        if not value:
+            return
+        
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -548,6 +548,12 @@ class FileField(StringField):
                                                default=self.default,
                                                **kwargs)
         kwargs['mimetype'] = mimetype
+
+        if value=="DELETE_FILE":
+            if hasattr(aq_base(instance), '_FileField_types'):
+                delattr(aq_base(instance), '_FileField_types')
+            ObjectField.unset(self, instance, **kwargs)
+            return
 
         # FIXME: ugly hack
         try:
@@ -949,12 +955,8 @@ class ReferenceField(ObjectField):
         return DisplayList(value)
 
     def addableTypes(self, instance):
-        # XXX This needs to be fixed so it works with allowed_types being
-        # a list of Type Titles (which is the default way of specifying
-        # allowed_types).
-        # Currently, you need to set 'allowed_type_column' property to
-        # 'portal_type' and set 'allowed_types' accordingly to have the
-        # addable=1 feature work.
+        # addable=1 won't work if allowed_type_column is not the default
+        # 'portal_type'.
         """Returns a dictionary that maps portal_type to its human readable
         form."""
         tool = getToolByName(instance, 'portal_types')

@@ -457,8 +457,8 @@ class BasicSchema(Schemata):
         The passed dictionary ``errors`` will be filled with human readable
         error messages as values and the corresponding fields' names as
         keys.
-
-        If a REQUEST object is present, validate the field values in the
+        
+        If a REQUEST object is present, validate the field valules in the 
         REQUEST.  Otherwise, validate the values currently in the object.
         """
         if REQUEST:
@@ -508,6 +508,8 @@ class BasicSchema(Schemata):
                                  errors=errors,
                                  field=field,
                                  REQUEST=REQUEST)
+            if res:
+                errors[field.getName()] = res
         return errors
 
 
