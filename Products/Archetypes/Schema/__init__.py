@@ -587,10 +587,12 @@ class Schema(BasicSchema, SchemaLayerContainer):
         return c
 
     security.declareProtected(CMFCorePermissions.View, 'copy')
-    def copy(self):
+    def copy(self, factory=None):
         """Returns a deep copy of this Schema.
         """
-        c = Schema()
+        if factory is None:
+            factory = self.__class__
+        c = factory()
         for field in self.fields():
             c.addField(field.copy())
         # Need to be smarter when joining layers
@@ -600,6 +602,13 @@ class Schema(BasicSchema, SchemaLayerContainer):
         for k, v in self.registeredLayers():
             c.registerLayer(k, v)
         return c
+
+    security.declareProtected(CMFCorePermissions.View, 'wrapped')
+    def wrapped(self, parent):
+        schema = self.copy(factory=WrappedSchema)
+        return schema.__of__(parent)
+
+class WrappedSchema(Schema, Explicit): pass
 
 class ManagedSchema(Schema):
 

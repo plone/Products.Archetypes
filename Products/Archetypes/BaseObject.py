@@ -340,7 +340,7 @@ class BaseObject(Referenceable):
         return value
 
 
-    security.declarePublic('setDefaults')
+    security.declarePrivate('setDefaults')
     def setDefaults(self):
         """Set field values to the default values
         """

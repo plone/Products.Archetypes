@@ -2,7 +2,7 @@ import sha
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schemata
+from Products.Archetypes.Schema import Schemata, WrappedSchemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
 from Products.Archetypes.ClassGen import _modes
 from Products.Archetypes.utils import OrderedDict
@@ -69,16 +69,18 @@ class VariableSchemaSupport (Base):
         schema = self.getAndPrepareSchema()
         schemata = OrderedDict()
         for f in schema.fields():
-            sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+            sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, self)
-
+            schemata[f.schemata] = sub.__of__(self)
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
-        return self.getAndPrepareSchema()
+        schema = self.getAndPrepareSchema()
+        if hasattr(schema, 'wrapped'):
+            return self.schema.wrapped(self)
+        return ImplicitAcquisitionWrapper(schema, self)
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')
@@ -86,7 +88,8 @@ class VariableSchemaSupport (Base):
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha.new(str([f.__dict__ for f in s.values()])+str(self.__class__)).hexdigest()
+        hash=sha.new(str([f.__dict__ for f in s.values()]) +
+                     str(self.__class__)).hexdigest()
 
         if schemadict.has_key(hash): #ok we had that shema already, so take it
             schema=schemadict[hash]

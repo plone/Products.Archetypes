@@ -25,7 +25,7 @@
             <metal:fill fill-slot="widget_body"
                         tal:define="vocab python:field.Vocabulary(here);
                                     vlen python:len(vocab);
-                                    format python:field.widget.format">
+                                    format python:widget.format">
 
                 <tal:shortVocab condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')">
 

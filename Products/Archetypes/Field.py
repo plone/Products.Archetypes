@@ -552,7 +552,7 @@ class ObjectField(Field):
 
     security  = ClassSecurityInfo()
 
-    security.declarePublic('get')
+    security.declarePrivate('get')
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
         try:
