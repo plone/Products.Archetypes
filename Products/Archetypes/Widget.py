@@ -166,7 +166,7 @@ class ReferenceWidget(TypesWidget):
         return types
 
     def getDestination(self, instance):
-        if self.destination:
+        if not self.destination:
             purl = getToolByName(instance, 'portal_url')
             return purl.getRelativeUrl(aq_parent(instance))
         else:
