@@ -58,9 +58,9 @@ class newBaseUnit(File):
             # this occurs on object creation
             if find_binary(data) is None:
                 data = data and unicode(data) or u''
-                mimetype = mimetype or INITIAL_MIMETYPE
+                mimetype = INITIAL_MIMETYPE
             else:
-                mimetype = mimetype or BINARY_MIMETYPE
+                mimetype = BINARY_MIMETYPE
         else:
             data, filename, mimetype = adapter(data, **kw)
 

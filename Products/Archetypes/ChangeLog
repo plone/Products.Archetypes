@@ -1,3 +1,8 @@
+2003-10-03  Sidnei da Silva  <sidnei@dreamcatcher.homeunix.org>
+
+	* BaseUnit.py (newBaseUnit.update): Go with defaults, as we may
+	get a string on mimetype here, which is not what we want.
+
 2003-09-22  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject.getPrimaryField): Moved
