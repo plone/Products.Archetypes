@@ -40,7 +40,12 @@ fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference['field']]
 
-destination = add_reference.destination
+destination = field.widget.getDestination(context)
+if hasattr(add_reference, 'destination'):
+    destination = add_reference.destination
+
+mutator = field.getMutator(context)
+accessor = field.getAccessor(context)
 
 # get the portal object
 portal = context.portal_url.getPortalObject()
@@ -58,18 +63,6 @@ if context.portal_factory.getFactoryTypes().has_key(add_reference.type):
 else:
     destination_context.invokeFactory(add_reference.type, new_id)
     reference_object = getattr(destination_context, new_id)
-    reference_object.markCreationFlag()
-
-# The following code checks the submitted form for an 'associate_ref' list
-# value.  if the field exists, and the name of the ReferenceField is among the
-# listed values, then the reference will be associated immediately upon
-# creation. If not, then the reference will not become associated until the 
-# reference source object is saved (i.e. current behaviour remains).
-if add_reference['field'] in req_get('associate_ref', []):
-    if field.multiValued:
-        field.getMutator(context)(field.getAccessor(context)() + [reference_object])
-    else:
-        field.getMutator(context)(reference_object) 
 
 info = {'reference_source_field':add_reference['field'],
         'reference_source_url':portal.portal_url.getRelativeUrl(context),

@@ -1,8 +1,9 @@
 from __future__ import nested_scopes
+import os, os.path
 import re
-from types import FunctionType as function
 
-from Products.Archetypes.utils import capitalize
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import pathFor, unique, capitalize
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
@@ -82,22 +83,11 @@ class Generator:
                                 methodName,
                                 mode))
 
-        # Zope security requires all security protected methods to have a
-        # function name. It uses this name to determine which roles are allowed
-        # to access the method.
-        # This code is renaming the internal name from e.g. generatedAccessor to
-        # methodName.
-        method = function(method.func_code,
-                          method.func_globals,
-                          methodName,
-                          method.func_defaults,
-                          method.func_closure,
-                         )
         setattr(klass, methodName, method)
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
-        if not klass.__dict__.has_key('security'):
+        if not hasattr(klass, "security"):
             security = klass.security = ClassSecurityInfo()
         else:
             security = klass.security
@@ -105,7 +95,6 @@ class ClassGenerator:
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
         security.declareProtected(perm, methodName)
-        #security.setDefaultAccess("deny")
 
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
@@ -123,14 +112,8 @@ class ClassGenerator:
         if not hasattr(klass, 'Schema'):
             def Schema(self):
                 """Return a (wrapped) schema instance for
-                this object instance.
-                """
-                schema = self.schema
-                # XXX This code doesn't work at all and it's slowing down
-                # unit tests like hell.
-                #if hasattr(schema, 'wrapped'):
-                #    return schema.wrapped(self)
-                return ImplicitAcquisitionWrapper(schema, self)
+                this object instance."""
+                return ImplicitAcquisitionWrapper(self.schema, self)
             klass.Schema = Schema
 
     def generateClass(self, klass):
@@ -138,10 +121,10 @@ class ClassGenerator:
         # before we start, set meta_type, portal_type based on class
         # name, but only if they are not set yet
         if (not getattr(klass, 'meta_type', None) or
-            'meta_type' not in klass.__dict__.keys()):
+            'meta_type' not in klass.__dict__):
             klass.meta_type = klass.__name__
         if (not getattr(klass, 'portal_type', None) or
-            'portal_type' not in klass.__dict__.keys()):
+            'portal_type' not in klass.__dict__):
             klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))
@@ -217,8 +200,10 @@ def manage_add%(name)s(self, id, REQUEST=None):
     obj = self._getOb(id)
     manage_tabs_message = 'Successfully added %(name)s'
     if REQUEST is not None:
-        url = obj.absolute_url()
-        REQUEST.RESPONSE.redirect(url + '/manage_edit%(name)sForm?manage_tabs_message=' + manage_tabs_message)
+        return obj.manage_edit%(name)sForm(
+            REQUEST,
+            management_view='Edit',
+            manage_tabs_message=manage_tabs_message)
     return id
 """ % {'name':name}
 

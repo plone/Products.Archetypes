@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Archetypes 1.3\n"
 "POT-Creation-Date: 2004-01-18 16:00 +0100\n"
-"PO-Revision-Date: 2004-07-07 13:10:46 -0200\n"
+"PO-Revision-Date: 2004-04-07 10:40:18 -0200\n"
 "Last-Translator: Dorneles Treméa <dorneles@x3ng.com.br>\n"
 "Language-Team: Archetypes Framework <archetypes-devel@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -131,18 +131,6 @@ msgid "label_where"
 msgstr "Onde?"
 
 
-#: widgets/rich.pt
-#. <strong i18n:translate="uppercase_or">OR</strong>
-msgid "uppercase_or"
-msgstr "OU"
-
-
-#: widgets/rich.pt
-#. <label i18n:translate="upload_a_file">Upload a File</label>
-msgid "upload_a_file"
-msgstr "Envie um Arquivo"
-
-
 #: widgets/reference.pt
 #. <legend i18n:translate="legend_add_new">
 #.  add new
@@ -173,3 +161,4 @@ msgstr "Referência adicionada."
 #. <table i18n:attributes="summary" summary="table_summary">
 msgid "table_summary"
 msgstr "Referências de Objetos"
+

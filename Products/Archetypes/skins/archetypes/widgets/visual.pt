@@ -29,7 +29,7 @@
     <metal:define define-macro="area_format">
       <tal:define define="contentType python:request.get('%s_text_format' % fieldName, here.getContentType(fieldName));
 		  mimetypes python: getattr(field, 'allowable_content_types', ());"
-		  condition="python: len(mimetypes) &gt; 1">
+		  condition="python: len(mimetypes) > 1">
 
 	<label>Text Format</label>
 
@@ -66,9 +66,11 @@
 	    </div>
 	  </div>
 
-      <tal:area_format tal:condition="widget/allow_format_edit | python:1">
-               <div metal:use-macro="here/widgets/visual/macros/area_format" />
-      </tal:area_format>
+	  <tal:block >
+	    <div metal:use-macro="here/widgets/visual/macros/area_format">
+	      Format box, if needed
+	    </div>
+	  </tal:block>
 
 	</metal:fill>
       </metal:use>

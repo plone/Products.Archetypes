@@ -1,40 +1,18 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
-from Products.Archetypes.interfaces.layer import ILayer
+from layer import ILayer
 
 class IMarshall(ILayer):
     """De/Marshall data.
+    demarshall returns a dict to the calling method so that it can
+    place the values into the object as needed
+
+    Marshall knows about the schema on instance and can directly pull
+    the value and return a data object.
     """
 
     def demarshall(instance, data, **kwargs):
-        """Given the blob 'data' demarshall it and modify 'instance'
-        accordingly if possible
-        """
+        """given the blob 'data' demarshall it into a dict of k/v
+        pairs"""
+
 
     def marshall(instance, **kwargs):
-        """Returns a tuple of content-type, length, and data
-        """
+        """returns a tuple of content-type, length, and data"""

@@ -5,15 +5,14 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=value, site_charset=None
+##parameters=value
 
-if site_charset is None:
-    site_charset = context.getCharset()
+site_charset = context.getCharset()
 
-if not (same_type(value, '') or same_type(value, u'')):
+if not hasattr(value, 'strip'): # not type(value) in (type(''), type(u''))
     value = str(value)
 
-if same_type(value, ''):
+if hasattr(value, 'decode'): # type(value) is type('')
     for charset in [site_charset, 'latin-1', 'utf-8']:
         try:
             value = unicode(value, charset)

@@ -1,39 +1,21 @@
-from Products.Archetypes.debug import log_exc, log, _default_logger
-from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.utils import mapply
-from Products.Archetypes.utils import fixSchema
-from Products.Archetypes.utils import getRelURL
-from Products.Archetypes.utils import getRelPath
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.Field import StringField
-from Products.Archetypes.Field import TextField
-from Products.Archetypes.Field import STRING_TYPES
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.utils import DisplayList, mapply, fixSchema
+from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Widget import IdWidget
-from Products.Archetypes.Widget import StringWidget
+from Products.Archetypes.Schema import Schema, Schemata
+from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
-from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
-from AccessControl import Unauthorized
 from Acquisition import Implicit
-from Acquisition import aq_base
-from Acquisition import aq_acquire
-from Acquisition import aq_inner
-from Acquisition import aq_parent
-from Acquisition import ExplicitAcquisitionWrapper
-from Acquisition import Explicit
+from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
 from Globals import InitializeClass
-from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
-from ComputedAttribute import ComputedAttribute
 
-from Referenceable import Referenceable
 from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
@@ -66,14 +48,13 @@ content_type = Schema((
                 accessor='Title',
                 widget=StringWidget(
     label_msgid="label_title",
-    visible={'view' : 'invisible'},
     i18n_domain="plone"),
                 )),
 
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Referenceable):
+class BaseObject(Implicit):
 
     security = ClassSecurityInfo()
 
@@ -82,10 +63,7 @@ class BaseObject(Referenceable):
 
     installMode = ['type', 'actions', 'indexes']
 
-    typeDescMsgId = ''
-    typeDescription = ''
-
-    __implements__ = (IBaseObject, ) + Referenceable.__implements__
+    __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -93,62 +71,29 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """called by the generated addXXX factory in types tool
-        """
+        """called by the generated addXXX factory in types tool"""
         try:
             self.initializeLayers()
             self.setDefaults()
             if kwargs:
-                self.edit(**kwargs)
+                self.update(**kwargs)
             self._signature = self.Schema().signature()
-            ## XXX mark creation flag makes lot's of noise and problems
-            ## and all functionality is available when using the portal factory
-            ## self.markCreationFlag()
         except ConflictError:
             raise
         except:
-            import traceback
-            print "Error on initAT", traceback.print_exc()
             log_exc()
-            #_default_logger.log_exc()
-            #raise
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'markCreationFlag')
-    def markCreationFlag(self, request=None):
-        """XXX explain me
-        """
-        if not request:
-            request = getattr(self, 'REQUEST', None)
-        if not request:
-            log("markCreationFlag: Can't get request from %s" % repr(self))
-            return
-        session = getattr(request, 'SESSION', None)
-        if not session:
-            log("markCreationFlag: Can't get session from request")
-            return
-        id = self.getId()
-        referrer = request.get('HTTP_REFERER', aq_parent(self).absolute_url())
-        # XXX do we really need sessions?
-        cflag = session.get('__creation_flag__', {})
-        cflag[id] = referrer
-        session.set('__creation_flag__', cflag)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        __traceback_info__ = (self, item, container)
-        Referenceable.manage_afterAdd(self, item, container)
         self.initializeLayers(item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        __traceback_info__ = (self, item)
-        Referenceable.manage_afterClone(self, item)
+        pass
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        __traceback_info__ = (self, item, container)
         self.cleanupLayers(item, container)
-        Referenceable.manage_beforeDelete(self, item, container)
 
     security.declarePrivate('initializeLayers')
     def initializeLayers(self, item=None, container=None):
@@ -160,9 +105,11 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     def title_or_id(self):
-        """Utility that returns the title if it is not blank and the id otherwise.
         """
-        if shasattr(self, 'Title'):
+        Utility that returns the title if it is not blank and the id
+        otherwise.
+        """
+        if hasattr(aq_base(self), 'Title'):
             if callable(self.Title):
                 return self.Title() or self.getId()
 
@@ -170,20 +117,15 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getId')
     def getId(self):
-        """get the object id
-        """
+        """get the objects id"""
         return self.id
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setId')
     def setId(self, value):
-        """set the object id
-        """
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
-                self._v_cp_refs = 1 # See Referenceable, keep refs on
-                                    # what is a move/rename
                 parent.manage_renameObject(
                     self.id, value,
                     )
@@ -197,42 +139,30 @@ class BaseObject(Referenceable):
         at the object level (i.e. with or without metadata) to interact
         with the uid catalog
         """
-        if shasattr(self, 'getTypeInfo'):
+        if hasattr(aq_base(self), 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:
                 return ti.Title()
         return self.meta_type
 
-    security.declareProtected(CMFCorePermissions.View, 'getField')
-    def getField(self, key, wrapped=False):
-        """Return a field object
-        """
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'getField')
+    def getField(self, key):
         return self.Schema().get(key)
-
-    security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
-    def getWrappedField(self, key):
-        """Get a field by id which is explicitly wrapped
-
-        XXX Maybe we should subclass field from Acquisition.Explicit?
-        """
-        return ExplicitAcquisitionWrapper(self.getField(key), self)
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
-        """Return the default value of a field
-        """
+        """return the default from the type info"""
         field = self.getField(field)
-        return field.getDefault(self)
+        return field.default
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
-        """Return wether a field contains binary data
-        """
         element = getattr(self, key, None)
-        if element and shasattr(element, 'isBinary'):
+        if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
         mimetype = self.getContentType(key)
-        if mimetype and shasattr(mimetype, 'binary'):
+        if mimetype and hasattr(aq_base(mimetype), 'binary'):
             return mimetype.binary
         elif mimetype and mimetype.find('text') >= 0:
             return 0
@@ -240,87 +170,36 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'isTransformable')
     def isTransformable(self, name):
-        """Returns wether a field is transformable
-        """
         field = self.getField(name)
-        return isinstance(field, TextField) or not self.isBinary(name)
+        return isinstance(field, TextField)  or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
-        """Returns the rendered widget
-        """
         if field is None:
             field = self.Schema()[field_name]
         widget = field.widget
         return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
-    security.declareProtected(CMFCorePermissions.View, 'getFilename')
-    def getFilename(self, key=None):
-        """Returns the filename from a field.
-        """
-        value = None
-
-        if key is None:
-            field = self.getPrimaryField()
-        else:
-            field = self.getField(key) or getattr(self, key, None)
-
-        if field and shasattr(field, 'getFilename'):
-            return field.getFilename(self)
-
-        return value
-
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
-        """Returns the content type from a field.
-        """
         value = 'text/plain'
 
+        # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
-            field = self.getPrimaryField()
-        else:
-            field = self.getField(key) or getattr(self, key, None)
+            pfield = self.getPrimaryField()
+            if pfield and hasattr(pfield, 'getContentType'):
+                return pfield.getContentType(self)
+            else:
+                return value
 
-        if field and shasattr(field, 'getContentType'):
+        field = self.getField(key)
+        if field and hasattr(field, 'getContentType'):
             return field.getContentType(self)
-
+        element = getattr(self, key, None)
+        if element and hasattr(element, 'getContentType'):
+            return element.getContentType()
         return value
-
-    # Backward compatibility
-    security.declareProtected(CMFCorePermissions.View, 'content_type')
-    content_type = ComputedAttribute(getContentType, 1)
-
-    # XXX Where's get_content_type comes from??? There's no trace at both
-    # Zope and CMF. It should be removed ASAP!
-    security.declareProtected(CMFCorePermissions.View, 'get_content_type')
-    get_content_type = getContentType
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'setContentType')
-    def setContentType(self, value, key=None):
-        """Sets the content type of a field.
-        """
-        if key is None:
-            field = self.getPrimaryField()
-        else:
-            field = self.getField(key) or getattr(self, key, None)
-
-        if field and IFileField.isImplementedBy(field):
-            field.setContentType(self, value)
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'setFilename')
-    def setFilename(self, value, key=None):
-        """Sets the filename of a field.
-        """
-        if key is None:
-            field = self.getPrimaryField()
-        else:
-            field = self.getField(key) or getattr(self, key, None)
-
-        if field and IFileField.isImplementedBy(field):
-            field.setFilename(self, value)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
@@ -328,21 +207,16 @@ class BaseObject(Referenceable):
         PUT/manage_FTPget events.
         """
         fields = self.Schema().filterFields(primary=1)
-        if fields:
-            return fields[0]
+        if fields: return fields[0]
         return None
 
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
-        """Returns the portal_metadata for a field
-        """
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-        except ConflictError:
-            raise
         except:
             log_exc()
             return None, 0
@@ -355,8 +229,6 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'Vocabulary')
     def Vocabulary(self, key):
-        """Returns the vocabulary for a specified field
-        """
         vocab, enforce = None, 0
         field = self.getField(key)
         if field:
@@ -373,23 +245,12 @@ class BaseObject(Referenceable):
         return vocab, enforce
 
     def __getitem__(self, key):
-        """Play nice with externaleditor again
-        """
-        # don't allow key access to hidden attributes
-        if key.startswith('_'):
-            raise Unauthorized, key
-
+        """play nice with externaleditor again"""
         schema = self.Schema()
         keys = schema.keys()
-
-        if key not in keys and not key.startswith('_'):
-            # XXX fix this in AT 1.4
-            value= getattr(aq_inner(self).aq_explicit, key, _marker) or \
-                   getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
-            if value is _marker:
-                raise KeyError, key
-            else:
-                return value
+        if key not in keys and key[:1] != "_": #XXX 2.2
+            return getattr(self, key, None) or \
+                   getattr(aq_parent(aq_inner(self)), key, None)
 
         field = schema[key]
         accessor = field.getEditAccessor(self)
@@ -403,23 +264,18 @@ class BaseObject(Referenceable):
 
         return value
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'edit')
+    def edit(self, **kwargs):
+        self.update(**kwargs)
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
-        """Set field values to the default values
-        """
         self.Schema().setDefaults(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
-    def edit(self, **kwargs):
-        """Alias for update()
-        """
-        self.update(**kwargs)
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'update')
     def update(self, **kwargs):
-        """Change the values of the field and reindex the object
-        """
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
@@ -439,7 +295,7 @@ class BaseObject(Referenceable):
         methodName = "validate_%s" % name
         result = None
 
-        if shasattr(self, methodName):
+        if hasattr(aq_base(self), methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
@@ -458,8 +314,6 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
-        """Validates the form data from the request
-        """
         if errors is None:
             errors = {}
 
@@ -491,8 +345,6 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
-                except ConflictError:
-                    raise
                 except:
                     continue
 
@@ -506,23 +358,21 @@ class BaseObject(Referenceable):
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
                 elif type_datum in STRING_TYPES:
-                    if type_datum is UnicodeType:
-                        datum = datum.encode(charset)
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
                 type_datum = type(datum)
-                if type_datum is UnicodeType:
+                if type_datum == UnicodeType:
                     datum = datum.encode(charset)
                 data.append(str(datum))
+
 
         data = ' '.join(data)
         return data
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
-        """ Return site default charset, or utf-8
-        """
+        """ Return site default charset, or utf-8 """
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()
         if getattr(container, 'getCharset', None):
@@ -542,8 +392,16 @@ class BaseObject(Referenceable):
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for field in self.Schema().fields():
-            size+=field.get_size(self)
+        for name in self.Schema().keys():
+            value = self[name]
+            if IBaseUnit.isImplementedBy(value):
+                size += value.get_size()
+            else:
+                if value is not None:
+                    try:
+                        size += len(value)
+                    except (TypeError, AttributeError):
+                        size += len(str(value))
         return size
 
     security.declarePrivate('_processForm')
@@ -585,9 +443,6 @@ class BaseObject(Referenceable):
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)
-            # required for ComputedField et al
-            if mutator is None:
-                continue
             __traceback_info__ = (self, field, mutator)
             result[1]['field'] = field.__name__
             mapply(mutator, result[0], **result[1])
@@ -603,8 +458,6 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'Schemata')
     def Schemata(self):
-        """Returns the Schemata for the Object
-        """
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
@@ -641,16 +494,19 @@ class BaseObject(Referenceable):
 
         # read all the old values into a dict
         values = {}
+        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
-            if name in excluded_fields: continue
-            if f.type == "reference": continue
-            try:
-                values[name] = self._migrateGetValue(name, new_schema)
-            except ValueError:
-                if out != None:
-                    print >> out, ('Unable to get %s.%s'
-                                   % (str(self.getId()), name))
+            if name not in excluded_fields:
+                try:
+                    values[name] = self._migrateGetValue(name, new_schema)
+                except ValueError:
+                    if out != None:
+                        print >> out, ('Unable to get %s.%s'
+                                       % (str(self.getId()), name))
+                else:
+                    if hasattr(f, 'getContentType'):
+                        mimes[name] = f.getContentType(self)
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -673,9 +529,8 @@ class BaseObject(Referenceable):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                # XXX commented out because we are trying to directly use
-                # the new base unit
-                # kw['mimetype'] = f.getContentType(self)
+                if mimes.has_key(name):
+                    kw['mimetype'] = mimes[name]
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
@@ -701,14 +556,6 @@ class BaseObject(Referenceable):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
-            # at very first try to use the BaseUnit itself
-            try:
-                if IFileField.isImplementedBy(field):
-                    return field.getBaseUnit(self)
-            except ConflictError:
-                raise
-            except:
-                pass
             # first try the edit accessor
             try:
                 editAccessor = field.getEditAccessor(self)
@@ -769,7 +616,7 @@ class BaseObject(Referenceable):
         # Nope -- now see if the current object has an attribute
         # with the same name
         # as the new field
-        if shasattr(self, name):
+        if hasattr(self, name):
             return getattr(self, name)
 
         raise ValueError, 'name = %s' % (name)
@@ -798,35 +645,10 @@ class BaseObject(Referenceable):
                     log_exc()
         else:
             # try setting an existing attribute
-            if shasattr(self, name):
+            if hasattr(self, name):
                 setattr(self, name, value)
                 return
         raise ValueError, 'name = %s, value = %s' % (name, value)
-
-    security.declareProtected(CMFCorePermissions.View, 'isTemporary')
-    def isTemporary(self):
-        """Check to see if we are created as temporary object by portal factory"""
-        parent = aq_parent(aq_inner(self))
-        return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
-
-    def getFolderWhenPortalFactory(self):
-        """Return the folder where this object was created temporarily
-        """
-        ctx = aq_inner(self)
-        if not ctx.isTemporary():
-            # not a temporary object!
-            return aq_parent(ctx)
-        utool = getToolByName(self, 'portal_url')
-        portal_object = utool.getPortalObject()
-
-        while ctx.getId() != 'portal_factory':
-            # find the portal factory object
-            if ctx == portal_object:
-                # uups, shouldn't happen!
-                return ctx
-            ctx = aq_parent(ctx)
-        # ctx is now the portal_factory in our parent folder
-        return aq_parent(ctx)
 
 
     # subobject access ########################################################
@@ -839,31 +661,30 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionary of objects to a volatile attribute
+        """add a dictionnary of objects to session variable
         """
         if objects:
-            storage = getattr(aq_base(self), '_v_at_subobjects', None)
-            if storage is None:
-                setattr(self, '_v_at_subobjects', {})
-                storage = getattr(aq_base(self), '_v_at_subobjects')
-            for name, obj in objects.items():
-                storage[name] = aq_base(obj)
+            if REQUEST is None:
+                REQUEST = self.REQUEST
+            key = '/'.join(self.getPhysicalPath())
+            session = REQUEST.SESSION
+            defined = session.get(key, {})
+            defined.update(objects)
+            session[key] = defined
 
     security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """Get a dictionary of objects from a volatile attribute
+        """add a dictionnary of objects to session variable
         """
-        storage = getattr(aq_base(self), '_v_at_subobjects', None)
-        if storage is None:
-            return None
-
-        data = storage.get(name, None)
-        if data is None:
-            return None
-
+        try:
+            data = REQUEST.SESSION[self.absolute_url()][name]
+        except AttributeError:
+            return
+        except KeyError:
+            return
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, str(mt) or 'application/octet').__of__(self)
+        return Wrapper(data, name, mt or 'application/octet')
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
@@ -873,31 +694,19 @@ class BaseObject(Referenceable):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        target = None
-        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
-        # to check whether this is a browser request
-        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
-            not (method in ('GET', 'POST') and not
-                 isinstance(RESPONSE, xmlrpc.Response))):
-                if shasattr(self, name):
-                    target = getattr(self, name)
-        else:
-            # we are allowed to acquire
-            target = getattr(self, name, None)
+        target = getattr(self, name, None)
         if target is not None:
             return target
-        if (method in ('PUT', 'MKCOL') and not
-            isinstance(RESPONSE, xmlrpc.Response)):
+        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+        if (not method in ('GET', 'POST', 'HEAD') and
+            not isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
+        if RESPONSE is not None:
+            RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
-        # Nothing has been found. Raise an AttributeError and be done with it.
-        raise AttributeError(name)
 
-InitializeClass(BaseObject)
-
-class Wrapper(Explicit):
+class Wrapper:
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1
 
@@ -918,7 +727,4 @@ class Wrapper(Explicit):
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
-MinimalSchema = BaseObject.schema
-
-__all__ = ('BaseObject', 'MinimalSchema', )
-
+InitializeClass(BaseObject)

@@ -20,20 +20,18 @@ function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
     detail = document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_destinations');
     for (var i=detail.childNodes.length-1; i >= 0; i--)
         detail.removeChild(detail.childNodes[i]);
-
-<dtml-in types mapping>
+    <dtml-in types mapping>
     if (selected == "<dtml-var id>") {
-<dtml-in destinations>
+        <dtml-in destinations>
         var option = document.createElement('option');
         var path = '<dtml-var sequence-item>';
         option.setAttribute('value', path);
         option.appendChild(document.createTextNode(path));
         detail.appendChild(option);
-</dtml-in>
+        </dtml-in>
     }
-</dtml-in>
+    </dtml-in>
 }
 
 <dtml-with field><dtml-var getName></dtml-with>_update(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_types'));
 -->
-<dtml-var reference_focus_js>

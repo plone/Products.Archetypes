@@ -1,46 +1,29 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from common import *
-from utils import *
 
 import glob
 from os import curdir
 from os.path import join, abspath, dirname, split
 
-from Products.Archetypes.atapi import *
+from common import *
+from utils import *
+
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.lib.baseunit import BaseUnit
+from Products.Archetypes.BaseUnit import BaseUnit
+from StringIO import StringIO
 
 from test_classgen import Dummy, gen_dummy
 
+try:
+    __file__
+except NameError:
+    # Test was called directly, so no __file__ global exists.
+    _prefix = abspath(curdir)
+else:
+    # Test was called by another test.
+    _prefix = abspath(dirname(__file__))
 
 class BaseUnitTest( ArchetypesTestCase ):
 
@@ -66,10 +49,10 @@ class BaseUnitTest( ArchetypesTestCase ):
 
 tests = []
 
-input_files = glob.glob(join(PACKAGE_HOME, "input", "rest*.rst"))
+input_files = glob.glob(join(_prefix, "input", "rest*.rst"))
 for f in input_files:
     fname = split(f)[1]
-    outname = join(PACKAGE_HOME, "output", '%s.out' % fname.split('.')[0])
+    outname = join(_prefix, "output", '%s.out' % fname.split('.')[0])
 
     class BaseUnitTestSubclass(BaseUnitTest):
         input = f
@@ -77,13 +60,14 @@ for f in input_files:
 
     tests.append(BaseUnitTestSubclass)
 
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    for test in tests:
-        suite.addTest(makeSuite(test))
-    return suite
-
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
+        return suite

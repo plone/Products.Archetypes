@@ -1,29 +1,3 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
@@ -31,38 +5,54 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_widgets',
+                                 'Cannot import ArcheSiteTestCase')
+
 from os import curdir
 from os.path import join, abspath, dirname, split
+
+try:
+    __file__
+except NameError:
+    # Test was called directly, so no __file__ global exists.
+    _prefix = abspath(curdir)
+else:
+    # Test was called by another test.
+    _prefix = abspath(dirname(__file__))
 
 stub_text_file = None
 stub_text_content = ''
 stub_bin_file = None
 stub_bin_content = ''
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from OFS.Image import File
 from DateTime import DateTime
+from Acquisition import aq_base
 
+from Products.Archetypes.tests.test_sitepolicy import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
 
 
 class WidgetTests(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        # XXX messing up with global vars is bad!
+        ArcheSiteTestCase.afterSetUp(self)
+        user = self.getManagerUser()
+        newSecurityManager(None, user)
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content
-        stub_text_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
+        stub_text_file = file(join(_prefix, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
-        stub_bin_file = open(join(PACKAGE_HOME, 'input', 'word.doc'))
+        stub_bin_file = file(join(_prefix, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
-        # Make SESSION var available
-        self.app.REQUEST['SESSION'] = {}
 
     def test_subject_keyword_widget(self):
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        site = self.getPortal()
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
         form = {'subject_keywords':['bla','ble'],
@@ -97,8 +87,9 @@ class WidgetTests(ArcheSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
-    def _test_widgets(self):
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+    def test_widgets(self):
+        site = self.getPortal()
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
 
         #Now render this doc in view and edit modes. If this works
         #then we have pretty decent assurance that things are working
@@ -108,33 +99,10 @@ class WidgetTests(ArcheSiteTestCase):
         #No exceptions are good, parse the results more if you need to
         #I feel fine...
 
-    def test_appendtextarea_widget(self):
-        request = FakeRequest()
-        mystring = str('<<<<this is a test string>>>>')
-
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
-        field = doc.Schema()['textarea_appendonly']
-        widget = field.widget
-
-        form = {'textarea_appendonly':''}
-        result = widget.process_form(doc, field, form)
-        expected = '', {}
-        self.assertEqual(expected, result)
-
-        form = {'textarea_appendonly': mystring}
-        expected = mystring, {}
-        result = widget.process_form(doc, field, form)
-        self.assertEqual(expected, result)
-
-        doc.Schema()[field.getName()].set(doc, mystring)
-        form = {'textarea_appendonly': mystring}
-        expected = mystring + widget.divider + mystring, {}
-        result = widget.process_form(doc, field, form)
-        self.assertEqual(expected, result)
-
     def test_rich_text_widget(self):
+        site = self.getPortal()
         request = FakeRequest()
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        doc = makeContent(site, portal_type='Complex Type', id='demodoc')
         field = doc.Schema()['richtextfield']
         widget = field.widget
         form = {'richtextfield_text_format':'text/x-rst',
@@ -217,13 +185,15 @@ class WidgetTests(ArcheSiteTestCase):
         global stub_text_file, stub_bin_file
         stub_text_file.close()
         stub_bin_file.close()
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(WidgetTests))
-    return suite
+        ArcheSiteTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(WidgetTests))
+        return suite

@@ -7,9 +7,6 @@
 ##bind subpath=traverse_subpath
 ##parameters=value, vocab
 
-if vocab is None or len(vocab) == 0:
-    return 0
-
 value = context.unicodeEncode(value)
 vocab = [context.unicodeEncode(v) for v in vocab]
 

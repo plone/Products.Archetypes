@@ -6,7 +6,7 @@ from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_inner, aq_parent
 from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
 

@@ -1,13 +1,12 @@
 import inspect
-import os
+import os, os.path
 import sys
 import traceback
 import pprint
 from types import StringType
-from zLOG import LOG, INFO, ERROR
-import warnings
+from zLOG import LOG, INFO, DEBUG, ERROR
 
-from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.config import DEBUG, PKG_NAME
 
 
 if os.name == 'posix':
@@ -165,21 +164,6 @@ class ZLogger(ClassLog):
     def log_exc(self, msg=None, *args, **kwargs):
         LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
 
-def warn(msg, level=3):
-    # level is the stack level
-    #   1: the line below
-    #   2: the line calling this function
-    #   3: the line calling the function that
-    #      called this function
-    warnings.warn(msg, UserWarning, level)
-
-def deprecated(msg, level=3):
-    # level is the stack level
-    #   1: the line below
-    #   2: the line calling this function
-    #   3: the line calling the function that
-    #      called this function
-    warnings.warn(msg, DeprecationWarning, level)
 
 _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()

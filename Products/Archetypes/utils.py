@@ -1,53 +1,24 @@
 import sys
-import os, os.path
-import socket
-from random import random, randint
-from time import time
+import os.path
+import types
+import time, random, md5, socket
 from inspect import getargs
-from md5 import md5
-from types import TupleType, ListType, ClassType, IntType, NoneType
-from types import UnicodeType, StringType
+from types import TupleType, ListType
 from UserDict import UserDict as BaseDict
+
+from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.debug import log
-import Products.generator.i18n as i18n
+from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
 
 try:
-    _v_network = str(socket.gethostbyname(socket.gethostname()))
+    _v_network = socket.gethostbyname(socket.gethostname())
 except:
-    _v_network = str(random() * 100000000000000000L)
-
-def make_uuid(*args):
-    t = str(time() * 1000L)
-    r = str(random()*100000000000000000L)
-    data = t +' '+ r +' '+ _v_network +' '+ str(args)
-    uid = md5(data).hexdigest()
-    return uid
-
-# linux kernel uid generator. It's a little bit slower but a little bit better
-KERNEL_UUID = '/proc/sys/kernel/random/uuid'
-
-if os.path.isfile(KERNEL_UUID):
-    HAS_KERNEL_UUID = True
-    def uuid_gen():
-        fp = open(KERNEL_UUID, 'r')
-        while 1:
-            uid = fp.read()[:-1]
-            fp.seek(0)
-            yield uid
-    uid_gen = uuid_gen()
-
-    def kernel_make_uuid(*args):
-        return uid_gen.next()
-else:
-    HAS_KERNEL_UUID = False
-    kernel_make_uuid = make_uuid
-
+    _v_network = random.random() * 100000000000000000L
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -58,6 +29,14 @@ def fixSchema(schema):
         Schemata.__init__(schema, fields)
         del schema.data
     return schema
+
+def make_uuid(*args):
+    t = long(time.time() * 1000)
+    r = long(random.random()*100000000000000000L)
+    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
+    data = md5.md5(data).hexdigest()
+    return data
+
 
 _marker = []
 
@@ -87,7 +66,7 @@ def mapply(method, *args, **kw):
 
 
 def className(klass):
-    if type(klass) not in [ClassType, ExtensionClass]:
+    if type(klass) not in [types.ClassType, ExtensionClass]:
         klass = klass.__class__
     return "%s.%s" % (klass.__module__, klass.__name__)
 
@@ -191,8 +170,6 @@ def unique(s):
             u.append(x)
     return u
 
-
-
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
@@ -246,12 +223,6 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if type(key) not in (StringType, UnicodeType, IntType):
-            raise TypeError('DisplayList keys must be strings or ints, got %s' %
-                            type(key))
-        if type(msgid) not in (StringType, NoneType):
-            raise TypeError('DisplayList msg ids must be strings, got %s' %
-                            type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -260,7 +231,6 @@ class DisplayList:
         self._values[value] = k
         self._itor.append(key)
         if msgid: self._i18n_msgids[key] = msgid
-
 
     def getKey(self, value, default=None):
         """get key"""
@@ -273,9 +243,6 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if type(key) not in (StringType, UnicodeType, IntType):
-            raise TypeError('DisplayList keys must be strings or ints, got %s' %
-                            type(key))
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
@@ -285,12 +252,9 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) not in (StringType, UnicodeType):
-            raise TypeError('DisplayList msgids must be strings, got %s' %
-                            type(key))
-        if self._i18n_msgids.has_key(key):
+        try:
             return self._i18n_msgids[key]
-        else:
+        except (KeyError, AttributeError):
             return self._keys[key][1]
 
     def keys(self):
@@ -319,7 +283,7 @@ class DisplayList:
         return DisplayList(values)
 
     def sortedByKey(self):
-        """return a new display list sorted by key"""
+        """return a new display list sorted by value"""
         def _cmp(a, b):
             return cmp(a[0], b[0])
         values = list(self.items())
@@ -350,49 +314,6 @@ class DisplayList:
 
 InitializeClass(DisplayList)
 
-class Vocabulary(DisplayList):
-    """
-    Wrap DisplayList class and add internationalisation
-    """
-    
-    security = ClassSecurityInfo()
-    security.setDefaultAccess('allow')
-
-    def __init__(self, display_list, instance, i18n_domain):
-        self._keys = display_list._keys
-        self._i18n_msgids = display_list._i18n_msgids
-        self._values = display_list._values
-        self._itor   = display_list._itor
-        self.index = display_list.index
-        self._instance = instance
-        self._i18n_domain = i18n_domain
-
-    def getValue(self, key, default=None):
-        """
-        Get i18n value
-        """
-        if type(key) not in (StringType, UnicodeType, IntType):
-            raise TypeError('DisplayList keys must be strings or ints, got %s' %
-                            type(key))
-        v = self._keys.get(key, None)
-        value = default
-        if v:
-            value = v[1]
-        else:
-            for k, v in self._keys.items():
-                if repr(key) == repr(k):
-                    value = v[1]
-                    break
-
-        if self._i18n_domain and self._instance:
-            msg = self._i18n_msgids.get(key, None) or value
-
-            return i18n.translate(self._i18n_domain, msg,
-                                  context=self._instance, default=value)
-        else:
-            return value
-
-InitializeClass(Vocabulary)
 
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for
@@ -402,10 +323,11 @@ class OrderedDict(BaseDict):
     security.setDefaultAccess('allow')
 
     def __init__(self, dict=None):
-        self._keys = []
         BaseDict.__init__(self, dict)
         if dict is not None:
             self._keys = self.data.keys()
+        else:
+            self._keys = []
 
     def __setitem__(self, key, item):
         if not self.data.has_key(key):
@@ -440,13 +362,6 @@ class OrderedDict(BaseDict):
                 self._keys.append(k)
         return BaseDict.update(self, dict)
 
-    def copy(self):
-        if self.__class__ is OrderedDict:
-            return OrderedDict(self.data)
-        import copy
-        c = copy.copy(self)
-        return c        
-
     def setdefault(self, key, failobj=None):
         if not self.data.has_key(key):
             self._keys.append(key)
@@ -461,117 +376,3 @@ class OrderedDict(BaseDict):
         return (k, v)
 
 InitializeClass(OrderedDict)
-
-
-def getRelPath(self, ppath):
-    """take something with context (self) and a physical path as a
-    tuple, return the relative path for the portal"""
-    urlTool = getToolByName(self, 'portal_url')
-    portal_path = urlTool.getPortalObject().getPhysicalPath()
-    ppath = ppath[len(portal_path):]
-    return ppath
-
-def getRelURL(self, ppath):
-    return '/'.join(getRelPath(self, ppath))
-
-def getPkgInfo(product):
-    """Get the __pkginfo__ from a product
-
-    chdir before importing the product
-    """
-    prd_home = product.__path__[0]
-    cur_dir = os.path.abspath(os.curdir)
-    os.chdir(prd_home)
-    pkg = __import__('%s.__pkginfo__' % product.__name__, product, product,
-                      ['__pkginfo__'])
-    os.chdir(cur_dir)
-    return pkg
-
-def shasattr(obj, attr, acquire=False):
-    """Safe has attribute method
-
-    * It's acquisition safe by default because it's removing the acquisition
-      wrapper before trying to test for the attribute.
-
-    * It's not using hasattr which might swallow a ZODB ConflictError (actually
-      the implementation of hasattr is swallowing all exceptions). Instead of
-      using hasattr it's comparing the output of getattr with a special marker
-      object.
-
-    XXX the getattr() trick can be removed when Python's hasattr() is fixed to
-    catch only AttributeErrors.
-
-    Quoting Shane Hathaway:
-
-    That said, I was surprised to discover that Python 2.3 implements hasattr
-    this way (from bltinmodule.c):
-
-            v = PyObject_GetAttr(v, name);
-            if (v == NULL) {
-                    PyErr_Clear();
-                    Py_INCREF(Py_False);
-                    return Py_False;
-            }
-    	Py_DECREF(v);
-    	Py_INCREF(Py_True);
-    	return Py_True;
-
-    It should not swallow all errors, especially now that descriptors make
-    computed attributes quite common.  getattr() only recently started catching
-    only AttributeErrors, but apparently hasattr is lagging behind.  I suggest
-    the consistency between getattr and hasattr should be fixed in Python, not
-    Zope.
-
-    Shane
-    """
-    if not acquire:
-        obj = aq_base(obj)
-    return getattr(obj, attr, _marker) is not _marker
-
-
-WRAPPER = '__at_is_wrapper_method__'
-ORIG_NAME = '__at_original_method_name__'
-def isWrapperMethod(meth):
-    return getattr(meth, WRAPPER, False)
-
-def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
-    old_method = getattr(klass, name)
-    if isWrapperMethod(old_method):
-        log('Wrapping already wrapped method at %s.%s' %
-            (klass.__name__, name))
-    new_name = pattern % name
-    setattr(klass, new_name, old_method)
-    setattr(method, ORIG_NAME, new_name)
-    setattr(method, WRAPPER, True)
-    setattr(klass, name, method)
-
-def unwrap_method(klass, name):
-    old_method = getattr(klass, name)
-    if not isWrapperMethod(old_method):
-        raise ValueError, ('Trying to unwrap non-wrapped '
-                           'method at %s.%s' % (klass.__name__, name))
-    orig_name = getattr(old_method, ORIG_NAME)
-    new_method = getattr(klass, orig_name)
-    delattr(klass, orig_name)
-    setattr(klass, name, new_method)
-
-
-def _get_position_after(label, options):
-    position = 0 
-    for item in options:
-        if item['label'] != label:
-            continue
-        position += 1
-    return position
-
-def insert_zmi_tab_before(label, new_option, options):
-    _options = list(options)
-    position = _get_position_after(label, options)
-    _options.insert(position-1, new_option)
-    return tuple(_options)
-
-def insert_zmi_tab_after(label, new_option, options):
-    _options = list(options)
-    position = _get_position_after(label, options)
-    _options.insert(position, new_option)
-    return tuple(_options)

@@ -2,25 +2,30 @@ Archetypes Unit Testing Suite
 
   Requirements
   
-    ZopeTestCase
+    Zope Test Case
     
-      "ZopeTestCase":http://zope.org/Members/shh/ZopeTestCase 0.9.0 or higher. 
-      "Download":http://zope.org/Members/shh/ZopeTestCase-0.9.0.tar.gz
+      "ZopeTestCase":http://www.zope.org/Members/shh/ZopeTestCase 0.8+ or
+      higher. "Download":http://sourceforge.net/projects/collective/
+      
+    Zope 2.6
+    
+      Needed for interface testing
+      
+    Python 2.2 or 2.3
+    
+      2.1 isn't tested
+      
+    CMFPlone 2.0
+    
+      "Plone":http://www.plone.org/
       
     ArchetypesTestUpdateSchema 
     
-      "Archetypes CVS":http://cvs.sourceforge.net/viewcvs.py/archetypes/ArchetypesTestUpdateSchema
-      This package is required for some tests.
+      "Archetypes CVS":http://sourceforge.net/projects/archetypes/ This package
+      is required for some tests.
       
   How to run the unit tests
-
-    Simple::
   
-      export SOFTWARE_HOME=/path/to/Zope/lib/python 
-      python runalltests.py
-
-    Using a testrunner, e.g.::
-
-      python /path/to/Zope/bin/testrunner.py -qid .
+    See runtest.sh for an example
     
-    See CMFPlone/tests/README.txt for more information.
+    See CMFPlone/tests/README.txt for more informations

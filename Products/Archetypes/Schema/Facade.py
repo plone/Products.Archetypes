@@ -4,6 +4,7 @@ from Products.Archetypes.Schema import BasicSchema
 from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
 from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
+from Products.Archetypes.utils import mapply
 from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
@@ -97,7 +98,7 @@ class FacadeMetadataSchema(BasicSchema):
     to groups of Archetypes fields
     """
 
-    __implements__ = IBindableSchema
+    __implements__ = (IBindableSchema,)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -176,3 +177,4 @@ class FacadeMetadataSchema(BasicSchema):
         set = pm.getMetadataSet(self.set_id)
         set.validate(self.set_id, field_data, errors)
         return errors
+

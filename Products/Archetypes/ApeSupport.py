@@ -1,53 +1,41 @@
-""" \
-Bring generic Ape Support to Archetypes.
+# Bring generic Ape Support to Archetypes
+# The goal of this module is to implement
+# generic mapping of Archetypes Schema
+# to real tables with real columns for
+# each field in the schema
+# **Experimental**
 
-The goal of this module is to implement generic mapping of Archetypes Schema
-to real tables with real columns for each field in the schema.
+#  Whats working so far:
+#  The following types are handled so far:
+#  - string,int
 
-**Experimental**
+#  Whats not working so far:
 
-This code works with Ape 1.0
+#  - References,images are not yet supported
+#  - Renaming of objects generates errors
 
-Whats working so far:
+#  ArchGenXML has support for APE:
+#  when you invoke ArchGenXML with the option --ape-support
+#  the outline_od.xmi sample works with APE correctly
+#  all ape_config and the serializer/gateway stuff is generated for you
 
- - The following types are handled so far:
 
-  - string,
-
-  - int.
-
-Whats not working so far:
-
- - References,images are not yet supported
-
- - Renaming of objects generates errors
-
-ArchGenXML has support for APE:
-
- When you invoke ArchGenXML with the option --ape-support the outline_od.xmi
- sample works with APE correctly all ape_config and the serializer/gateway
- stuff is generated for you.
- 
-ApeSupport is tested with Ape 1.0 and PostgreSQL
-"""
-
+from AccessControl import ClassSecurityInfo
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.public import *
-from types import ClassType
+from types import InstanceType, ClassType
 
-from apelib.core.interfaces import ISerializer
+from apelib.core.interfaces import IGateway, ISerializer
 from apelib.sql.sqlbase import SQLGatewayBase
 from apelib.sql.structure import RowSequenceSchema
-from apelib.sql.properties import SQLFixedProperties
 from apelib.zodb3.serializers import RemainingState as RemainingBase
-from apelib.zodb3.serializers import encode_to_text
 
 
 from apelib.core.interfaces \
      import ISerializer, IFullSerializationEvent, IFullDeserializationEvent
 from Persistence import Persistent, PersistentMapping
 from StringIO import StringIO
-from cPickle import Pickler, UnpickleableError
+from cPickle import Pickler, Unpickler, UnpickleableError
 import os
 
 
@@ -57,7 +45,6 @@ typemap={
     'text':'string',
     'datetime':'string',
     'boolean':'int',
-    'integer':'int',
     #'reference':'string:list',
     'computed':'string' #ouch!!
 }
@@ -87,7 +74,7 @@ def AtSchema2ApeSchema(atschema):
         if not t: # then dont add it to the schema
             continue
         if name=='id':pk=1
-        schema.add(name, t, pk)
+        schema.addField(name, t,pk)
         column_defs.append((name,t,pk))
 
     #print schema,tuple(column_defs)
@@ -96,9 +83,10 @@ def AtSchema2ApeSchema(atschema):
 # creates a generic gateway instance based on
 # the klass's Schema
 def constructGateway(klass):
-    table_name = klass.__name__.lower()
-    schema, column_defs = AtSchema2ApeSchema(klass.schema)
-    res=SQLFixedProperties('db', table_name, schema)
+    res=ArcheSQLGateway()
+    res.klass=klass
+    res.schema,res.column_defs=AtSchema2ApeSchema(klass.schema)
+    res.table_base_name = klass.__name__.lower()
     return res
 
 # creates a generic serializer instance based on
@@ -108,6 +96,49 @@ def constructSerializer(klass):
     res.klass=klass
     res.schema=AtSchema2ApeSchema(klass.schema)[0]
     return res
+
+# generic Gateway class.
+# which reflects the class's Schema
+class ArcheSQLGateway (SQLGatewayBase):
+    """SQL folder items gateway"""
+
+    __implements__ = SQLGatewayBase.__implements__
+
+    def getSchema(self):
+        return self.schema
+
+    def load(self, event):
+        print 'ArcheGateway::load : ',self.klass.__name__,event.getKey()
+        key = long(event.getKey())
+        items = self.execute(event, 'read', 1, key=key)
+        if items:
+            state = []
+            for i in range(0,len(self.column_defs)):
+                cd=self.column_defs[i]
+                s=(cd[0],cd[1],items[0][i])
+                state.append(s)
+        else:
+            state = ''
+        state=tuple(state)
+        return state,state
+
+    def store(self, event, state):
+        print 'ArcheGateway::store : ',self.klass.__name__,event.getKey()
+        key = long(event.getKey())
+        items = self.execute(event, 'read', 1, key=key)
+        col_name = self.column_defs[0][0]
+        conn = event.getConnection(self.conn_name)
+        kw = {'key': key, }
+        for s in state:
+            kw[s[0]]=s[2]
+
+        if items:
+            # update.
+            self.execute(event, 'update', **kw)
+        else:
+            # insert.
+            self.execute(event, 'insert', **kw)
+        return tuple(state)
 
 
 # generic Serializer class
@@ -122,12 +153,12 @@ class ArcheSerializer:
     def getSchema(self):
         return self.schema
 
-    def can_serialize(self, object):
+    def canSerialize(self, object):
         return isinstance(object, Master)
 
-    def serialize(self, event):
+    def serialize(self, object, event):
         res = []
-        for f in event.obj.Schema().fields():
+        for f in object.Schema().fields():
             if f.isMetadata:
                 continue
 
@@ -135,14 +166,15 @@ class ArcheSerializer:
             t = AtType2ApeType(f)
             if not t:
                 continue
-            event.ignore(name)
-            data = f.getAccessor(event.obj)()
+            event.ignoreAttribute(name)
+            data = f.getAccessor(object)()
             res.append((name, t, data))
-        return res
+            event.notifySerialized(name, getattr(object,name), 1)
+        return tuple(res)
 
-    def deserialize(self, event, state):
+    def deserialize(self, object, event, state):
         for id, t, v in state:
-            event.obj.__dict__.update({id:v})
+            object.__dict__.update({id:v})
 
 # this replacement of RemainingState is necessary in order to
 # replace the BaseUnit members by string data because
@@ -167,20 +199,20 @@ class RemainingState(RemainingBase):
 
         return res
 
-
-    def serialize(self, event):
+    def serialize(self, object, event):
         assert IFullSerializationEvent.isImplementedBy(event)
-        assert isinstance(event.obj, Persistent)
+        assert isinstance(object, Persistent)
 
         # Allow pickling of cyclic references to the object.
-        event.serialized('self', event.obj, False)
+        event.notifySerialized('self', object, 0)
 
         # Ignore previously serialized attributes
-        state = self.cleanDictCopy(event.obj.__dict__)
+        state = self.cleanDictCopy(object.__dict__)
+
         for key in state.keys():
             if key.startswith('_v_'):
                 del state[key]
-        for attrname in event.get_seralized_attributes():
+        for attrname in event.getSerializedAttributeNames():
             if state.has_key(attrname):
                 del state[attrname]
         if not state:
@@ -188,12 +220,12 @@ class RemainingState(RemainingBase):
             return ''
 
         outfile = StringIO()
-        p = Pickler(outfile, 1)  # Binary pickle
+        p = Pickler(outfile)
         unmanaged = []
 
-        def persistent_id(ob, identify_internal=event.identify_internal,
+        def persistent_id(ob, getInternalRef=event.getInternalRef,
                           unmanaged=unmanaged):
-            ref = identify_internal(ob)
+            ref = getInternalRef(ob)
             if ref is None:
                 if hasattr(ob, '_p_oid'):
                     # Persistent objects that end up in the remainder
@@ -202,18 +234,14 @@ class RemainingState(RemainingBase):
                     unmanaged.append(ob)
             return ref
 
-        # Preserve order to a reasonable extent by storing a list
-        # instead of a dictionary.
-        state_list = state.items()
-        state_list.sort()
         p.persistent_id = persistent_id
         try:
-            p.dump(state_list)
+            p.dump(state)
         except UnpickleableError, exc:
             # Try to reveal which attribute is unpickleable.
             attrname = None
             attrvalue = None
-            for key, value in state_list:
+            for key, value in state.items():
                 del unmanaged[:]
                 outfile.seek(0)
                 outfile.truncate()
@@ -235,18 +263,16 @@ class RemainingState(RemainingBase):
                 raise RuntimeError(
                     'Unable to pickle the %s attribute, %s, '
                     'of %s at %s.  %s.' % (
-                    repr(attrname), repr(attrvalue), repr(event.obj),
-                    repr(event.oid), str(exc)))
+                    repr(attrname), repr(attrvalue), repr(object),
+                    repr(event.getKeychain()), str(exc)))
             else:
                 # Couldn't help.
                 raise
 
-        p.persistent_id = lambda ob: None  # Stop recording references
         p.dump(unmanaged)
-        event.upos.extend(unmanaged)
-
         s = outfile.getvalue()
-        return encode_to_text(s, state.keys(), len(unmanaged))
+        event.addUnmanagedPersistentObjects(unmanaged)
+        return s
 
 # helper functions for issubclass and isinstance
 # with extension classes.

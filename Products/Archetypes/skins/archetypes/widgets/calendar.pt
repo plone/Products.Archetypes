@@ -12,11 +12,10 @@
 
     <metal:view_macro define-macro="view"
        tal:define="d accessor;
-                   d python:test(d and d=='None','',d);
                    format widget/format;
                    formatted python:format and d and d.strftime(format);
                    result python:(format and formatted) or (d and here.toPortalTime(d, long_format=1));"
-       tal:replace="structure python:result" />
+       tal:replace="structure python:result or 'not set'" />
 
     <metal:define define-macro="edit"
        tal:define="format widget/format">
@@ -25,7 +24,8 @@
           <tal:define define="id fieldName;
                               inputname fieldName;
                               formname string:edit_form;
-                              inputvalue python:test(value!='None', value, '');">
+                              inputvalue python:test(value, value, '');
+                              tabindex tabindex/next">
             <metal:use use-macro="here/calendar_slot/macros/calendarDatePickerBox">
               a calendar, hopefully
             </metal:use>
@@ -40,7 +40,9 @@
           <tal:from define="id fieldName;
                             inputname fieldName;
                             formname string:search_form;
-                            inputvalue python:min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
+                            inputvalue python:min(request.form.get(fieldName, None) or
+                                              request.other.get(fieldName, None) or
+                                              ('1975-05-26',)).strip();
                             tabindex tabindex/next">
             <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
               a calendar, hopefully
@@ -48,9 +50,11 @@
           </tal:from>
           -
           <tal:to define="id fieldName;
-                          inputname fieldName;
+                          inputname string:${fieldName}.query:record;
                           formname string:search_form;
-                          inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
+                          inputvalue python:max(request.form.get(fieldName, None) or
+                                            request.other.get(fieldName, None) or
+                                            ('2975-05-26',)).strip();
                           tabindex tabindex/next">
             <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
               a calendar, hopefully
@@ -58,8 +62,8 @@
           </tal:to>
           <input type="hidden"
                  name="field_usage"
-                 value="range:min:max"
-                 tal:attributes="name string:${fieldName}_usage"
+                 value="min:max"
+                 tal:attributes="name string:${fieldName}.range:record"
                  />
         </metal:slot>
       </metal:field>

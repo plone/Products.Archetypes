@@ -1,5 +1,6 @@
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.exceptions import ReferenceException
+from OFS.ObjectManager import BeforeDeleteException
 
 class HoldingReference(Reference):
     def beforeTargetDeleteInformSource(self):

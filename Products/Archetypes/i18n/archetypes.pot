@@ -122,6 +122,14 @@ msgstr "Select where you want to create that."
 
 
 #: widgets/reference.pt
+#. <a i18n:translate="label_hide_add_form">
+#.  hide add form
+#. </a>
+msgid "label_hide_add_form"
+msgstr "hide add form"
+
+
+#: widgets/reference.pt
 #. <label i18n:translate="label_what">
 #.  What
 #. </label>
@@ -174,7 +182,4 @@ msgstr "Reference Added."
 msgid "message_content_changes_saved"
 msgstr "Content changes saved."
 
-#: ArchetypeTool.py
-#. field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
-msgid "at_search_any"
-msgstr "<any>"
+

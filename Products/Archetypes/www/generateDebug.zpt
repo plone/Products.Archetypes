@@ -36,7 +36,7 @@
       <table class="content_type" width="80%" tal:repeat="type types">
         <tr>
           <td class="title"
-              tal:define="typ python: here.portal_types.getTypeInfo(type['meta_type']);
+              tal:define="typ python: here.portal_types.getTypeInfo(type['name']);
                           package type/package;
                           type_name type/meta_type;
                           inst_val python: typ != None;

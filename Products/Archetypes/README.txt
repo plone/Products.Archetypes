@@ -32,25 +32,24 @@ Requires
 
   * Plone 2.0+
 
-  * CMF 1.4.7+
+  * CMF 1.4+
 
-  * Zope 2.7.4+
+  * Zope 2.7.0+
 
-  * CMFFormController 1.0.3-beta+
+  * CMFFormController (from collective CVS)
 
-  Archetypes do not work without the following closely related products. You get 
-  them with the Archetypes release Bundle-tarball. You can also fetch them also
-  from the plone.org subversion repository .
-  
+  From the SourceForge Archetypes CVS, you must also install the
+  following products to your Zope Products directory.
+
   * PortalTransforms
 
-  * MimetypesRegistry
+  * generator
 
-  * Marshall
+  * validation
 
-  * For unit testing: ZopeTestCase and CMFTestCase from collective's cvs.
-
-  **Note:** You should remove the deprecated generator and validation products.
+  **Note:** Installing generator and validation as Python packages is no
+  longer supported by Archetypes. If they are installed as Python packages,
+  they will be silently ignored.
 
 Quickstart
 

@@ -1,64 +1,31 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
-import traceback, os
+import sys, traceback, os
 from os.path import isdir, join
-from types import UnboundMethodType
+from types import *
 
 from Globals import package_home
 from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
-from Products.CMFCore.DirectoryView import addDirectoryViews
-from Products.CMFCore.DirectoryView import registerDirectory
-from Products.CMFCore.DirectoryView import manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import minimalpath
-from Products.Archetypes.lib.register import fixActionsForType
+from Products.CMFCore.DirectoryView import addDirectoryViews, \
+     registerDirectory, createDirectoryView, manage_listAvailableDirectories
+from Products.CMFCore.utils import getToolByName, minimalpath
+from Products.CMFCore.ActionInformation import ActionInformation
+from Products.CMFCore.Expression import Expression
+from Products.Archetypes.ArchetypeTool import fixActionsForType
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
-from Products.Archetypes.config import UID_CATALOG
-from Products.Archetypes.config import REFERENCE_CATALOG
+from Products.Archetypes.config import *
 
-from Products.CMFFormController.Extensions.Install \
-     import install as install_formcontroller
-from Products.MimetypesRegistry.Extensions.Install \
-     import install as install_mimetypes_registry
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
-from Products.Marshall.Extensions.Install \
-     import install as install_marshall
+from Products.MimetypesRegistry.Extensions.Install \
+     import install as install_mimetypes_registry
 
-
-from Products.Archetypes.refengine.referencecatalog import manage_addReferenceCatalog
-from Products.Archetypes.refengine.uidcatalog import manage_addUIDCatalog
-from Products.Archetypes.interfaces.referenceengine import \
-     IReferenceCatalog, IUIDCatalog
+from Products.ZCatalog.ZCatalog import manage_addZCatalog
+from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 
 class Extra:
     """indexes extra properties holder"""
@@ -71,30 +38,20 @@ def install_dependencies(self, out, required=1):
                 'portal_quickinstaller tool could not be found, and it is '
                 'required to install Archetypes dependencies')
         else:
-            print >>out, install_formcontroller(self)
-            print >>out, install_mimetypes_registry(self)
-            print >>out, install_portal_transforms(self)
-            print >>out, install_marshall(self)
+            return
+    qi.installProduct('CMFFormController',locked=1)
+    qi.installProduct('MimetypesRegistry',)
+    qi.installProduct('PortalTransforms',)
 
-    if not qi.isProductInstalled('CMFFormController'):
-        qi.installProduct('CMFFormController',locked=1)
-        print >>out, 'Installing CMFFormController'
-    if not qi.isProductInstalled('MimetypesRegistry'):
-        qi.installProduct('MimetypesRegistry')
-        print >>out, 'Installing MimetypesRegistry'
-    if not qi.isProductInstalled('PortalTransforms'):
-        qi.installProduct('PortalTransforms')
-        print >>out, 'Installing PortalTransforms'
-    if not qi.isProductInstalled('Marshall'):
-        qi.installProduct('Marshall')
-        print >>out, 'Installing Marshall'
-
-def install_archetypetool(self, out):
+def install_tools(self, out):
     at = getToolByName(self, 'archetype_tool', None)
     if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
-        print >>out, 'Installing Archetype Tool'
+
+        at = getToolByName(self, 'archetype_tool', None)
+        ##Test some of the templating code
+        at.registerTemplate('base_view', "Normal View")
     else:
         # Migration from 1.0
         if not hasattr(aq_base(at), '_registeredTemplates'):
@@ -102,70 +59,61 @@ def install_archetypetool(self, out):
         if not hasattr(aq_base(at), 'catalog_map'):
             at.catalog_map = PersistentMapping()
 
-def install_tools(self, out):
-    # Backwards compat. People (eg: me!) may depend on that
-    install_archetypetool(self, out)
-    install_uidcatalog(self, out)
+    install_catalog(self, out)
 
-def install_uidcatalog(self, out, rebuild=False):
+def install_catalog(self, out):
 
-    index_defs=( ('UID', 'FieldIndex'),
+    index_defs=(('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
                  ('Title', 'FieldIndex'),
                  ('portal_type', 'FieldIndex'),
-               )
+             )
 
-    catalog = getToolByName(self, UID_CATALOG, None)
-    if catalog and not IUIDCatalog.isImplementedBy(catalog):
-        # got a catalog but it's doesn't implement IUIDCatalog
-        parent = getToolByName(self, "portal_url").getPortalObject()
-        parent.manage_delObjects([UID_CATALOG,])
-        catalog = None
-        rebuild = 1
-
-    if catalog is None:
+    if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
-        addCatalog = manage_addUIDCatalog
+        addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = getToolByName(self, UID_CATALOG)
-        print >>out, 'Installing uid catalog'
 
-    #catalog = getToolByName(self, UID_CATALOG)
-    for indexName, indexType in index_defs:
-        try: #ugly try catch XXX FIXME
-            if indexName not in catalog.indexes():
+    catalog = getToolByName(self, UID_CATALOG)
+    schema = catalog.schema()
+    indexes = catalog.indexes()
+    schemaFields = []
+
+    for indexName, indexType in ( ('UID', 'FieldIndex'),
+                                  ('Type', 'FieldIndex'),
+                                  ('id', 'FieldIndex'),
+                                  ('Title', 'FieldIndex'),
+                                  ('portal_type', 'FieldIndex'),
+                                  ):
+        try:
+            if indexName not in indexes:
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in catalog.schema():
+            if not indexName in schema:
                 catalog.addColumn(indexName)
+                schemaFields.append(indexName)
         except:
             pass
 
-    catalog.manage_reindexIndex()
-    if rebuild:
-        catalog.manage_rebuildCatalog()
+    catalog.manage_reindexIndex(ids=schemaFields)
 
-def install_referenceCatalog(self, out, rebuild=False):
-    catalog = getToolByName(self, REFERENCE_CATALOG, None)
-    if catalog and not IReferenceCatalog.isImplementedBy(catalog):
-        # got a catalog but it's doesn't implement IUIDCatalog
-        aq_parent(catalog).manage_delObjects([REFERENCE_CATALOGG,])
-        catalog = None
-        rebuild = 1
+def install_templates(self, out):
+    at = self.archetype_tool
+    at.registerTemplate('base_view')
 
-    if not catalog:
+
+def install_referenceCatalog(self, out):
+    if not hasattr(self, REFERENCE_CATALOG):
         #Add a zcatalog for uids
         addCatalog = manage_addReferenceCatalog
         addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
         catalog = getToolByName(self, REFERENCE_CATALOG)
-        print >>out, 'Installing reference catalog'
         schema = catalog.schema()
-        for indexName, indexType in (
-                                      ('UID', 'FieldIndex'),
-                                      ('sourceUID', 'FieldIndex'),
+        for indexName, indexType in ( ('sourceUID', 'FieldIndex'),
                                       ('targetUID', 'FieldIndex'),
                                       ('relationship', 'FieldIndex'),
                                       ('targetId', 'FieldIndex'),
+                                      ('targetTitle', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
@@ -177,37 +125,8 @@ def install_referenceCatalog(self, out, rebuild=False):
             except:
                 pass
 
-        catalog.manage_reindexIndex()
+        #catalog.manage_reindexIndex()
 
-    if rebuild:
-        catalog = getToolByName(self, REFERENCE_CATALOG)
-        catalog.manage_rebuildCatalog()
-
-def install_templates(self, out):
-    at = self.archetype_tool
-    at.registerTemplate('base_view')
-
-def install_additional_templates(self, out, types):
-    """Registers additionals templates for TemplateMixin classes.
-    """
-    at = getToolByName(self, 'archetype_tool')
-    for t in types:
-        klass = t['klass']
-        if ITemplateMixin.isImplementedByInstancesOf(klass):
-            portal_type = klass.portal_type
-            default_view = getattr(klass, 'default_view', 'base_view')
-            suppl_views = getattr(klass, 'suppl_views', ())
-            views = ['base_view',]
-
-            if default_view != 'base_view':
-                at.registerTemplate(default_view)
-                views.append(default_view)
-
-            for view in suppl_views:
-                at.registerTemplate(view)
-                views.append(view)
-
-            at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
@@ -293,15 +212,16 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    portal_catalog = catalog = getToolByName(self, 'portal_catalog')
+
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
 
         for field in cls.schema.fields():
             if field.index:
+                portal_catalog = catalog = getToolByName(self, 'portal_catalog')
 
-                if isinstance(field.index, str):
+                if type(field.index) is StringType:
                     index = (field.index,)
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
@@ -316,19 +236,6 @@ def install_indexes(self, out, types):
                         use_column = 1
                     index_spec = index_spec[0]
 
-                    index_accessor = getattr(field, 'index_method', None)
-                    if index_accessor == '_at_edit_accessor':
-                        accessor = field.edit_accessor or field.accessor
-                    elif index_accessor == '_at_accessor':
-                        accessor = field.accessor
-                    elif index_accessor:
-                        if type(index_accessor) is not UnboundMethodType:
-                            raise ValueError('The index accessor is not a valid method')
-                        accessor = index_accessor
-                    else:
-                        accessor = field.accessor
-
-
                     parts = index_spec.split('|')
                     # we want to be able to specify which catalog we want to use
                     # for each index. syntax is
@@ -339,13 +246,11 @@ def install_indexes(self, out, types):
                         catalog_name = parts[0][:str_idx]
                         parts[0] = parts[0][str_idx+1:]
                         catalog = getToolByName(self, catalog_name)
-                    else:
-                        catalog = portal_catalog
 
                     if use_column:
                         try:
-                            if accessor not in catalog.schema():
-                                catalog.addColumn(accessor)
+                            if field.accessor not in catalog.schema():
+                                catalog.addColumn(field.accessor)
                         except:
                             import traceback
                             traceback.print_exc(file=out)
@@ -366,9 +271,9 @@ def install_indexes(self, out, types):
                             props = None
                         try:
                             #Check for the index and add it if missing
-                            catalog.addIndex(accessor, itype,
+                            catalog.addIndex(field.accessor, itype,
                                              extra=props)
-                            catalog.manage_reindexIndex(ids=(accessor,))
+                            catalog.manage_reindexIndex(ids=(field.accessor,))
                         except:
                             # FIXME: should only catch "Index Exists"
                             # damned string exception !
@@ -437,89 +342,39 @@ def filterTypes(self, out, types, package_name):
 
     return filtered_types
 
-def setupArchetypes(self, out, require_dependencies=True):
-    # installing dependency products
-    install_dependencies(self, out, require_dependencies)
-
-    # install archetype tools and templates
-    install_archetypetool(self, out)
-    install_uidcatalog(self, out, rebuild=False)
-    install_referenceCatalog(self, out, rebuild=False)
-
-    # install skins and register templates
-    install_subskin(self, out, types_globals)
-    install_templates(self, out)
 
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
                      product_skins_dir='skins',
-                     require_dependencies=True,
-                     install_deps=1):
+                     require_dependencies=1):
 
-    if install_deps:
-        qi=getToolByName(self, 'portal_quickinstaller', None)
-        if qi is None:
-            setupArchetypes(self, out, require_dependencies=require_dependencies)
-        else:
-            if not qi.isProductInstalled('Archetypes'):
-                qi.installProduct('Archetypes')
-                print >>out, 'Installing Archetypes'
+    install_dependencies(self, out, require_dependencies)
+
+    types = filterTypes(self, out, types, package_name)
+    install_tools(self, out)
+    install_referenceCatalog(self, out)
 
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
 
-    install_additional_templates(self, out, types)
 
-    ftypes = filterTypes(self, out, types, package_name)
-    install_indexes(self, out, ftypes)
-    install_actions(self, out, ftypes)
+    install_templates(self, out)
+
+    install_indexes(self, out, types)
+    install_actions(self, out, types)
+
+    install_portal_transforms(self)
+    install_mimetypes_registry(self)
 
 ## The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1, refresh_references=1,
-                 install_deps=1):
+                 require_dependencies=1):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
-                     globals, product_skins_dir, require_dependencies,
-                     install_deps)
-    if refresh_references and ftypes:
-        rc = getToolByName(self, REFERENCE_CATALOG)
-        rc.manage_rebuildCatalog()
-
-def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
-    """refresh the reference catalog to reindex objects after reinstalling a
-    AT based product.
-
-    This may take a very long time but it seems to be required under some
-    circumstances.
-    """
-    assert package_name
-
-    if ftypes is None:
-        ftypes = filterTypes(self, out, types, package_name)
-
-    if not ftypes and not types:
-        # no types to install
-        return
-
-    rc = getToolByName(self, REFERENCE_CATALOG)
-    mt = tuple([t.meta_type for t in ftypes])
-
-    # because manage_catalogFoundItems sucks we have to do it on our own ...
-    func    = rc.catalog_object
-    obj     = self
-    path    = '/'.join(obj.getPhysicalPath())
-    REQUEST = self.REQUEST
-
-    rc.ZopeFindAndApply(obj,
-                        obj_metatypes=mt,
-                        search_sub=1,
-                        REQUEST=REQUEST,
-                        apply_func=func,
-                        apply_path=path)
+                     globals, product_skins_dir, require_dependencies)

@@ -9,9 +9,6 @@
 ##parameters=id=''
 ##
 REQUEST = context.REQUEST
-SESSION = REQUEST.SESSION
-
-old_id = context.getId()
 
 try:
     new_context = context.portal_factory.doCreate(context, id)
@@ -19,12 +16,6 @@ except AttributeError:
     # Fallback for AT + plain CMF where we don't have a portal_factory
     new_context = context
 new_context.processForm()
-
-# Get the current language and put it in request/LANGUAGE
-form = REQUEST.form
-if form.has_key('current_lang'):
-    form['language'] = form.get('current_lang')
-    
 
 portal_status_message = context.translate(
     msgid='message_content_changes_saved',
@@ -80,40 +71,26 @@ if reference_source_url is not None:
         domain='archetypes',
         default='Reference Added.')
 
-    edited_reference_message = context.translate(
-        msgid='message_reference_edited',
-        domain='archetypes',
-        default='Reference Edited.')
-
     # update session saved data
-    uid = new_context.UID()
+    SESSION = context.REQUEST.SESSION
     saved_dic = SESSION.get(reference_obj.getId(), None)
     if saved_dic:
         saved_value = saved_dic.get(reference_source_field, None)
         if same_type(saved_value, []):
             # reference_source_field is a multiValued field, right!?
-            if uid in saved_value:
-                portal_status_message = edited_reference_message
-            else:
-                saved_value.append(uid)
+            saved_value.append(new_context.UID())
         else:
-            if uid == saved_value:
-                portal_status_message = edited_reference_message
-            else:
-                saved_value = uid
+            saved_value = new_context.UID()
         saved_dic[reference_source_field] = saved_value
         SESSION.set(reference_obj.getId(), saved_dic)
     
-    # XXX disabled mark creation flag
-    ## context.remove_creation_mark(old_id)
-
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
         'portal_status_message':portal_status_message,
         'fieldset':reference_source_fieldset,
         'field':reference_source_field,
-        'reference_focus':reference_source_field,
+        #reference_source_field:new_context.UID(),
         }
     return state.set(**kwargs)
 
@@ -131,13 +108,6 @@ if state.errors:
                 status='failure',
                 context=new_context,
                 portal_status_message=portal_status_message)
-
-# XXX disabled mark creation flag
-## context.remove_creation_mark(old_id)
-
-if not state.errors:
-    from Products.Archetypes import transaction_note
-    transaction_note('Edited %s %s at %s' % (new_context.meta_type, new_context.title_or_id(), new_context.absolute_url()))
 
 return state.set(status='success',
                  context=new_context,

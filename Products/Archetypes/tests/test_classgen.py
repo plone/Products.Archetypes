@@ -1,29 +1,3 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
@@ -31,12 +5,13 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.atapi import *
+
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.lib.baseunit import BaseUnit
-from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
+from Products.Archetypes import listTypes
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
-from Products.Archetypes.interfaces.base import IBaseUnit
 
 from Products.CMFCore.DiscussionTool import DiscussionTool
 
@@ -60,12 +35,9 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('afilefield',
-              primary=1,
               widget=RichWidget(description="Just a file field for the testing",
                                   label="A File Field",
                                   )),
-
-    FileField('anotherfilefield', widget=FileWidget),
 
     LinesField('alinesfield', widget=LinesWidget),
 
@@ -104,8 +76,8 @@ class PortalProperties:
 
 class Dummy(BaseContent):
     portal_properties = PortalProperties()
-    portal_discussion = DummyDiscussionTool()
     mimetypes_registry = MimeTypesTool()
+    portal_discussion = DummyDiscussionTool()
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
@@ -115,16 +87,21 @@ class Dummy(BaseContent):
 
 BaseUnit.portal_properties = PortalProperties()
 
+def gen_class(klass):
+    klass.schema = deepcopy(schema)
+    registerType(klass)
+    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
 def gen_dummy():
-    gen_class(Dummy, schema)
+    gen_class(Dummy)
 
-
-class ClassGenTest(ArcheSiteTestCase):
+class ClassGenTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
-                                      schema=schema)
+        ArchetypesTestCase.afterSetUp(self)
+        gen_dummy()
+        self._dummy = Dummy(oid='dummy')
+        self._dummy.initializeArchetype()
 
     def test_methods(self):
         obj = self._dummy
@@ -191,21 +168,17 @@ class ClassGenTest(ArcheSiteTestCase):
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
 
-    def test_getbaseunit(self):
-        obj = self._dummy
-        for field in obj.Schema().fields():
-            if not hasattr(field,'getBaseUnit'):
-                continue
-            bu = field.getBaseUnit(obj)
-            self.failUnless(IBaseUnit.isImplementedBy(bu),
-               'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(ClassGenTest))
-    return suite
+    def beforeTearDown(self):
+        del self._dummy
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(ClassGenTest))
+        return suite

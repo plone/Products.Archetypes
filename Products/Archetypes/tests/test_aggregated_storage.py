@@ -1,47 +1,20 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+import unittest
 from common import *
 from utils import *
-
-import unittest
-
-from Products.Archetypes.storages.aggregated import AggregatedStorage
-from Products.Archetypes.atapi import Schema, StringField, BaseContent
-from Products.Archetypes.atapi import registerType
+from Products.Archetypes.AggregatedStorage import AggregatedStorage
+from Products.Archetypes.public import Schema, StringField, BaseContent
+from Products.Archetypes.public import registerType
 
 
 class Dummy(BaseContent):
 
     def __init__(self, oid, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
+        self.initializeArchetype()
         self.firstname = ''
         self.lastname = ''
 
@@ -57,39 +30,36 @@ class Dummy(BaseContent):
             firstname = lastname = ''
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
-
+ 
 registerType(Dummy)
 
+tests = []
 
-class AggregatedStorageTestsNoCache(ArcheSiteTestCase):
+class AggregatedStorageTestsNoCache(unittest.TestCase):
 
     caching = 0
 
-    def afterSetUp(self):
+    def setUp(self):
         self._storage = AggregatedStorage(caching=self.caching)
         self._storage.registerAggregator('whole_name', 'get_name')
         self._storage.registerDisaggregator('whole_name', 'set_name')
-
+        
         schema = Schema( (StringField('whole_name', storage=self._storage),
-                         ))
+                         )) 
 
-        portal = self.getPortal()
+        self._instance = Dummy('dummy')
+        self._instance.schema = schema
 
-        # to enable overrideDiscussionFor
-        self.setRoles(['Manager'])
-
-        self._instance = mkDummyInContext(klass=Dummy, oid='dummy',
-                                          context=self.getPortal(), schema=schema)
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']
-
+        
         self.assertEqual(field.get(self._instance).strip(), '')
         field.set(self._instance, 'Donald Duck')
         self.assertEqual(self._instance.firstname, 'Donald')
         self.assertEqual(self._instance.lastname, 'Duck')
         self.assertEqual(field.get(self._instance).strip(), 'Donald Duck')
-
+        
         self._instance.firstname = 'Daniel'
         self._instance.lastname = 'Dosentrieb'
         self.assertEqual(field.get(self._instance).strip(), 'Daniel Dosentrieb')
@@ -98,18 +68,21 @@ class AggregatedStorageTestsNoCache(ArcheSiteTestCase):
         self.assertEqual(self._instance.firstname, 'Bingo')
         self.assertEqual(self._instance.lastname, 'Gringo')
 
+tests.append(AggregatedStorageTestsNoCache)
 
-class AggregatedStorageTestsWithCache(AggregatedStorageTestsNoCache):
-
+class AggregatedStorageTestWithCache(AggregatedStorageTestsNoCache):
     caching = 1
 
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(AggregatedStorageTestsNoCache))
-    suite.addTest(makeSuite(AggregatedStorageTestsWithCache))
-    return suite
+tests.append(AggregatedStorageTestWithCache)
 
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
+        return suite

@@ -10,37 +10,34 @@
 
     <!-- Epoz Widgets -->
     <metal:view_macro define-macro="view"
-                      tal:replace="structure accessor" />
+		      tal:replace="structure accessor" />
 
-    <metal:define
-        define-macro="edit_area">
-      <tal:define
-          define="base python:hasattr(value, 'isUnit');
-                  binary python:base and value.isBinary() or here.isBinary(fieldName);
-                  content python: not not base and value.getRaw() or value;
-                  content python: not binary and content or '';
-                  inputname fieldName;
-                  inputvalue content;
-                  tabindex tabindex/next;
-                  rows widget/rows;
-                  cols widget/cols;
-                  ">
-        <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
+    <metal:define define-macro="edit_area">
+      <tal:define define="inputname fieldName;
+		  accessor python: field.getEditAccessor(here) or field.getAccessor(here);
+		  value python: request.get(inputname, accessor());
+		  base python: hasattr(value, 'isUnit');
+		  binary python: base and value.isBinary() or here.isBinary(fieldName);
+		  content python: (base == 1) and value.getRaw() or value ;
+		  inputvalue python: (binary == 0) and content or '';
+		  tabindex tabindex/next;
+		  rows widget/rows;
+		  cols widget/cols;
+		  ">
+	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
       <metal:block define-slot="text_format">
-        <input type="hidden"
-               tal:attributes="name string:${fieldName}_text_format;"
-               value="text/html"/>
+	<input type="hidden"
+	       tal:attributes="name string:${fieldName}_text_format;"
+	       value="text/html"/>
       </metal:block>
     </metal:define>
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-        <metal:fill metal:fill-slot="widget_body">
-          <metal:widget use-macro="here/widgets/epoz/macros/edit_area">
-            The Widget
-          </metal:widget>
-        </metal:fill>
+	<metal:fill metal:fill-slot="widget_body">
+	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
+	</metal:fill>
       </metal:use>
     </metal:define>
 

@@ -1,142 +1,79 @@
-from copy import deepcopy
-from types import DictType, FileType, ListType
-
+from types import DictType, FileType, StringType, UnicodeType
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression
-from Products.CMFCore.Expression import createExprContext
-
-from Products.Archetypes.utils import className
-from Products.Archetypes.utils import unique
-from Products.Archetypes.utils import capitalize
-from Products.generator.widget import macrowidget
+from Products.CMFCore.Expression import Expression, createExprContext
 from Products.Archetypes.debug import log
-from Products.Archetypes.Registry import registerPropertyType
-from Products.Archetypes.Registry import registerWidget
+from Products.Archetypes.utils import className, unique, capitalize
+from Products.generator.widget import macrowidget
 
-from ExtensionClass import Base
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from Acquisition import aq_base
-from Acquisition import Implicit
+from Acquisition import aq_base, aq_parent
 
-_marker = []
-
-class TypesWidget(macrowidget, Base):
+class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
-        'populate' : True,  # should this field be populated in edit and view?
-        'postback' : True,  # should this field be repopulated with POSTed
+        'populate' : 1,  # should this field be populated in edit and view?
+        'postback' : 1,  # should this field be repopulated with POSTed
                          # value when an error occurs?
-        'show_content_type' : False,
+        'show_content_type' : 0,
         'helper_js': (),
         'helper_css': (),
         })
 
-    security = ClassSecurityInfo()
-
-    security.declarePublic('getName')
     def getName(self):
         return self.__class__.__name__
 
-    security.declarePublic('getType')
     def getType(self):
         """Return the type of this field as a string"""
         return className(self)
 
-    security.declarePublic('bootstrap')
     def bootstrap(self, instance):
         """Override if your widget needs data from the instance."""
         return
 
-    security.declarePublic('populateProps')
     def populateProps(self, field):
         """This is called when the field is created."""
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
 
-    security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
-
-        Return values are visible, hidden, invisible
-
-        The value for the attribute on the field may either be a dict with a
-        mapping for edit and view::
-
-            visible = { 'edit' :'hidden', 'view' : 'invisible' }
-
-        Or a single value for all modes::
-
-            True/1:  'visible'
-            False/0: 'invisible'
-            -1:      'hidden'
-
-        The default state is 'visible'.
-        """
-        vis_dic = getattr(aq_base(self), 'visible', _marker)
+        visible, hidden, invisible"""
+        # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
+        vis_dic = getattr(aq_base(self), 'visible', None)
         state = 'visible'
-        if vis_dic is _marker:
+        if not vis_dic:
             return state
-        if type(vis_dic) is DictType:
+        # ugly hack ...
+        if type(vis_dic) == DictType:
             state = vis_dic.get(mode, state)
-        elif not vis_dic:
-            state = 'invisible'
-        elif vis_dic < 0:
-            state = 'hidden'
-        #assert(state in ('visible', 'hidden', 'invisible',),
-        #      'Invalid view state %s' % state
-        #      )
         return state
 
-    # XXX
-    security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
         self.condition = condition
 
-    security.declarePublic('getCondition')
     def getCondition(self):
         """Return the widget text condition."""
         return self.condition
 
-    security.declarePublic('testCondition')
     def testCondition(self, folder, portal, object):
         """Test the widget condition."""
         try:
             if self.condition:
-                __traceback_info__ = (folder, portal, object, self.condition)
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
             else:
-                return True
+                return 1
         except AttributeError:
-            return True
+            return 1
 
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
-        if value is empty_marker:
-            return empty_marker
-        if emptyReturnsMarker and value == '':
+        if value is empty_marker or value == '':
             return empty_marker
         return value, {}
-
-    security.declarePublic('copy')
-    def copy(self):
-        """
-        Return a copy of widget instance, consisting of field name and
-        properties dictionary.
-        """
-        cdict = dict(vars(self))
-        properties = deepcopy(cdict)
-        return self.__class__(**properties)
-
-InitializeClass(TypesWidget)
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -146,20 +83,16 @@ class StringWidget(TypesWidget):
         'maxlength' : '255',
         })
 
-    security = ClassSecurityInfo()
-
 class DecimalWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/decimal",
         'size' : '5',
         'maxlength' : '255',
-        'dollars_and_cents' : False,
-        'whole_dollars' : False,
-        'thousands_commas' : False,
+        'dollars_and_cents' : 0,
+        'whole_dollars' : 0,
+        'thousands_commas' : 0,
         })
-
-    security = ClassSecurityInfo()
 
 class IntegerWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -169,149 +102,81 @@ class IntegerWidget(TypesWidget):
         'maxlength' : '255',
         })
 
-    security = ClassSecurityInfo()
-
 class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
-        'checkbox_bound': 5,
 
-        'addable' : False, # create createObject link for every addable type
-        'destination_types' : None,
-        'destination' : None, # may be:
-                              # - ".", context object;
-                              # - None, any place where
-                              #   Field.allowed_types can be added;
-                              # - string path;
-                              # - name of method on instance
-                              #   (it can be a combination list);
-                              # - a list, combining all item above;
-                              # - a dict, where
-                              #   {portal_type:<combination of the items above>}
+        'addable' : 0, # create createObject link for every addable type
+        'destination' : None, # may be name of method on instance or string.
                               # destination is relative to portal root
         'helper_css' : ('content_types.css',),
         })
 
-    security = ClassSecurityInfo()
-
-    def lookupDestinationsFor(self, typeinfo, tool, purl, destination_types=None):
-        """
-        search where the user can add a typeid instance
-        """
-        searchFor = []
-
-        # first, discover who can contain the type
-        if destination_types is not None:
-            if type(destination_types) in (type(()), type([])):
-                searchFor += list(destination_types[:])
-            else:
-                searchFor.append(destination_types)
-        else:
+    def addableTypes(self, instance, field):
+        """Returns a dictionary which maps portal_type to its human readable
+        form."""
+        def lookupDestinationsFor(typeinfo, tool):
+            """
+            search where the user can add a typeid instance
+            """
+            purl = getToolByName(instance, 'portal_url')
+            # first, discover who can contain the type
+            searchFor = []
             for regType in tool.listTypeInfo():
                 if typeinfo.globalAllow():
                     searchFor.append(regType.getId())
-                elif regType.filter_content_types and regType.allowed_content_types:
-                    act_dict = dict([ (act, 0) for act in regType.allowed_content_types ])
-                    if act_dict.has_key(typeinfo.getId()):
-                        searchFor.append(regType.getId())
+                elif regType.filter_content_types and \
+                    typeinfo.getId() in regType.allowed_content_types:
+                    searchFor.append(regType.getId())
+            # after, gimme the path/s
+            containers = []
+            for wanted in searchFor:
+                for brain in \
+                    instance.portal_catalog(portal_type=wanted):
+                    obj = brain.getObject()
+                    if obj != None and \
+                        hasattr(obj.aq_explicit,'isPrincipiaFolderish'):
+                        containers.append(purl.getRelativeUrl(obj))
+            # ok, go on...
+            return containers
 
-        catalog = getToolByName(purl, 'portal_catalog')
-        containers = []
-        portal_path = "/".join(purl.getPortalObject().getPhysicalPath())
-        for wanted in searchFor:
-            for brain in catalog(portal_type=wanted):
-                relative_path = brain.getPath().replace(portal_path + '/', '')
-                containers.append(relative_path)
-
-        return containers
-
-    security.declarePublic('addableTypes')
-    def addableTypes(self, instance, field):
-        """ Returns a list of dictionaries which maps portal_type
-            to a human readable form.
-        """
         tool = getToolByName(instance, 'portal_types')
-        purl = getToolByName(instance, 'portal_url')
-
-        lookupDestinationsFor = self.lookupDestinationsFor
-        getRelativeContentURL = purl.getRelativeContentURL
-
-        # if destination_types is None (by default) it will do
-        # N-portal_types queries to the catalog which is horribly inefficient
-
-        destination_types = getattr(self, 'destination_types', None)
-        destination = self.destination
         types = []
 
-        options = {}
         for typeid in field.allowed_types:
-            _info = tool.getTypeInfo(typeid)
-            if _info is None:
-                # The portal_type asked for was not
-                # installed/has been removed.
-                log("Warning: in Archetypes.Widget.lookupDestinationsFor: " \
-                    "portal type %s not found" % typeid )
-                continue
-
-            if destination == None:
-                options[typeid]=[None]
-            elif isinstance(destination, DictType):
-                options[typeid]=destination.get(typeid, [None])
-                if not isinstance(options[typeid], ListType):
-                    options[typeid] = [options[typeid]]
-            elif isinstance(destination, ListType):
-                options[typeid]=destination
-            else:
-                place = getattr(aq_base(instance), destination, destination)
-                if callable(place):
-                    #restore acq.wrapper
-                    place = getattr(instance, destination)
-                    place = place()
-                if isinstance(place, ListType):
-                    options[typeid] = place
-                else:
-                    options[typeid] = [place]
+            info = tool.getTypeInfo(typeid)
+            if info is None:
+                raise ValueError, 'No such portal type: %s' % typeid
 
             value = {}
             value['id'] = typeid
-            value['name'] = _info.Title()
-            value['destinations'] = []
-
-            for option in options.get(typeid):
-                if option == None:
-                    value['destinations'] = value['destinations'] + \
-                        lookupDestinationsFor(_info, tool, purl,
-                                          destination_types=destination_types)
-                elif option == '.':
-                    value['destinations'].append(getRelativeContentURL(instance))
-                else:
-                    try:
-                        place = getattr(aq_base(instance), option, option)
-                    except TypeError:
-                        place = option
-                    if callable(place):
-                        #restore acq.wrapper
-                        place = getattr(instance, option)
-                        place = place()
-                    if isinstance(place, ListType):
-                        value['destinations'] = place + value['destinations']
-                    else:
-                        #XXX Might as well check for type, doing it everywhere else
-                        value['destinations'].append(place)
-
-            if value['destinations']:
-                types.append(value)
+            value['name'] = info.Title()
+            if self.destination == None:
+                value['destinations'] = lookupDestinationsFor(info,tool)
+            else:
+                value['destinations'] = [self.getDestination(instance)]
+            types.append(value)
 
         return types
+
+    def getDestination(self, instance):
+        """ Destination for adding references """
+        purl = getToolByName(instance, 'portal_url')
+        if not self.destination:
+            return '.'
+        else:
+            value = getattr(aq_base(instance), self.destination,
+                            self.destination)
+            if callable(value):
+                value = value()
+        return purl.getPortalPath() + value
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/computed",
         })
-
-    security = ClassSecurityInfo()
 
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -320,26 +185,16 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
-        'append_only': False,
-        'divider':"\n\n========================\n\n",
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """handle text formatting"""
         text_format = None
         value = None
         # text field with formatting
         value = form.get(field.getName(), empty_marker)
 
-        if value is empty_marker:
-            return empty_marker
-
-        if emptyReturnsMarker and value == '':
+        if value is empty_marker or value == '':
             return empty_marker
 
         if hasattr(field, 'allowable_content_types') and \
@@ -351,20 +206,6 @@ class TextAreaWidget(TypesWidget):
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
-        """ handle append_only  """
-        # SPANKY: It would be nice to add a datestamp too, if desired
-
-        # Don't append if the existing data is empty or nothing was passed in
-        if getattr(field.widget, 'append_only', None):
-            if field.getEditAccessor(instance)():
-                if (value and not value.isspace()):
-                    # using default_output_type caused a recursive transformation
-                    # that sucked, thus mimetype= here to keep it in line
-                    value = value + field.widget.divider + \
-                            field.getEditAccessor(instance)()
-                else:
-                    # keep historical entries
-                    value = field.getEditAccessor(instance)()
         return value, kwargs
 
 class LinesWidget(TypesWidget):
@@ -375,33 +216,21 @@ class LinesWidget(TypesWidget):
         'cols'  : 40,
         })
 
-    security = ClassSecurityInfo()
-
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/boolean",
         })
 
-    security = ClassSecurityInfo()
-
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
-        # the following five vars aren't supported by the plone templates yet
-        'show_hm' : True, # False not supported by the plone templates yet
-        'show_ymd' : True, # False not supported by the plone templates yet
-        'starting_year' : 1999, # not supported by the plone templates yet
-        'ending_year' : None, # not supported by the plone templates yet
-        'future_years' : 5, # not supported by the plone templates yet
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
         })
-
-    security = ClassSecurityInfo()
 
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -409,8 +238,6 @@ class SelectionWidget(TypesWidget):
         'format': "flex", # possible values: flex, select, radio
         'macro' : "widgets/selection",
         })
-
-    security = ClassSecurityInfo()
 
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -420,23 +247,16 @@ class MultiSelectionWidget(TypesWidget):
         'size'  : 5,
         })
 
-    security = ClassSecurityInfo()
-
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/keyword",
         'size'  : 5,
         'vocab_source' : 'portal_catalog',
-        'roleBasedAdd' : True,
+        'roleBasedAdd' : 1,
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
         name = field.getName()
@@ -450,7 +270,7 @@ class KeywordWidget(TypesWidget):
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
 
-        if not value and emptyReturnsMarker: return empty_marker
+        if not value: return empty_marker
 
         return value, {}
 
@@ -459,20 +279,14 @@ class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/file",
-        'show_content_type' : True,
+        'show_content_type' : 1,
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete=='delete': return "DELETE_FILE", {}
-        if delete=='nochange' : return empty_marker
+        if delete is not empty_marker: return "DELETE_FILE", {}
 
         value = None
 
@@ -499,20 +313,14 @@ class RichWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 1,
-        'allow_file_upload': True,
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """complex form processing, includes handling for text
         formatting and file objects"""
         # This is basically the old processing chain from base object
         text_format = None
-        isFile = False
+        isFile = 0
         value = None
 
         # text field with formatting
@@ -533,7 +341,7 @@ class RichWidget(TypesWidget):
 
             if filename:
                 value = fileobj
-                isFile = True
+                isFile = 1
 
         kwargs = {}
         if not value:
@@ -557,60 +365,30 @@ class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/zid",
-         # show IDs in edit boxes when they are autogenerated?
-        'display_autogenerated' : True,
-        # script used to determine if an ID is autogenerated
-        'is_autogenerated' : 'isIDAutoGenerated',
+        'display_autogenerated' : 1,    # show IDs in edit boxes when they are autogenerated?
+        'is_autogenerated' : 'isIDAutoGenerated',  # script used to determine if an ID is autogenerated
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """the id might be hidden by the widget and not submitted"""
         value = form.get('id', empty_marker)
         if not value or value is empty_marker or not value.strip():
             value = instance.getId()
         return value,  {}
 
-class RequiredIdWidget(IdWidget):
-    _properties = IdWidget._properties.copy()
-    _properties.update({
-        })
-
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-
-    def process_form(self, instance, field, form, empty_marker=None):
-        """Override IdWidget.process_form to require id."""
-        return TypesWidget.process_form(self, instance, field, form, empty_marker)
-
-
 class ImageWidget(FileWidget):
     _properties = FileWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/image",
-        # only display if size <= threshold, otherwise show link
-        'display_threshold': 102400,
+        'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
-    security = ClassSecurityInfo()
-
-    # XXX
-    security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+    def process_form(self, instance, field, form, empty_marker=None):
         """form processing that deals with image data (and its delete case)"""
         value = None
         ## check to see if the delete hidden was selected
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete=='delete': return "DELETE_IMAGE", {}
-        if delete=='nochange' : return empty_marker
-        
+        if delete is not empty_marker: return "DELETE_IMAGE", {}
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
@@ -635,20 +413,16 @@ class LabelWidget(TypesWidget):
         'macro' : "widgets/label",
         })
 
-    security = ClassSecurityInfo()
-
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : 'widgets/password',
         'modes' : ('edit',),
-        'populate' : False,
-        'postback' : False,
+        'populate' : 0,
+        'postback' : 0,
         'size' : 20,
         'maxlength' : '255',
         })
-
-    security = ClassSecurityInfo()
 
 class VisualWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
@@ -657,13 +431,9 @@ class VisualWidget(TextAreaWidget):
         'rows'  : 25,      #rows of TextArea if VE is not available
         'cols'  : 80,      #same for cols
         'width' : '507px', #width of VE frame (if VE is avalilable)
-        'height': '400px', #same for height
+        'height': '400px' ,#same for height
         'format': 0,
-        'append_only': False, #creates a textarea you can only add to, not edit
-        'divider': '\n\n<hr />\n\n', # default divider for append only divider
         })
-
-    security = ClassSecurityInfo()
 
 class EpozWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
@@ -671,17 +441,13 @@ class EpozWidget(TextAreaWidget):
         'macro' : "widgets/epoz",
         })
 
-    security = ClassSecurityInfo()
-
-class InAndOutWidget(ReferenceWidget):
-    _properties = ReferenceWidget._properties.copy()
+class InAndOutWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/inandout",
         'size' : '6',
         'helper_js': ('widgets/js/inandout.js',),
         })
-
-    security = ClassSecurityInfo()
 
 class PicklistWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -691,16 +457,15 @@ class PicklistWidget(TypesWidget):
         'helper_js': ('widgets/js/picklist.js',),
         })
 
-    security = ClassSecurityInfo()
-
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
-           )
+           'InAndOutWidget', 'PicklistWidget',)
+
+from Registry import registerWidget
 
 registerWidget(StringWidget,
                title='String',
@@ -727,7 +492,7 @@ registerWidget(ReferenceWidget,
                title='Reference',
                description=('Renders a HTML text input box which '
                             'accepts a reference value'),
-               used_for=('Products.Archetypes.Field.ReferenceField',)
+               used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
 registerWidget(ComputedWidget,
@@ -806,12 +571,6 @@ registerWidget(IdWidget,
                used_for=('Products.Archetypes.Field.StringField',)
                )
 
-registerWidget(RequiredIdWidget,
-               title='ID',
-               description='Renders a HTML widget for typing an required Id',
-               used_for=('Products.Archetypes.Field.StringField',)
-               )
-
 registerWidget(ImageWidget,
                title='Image',
                description=('Renders a HTML widget for '
@@ -845,21 +604,22 @@ registerWidget(EpozWidget,
                )
 
 registerWidget(InAndOutWidget,
-               title='In & Out',
-               description=('Renders a widget for moving items '
+	       title='In & Out',
+	       description=('Renders a widget for moving items '
                             'from one list to another. Items are '
                             'removed from the first list.'),
-               used_for=('Products.Archetypes.Field.LinesField',
-                         'Products.Archetypes.Field.ReferenceField',)
-               )
+	       used_for=('Products.Archetypes.Field.LinesField',)
+	       )
 
 registerWidget(PicklistWidget,
-               title='Picklist',
-               description=('Render a widget to pick from one '
+	       title='Picklist',
+	       description=('Render a widget to pick from one '
                             'list to populate another.  Items '
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
+
+from Registry import registerPropertyType
 
 registerPropertyType('maxlength', 'integer', StringWidget)
 registerPropertyType('populate', 'boolean')
@@ -868,8 +628,6 @@ registerPropertyType('rows', 'integer', RichWidget)
 registerPropertyType('cols', 'integer', RichWidget)
 registerPropertyType('rows', 'integer', TextAreaWidget)
 registerPropertyType('cols', 'integer', TextAreaWidget)
-registerPropertyType('append_only', 'boolean', TextAreaWidget)
-registerPropertyType('divider', 'string', TextAreaWidget)
 registerPropertyType('rows', 'integer', LinesWidget)
 registerPropertyType('cols', 'integer', LinesWidget)
 registerPropertyType('rows', 'integer', VisualWidget)

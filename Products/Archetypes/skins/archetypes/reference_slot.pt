@@ -9,7 +9,7 @@
 	 tal:define="
 	 ct nocall:here/reference_catalog;
 	 refs python: ct.getReferences(here);
-	 brefs python: ct.getBackReferences(here);
+	 brefs python: ct.getBReferences(here);
 	 "
 	 >
       <!-- Reference Box-->
@@ -19,14 +19,14 @@
 	  <div tal:condition="refs">
 	    <strong>Cites</strong>
 	    <br />
-	    <div class="odd" tal:repeat="ref refs" tal:define="target ref/getTargetObject">
-	      <a href="#" tal:attributes="href target/absolute_url"><img tal:attributes="src target/getIcon"/> <span tal:content="target/Title"/></a>
+	    <div class="odd" tal:repeat="ref refs">
+	      <a href="#" tal:attributes="href python:ct.getObject(ref).absolute_url()"><img tal:attributes="src python: ct.getObject(ref).getIcon()"/> <span tal:content="python: ct.getObject(ref).Title()"/></a>
 	    </div>
 	  </div>
 	  <div tal:condition="brefs">
 	    <strong>Cited By</strong>
-	    <div class="even" tal:repeat="ref brefs" tal:define="source ref/getSourceObject">
-	      <a hrf="#" tal:attributes="href source/absolute_url"><img tal:attributes="src source/getIcon"/> <span tal:content="sourceTitle()"/></a>
+	    <div class="even" tal:repeat="ref brefs">
+	      <a hrf="#" tal:attributes="href python:ct.getObject(ref).absolute_url()"><img tal:attributes="src python: ct.getObject(ref).getIcon()"/> <span tal:content="python: ct.getObject(ref).Title()"/></a>
 	    </div>
 	  </div>
 	</div>

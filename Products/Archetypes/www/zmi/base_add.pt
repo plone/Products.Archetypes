@@ -18,6 +18,13 @@
       Form Title
     </h2>
 
+    <!--
+      <p class="form-help">
+      Composites (from the CompositePage product) let you design pages
+      using a drag and drop interface with context menus.
+      </p>
+    -->
+
     <form action="manage_addSomething" method="POST"
           tal:attributes="action options/constructor">
       <div tal:define="purl nocall:here/portal_url;

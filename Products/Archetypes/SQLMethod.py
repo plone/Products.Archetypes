@@ -5,11 +5,6 @@ from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
-import sys, types
-from ZODB.POSException import ConflictError
-
-from string import atoi
-from time import time
 
 try:
     from IOBTree import Bucket
@@ -157,8 +152,6 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         try:
             DB__ = dbc()
-        except ConflictError:
-            raise
         except:
             raise 'Database Error', (
             '%s is not connected to a database' % self.id)
@@ -186,12 +179,6 @@ class SQLMethod(Aqueduct.BaseQuery):
         argdata['sql_delimiter'] = '\0'
         argdata['sql_quote__'] = dbc.sql_quote__
 
-        # TODO: Review the argdata dictonary. The line bellow is receiving unicode
-        # strings, mixed with standard strings. It is insane! Archetypes needs a policy
-        # about unicode, and lots of tests on this way. I prefer to not correct it now,
-        # only doing another workarround. We need to correct the cause of this problem,
-        # not its side effects :-(
-
         try:
             query = apply(self.template, (p,), argdata)
         except TypeError, msg:
@@ -205,35 +192,11 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         if src__: return query
 
-        # Get the encoding arguments
-        # We have two possible kw arguments:
-        #   db_encoding:        The encoding used in the external database
-        #   site_encoding:      The uncoding used for the site
-        #                       If not specified, we use sys.getdefaultencoding()
-        db_encoding = kw.get('db_encoding',None)
-
-        try:
-            site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
-        except AttributeError, KeyError:
-            site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
-
-        if type(query) == type(u''):
-            if db_encoding:
-                query = query.encode(db_encoding)
-            else:
-                try:
-                    query = query.encode(site_encoding)
-                except UnicodeEncodingError:
-                    query = query.encode('UTF-8')
-
-
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))
         else:
             try:
                 result = DB__.query(query, context.max_rows_)
-            except ConflictError:
-                raise
             except:
                 log_exc(msg='Database query failed', reraise=1)
 
@@ -249,30 +212,6 @@ class SQLMethod(Aqueduct.BaseQuery):
             f.seek(0)
             result = RDB.File(f, brain, p, None)
         else:
-            if db_encoding:
-                # Encode result before we wrap it in Result object
-                # We will change the encoding from source to either the specified target_encoding
-                # or the site default encoding
-
-                # The data is a list of tuples of column data
-                encoded_result = []
-                for row in result[1]:
-                    columns = ()
-                    for col in row:
-                        if isinstance(col, types.StringType):
-                            # coerce column to unicode with database encoding
-                            newcol = unicode(col,db_encoding)
-                            # Encode column as string with site_encoding
-                            newcol = newcol.encode(site_encoding)
-                        else:
-                            newcol = col
-
-                        columns += newcol,
-
-                    encoded_result.append(columns)
-
-                result = (result[0],encoded_result)
-
             result = Results(result, brain, p, None)
 
         columns = result._searchable_result_columns()
@@ -290,8 +229,6 @@ class SQLMethod(Aqueduct.BaseQuery):
         dbc, DB__ = self._get_dbc()
         try:
             DB__.tpc_abort()
-        except ConflictError:
-            raise
         except:
             log_exc(msg = 'Database abort failed')
 

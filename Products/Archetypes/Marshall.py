@@ -1,23 +1,15 @@
-from types import ListType, TupleType
+from types import StringType, ListType, TupleType
 
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
-from Products.Archetypes.Field import FileField
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
-from OFS.Image import File
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
 
 class Marshaller:
-    __implements__ = IMarshall, ILayer
-
-    security = ClassSecurityInfo()
-    security.declareObjectPrivate()
-    security.setDefaultAccess('deny')
+    __implements__ = (IMarshall, ILayer)
 
     def __init__(self, demarshall_hook=None, marshall_hook=None):
         self.demarshall_hook = demarshall_hook
@@ -51,26 +43,13 @@ class Marshaller:
     def cleanupField(self, instance, field):
         pass
 
-InitializeClass(Marshaller)
-
 class PrimaryFieldMarshaller(Marshaller):
-
-    security = ClassSecurityInfo()
-    security.declareObjectPrivate()
-    security.setDefaultAccess('deny')
-
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
-        file = kwargs.get('file')
-        if isinstance(p, FileField) and file:
-            data = file
-            del kwargs['file']
         p.set(instance, data, **kwargs)
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        if not p:
-            raise TypeError, 'Primary Field could not be found.'
         data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
@@ -78,14 +57,8 @@ class PrimaryFieldMarshaller(Marshaller):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
-        elif isinstance(data, File):
-            content_type = data.content_type
-            length = data.get_size()
-            data = data.data
         else:
-            log('WARNING: PrimaryFieldMarshaller(%r): '
-                'field %r does not return a IBaseUnit '
-                'instance.' % (instance, p.getName()))
+            log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
             if hasattr(p, 'getContentType'):
                 content_type = p.getContentType(instance) or 'text/plain'
             else:
@@ -99,20 +72,10 @@ class PrimaryFieldMarshaller(Marshaller):
 
         return (content_type, length, data)
 
-InitializeClass(PrimaryFieldMarshaller)
-
 class RFC822Marshaller(Marshaller):
-
-    security = ClassSecurityInfo()
-    security.declareObjectPrivate()
-    security.setDefaultAccess('deny')
 
     def demarshall(self, instance, data, **kwargs):
         from Products.CMFDefault.utils import parseHeadersBody
-        file = kwargs.get('file')
-        if file and not data:
-            del kwargs['file']
-            data = file.read()
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
             if v.strip() == 'None':
@@ -122,7 +85,7 @@ class RFC822Marshaller(Marshaller):
                 mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
-        content_type = headers.get('Content-Type')
+        content_type = headers.get('Content-Type', 'text/plain')
         if not kwargs.get('mimetype', None):
             kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
@@ -147,23 +110,19 @@ class RFC822Marshaller(Marshaller):
             else:
                 content_type = body and guess_content_type(body) or 'text/plain'
 
-        headers = []
+        headers = {}
         fields = [f for f in instance.Schema().fields()
                   if f.getName() != pname]
         for field in fields:
             value = instance[field.getName()]
             if type(value) in [ListType, TupleType]:
                 value = '\n'.join([str(v) for v in value])
-            headers.append((field.getName(), str(value)))
+            headers[field.getName()] = str(value)
 
-        headers.append(('Content-Type', content_type or 'text/plain'))
+        headers['Content-Type'] = content_type or 'text/plain'
 
-        header = formatRFC822Headers(headers)
+        header = formatRFC822Headers(headers.items())
         data = '%s\n\n%s' % (header, body)
         length = len(data)
 
         return (content_type, length, data)
-
-InitializeClass(RFC822Marshaller)
-
-__all__ = ('PrimaryFieldMarshaller', 'RFC822Marshaller', )

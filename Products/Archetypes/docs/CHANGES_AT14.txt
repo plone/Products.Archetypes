@@ -1,3 +1,0 @@
-XXX memo list -> nice list
-
-* validation package changes

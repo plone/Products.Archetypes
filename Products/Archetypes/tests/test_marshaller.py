@@ -1,33 +1,7 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 """
 Unittests for marshaller
 
-$Id$
+$Id: test_marshaller.py,v 1.5 2004/03/26 04:36:32 chrism Exp $
 """
 
 import os, sys
@@ -36,10 +10,15 @@ if __name__ == '__main__':
 
 from common import *
 from utils import *
+from Products.Archetypes.public import *
 
-from Products.Archetypes.atapi import *
+if not hasArcheSiteTestCase:
+    raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
-from Products.Archetypes import config
+from Testing import ZopeTestCase
+from Acquisition import aq_base
+from Products.Archetypes.tests.test_sitepolicy import makeContent
+import Products.Archetypes.config as config
 from Products.Archetypes.examples.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
@@ -54,6 +33,14 @@ from os import curdir
 from os.path import join, abspath, dirname, split
 import urllib
 
+try:
+    __file__
+except NameError:
+    # Test was called directly, so no __file__ global exists.
+    _prefix = abspath(curdir)
+else:
+    # Test was called by another test.
+    _prefix = abspath(dirname(__file__))
 
 def aputrequest(file, content_type):
     resp = HTTPResponse(stdout=sys.stdout)
@@ -65,15 +52,19 @@ def aputrequest(file, content_type):
     req = HTTPRequest(stdin=file, environ=environ, response=resp)
     return req
 
-
 class MarshallerTests(ArcheSiteTestCase):
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self)
 
-    # XXX this test is fu... up the machine by eating all memory
-    def XXX_test_textFieldObjectWordReplace(self):
+        user = self.getManagerUser()
+        newSecurityManager(None, user)
+
+    def test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
+        site = self.getPortal()
+        obj1 = makeContent(site, portal_type='DDocument', id='obj1')
 
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -82,7 +73,7 @@ class MarshallerTests(ArcheSiteTestCase):
         # content type
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = self.folder.obj1
+        word = site.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -91,18 +82,17 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def test_textFieldObjectRSTreplace(self):
         ## And again with an RST
-        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
+        site = self.getPortal()
+        obj1 = makeContent(site, portal_type='DDocument', id='obj1')
 
-        rstFilePath = join(PACKAGE_HOME, "input", "rest1.rst")
+        rstFilePath = join(_prefix, "input", "rest1.rst")
         rstFile = open(rstFilePath, 'r')
         data = rstFile.read()
         rstFile.seek(0)
 
         request = aputrequest(rstFile, 'text/x-rst')
-        # XXX PUT factory is using PARENTS to get an acquisition context
-        request['PARENTS'] = (self.folder, self.portal)
         request.processInputs()
-        rst = self.folder.obj1
+        rst = site.obj1
         rst.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -111,16 +101,17 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def test_fileFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        obj1 = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
+        site = self.getPortal()
+        obj1 = makeContent(site, portal_type='SimpleFile', id='obj1')
 
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
 
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = self.folder.obj1
+        word = site.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -129,10 +120,8 @@ class MarshallerTests(ArcheSiteTestCase):
 
     def setupCTR(self):
         #Modify the CTR to point to SimpleType
-        ctr = self.portal.content_type_registry
-        if ctr.getPredicate('text'):
-            # ATCT has a predict
-            ctr.removePredicate('text')
+        site = self.getPortal()
+        ctr = site.content_type_registry
         ctr.addPredicate('text', 'major_minor' )
         ctr.getPredicate('text' ).edit('text', '' )
         ctr.assignTypeName('text', 'DDocument')
@@ -145,37 +134,41 @@ class MarshallerTests(ArcheSiteTestCase):
 
         return ctr
 
-    # XXX this test is fu... up the machine by eating all memory
-    def XXX_test_objectCreate(self):
+    def test_objectCreate(self):
         #create the correct object on upload
         #one day, but this will need a change to the factory
+        site = self.getPortal()
         ctr = self.setupCTR()
 
         #now trigger the creation of a content type akin to DAV
-        wordFilePath = join(PACKAGE_HOME, "input", "word.doc")
+        wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
 
-        obj = self.folder.PUT_factory('test', 'application/msword', wordFile)
-        self.folder._setObject('test', obj)
-        word = self.folder.test
+        obj = site.PUT_factory('test', 'application/msword', wordFile)
+        site._setObject('test', obj)
 
+        obj = site['test']
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word.PUT(request, request.RESPONSE)
+        obj.PUT(request, request.RESPONSE)
 
         wordFile.seek(0)
         data = wordFile.read()
+
+        word = site.test
 
         self.assertEqual(word.archetype_name, DDocument.archetype_name)
         self.assertEqual(str(word.getBody(raw=1)), data)
         self.assertEqual(word.getContentType('body'), 'application/msword')
 
 
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(MarshallerTests))
-    return suite
-
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(MarshallerTests))
+        return suite

@@ -1,28 +1,19 @@
-import os.path
-
-from types import StringType
-
+from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
-from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
-from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
+from Products.PortalTransforms.utils import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-#from Products.MimetypesRegistry.mime_types import text_plain, \
-#     application_octet_stream
+from Products.MimetypesRegistry.mime_types import text_plain, \
+     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
-_marker = []
-
 class BaseUnit(File):
-    __implements__ = WriteLockInterface, IBaseUnit
+    __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -31,32 +22,18 @@ class BaseUnit(File):
         self.id = self.__name__ = name
         self.update(file, instance, **kw)
 
-    def __setstate__(self, dict):
-        mimetype = dict.get('mimetype', None)
-        if IMimetype.isImplementedBy(mimetype):
-            dict['mimetype'] = str(mimetype)
-            dict['binary'] = not not mimetype.binary
-        assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
-        File.__setstate__(self, dict)
-
     def update(self, data, instance, **kw):
         #Convert from str to unicode as needed
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
-        context  = kw.get('context', instance)
 
-        adapter = getToolByName(context, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError, \
-                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
-                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
+        adapter = getToolByName(instance, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
-        if not self.isBinary():
+        self.mimetype = mimetype
+        if not mimetype.binary:
             assert type(data) is type(u'')
             if encoding is None:
                 try:
@@ -70,8 +47,8 @@ class BaseUnit(File):
             self.original_encoding = None
         self.raw  = data
         self.size = len(data)
-        # taking care of stupid IE
-        self.setFilename(filename)
+        self.filename = filename
+
 
     def transform(self, instance, mt):
         """Takes a mimetype so object.foo.transform('text/plain') should return
@@ -89,14 +66,11 @@ class BaseUnit(File):
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
         #being used with APE
-        # Also don't break if transform was applied with a stale instance
-        # from the catalog while rebuilding the catalog
-        if not instance or not hasattr(instance, 'aq_parent'):
+        if not hasattr(instance, 'aq_parent'):
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
-                                     context=instance,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 
@@ -131,34 +105,19 @@ class BaseUnit(File):
         return self.get_size()
 
     def isBinary(self):
-        """Return true if this contains a binary value, else false.
-        """
+        """return true if this contains a binary value, else false"""
         try:
-            return self.binary
+            return self.mimetype.binary
         except AttributeError:
-            # XXX workaround for "[ 1040514 ] AttributeError on some types after
-            # migration 1.2.4rc5->1.3.0"
-            # Somehow and sometimes the binary attribute gets lost magically
-            self.binary = not str(self.mimetype).startswith('text')
-            log("BaseUnit: Failed to access attribute binary for mimetype %s. "
-                "Setting binary to %s" % (self.mimetype, self.binary),
-                level=ERROR)
-            return self.binary
+            # FIXME: backward compat, self.mimetype should not be None anymore
+            return 1
 
     # File handling
     def get_size(self):
-        """Return the file size.
-        """
         return self.size
 
     def getRaw(self, encoding=None, instance=None):
-        """Return the file encoded raw value.
-        """
-        # fix AT 1.0 backward problems
-        if not hasattr(aq_base(self),'raw'):
-            self.raw = self.data
-            self.size = len(self.raw)
-
+        """return encoded raw value"""
         if self.isBinary():
             return self.raw
         # FIXME: backward compat, non binary data
@@ -174,9 +133,8 @@ class BaseUnit(File):
         return self.raw.encode(encoding)
 
     def portalEncoding(self, instance):
-        """Return the default portal encoding, using an external python script.
-
-        Look the archetypes skin directory for the default implementation.
+        """return the default portal encoding, using an external python script
+        (look the archetypes skin directory for the default implementation)
         """
         try:
             return instance.getCharset()
@@ -186,49 +144,20 @@ class BaseUnit(File):
             return 'UTF8'
 
     def getContentType(self):
-        """Return the file mimetype string.
-        """
+        """return the imimetype object for this BU"""
         return self.mimetype
 
-    # Backward compatibility
-    content_type = getContentType
-
-    def setContentType(self, instance, value):
-        """Set the file mimetype string.
-        """
-        mtr = getToolByName(instance, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(mtr):
-            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
-                               (repr(mtr), repr(mtr.__class__)))
-        result = mtr.lookup(value)
-        if not result:
-            raise ValueError('Unknown mime type %s' % value)
-        mimetype = result[0]
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
-
-    def getFilename(self):
-        """Return the file name.
-        """
-        return self.filename
-
-    def setFilename(self, filename):
-        """Set the file name.
-        """
-        if type(filename) is StringType:
-            filename = os.path.basename(filename)
-            self.filename = filename.split("\\")[-1]
-        else:
-            self.filename = filename
+    def content_type(self):
+        return self.getContentType()
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
-        filename = self.getFilename()
-        if filename:
+        filename = self.filename
+        if self.filename:
             RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename=%s' % filename)
+                               'attachment; filename=%s' % self.filename)
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
@@ -236,21 +165,15 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT')
+    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT' )
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
         mimetype=REQUEST.get_header('Content-Type', None)
 
-        file = REQUEST.get('BODYFILE', _marker)
-        if file is _marker:
-            data = REQUEST.get('BODY', _marker)
-            if data is _marker:
-                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
-        else:
-            data = file.read()
-            file.seek(0)
+        file=REQUEST['BODYFILE']
+        data = file.read()
 
         self.update(data, self.aq_parent, mimetype=mimetype)
 
@@ -259,15 +182,13 @@ class BaseUnit(File):
         return RESPONSE
 
     def manage_FTPget(self, REQUEST, RESPONSE):
-        """Get the raw content for this unit.
-
-        Also used for the WebDAV SRC.
-        """
+        "Get the raw content for this unit(also used for the WebDAV SRC)"
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
 
-# XXX Should go away after 1.3-final
+# Backward-compatibility. Should eventually go away after 1.3-final.
 newBaseUnit = BaseUnit
+

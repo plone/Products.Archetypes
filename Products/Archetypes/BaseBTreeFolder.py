@@ -1,24 +1,22 @@
-from Products.Archetypes.public import BaseFolder
-from Products.CMFCore import CMFCorePermissions
-from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
+from Products.Archetypes.public import *
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
+     AccessContentsInformation, View, ListFolderContents
+from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
+from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
 # to keep backward compatibility
 has_btree = 1
-
-from webdav.NullResource import NullResource
-from OFS.ObjectManager import REPLACEABLE
-from ComputedAttribute import ComputedAttribute
 
 class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
     security = ClassSecurityInfo()
 
-    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
+    __implements__ = (CMFBTreeFolder.__implements__, ) + \
+                     (BaseFolder.__implements__, )
 
     def __init__(self, oid, **kwargs):
         CMFBTreeFolder.__init__(self, id)
@@ -26,26 +24,14 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
         BaseFolder.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
         BaseFolder.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
-        # base class as SkinnedFolder, and SkinnedFolder doesn't
-        # override any of those methods, so just calling
-        # BaseFolder.manage* should do it.
         BaseFolder.manage_beforeDelete(self, item, container)
 
     def __getitem__(self, key):
@@ -56,78 +42,58 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
                 return accessor()
         return CMFBTreeFolder.__getitem__(self, key)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
+    security.declareProtected(ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unindexObject')
+    security.declareProtected(ModifyPortalContent, 'unindexObject')
     unindexObject = BaseFolder.unindexObject
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObject')
+    security.declareProtected(ModifyPortalContent, 'reindexObject')
     reindexObject = BaseFolder.reindexObject
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObjectSecurity')
+    security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     reindexObjectSecurity = BaseFolder.reindexObjectSecurity
 
     security.declarePrivate('notifyWorkflowCreated')
     notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueItems')
+    security.declareProtected(AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueIds')
+    security.declareProtected(AccessContentsInformation, 'opaqueIds')
     opaqueIds = BaseFolder.opaqueIds
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueValues')
+    security.declareProtected(AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues
 
-    security.declareProtected(CMFCorePermissions.ListFolderContents, 'listFolderContents')
+    security.declareProtected(ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents
-
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
+    
+    security.declareProtected(AccessContentsInformation,
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents
 
     __call__ = SkinnedFolder.__call__
 
-    security.declareProtected(CMFCorePermissions.View, 'view')
+    security.declareProtected(View, 'view')
     view = SkinnedFolder.view
 
-    def index_html(self):
-        """ Allow creation of .
-        """
-        if self.has_key('index_html'):
-            return self._getOb('index_html')
-        request = getattr(self, 'REQUEST', None)
-        if request and request.has_key('REQUEST_METHOD'):
-            if (request.maybe_webdav_client and
-                request['REQUEST_METHOD'] in  ['PUT']):
-                # Very likely a WebDAV client trying to create something
-                nr = NullResource(self, 'index_html')
-                nr.__replaceable__ = REPLACEABLE
-                return nr
-        return None
+    security.declareProtected(View, 'index_html')
+    index_html = SkinnedFolder.index_html
 
-    index_html = ComputedAttribute(index_html, 1)
-
-    security.declareProtected(CMFCorePermissions.View, 'Title')
+    security.declareProtected(View, 'Title')
     Title = BaseFolder.Title
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
+    security.declareProtected(ModifyPortalContent, 'setTitle')
     setTitle = BaseFolder.setTitle
 
-    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
+    security.declareProtected(View, 'title_or_id')
     title_or_id = BaseFolder.title_or_id
 
-    security.declareProtected(CMFCorePermissions.View, 'Description')
+    security.declareProtected(View, 'Description')
     Description = BaseFolder.Description
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
+    security.declareProtected(ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription
 
-    manage_addFolder = BaseFolder.manage_addFolder
-
 InitializeClass(BaseBTreeFolder)
-
-BaseBTreeFolderSchema = BaseBTreeFolder.schema
-
-__all__ = ('BaseBTreeFolder', 'BaseBTreeFolderSchema', )

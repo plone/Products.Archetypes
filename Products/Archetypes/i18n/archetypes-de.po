@@ -15,7 +15,7 @@ msgstr ""
 "Language-Name: Deutsch\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: archetypes\n"
-"X-Is-Fallback-For: de-at de-li de-lu de-ch de-de\n"
+"X-Is-Fallback-For: de-at de-li de-lu de-ch\n"
 
 #: skins/zmi/base_add.pt
 #. <input i18n:attributes="value" value="Add" type="submit" />
@@ -96,7 +96,7 @@ msgstr "Hinzufügen- Formular ausblenden"
 #: Field.py
 #. <no reference>
 msgid "label_no_reference"
-msgstr "<Keine Referenz>"
+msgstr "Keine Referenz"
 
 
 #: skins/archetypes/reference_edit.cpt

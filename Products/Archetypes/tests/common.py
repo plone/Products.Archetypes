@@ -1,81 +1,81 @@
-# -*- coding: UTF-8 -*-
-################################################################################
 #
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
-#
-# ArchetypesTestCase and ArcheSiteTestCase classes
+# PloneTestCase
 #
 
-# $Id$
+# $Id: common.py,v 1.3 2003/11/03 22:14:27 dreamcatcher Exp $
 
-from Testing import ZopeTestCase
-
-# Fixup zope 2.7+ configuration
+# enable nice names for True and False from newer python versions
 try:
-    from App import config
-except ImportError:
-    pass
+    dummy=True
+except NameError: # python 2.1
+    True  = 1
+    False = 0
+    __all__Boolean = ('True', 'False',)
 else:
-    config._config.rest_input_encoding = 'ascii'
-    config._config.rest_output_encoding = 'ascii'
-    config._config.rest_header_level = 3
-    del config
+    __all__Boolean = ()
 
-# Import Interface for interface testing
+def Xprint(s):
+    """print helper
 
+    print data via print is not possible, you have to use
+    ZopeTestCase._print or this function
+    """
+    ZopeTestCase._print(str(s)+'\n')
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
-from AccessControl import getSecurityManager
 
-from Acquisition import aq_base
-from Acquisition import aq_inner
-from Acquisition import aq_parent
+from Testing import ZopeTestCase
+from ArchetypesTestCase import ArchetypesTestCase
 
-from Products.Archetypes.tests.ArchetypesTestCase import ArchetypesTestCase
-from Products.Archetypes.tests.ArchetypesTestCase import default_user
-from Products.Archetypes.tests.ArchetypesTestCase import default_role
-from Products.Archetypes.tests.ArchetypesTestCase import ArcheSiteTestCase
-from Products.Archetypes.tests.ArchetypesTestCase import portal_name
-from Products.Archetypes.tests.ArchetypesTestCase import portal_owner
+try:
+    from ArcheSiteTestCase import ArcheSiteTestCase
+    hasArcheSiteTestCase = True
+except ImportError, err:
+    Xprint(err)
+    class ArcheSiteTestCase(ArchetypesTestCase): pass
+    hasArcheSiteTestCase = False
 
-from Products.Archetypes.tests import PACKAGE_HOME
-from Products.Archetypes.atapi import registerType, process_types, listTypes
-from Products.Archetypes.config import PKG_NAME
+# import Interface for interface testing
+try:
+    import Interface
+except ImportError:
+    # set dummy functions and exceptions for older zope versions
+    def verifyClass(iface, candidate, tentative=0):
+        return True
+    def verifyObject(iface, candidate, tentative=0):
+        return True
+    def getImplementsOfInstances(object):
+        return ()
+    def getImplements(object):
+        return ()
+    def flattenInterfaces(interfaces, remove_duplicates=1):
+        return ()
+    class BrokenImplementation(Execption): pass
+    class DoesNotImplement(Execption): pass
+    class BrokenMethodImplementation(Execption): pass
+else:
+    from Interface.Implements import getImplementsOfInstances, \
+         getImplements, flattenInterfaces
+    from Interface.Verify import verifyClass, verifyObject
+    from Interface.Exceptions import BrokenImplementation, DoesNotImplement
+    from Interface.Exceptions import BrokenMethodImplementation
 
-def gen_class(klass, schema=None):
-    """generats and registers the klass
-    """
-    if schema is not None:
-        klass.schema = schema.copy()
-    registerType(klass)
-    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+class TestPreconditionFailed(Exception):
+    """ some modules are missing or other preconditions have failed """
+    def __init__(self, test, precondition):
+        self.test = test
+        self.precondition = precondition
 
-def mkDummyInContext(klass, oid, context, schema=None):
-    gen_class(klass, schema)
-    dummy = klass(oid=oid).__of__(context)
-    setattr(context, oid, dummy)
-    dummy.initializeArchetype()
-    return dummy
+    def __str__(self):
+        return ("Some modules are missing or other preconditions "
+                "for the test %s have failed: '%s' "
+                % (self.test, self.precondition))
+
+__all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
+           'verifyClass', 'verifyObject', 'getImplements',
+           'BrokenImplementation', 'DoesNotImplement',
+           'BrokenMethodImplementation', 'getImplementsOfInstances',
+           'flattenInterfaces', 'newSecurityManager', 'noSecurityManager',
+           'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
+           + __all__Boolean

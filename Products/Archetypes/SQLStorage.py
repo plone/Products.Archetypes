@@ -1,5 +1,5 @@
 from Products.Archetypes.SQLMethod import SQLMethod
-from Products.Archetypes.interfaces.storage import ISQLStorage
+from Products.Archetypes.interfaces.storage import IStorage, ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
@@ -7,7 +7,6 @@ from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
-from ZODB.POSException import ConflictError
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """
@@ -81,12 +80,7 @@ class BaseSQLStorage(StorageLayer):
             return 0
         else:
             return 1
-        
-    def map_reference(self, field, value):
-        __traceback_info__ = repr(value)
 
-        return ','.join(value)
-    
     def unmap_boolean(self, field, value):
         __traceback_info__ = repr(value)
         if not value or value == '0':   # Gadfly return integers as strings
@@ -125,7 +119,7 @@ class BaseSQLStorage(StorageLayer):
 
     def initializeInstance(self, instance, item=None, container=None):
         if (self.is_initialized(instance) or
-            getattr(instance, '_at_is_fake_instance', None)):
+            getattr(instance, '_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
         fields = instance.Schema().fields()
@@ -134,31 +128,19 @@ class BaseSQLStorage(StorageLayer):
         columns = []
         args = {}
         for field in fields:
-            if field.type=='computed':
-                #computed field must not be persistent (and no database
-                #knows how to deal with a 'computed' datatype
-                continue
-            
             type = self.db_type_map.get(field.type, field.type)
             name = field.getName()
-            # MySQL supports escape for columns names!
-            if self.__class__.__name__ == 'MySQLSQLStorage':
-                columns.append('`%s` %s' % (name, type))
-            else:
-                columns.append('%s %s' % (name, type))
+            columns.append('%s %s' % (name, type))
         parent = container or aq_parent(aq_inner(instance))
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
         args['columns'] = ', ' + ', '.join(columns)
         if not self.table_exists(instance):
             self._query(instance, self.query_create, args)
             log('created table %s\n' % args['table'])
         try:
             self._query(instance, self.query_insert, args)
-        except ConflictError:
-            raise
         except:
             # usually, duplicate key
             # raise SQLInitException(msg)
@@ -191,7 +173,6 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        args['db_encoding']=kwargs.get('db_encoding',None)
         args['field'] = name
         result = self._query(instance, self.query_select, args)
         result = result[0][0]
@@ -216,7 +197,6 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
         field_name = '%s:%s' % (name, type)
         if default:
             if type == 'string':
@@ -231,7 +211,7 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
-            getattr(instance, '_at_is_fake_instance', None)):
+            getattr(instance, '_is_fake_instance', None)):
             # duh, we don't need to be cleaned twice
             return
         # the object is being deleted. remove data from sql.  but
@@ -250,13 +230,10 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
             query, result = method(test__=1, **args)
-        except ConflictError:
-            raise
         except:
             # dunno what could happen here raise
             # SQLCleanupException(msg)
@@ -359,8 +336,6 @@ class GadflySQLStorage(BaseSQLStorage):
             self._query(instance,
                         'select * from <dtml-var table>',
                         {'table': instance.portal_type.lower()})
-        except ConflictError:
-            raise
         except:
             return 0
         else:
@@ -370,20 +345,20 @@ class MySQLSQLStorage(BaseSQLStorage):
 
     __implements__ = BaseSQLStorage.__implements__
 
-    query_create = ('create table `<dtml-var table>` '
+    query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '
                     'PARENTUID char(50) <dtml-var columns>) TYPE = %s' % MYSQL_SQLSTORAGE_TABLE_TYPE)
-    query_select = ('select `<dtml-var field>` '
-                    'from `<dtml-var table>` where '
+    query_select = ('select <dtml-var field> '
+                    'from <dtml-var table> where '
                     '<dtml-sqltest UID op="eq" type="string">')
-    query_insert = ('insert into `<dtml-var table>` '
+    query_insert = ('insert into <dtml-var table> '
                     'set UID=<dtml-sqlvar UID type="string">, '
                     'PARENTUID=<dtml-sqlvar PARENTUID type="string">')
-    query_update = ('update `<dtml-var table>` set '
-                    '`<dtml-var field>`=<dtml-sqlvar value '
+    query_update = ('update <dtml-var table> set '
+                    '<dtml-var field>=<dtml-sqlvar value '
                     'type="%s" optional> where '
                     '<dtml-sqltest UID op="eq" type="string">')
-    query_delete = ('delete from `<dtml-var table>` '
+    query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
     db_type_map = {'object'     : 'text',

@@ -9,48 +9,25 @@
   <body>
 
     <metal:view_macro define-macro="view">
-      <tal:define define="refs python:here.getReferenceImpl(field.relationship)"
-                  condition="refs">
+      <tal:define define="targets python:here.getRefs(field.relationship)"
+                  condition="targets">
 
-        <tal:block tal:condition="not:field/multiValued"
-               tal:define="ref python:refs[0];
-                           obj ref/getTargetObject">
+        <a href="#"
+           tal:define="obj python:targets[0]"
+           tal:condition="not:field/multiValued"
+           tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+          Sole target object's title
+        </a>
 
-            <a href="#"
-               tal:attributes="href obj/absolute_url;
-                               class python:obj.portal_type.replace(' ', '_')"
-               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
-              Sole target object's title
-            </a>
-
-            <a href="#"
-               tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
-               tal:attributes="href python:ref.getContentObject().absolute_url();
-                               class python:obj.portal_type.replace(' ', '_')"
-               tal:content="field/relationship">
-              reference object link
-            </a>
-
-        </tal:block>
 
         <ul tal:condition="field/multiValued">
-          <li tal:repeat="ref refs">
-             <tal:block tal:define="obj ref/getTargetObject">
-                <a href="#"
-                   tal:attributes="href obj/absolute_url;
-                                   class python:obj.portal_type.replace(' ', '_')"
-                   tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
-                  Target Title
-                </a>
-
-                <a href="#"
-                   tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
-                   tal:attributes="href python:ref.getContentObject().absolute_url();
-                                   class python:obj.portal_type.replace(' ', '_')"
-                   tal:content="field/relationship">
-                  reference object link
-                </a>
-             </tal:block>
+          <li tal:repeat="obj targets">
+            <a href="#"
+               tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Target Title
+            </a>
           </li>
         </ul>
 
@@ -63,8 +40,7 @@
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
                          vocab python:field.Vocabulary(here);
-                         fieldName python:fieldName+':list';
-                         uids python:same_type(value, []) and value or [value];
+                         fieldName python:multiVal and fieldName+':list' or fieldName;
                          vlen python:len(vocab);">
 
           <input type="hidden"
@@ -73,17 +49,18 @@
                  tal:attributes="name string:$fieldName:default:list"
                  />
 
-          <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
+          <div tal:condition="python:vlen &lt; 5">
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
               <tal:block tal:define="item_tabindex tabindex/next;
-                                   item_id string:${fieldName}_${item_tabindex};
-                                   no_ref python: value is None and item == ''">
+                                     item_id string:${fieldName}_${item_tabindex}">
                 <input class="noborder"
                        tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
-                                       checked python:test((item in uids) or no_ref, 'checked', nothing);
+                                       checked python:test(value and multiVal and
+                                                           item in value or
+                                                           item==value, value, '');
                                        tabindex item_tabindex;
                                        value item;
                                        id item_id;
@@ -91,33 +68,94 @@
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))" />
-
+                       tal:content="python:vocab.getValue(item)" />
 
                 <br/>
               </tal:block>
             </tal:item>
           </div>
 
-          <div tal:condition="python:vlen &gt; widget.checkbox_bound">
+          <div tal:condition="python:vlen &gt; 4">
             <!-- pulldown for longer vocabs -->
             <select tal:attributes="name fieldName;
                                     id fieldName;
                                     multiple python:multiVal and 'multiple' or None;
                                     tabindex tabindex/next;">
 
-             <tal:item tal:repeat="item vocab">
               <option selected="selected"
-                      tal:define="no_ref python: value is None and item == '';"
+                      tal:repeat="item vocab"
                       tal:attributes="value item;
-                                      selected python:test((item in uids) or no_ref, 'selected', '')"
-                      tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
-             </tal:item>
+                                      selected python:test(value and multiVal and
+                                                           item in value or
+                                                           item==value, 'selected', '')"
+                      tal:content="python:vocab.getValue(item)"></option>
             </select>
           </div>
 
-          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+          <div tal:condition="widget/addable"
+               tal:define="types python:widget.addableTypes(here, field)">
 
+            <input type="button" class="context"
+                tal:attributes="id string:${field/getName}_link;
+                onclick string:${field/getName}_show();;return false;
+                value string:Add New ${widget/label};
+                tabindex tabindex/next" />
+
+            <div tal:attributes="id string:${field/getName}_fieldset"
+                 i18n:domain="archetypes"
+                 style="display:none">
+
+              <fieldset>
+                <legend i18n:translate="legend_add_new">add new</legend>
+                <div class="field">
+                  <label i18n:translate="label_what">What</label>
+                  <div class="formHelp"
+                       i18n:translate="help_select_content_to_create">
+                    Select what content type you wish to create.
+                  </div>
+                  <div>
+                    <select tal:define="id string:${field/getName}_types"
+                            tal:attributes="id id;
+                                            tabindex tabindex/next;
+                                            onchange string:${field/getName}_update(this)" >
+                      <option tal:repeat="type types"
+                              tal:attributes="value type/id"
+                              tal:content="type/name" />
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label i18n:translate="label_where">Where</label>
+                  <div class="formHelp"
+                       i18n:translate="help_select_where_to_create">
+                    Select where you want to create that.
+                  </div>
+                  <div>
+                    <select name="add_reference.destination:record"
+                            tal:attributes="id string:${field/getName}_destinations;
+                                            name string:${field/getName}_destination;
+                                            tabindex tabindex/next"></select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label></label>
+                  <div class="formHelp"></div>
+                  <div>
+                    <input class="context"
+                      tabindex=""
+                      type="submit"
+                      value="Add"
+                      name="form.button.form_add"
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};
+                                      tabindex tabindex/next;"
+                      i18n:attributes="value"
+                      />
+                  </div>
+                </div>
+              </fieldset>
+              <script tal:content="structure here/reference_js"></script>
+            </div>
+          </div>
         </div>
       </metal:use>
     </metal:edit_macro>

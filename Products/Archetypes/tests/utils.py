@@ -1,35 +1,10 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import re
 from TAL import ndiff
 
-def makeContent( container, portal_type, id='document', **kw ):
-    container.invokeFactory( type_name=portal_type, id=id )
-    return getattr( container, id )
+def makeContent(site, portal_type, id='document', **kw ):
+    site.invokeFactory( type_name=portal_type, id=id )
+    content = getattr( site, id )
+    return content
 
 def normalize_html(s):
     s = re.sub(r"\s+", " ", s)
@@ -98,54 +73,3 @@ def start_http(address, port):
     sys.ZServerExitCode=0
     asyncore.loop()
     sys.exit(sys.ZServerExitCode)
-
-def populateFolder(folder, folder_type, doc_type):
-    """ Creates a structure like:
-
-    \index_html
-    \doc1
-    \folder1
-       \folder11
-       \folder12
-       \doc11
-    \folder2
-       \folder21
-       \doc21
-       \index_html
-       \folder22
-          \folder221
-             \doc2211
-             \doc2212
-          \folder222
-             \doc2221
-             \doc2222
-          \folder223
-             \doc2231
-             \doc2232
-    """
-    folder.invokeFactory(doc_type, id='index_html')
-    folder.invokeFactory(doc_type, id='doc1')
-    folder.invokeFactory(folder_type, id='folder1')
-    folder.invokeFactory(folder_type, id='folder2')
-    f1 = folder.folder1
-    f2 = folder.folder2
-    f1.invokeFactory(folder_type, id='folder11')
-    f1.invokeFactory(folder_type, id='folder12')
-    f1.invokeFactory(doc_type, id='doc11')
-    f2.invokeFactory(folder_type, id='folder21')
-    f2.invokeFactory(folder_type, id='folder22')
-    f2.invokeFactory(doc_type, id='doc21')
-    f2.invokeFactory(doc_type, id='index_html')
-    f22 = f2.folder22
-    f22.invokeFactory(folder_type, id='folder221')
-    f221 = f22.folder221
-    f221.invokeFactory(doc_type, id='doc2211')
-    f221.invokeFactory(doc_type, id='doc2212')
-    f22.invokeFactory(folder_type, id='folder222')
-    f222 = f22.folder222
-    f222.invokeFactory(doc_type, id='doc2221')
-    f222.invokeFactory(doc_type, id='doc2222')
-    f22.invokeFactory(folder_type, id='folder223')
-    f223 = f22.folder223
-    f223.invokeFactory(doc_type, id='doc2231')
-    f223.invokeFactory(doc_type, id='doc2232')

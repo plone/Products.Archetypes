@@ -1,41 +1,18 @@
-# -*- coding: ISO-8859-1 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
+# -*- coding: iso8859-1 -*-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from common import *
 from utils import *
+from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 
 from test_classgen import Dummy
 
-from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
-from Products.Archetypes.fields import *
-from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
-from Products.Archetypes.lib.baseunit import BaseUnit
+
+from Products.Archetypes.Field import *
+from Products.PortalTransforms.MimeTypesRegistry import MimeTypesRegistry
+from Products.Archetypes.BaseUnit import BaseUnit
 from Products.PortalTransforms.data import datastream
 instance = Dummy()
 
@@ -49,7 +26,7 @@ class FakeTransformer:
             data = datastream('test')
         data.setData(orig)
         return data
-
+tests = []
 
 class UnicodeStringFieldTest( ArchetypesTestCase ):
 
@@ -65,6 +42,7 @@ class UnicodeStringFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
+tests.append(UnicodeStringFieldTest)
 
 class UnicodeLinesFieldTest( ArchetypesTestCase ):
 
@@ -105,6 +83,7 @@ class UnicodeLinesFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
+tests.append(UnicodeLinesFieldTest)
 
 class UnicodeTextFieldTest( ArchetypesTestCase ):
 
@@ -120,10 +99,11 @@ class UnicodeTextFieldTest( ArchetypesTestCase ):
         self.failUnlessEqual(f.getRaw(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
+tests.append(UnicodeTextFieldTest)
 
 class UnicodeBaseUnitTest(ArchetypesTestCase):
-
     def afterSetUp(self):
+        ArchetypesTestCase.afterSetUp(self)
         self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
 
     def test_store(self):
@@ -147,15 +127,16 @@ class UnicodeBaseUnitTest(ArchetypesTestCase):
         transformed = self.bu.transform(instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
 
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(UnicodeStringFieldTest))
-    suite.addTest(makeSuite(UnicodeLinesFieldTest))
-    suite.addTest(makeSuite(UnicodeTextFieldTest))
-    suite.addTest(makeSuite(UnicodeBaseUnitTest))
-    return suite
+tests.append(UnicodeBaseUnitTest)
 
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
+        return suite
