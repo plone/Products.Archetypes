@@ -89,8 +89,8 @@ class SitePolicyTests(ArcheSiteTestCase):
         self.assertEqual(new_size, content.get_size())
 
     def test_addComplexTypeCtor(self):
-        from Archetypes.examples import ComplexType
-        from Archetypes.ClassGen import generateCtor
+        from Products.Archetypes.examples import ComplexType
+        from Products.Archetypes.ClassGen import generateCtor
         addComplexType = generateCtor('ComplexType', ComplexType)
         site = self.getPortal()
         id = addComplexType(site, id='complex_type',
