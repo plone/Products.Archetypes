@@ -354,7 +354,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     def accessor(*a, **kw):
                         # thanks 2.1 for lexical scopes!
                         return field.default
-                    widgets[field.name] = WidgetWrapper(field_name=field.name, mode='edit',
+                    widgets[field.name] = WidgetWrapper(field_name=field.name, mode='search',
                                                         widget=field.widget, instance=instance, field=field,
                                                         accessor=accessor)
         widgets = widgets.items()
