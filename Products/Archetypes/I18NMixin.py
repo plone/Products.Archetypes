@@ -55,17 +55,19 @@ class I18NMixin:
                )
 
     security = ClassSecurityInfo()
+
+    _need_redirect = 0
     
     # we need to override some Dublin Core methods to make them works cleanly i18nized
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
-    def setDescription(self, text, mimetype=None, lang=None):
+    def setDescription(self, text, mimetype=None, encoding=None, lang=None):
         "Dublin Core element - resource summary"
         descr_field = self.Schema()['description']
         if text or descr_field.getRaw(self):
             # FIXME: pb if we try to call set before the object was added
             # (try to access to the mimetypes tool)
-            descr_field.set(self, text, mimetype=mimetype, lang=lang)
+            descr_field.set(self, text, mimetype=mimetype, encoding=encoding, lang=lang)
         
     security.declarePublic('Description')
     def Description(self):
@@ -74,13 +76,13 @@ class I18NMixin:
         return descr_field.get(self)
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
-    def setTitle(self, text, mimetype=None, lang=None):
+    def setTitle(self, text, encoding=None, lang=None):
         "Dublin Core element - resource name"
         title_field = self.Schema()['title']
         if text or title_field.getRaw(self):
             # FIXME: pb if we try to call set before the object was added
             # (try to access to the mimetypes tool)
-            title_field.set(self, text, lang=lang)
+            title_field.set(self, text, encoding=encoding, lang=lang)
         
     security.declarePublic('Title')
     def Title(self):
@@ -88,6 +90,14 @@ class I18NMixin:
         title_field = self.Schema()['title']
         return title_field.get(self)
 
+    def Language(self):
+        "Dublin Core element - resource language"
+        return self.getContentLanguage()
+
+    def setLanguage(self, language, encoding=None):
+        "Dublin Core element - resource language"
+        pass
+    
     # i18n content management method ##########################################
     
     security.declarePublic('getFilteredLanguages')
@@ -200,5 +210,6 @@ class I18NMixin:
             return self
         except:
             # this is not a valid language id
+            #if hasattr(REQUEST, 'RESPONSE'):
             REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
