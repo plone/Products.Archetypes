@@ -1,7 +1,7 @@
-""" 
+"""
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.7 2003/06/23 18:42:25 dreamcatcher Exp $
+$Id: test_referenceable.py,v 1.8 2003/06/24 11:57:23 dreamcatcher Exp $
 """
 
 import unittest
@@ -86,7 +86,7 @@ class ReferenceableTests( SecurityRequestTest ):
                             , portal_type='DDocument'
                             , title='Foo'
                             , id=obj_id)
-        
+
         UID2 = doc2.UID()
         self.failIf(UID == UID2)
         self.failUnless(catalog.uniqueValuesFor('UID') == (UID,UID2))
@@ -94,7 +94,7 @@ class ReferenceableTests( SecurityRequestTest ):
     def test_relationships(self):
         site = self.root.testsite
         catalog = site.portal_catalog
-        
+
         obj_id   = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
@@ -114,7 +114,7 @@ class ReferenceableTests( SecurityRequestTest ):
         rels = a.getRelationships()
         assert "KnowsAbout" in rels
         assert "Owns" in rels
-        
+
         a.deleteReference(c)
 
         assert a.getRefs() == [b]
@@ -126,7 +126,7 @@ class ReferenceableTests( SecurityRequestTest ):
         site = self.root.testsite
         catalog = site.portal_catalog
         at = site.archetype_tool
-        
+
         a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
 
@@ -148,7 +148,7 @@ class ReferenceableTests( SecurityRequestTest ):
         site = self.root.testsite
         catalog = site.portal_catalog
         at = site.archetype_tool
-        
+
         folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
         nonRef = makeContent( folder, portal_type='DDocument',title='Foo', id='nonRef')
 
@@ -159,7 +159,7 @@ class ReferenceableTests( SecurityRequestTest ):
     def test_hasRelationship(self):
         site = self.root.testsite
         catalog = site.portal_catalog
-        
+
         a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
         c = makeContent( site, portal_type='DDocument',title='Foo', id='c')
@@ -174,8 +174,8 @@ class ReferenceableTests( SecurityRequestTest ):
         assert a.hasRelationshipTo(c, "KnowsAbout") == 0
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
-        
-        
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest( unittest.makeSuite( ReferenceableTests ) )

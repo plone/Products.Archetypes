@@ -19,7 +19,7 @@ import unittest
 class ReferenceEngine(ReferenceEngine):
     def assertId(self, uid):
         return 1
-    
+
 
 
 class TestReferenceEngine(unittest.TestCase):
@@ -51,7 +51,7 @@ class TestReferenceEngine(unittest.TestCase):
 
         assert gb(a) == [] #How could this ever happen, but still
         assert gr(c) == [] #Again, impossible
-        
+
     def test_delete(self):
         re = self.re
         ar = re.addReference
@@ -79,7 +79,7 @@ class TestReferenceEngine(unittest.TestCase):
         assert gr(a) == []
         assert gb(b) == []
         assert gb(c) == []
-        
+
 
 def test_suite():
     return unittest.TestSuite((

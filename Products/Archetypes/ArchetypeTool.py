@@ -105,6 +105,7 @@ def modify_fti(fti, klass, pkg_name):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = 0
 
+
 def generateCtor(type, module):
     name = capitalize(type)
     ctor = """

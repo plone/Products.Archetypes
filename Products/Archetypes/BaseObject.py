@@ -58,7 +58,6 @@ class BaseObject(Implicit):
         self._master_language = None
         self._translations_states = PersistentMapping()
             
-
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -71,7 +70,6 @@ class BaseObject(Implicit):
             import traceback
             import sys
             sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
-            
 
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
@@ -258,7 +256,7 @@ class BaseObject(Implicit):
         if errors:
             return errors
 
-        self.Schema().validate(self, REQUEST=REQUEST, errors=errors, 
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors,
                                data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
@@ -392,7 +390,7 @@ class BaseObject(Implicit):
 
 
     # I18N content management #################################################
-    
+
     security.declarePublic("hasI18NContent")
     def hasI18NContent(self):
         """return true it the schema contains at least one I18N field"""
@@ -506,8 +504,8 @@ class BaseObject(Implicit):
 
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
-        For each field we use the existing accessor to get its value, then we 
-        re-initialize the class, then use the new schema mutator for each field 
+        For each field we use the existing accessor to get its value, then we
+        re-initialize the class, then use the new schema mutator for each field
         to set the values again.  We also copy over any class methods to handle
         product refreshes gracefully (when a product refreshes, you end up with
         both the old version of the class and the new in memory at the same
@@ -515,7 +513,7 @@ class BaseObject(Implicit):
         from Products.Archetypes.ArchetypeTool import getType
 
         print >> out, 'Updating %s' % (self.getId())
-        
+
         old_schema = self.Schema()
         new_schema = getType(self.meta_type)['schema']
 
@@ -531,7 +529,7 @@ class BaseObject(Implicit):
                 obj_class.__dict__[k] = current_class.__dict__[k]
 #            from Products.Archetypes.ArchetypeTool import generateClass
 #            generateClass(obj_class)
-            
+
 
         # read all the old values into a dict
         values = {}
@@ -563,7 +561,7 @@ class BaseObject(Implicit):
         if out:
             return out
 
-                
+
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
@@ -575,7 +573,7 @@ class BaseObject(Implicit):
             if accessor is not None:
                 # yes -- return the value
                 return accessor()
-        
+
         # Nope -- see if the new accessor method is present in the current object.
         if new_schema:
             new_field = new_schema.get(name)
@@ -590,10 +588,10 @@ class BaseObject(Implicit):
         # as the new field
         if hasattr(self, name):
             return getattr(self, name)
-        
+
         raise ValueError, 'name = %s' % (name)
-    
-        
+
+
     def _migrateSetValue(self, name, value, old_schema=None):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
@@ -610,7 +608,7 @@ class BaseObject(Implicit):
             return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
-            
+
 def text_data(accessor, lang_id=None):
     """return plain text data from an accessor"""
     if lang_id is not None:
@@ -625,7 +623,6 @@ def text_data(accessor, lang_id=None):
                 return ''
         except:
             return ''
-    
 
 
 InitializeClass(BaseObject)
