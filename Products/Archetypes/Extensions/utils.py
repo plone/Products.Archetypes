@@ -51,16 +51,21 @@ def install_tools(self, out):
     install_catalog(self, out)
 
 def install_catalog(self, out):
+
+    index_defs=(('UID', 'FieldIndex'),
+                 ('Type', 'FieldIndex'),
+                 ('id', 'FieldIndex'),
+                 ('Title', 'FieldIndex'),
+                 ('portal_type', 'FieldIndex'),
+             )    
+
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
         addCatalog = manage_addZCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
 
-        for indexName, indexType in (('UID', 'FieldIndex'),
-                                     ('Type', 'FieldIndex'),
-                                     ('Title', 'FieldIndex'),
-                                     ):
+        for indexName, indexType in indexe_defs:
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
             except:
@@ -72,7 +77,15 @@ def install_catalog(self, out):
         except:
             pass
 
+
         catalog.manage_reindexIndex(ids=('UID',))
+    else:
+        #add the indexes if not in the catalog (in the case that 
+        #the index has been added within an Archetypes update)
+        catalog=getattr(self,UID_CATALOG)
+        for indexName, indexType in index_defs:
+            if indexName not in catalog.indexes():
+                catalog.addIndex(indexName, indexType, extra=None)
 
 def install_templates(self, out):
     at = self.archetype_tool

@@ -749,7 +749,7 @@ class ReferenceField(ObjectField):
         'default': None,
         'widget' : ReferenceWidget,
         'allowed_types' : (),
-        'allowed_type_column' : 'Type',
+        'allowed_type_column' : 'portal_type',
         'addable': 0,
         'destination': None,
         'relationship':None
@@ -814,7 +814,14 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            kw = {self.allowed_type_column:self.allowed_types}
+            
+            # the else branch is for backwards compatbility:
+            #  we switched to look up portal_type by default instead of Type for AT 1.2.4
+            if self.allowed_type_column in catalog.indexes():
+                kw = {self.allowed_type_column:self.allowed_types}
+            else:
+                kw = {'Type':self.allowed_types}
+                
             results = catalog(**kw)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
