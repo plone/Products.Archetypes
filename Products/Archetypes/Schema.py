@@ -427,7 +427,7 @@ class Schema(Schemata, DefaultLayerContainer):
                         value = None
 
                 if not value:
-                    label = self.widget.Label(instance)
+                    label = field.widget.Label(instance)
                     errors[name] = translate(
                         'archetypes', 'error_required',
                         {'name': label}, instance,
