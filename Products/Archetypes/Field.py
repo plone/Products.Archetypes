@@ -460,7 +460,10 @@ class TextField(ObjectField):
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.getName(), value, mimetype=mimetype, instance=instance)
+            bu = BaseUnit(self.getName(), value,
+                          mimetype=mimetype,
+                          encoding=kwargs['encoding'],
+                          instance=instance)
 
         ObjectField.set(self, instance, bu, **kwargs)
 

@@ -26,17 +26,24 @@ class newBaseUnit(File):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', instance=None, mimetype=None):
+    def __init__(self, name, file='', instance=None, mimetype=None, encoding=None):
         self.id = name
-        self.update(file, instance, mimetype)
+        self.update(file, instance, mimetype, encoding)
 
-    def update(self, data, instance, mimetype=None):
+    def update(self, data, instance, mimetype=None, encoding=None):
         #Convert from file/str to str/unicode as needed
         adapter = getToolByName(instance, 'mimetypes_registry')
-        data, filename, mimetype = adapter(data, mimetype=mimetype)
+        data, filename, mimetype = adapter(data, mimetype=mimetype, encoding=encoding)
 
         self.mimetype = mimetype
-        self.raw  = data and str(data) or ''
+        self.encoding = encoding
+        # XXXFIXME: data may have been translated to unicode by the adapter method
+        #            why encode it here ??
+        try:
+            self.raw  = data and str(data) or ''
+        except UnicodeError:
+            self.raw = data.encode(encoding)
+            
         self.size = len(data)
         self.filename = filename
 
@@ -169,7 +176,7 @@ class oldBaseUnit(File, ObjectManager):
     __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
-    def __init__(self, name, file='', instance=None, mimetype=None):
+    def __init__(self, name, file='', instance=None, mimetype=None, encoding=None):
         self.id = name
         self.filename = ''
         self.data = ''

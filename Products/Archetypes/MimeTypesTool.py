@@ -239,7 +239,7 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
 
         if mt and not mt.binary:
             if type(data) != UnicodeType:
-                encoding = kwargs.get('encoding', 'utf_8')
+                encoding = kwargs.get('encoding', 'UTF-8') or 'UTF-8'
                 data = unicode(data, encoding)
 
         return (data, filename, mt)
