@@ -318,7 +318,7 @@ class BaseSchemaTest(ArchetypesTestCase):
                         CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'string')
+        self.failUnless(field.type == 'text')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())

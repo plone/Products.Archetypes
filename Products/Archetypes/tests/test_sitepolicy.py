@@ -16,7 +16,7 @@ from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 
 class SitePolicyTests(ArcheSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
-                  'Fact', 'ComplexType']
+                  'Fact', 'Complex Type']
 
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
@@ -47,7 +47,7 @@ class SitePolicyTests(ArcheSiteTestCase):
     # a separate test suite.
     def test_ComplexTypeGetSize(self):
         site = self.getPortal()
-        content = makeContent(site, portal_type='ComplexType', id='ct')
+        content = makeContent(site, portal_type='Complex Type', id='ct')
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
