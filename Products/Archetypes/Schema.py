@@ -123,9 +123,9 @@ class Schema(UserDict, DefaultLayerContainer):
         schema defaults
         """
         ## XXX think about layout/vs dyn defaults
-        instance = aq_base(instance)
         for field in self.values():
-            if not getattr(instance, field.name, None):
+            if not hasattr(aq_base(instance), field.name) and \
+               getattr(instance, field.name, None):
                 default = field.default
                 #See if the instance has a method named the default
                 ##default = getattr(instance, default, default)
@@ -276,17 +276,20 @@ class Schema(UserDict, DefaultLayerContainer):
                 for layer, object in layers:
                     if ILayer.isImplementedBy(object):
                         object.initalizeField(instance, field)
-                        if not called(layer):
+                        if not called((layer, object)):
                             object.initalizeInstance(instance)
-                            initalizedLayers.append(layer)
+                            # Some layers may have the same name, but different classes,
+                            # so, they may still need to be initialized
+                            initalizedLayers.append((layer, object))
 
 
         #Now do the same for objects registered at this level
         if ILayerContainer.isImplementedBy(self):
             for layer, object in self.registeredLayers():
-                if not called(layer) and ILayer.isImplementedBy(object):
+                if not called((layer, object)) \
+                   and ILayer.isImplementedBy(object):
                     object.initalizeInstance(instance)
-                    initalizedLayers.append(layer)
+                    initalizedLayers.append((layer, object))
 
     def cleanupLayers(self, instance):
         # scan each field looking for registered layers
