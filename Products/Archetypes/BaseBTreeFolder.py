@@ -24,6 +24,14 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         CMFBTreeFolder.__init__(self, id)
         BaseFolder.__init__(self, oid, **kwargs)
 
+    def manage_renameObject(self, id, new_id, REQUEST=None):
+        """
+        Btrees don't need to do the position tango.
+        this overrides PortalFolder
+        """
+        result = self._old_manage_renameObject(id, new_id, REQUEST)
+        return result
+
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         # CMFBTreeFolder inherits from PortalFolder, which os the same
@@ -55,6 +63,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
             if accessor is not None:
                 return accessor()
         return CMFBTreeFolder.__getitem__(self, key)
+
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject

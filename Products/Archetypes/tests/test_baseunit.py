@@ -1,3 +1,4 @@
+import os, sys
 # -*- coding: UTF-8 -*-
 ################################################################################
 #
@@ -26,7 +27,6 @@
 """
 """
 
-import sys, os
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
@@ -64,8 +64,7 @@ class BaseUnitTest( ATSiteTestCase ):
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()
-
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
 tests = []
 

@@ -51,8 +51,8 @@ unittest.TestResult._exc_info_to_string = pretty_exc
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.storage.sql import storage as SQLStorage
-from Products.Archetypes.storage.sql import method as SQLMethod
+from Products.Archetypes import SQLStorage
+from Products.Archetypes import SQLMethod
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.utils import makeContent
@@ -87,7 +87,7 @@ except ImportError:
     print >>sys.stderr, 'Failed to import ZPsycopgDA'
 else:
     ZopeTestCase.installProduct('ZPsycopgDA', 0)
-    connectors['Postgre'] = 'dbname=demo user=demo host=gandalf'
+    connectors['Postgre'] = 'dbname=demo user=root p host=localhost'
 
 # MySQL
 
@@ -99,9 +99,11 @@ else:
     ZopeTestCase.installProduct('ZMySQLDA', 0)
     transactional = 1 # needs INNODB!
     if transactional:
-        connectors['MySQL'] = '+demo@gandalf demo'
+        #connectors['MySQL'] = '+demo@gandalf demo'
+        connectors['MySQL'] = '+rosetta root sch00l13'
     else:
-        connectors['MySQL'] = '-demo@gandalf demo'
+        #connectors['MySQL'] = '-demo@gandalf demo'
+        connectors['MySQL'] = '-rosetta root sch00l13'
         def cleanupMySQL(self):
             instance = self._dummy
             args = {}
@@ -226,7 +228,7 @@ def commonAfterSetUp(self):
     tt.manage_addTypeInformation(
         FactoryTypeInformation.meta_type,
         id = 'Dummy',
-        typeinfo_name = 'CMFDefault: Document')
+        typeinfo_name = 'CMFDefault: Document (Document)')
 
     # set archetype_tool default connection
     at = getToolByName(portal, TOOL_NAME)

@@ -34,15 +34,15 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import portal_name
-from Products.Archetypes.tests.attestcase import USE_PLONETESTCASE
+from Products.Archetypes.tests.attestcase import HAS_PLONE
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
-from Products.Archetypes import field as at_field
-from Products.Archetypes.field import ScalableImage, Image
+from Products.Archetypes import Field as at_field
+from Products.Archetypes.Field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
@@ -98,10 +98,10 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name, 
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" border="0" />' % portal_name, 
                    'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name
                    }
-if USE_PLONETESTCASE:
+if HAS_PLONE:
     # Plone has a patch which removed the border="0" and adds longdesc=""
     expected_values['imagefield'] = '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name
 
@@ -230,9 +230,19 @@ class ProcessingTest(ATSiteTestCase):
         self.failIf(errors, errors)
 
     def test_required(self):
-        dummy = self.makeDummy()
         request = FakeRequest()
+        request.form.update(empty_values)
         request.form['fieldset'] = 'default'
+        self._test_required(request)
+        
+    def test_required_empty_request(self):
+        request = FakeRequest()
+        request.form = {}
+        request.form['fieldset'] = 'default'
+        self._test_required(request)
+
+    def _test_required(self, request):
+        dummy = self.makeDummy()
         f_names = []
 
         schema = dummy.Schema()
