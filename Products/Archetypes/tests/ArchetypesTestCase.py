@@ -2,29 +2,29 @@
 # ArchetypesTestCase
 #
 
-# $Id: ArchetypesTestCase.py,v 1.3 2003/11/03 22:05:22 dreamcatcher Exp $
+# $Id: ArchetypesTestCase.py,v 1.4 2003/11/12 15:46:31 bcsaller Exp $
 
 from Testing import ZopeTestCase
 
-ZopeTestCase.installProduct('CMFCore')
-ZopeTestCase.installProduct('CMFDefault')
-ZopeTestCase.installProduct('CMFCalendar')
-ZopeTestCase.installProduct('CMFTopic')
-ZopeTestCase.installProduct('DCWorkflow')
-ZopeTestCase.installProduct('CMFActionIcons')
-ZopeTestCase.installProduct('CMFQuickInstallerTool')
-ZopeTestCase.installProduct('CMFFormController')
-ZopeTestCase.installProduct('GroupUserFolder')
-ZopeTestCase.installProduct('ZCTextIndex')
-ZopeTestCase.installProduct('CMFPlone')
+ZopeTestCase.installProduct('CMFCore', 1)
+ZopeTestCase.installProduct('CMFDefault', 1)
+ZopeTestCase.installProduct('CMFCalendar', 1)
+ZopeTestCase.installProduct('CMFTopic', 1)
+ZopeTestCase.installProduct('DCWorkflow', 1)
+ZopeTestCase.installProduct('CMFActionIcons', 1)
+ZopeTestCase.installProduct('CMFQuickInstallerTool', 1)
+ZopeTestCase.installProduct('CMFFormController', 1)
+ZopeTestCase.installProduct('GroupUserFolder', 1)
+ZopeTestCase.installProduct('ZCTextIndex', 1)
+ZopeTestCase.installProduct('CMFPlone', 1)
 ZopeTestCase.installProduct('MailHost', quiet=1)
 ZopeTestCase.installProduct('PageTemplates', quiet=1)
 ZopeTestCase.installProduct('PythonScripts', quiet=1)
 ZopeTestCase.installProduct('ExternalMethod', quiet=1)
-ZopeTestCase.installProduct('ZCatalog')
-ZopeTestCase.installProduct('Archetypes')
-ZopeTestCase.installProduct('ArchetypesTestUpdateSchema')
-ZopeTestCase.installProduct('PortalTransforms')
+ZopeTestCase.installProduct('ZCatalog', 1)
+ZopeTestCase.installProduct('Archetypes', 1)
+ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
+ZopeTestCase.installProduct('PortalTransforms', 1)
 
 class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
     pass
