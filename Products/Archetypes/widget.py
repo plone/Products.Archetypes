@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 ##XXX remove dep, report errors properly
+import i18n
 
 class iwidget:
     def __call__(instance, context=None):
@@ -14,6 +15,12 @@ class iwidget:
 
     def getContext(self, mode, instance):
         """returns any prepaired context or and empty {}"""
+
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+
+    def Description(self, instance):
+        """Returns the description, possibly translated"""
 
 class widget:
     """
@@ -54,6 +61,22 @@ class widget:
 
     def getContext(self, instance):
         return {}
+
+    def _translate_attribute(self, instance, name):
+        value = getattr(self, name)
+        domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
+        if domain is None:
+            return value
+        msgid = getattr(self, name+'_msgid', None) or value
+        return i18n.translate(domain, msgid, None, instance.REQUEST, None, value)
+
+    def Label(self, instance):
+        """Returns the label, possibly translated"""
+        return self._translate_attribute(instance, 'label')
+
+    def Description(self, instance):
+        """Returns the description, possibly translated"""
+        return self._translate_attribute(instance, 'description')
 
 
 class macrowidget(widget):
