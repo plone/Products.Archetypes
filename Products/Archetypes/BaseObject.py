@@ -337,10 +337,10 @@ class BaseObject(Implicit):
         for name in self.Schema().keys():
             value = self[name]
             if IBaseUnit.isImplementedBy(value):
-                size += field.get_size()
+                size += value.get_size()
             else:
                 try:
-                    size += len(field)
+                    size += len(value)
                 except TypeError:
                     pass
 

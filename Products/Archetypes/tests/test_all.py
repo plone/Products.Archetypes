@@ -23,6 +23,7 @@ def test_suite():
         'test_utils',
         'test_utils2',
         'test_schemata',
+        'test_varschema',
         'test_sitepolicy',
         'test_sqlstorage',
         #'test_update_schema1',
