@@ -8,6 +8,10 @@ from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
 
+# WARNING!
+# Using full transactions after every migration step may be dangerous but it's
+# required if you don't have enough space and memory
+USE_FULL_TRANSACTIONS = False
 
 def reinstallArchetypes(portal,out):
     ''' lets quickinstaller reinstall the archetypes '''
@@ -69,9 +73,10 @@ def migrateReferences(portal, out):
                 print >>out, "%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
-        # full transaction?
-        get_transaction().commit(1)
-        return
+        if USE_FULL_TRANSACTIONS:
+            get_transaction().commit()
+        else:
+            get_transaction().commit(1)
     
     else:
         # SECOND
@@ -96,8 +101,16 @@ def migrateReferences(portal, out):
                 
             count+=1
             sourceObject.addReference(targetObject,relationship=brain.relationship)
+            # avoid eating up all RAM
+            if not count % 250:
+                get_transaction().commit(1) 
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
+
+        if USE_FULL_TRANSACTIONS:
+            get_transaction().commit()
+        else:
+            get_transaction().commit(1)
 
     print >>out, "Migrated References"
 
@@ -140,8 +153,12 @@ def migrateUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             get_transaction().commit(1) 
-    # full transaction?
-    get_transaction().commit(1)        
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
     print >>out, count, "UID's migrated."
 
 def removeOldUIDs(portal, out):
@@ -164,15 +181,21 @@ def removeOldUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             get_transaction().commit(1) 
-    # full transaction?
-    get_transaction().commit(1)
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
     print >>out, count, "old UID attributes removed."
 
 def migrateSchemas(portal, out):
     at = getToolByName(portal, TOOL_NAME)
     msg = at.manage_updateSchema(update_all=1)
-    # full transaction?
-    get_transaction().commit(1)
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
     print >>out, msg
     
 def refreshCatalogs(portal, out):
@@ -182,7 +205,12 @@ def refreshCatalogs(portal, out):
     uc.refreshCatalog(clear=1)
     print >>out, 'Refreshing reference catalog'
     rc.refreshCatalog(clear=1)
-    get_transaction().commit(1)
+
+    if USE_FULL_TRANSACTIONS:
+        get_transaction().commit()
+    else:
+        get_transaction().commit(1)
+
 
 def migrate(self):
     """migrate an AT site"""
