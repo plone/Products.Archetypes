@@ -13,6 +13,7 @@ from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.config import *
 
 from Products.CMFFormController.Extensions.Install \
@@ -149,6 +150,28 @@ def install_referenceCatalog(self, out, rebuild=False):
 def install_templates(self, out):
     at = self.archetype_tool
     at.registerTemplate('base_view')
+
+def install_additional_templates(self, out, types):
+    """Registers additionals templates for TemplateMixin classes.
+    """
+    at = self.archetype_tool
+    for t in types:
+        klass = t['klass']
+        if ITemplateMixin.isImplementedByInstancesOf(klass):
+            portal_type = klass.portal_type
+            default_view = getattr(klass, 'default_view', 'base_view')
+            suppl_views = getattr(klass, 'suppl_views', ())
+            views = ['base_view',]
+
+            if default_view != 'base_view':
+                at.registerTemplate(default_view)
+                views.append(default_view)
+
+            for view in suppl_views:
+                at.registerTemplate(view)
+                views.append(view)
+
+            at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
@@ -410,10 +433,11 @@ def setupEnvironment(self, out, types,
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 
+    install_additional_templates(self, out, types)
 
-    types = filterTypes(self, out, types, package_name)
-    install_indexes(self, out, types)
-    install_actions(self, out, types)
+    ftypes = filterTypes(self, out, types, package_name)
+    install_indexes(self, out, ftypes)
+    install_actions(self, out, ftypes)
 
 
 ## The master installer

@@ -5,7 +5,8 @@ from random import random, randint
 from time import time
 from inspect import getargs
 from md5 import md5
-from types import TupleType, ListType, StringType, ClassType, IntType, NoneType
+from types import TupleType, ListType, ClassType, IntType, NoneType
+from types import UnicodeType, StringType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -245,7 +246,7 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if type(key) not in (StringType, IntType):
+        if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         if type(msgid) not in (StringType, NoneType):
@@ -272,7 +273,7 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if type(key) not in (StringType, IntType):
+        if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
@@ -370,7 +371,7 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if type(key) not in (StringType, IntType):
+        if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)

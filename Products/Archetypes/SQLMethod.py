@@ -8,6 +8,9 @@ from cStringIO import StringIO
 import sys, types
 from ZODB.POSException import ConflictError
 
+from string import atoi
+from time import time
+
 try:
     from IOBTree import Bucket
 except:

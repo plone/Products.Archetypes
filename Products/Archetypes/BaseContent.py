@@ -8,6 +8,7 @@ from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
+from Acquisition import aq_get
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
@@ -15,6 +16,8 @@ from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
+
+_marker = []
 
 class BaseContentMixin(CatalogMultiplex,
                     BaseObject,
@@ -68,12 +71,19 @@ class BaseContentMixin(CatalogMultiplex,
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
 
-        file = REQUEST['BODYFILE']
+        file = REQUEST.get('BODYFILE', _marker)
+        if file is _marker:
+            data = REQUEST.get('BODY', _marker)
+            if data is _marker:
+                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
+        else:
+            data = file.read()
+            file.seek(0)
+        
         # XXX should we maybe not accept PUT requests without a
         # content type?
         mimetype = REQUEST.get_header('content-type', None)
-        data = file.read()
-        file.seek(0)
+
         try:
             filename = REQUEST._steps[-2] #XXX fixme, use a real name
         except ConflictError:
@@ -82,13 +92,27 @@ class BaseContentMixin(CatalogMultiplex,
             filename = (getattr(file, 'filename', None) or
                         getattr(file, 'name', None))
 
+        # XXX remove after we are using global services
+        # use the request to find an object in the traversal hirachie that is
+        # able to acquire a mimetypes_registry instance
+        # This is a hack to avoid the acquisition problem on FTP/WebDAV object
+        # creation
+        parents = REQUEST.get('PARENTS', None)
+        context = None
+        if parents is not None:
+            for parent in parents:
+                if aq_get(parent, 'mimetypes_registry', None, 1) is not None:
+                    context = parent
+                    break
+
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.demarshall(self, data,
                                       mimetype=mimetype,
                                       filename=filename,
                                       REQUEST=REQUEST,
-                                      RESPONSE=RESPONSE)
+                                      RESPONSE=RESPONSE,
+                                      context=context)
         if shasattr(self, 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)

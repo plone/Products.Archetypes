@@ -84,8 +84,7 @@ class Schemata(Base):
         return c
 
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'copy')
+    security.declareProtected(CMFCorePermissions.View, 'copy')
     def copy(self):
         """Returns a deep copy of this Schemata.
         """
@@ -95,19 +94,30 @@ class Schemata(Base):
         return c
 
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'fields')
+    security.declareProtected(CMFCorePermissions.View, 'fields')
     def fields(self):
         """Returns a list of my fields in order of their indices."""
         return [self._fields[name] for name in self._names]
 
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'values')
+    security.declareProtected(CMFCorePermissions.View, 'values')
     values = fields
+    
+    security.declareProtected(CMFCorePermissions.View, 'editableFields')
+    def editableFields(self, instance):
+        """Returns a list of editable fields for the given instance
+        """
+        return [field for field in self.fields()
+                if field.checkPermission('edit', instance)]
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'widgets')
+    security.declareProtected(CMFCorePermissions.View, 'viewableFields')
+    def viewableFields(self, instance):
+        """Returns a list of viewable fields for the given instance
+        """
+        return [field for field in self.fields()
+                if field.checkPermission('view', instance)]
+
+    security.declareProtected(CMFCorePermissions.View, 'widgets')
     def widgets(self):
         """Returns a dictionary that contains a widget for
         each field, using the field name as key."""

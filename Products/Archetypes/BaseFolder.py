@@ -80,7 +80,7 @@ class BaseFolderMixin(CatalogMultiplex,
         self._v_cp_refs = None
 
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.DeleteObjects,
                               'manage_delObjects')
     def manage_delObjects(self, ids=[], REQUEST=None):
         """ We need to enforce security. """
@@ -89,7 +89,7 @@ class BaseFolderMixin(CatalogMultiplex,
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
-            if not mt.checkPermission(CMFCorePermissions.ModifyPortalContent, item):
+            if not mt.checkPermission(CMFCorePermissions.DeleteObjects, item):
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
         SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
@@ -159,8 +159,13 @@ class BaseFolderMixin(CatalogMultiplex,
         a PortalFolder.
         """
         ti = self.getTypeInfo()
-        method = ti and ti.getMethodURL('mkdir') or None
-        if method:
+        # XXX getMethodURL is part of CMF 1.5 but AT 1.3 should be compatible
+        # with CMF 1.4
+        try:
+            method = ti and ti.getMethodURL('mkdir') or None
+        except AttributeError:
+            method = None
+        if method is not None:
             # call it
             getattr(self, method)(id=id)
         else:

@@ -10,6 +10,7 @@ from StringIO import StringIO
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
@@ -148,7 +149,7 @@ def fixActionsForType(portal_type, typesTool):
                 #  we must not put persistent objects into class attributes.
                 #  Thus, copy "action"
                 action = action.copy()
-                
+
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -228,6 +229,17 @@ def modify_fti(fti, klass, pkg_name):
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = False
+
+    # set folder_listing to 'view' if the class implements ITemplateMixin
+    if not ITemplateMixin.isImplementedByInstancesOf(klass):
+        actions = []
+        for action in fti[0]['actions']:
+            if action['id'] != 'folderlisting':
+                actions.append(action)
+            else:
+                action['action']="string:${folder_url}/view"
+                actions.append(action)
+        fti[0]['actions'] = tuple(actions)
 
     # remove folderlisting action from non folderish content types
     if not getattr(klass,'isPrincipiaFolderish', None):
@@ -320,8 +332,8 @@ def registerType(klass, package=None):
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
     """Helper method to fix some vars after renaming a type in portal_types
-    
-    It will raise an IndexError if called with a nonexisting old_portal_type. 
+
+    It will raise an IndexError if called with a nonexisting old_portal_type.
     If you like to swallow the error please use a try/except block in your own
     code and do NOT 'fix' this method.
     """
@@ -543,9 +555,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'lookupTemplates')
     def lookupTemplates(self, instance=None):
         """
-        lookup templates by giving an instance or a portal_type 
-        returns a DisplayList 
-        """        
+        lookup templates by giving an instance or a portal_type
+        returns a DisplayList
+        """
         results = []
         if type(instance) is not StringType:
             instance = instance.meta_type
@@ -566,7 +578,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def listTemplates(self):
         """list all the templates"""
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
-    
+
     security.declareProtected(CMFCorePermissions.View,
                               'isTemplateEnabled')
     def isTemplateEnabled(self, type):
@@ -602,7 +614,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View,
                               'listRegisteredTypes')
     def listRegisteredTypes(self, inProject=False):
-        """Return the list of sorted types"""        
+        """Return the list of sorted types"""
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
@@ -619,8 +631,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
-            # need to check against the content_meta_type of each type-info       
-            tt = getToolByName(self, "portal_types")     
+            # need to check against the content_meta_type of each type-info
+            tt = getToolByName(self, "portal_types")
             meta_types= tt.listContentTypes(self, by_metatype=True)
             values = [v for v in values if v['portal_type'] in meta_types]
 
@@ -721,7 +733,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         widgets = []
         w_keys = {}
-        context = context is None and context or self
+        context = context is not None and context or self
         instances = instance is not None and [instance] or []
         f_names = fields
         if not instances:
@@ -770,7 +782,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     # accessor must be a method which doesn't take an argument
                     # this lambda is facking an accessor
                     accessor = lambda: field.getDefault(instance)
-    
+
                 w_keys[field_name] = None
                 widgets.append((field_name, WidgetWrapper(
                     field_name=field_name,
@@ -797,8 +809,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log("no object for brain: %s:%s" % (b,b.getURL()))
 
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'enum')
+    security.declareProtected(CMFCorePermissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
@@ -810,8 +821,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log("no object for %s" % uid)
 
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Content')
+    security.declareProtected(CMFCorePermissions.View, 'Content')
     def Content(self):
         """Return a list of all the content ids"""
         catalog = getToolByName(self, UID_CATALOG)
@@ -944,18 +954,18 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self._p_changed = True
         return out.getvalue()
 
-    # a counter to ensure that in a given interval a subtransaction commit is 
+    # a counter to ensure that in a given interval a subtransaction commit is
     # done.
     subtransactioncounter = 0
-    
+
     def _updateObject(self, o, path):
         o._updateSchema()
-        # subtransactions to avoid eating up RAM when used inside a 
+        # subtransactions to avoid eating up RAM when used inside a
         # 'ZopeFindAndApply' like in manage_updateSchema
         self.subtransactioncounter+=1
         # only every 250 objects a sub-commit, otherwise it eats up all diskspace
         if not self.subtransactioncounter % 250:
-            get_transaction().commit(1) 
+            get_transaction().commit(1)
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():

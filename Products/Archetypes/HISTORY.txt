@@ -1,6 +1,87 @@
+1.3.1-rc1 - 2004-10-17
+======================
+
+ * Fixed [ 1037265 ] Bug in ArchetypeTool:getWidgets(). Thanks to Tommy from
+   IBAS for the catch.
+   [dtremea]
+
+ * Fixed a bug with TemplateMixin on folderish types: in navtree and on view
+   tab the choosen template has been ignored, cause it felt back to an action
+   folderlisting, which now is set to view instead.
+   [yenzenz]
+
+ * Applied patch contributed in [ 1038107 ] Problems with addable_types
+   handling in ReferenceWidget. Thanks to Alec Mitchell for the patch.
+   [yenzenz]
+
+ * Added Archetypes Site customization policy.
+   [tiran]
+
+ * Changed it so that Title is not shown twice in view mode (once in the headline
+   is fine, thank you ;)
+   [limi]
+
+ * Fixed [ 1042076 ] missing import in SQLMethod.py: atoi and time were missing.
+   [tiran]
+
+ * Fixed [ 1043114 ] WEBDAV folder creation broken.
+   [tiran]
+
+ * Updated quickref. Thanks to Jean Jordaan for his great work!
+   [neaj, tiran]
+
+ * Fixed [ 1037803 ] "AT Document Details" should be "Document Details" in edit
+   Now Archetypes is using the portal type name by default instead of the
+   archetype_name. You can change the new behavior by using a different
+   type_name var in the templates.
+   [tiran]
+
+ * Added some ugly hacks to ship around [ 1040623 ] FTP upload broken. You may
+   say it's fixed for AT 1.3 but for AT 1.4 we will have a much better
+   implementation.
+   [tiran]
+
+ * Fixed [ 1038404 ] BaseFolder.mange_delObjects proteced by wrong permission.
+   Now the method is protected by CMFCorePermissions.DeleteObjects instead of
+   CMFCorePermissions.ModifyPortalContent which is exactly like Plone 2.x.
+   [tiran]
+
+ * Fixed [ 1038428 ] Unicode string in Subjects break base_metadata page.
+   [tiran]
+
+ * Partly fixed [ 1038450 ] Unauthorized due to BaseObject.__bobo_traverse__.
+   Now __bobo_traverse__ is raising an AttributeError instead of returning None
+   when the object can't be traversed.
+   [dmauerer, tiran]
+
+ * Added workaround for [ 1040514 ] AttributeError on some types after migration
+   1.2.4rc5->1.3.0 to BaseUnit. Somehow and sometimes the binary attribute gets
+   lost magically.
+   [tiran]
+
+ * Extensions/utils.py (install_additional_templates): Added a method to
+   automagically register classes that inherit from TemplateMixin.
+   [dtremea]
+
+ * Added Catalan translation file. Thanks to Albert Lombarte.
+   [dtremea]
+
+ * Added viewableFields() and editableFields() to Schema. The methods are
+   returning only those fields that the current user is allowed to see/edit in
+   the current context.
+   [tiran]
+
+ * Archetypes edit form is raising unauthorized if no editable fields are
+   available.
+   [tiran]
+
+ * BaseContent.PUT and BaseUnit.PUT is also trying to get the uploaded data from
+   BODY if BODYFILE is empty.
+   [tiran]
+
 1.3.0 - 2004-09-30
 ==================
- 
+
  * Fixed [ 1034649 ] Typo breaks catalog index creation: index_acessor ->
    index_accessor
    [ronnix]

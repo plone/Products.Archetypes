@@ -2,7 +2,6 @@ import sys
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.public
 import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
@@ -92,6 +91,9 @@ def initialize(context):
                    product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
+                   
+    from Products.Archetypes.customizationpolicy import registerPolicy
+    registerPolicy(context)
 
     if REGISTER_DEMO_TYPES:
         import Products.Archetypes.examples

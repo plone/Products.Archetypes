@@ -190,8 +190,8 @@ class OrderedContainer:
 
     # here the implementing of IOrderedContainer ends
 
-
 InitializeClass(OrderedContainer)
+
 
 class OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
@@ -215,5 +215,8 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
 
         return result
 
-
 InitializeClass(OrderedBaseFolder)
+
+OrderedBaseFolderSchema = OrderedBaseFolder.schema
+
+__all__ = ('OrderedBaseFolder', 'OrderedContainer', 'OrderedBaseFolderSchema',)

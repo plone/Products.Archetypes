@@ -2,8 +2,10 @@ from types import StringType
 
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
+from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
@@ -13,6 +15,8 @@ from Products.PortalTransforms.interfaces import idatastream
 #from Products.MimetypesRegistry.mime_types import text_plain, \
 #     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
+
+_marker = []
 
 class BaseUnit(File):
     __implements__ = WriteLockInterface, IBaseUnit
@@ -30,7 +34,6 @@ class BaseUnit(File):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
         assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
-        assert(dict.has_key('binary'), 'no binary in setstate dict')
         File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
@@ -38,11 +41,13 @@ class BaseUnit(File):
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
+        context  = kw.get('context', instance)
 
-        adapter = getToolByName(instance, 'mimetypes_registry')
+        adapter = getToolByName(context, 'mimetypes_registry')
         if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
-                               (repr(adapter), repr(adapter.__class__)))
+            raise RuntimeError, \
+                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
+                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -124,7 +129,17 @@ class BaseUnit(File):
 
     def isBinary(self):
         """return true if this contains a binary value, else false"""
-        return self.binary
+        try:
+            return self.binary
+        except AttributeError:
+            # XXX workaround for "[ 1040514 ] AttributeError on some types after
+            # migration 1.2.4rc5->1.3.0"
+            # Somehow and sometimes the binary attribute gets lost magically
+            self.binary = not str(self.mimetype).startswith('text')
+            log("BaseUnit: Failed to access attribute binary for mimetype %s. "
+                "Setting binary to %s" % (self.mimetype, self.binary),
+                level=ERROR)
+            return self.binary
 
     # File handling
     def get_size(self):
@@ -212,8 +227,14 @@ class BaseUnit(File):
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
         mimetype=REQUEST.get_header('Content-Type', None)
 
-        file=REQUEST['BODYFILE']
-        data = file.read()
+        file = REQUEST.get('BODYFILE', _marker)
+        if file is _marker:
+            data = REQUEST.get('BODY', _marker)
+            if data is _marker:
+                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
+        else:
+            data = file.read()
+            file.seek(0)
 
         self.update(data, self.aq_parent, mimetype=mimetype)
 

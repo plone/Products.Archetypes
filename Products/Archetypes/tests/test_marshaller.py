@@ -76,6 +76,8 @@ class MarshallerTests(ArcheSiteTestCase):
         rstFile.seek(0)
 
         request = aputrequest(rstFile, 'text/x-rst')
+        # XXX PUT factory is using PARENTS to get an acquisition context
+        request['PARENTS'] = (self.folder, self.portal)
         request.processInputs()
         rst = self.folder.obj1
         rst.PUT(request, request.RESPONSE)
