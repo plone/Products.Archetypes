@@ -21,7 +21,9 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="binary python: here.isBinary(fieldName)">
-          <div metal:use-macro="here/widgets/textarea/macros/area_format" />
+          <tal:area_format tal:condition="widget/allow_format_edit | python:1">
+            <div metal:use-macro="here/widgets/textarea/macros/area_format" />
+          </tal:area_format>
           <metal:use use-macro="here/widgets/epoz/macros/edit_area">
             <metal:fill fill-slot="text_format"/>
           </metal:use>
