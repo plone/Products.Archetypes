@@ -13,29 +13,17 @@ from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 from CatalogMultiplex import CatalogMultiplex
 
-class BaseContent(BaseObject,
-                  Referenceable,
-                  CatalogMultiplex,
-                  PortalContent,
-                  Historical,
-                  ExtensibleMetadata):
-    """ A not-so-basic CMF Content implementation """
-
-    __implements__ = (IBaseContent, IReferenceable, \
-                      PortalContent.__implements__, \
-                      IExtensibleMetadata)
-
-    schema = BaseObject.schema + ExtensibleMetadata.schema
+class BaseContentMixin(BaseObject,
+                       Referenceable,
+                       CatalogMultiplex,
+                       PortalContent,
+                       Historical):
+    __implements__ = (IBaseContent, IReferenceable) + PortalContent.__implements__
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
 
-
     security = ClassSecurityInfo()
-
-    def __init__(self, oid, **kwargs):
-        BaseObject.__init__(self, oid, **kwargs)
-        ExtensibleMetadata.__init__(self)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -111,5 +99,20 @@ class BaseContent(BaseObject,
         while data is not None:
             RESPONSE.write(data.data)
             data=data.next
+
+InitializeClass(BaseContentMixin)
+    
+class BaseContent(BaseContentMixin,
+                  ExtensibleMetadata):
+    """ A not-so-basic CMF Content implementation """
+
+    __implements__ = BaseContentMixin.__implements__ + (IExtensibleMetadata,)
+
+    schema = BaseContentMixin.schema + ExtensibleMetadata.schema
+
+    def __init__(self, oid, **kwargs):
+        BaseContentMixin.__init__(self, oid, **kwargs)
+        ExtensibleMetadata.__init__(self)
+
 
 InitializeClass(BaseContent)
