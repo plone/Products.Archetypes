@@ -74,6 +74,7 @@ class TextAreaWidget(TypesWidget):
         'rows'  : 5,
         'cols'  : 40,
         'format': 0,
+        'use_wysiwyg':0
         })
 
 class LinesWidget(TypesWidget):

@@ -54,9 +54,37 @@
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
-    <metal:fill fill-slot="widget_body">
-	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_edit"/>
-	  <metal:block metal:use-macro="here/widgets/textarea/macros/area_format"/>
+    <metal:fill fill-slot="widget_body" 
+            tal:define="editor python:here.portal_membership.getAuthenticatedMember().wysiwyg_editor;
+                        wysiwyg python:test(editor and (editor!='None'), editor, 'None');
+                        use_wysiwyg widget/use_wysiwyg | python:0"
+    >
+      <tal:block tal:condition="not:use_wysiwyg">
+          <metal:block metal:use-macro="here/widgets/textarea/macros/area_edit"  />
+      </tal:block>
+      <div class="field" tal:condition="use_wysiwyg">
+          <div tal:define="inputname  fieldName; 
+              formname   string:edit_form;
+              inputvalue value;
+              onfocus string:formtooltip('body_help',1);
+              onblur string:formtooltip('body_help',0);
+              tabindex tabindex/next;">
+              <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox">
+                   The WYSIWYG code
+              </div>
+          </div>
+      </div>
+
+      <tal:block tal:condition="not:use_wysiwyg">
+          <metal:block metal:use-macro="here/widgets/textarea/macros/area_format"/>
+      </tal:block>
+
+      <tal:block tal:condition="use_wysiwyg">
+          <div metal:use-macro="here/wysiwyg_support/macros/textFormatSelector">
+              Format box, if needed    
+          </div>
+      </tal:block>
+
     </metal:fill>
     </metal:use>
     </metal:define>
