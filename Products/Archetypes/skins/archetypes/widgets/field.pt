@@ -11,7 +11,7 @@
     <!-- Base Field Widgets -->
     <metal:base_view_macro define-macro="base_view"
                            tal:define="use_label use_label|python:1;
-               widget_view python:here.widget(field.getName(), mode=mode, use_label=use_label);
+               widget_view python:field.render(here, mode=mode, use_label=use_label);
                                        field_macros here/widgets/field/macros;
                                        label_macro view_macros/label|label_macro|field_macros/label;
                                        data_macro view_macros/data|data_macro|field_macros/data;">

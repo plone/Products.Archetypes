@@ -67,6 +67,19 @@ class TypesWidget(macrowidget):
         if value is empty_marker: return empty_marker
         return value, {}
 
+
+    #test widget fields reference:
+
+    _parent_field=None
+    def addFieldReferense(self, field):
+        self._parent_field=field
+
+    def getParentField(self):
+        #test widget fields reference:
+        if self._parent_field is None:
+            raise "Unowned widget"
+        return self._parent_field
+
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

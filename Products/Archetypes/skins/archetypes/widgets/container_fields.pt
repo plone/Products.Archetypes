@@ -13,7 +13,7 @@
     <metal:define define-macro="render_fields">
         <strong tal:content="object/getLabel" tal:condition="field/show_object_label">Object Id</strong>
         <tal:fields repeat="subfield python: object.Schemata()['default'].fields()">
-          <metal:fieldMacro use-macro="python: object.widget(subfield.getName(), mode='edit')"/>
+          <metal:fieldMacro use-macro="python: subfield.render(object, mode='edit')"/>
         </tal:fields>
     </metal:define>
 

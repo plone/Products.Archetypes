@@ -28,6 +28,7 @@ from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ComputedAttribute import ComputedAttribute
 from Products.PortalTransforms.interfaces import idatastream
+from Renderer import renderer
 
 import config
 
@@ -322,9 +323,24 @@ class Field(DefaultLayerContainer):
     #test widget fields reference:
     security.declareProtected(CMFCorePermissions.View, 'render')
     def render(self, instance, mode="view", **kwargs):
+        """\
+        Render the field with the associated widget in the given mode.
+        """
         field_name=self.getName()
         widget=self.widget
         return renderer.render(field_name, mode, widget, instance, field=self, **kwargs)
+
+
+    def setWidget(self, widget):
+        """\
+        Replace and instantiate the widget if a class was given
+        """
+        if type(widget) == ClassType:
+            self.widget = widget()
+        else:
+            self.widget = widget
+        self.widget.addFieldReferense(self)
+
 
 InitializeClass(Field)
 
