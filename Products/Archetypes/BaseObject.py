@@ -8,7 +8,7 @@ from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
-from Persistence.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from ZODB.POSException import ConflictError
 from debug import log, log_exc
 from types import FileType

@@ -1,5 +1,5 @@
 import ZODB
-from Persistence.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from interfaces.storage import IStorage

@@ -1,5 +1,5 @@
 import ZODB
-from Persistence.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from debug import log, log_exc
 from ExtensionClass import Base

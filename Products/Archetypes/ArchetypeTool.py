@@ -23,7 +23,7 @@ from Products.CMFCore.interfaces.portal_catalog import portal_catalog as ICatalo
 from Products.ZCatalog.IZCatalog import IZCatalog
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Persistence.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 
 from interfaces.base import IBaseObject, IBaseFolder
 from interfaces.referenceable import IReferenceable

@@ -26,7 +26,6 @@ from exceptions import ObjectFieldException, TextFieldException, \
 from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
-from Persistence.PersistentMapping import PersistentMapping
 from ComputedAttribute import ComputedAttribute
 from Products.PortalTransforms.interfaces import idatastream
 
