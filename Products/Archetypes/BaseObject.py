@@ -361,9 +361,11 @@ class BaseObject(Implicit):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
-                if type_datum is UnicodeType:
+                type_datum = type(datum)
+                if type_datum == UnicodeType:
                     datum = datum.encode(charset)
                 data.append(str(datum))
+
 
         data = ' '.join(data)
         return data
