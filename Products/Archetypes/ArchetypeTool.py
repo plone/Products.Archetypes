@@ -762,7 +762,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
-        """Returns a list of tuples indicating which schema have changed.  
+        """Returns a list of tuples indicating which schema have changed.
            Tuples have the form (schema, changed)"""
         list = []
         keys = self._types.keys()
@@ -776,7 +776,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'manage_updateSchema')
     def manage_updateSchema(self, REQUEST=None):
         """Make sure all objects' schema are up to date"""
-        
+
         out = StringIO()
         print >> out, 'Updating schema...'
 
@@ -819,7 +819,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
             o._updateSchema()
-        
+
 
 
     def __setstate__(self, v):

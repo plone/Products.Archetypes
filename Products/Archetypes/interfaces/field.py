@@ -50,3 +50,6 @@ class IObjectField(IField):
 
         The underlying storage must take care of cleaning up of removing
         references to the value stored using the unset method."""
+
+class IImageField(IObjectField):
+    """ Marker interface for detecting an image field """

@@ -1,37 +1,41 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
 
-<body>
+  <head><title></title></head>
 
-<!-- Computed Widgets -->
+  <body>
+
+    <!-- Computed Widgets -->
 
     <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
+      <metal:block define-slot="widget_label">
+      </metal:block>
       <metal:block use-macro="here/widgets/field/macros/view">
 	<metal:block fill-slot="widget_view">
-          <tal:block replace="structure accessor">computed element</tal:block>
+	  <tal:block replace="structure accessor">computed element</tal:block>
 	</metal:block>
       </metal:block>
     </div>
 
-    <div metal:define-macro="edit">
-        <tal:block condition="use_label|nothing">
-        <span class="label"
-              tal:content="python:widget.Label(here) + ':'">Field</span>
-        </tal:block>
-        <div metal:use-macro="here/widgets/computed/macros/view">
+    <metal:define define-macro="edit">
+      <tal:block condition="use_label|nothing">
+	<span class="label"
+	tal:content="python:widget.Label(here) + ':'">Field</span>
+      </tal:block>
+      <metal:use use-macro="here/widgets/computed/macros/view">
 	It doesn't make any sense to "edit" a computed field
-	</div>
-    </div>
+      </metal:use>
+    </metal:define>
 
     <div metal:define-macro="search">
-        <div metal:use-macro="here/widgets/string/macros/edit">
+      <div metal:use-macro="here/widgets/string/macros/edit">
 	It does make sense to "search" a computed field
-	</div>
+      </div>
     </div>
 
   </body>

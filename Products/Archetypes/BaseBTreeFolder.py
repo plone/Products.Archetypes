@@ -25,16 +25,13 @@ if has_btree:
         security.declarePrivate('manage_afterAdd')
         def manage_afterAdd(self, item, container):
             BaseFolder.manage_afterAdd(self, item, container)
-            CMFBTreeFolder.manage_afterAdd(self, item, container)
 
         security.declarePrivate('manage_afterClone')
         def manage_afterClone(self, item):
             BaseFolder.manage_afterClone(self, item)
-            CMFBTreeFolder.manage_afterClone(self, item)
 
         security.declarePrivate('manage_beforeDelete')
         def manage_beforeDelete(self, item, container):
-            CMFBTreeFolder.manage_beforeDelete(self, item, container)
             BaseFolder.manage_beforeDelete(self, item, container)
 
         def __getitem__(self, key):
@@ -76,6 +73,19 @@ if has_btree:
 
         security.declareProtected(View, 'index_html')
         index_html = SkinnedFolder.index_html
+
+        security.declareProtected(View, 'Title')
+        Title = BaseFolder.Title
+
+        security.declareProtected(ModifyPortalContent, 'setTitle')
+        setTitle = BaseFolder.setTitle
+
+        security.declareProtected(View, 'Description')
+        Description = BaseFolder.Description
+
+        security.declareProtected(ModifyPortalContent, 'setDescription')
+        setDescription = BaseFolder.setDescription
+
 
 if not has_btree:
     class BaseBTreeFolder(BaseFolder):

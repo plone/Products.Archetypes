@@ -17,7 +17,7 @@ from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
      ReadOnlyStorage
 from DateTime import DateTime
 from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField
+from interfaces.field import IField, IObjectField, IImageField
 from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
 from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
@@ -1024,6 +1024,8 @@ class ImageField(ObjectField):
         will be deleted (None is understood as no-op)
         """
 
+    __implements__ = ObjectField.__implements__ + (IImageField,)
+
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'image',
@@ -1531,4 +1533,3 @@ registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
 registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
-

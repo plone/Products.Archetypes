@@ -115,4 +115,3 @@ class VariableSchemaSupport:
         self.schema=schema
 
 InitializeClass(VariableSchemaSupport)
-

@@ -1,55 +1,58 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
 
-<body>
+  <head><title></title></head>
 
-<!-- Rich Widgets -->
+  <body>
+
+    <!-- Rich Widgets -->
 
     <div class="field" metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
-     <metal:block use-macro="here/widgets/field/macros/view">
+      <metal:block define-slot="widget_label">
+      </metal:block>
+      <metal:block use-macro="here/widgets/field/macros/view">
 	<metal:block fill-slot="widget_view"
-             tal:define="transformable python: here.isTransformable(fieldName);">
+		     tal:define="transformable python: here.isTransformable(fieldName);">
 	  <span tal:condition="transformable"
-                tal:replace="structure accessor"/>
+		tal:replace="structure accessor"/>
 	  <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
 	</metal:block>
       </metal:block>
     </div>
 
     <metal:define define-macro="edit">
-    <metal:use use-macro="here/widgets/field/macros/edit">
-    <metal:fill fill-slot="widget_body"
-	        tal:define="binary python: here.isBinary(fieldName);">
-        <div class="group">
+      <metal:use use-macro="here/widgets/field/macros/edit">
+	<metal:fill fill-slot="widget_body"
+		    tal:define="binary python: here.isBinary(fieldName);">
+	  <div class="group">
 	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
-            <div class="row">
-                <metal:use use-macro="here/widgets/epoz/macros/edit_area">
-                  <metal:fill fill-slot="text_format"/>
-                </metal:use>
-            </div>
-            <div metal:use-macro="here/widgets/textarea/macros/area_format" />
-            <div class="row">
-                <strong>OR</strong>
-            </div>
-            <div class="row">
-	        <div class="label">Upload a File</div>
-                <metal:use use-macro="here/widgets/file/macros/file_edit"/>
-            </div>
-        </div>
-    </metal:fill>
-    </metal:use>
+	    <div class="row">
+	      <metal:use use-macro="here/widgets/epoz/macros/edit_area">
+		<metal:fill fill-slot="text_format"/>
+	      </metal:use>
+	    </div>
+	    <div metal:use-macro="here/widgets/textarea/macros/area_format" />
+	    <div class="row">
+	      <strong>OR</strong>
+	    </div>
+	    <div class="row">
+	      <div class="label">Upload a File</div>
+	      <metal:use use-macro="here/widgets/file/macros/file_edit"/>
+	    </div>
+	  </div>
+	</metal:fill>
+      </metal:use>
     </metal:define>
 
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/rich/macros/edit">
       </div>
     </div>
-
 
   </body>
 
