@@ -4,8 +4,8 @@ Schema Provider Design
 
 :Author: Benjamin Saller
 :Contact: bcsaller@objectrealms.net
-:Date: $Date: 2004/04/20 15:37:16 $
-:Version: $Revision: 1.1.2.4 $
+:Date: $Date: 2004/04/22 16:01:45 $
+:Version: $Revision: 1.1.2.5 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 This is the design for the schema provider model, an abstraction to allow
@@ -23,18 +23,18 @@ Schema Manager:
     schema elements for composition purposes. Given an object we can
     request any additional schema elements by type or UUID.
 
-Schema Providers:
-    An Interface for objects that can provide schema to other
-    objects. This means they respond to the collector API somehow.
+Schema Axis Manager:
+       Manage a means by which schema can be located and supplied to
+other objects. This can include such things as containment,
+references, etc. These are associated with the schema manager (AT tool).
 
-Schema Collector:
-    A strategy object that can be used to collect the schema that
-    apply to an object. This can be based on things like acquisition
-    chains or references. In practice the collector strategy should be
-    quite simple, but to facilitate a collection of policies we use a
-    chaining model where we ask each element returned by a collector
-    if it provides additional element by its policy.
-
+Schema Collection Policy:
+       Given a site configuration and a set of Axes (see above) we
+want policy that dictates how we compose the schema fragments
+available to us. This object does that. These are associated with
+instances and so each instance can have its own policy, however the
+default policy delegates back to the Schema Manager for a sort of
+global configuration.
 
 
 
