@@ -228,12 +228,14 @@ class BaseObject(Implicit):
             
     security.declareProtected(CMFCorePermissions.View, 'validate')            
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
+        if REQUEST is None:
+            REQUEST = self.REQUEST
         if errors is None:
             errors = {}
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
-        
+
         self.Schema().validate(self, REQUEST=REQUEST, errors=errors, data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
@@ -281,11 +283,16 @@ class BaseObject(Implicit):
     def _processForm(self, data=1, metadata=None):
         request = self.REQUEST
         form = request.form
+        fieldset = form.get('fieldset', None)
         schema = self.Schema()
+        schemata = self.Schemata()
         fields = []
 
-        if data: fields += schema.filterFields(metadata=0)
-        if metadata: fields += schema.filterFields(metdata=1)
+        if fieldset is not None:
+            fields = schemata[fieldset].fields()
+        else:
+            if data: fields += schema.filterFields(metadata=0)
+            if metadata: fields += schema.filterFields(metdata=1)
 
         form_keys = form.keys()
         for field in fields:
@@ -320,7 +327,7 @@ class BaseObject(Implicit):
         self.reindexObject()
         
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'processForm')
-    def processForm(self, data=1, metadata=1):
+    def processForm(self, data=1, metadata=0):
         """Process the schema looking for data in the form"""
         self._processForm(data=data, metadata=metadata)
         

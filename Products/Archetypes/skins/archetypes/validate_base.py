@@ -7,7 +7,7 @@
 ##parameters=
 ##
 errors = {}
-errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
+errors = context.validate(REQUEST=context.REQUEST, errors=errors)
 
 ## TODO: Update to use ScriptStatus Object
 if errors:

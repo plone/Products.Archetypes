@@ -231,11 +231,18 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     security.declarePublic('validate')
     def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
         """Validate the state of the entire object"""
+        fieldset = REQUEST.form.get('fieldset', None)
         fields = []
-        if data:
-            fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
-        if metadata:
-            fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
+
+        if fieldset is not None:
+            schemata = instance.Schemata()
+            fields = [(field.name, field) for field in schemata[fieldset].fields()]
+        else:
+            if data:
+                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
+            if metadata:
+                fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
+                
         for name, field in fields:
             if errors and errors.has_key(name): continue
             error = 0

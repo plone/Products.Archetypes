@@ -98,7 +98,7 @@ def install_validation(self, out, types):
 
     # Default validation for types
     form_tool.setValidators("base_edit", ["validate_base"])
-    form_tool.setValidators("base_metadata", ["validate_metadata"])
+    form_tool.setValidators("base_metadata", ["validate_base"])
     
 
 def install_navigation(self, out, types):
@@ -114,7 +114,7 @@ def install_navigation(self, out, types):
     nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
 
     nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
-    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:metadata_edit')
+    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
 
     #And References
     nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')
