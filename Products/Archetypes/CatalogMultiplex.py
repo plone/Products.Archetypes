@@ -14,7 +14,8 @@ class CatalogMultiplex(CMFCatalogAware):
 
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
-        at = getToolByName(self, TOOL_NAME)
+        at = getToolByName(self, TOOL_NAME, None)
+        if not at: return
         catalogs = at.getCatalogsByType(self.meta_type)
         for c in catalogs:
             c.catalog_object(self, self.__url())
@@ -33,15 +34,17 @@ class CatalogMultiplex(CMFCatalogAware):
                 self.notifyModified()
 
         at = getToolByName(self, TOOL_NAME, None)
-        if at is not None:
-            catalogs = at.getCatalogsByType(self.meta_type)
+        if at is None:
+            return
+        
+        catalogs = at.getCatalogsByType(self.meta_type)
 
-            for c in catalogs:
-                if c is not None:
-                    #We want the intersection of the catalogs idxs
-                    #and the incoming list
-                    lst = idxs
-                    indexes = c.indexes()
-                    if idxs:
-                        lst = [i for i in idxs if i in indexes] 
-                    c.catalog_object(self, self.__url(), idxs=lst)
+        for c in catalogs:
+            if c is not None:
+                #We want the intersection of the catalogs idxs
+                #and the incoming list
+                lst = idxs
+                indexes = c.indexes()
+                if idxs:
+                    lst = [i for i in idxs if i in indexes] 
+                c.catalog_object(self, self.__url(), idxs=lst)

@@ -64,6 +64,10 @@ def install_tools(self, out):
         
         catalog.manage_reindexIndex(ids=('UID',))
 
+def install_templates(self, out):
+    at = self.archetype_tool
+    at.registerTemplate('base_view')
+    
 
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
@@ -308,6 +312,8 @@ def setupEnvironment(self, out, types,
 
     types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
+    install_templates(self, out)
+    
     if product_skins_dir:
         install_subskin(self, out, globals, product_skins_dir)
 

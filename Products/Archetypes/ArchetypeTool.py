@@ -288,7 +288,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_templateForm',
           },
 
-        { 'label'  : 'Introspect',
+        { 'label'  : 'Types',
           'action' : 'manage_debugForm',
           },
 

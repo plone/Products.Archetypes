@@ -53,9 +53,17 @@
 	      <tr>
 		<td>
 		  <table class="detail">
+		    <tr style="background-color:#696969;color: white;">
+			<td>Field (name::type -- schemata)</td>
+			<td>Widget</td>
+			<td>Required</td>
+		    </tr>
 		    <tr class="row" tal:repeat="field type/type/fields">
-		      <td tal:content="string: ${field/getName}::${field/type}"/> 
+		     <tal:define define="widget python:field.widget">
+		      <td tal:content="string: ${field/getName}::${field/type} -- ${field/schemata}"/> 
+		      <td tal:content="string: ${widget/getName}"/>
 		      <td tal:content="field/required"/>
+		     </tal:define>
 		  </tr>
 		</table>
 		  </td>
