@@ -84,7 +84,7 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -211,7 +211,7 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
         """Get a field by id which is explicitly wrapped
-        
+
         XXX Maybe we should subclass field from Acquisition.Explicit?
         """
         return ExplicitAcquisitionWrapper(self.getField(key), self)
@@ -449,9 +449,7 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
-        here for indexing purpose
-        """
-
+        here for indexing purpose"""
         data = []
         charset = self.getCharset()
         for field in self.Schema().fields():
@@ -782,7 +780,7 @@ class BaseObject(Referenceable):
         """Check to see if we are created as temporary object by portal factory"""
         parent = aq_parent(aq_inner(self))
         return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
-    
+
     def getFolderWhenPortalFactory(self):
         """Return the folder where this object was created temporarily
         """
@@ -792,7 +790,7 @@ class BaseObject(Referenceable):
             return aq_parent(ctx)
         utool = getToolByName(self, 'portal_url')
         portal_object = utool.getPortalObject()
-        
+
         while ctx.getId() != 'portal_factory':
             # find the portal factory object
             if ctx == portal_object:
@@ -801,7 +799,7 @@ class BaseObject(Referenceable):
             ctx = aq_parent(ctx)
         # ctx is now the portal_factory in our parent folder
         return aq_parent(ctx)
-        
+
 
     # subobject access ########################################################
     #
@@ -847,41 +845,25 @@ class BaseObject(Referenceable):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        # DM 2004-08-10: this breaks FTP/WebDAV's PUT:
-        #  If a new object should be created with an id that can
-        #  be acquired, then the existing object is silently overwritten
-        #  rather than a new one created.
-        ## target = getattr(self, name, None)
+        target = None
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0
-            and not (
-                # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
-                # to check whether this is a browser request
-                method == 'GET'
-                or method == 'POST' and not isinstance(RESPONSE, xmlrpc.Response)
-                )
-            ):
-            if shasattr(self, name):
-                target = getattr(self, name)
-            else:
-                target = None
+        # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+        # to check whether this is a browser request
+        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
+            not (method in ('GET', 'POST') and not
+                 isinstance(RESPONSE, xmlrpc.Response))):
+                if shasattr(self, name):
+                    target = getattr(self, name)
         else:
             # we are allowed to acquire
             target = getattr(self, name, None)
         if target is not None:
             return target
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
+        if method == 'PUT' and not isinstance(RESPONSE, xmlrpc.Response):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
 
-        # Nothing has been found. Though it's not written anywere,
-        # from deep ZPublisher inspection it seems like
-        # we *SHOULD NOT* raise a notFoundError, but instead,
-        # return None and leave acquisition do it's job.
-        
-        # XXX according to Dieter Maurer the above comment is wrong. Returning
-        # None will result into a Unauthorized exception
+        # Nothing has been found. Raise an AttributeError and be done with it.
         raise AttributeError(name)
 
 InitializeClass(BaseObject)
