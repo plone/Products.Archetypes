@@ -707,7 +707,7 @@ class ImageField(ObjectField):
         if self.original_size and has_pil:
             mime_type = kwargs.get('mime_type', 'image/png')
             image = Image(self.name, self.name, value, mime_type)
-            data=image.data
+            data=str(image.data)
             w,h=self.original_size
             imgdata=self.scale(data,w,h)
         else:
