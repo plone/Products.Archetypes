@@ -5,7 +5,7 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import ERROR
@@ -311,7 +311,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
-
     def _effective_date(self):
         """Computed attribute accessor
         """
@@ -455,6 +454,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         # XXX This could also store the id of the user doing modifications.
         self.setModificationDate(DateTime())
+        if shasattr(self, 'http__refreshEtag'):
+            self.http__refreshEtag()
 
     # XXX Could this be simply protected by ModifyPortalContent ?
     security.declarePrivate('setModificationDate')
