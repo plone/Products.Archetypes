@@ -22,3 +22,8 @@ USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
 ## can disable the change.
 ## See http://zope.org/Collectors/Zope/924
 ZOPE_LINES_IS_TUPLE_TYPE = 1
+
+## MYSQL SQLStorage Table Type
+## To use connections with ACID transactions you should define it as
+## INNODB. The MySQL default table type is MyISAM.
+MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
