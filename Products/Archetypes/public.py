@@ -4,20 +4,20 @@ from Products.Archetypes.ArchetypeTool import process_types
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.ArchetypeTool import registerClasses
 # base classes
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.BaseContent import BaseContent
-from Products.Archetypes.BaseContent import BaseContentMixin
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.BaseFolder import BaseFolderMixin
-from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolder
-from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.baseobject import BaseObject
+from Products.Archetypes.basecontent import BaseContent
+from Products.Archetypes.basecontent import BaseContentMixin
+from Products.Archetypes.basefolder import BaseFolder
+from Products.Archetypes.basefolder import BaseFolderMixin
+from Products.Archetypes.basebtreefolder import BaseBTreeFolder
+from Products.Archetypes.baseorderedfolder import OrderedBaseFolder
+from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
 # base class schemata instances
-from Products.Archetypes.BaseObject import MinimalSchema
-from Products.Archetypes.BaseContent import BaseSchema
-from Products.Archetypes.BaseFolder import BaseFolderSchema
-from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolderSchema
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadataSchema
+from Products.Archetypes.baseobject import MinimalSchema
+from Products.Archetypes.basecontent import BaseSchema
+from Products.Archetypes.basefolder import BaseFolderSchema
+from Products.Archetypes.basebtreefolder import BaseBTreeFolderSchema
+from Products.Archetypes.extensiblemetadata import ExtensibleMetadataSchema
 # schemata classes
 from Products.Archetypes.schema import *
 #from Products.Archetypes.schema import BasicSchema
@@ -44,7 +44,7 @@ from Products.Archetypes.storage import *
 #from Products.Archetypes.storage.SQLStorage import SQLServerStorage
 # misc
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.ClassGen import AT_GENERATE_METHOD
+from Products.Archetypes.classgen import AT_GENERATE_METHOD
 
 
 # dynamicly calculate which modules should be exported

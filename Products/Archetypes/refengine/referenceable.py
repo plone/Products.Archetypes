@@ -3,6 +3,8 @@ from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import getRelPath
+from Products.Archetypes.utils import getRelURL
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
@@ -13,7 +15,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
+
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -24,7 +26,7 @@ from AccessControl import ClassSecurityInfo
 ####
 
 #include graph supporting methods
-from ref_graph import get_cmapx, get_png
+from Products.Archetypes.refengine.ref_graph import get_cmapx, get_png
 
 
 class Referenceable(Base):

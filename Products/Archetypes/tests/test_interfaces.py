@@ -16,20 +16,20 @@ from Products.Archetypes.interfaces.orderedfolder import *
 from Products.Archetypes.interfaces.referenceable import *
 from Products.Archetypes.interfaces.storage import *
 
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.BaseContent import BaseContent
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.baseobject import BaseObject
+from Products.Archetypes.basecontent import BaseContent
+from Products.Archetypes.basefolder import BaseFolder
+from Products.Archetypes.baseunit import BaseUnit
 from Products.Archetypes import field # use __all__ field
 from Products.Archetypes.marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
-from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
+from Products.Archetypes.baseorderedfolder import OrderedBaseFolder
 from Products.Archetypes.schema import Schema
-from Products.Archetypes.storage.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
+from Products.Archetypes.storage.sql.storage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
 from Products.Archetypes.public import registerType
 
 def className(klass):

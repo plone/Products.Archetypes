@@ -4,11 +4,11 @@ OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
 from types import StringType
 
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.basefolder import BaseFolder
+from Products.Archetypes.refengine.referenceable import Referenceable
+from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.baseobject import BaseObject
+from Products.Archetypes.catalogmultiplex import CatalogMultiplex
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata

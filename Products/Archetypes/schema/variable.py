@@ -1,10 +1,12 @@
 import sha
 
-from Products.Archetypes.field import *
-from Products.Archetypes.widget import *
-from Products.Archetypes.schema import Schemata, WrappedSchemata
-from Products.Archetypes.ClassGen import ClassGenerator, Generator
-from Products.Archetypes.ClassGen import _modes
+#from Products.Archetypes.field import *
+#from Products.Archetypes.widget import *
+from Products.Archetypes.schema import Schemata
+from Products.Archetypes.schema import WrappedSchemata
+from Products.Archetypes.classgen import ClassGenerator
+from Products.Archetypes.classgen import Generator
+from Products.Archetypes.classgen import _modes
 from Products.Archetypes.utils import OrderedDict
 
 from AccessControl import ClassSecurityInfo

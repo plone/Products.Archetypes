@@ -1,5 +1,5 @@
 from Products.Archetypes.schema.composity import CompositeSchema
-from Products.Archetypes.schema.fascade import FacadeMetadataSchema
+from Products.Archetypes.schema.facade import FacadeMetadataSchema
 from Products.Archetypes.schema.schema import BasicSchema
 from Products.Archetypes.schema.schema import Schema
 from Products.Archetypes.schema.schema import WrappedSchema

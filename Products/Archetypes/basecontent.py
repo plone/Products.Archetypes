@@ -1,10 +1,9 @@
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.baseobject import BaseObject
+from Products.Archetypes.extensiblemetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.catalogmultiplex import CatalogMultiplex
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base

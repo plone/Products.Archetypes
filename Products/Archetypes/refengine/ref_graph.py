@@ -11,7 +11,7 @@ Inspired by code from Andreas Jung
 from urllib import unquote
 from cStringIO import StringIO
 from popen2 import popen2
-from config import HAS_GRAPHVIZ, GRAPHVIZ_BINARY
+from Products.Archetypes.config import HAS_GRAPHVIZ, GRAPHVIZ_BINARY
 
 def obj2id(obj):
     """ convert an issue to an ID """

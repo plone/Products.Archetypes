@@ -1,23 +1,23 @@
+from Products.Archetypes.annotations import ATAnnotatableMixin
 from Products.Archetypes.debug import log_exc, log, _default_logger
-from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.utils import mapply
-from Products.Archetypes.utils import fixSchema
-from Products.Archetypes.utils import getRelURL
-from Products.Archetypes.utils import getRelPath
-from Products.Archetypes.utils import shasattr
 from Products.Archetypes.field import StringField
 from Products.Archetypes.field import TextField
 from Products.Archetypes.field import STRING_TYPES
+from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.marshall import RFC822Marshaller
+from Products.Archetypes.marshall import RFC822Marshaller
+from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.renderer import renderService
 from Products.Archetypes.schema import Schema
 from Products.Archetypes.schema import getSchemata
+from Products.Archetypes.marshall import RFC822Marshaller
 from Products.Archetypes.widget import IdWidget
 from Products.Archetypes.widget import StringWidget
-from Products.Archetypes.marshall import RFC822Marshaller
-from Products.Archetypes.ATAnnotations import ATAnnotatableMixin
-from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import fixSchema
+from Products.Archetypes.utils import mapply
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -29,13 +29,14 @@ from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
 from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 from ComputedAttribute import ComputedAttribute
 
-from Referenceable import Referenceable
-from types import TupleType, ListType, UnicodeType
+from types import TupleType
+from types import ListType
+from types import UnicodeType
 
 from ZPublisher import xmlrpc
 

@@ -6,16 +6,26 @@ import urllib
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces.referenceengine import \
-    IReference, IContentReference, IReferenceCatalog, IUIDCatalog
-
-from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
-    getRelPath, shasattr
-from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
+from Products.Archetypes.interfaces.referenceengine import IReference
+from Products.Archetypes.interfaces.referenceengine import IContentReference
+from Products.Archetypes.interfaces.referenceengine import IReferenceCatalog
+from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
+from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import REFERENCE_CATALOG
+from Products.Archetypes.config import UUID_ATTR
+from Products.Archetypes.config import REFERENCE_ANNOTATION
+from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.refengine.referenceable import Referenceable
+from Products.Archetypes.utils import unique
+from Products.Archetypes.utils import make_uuid
+from Products.Archetypes.utils import getRelURL
+from Products.Archetypes.utils import getRelPath
+from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base, aq_parent, aq_inner
+from Acquisition import aq_base
+from Acquisition import aq_parent
+from Acquisition import aq_inner
 from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
@@ -38,8 +48,6 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 STRING_TYPES = (StringType, UnicodeType)
-
-from Referenceable import Referenceable
 
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References

@@ -30,7 +30,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
-from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
@@ -52,7 +52,7 @@ from Products.Archetypes.widget import IntegerWidget
 from Products.Archetypes.widget import LinesWidget
 from Products.Archetypes.widget import StringWidget
 from Products.Archetypes.widget import ReferenceWidget
-from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.baseunit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import Vocabulary

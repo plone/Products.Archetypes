@@ -7,7 +7,7 @@ from utils import *
 
 import unittest
 
-from Products.Archetypes.storage.AggregatedStorage import AggregatedStorage
+from Products.Archetypes.storage.aggregated import AggregatedStorage
 from Products.Archetypes.public import Schema, StringField, BaseContent
 from Products.Archetypes.public import registerType
 

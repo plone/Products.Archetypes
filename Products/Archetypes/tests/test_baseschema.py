@@ -17,7 +17,7 @@ from Products.Archetypes.widget import IdWidget, StringWidget, BooleanWidget, \
      KeywordWidget, TextAreaWidget, CalendarWidget, SelectionWidget
 from Products.Archetypes.utils import DisplayList
 from Products.CMFCore import CMFCorePermissions
-from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE,CEILING_DATE
+from Products.Archetypes.extensiblemetadata import FLOOR_DATE,CEILING_DATE
 
 from DateTime import DateTime
 

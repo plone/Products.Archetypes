@@ -9,7 +9,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.schema import Schemata, getNames
 from Products.Archetypes import listTypes
-from Products.Archetypes.schema.VariableSchemaSupport import VariableSchemaSupport
+from Products.Archetypes.schema.variable import VariableSchemaSupport
 
 from DateTime import DateTime
 

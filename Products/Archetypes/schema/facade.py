@@ -4,7 +4,7 @@ from Products.Archetypes.schema.schema import BasicSchema
 from Products.Archetypes.field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
 from Products.Archetypes.storage.facade import FacadeMetadataStorage
-from Products.Archetypes.ClassGen import generateMethods
+from Products.Archetypes.classgen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
