@@ -11,7 +11,7 @@ class CatalogMultiplex(CMFCatalogAware):
 
     def __url(self):
         return '/'.join( self.getPhysicalPath() )
-    
+
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
         at = getToolByName(self, TOOL_NAME)
@@ -28,14 +28,14 @@ class CatalogMultiplex(CMFCatalogAware):
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
-        at = getToolByName(self, TOOL_NAME)
-        catalogs = at.getCatalogsByType(self.meta_type)
-
         if idxs == []:
             if hasattr(aq_base(self), 'notifyModified'):
                 self.notifyModified()
 
-        for c in catalogs:
-            if c is not None:
-                c.catalog_object(self, self.__url(), idxs=idxs)
-            
+        at = getToolByName(self, TOOL_NAME, None)
+        if at is not None:
+            catalogs = at.getCatalogsByType(self.meta_type)
+
+            for c in catalogs:
+                if c is not None:
+                    c.catalog_object(self, self.__url(), idxs=idxs)

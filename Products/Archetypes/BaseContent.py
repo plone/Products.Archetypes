@@ -66,19 +66,17 @@ class BaseContent(BaseObject,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mimetype=REQUEST.get_header('Content-Type', None)
+        mimetype = REQUEST.get_header('Content-Type', None)
 
-        file=REQUEST['BODYFILE']
+        file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)
-        filename = REQUEST._steps[0] #XXX fixme, use a real name
-
-        #transformer = getToolByName(self, 'transform_tool')
-        #mimetype   = transformer.classify(data, mimetype=type)
+        filename = REQUEST._steps[-2] #XXX fixme, use a real name
 
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype)
+        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
+                                      filename=filename)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)

@@ -40,23 +40,25 @@ class newBaseUnit(File):
     security = ClassSecurityInfo()
 
     def __init__(self, name, file='', instance=None,
-                 mimetype=None, encoding=None):
+                 **kw):
         self.id = name
-        self.update(file, instance, mimetype, encoding)
+        self.update(file, instance, **kw)
 
-    def update(self, data, instance, mimetype=None, encoding=None):
+    def update(self, data, instance, **kw):
         #Convert from str to unicode as needed
+        mimetype = kw.get('mimetype', None)
+        filename = kw.get('filename', None)
+        encoding = kw.get('encoding', None)
+
         try:
             adapter = getToolByName(instance, 'mimetypes_registry')
         except AttributeError, e:
             # this occurs on object creation
             data = data and unicode(data) or u''
-            filename = None
-            mimetype = INITIAL_MIMETYPE
+            mimetype = mimetype or INITIAL_MIMETYPE
         else:
             data, filename, mimetype = adapter(data,
-                                               mimetype=mimetype,
-                                               encoding=encoding)
+                                               **kw)
 
         assert mimetype
         self.mimetype = mimetype

@@ -584,7 +584,8 @@ class TextField(ObjectField):
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
                              encoding=encoding,
-                             mimetype=kwargs.get('mimetype'))
+                             mimetype=kwargs.get('mimetype'),
+                             filename=kwargs.get('filename', ''))
 
         ObjectField.set(self, instance, value, **kwargs)
 
