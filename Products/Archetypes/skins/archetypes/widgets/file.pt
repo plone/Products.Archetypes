@@ -11,7 +11,7 @@
     <metal:define define-macro="file_view">
     <tal:define define="unit accessor">
     <div tal:define="size unit/get_size | python: len(unit) or 0;
-	            icon unit/getIcon | nothing;
+	            icon unit/getBestIcon | nothing;
 		    filename value/filename|nothing"
 	 tal:condition="python:size>0">
 	<a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
@@ -20,7 +20,7 @@
 		<span i18n:translate="" tal:omit-tag="">View</span> <span tal:replace="fieldName"/>
 	 </a>
         (<tal:filename content="string:${filename} " condition="filename">myfile.pdf
-         </tal:filename><tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
+         </tal:filename><span tal:content="python: field.getContentType(here)">ContentType</span> <tal:size content="python: str(size /1024) + 'Kb'">0Kb</tal:size>)
 	<a href="" 
        tal:condition="python:field.checkExternalEditor(here)"
        tal:attributes="href string: ${here/absolute_url}/${fieldName}/external_edit;"
