@@ -102,7 +102,6 @@ class Schemata(UserDict):
         kwargs is a list of attribute -> valid value mappings
         if the field doesn't match the rhs then its ommited
         """
-
         results = []
         fields = self.fields()
 
@@ -114,7 +113,10 @@ class Schemata(UserDict):
                     break
 
             for k, v in kwargs.items():
-                if hasattr(field, k):
+                if not hasattr(field, k):
+                    skip = 1
+                    break
+                else:
                     fv = getattr(field, k)
                     if fv != v:
                         skip = 1
@@ -149,7 +151,7 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
     security.setDefaultAccess("allow")
 
     _properties = {
-        'marshal' : None
+        'marshall' : None
         }
 
     def __init__(self, *args, **kwargs):
@@ -173,11 +175,20 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
 
     def __add__(self, other):
         c = Schema()
-        #We can't use update and keep the order so we do it manually
+        # We can't use update and keep the order so we do it manually
         for field in self.fields():
             c.addField(field)
         for field in other.fields():
             c.addField(field)
+        # Need to be smarter when joining layers
+        # and internal props
+        layers = {}
+        for k, v in self.registeredLayers():
+            layers[k] = v
+        for k, v in other.registeredLayers():
+            layers[k] = v
+        for k, v in layers.items():
+            c.registerLayer(k, v)
         return c
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')

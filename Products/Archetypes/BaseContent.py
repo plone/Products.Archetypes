@@ -1,3 +1,4 @@
+from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
@@ -11,8 +12,8 @@ from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
 
-class BaseContent(BaseObject, Referenceable, 
-                  PortalContent, 
+class BaseContent(BaseObject, Referenceable,
+                  PortalContent,
                   ExtensibleMetadata):
     """ A not-so-basic CMF Content implementation """
 
@@ -21,7 +22,7 @@ class BaseContent(BaseObject, Referenceable,
                       IExtensibleMetadata)
 
     schema = BaseObject.schema + ExtensibleMetadata.schema
-    
+
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options
 
@@ -61,6 +62,7 @@ class BaseContent(BaseObject, Referenceable,
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
     def PUT(self, REQUEST, RESPONSE):
+        """ HTTP PUT handler with marshalling support """
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
@@ -78,7 +80,8 @@ class BaseContent(BaseObject, Referenceable,
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.demarshall(self, data, mime_type=mime_type)
-        if self.demarshall_hook:
+        if hasattr(aq_base(self), 'demarshall_hook') \
+           and self.demarshall_hook:
             self.demarshall_hook(ddata)
 
         self.aq_parent.reindexObject()
@@ -94,8 +97,9 @@ class BaseContent(BaseObject, Referenceable,
             return RESPONSE
 
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshall.marshall(self)
-        if self.marshall_hook:
+        ddata = marshaller.marshall(self)
+        if hasattr(aq_base(self), 'marshall_hook') \
+           and self.marshall_hook:
             ddata = self.marshall_hook(ddata)
 
         content_type, length, data = ddata

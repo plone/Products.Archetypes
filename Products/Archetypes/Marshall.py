@@ -1,5 +1,7 @@
 from interfaces.marshall import IMarshall
 from interfaces.layer import ILayer
+from StringIO import StringIO
+from types import StringType, ListType, TupleType
 
 class Marshaller:
     __implements__ = (IMarshall, ILayer)
@@ -33,7 +35,7 @@ class PrimaryFieldMarshaller(Marshaller):
         data = p.get(instance)
         content_type = length = None
         # Gather/Guess content type
-        if hasttr(data, 'isUnit'):
+        if hasattr(data, 'isUnit'):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
@@ -51,4 +53,42 @@ class PrimaryFieldMarshaller(Marshaller):
 
         return (content_type, length, data)
 
+class RFC822Marshaller(Marshaller):
 
+    def demarshall(self, instance, data, **kwargs):
+        from Products.CMFDefault.utils import parseHeadersBody
+        headers, body = parseHeadersBody(data)
+        for k, v in headers.items():
+            field = instance.getField(k)
+            if field is not None:
+                field.set(instance, v, **kwargs)
+        content_type = headers.get('Content-Type', 'text/plain')
+        kwargs.update({'mime_type': content_type})
+        p = instance.getPrimaryField()
+        p.set(instance, body, **kwargs)
+
+    def marshall(self, instance, **kwargs):
+        from Products.CMFDefault.utils import formatRFC822Headers
+        p = instance.getPrimaryField()
+        body = p.get(instance)
+        content_type = length = None
+        # Gather/Guess content type
+        if hasattr(body, 'isUnit'):
+            content_type = body.getContentType()
+            body   = body.getRaw()
+
+        headers = {}
+        for field in instance.Schema().fields():
+            if field.getName() != p.getName():
+                value = instance[field.getName()]
+                if type(value) in [ListType, TupleType]:
+                    value = '\n'.join([str(v) for v in value])
+                headers[field.getName()] = str(value)
+
+        headers['Content-Type'] = content_type or 'text/plain'
+
+        header = formatRFC822Headers(headers.items())
+        data = '%s\r\n\r\n%s' % (header, body)
+        length = len(data)
+
+        return (content_type, length, data)

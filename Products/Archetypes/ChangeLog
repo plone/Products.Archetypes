@@ -1,5 +1,11 @@
 2003-04-19  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* Marshall.py (RFC822Marshaller.demarshall): Adding a bare RFC822
+	Marshaller, and fixing lots of typoes :P
+	(RFC822Marshaller.marshall): Should use instance['field_name'] to
+	reliably access fields. BaseObject.__getitem__ does the right job
+	at getting and calliing the accessor.
+
 	* content_driver/reST.py (Converter.convertData): Rendering of
 	reST was broken. It was not rendering references the right way,
 	and it didnt seem like it was doing the right thing with

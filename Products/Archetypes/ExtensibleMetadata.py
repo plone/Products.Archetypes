@@ -22,12 +22,12 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
     # XXX This is not completely true. We need to review this later
     # and make sure it is true.
     __implements__ = IExtensibleMetadata
-    
+
     security = ClassSecurityInfo()
     # XXX GAAK! We should avoid this.
     # security.declareObjectPublic()
     # security.setDefaultAccess('allow')
-    
+
     schema = type = MetadataSchema((
         ObjectField('allowDiscussion',
                       accessor="isDiscussable",
@@ -41,7 +41,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                              description_msgid="help_allow_discussion",
                                              i18n_domain="plone"),
                       ),
-              
+
         LinesField('subject',
                    multiValued=1,
                    accessor="Subject",
@@ -50,7 +50,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                         description_msgid="help_keywords",
                                         i18n_domain="plone"),
                    ),
-        
+
         MetadataField('description',
                       default='',
                       searchable=1,
@@ -58,7 +58,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                       widget=TextAreaWidget(description="An administrative summary of the content",
                                             label_msgid="label_description",
                                             description_msgid="help_description",
-                                            i18n_domain="plone"), 
+                                            i18n_domain="plone"),
                       ),
 
         LinesField('contributors',
@@ -67,7 +67,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                       description_msgid="help_contributors",
                                       i18n_domain="plone"),
                    ),
-        
+
         DateTimeField('effectiveDate',
                       accessor="EffectiveDate",
                       widget=CalendarWidget(label="Effective Date",
@@ -77,7 +77,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                             label_msgid="label_effective_date",
                                             description_msgid="help_effective_date",
                                             i18n_domain="plone")),
-        
+
         DateTimeField('expirationDate',
                       accessor="ExpirationDate",
                       widget=CalendarWidget(label="Expiration Date",
@@ -87,7 +87,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                             label_msgid="label_expiration_date",
                                             description_msgid="help_expiration_date",
                                             i18n_domain="plone")),
-        
+
         MetadataField('language',
                       accessor="Language",
                       default="en",
@@ -96,14 +96,14 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
                                              description_msgid="help_language",
                                              i18n_domain="plone"),
                       ),
-        
+
         MetadataField('rights',
                       accessor="Rights",
                       widget=TextAreaWidget(description="A list of copyright info for this content",
                                             label_msgid="label_copyrights",
                                             description_msgid="help_copyrights",
                                             i18n_domain="plone")),
-        
+
      ))
 
     def isDiscussable(self):
@@ -113,7 +113,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
         except:
             pass
         return result
-    
+
     def allowDiscussion(self, allowDiscussion=None):
         if allowDiscussion is not None:
             try:
@@ -128,14 +128,14 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
             except:
                 log_exc()
                 pass
-            
+
     def setSubject(self, value):
         if type(value) == type(''):
             value =  value.split('\n')
             value = [v.strip() for v in value if v.strip()]
         value = filter(None, value)
         self.subject = value
-    
+
     ##Vocab Methods
     def languages(self):
         available_langs = getattr(self, 'availableLanguages', None)

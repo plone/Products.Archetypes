@@ -151,11 +151,15 @@ class Field(DefaultLayerContainer):
     def getWidgetName(self):
         return self.widget.getName()
 
+    security.declarePublic('getName')
+    def getName(self):
+        return self.name
+
     security.declarePublic('getDefault')
     def getDefault(self):
         return self.default
 
-                    
+
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
     data. This layer implements the interface to IStorage and other
@@ -665,7 +669,7 @@ class ImageField(ObjectField):
         })
 
     default_view = "view"
-    
+
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
         if value=="DELETE_IMAGE":
