@@ -1,3 +1,10 @@
+2003-07-10  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* skins/archetypes/widgets/selection.pt: Made selection widget
+	work with LinesField. I know it wasn't supposed to be like this,
+	but I supposed it should work and it didn't worked, so I ended up
+	making it work, which is good in the end :)
+
 2003-07-09  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* tests/test_fields.py: Simple tests for 'processForm'.
