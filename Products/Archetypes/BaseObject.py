@@ -389,6 +389,14 @@ class BaseObject(Implicit):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
+    security.declarePrivate( '_datify' )
+    def _datify( self, attrib ):
+        """FIXME: overriden from DublinCore to deal with blank value..."""
+        if attrib == 'None' or not attrib:
+            attrib = None
+        elif not isinstance( attrib, DateTime ) and attrib is not None:
+            attrib = DateTime( attrib )
+        return attrib
 
     # I18N content management #################################################
 
