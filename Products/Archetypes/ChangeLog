@@ -1,5 +1,11 @@
 2003-07-28  Sidnei da Silva  <sidnei@redesul.com.br>
 
+	* Marshall.py (RFC822Marshaller.marshall): Removed TODO
+	DublinCoreMarshaller. The RFC822 one should do what the DublinCore
+	one intended to do.
+	(PrimaryFieldMarshaller.marshall): Make it just a little bit
+	smarter. I don't see why this fails to George Pan :(
+
 	* Field.py (Field.validate): Patch by Azazel. Allow passing kwargs
 	to the validators, as they seem to already support kwargs in the
 	method signatures. 

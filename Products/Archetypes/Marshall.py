@@ -28,15 +28,6 @@ class Marshaller:
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
 
-class DublinCoreMarshaller(Marshaller):
-    ## XXX TODO -- based on CMFCore.Document
-    def marshall(self, instance, **kwargs):
-        pass
-
-    def demarshall(self, instance, data, **kwargs):
-        pass
-
-
 class PrimaryFieldMarshaller(Marshaller):
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
@@ -45,7 +36,7 @@ class PrimaryFieldMarshaller(Marshaller):
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
-        data = p.get(instance)
+        data = p and p.get(instance) or ''
         content_type = length = None
         # Gather/Guess content type
         if IBaseUnit.isImplementedBy(data):
