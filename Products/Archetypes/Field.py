@@ -300,7 +300,7 @@ class Field(DefaultLayerContainer):
             if type(value) in STRING_TYPES:
                 values = [value]
             elif type(value) not in (TupleType, ListType):
-                raise TypeError("Field value type error")
+                raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
             # filter empty
             values = [instance.unicodeEncode(v)
