@@ -331,7 +331,7 @@ class BaseObject(Implicit):
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
-            method = getattr(self, field.accessor)
+            method = field.getAccessor(self)
             try:
                 datum =  method(mimetype="text/plain")
             except TypeError:
