@@ -61,7 +61,7 @@ def install_catalog(self, out):
         for indexName, indexType in ( ('UID', 'FieldIndex'),
                                       ('Type', 'FieldIndex'),
                                       ('Title', 'FieldIndex'),
-                                      ('meta_type', 'FieldIndex'),
+                                      ('portal_type', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
