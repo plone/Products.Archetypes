@@ -1095,10 +1095,15 @@ class LinesField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs) or ()
+        data = [encode(v, instance, **kwargs) for v in value]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            return tuple([encode(v, instance, **kwargs) for v in value])
+            return tuple(data)
         else:
-            return [encode(v, instance, **kwargs) for v in value]
+            return data
+
+    security.declarePrivate('getRaw')
+    def getRaw(self, instance, **kwargs):
+        return self.get(instance, **kwargs)
 
     security.declarePublic('get_size')
     def get_size(self, instance):

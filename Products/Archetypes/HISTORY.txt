@@ -74,6 +74,11 @@
    the KeyError in resolve_url() and returns None instead.
    [tiran]
 
+ * Added getRaw() method to LinesField which is returning the output of get().
+   Before this change the edit accessor was using the accessor which might be an
+   overwritten accessor. Thx to Joel Burton who has figured out the problem.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 
