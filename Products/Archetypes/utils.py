@@ -1,8 +1,11 @@
 import sys
 import os, os.path
 import types
-import time, random, md5, socket
+import socket
+from random import random, randint
+from time import time
 from inspect import getargs
+from md5 import md5
 from types import TupleType, ListType, StringType
 from UserDict import UserDict as BaseDict
 
@@ -15,9 +18,36 @@ from Products.CMFCore.utils import getToolByName
 import Products.generator.i18n as i18n
 
 try:
-    _v_network = socket.gethostbyname(socket.gethostname())
+    _v_network = str(socket.gethostbyname(socket.gethostname()))
 except:
-    _v_network = random.random() * 100000000000000000L
+    _v_network = str(random() * 100000000000000000L)
+
+def make_uuid(*args):
+    t = str(time() * 1000L)
+    r = str(random()*100000000000000000L)
+    data = t +' '+ r +' '+ _v_network +' '+ str(args)
+    uid = md5(data).hexdigest()
+    return uid    
+
+# linux kernel uid generator. It's a little bit slower but a little bit better
+KERNEL_UUID = '/proc/sys/kernel/random/uuids'
+
+if os.path.isfile(KERNEL_UUID):
+    HAS_KERNEL_UUID = True
+    def uuid_gen():
+        fp = open(KERNEL_UUID, 'r')
+        while 1:
+            uid = fp.read()[:-1]
+            fp.seek(0)
+            yield uid
+    uid_gen = uuid_gen()
+    
+    def kernel_make_uuid(*args):
+        return uid_gen.next()
+else:
+    HAS_KERNEL_UUID = False
+    kernel_make_uuid = make_uuid
+
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -28,14 +58,6 @@ def fixSchema(schema):
         Schemata.__init__(schema, fields)
         del schema.data
     return schema
-
-def make_uuid(*args):
-    t = long(time.time() * 1000)
-    r = long(random.random()*100000000000000000L)
-    data = str(t)+' '+str(r)+' '+str(_v_network)+' '+str(args)
-    data = md5.md5(data).hexdigest()
-    return data
-
 
 _marker = []
 

@@ -54,8 +54,7 @@
                  tal:condition="not:field/required|nothing"
                  tal:attributes="name string:$fieldName:default:list;" />
 
-          <table tal:define="value python:accessor();
-                             vocab python:field.Vocabulary(here);">
+          <table>
             <tr>
               <td>
                 <select

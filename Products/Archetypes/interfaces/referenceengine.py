@@ -50,3 +50,11 @@ class IContentReference(IReference):
 
     def getContentObject():
         """ gives the contentish object attached to the reference"""
+
+class IReferenceCatalog(Interface):
+    """Marker interface for reference catalog
+    """
+
+class IUIDCatalog(Interface):
+    """Marker interface for uid catalog
+    """

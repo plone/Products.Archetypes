@@ -103,7 +103,9 @@ def build_graph(graphs, inst):
     shown = {}
     for direction, graph in graphs.iteritems(): #forw/back
         for relationship, edges in graph.iteritems():
-            print >>fp, 'subgraph cluster_%s {' % str2id(relationship)
+            rel_id = "unqualified"
+            if relationship: rel_id = str2id(relationship)
+            print >>fp, 'subgraph cluster_%s {' % rel_id
 
 
             for e in iter(edges):
@@ -142,9 +144,13 @@ def build_graph(graphs, inst):
 
 
 if HAS_GRAPHVIZ:
-    def get_image(inst, fmt):
+    def getDot(inst):
         g = local_refernece_graph(inst)
         data = build_graph(g, inst)
+        return data
+
+    def get_image(inst, fmt):
+        data = getDot(inst)
 
         stdout, stdin = popen2('%s -Gpack -T%s' % (GRAPHVIZ_BINARY, fmt))
         stdin.write(data)
@@ -155,8 +161,7 @@ if HAS_GRAPHVIZ:
     def get_png(inst): return get_image(inst, fmt="png")
 
     def get_cmapx(inst):
-        g = local_refernece_graph(inst)
-        data = build_graph(g, inst)
+        data = getDot(inst)
 
         stdout, stdin = popen2('%s -Gpack -Tcmapx' %( GRAPHVIZ_BINARY,))
         stdin.write(data)

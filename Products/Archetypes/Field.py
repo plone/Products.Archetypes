@@ -300,7 +300,7 @@ class Field(DefaultLayerContainer):
             if type(value) in STRING_TYPES:
                 values = [value]
             elif type(value) not in (TupleType, ListType):
-                raise TypeError("Field value type error")
+                raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
             # filter empty
             values = [instance.unicodeEncode(v)
@@ -815,10 +815,24 @@ class FileField(ObjectField):
             # occurring if someone types in a bogus name in a file upload
             # box (at least under Mozilla).
             value = ''
+        obj = self._wrapValue(instance, value, **kwargs)
+        ObjectField.set(self, instance, obj, **kwargs)
+
+    def _wrapValue(self, instance, value, **kwargs):
+        """Wraps the value in the content class if it's not wrapped
+        """
+        if isinstance(value, self.content_class):
+            return value
+
+        mimetype = kwargs.get('mimetype', self.default_content_type)
+        filename = kwargs.get('filename', '')
+
         obj = self.content_class(self.getName(), '', str(value), mimetype)
         setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
-        ObjectField.set(self, instance, obj, **kwargs)
+        delattr(obj, 'title')
+        
+        return obj
 
     security.declarePrivate('getBaseUnit')
     def getBaseUnit(self, instance):
@@ -868,14 +882,16 @@ class FileField(ObjectField):
         return ObjectField.validate_required(self, instance, value, errors)
 
     security.declarePrivate('download')
-    def download(self, instance):
+    def download(self, instance, REQUEST=None, RESPONSE=None):
         """Kicks download [PRIVATE]
 
         Writes data including file name and content type to RESPONSE
         """
         bu = self.getBaseUnit(instance)
-        REQUEST = instance.REQUEST
-        RESPONSE = REQUEST.RESPONSE
+        if not REQUEST:
+            REQUEST = instance.REQUEST
+        if not RESPONSE:
+            RESPONSE = REQUEST.RESPONSE
         return bu.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
@@ -1350,6 +1366,7 @@ class ReferenceField(ObjectField):
         abs_paths = {}
         def assign(x, y): abs_paths[x]=y
         [assign("%s/%s" %(portal_base, b.getPath()), b) for b in brains]
+        #[assign("%s" %(b.getPath()), b) for b in brains]
 
         pc_brains = pc(path=abs_paths.keys(), **skw)
 
@@ -1365,8 +1382,12 @@ class ReferenceField(ObjectField):
                path.find(config.REFERENCE_ANNOTATION) != -1:
                 continue
 
-            pairs.append((abs_paths[b.getPath()].UID, label(b)))
-
+            # now check if the results from the pc is the same as in uc.
+            # so we verify that b is a result that was also returned by uc,
+            # hence the check in abs_paths.
+            if abs_paths.has_key(b.getPath()):
+                pairs.append((abs_paths[b.getPath()].UID, label(b)))
+         
         if not self.required and not self.multiValued:
             no_reference = i18n.translate(domain='archetypes',
                                           msgid='label_no_reference',
@@ -1636,7 +1657,6 @@ class ImageField(FileField):
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         if not value:
-            # nothing to do
             return
 
         # Do we have to delete the image?
@@ -1765,14 +1785,8 @@ class ImageField(FileField):
     def createOriginal(self, instance, value, **kwargs):
         """create the original image (save it)
         """
-        mimetype = kwargs.get('mimetype', 'image/png')
-        filename = kwargs.get('filename', '')
+        image = self._wrapValue(instance, value, **kwargs)
 
-        image = self.content_class(self.getName(), self.getName(),
-                                 str(value), mimetype)
-        image.filename = filename
-        image.content_type = mimetype
-        delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
     security.declarePrivate('removeScales')
@@ -1859,13 +1873,8 @@ class ImageField(FileField):
     def getSize(self, instance, scale=None):
         """get size of scale or original
         """
-        if scale is None:
-            img = self.get(instance)
-            return img.width, img.height
-        else:
-            sizes = self.getAvailableSizes(instance)
-            size = sizes.get(scale)
-            return size[0], size[1]
+        img = self.getScale(instance, scale=scale)
+        return img.width, img.height
         
     security.declareProtected(CMFCorePermissions.View, 'getScale')
     def getScale(self, instance, scale=None, **kwargs):
@@ -1876,12 +1885,22 @@ class ImageField(FileField):
         else:
             assert(scale in self.getAvailableSizes(instance).keys(),
                    'Unknown scale %s for %s' % (scale, self.getName()))
-            id = self.getName() + "_" + scale
+            id = self.getScaleName(scale=scale)
             image = self.getStorage(instance).get(id, instance, **kwargs)
+            image = self._wrapValue(instance, image, **kwargs)
             if hasattr(image, '__of__') and not kwargs.get('unwrapped', False):
                 return image.__of__(instance)
             else:
                 return image
+
+    security.declareProtected(CMFCorePermissions.View, 'getScaleName')
+    def getScaleName(self, scale=None):
+        """Get the full name of the attribute for the scale
+        """
+        if scale:
+            return self.getName() + "_" + scale
+        else:
+            return ''
 
     security.declarePublic('get_size')
     def get_size(self, instance):
@@ -1893,7 +1912,7 @@ class ImageField(FileField):
         
         if sizes:
             for name in sizes.keys():
-                id = self.getName() + "_" + name        
+                id = self.getScaleName(scale=name)        
                 try:
                     data = self.getStorage(instance).get(id, instance)
                 except AttributeError:
@@ -1901,6 +1920,41 @@ class ImageField(FileField):
                 else:
                     size+=len(str(data))
         return size
+
+    security.declareProtected(CMFCorePermissions.View, 'tag')
+    def tag(self, instance, scale=None, height=None, width=None, alt=None,
+            css_class=None, title=None, **kwargs):
+        """Create a tag including scale
+        """
+        image = self.getScale(instance, scale=scale)
+
+        if height is None:
+            height=image.height
+        if width is None:
+            width=image.width
+
+        url = instance.absolute_url()
+        if scale:
+            url+='/' + self.getScaleName(scale)
+            
+        values = {'src' : url,
+                  'alt' : alt and alt or instance.Title(),
+                  'title' : title and title or instance.Title(),
+                  'height' : height,
+                  'width' : width,
+                 } 
+        
+        result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
+                 'widht="%(width)s" height="%(height)s"' % values
+
+        if css_class is not None:
+            result = '%s class="%s"' % (result, css_class)
+
+        for key, value in kwargs.items():
+            if value:
+                result = '%s %s="%s"' % (result, key, value)
+
+        return '%s />' % result
 
 # photo field implementation, derived from CMFPhoto by Magnus Heino
 

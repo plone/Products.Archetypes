@@ -34,6 +34,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 from ZODB.POSException import ConflictError
+from Acquisition import ImplicitAcquisitionWrapper
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -283,6 +284,13 @@ def registerType(klass, package=None):
         }
 
     key = "%s.%s" % (package, data['meta_type'])
+    if key in _types.keys():
+        existing = _types[key]
+        existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
+        override_name = '%s.%s' % (data['module'].__name__, data['name'])
+        log('ArchetypesTool: Trying to register "%s" which ' \
+                 'has already been registered.  The new type %s ' \
+                 'is going to override %s' % (key, override_name, existing_name))
     _types[key] = data
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
@@ -490,9 +498,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # Lookup the template by name
         if not name:
             obj = self.unrestrictedTraverse(template, None)
-            if obj:
+            try:
                 name = obj.title_or_id()
-            else:
+            except:
                 name = template
 
         self._registeredTemplates[template] = name
@@ -597,13 +605,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for t in types:
             if t['package'] != package: continue
             if t['meta_type'] == type:
+                # We have to return the schema wrapped into the acquisition of
+                # something to allow access. Otherwise we will end up with:
+                # Your user account is defined outside the context of the object
+                # being accessed.
+                t['schema'] = ImplicitAcquisitionWrapper(t['schema'], self)
                 return t
         return None
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getSchema')
-    def getSchema(self, sid):
-        return self._schemas[sid]
+    # XXX unusable because nothing is writing to _schemas
+    #security.declareProtected(CMFCorePermissions.View,
+    #                          'getSchema')
+    #def getSchema(self, sid):
+    #    return self._schemas[sid]
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_installType')
@@ -700,7 +714,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([('', '<any>')]) + \
+                        field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
                                            field.vocabulary
                     widget.populate = 0
                     field_name = field.accessor

@@ -8,6 +8,7 @@ from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
 from Products.MimetypesRegistry.common import getToolByName
+from Products.MimetypesRegistry.interfaces import IMimetypesRegistry
 from Products.PortalTransforms.interfaces import idatastream
 #from Products.MimetypesRegistry.mime_types import text_plain, \
 #     application_octet_stream
@@ -30,6 +31,9 @@ class BaseUnit(File):
         encoding = kw.get('encoding', None)
 
         adapter = getToolByName(instance, 'mimetypes_registry')
+        if not IMimetypesRegistry.isImplementedBy(adapter):
+            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
+                               (repr(adapter), repr(adapter.__class__)))
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -74,6 +78,7 @@ class BaseUnit(File):
 
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
+                                     context=instance,                                     
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 

@@ -173,3 +173,8 @@ msgstr "Reference Added."
 #. Content changes saved.
 msgid "message_content_changes_saved"
 msgstr "Content changes saved."
+
+#: ArchetypeTool.py
+#. field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
+msgid "at_search_any"
+msgstr "<any>"

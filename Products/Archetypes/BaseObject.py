@@ -442,6 +442,8 @@ class BaseObject(Referenceable):
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
                 elif type_datum in STRING_TYPES:
+                    if type_datum is UnicodeType:
+                        datum = datum.encode(charset)
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
