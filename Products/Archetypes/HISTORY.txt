@@ -98,6 +98,12 @@
    behaviors.
    [tiran]
 
+ * Don't store mimetype item instances in BaseUnit. Now BaseUnit is storing the
+   mimetype and the binary flag as ordinary strings. Old BaseUnits are auto-
+   magically altered using __setstate__().
+   Storing mimetype item objects in BaseUnit seemed to lead to memory leaks.
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 

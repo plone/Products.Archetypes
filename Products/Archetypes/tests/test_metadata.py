@@ -42,7 +42,7 @@ class DummyPortalMembership:
     def checkPermission(self, *args, **kwargs):
         return True
 
-def addMetadataTo(obj, data='default', time=1000):
+def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time=1000):
     """ """
     obj.setTitle(data)
     obj.setSubject([data])
@@ -50,11 +50,11 @@ def addMetadataTo(obj, data='default', time=1000):
     obj.setContributors([data])
     obj.setEffectiveDate(DateTime(time, 0))
     obj.setExpirationDate(DateTime(time, 0))
-    obj.setFormat(data)
+    obj.setFormat(mimetype)
     obj.setLanguage(data)
     obj.setRights(data)
 
-def compareMetadataOf(test, obj, data='default', time=1000):
+def compareMetadataOf(test, obj, data='default', mimetype='application/octet-stream', time=1000):
     l_data = [data]
     if ZOPE_LINES_IS_TUPLE_TYPE:
         l_data = tuple(l_data)
@@ -68,7 +68,7 @@ def compareMetadataOf(test, obj, data='default', time=1000):
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
                     'expiration date')
     # XXX BROKEN! test.failUnless(obj.Format() == data,
-    #                             'Format: %s, %s' % (obj.Format(), data))
+    #                             'Format: %s, %s' % (obj.Format(), mimetype))
     test.failUnless(obj.Language() == data, 'Language')
     test.failUnless(obj.Rights() == data, 'Rights')
 

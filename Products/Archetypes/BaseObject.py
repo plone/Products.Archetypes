@@ -277,7 +277,7 @@ class BaseObject(Referenceable):
         pfield = self.getPrimaryField()
         if pfield and IFileField.isImplementedBy(pfield):
             bu = pfield.getBaseUnit(self)
-            bu.setContentType(value)
+            bu.setContentType(self, value)
             pfield.set(self, bu)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
