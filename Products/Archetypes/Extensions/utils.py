@@ -125,7 +125,12 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     productSkinsPath = minimalpath(fullProductSkinsPath)
     registered_directories = manage_listAvailableDirectories()
     if productSkinsPath not in registered_directories:
-        registerDirectory(product_skins_dir, globals)
+        try:
+            registerDirectory(product_skins_dir, globals)
+        except OSError, ex:
+            if ex.errno == 2: # No such file or directory
+                return
+            raise
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
