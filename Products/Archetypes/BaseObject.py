@@ -859,7 +859,8 @@ class BaseObject(Referenceable):
             target = getattr(self, name, None)
         if target is not None:
             return target
-        if method == 'PUT' and not isinstance(RESPONSE, xmlrpc.Response):
+        if (method in ('PUT', 'MKCOL') and not
+            isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
 

@@ -106,6 +106,8 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription
 
+    manage_addFolder = BaseFolder.manage_addFolder
+
 InitializeClass(BaseBTreeFolder)
 
 

@@ -271,3 +271,29 @@ Create a CTR predicate to map any content to ``DDocument``:
 Finally, cleanup the CTR predicate to not affect other tests:
 
   >>> ctr.removePredicate(p_id)
+
+Creating folders should work the same way. And the newly created folder
+should be of the same kind as the parent:
+
+  >>> print http(r"""
+  ... MKCOL /portal/simple_folder/simple_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_folder.simple_folder
+  >>> print folder.getPortalTypeName()
+  SimpleFolder
+
+  >>> print http(r"""
+  ... MKCOL /portal/simple_btree_folder/simple_btree_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_btree_folder.simple_btree_folder
+  >>> print folder.getPortalTypeName()
+  SimpleBTreeFolder
+
