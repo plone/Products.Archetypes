@@ -169,7 +169,7 @@ def gen_dummy(storage_class):
 ##         storage = storage_class()
 ##         ),
 
-    )) 
+    ))
 
     registerType(Dummy, PKG_NAME)
 
@@ -191,7 +191,7 @@ def commonAfterSetUp(self):
             connection_string = connectors[self.db_name], check = 1)
     elif self.db_name == 'Gadfly':
         portal.manage_addProduct['ZGadflyDA'].manage_addZGadflyConnection(
-            id = connection_id, title = 'MySQL Archetypes Storage',
+            id = connection_id, title = 'Gadfly Archetypes Storage',
             connection = connectors[self.db_name], check = 1)
 
     # add type information for Dummy

@@ -144,7 +144,7 @@ class ExtMetadataContextTest(ArcheSiteTestCase):
         portal = self.getPortal()
 
         # to enable overrideDiscussionFor
-        self.setRoles(['Manager'])        
+        self.setRoles(['Manager'])
 
         parent = createDummyInContext(DummyFolder, id='parent', context=portal)
         self._parent = parent
@@ -168,7 +168,7 @@ class ExtMetadataContextTest(ArcheSiteTestCase):
 
     def testIsParent(self):
         portal = self.getPortal()
-        self.failUnless(aq_parent(self._parent) is portal)
+        self.failUnless(aq_parent(self._parent) == portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
         self.failUnless(dummy_parent is parent,
@@ -178,20 +178,22 @@ class ExtMetadataContextTest(ArcheSiteTestCase):
 
 class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
 
-    def afterSetUp(self):
-        gen_dummy()
-        portal = self.getPortal()
-        dummy = createDummyInContext(Dummy, id='dummy', context=portal)
-        self._dummy = dummy
-    
     def testDefaultLanguage(self):
+        # This is handled at creation time, so the prop must be set
+        # then, its not a runtime fallback to the property
         language = 'no'
+
         portal = self.getPortal()
-        portal.portal_properties.site_properties.default_language = language
-        self.failUnlessEqual(self._dummy.Language(), language)
+        portal.portal_properties.site_properties._updateProperty('default_language', language)
+
+        #Create a proper object
+        self.folder.invokeFactory(id="dummy",
+                                  type_name="SimpleType")
+        dummy = getattr(self.folder, 'dummy')
+        self.failUnlessEqual(dummy.Language(), language)
 
 class ExtMetadataSetFormatTest(ArcheSiteTestCase):
-    
+
     value = "fooooo"
     filename = 'foo.txt'
 
@@ -201,7 +203,7 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
         portal = self.getPortal()
 
         # to enable overrideDiscussionFor
-        self.setRoles(['Manager'])        
+        self.setRoles(['Manager'])
 
         parent = createDummyInContext(DummyFolder, id='parent', context=portal)
         self._parent = parent
@@ -209,7 +211,7 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
         # create dummy in context of a plone folder
         dummy = createDummyInContext(Dummy, id='dummy', context=parent)
         self._dummy = dummy
-        
+
         pfield = dummy.getPrimaryField()
         # tests do need afilefield
         self.failUnlessEqual(pfield.getName(), 'afilefield')
@@ -220,14 +222,14 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
     def testSetFormat(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
-       
+
         self.failUnlessEqual(dummy.Format(), 'text/plain')
         self.failUnlessEqual(dummy.getContentType(), 'text/plain')
         self.failUnlessEqual(dummy.content_type, 'text/plain')
         self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
         self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
         self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
-        
+
         dummy.setFormat('image/gif')
         self.failUnlessEqual(dummy.Format(), 'image/gif')
         self.failUnlessEqual(dummy.getContentType(), 'image/gif')
@@ -247,7 +249,7 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
         self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
         self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
         self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
-        
+
         dummy.setContentType('image/gif')
         self.failUnlessEqual(dummy.Format(), 'image/gif')
         self.failUnlessEqual(dummy.getContentType(), 'image/gif')
@@ -260,35 +262,35 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
     def testMultipleChanges(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
-        
+
         dummy.setContentType('image/gif')
         self.failUnlessEqual(dummy.getContentType(), 'image/gif')
         dummy.setFormat('application/pdf')
         self.failUnlessEqual(dummy.Format(), 'application/pdf')
         dummy.setContentType('image/jpeg')
         self.failUnlessEqual(dummy.Format(), 'image/jpeg')
-        
+
         self.failUnlessEqual(pfield.get(dummy).filename, self.filename)
         self.failUnlessEqual(pfield.get(dummy).data, self.value)
 
     def testChangesOnFieldChangesObject(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
-        
+
         data = pfield.get(dummy)
         self.failUnlessEqual(data.content_type, 'text/plain')
-        
+
         data.content_type = 'image/jpeg'
-        
+
         self.failUnlessEqual(data.content_type, 'image/jpeg')
-        
+
         pfield.set(dummy, data)
         self.failUnlessEqual(dummy.Format(), 'image/jpeg')
         self.failUnlessEqual(dummy.getContentType(), 'image/jpeg')
         self.failUnlessEqual(dummy.content_type, 'image/jpeg')
         self.failUnlessEqual(dummy.get_content_type(), 'image/jpeg')
         self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
-       
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

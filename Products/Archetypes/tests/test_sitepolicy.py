@@ -18,10 +18,12 @@ class SitePolicyTests(ArcheSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'Complex Type']
 
-    def test_new( self ):
-        # catalog should have one entry, for index_html or frontpage
-        # and another for Members
-        self.assertEqual( len( self.portal.portal_catalog ), 2 )
+    # This test sucks, it doesn't test a unit, or assert anything
+    # useful --bcsaller
+    ##def test_new( self ):
+    ##    # catalog should have one entry, for index_html or frontpage
+    ##    # and another for Members
+    ##    self.assertEqual( len( self.portal.portal_catalog ), 2 )
 
     def test_availabledemotypes(self):
         portal_types = self.portal.portal_types.listContentTypes()

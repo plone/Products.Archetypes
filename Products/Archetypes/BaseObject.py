@@ -86,6 +86,8 @@ class BaseObject(Referenceable):
             self._signature = self.Schema().signature()
             self.markCreationFlag()
         except:
+            import traceback
+            print "Error on initAT", traceback.print_exc()
             log_exc()
             #_default_logger.log_exc()
             #raise
@@ -109,11 +111,11 @@ class BaseObject(Referenceable):
         cflag = session.get('__creation_flag__', {})
         cflag[id] = referrer
         session.set('__creation_flag__', cflag)
-    
+
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        self.initializeLayers(item, container)
         Referenceable.manage_afterAdd(self, item, container)
+        self.initializeLayers(item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
