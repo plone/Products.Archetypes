@@ -52,7 +52,7 @@ class newBaseUnit(File):
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = aq_base(mimetype)
+        self.mimetype = mimetype
         if not mimetype.binary:
             assert type(data) is type(u'')
             if encoding is None:
@@ -214,7 +214,8 @@ class oldBaseUnit(File, ObjectManager):
     __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
-    def __init__(self, name, file='', instance=None, mimetype=None, encoding=None):
+    def __init__(self, name, file='', instance=None,
+                 mimetype=None, encoding=None):
         self.id = name
         self.filename = ''
         self.data = ''
