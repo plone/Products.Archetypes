@@ -8,6 +8,7 @@
 ##parameters=item, value
 
 if value is not None and \
+   value == item or \
    unicode(repr(value)) == unicode(repr(item)):
     return 1
 
