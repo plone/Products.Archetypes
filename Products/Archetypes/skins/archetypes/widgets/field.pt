@@ -9,6 +9,7 @@
     <!-- Base Field Widgets -->
     <div metal:define-macro="view">
       <div tal:condition="python:'view' in widget.modes">
+	<strong tal:content="string:${fieldName/capitalize}:">Field</strong>
 	<div metal:define-slot="widget_view"/>
 	  <br/>
       </div>

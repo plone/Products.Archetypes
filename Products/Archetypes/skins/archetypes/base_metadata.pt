@@ -19,9 +19,14 @@
 	    tal:attributes="action request/URL"
 	>
 
-	<span tal:condition="errors" class="error"
-	  tal:content="errors"/>
-	  	  
+<!--	
+ 	<div tal:condition="errors" class="error">
+          <div tal:repeat="error errors/keys">
+           <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
+	  </div> 
+	</div>
+-->
+
 	  <span class="legend" tal:content="here/archetype_name"></span>
 	  
 	  <div tal:repeat="field python: here.Schema().filterFields(isMetadata=1)">

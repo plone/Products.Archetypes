@@ -27,12 +27,12 @@
 	    <!-- Radio when the vocab is short < 4 -->
 	    <span tal:repeat="item vocab" 
 	      tal:omit-tag="">
-	      <input  class="noborder"
+	      <input class="noborder"
 		     tabindex=""
 		     type="radio"
 		     tal:attributes="name fieldName; 
 		checked python: str(value) == str(item); 
-		value item;
+		value python:str(item);
 		tabindex tabindex/next;"
 		/><span tal:content="python: vocab.getValue(item)"/>
 		&nbsp;

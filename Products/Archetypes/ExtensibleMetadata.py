@@ -25,11 +25,11 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
         ObjectField('allowDiscussion',
                       accessor="isDiscussable",
                       mutator="allowDiscussion",
-                      default=0,
+                      default=None,
                       enforceVocabulary=1,
                       vocabulary=DisplayList(((0, 'off'), (1, 'on'),
                                               (None, 'default'))),
-                      widget=BooleanWidget(label="Allow Discussion?"),
+                      widget=SelectionWidget(label="Allow Discussion?"),
                       ),
               
         LinesField('subject',
@@ -78,7 +78,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
      ))
 
     def isDiscussable(self):
-        result = 0
+        result = None
         try:
             result = getToolByName(self, 'portal_discussion').isDiscussionAllowedFor(self)
         except:
@@ -92,7 +92,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
             except:
                 if type(allowDiscussion) == StringType:
                     allowDiscussion = allowDiscussion.lower().strip()
-                    allowDiscussion = {'on' : 1, 'off': 0}.get(allowDiscussion, 0)
+                    allowDiscussion = {'on' : 1, 'off': 0, 'none':None}.get(allowDiscussion, None)
 
             try:
                 getToolByName(self, 'portal_discussion').overrideDiscussionFor(self, allowDiscussion)

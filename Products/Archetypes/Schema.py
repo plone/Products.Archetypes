@@ -164,9 +164,14 @@ class Schema(UserDict, DefaultLayerContainer):
         return self.get(key) != None
 
     security.declarePublic('validate')
-    def validate(self, instance, REQUEST=None, errors=None):
+    def validate(self, instance, REQUEST=None, errors=None, data=None, metadata=None):
         """Validate the state of the entire object"""
-        for name, field in self.items():
+        fields = []
+        if data:
+            fields.extend([(field.name, field) for field in self.filterFields(isMetadata=0)])
+        if metadata:
+            fields.extend([(field.name, field) for field in self.filterFields(isMetadata=1)])
+        for name, field in fields:
             if errors and errors.has_key(name): continue
             error = 0
             value = None
@@ -218,11 +223,20 @@ class Schema(UserDict, DefaultLayerContainer):
                           ## empty and thats ok
                     values = field.multiValued == 1  and value or [value]
                     for value in values:
-                        if not value in field.Vocabulary(instance):
-                            errors[name] = "Value %s is not allowed for vocabulary " \
-                                           "of element: %s" %(value, capitalize(name))
-                            error = 1
-                            break
+                        error = 1 
+                        vocab = field.Vocabulary(instance)
+                        for v in vocab:
+                            if type(v) in [type(()), type([])]:
+                                valid = v[0]
+                            else:
+                                valid = v
+                            if value == valid or str(value) == str(valid):
+                                error = 0
+                                break
+
+                    if error == 1:
+                        errors[name] = "Value %s is not allowed for vocabulary " \
+                                       "of element: %s" %(value, capitalize(name))
 
             #Call any field level validation
             if error == 0 and value:
@@ -257,22 +271,22 @@ class Schema(UserDict, DefaultLayerContainer):
         called = lambda x: x in initalizedLayers
 
         for field in self.fields():
-            layers = field.registeredLayers()
-            for layer, object in layers:
-                if ILayer.isImplementedBy(object):
-                    if not called(layer):
-                        object.initalizeInstance(instance)
-                        initalizedLayers.append(layer)
-                    object.initalizeField(instance, field)
-
-                    
+            if ILayerContainer.isImplementedBy(field):
+                layers = field.registeredLayers()
+                for layer, object in layers:
+                    if ILayer.isImplementedBy(object):
+                        object.initalizeField(instance, field)
+                        if not called(layer):
+                            object.initalizeInstance(instance)
+                            initalizedLayers.append(layer)
 
 
         #Now do the same for objects registered at this level
-        for layer, object in self.registeredLayers():
-            if not called(layer) and ILayer.isImplementedBy(object):
-                object.initalizeInstance(instance)
-                initalizedLayers.append(layer)
+        if ILayerContainer.isImplementedBy(self):
+            for layer, object in self.registeredLayers():
+                if not called(layer) and ILayer.isImplementedBy(object):
+                    object.initalizeInstance(instance)
+                    initalizedLayers.append(layer)
 
     def cleanupLayers(self, instance):
         # scan each field looking for registered layers
@@ -282,22 +296,25 @@ class Schema(UserDict, DefaultLayerContainer):
         queued = lambda x: x in queuedLayers
         
         for field in self.fields():
-            layers = field.registeredLayers()
-            for layer, object in layers:
-                if ILayer.isImplementedBy(object):
-                    object.cleanupField(instance, field)
+            if ILayerContainer.isImplementedBy(field):
+                layers = field.registeredLayers()
+                for layer, object in layers:
                     if not queued((layer, object)):
                         queuedLayers.append((layer, object))
+                    if ILayer.isImplementedBy(object):
+                        object.cleanupField(instance, field)
+
 
         for layer, object in queuedLayers:
-            object.cleanupInstance(instance)
+            if ILayer.isImplementedBy(object):
+                object.cleanupInstance(instance)
                     
         #Now do the same for objects registered at this level
-        for layer, object in self.registeredLayers():
-            if not queued((layer, object)) and ILayer.isImplementedBy(object):
-                object.cleanupInstance(instance)
-                cleanedLayers.append((layer, object))
-
+        if ILayerContainer.isImplementedBy(self):
+            for layer, object in self.registeredLayers():
+                if not queued((layer, object)) and ILayer.isImplementedBy(object):
+                    object.cleanupInstance(instance)
+                    cleanedLayers.append((layer, object))
 
 #Reusable instance for MetadataFieldList
 MDS = MetadataStorage()

@@ -10,7 +10,11 @@
     
     <div metal:define-macro="view">
       <tal:block tal:condition="python: here.portal_membership.getAuthenticatedMember().getProperty('visible_ids')">
-	<span tal:replace="structure accessor"/>
+      <div metal:use-macro="here/widgets/field/macros/view">
+	<div metal:fill-slot="widget_view">
+	  <span tal:replace="structure accessor"/>
+	</div>
+      </div>
       </tal:block>
     </div>
 

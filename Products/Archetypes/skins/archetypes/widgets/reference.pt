@@ -6,7 +6,7 @@
 
 <body>
 
-<!-- Selection Widgets -->
+<!-- Reference Widgets -->
 
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">

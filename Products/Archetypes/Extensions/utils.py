@@ -96,7 +96,7 @@ def install_validation(self, out, types):
 
     # Default validation for types
     form_tool.setValidators("base_edit", ["validate_base"])
-    form_tool.setValidators("base_metadata", [])
+    form_tool.setValidators("base_metadata", ["validate_metadata"])
     
 
 def install_navigation(self, out, types):
@@ -112,7 +112,7 @@ def install_navigation(self, out, types):
     nav_tool.addTransitionFor('default', "base_edit", 'success', 'script:content_edit')
 
     nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
-    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
+    nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:metadata_edit')
 
     #And References
     nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')
@@ -178,6 +178,9 @@ def isPloneSite(self):
     # we should just define a single attr for this
     if self.__class__.__name__ == "PloneSite":
         return 1
+    for base in self.__class__.__bases__:
+        if base.__name__ == "PloneSite":
+            return 1
     return 0
 
 def installTypes(self,

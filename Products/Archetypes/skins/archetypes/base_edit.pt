@@ -21,8 +21,12 @@
 	    tal:attributes="action request/URL"
 	>
 	
-<!--	<div tal:condition="errors" class="error"
-	  tal:content="errors"/>
+<!--	
+ 	<div tal:condition="errors" class="error">
+          <div tal:repeat="error errors/keys">
+           <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
+	  </div> 
+	</div>
 -->
 
         <span class="legend" tal:content="here/archetype_name"></span>

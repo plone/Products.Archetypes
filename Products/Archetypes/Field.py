@@ -28,7 +28,6 @@ from config import TOOL_NAME
 #For Backcompat and re-export
 from Schema import FieldList, MetadataFieldList
 
-
 class Field(DefaultLayerContainer):
     __implements__ = (IField, ILayerContainer)
     
@@ -138,7 +137,8 @@ class ObjectField(Field):
     Field Types should subclass this to delegate through the storage
     layer. 
     """
-    __implements__ = IObjectField
+    __implements__ = (IObjectField, ILayerContainer)
+
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'object',

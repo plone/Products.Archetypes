@@ -57,7 +57,7 @@ class BaseObject(Implicit):
 
     
     def manage_afterAdd(self, item, container):
-        pass
+        self.initalizeLayers()
         
     def manage_afterClone(self, item):
         pass
@@ -215,14 +215,14 @@ class BaseObject(Implicit):
     
             
     security.declareProtected(CMFCorePermissions.View, 'validate')            
-    def validate(self, REQUEST=None, errors=None):
+    def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
         if errors is None:
             errors = {}
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
         
-        self.Schema().validate(self, REQUEST=REQUEST, errors=errors)
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors, data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
 
         return errors

@@ -1,4 +1,4 @@
-## Script (Python) "validate_base"
+## Script (Python) "validate_metadata"
 ##bind container=container
 ##bind context=context
 ##bind namespace=
@@ -7,7 +7,7 @@
 ##parameters=
 ##
 errors = {}
-errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
+errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=0, metadata=1)
 
 ## TODO: Update to use ScriptStatus Object
 if errors:
