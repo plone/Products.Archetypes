@@ -3,6 +3,9 @@ from types import StringType, UnicodeType
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.referenceengine import \
+    IReference, IContentReference
+
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, getRelPath
 from Products.Archetypes.config import UID_CATALOG, \
      REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION
@@ -45,6 +48,9 @@ class Reference(Referenceable, SimpleItem):
     ## reference objects and expect them to work, but you can't
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
+    
+    __implements__ = Referenceable.__implements__ + (IReference,)
+    
     security = ClassSecurityInfo()
     portal_type = 'Reference'
 
@@ -156,6 +162,8 @@ REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
 class ContentReference(Reference, ObjectManager):
     '''Subclass of Reference to support contentish objects inside references '''
+
+    __implements__ = Reference.__implements__ + (IContentReference,)
     
     def addHook(self, *args, **kw):
         #creates the content instance 

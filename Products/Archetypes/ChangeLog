@@ -1,3 +1,32 @@
+2004-05-28   Philipp Auersperg <phil _at_ bluedynamics.com>
+
+   * created interface definitions for IReference and IContentReference
+    in interfaces/referenceengine.py
+
+
+2004-05-27   Philipp Auersperg <phil _at_ bluedynamics.com>
+
+  some changes after a discussion with ben and kapil:
+    
+    * ReferenceField.get method:
+    
+       - if the ReferenceField is not multiValued, the accessor returns the object instance(or None for void reverences)
+       and not an array with one object instance (attention, may break existing code, but not data)
+    
+    * ReferenceField.set:
+    
+       - accept uids or objects as arguments
+    
+       - for singlevalued reference fields: accept single uid or object as parameter
+    
+    * Referenceable and IReferenceable:
+    
+       - I added .getReferenceImpl and .getBackReferenceImpl,
+         returning the reference objects (e.g. for retrieving the metadata)
+    
+       - and created .getReferences and .getBackReferences as alias to .getRefs and .getBRefs for
+         future consistency (more expressive names)
+
 2004-05-24  Christian Heimes <heimes@faho.rwth-aachen.de>
 
     * Fixed multiple small interfaces glitches

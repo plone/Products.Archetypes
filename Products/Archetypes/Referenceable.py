@@ -1,6 +1,8 @@
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+
 
 from Acquisition import aq_base, aq_chain
 from AccessControl import getSecurityManager,Unauthorized
@@ -22,6 +24,8 @@ class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
+    __implements__ = (IReferenceable,)
+    
     def reference_url(self):
         """like absoluteURL, but return a link to the object with this UID"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
