@@ -2,7 +2,7 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import DisplayList, mapply, fixSchema
-from Products.Archetypes.Field import StringField, TextField
+from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema, Schemata
 from Products.Archetypes.Widget import IdWidget, StringWidget
@@ -15,6 +15,8 @@ from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
+
+from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
 
@@ -338,16 +340,17 @@ class BaseObject(Implicit):
             if datum:
                 type_datum = type(datum)
                 vocab = field.Vocabulary(self)
-                if type_datum is type([]) or type_datum is type(()):
+                if type_datum is ListType or type_datum is TupleType:
                     # Unmangle vocabulary: we index key AND value
                     vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
+                    datum = list(datum)
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
-                elif type_datum in (type(''), type(u''), ):
+                elif type_datum in STRING_TYPES:
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
-                if type_datum is type(u''):
+                if type_datum is UnicodeType:
                     datum = datum.encode(charset)
                 data.append(str(datum))
 
