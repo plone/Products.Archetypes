@@ -297,26 +297,29 @@ class Schema(Schemata, UserDict, DefaultLayerContainer):
             if error == 0  and field.enforceVocabulary == 1:
                 if value: ## we need to check this as optional field will be
                           ## empty and thats ok
+                    # coerce value into a list called values
+                    values = value
                     if isinstance(value, type('')) or isinstance(value, type(u'')):
                         values = [value]
                     elif not (isinstance(value, type((1,))) or isinstance(value, type([]))):
                         raise TypeError("Field value type error")
 #                    values = field.multiValued == 1  and value or [value]
                     vocab = field.Vocabulary(instance)
-                    for value in values:
-                        error = 1
+                    for val in values:
+                        error = 1 
                         for v in vocab:
                             if type(v) in [type(()), type([])]:
                                 valid = v[0]
                             else:
                                 valid = v
-                            if value == valid or str(value) == str(valid):
+                            # XXX do we need to do unicode casting here?
+                            if val == valid or str(val) == str(valid):
                                 error = 0
                                 break
 
                     if error == 1:
                         errors[name] = "Value %s is not allowed for vocabulary " \
-                                       "of element: %s" %(value, capitalize(name))
+                                       "of element: %s" %(val, capitalize(name))
 
             #Call any field level validation
             if error == 0 and value:
