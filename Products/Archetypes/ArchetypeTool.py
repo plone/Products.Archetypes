@@ -262,6 +262,7 @@ class WidgetWrapper:
 
 last_load = DateTime()
 
+
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     SQLStorageConfig, Folder, ReferenceEngine):
     """ Archetypes tool, manage aspects of Archetype instances """
@@ -294,6 +295,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
            },
+
+        {  'label'  : 'Catalogs',
+           'action' : 'manage_catalogs',
+           },
+
         )  + SQLStorageConfig.manage_options
         )
 
@@ -303,6 +309,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     manage_debugForm = PageTemplateFile('generateDebug', _www)
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
+    manage_catalogs = PageTemplateFile('manage_catalogs', _www)
+
+
+
+    def __init__(self):
+        ReferenceEngine.__init__(self)
+        self._schemas = PersistentMapping()
+        self._templates = PersistentMapping()
+        self.catalog_map = PersistentMapping() # meta_type -> [names of CatalogTools]
+                
+        self._types = {}
+        
+        for t in _types.values():
+            self._types[t['klass'].meta_type] = \
+                {'signature':t['signature'], 'update':1}
+        _types_callback.append(lambda klass, package:self.registerType(klass, package))
+        self.last_types_update = DateTime()
 
 
     def manage_dumpSchema(self, REQUEST=None):
@@ -317,18 +340,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         options['schematas'] = getSchemata(type['klass'])
         REQUEST.RESPONSE.setHeader('Content-Type', 'text/xml')
         return self.manage_dumpSchemaForm(**options)
-
-    def __init__(self):
-        ReferenceEngine.__init__(self)
-        self._schemas = PersistentMapping()
-        self._templates = PersistentMapping()
-        self._types = {}
-        for t in _types.values():
-            self._types[t['klass'].meta_type] = \
-                {'signature':t['signature'], 'update':1}
-        _types_callback.append(lambda klass, package:self.registerType(klass, package))
-        self.last_types_update = DateTime()
-
 
     ## Template Management
     def registerTemplate(self, template, name, portal_type=None):
@@ -358,6 +369,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         results = unique(results)
         return DisplayList(results).sortedByValue()
 
+    def listCatalogs(self):
+        """show the catalog mapping"""
+        return self.catalog_map
+    
+        
+
     ## Type/Schema Management
     def listRegisteredTypes(self, inProject=None):
         """Return the list of sorted types"""
@@ -382,6 +399,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return values
 
+        
     def getTypeSpec(self, package, type):
         t = self.lookupType(package, type)
         module = t['klass'].__module__
@@ -630,7 +648,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     index = manage_reindex
 
 
-
     def getChangedSchema(self):
         """Get a list of schema that have changed"""
         list = []
@@ -704,5 +721,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._types[klass.meta_type] = {'signature':sig, 'update':update}
         self._p_changed = 1
 
+
+
+    def manage_updateCatalogs(self, REQUEST=None):
+        """set the catalog map for meta_type to include the list catalog_names"""
+        prefix = 'catalog_names_'
+        for key in REQUEST.form.keys():
+            if key.startswith(prefix):
+                k = key[len(prefix):]
+                v = REQUEST.form.get(key)
+                if type(v) in (type(''), type(u'')):
+                    v = v.split('\n')
+                v = [i.strip() for i in v if i.strip()]
+                self.catalog_map[k] = v
+        
+        return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_catalogs")
+    
+    def getCatalogsByType(self, meta_type):
+        """Return the catalog objects assoicated with a given type"""
+        catalogs = []
+        names = self.catalog_map.get(meta_type, ['portal_catalog'])
+        for name in names:
+            try:
+                catalogs.append(getToolByName(self, name))
+            except Exception, E:
+                log("No tool", name, E)
+                pass
+        return catalogs
+    
+        
 
 InitializeClass(ArchetypeTool)

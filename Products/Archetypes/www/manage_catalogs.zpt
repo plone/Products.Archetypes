@@ -1,0 +1,54 @@
+<html>
+  <div tal:replace="structure here/manage_page_header"/>
+    <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
+      <div tal:replace="structure here/manage_tabs"/>
+	<style type="text/css">
+	  div.row {
+	  padding-top: 2px;
+	  }
+	  
+	  .cell {
+	  margin-right:1em;
+	  width: 33%;
+	  }	    
+	  
+	  .content_type {
+	  border: 1px solid black;
+	  margin: 4px;
+	  }
+	    
+	  .main td {
+	    text-align: left;
+	    }
+
+	  th.title {
+	    background-color: #ccf;
+	    }
+
+	  .detail {
+	  background-color: #cdcdcd;
+	  width:100%;
+	  }
+
+	</style>
+	
+	<form action="manage_updateCatalogs" method="POST" 
+	      tal:define="at here/archetype_tool;
+	                  catalogs at/listCatalogs;">
+
+	 	 
+	    <table class="main" width="80%">
+	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
+	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
+	  <td>
+                <textarea cols="30" rows="4" tal:attributes="name string:catalog_names_${meta_type/name}:lines" tal:content="python:'\n'.join([c.id for c in at.getCatalogsByType(meta_type['name'])]);"></textarea>
+          </td>
+	  </tr>
+	</table>
+	      
+         <input type="submit" name="submit" value="Update Catalogs"/>
+		
+	  </form>
+	  
+      </body>
+  </html>

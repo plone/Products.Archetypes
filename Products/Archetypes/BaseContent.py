@@ -12,8 +12,11 @@ from I18NMixin import I18NMixin
 from interfaces.base import IBaseContent
 from interfaces.referenceable import IReferenceable
 from interfaces.metadata import IExtensibleMetadata
+from CatalogMultiplex import CatalogMultiplex
 
-class BaseContent(BaseObject, Referenceable,
+class BaseContent(BaseObject,
+                  Referenceable,
+                  CatalogMultiplex,
                   PortalContent,
                   Historical,
                   ExtensibleMetadata):

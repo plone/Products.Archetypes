@@ -1,3 +1,13 @@
+2003-09-05  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* CatalogMultiplex.py (CatalogMultiplex.reindexObjectSecurity):
+	First pass at flexible multi-catalog support. This has a very
+	simple UI and prolly some impl problems in that it might not be as
+	flexible as needed from an extension POV, but it seems to work
+	locally. Add a new ZCatalog with a unique id to your Plone site,
+	then in the archetypes tool goto the catalogs tab and add the id
+	of the catalog and it will start getting updates.
+	
 2003-09-04  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* skins/archetypes/widgets/field.pt: adding back visiblity handling to widgets
