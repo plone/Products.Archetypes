@@ -494,9 +494,9 @@ class TextField(ObjectField):
         """Return the mime type of object if known or can be guessed;
         otherwise, return None."""
         value = ''
-        accessor = self.getEditAccessor(instance)
+        accessor = self.getAccessor(instance)
         if accessor is not None:
-            value = accessor(maybe_baseunit=1)
+            value = accessor(raw=1)
         mimetype = getattr(aq_base(value), 'mimetype', None)
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(value), None)
@@ -506,21 +506,28 @@ class TextField(ObjectField):
         return mimetype
 
 
-    def getRaw(self, instance, **kwargs):
-        """Return raw data of object."""
-        kwargs['raw'] = 1
-        value = self.get(instance, **kwargs)
-        if not kwargs.get('maybe_baseunit', 0) and IBaseUnit.isImplementedBy(value):
+    def getRaw(self, instance, raw=0, **kwargs):
+        """
+        if raw, return the base unit object, else return encoded raw data
+        """
+        value = self.get(instance, raw=1, **kwargs)
+        if raw or not IBaseUnit.isImplementedBy(value):
+            return value
+        try:
             return value.getRaw(encoding=kwargs.get('encoding'))
-        return value
+        except TypeError:
+            # FIXME: backward compat, getRaw doesn't take encoding argument on old base units
+            value.getRaw()
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         """
-        Return value of object, transformed into requested mime type.
+        if raw, return the base unit object,
+        else return value of object transformed into requested mime type.
+        
         If no requested type, then return value in default type. If raw
         format is specified, try to transform data into the default output type
-        or to plain text. If we are unable to transform data, return an empty
-        string.
+        or to plain text.
+        If we are unable to transform data, return an empty string.
         """
         try:
             kwargs['field'] = self
@@ -568,7 +575,7 @@ class TextField(ObjectField):
     def setStorage(self, instance, storage):
         if not IStorage.isImplementedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
-        value = self.getRaw(instance, maybe_baseunit=1)
+        value = self.get(instance, raw=1)
         self.unset(instance)
         self.storage = storage
         if hasattr(self.storage, 'initializeInstance'):
