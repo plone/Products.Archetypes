@@ -1,3 +1,5 @@
+import string
+
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import MetadataSchema
