@@ -88,7 +88,7 @@ class Field(DefaultLayerContainer):
         Assign name to __name__. Add properties and passed-in 
         keyword args to __dict__. Validate assigned validator(s).
         """
-	DefaultLayerContainer.__init__(self)
+        DefaultLayerContainer.__init__(self)
         
         self.__name__ = name
 

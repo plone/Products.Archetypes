@@ -17,33 +17,39 @@ from Products.Archetypes.public import listTypes, registerType
 from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 import sys, os, shutil
 
-class test_update_schema(SecurityRequestTest):
+# We are breaking up the update schema test into 2 separate parts, since
+# the product refresh appears to cause strange things to happen when we
+# run multiple tests in the same test suite.
 
-    site_id = 'test_site'
+class test_update_schema2(SecurityRequestTest):
+
+    site_id = 'unittest_test_site'
+    created_site = 0
 
     def setUp(self):
         SecurityRequestTest.setUp(self)
-        if hasattr(self.root, self.site_id):
-            self.root.manage_delObjects([self.site_id])
-        self.root.manage_addProduct['CMFPlone'].manage_addSite(self.site_id)
-        site = self.getSite()
-        install_archetypes(site)
-        print install_test(site)
+        if not hasattr(self.root, self.site_id):
+            self.root.manage_addProduct['CMFPlone'].manage_addSite(self.site_id)
+            self.created_site = 1
+        site = getattr(self.root, self.site_id)
+        install_test(site)
 
 
     def tearDown(self):
-        if hasattr(self.root, self.site_id):
-            self.root.manage_delObjects([self.site_id])
+        get_transaction().abort()
+        # clean things up by hand, since the transaction seems to be getting
+        # committed somewhere along the way
+        site = getattr(self.root, self.site_id, None)
+        if site:
+            if hasattr(site, 't1'):
+                site.manage_delObjects(['t1'])
+            if hasattr(site, 't2'):
+                site.manage_delObjects(['t2'])
+            if self.created_site:
+                self.root.manage_delObjects([self.site_id])
             get_transaction().commit()
-        # pack the database so it doesn't get huge
-        self.root.Control_Panel.Database.manage_pack()
-        get_transaction().commit()
-
         SecurityRequestTest.tearDown(self)
 
-
-    def getSite(self):
-        return getattr(self.root, self.site_id)
 
     def _setClass(self, version):
         import Products.ArchetypesTestUpdateSchema
@@ -60,54 +66,17 @@ class test_update_schema(SecurityRequestTest):
 
         self.root.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
 
-        # flush the ZODB cache
-        self.root.Control_Panel.Database.manage_minimize(0)
-
-#        sys.stdout.write('copying %s to %s\n' % (src, dest))
-
-
-    def test_detect_schema_change(self):
-        site = self.getSite()
-        self._setClass(1)
-
-        t1 = makeContent(site, portal_type='TestClass', id='t1')
-        get_transaction().commit()
-
-        self.failUnless(t1._isSchemaCurrent())
-
-        site.archetype_tool.manage_updateSchema()
-        get_transaction().commit()
-
-        self.failUnless(t1._isSchemaCurrent())
-
-        self._setClass(2)
-        get_transaction().commit()
-
-        t1 = site.t1
-        self.failIf(t1._isSchemaCurrent())
-
-        t2 = makeContent(site, portal_type='TestClass', id='t2')
-        self.failUnless(t2._isSchemaCurrent())
-        get_transaction().commit()
-
-        site.archetype_tool.manage_updateSchema()
-        get_transaction().commit()
-
-        self.failUnless(t1._isSchemaCurrent())
-        
 
     def test_update_schema(self):
-        site = self.getSite()
+        site = getattr(self.root, self.site_id)
         self._setClass(1)
 
         t1 = makeContent(site, portal_type='TestClass', id='t1')
-        get_transaction().commit()
 
         self.failUnless(hasattr(t1, 'a'))
         self.failIf(hasattr(t1, 'b'))
 
-        print site.archetype_tool.manage_updateSchema()
-        get_transaction().commit()
+        site.archetype_tool.manage_updateSchema()
 
         self.failUnless(hasattr(t1, 'a'))
         self.failIf(hasattr(t1, 'b'))
@@ -115,7 +84,6 @@ class test_update_schema(SecurityRequestTest):
         self._setClass(2)
 
         t2 = makeContent(site, portal_type='TestClass', id='t2')
-        get_transaction().commit()
         self.failUnless(hasattr(t2, 'a'))
         self.failUnless(hasattr(t2, 'b'))
 
@@ -124,13 +92,13 @@ class test_update_schema(SecurityRequestTest):
         self.failUnless(hasattr(t1, 'a'))
         self.failIf(hasattr(t1, 'b'))
 
-        print site.archetype_tool.manage_updateSchema()
-        get_transaction().commit()
+        site.archetype_tool.manage_updateSchema()
 
         self.failUnless(hasattr(t1, 'a'))
         self.failUnless(hasattr(t1, 'b'))
         self.failUnless(hasattr(t1, 'getA'))
         self.failUnless(hasattr(t1, 'getB'))
+        
 
 def test_suite():
     return unittest.TestSuite((
