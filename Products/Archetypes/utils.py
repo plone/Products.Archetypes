@@ -256,7 +256,7 @@ class DisplayList:
     NOTE: Both keys and values *must* contain unique entries! You can have
     two times the same value. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
-
+    
     >>> dl = DisplayList()
 
     Add some keys
@@ -362,8 +362,8 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated',
-                          DeprecationWarning, stacklevel=2)
+            warnings.warn('Using ints as DisplayList keys is deprecated (add)',
+                          DeprecationWarning, stacklevel=3)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -395,8 +395,8 @@ class DisplayList:
     def getValue(self, key, default=None):
         "get value"
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated',
-                          DeprecationWarning, stacklevel=2)
+            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
+                          DeprecationWarning, stacklevel=3)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -409,9 +409,10 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
+
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated',
-                          DeprecationWarning, stacklevel=2)
+            warnings.warn('Using ints as DisplayList keys is deprecated (msgid)',
+                          DeprecationWarning, stacklevel=3)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -612,8 +613,8 @@ class Vocabulary(DisplayList):
         Get i18n value
         """
         if type(key) is IntType:
-            warnings.warn('Using ints as DisplayList keys is deprecated',
-                          DeprecationWarning, stacklevel=2)
+            warnings.warn('Using ints as DisplayList keys is deprecated (getValue)',
+                          DeprecationWarning, stacklevel=3)
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
