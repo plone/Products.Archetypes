@@ -56,9 +56,9 @@
             </strong>:<span tal:replace="python:errors[error]" />
             </div>
             </div>
-          -->
             <pre tal:content="structure request/controller_state" />
             <pre tal:content="structure request" />
+          -->
 
           <metal:block define-slot="extra_top" />
 
