@@ -78,7 +78,7 @@ class Referenceable(Base):
             return [ref.getTargetObject() for ref in refs]
         return []
 
-    def getURL(self):
+    def _getURL(self):
         """the url used as the relative path based uid in the catalogs"""
         return getRelURL(self, self.getPhysicalPath())
 
@@ -271,13 +271,13 @@ class Referenceable(Base):
     def _catalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(aq, config.UID_CATALOG)
-        url = self.getURL()
+        url = self._getURL()
         uc.catalog_object(self, url)
 
     def _uncatalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(self, config.UID_CATALOG)
-        url = self.getURL()
+        url = self._getURL()
         uc.uncatalog_object(url)
 
 
