@@ -250,7 +250,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
             path = self._findPath(orig_mt, target_mt)        
             
         if not path:
-            log('NO PATH FROM' % (orig_mt, target_mimetype, path))
+            log('NO PATH FROM %s TO %s : %s' % (orig_mt, target_mimetype, path))
             return None #XXX raise TransformError
         
         log('PATH FROM %s TO %s : %s' % (orig_mt, target_mimetype, path))
