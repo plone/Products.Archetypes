@@ -12,7 +12,7 @@ from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME, ZOPE_LINES_IS_TUPLE_TYPE
 from DateTime import DateTime
 
-from test_classgen import Dummy, gen_dummy, gen_class
+from test_classgen import Dummy, schema
 
 
 fieldList = [
@@ -81,15 +81,15 @@ class DummyFolder(BaseFolder):
 class ExtensibleMetadataTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        gen_dummy()
+        ArcheSiteTestCase.afterSetUp(self)
+        self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
+                                       context=self.getPortal(), schema=schema)
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
         self.makeDummy()
         addMetadataTo(self._dummy)
 
     def makeDummy(self):
-        portal = self.getPortal()
-        self._dummy = createDummyInContext(Dummy, id='dummy', context=portal)
         return self._dummy
 
     def testAccessors(self):
@@ -139,18 +139,22 @@ class ExtensibleMetadataTest(ArcheSiteTestCase):
 class ExtMetadataContextTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        gen_dummy()
+        ArcheSiteTestCase.afterSetUp(self)
+        self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
+                                       context=self.getPortal(), schema=schema)
         gen_class(DummyFolder)
         portal = self.getPortal()
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
 
-        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        parent = mkDummyInContext(klass=DummyFolder, oid='parent',
+                                  context=portal, schema=None)
         self._parent = parent
 
         # create dummy in context of a plone folder
-        self._dummy = createDummyInContext(Dummy, id='dummy', context=parent)
+        self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
+                                       context=parent, schema=None)
 
     def testContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
@@ -198,18 +202,16 @@ class ExtMetadataSetFormatTest(ArcheSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        gen_dummy()
-        gen_class(DummyFolder)
         portal = self.getPortal()
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
 
-        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        parent = mkDummyInContext(DummyFolder, oid='parent', context=portal, schema=None)
         self._parent = parent
 
         # create dummy in context of a plone folder
-        dummy = createDummyInContext(Dummy, id='dummy', context=parent)
+        dummy = mkDummyInContext(Dummy, oid='dummy', context=parent, schema=None)
         self._dummy = dummy
 
         pfield = dummy.getPrimaryField()

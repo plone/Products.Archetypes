@@ -21,47 +21,47 @@ class DummyDiscussionTool:
     def overrideDiscussionFor(self, content, allowDiscussion):
         pass
 
-
-class Dummy(BaseContent):
-   
-    portal_discussion = DummyDiscussionTool()
-
-    MULTIPLEFIELD_LIST = DisplayList(
+MULTIPLEFIELD_LIST = DisplayList(
     (
     ('1', 'Option 1 : printemps'),
     ('2', 'Option 2 : été'),
     ('3', 'Option 3 : automne'),
     ('4', 'Option 3 : hiver'),
     ))
-    
-    
-    schema = BaseSchema + Schema((
-        LinesField(
-            'MULTIPLEFIELD',
-            searchable = 1,
-            vocabulary = MULTIPLEFIELD_LIST,
-            widget = MultiSelectionWidget(
-                i18n_domain = 'plone',
-                ),
-            ), 
-                ))
+
+
+schema = BaseSchema + Schema((
+    LinesField(
+        'MULTIPLEFIELD',
+        searchable = 1,
+        vocabulary = MULTIPLEFIELD_LIST,
+        widget = MultiSelectionWidget(
+            i18n_domain = 'plone',
+            ),
+        ), 
+            ))
+
+
+class Dummy(BaseContent):
+   
+    portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
          return 'iso-8859-1'
          
-class BaseObjectTest( ArchetypesTestCase ):
+class BaseObjectTest(ArcheSiteTestCase):
+
+    def afterSetUp(self):
+        ArcheSiteTestCase.afterSetUp(self)
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
+                                      schema=schema)
     
     def test_searchableText(self):
         """
         Fix bug [ 951955 ] BaseObject/SearchableText and list of Unicode stuffs
         """
+        dummy = self._dummy
         
-        registerType(Dummy)
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        dummy = Dummy(oid='dummy')
-        
-        # Put dummy in context of portal
-        dummy.initializeArchetype()
         
         # Set a multiple field
         dummy.setMULTIPLEFIELD(['1','2'])

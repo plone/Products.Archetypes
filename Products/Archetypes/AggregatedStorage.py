@@ -6,7 +6,7 @@ AggregatedStorage for Archetypes
 
 Released as open-source under the current Archetypes license
 
-$Id: AggregatedStorage.py,v 1.2.6.2 2004/06/22 18:52:58 tiran Exp $
+$Id$
 """
 
 from time import time

@@ -77,8 +77,8 @@ class PortalProperties:
 
 class Dummy(BaseContent):
     portal_properties = PortalProperties()
-    mimetypes_registry = MimeTypesTool()
     portal_discussion = DummyDiscussionTool()
+    mimetypes_registry = MimeTypesTool()
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
@@ -88,21 +88,16 @@ class Dummy(BaseContent):
 
 BaseUnit.portal_properties = PortalProperties()
 
-def gen_class(klass):
-    klass.schema = schema.copy()
-    registerType(klass)
-    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-
 def gen_dummy():
-    gen_class(Dummy)
+    gen_class(Dummy, schema)
 
 
-class ClassGenTest( ArchetypesTestCase ):
+class ClassGenTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
-        gen_dummy()
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
+        ArcheSiteTestCase.afterSetUp(self)
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
+                                      schema=schema)
 
     def test_methods(self):
         obj = self._dummy

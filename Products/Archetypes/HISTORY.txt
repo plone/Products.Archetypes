@@ -1,9 +1,3 @@
-
-after 1.3.0-rc2
-======================
- * Corrected icon in ZMI; Added some utils for ZMI setup.
-   [gotcha]
-
 1.3.0-rc2
 ======================
 
@@ -115,6 +109,13 @@ after 1.3.0-rc2
    AT devel mailing list. See "Warning: avoid changing your AT class' meta_type
    when you have existing instances"
    [mitchel, dreamcatcher, tiran]
+
+ * Corrected icon in ZMI; Added some utils for ZMI setup.
+   [gotcha]
+
+ * Changed unit test to work with an unpatched version of getToolByName to get
+   mimetyptes_registry and portal_transform
+   [tiran]
 
 1.3.0-rc1 - 2004-08-16
 ======================
