@@ -772,7 +772,7 @@ class ReferenceField(ObjectField):
 
         #XXX: thats too cheap, but I need the proof of concept before going on
         instance.deleteReferences(refname)
-
+        newValue = []
         if self.multiValued:
             if type(value) in (type(()),type([])):
                 for uid in value:
@@ -781,15 +781,17 @@ class ReferenceField(ObjectField):
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
                         instance.addReference(target,refname)
+                        newValue.append(uid)
         else:
             if value:
                 target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
                 instance.addReference(target,refname)
+                newValue = value
 
         #and now do the normal assignment
-        ObjectField.set(self, instance, value, **kwargs)
+        ObjectField.set(self, instance, newValue, **kwargs)
 
     def Vocabulary(self, content_instance=None):
         #If we have a method providing the list of types go with it,
