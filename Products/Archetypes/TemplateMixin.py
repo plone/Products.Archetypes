@@ -9,6 +9,8 @@ from Products.CMFCore.utils import getToolByName
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from ExtensionClass import Base
 
 TemplateMixinSchema = Schema((
@@ -63,8 +65,11 @@ class TemplateMixin(Base):
 
     def __call__(self):
         """return a view based on layout"""
-        v = getTemplateFor(self, self.getLayout())
-        return v(self, self.REQUEST)
+        v = self.getTemplateFor(self.getLayout())
+        # rewrap the template in the right context
+        context = aq_inner(self)
+        v = v.__of__(context)
+        return v(context, context.REQUEST)
 
     def _voc_templates(self):
         at = getToolByName(self, TOOL_NAME)

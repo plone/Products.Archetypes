@@ -1,10 +1,16 @@
 after 1.3.2-final
 ==================
+
+ * Fixed [ 1160362 ] AT 1.3.2-final bug on PrimaryFieldMarshaller by adding the
+   missing import of shasattr in Marshall. 
+   [tiran]
+
  * textarea.pt and image.pt were broken under 2.7.2 (newline in python
    expression)
    [gotcha]
 
  * Correct getMsgId on DisplayList (when using int keys) and IntDisplayList
+   Fixes [ 1159248 ] IntDisplayList.getValue triggers DeprecationWarning
    [gotcha]
 
 1.3.2-final - 2005-03-05
