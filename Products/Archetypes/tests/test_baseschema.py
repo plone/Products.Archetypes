@@ -1,11 +1,7 @@
 import unittest
 
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+# need this to initialize new BU for tests
+from test_classgen import Dummy 
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -16,15 +12,13 @@ from Products.Archetypes.Widget import IdWidget, StringWidget, BooleanWidget, \
      KeywordWidget, TextAreaWidget, CalendarWidget, SelectionWidget
 from Products.Archetypes.utils import DisplayList
 from Products.CMFCore  import CMFCorePermissions
+from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE,CEILING_DATE
 
 from DateTime import DateTime
 import unittest
 
-schema = BaseSchema
-
-class Dummy(BaseContent):
-    schema = schema
-
+Dummy.schema = BaseSchema
+    
 
 class BaseSchemaTest( unittest.TestCase ):
 
@@ -110,7 +104,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'object')
+        self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
@@ -167,7 +161,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'metadata')
+        self.failUnless(field.type == 'text')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
@@ -206,38 +200,11 @@ class BaseSchemaTest( unittest.TestCase ):
 
     def test_effectivedate(self):
         dummy = self._dummy
-        field = dummy.getField('effective_date')
-
-        self.failUnless(field.required == 0)
-        self.failUnless(field.default is None)
-        self.failUnless(field.searchable == 0)
-        vocab = field.vocabulary
-        self.failUnless(vocab == ())
-        self.failUnless(field.enforceVocabulary == 0)
-        self.failUnless(field.multiValued == 0)
-        self.failUnless(field.isMetadata == 1)
-        self.failUnless(field.accessor == 'EffectiveDate')
-        self.failUnless(field.mutator == 'setEffectiveDate')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
-        self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
-        self.failUnless(field.generateMode == 'mVc')
-        self.failUnless(field.force == '')
-        self.failUnless(field.type == 'lines')
-        self.failUnless(isinstance(field.storage, MetadataStorage))
-        self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
-        self.failUnless(field.validators == ())
-        self.failUnless(isinstance(field.widget, CalendarWidget))
-        vocab = field.Vocabulary(dummy)
-        self.failUnless(isinstance(vocab, DisplayList))
-        self.failUnless(tuple(vocab) == ())
-
-    def test_effectivedate(self):
-        dummy = self._dummy
         field = dummy.getField('effectiveDate')
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default is None)
+        self.failUnlessEqual(field.default, FLOOR_DATE)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -265,7 +232,7 @@ class BaseSchemaTest( unittest.TestCase ):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default is None)
+        self.failUnlessEqual(field.default, CEILING_DATE)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -306,7 +273,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'metadata')
+        self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())
@@ -321,7 +288,7 @@ class BaseSchemaTest( unittest.TestCase ):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default is None)
+        self.failUnless(field.default == '')
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -334,7 +301,7 @@ class BaseSchemaTest( unittest.TestCase ):
         self.failUnless(field.write_permission == CMFCorePermissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'metadata')
+        self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == ())

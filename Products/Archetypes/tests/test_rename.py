@@ -1,7 +1,7 @@
 """
 Unittests for a renaming archetypes objects.
 
-$Id: test_rename.py,v 1.7 2003/07/10 21:19:14 dreamcatcher Exp $
+$Id: test_rename.py,v 1.8 2003/08/08 11:26:43 syt Exp $
 """
 
 import unittest
@@ -30,7 +30,7 @@ class RenameTests( SecurityRequestTest ):
         new_id = 'new_demodoc'
         doc = makeContent(site, portal_type='Fact', id=obj_id)
         content = 'The book is on the table!'
-        doc.setQuote(content)
+        doc.setQuote(content, mimetype="text/plain")
         self.failUnless(str(doc.getQuote()) == str(content))
         #make sure we have _p_jar
         doc._p_jar = site._p_jar = self.root._p_jar

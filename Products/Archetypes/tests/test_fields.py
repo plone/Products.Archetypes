@@ -1,11 +1,6 @@
 import unittest
-
-import Zope # Sigh, make product initialization happen
-
-try:
-    Zope.startup()
-except: # Zope > 2.6
-    pass
+# trigger zope import
+from test_classgen import Dummy as BaseDummy
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
@@ -17,7 +12,7 @@ from DateTime import DateTime
 
 import unittest
 
-fields = ['ObjectField', 'StringField', 'MetadataField',
+fields = ['ObjectField', 'StringField', 
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField',
@@ -53,7 +48,7 @@ expected_values = {'objectfield':'objectfield',
 
 schema = Schema(tuple(field_instances))
 
-class Dummy(BaseContent):
+class Dummy(BaseDummy):
     schema = schema
 
 class FakeRequest:
@@ -89,6 +84,7 @@ class ProcessingTest( unittest.TestCase ):
         dummy.processForm()
         for k, v in expected_values.items():
             got = dummy.Schema()[k].get(dummy)
+            print File, type(File)
             if isinstance(got, File):
                 got = str(got)
             self.assertEquals(got, v)
