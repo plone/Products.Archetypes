@@ -765,7 +765,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Returns a list of tuples indicating which schema have changed.  
            Tuples have the form (schema, changed)"""
         list = []
-        for t in self._types.keys():
+        keys = self._types.keys()
+        keys.sort()
+        for t in keys:
             list.append((t, self._types[t]['update']))
         return list
 
@@ -790,32 +792,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
 
-        for t in self._types.keys():
-            if not t in update_types:
-                continue
-            print >> out, 'Updating %s' % (t)
-
-            meta_type = _types[t]['name']
-            catalogs = self.getCatalogsByType(meta_type)
-            for catalog in catalogs:
-                result = catalog._catalog.searchResults({'meta_type' : meta_type})
-
-                classes = {}
-                for r in result:
-                    try:
-                        o = r.getObject()
-                        if update_all:
-                            print '   Updating %s' % o.getId()
-                            o._updateSchema(out=out)
-                        elif hasattr(o, '_updateSchema'):
-                            if not o._isSchemaCurrent():
-                                print '   Updating %s' % o.getId()
-                                o._updateSchema(out=out)
-                    except KeyError:
-                        pass
+        # Use the catalog's ZopeFindAndApply method to walk through all
+        # objects in the portal.  This works much better than relying on
+        # the catalog to find objects, because an object may be uncatalogable
+        # because of its schema, and then you can't update it if you require
+        # that it be in the catalog.
+        catalog = getToolByName(self, 'portal_catalog')
+        portal = getToolByName(self, 'portal_url').getPortalObject()
+        meta_types = [_types[t]['name'] for t in update_types]
+        if update_all:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateObject)
+        else:
+            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                search_sub=1, apply_func=self._updateChangedObject)
+        for t in update_types:
             self._types[t]['update'] = 0
-            self._p_changed = 1
+        self._p_changed = 1
         return out.getvalue()
+
+    def _updateObject(self, o, path):
+        import sys
+        sys.stdout.write('updating %s\n' % o.getId())
+        o._updateSchema()
+
+    def _updateChangedObject(self, o, path):
+        if not o._isSchemaCurrent():
+            o._updateSchema()
+        
 
 
     def __setstate__(self, v):

@@ -9,6 +9,7 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.PersistentMapping import PersistentMapping
+from ZODB.POSException import ConflictError
 from debug import log, log_exc
 from types import FileType
 from DateTime import DateTime
@@ -416,11 +417,24 @@ class BaseObject(Implicit):
         time -- you really should restart zope after doing a schema update)."""
         from Products.Archetypes.ArchetypeTool import getType, _guessPackage
 
-        print >> out, 'Updating %s' % (self.getId())
+        if out:
+            print >> out, 'Updating %s' % (self.getId())
 
         old_schema = self.Schema()
         package = _guessPackage(self.__module__)
         new_schema = getType(self.meta_type, package)['schema']
+
+        # read all the old values into a dict
+        values = {}
+        for f in new_schema.fields():
+            name = f.getName()
+            if name not in excluded_fields:
+                try:
+                    values[name] = self._migrateGetValue(name, new_schema)
+                except ValueError:
+                    if out != None:
+                        print >> out, ('Unable to get %s.%s'
+                                       % (str(self.getId()), name))
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -434,17 +448,6 @@ class BaseObject(Implicit):
             for k in current_class.__dict__.keys():
                 obj_class.__dict__[k] = current_class.__dict__[k]
 
-        # read all the old values into a dict
-        values = {}
-        for f in new_schema.fields():
-            name = f.getName()
-            if name not in excluded_fields:
-                try:
-                    values[name] = self._migrateGetValue(name, new_schema)
-                except ValueError:
-                    if out != None:
-                        print >> out, ('Unable to get %s.%s'
-                                       % (str(self.getId()), name))
 
         # replace the schema
         from copy import deepcopy
@@ -461,6 +464,9 @@ class BaseObject(Implicit):
                         print >> out, ('Unable to set %s.%s to '
                                        '%s' % (str(self.getId()),
                                                name, str(values[name])))
+
+        self._p_changed = 1 # make sure the changes are persisted
+
         if out:
             return out
 
@@ -473,22 +479,67 @@ class BaseObject(Implicit):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
+            # first try the edit accessor
+            try:
+                editAccessor = field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
+                pass
+            # no luck -- now try the accessor
+            try:
+                accessor = field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
+                pass
+            # still no luck -- try to get the value directly
             try:
                 return self[field.getName()]
-            except KeyError:
-                pass
-            except AttributeError:
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
                 pass
 
         # Nope -- see if the new accessor method is present
         # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
+            # try the new edit accessor
+            try:
+                editAccessor = new_field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
+                pass
+
+            # nope -- now try the accessor
+            try:
+                accessor = new_field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
+                pass
+            # still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
-            except KeyError:
-                pass
-            except AttributeError:
+            except ConflictError:
+                raise
+            except:
+#                log_exc()
                 pass
 
         # Nope -- now see if the current object has an attribute
@@ -509,8 +560,13 @@ class BaseObject(Implicit):
         if field:
             mutator = field.getMutator(self)
             if mutator:
-                mutator(value)
-                return
+                try:
+                    mutator(value)
+                    return
+                except ConflictError:
+                    raise
+                except:
+                    log_exc()
         # try setting an existing attribute
         if hasattr(self, name):
             setattr(self, name, value)
