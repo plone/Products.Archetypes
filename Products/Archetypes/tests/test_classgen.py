@@ -10,8 +10,8 @@ except: # Zope > 2.6
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes.MimeTypesTool import MimeTypesTool
-from Products.Archetypes.TransformTool import TransformTool
+from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
+from Products.PortalTransforms.TransformTool import TransformTool
 
 from DateTime import DateTime
 import unittest
@@ -57,7 +57,7 @@ class Dummy(BaseContent):
         self.mimetypes_registry = MimeTypesTool()
         self.portal_transforms = TransformTool()
         if init_transforms:
-            from transform import transforms
+            from Products.PortalTransforms import transforms
             transforms.initialize(self.portal_transforms)
 
 def gen_dummy():
