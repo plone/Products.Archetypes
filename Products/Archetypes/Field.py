@@ -48,12 +48,6 @@ from cStringIO import StringIO
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
 
-try:
-    True
-except NameError:
-    True=1
-    False=0
-
 _marker = []
 
 __docformat__ = 'reStructuredText'
@@ -102,14 +96,14 @@ class Field(DefaultLayerContainer):
     security = ClassSecurityInfo()
 
     _properties = {
-        'required' : 0,
+        'required' : False,
         'default' : None,
         'default_method' : None,
         'vocabulary' : (),
-        'enforceVocabulary' : 0,
-        'multiValued' : 0,
-        'searchable' : 0,
-        'isMetadata' : 0,
+        'enforceVocabulary' : False,
+        'multiValued' : False,
+        'searchable' : False,
+        'isMetadata' : False,
 
         'accessor' : None,
         'edit_accessor' : None,
@@ -237,7 +231,7 @@ class Field(DefaultLayerContainer):
         """
         name = self.getName()
         if errors and errors.has_key(name):
-            return 1
+            return True
 
         if self.required:
             res = self.validate_required(instance, value, errors)
@@ -315,13 +309,13 @@ class Field(DefaultLayerContainer):
                 valids.append(instance.unicodeEncode(v))
             # check field values
             for val in values:
-                error = 1
+                error = True
                 for v in valids:
                     if val == v:
                         error = None
                         break
 
-        if error == 1:
+        if error:
             label = self.widget.Label(instance)
             errors[self.getName()] = error = i18n.translate(
                 'archetypes', 'error_vocabulary',
@@ -443,7 +437,7 @@ class Field(DefaultLayerContainer):
         if sp is not None:
             if getattr(sp, 'ext_editor', None) \
                    and self.checkPermission(mode='edit', instance=instance):
-                return 1
+                return True
         return None
 
     security.declarePublic('getWidgetName')
@@ -560,8 +554,8 @@ class ObjectField(Field):
             return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
-            if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.getDefault(instance), _initializing_=1, **kwargs)
+            if not kwargs.get('_initializing_', False):
+                self.set(instance, self.getDefault(instance), _initializing_=True, **kwargs)
             return self.getDefault(instance)
 
     security.declarePrivate('getRaw')
@@ -599,7 +593,7 @@ class ObjectField(Field):
         if not IStorage.isImplementedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
         # raw=1 is required for TextField
-        value = self.get(instance, raw=1)
+        value = self.get(instance, raw=True)
         self.unset(instance)
         self.storage = storage
         if hasattr(self.storage, 'initializeInstance'):
@@ -701,7 +695,7 @@ class FileField(ObjectField):
     _properties.update({
         'type' : 'file',
         'default' : '',
-        'primary' : 0,
+        'primary' : False,
         'widget' : FileWidget,
         'content_class' : File,
         'default_content_type' : 'application/octet',
@@ -914,7 +908,7 @@ class TextField(FileField):
         'default_content_type' : 'text/plain',
         'default_output_type'  : 'text/plain',
         'allowable_content_types' : ('text/plain',),
-        'primary' : 0,
+        'primary' : False,
         })
 
     security  = ClassSecurityInfo()
@@ -949,11 +943,11 @@ class TextField(FileField):
                                                           type(value))))
 
     security.declarePrivate('getRaw')
-    def getRaw(self, instance, raw=0, **kwargs):
+    def getRaw(self, instance, raw=False, **kwargs):
         """
         If raw, return the base unit object, else return encoded raw data
         """
-        value = self.get(instance, raw=1, **kwargs)
+        value = self.get(instance, raw=True, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
             return value
         kw = {'encoding':kwargs.get('encoding'),
@@ -962,7 +956,7 @@ class TextField(FileField):
         return mapply(value.getRaw, *args, **kw)
 
     security.declarePrivate('get')
-    def get(self, instance, mimetype=None, raw=0, **kwargs):
+    def get(self, instance, mimetype=None, raw=False, **kwargs):
         """ If raw, return the base unit object, else return value of
         object transformed into requested mime type.
 
@@ -977,8 +971,8 @@ class TextField(FileField):
                 return encode(value, instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
-            if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.getDefault(instance), _initializing_=1, **kwargs)
+            if not kwargs.get('_initializing_', False):
+                self.set(instance, self.getDefault(instance), _initializing_=True, **kwargs)
             return self.getDefault(instance)
 
         if raw:
@@ -998,7 +992,7 @@ class TextField(FileField):
     def getBaseUnit(self, instance):
         """Return the value of the field wrapped in a base unit object
         """
-        return self.get(instance, raw=1)
+        return self.get(instance, raw=True)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1121,7 +1115,7 @@ class IntegerField(ObjectField):
         'type' : 'integer',
         'size' : '10',
         'widget' : IntegerWidget,
-        'default' : 0
+        'default' : 0,
         })
 
     security  = ClassSecurityInfo()
@@ -1243,7 +1237,7 @@ class ReferenceField(ObjectField):
     security  = ClassSecurityInfo()
 
     security.declarePrivate('get')
-    def get(self, instance, aslist=0, **kwargs):
+    def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
         """
         res=instance.getRefs(relationship=self.relationship)
@@ -1310,7 +1304,7 @@ class ReferenceField(ObjectField):
             ObjectField.set(self, instance, self.getRaw(instance), **kwargs)
 
     security.declarePrivate('getRaw')
-    def getRaw(self, instance, aslist=0, **kwargs):
+    def getRaw(self, instance, aslist=False, **kwargs):
         """Return the list of UIDs referenced under this fields
         relationship
         """
@@ -1451,9 +1445,9 @@ class BooleanField(ObjectField):
         """If value is not defined or equal to 0, set field to false;
         otherwise, set to true."""
         if not value or value == '0':
-            value = None ## False
+            value = False
         else:
-            value = 1
+            value = True
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -1461,7 +1455,7 @@ class BooleanField(ObjectField):
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
-        return 1
+        return True
 
 class CMFObjectField(ObjectField):
     """
@@ -1476,7 +1470,7 @@ class CMFObjectField(ObjectField):
         'default_mime_type': 'application/octet-stream',
         'widget' : FileWidget,
         'storage': ObjectManagedStorage(),
-        'workflowable': 1,
+        'workflowable': True,
         })
 
     security  = ClassSecurityInfo()
@@ -1547,12 +1541,12 @@ class CMFObjectField(ObjectField):
 from OFS.Image import Image as BaseImage
 try:
     import PIL.Image
-    has_pil=1
+    has_pil=True
 except ImportError:
     # no PIL, no scaled versions!
     log("Warning: no Python Imaging Libraries (PIL) found."+\
         "Archetypes based ImageField's don't scale if neccessary.")
-    has_pil=None
+    has_pil=False
 
 class Image(BaseImage):
 
@@ -1569,7 +1563,7 @@ class Image(BaseImage):
     alt = title_or_id = title
 
     def isBinary(self):
-        return 1
+        return True
 
 class ImageField(FileField):
     """ implements an image attribute. it stores
@@ -1971,9 +1965,9 @@ from OFS.Cache import ChangeCacheSettingsPermission
 
 try:
     import PIL.Image
-    isPilAvailable = 1
+    isPilAvailable = True
 except ImportError:
-    isPilAvailable = 0
+    isPilAvailable = False
 
 class DynVariantWrapper(Base):
     """Provide a transparent wrapper from image to dynvariant call it
@@ -2002,7 +1996,7 @@ class ScalableImage(BaseImage):
 
     meta_type = 'Scalable Image'
 
-    isBinary = lambda self: 1
+    isBinary = lambda self: True
 
     security  = ClassSecurityInfo()
 
@@ -2054,9 +2048,9 @@ class ScalableImage(BaseImage):
                 self._photos[size] = BaseImage(
                     size, size, self._resize(self.displays.get(size, (0,0)))
                     )
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     security.declareProtected(CMFCorePermissions.View, 'index_html')
     def index_html(self, REQUEST, RESPONSE, size=None):
@@ -2067,7 +2061,7 @@ class ScalableImage(BaseImage):
 
     security.declareProtected(CMFCorePermissions.View, 'tag')
     def tag(self, height=None, width=None, alt=None,
-            scale=0, xscale=0, yscale=0, css_class=None,
+            scale=False, xscale=False, yscale=False, css_class=None,
             title=None, size='original', **args):
         """Return an HTML img tag (See OFS.Image)"""
 
