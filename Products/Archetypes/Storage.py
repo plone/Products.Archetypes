@@ -134,8 +134,8 @@ class MetadataStorage(StorageLayer):
         self.unset(field.name, instance)
 
     def cleanupInstance(self, instance, item=None, container=None):
-        base = aq_base(instance)
-        del base._md
+        if hasattr(aq_base(instance), '_md'):
+            del base._md
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
