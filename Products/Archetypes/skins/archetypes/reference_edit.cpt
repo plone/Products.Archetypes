@@ -87,7 +87,7 @@
           </tbody>
         </table>
 
-        <div class="row" tal:condition="here/cb_dataValid">
+        <div class="formControls" tal:condition="here/cb_dataValid">
           <input class="context"
                  type="submit"
                  name="pasteReference"

@@ -35,8 +35,7 @@
                                              field.getContentType(here) or ''">
 
         <tal:condition condition="python:len(mimetypes) &gt; 1">
-          <div class="label"
-               i18n:translate="label_format">Text Format</div>
+          <label i18n:translate="label_format">Text Format</label>
           <select tal:attributes="id string:${fieldName}_text_format;
                                   name string:${fieldName}_text_format;
                                   tabindex tabindex/next">
