@@ -22,14 +22,14 @@ class ArchetypesRenderer(base):
             frame = frame.f_back
         if context is _marker:
             raise RuntimeError, 'Context not found'
-            
+
+        field = instance.Schema()[field_name]
+        
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
-        context.setLocal('accessor', getattr(instance,
-                                             instance.Schema()[field_name].accessor))
+        context.setLocal('accessor', getattr(instance, field.accessor))
         context.setLocal('widget', widget)
-        context.setLocal('field', instance.Schema()[field_name])
-        context.setLocal('request', instance.REQUEST)
+        context.setLocal('field', field)
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)
