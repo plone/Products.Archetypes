@@ -257,7 +257,7 @@ class Field(DefaultLayerContainer):
 
         if error == 1:
             label = self.widget.Label(instance)
-            errors[name] = translate(
+            errors[self.getName()] = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
                 default = "Value %s is not allowed for vocabulary "
