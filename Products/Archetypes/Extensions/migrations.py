@@ -1,4 +1,4 @@
-from Persistence.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from StringIO import StringIO
 from Products.Archetypes.Extensions.utils import install_catalog
 from Products.Archetypes.Extensions.utils import install_referenceCatalog
