@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="archetypes">
+
+<body>
+
+<div class="box" metal:define-macro="i18nContentBox">
+  <!-- The I18NContent box -->
+  <h5 i18n:translate="box_contentlanguages">Languages</h5>
+
+  <div class="body">
+
+
+    <div class="content odd">
+      <span i18n:translate="box_currentlanguage">
+        current language : <b i18n:translate=""><span tal:content="here/getCurrentLanguage"/></b>
+      </span>
+      <span i18n:translate="box_contentlanguage">
+        content language : <b i18n:translate=""><span tal:content="here/getContentLanguage"/></b>
+      </span>
+    </div>
+
+    <tal:block tal:condition="python:hasattr(here, 'hasI18NContent') and here.hasI18NContent()">
+
+      <div class="content even">
+	<form name="contentlanguageselector" method="POST" action="setCurrentLanguage" 
+	      tal:define="languages languages | here/getFilteredLanguages;
+			  current   lang | here/getContentLanguage;
+			  form_name form_name | string:contentlanguageselector;"
+	      tal:condition="python:len(languages) > 1"
+	      tal:attributes="action string:${here/absolute_url}/setCurrentLanguage;
+			      name form_name">
+
+	  <div metal:define-macro="i18nLangSelect" align="right">
+	    <select name="lang"
+		    tal:define="form_name form_name | nothing"
+		    tal:attributes="name attr_name | string:lang;
+				    onChange python:form_name and (form_name+'.submit()');">
+	      <option value="" i18n:translate="label_choose_language">
+		Choose Language
+	      </option> 
+
+	      <tal:block tal:repeat="lang python:languages">
+		  <option value="" 
+			  tal:attributes="value python:lang[0];"
+			  tal:content="python:lang[0]+' ('+lang[1]+')'" />
+	      </tal:block>
+	    </select>
+	  </div>
+          <br/>
+	  <div>
+	    <input type="checkbox" name="cookie"/><span  i18n:translate="label_set_cookie">set cookie</span>
+	  </div>
+
+	</form>
+
+      </div>
+    </tal:block>
+
+  </div>
+
+</div>
+
+</body>
+
+</html>
+

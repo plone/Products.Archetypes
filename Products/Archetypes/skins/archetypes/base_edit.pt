@@ -18,11 +18,14 @@
                    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                    tabindex python:Iterator();
                    schematas here/Schemata;
-                   lang here/getMasterLanguage;
+                   masterLang here/getMasterLanguage;
+                   currentLang here/getCurrentLanguage;
+                   dummy python: currentLang != masterLang and here.setCurrentLanguage(lang=masterLang,old_lang=currentLang,referer=0);
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or schematas.keys()[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fieldsets python:[key for key in schematas.keys() if key != 'metadata'];"
            tal:omit-tag="">
+
 
       <h1 i18n:translate="heading_edit_item">
       Edit
@@ -51,24 +54,16 @@
 	    enctype="multipart/form-data"
         tal:attributes="action python:here.portal_form_url(template.id)" >
 
+
 <!--
- 	<div tal:condition="errors" class="error">
+	<div tal:condition="errors" class="error">
           <div tal:repeat="error errors/keys">
            <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
 	  </div>
 	</div>
 -->
-<!--
-        <div tal:condition="python:here.hasI18NContent()" 
-             tal:define="attr_name string:new_lang;
-                         current lang;
-                         languages python:here.availableLanguages();">
-          <metal:block use-macro="here/i18n_slot/macros/i18nLangSelect"/>
-        </div>
--->
-        <div align="right" tal:content="string: (${lang})"/>
-        <input type="hidden" name="new_lang" tal:attributes="value lang"/>
 
+<!--         <div align="right" tal:content="string: (${currentLang})"/> -->
 
         <span class="legend" 
               i18n:translate="" 

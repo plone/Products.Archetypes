@@ -45,11 +45,17 @@
        </tal:block>
      </div>
 
-     <div tal:condition="python:here.hasI18NContent()" 
-          tal:define="current request/new_lang | here/getLanguage;
-                      languages python:list(here.availableLanguages());
-                      dummy python:languages.remove((master_language, here.languageDescription(master_language)))">
-       <metal:block use-macro="here/i18n_slot/macros/i18nContentChooser"/>
+     <!-- translation language selector -->
+     <div tal:condition="here/hasI18NContent">
+       <form name="contentlanguageselector" method="POST" action="setCurrentLanguage" 
+             tal:define="current request/new_lang | here/getContentLanguage;
+                        languages python:list(here.availableLanguages());
+                        dummy python:languages.remove((master_language, here.languageDescription(master_language)));
+                        form_name string:translation_language;"
+             tal:attributes="action string:${here/absolute_url}/setCurrentLanguage;
+		 	     name form_name">
+         <metal:block use-macro="here/i18n_slot/macros/i18nLangSelect"/>
+       </form>
      </div>
 
 
