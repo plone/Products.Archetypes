@@ -22,6 +22,9 @@ from Products.PortalTransforms.Extensions.Install \
 
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
 
+class Extra:
+    """indexes extra properties holder"""
+    
 def install_dependencies(self, out):
     qi=getToolByName(self, 'portal_quickinstaller')
     qi.installProduct('CMFFormController',locked=1)
@@ -153,12 +156,23 @@ def install_indexes(self, out, types):
                     parts = schema[0].split('|')
 
                     for itype in parts:
+                        extras = itype.split(',')
+                        if len(extras) > 1:
+                            itype = extras[0]
+                            props = Extra()
+                            for extra in extras[1:]:
+                                name, value = extra.split('=')
+                                setattr(props, name.strip(), value.strip())
+                        else:
+                            props = None
                         try:
                             #Check for the index and add it if missing
                             catalog.addIndex(field.accessor, itype,
-                                             extra=None)
+                                             extra=props)
                             catalog.manage_reindexIndex(ids=(field.accessor,))
                         except:
+                            # FIXME: should only catch "Index Exists"
+                            # damned string exception !
                             pass
                         else:
                             installed = 1
