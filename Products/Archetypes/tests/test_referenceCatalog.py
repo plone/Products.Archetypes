@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.16.3 2004/05/13 15:59:17 shh42 Exp $
+$Id: test_referenceCatalog.py,v 1.8.16.4 2004/05/13 16:26:26 dpunktnpunkt Exp $
 """
 
 import os, sys
@@ -186,9 +186,8 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         assert len(targetRefs) == 0
 
         #also make sure there is nothing in the reference Catalog
-        # XXX Need to double check; _uidFor() errors out on these.
-        ##assert len(rc.getReferences(uid1)) == 0
-        ##assert len(rc.getBackReferences(uid1)) == 0
+        assert len(rc.getReferences(uid1)) == 0
+        assert len(rc.getBackReferences(uid1)) == 0
         assert len(rc.getReferences(uid2)) == 0
         assert len(rc.getBackReferences(uid2)) == 0
 
