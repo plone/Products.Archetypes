@@ -256,6 +256,7 @@ class Field(DefaultLayerContainer):
                         break
 
         if error == 1:
+            label = self.widget.Label(instance)
             errors[name] = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
