@@ -12,6 +12,7 @@
 	  <basetype tal:content="base">base</basetype>
 	</tal:block>
       </basetypes>
+      <package tal:content="type/package">ArchExample</package>
       <portaltype tal:content="type/portal_type">SimpleType</portaltype>
       <readonly tal:content="type/read_only"></readonly>
       <schema>
@@ -90,9 +91,10 @@
 				  tal:content="field/write_permission">
 		  write_permission
 		</write_permission>
-		<storage tal:condition="field/getStorageName|nothing"
-			 tal:content="field/getStorageName">
-		  storage
+		<storage>
+		  <type tal:content="field/getStorageType">
+		    storage
+		  </type>
 		</storage>
 		<generateMode tal:condition="field/generateMode|nothing"
 			      tal:content="field/generateMode">

@@ -8,6 +8,7 @@
   <registry>
    <metal:block use-macro="here/fields_template/macros/body" />
    <metal:block use-macro="here/widgets_template/macros/body" />
+   <metal:block use-macro="here/storages_template/macros/body" />
    <metal:block use-macro="here/validators_template/macros/body" />
    <metal:block use-macro="here/types_template/macros/body" />
   </registry>

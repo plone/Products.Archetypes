@@ -80,8 +80,14 @@ class BaseContentMixin(BaseObject,
 
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
-    def manage_FTPget(self, REQUEST, RESPONSE):
+    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         "Get the raw content for this object (also used for the WebDAV SRC)"
+
+        if REQUEST is None:
+            REQUEST = self.REQUEST
+
+        if RESPONSE is None:
+            RESPONSE = REQUEST.RESPONSE
 
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented

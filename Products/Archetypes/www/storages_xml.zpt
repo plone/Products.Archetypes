@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        tal:define="storages options/storages"
+        metal:define-macro="body">
+
+
+<storageelements>
+
+   <tal:block repeat="storage storages">
+   <storageelement id="Products.Archetypes.Storages.AttributeStorage"
+                  tal:attributes="id storage/id">
+       <title tal:content="storage/title">
+	 AttributeStorage
+       </title>
+       <description tal:content="storage/description">
+	 A Standard Attribute Storage
+       </description>
+     </storageelement>
+   </tal:block>
+</storageelements>
+
+</tal:block>

@@ -252,6 +252,10 @@ class Field(DefaultLayerContainer):
         as a string"""
         return self.storage.getName()
 
+    def getStorageType(self):
+        """Return the type of the storage of this field as a string"""
+        return className(self.storage)
+
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         """Return the widget name that is configured for this field as
@@ -1523,4 +1527,6 @@ registerPropertyType('read_permission', 'string')
 registerPropertyType('write_permission', 'string')
 registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
+registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
+

@@ -1,3 +1,18 @@
+2003-11-18  Sidnei da Silva  <sidnei@awkly.org>
+
+	* ExtensibleMetadata.py (ExtensibleMetadata.allowDiscussion): Take
+	keyword arguments, even if we ignore them *wink*.
+
+	* ArchTTWTool.py (ArchTTWTool.storages_xml): Added storages xml page.
+
+	* Registry.py: Added storage registry.
+
+	* Storage.py: Register storages.
+
+	* BaseContent.py (BaseContentMixin.manage_FTPget): This may be
+	called with no arguments (for example, by manage_DAVget). Fall
+	back to self.REQUEST in this case.
+
 2003-11-14  Sidnei da Silva  <sidnei@plone.org>
 
 	* Field.py (ImageField.scale): Mini-patch by Gabriel Wicke.
