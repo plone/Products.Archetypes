@@ -44,8 +44,3 @@ else:
 
 ## comment out the following line to enable the reference graph tool
 HAS_GRAPHVIZ = False
-
-from types import StringType
-from types import UnicodeType
-STRING_TYPES = (StringType, UnicodeType)
-    

@@ -5,7 +5,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.lib.vocabulary import OrderedDict
+from Products.Archetypes.utils import OrderedDict
 
 
 class OrderedDictTest( ArchetypesTestCase ):

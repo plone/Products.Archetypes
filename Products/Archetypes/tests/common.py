@@ -90,7 +90,7 @@ else:
 
 from Products.Archetypes.tests import PACKAGE_HOME
 
-from Products.Archetypes.atapi import registerType, process_types, listTypes
+from Products.Archetypes.public import registerType, process_types, listTypes
 from Products.Archetypes.config import PKG_NAME
 
 def gen_class(klass, schema=None):

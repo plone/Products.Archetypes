@@ -15,7 +15,7 @@ if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
 from Products.Archetypes import config
-from Products.Archetypes.refengine.references import HoldingReference, CascadeReference
+from Products.Archetypes.references import HoldingReference, CascadeReference
 from Products.Archetypes.exceptions import ReferenceException
 from OFS.ObjectManager import BeforeDeleteException
 

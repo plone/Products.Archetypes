@@ -5,10 +5,10 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes.lib.baseunit import BaseUnit
+from Products.Archetypes.BaseUnit import BaseUnit
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
 from Products.Archetypes.interfaces.base import IBaseUnit

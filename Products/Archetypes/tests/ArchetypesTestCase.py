@@ -27,7 +27,7 @@ default_role = 'Member'
 
 
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.atapi import listTypes
+from Products.Archetypes.public import listTypes
 from Products.Archetypes.Extensions.utils import installTypes
 
 

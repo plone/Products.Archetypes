@@ -17,7 +17,7 @@ stub_text_content = ''
 stub_bin_file = None
 stub_bin_content = ''
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from OFS.Image import File
 from DateTime import DateTime
 

@@ -12,7 +12,7 @@ from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.atapi import listTypes, registerType
+from Products.Archetypes.public import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
