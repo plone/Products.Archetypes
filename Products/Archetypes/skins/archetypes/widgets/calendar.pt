@@ -37,10 +37,10 @@
       </div>
     </div>
     
-    <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body">
-	    <div tal:define="id fieldName;
+    <metal:define define-macro="search">
+      <metal:field use-macro="here/widgets/field/macros/edit">
+	<metal:slot fill-slot="widget_body">
+	    <tal:from define="id fieldName;
 	      inputname  fieldName;
 	      formname   string:search_form;
 	      inputvalue python: '';
@@ -48,11 +48,12 @@
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
 	      tal:omit-tag="">
-	      <div metal:use-macro="here/calendar_support/macros/calendarDatePickerBox">
+	      <metal:box use-macro="here/calendar_support/macros/calendarDatePickerBox">
 		a calendar, hopefully
-	      </div>
+	      </metal:box>
+	    </tal:from>
 	    -
-	    <div tal:define="id fieldName;
+	    <tal:to define="id fieldName;
 	      inputname  string:$fieldName:list;
 	      formname   string:search_form;
 	      inputvalue python: '';
@@ -60,13 +61,13 @@
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
 	      tal:omit-tag="">
-	      <div metal:use-macro="here/calendar_support/macros/calendarDatePickerBox">
+	      <metal:box use-macro="here/calendar_support/macros/calendarDatePickerBox">
 		a calendar, hopefully
-	      </div>
-	    </div>
-	</div>
-      </div>
-    </div>
+	      </metal:box>
+	    </tal:to>
+	</metal:slot>
+      </metal:field>
+    </metal:define>
 
   </body>
   
