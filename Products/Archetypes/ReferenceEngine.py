@@ -13,6 +13,8 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
+from OFS.ObjectManager import ObjectManager
+
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
@@ -149,6 +151,40 @@ class Reference(Referenceable, SimpleItem):
     def getURL(self):
         """the url used as the relative path based uid in the catalogs"""
         return getRelURL(self, self.getPhysicalPath())
+
+REFERENCE_CONTENT_INSTANCE_NAME = 'content'
+
+class ContentReference(Reference, ObjectManager):
+    '''Subclass of Reference to support contentish objects inside references '''
+    
+    def addHook(self, *args, **kw):
+        #creates the content instance 
+        if type(self.contentType) in (type(''),type(u'')):
+            #type given as string
+            tt=getToolByName(self,'portal_types')
+            tt.constructContent(self.contentType,self,REFERENCE_CONTENT_INSTANCE_NAME)
+        else:
+            #type given as class
+            setattr(self.REFERENCE_CONTENT_INSTANCE_NAME,self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
+            getattr(self.REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
+        
+    def getContentObject(self):
+        return getattr(self,REFERENCE_CONTENT_INSTANCE_NAME)
+        
+class ContentReferenceCreator:
+    '''Helper class to construct ContentReference instances based 
+       on a certain content type '''
+       
+    def __init__(self,contentType):
+        self.contentType=contentType
+        
+    def __call__(self,*args,**kw):
+        #siulates the constructor call to the reference class in addReference
+        res=ContentReference(*args,**kw)
+        res.contentType=self.contentType
+        
+        return res
+
 
 # The brains we want to use
 class UIDCatalogBrains(AbstractCatalogBrain):
