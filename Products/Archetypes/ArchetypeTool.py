@@ -564,7 +564,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for t in self.listTypes(package):
             instance = t('fake')
             from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
-            DefaultDublinCoreImpl.__init__(instance)
+	    if isinstance(instance, DefaultDublinCoreImpl):
+		DefaultDublinCoreImpl.__init__(instance)
             instance._is_fake_instance = 1
             instance.schema = instance.schema.copy()
             instance = instance.__of__(self)
