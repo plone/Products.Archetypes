@@ -73,66 +73,33 @@ def migrateReferences(portal, out):
         return
     
     else:
-        # :-( XXX THE FOLLOWING ISNT TESTED, just copied from old buggy code !!!
-        # maybe theres something useful for code-recycling in
-        # --jensens
-                    
         # SECOND
         # a 1.3.b2 -> 1.3 (new annotation style) migration path
         # We had a reference catalog, make sure its doing annotation
         # based references
     
-        # looks like its a folder with stuff in it.. old style
-        # we want to do this quickly so we will grab all the
-        # objects for each unique source ID and push them into
-        # that source object
-        
+        # reference metadata cannot be restored since reference-catalog is no more
+        # a btree and in AT 1.3.b2 reference_catalog was a btreefolder
+
         print >>out, 'migrating reference from Archetypes 1.3. beta2'
 
-        sids = rc.uniqueValuesFor('sourceUID')
-        for sid in sids:
-            set = rc(sourceUID=sid)
-            sourceObject = uc(UID=sid)[0].getObject()
+        refs = rc()
+        rc.manage_catalogClear()
+        for brain in refs:
+            sourceObject = rc.lookupObject(brain.sourceUID)
             if not sourceObject: continue
-            annotations = sourceObject._getReferenceAnnotations()
-            for brain in set:
-                # we need to uncatalog the ref at its current path
-                # and then stick it on the new object and index it
-                # again under its new relative pseudo path
-
-                targetObject=rc.lookupObject(brain.targetUID)
-                if not targetObject:
-                    print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
-                    continue
+            targetObject=rc.lookupObject(brain.targetUID)
+            if not targetObject:
+                print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
+                continue
                 
-                count+=1
-                sourceObject.addReference(targetObject,relationship=brain.relationship)
-
-#            sourceObject._catalogRefs(portal)
+            count+=1
+            sourceObject.addReference(targetObject,relationship=brain.relationship)
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
 
     print >>out, "Migrated References"
 
-# reference metadata cannot be restored since reference-catalog is no more
-# a btree and in AT 1.3.b2 reference_catalog was a btreefolder
-##                path = brain.getPath()
-##                ref = getattr(rc, path, None)
-##                if ref is None: continue
-##                if path.find('ref_') != -1:
-##                    rc.uncatalog_object(path)
-##                    uc.uncatalog_object(path)
-##    
-##                    # make sure id==uid
-##                    setattr(ref, UUID_ATTR, make_uuid())
-##                    ref.id = ref.UID()
-##                    # now stick this in the annotation
-##                    # unwrap the ref
-##                    ref = aq_base(ref)
-##                    annotations[ref.UID()] = ref
-##                rc._delOb(path)
-            # I might have to do this each time (to deal with an
-            # edge case), but I suspect not
 
     #Reindex for new UUIDs
     uc.manage_reindexIndex()
