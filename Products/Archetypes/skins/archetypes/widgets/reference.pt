@@ -6,82 +6,99 @@
   <head><title></title></head>
   <body>
 
-    <!-- Reference Widgets -->
     <metal:view_macro define-macro="view">
-      <a href="#"
-         tal:define="obj python:accessor() and here.archetype_tool.lookupObject(uid = accessor());"
-         tal:attributes="href obj/absolute_url"
-         tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-         tal:condition="python:not field.multiValued and obj"></a>
+      <tal:define define="targets python:here.getRefs(field.relationship)"
+                  condition="targets">
+        
+        <a href="#"
+           tal:define="obj python:targets[0]"
+           tal:condition="not:field/multiValued"
+           tal:attributes="href obj/absolute_url"
+           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+          Sole target object's title
+        </a>
       
-      <ul tal:condition="field/multiValued">
-        <li tal:repeat="obj python:[here.archetype_tool.lookupObject(uid=uid) for uid in (accessor() or [])]">
-          <a href="#"
-	     tal:attributes="href obj/absolute_url"
-	     tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-             tal:condition="python:obj is not None">Target Title</a>
-        </li>
-      </ul>
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="obj targets">
+            <a href="#"
+	       tal:attributes="href obj/absolute_url"
+	       tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Target Title
+            </a>
+          </li>
+        </ul>
+
+      </tal:define>
     </metal:view_macro>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body"
-	     tal:define="vocab python:field.Vocabulary(here);
-	     fieldName python:test(field.multiValued,fieldName+':list',fieldName);
-	     vlen python: len(vocab);">
-	  <input type="hidden"
-		 value=""
-		 tal:condition="python: (not field.required) and field.multiValued"
-		 tal:attributes="name string:$fieldName:default:list" />
-	  <div tal:condition="python: vlen &lt; 4">
-	    <!-- Radio when the vocab is short < 4 -->
-	    <span tal:repeat="item vocab"
-		  tal:omit-tag="">
-	      <input class="noborder"
-		     tabindex=""
-		     type="radio"
-		     tal:attributes="name fieldName;
-		     checked python: field.containsValueAsString(item,value);
-		     value item; tabindex tabindex/next;
-		     type python:test(field.multiValued,'checkbox','radio');" />
-	      <span tal:content="python: vocab.getValue(item)"></span>
-	      <br />
-	    </span>
-	  </div><!-- Pulldown when longer -->
-	  <div tal:condition="python: vlen &gt;= 4">
-	    <select tal:attributes="name fieldName;
-		    id fieldName;
-		    multiple python:test(field.multiValued,'multiple','');
-		    tabindex tabindex/next;">
-	      <option selected="selected"
-		      tal:repeat="item vocab"
-		      tal:attributes="selected python:test(field.containsValueAsString(item,value), 'selected', None);
-		      value item;"
-	      tal:content="python: vocab.getValue(item)"></option>
-	    </select>
-	  </div><!-- handle "addable" option -->
-	  <div tal:condition="field/addable|nothing">
-	    <span tal:define="types python:field.addableTypes(here)"
-		  tal:repeat="typename python:types.keys()"
-		  tal:omit-tag="">
-	      <a href="#"
-		 tal:define="create string:createObject?type_name=${typename};
-		 dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url());
-		 readable_name python:types[typename]"
-		 tal:attributes="href string:${dest}/${create}"
-		 tal:content="string:Add New ${readable_name}">
-		Add new foo
-	      </a>
-	    </span>
-	  </div>
-	</div>
-      </div>
-    </div>
+    <metal:edit_macro define-macro="edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
 
-    <div metal:define-macro="search">
+        <div metal:fill-slot="widget_body"
+             tal:define="multiVal field/multiValued;
+             vocab python:field.Vocabulary(here);
+             fieldName python:multiVal and fieldName+':list' or fieldName;
+             vlen python:len(vocab);">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="python:not field.required and multiVal"
+                 tal:attributes="name string:$fieldName:default:list" />
+
+          <div tal:condition="python:vlen < 5">
+            <!-- checkbox or radio for short vocabs -->
+            <span tal:repeat="item vocab"
+                  tal:omit-tag="">
+              <input class="noborder"
+                     tabindex=""
+                     type="radio"
+                     tal:attributes="name fieldName;
+                     checked python:test(value and multiVal and item in value or item==value, value, '');
+                     tabindex tabindex/next; value item;
+                     type python:multiVal and 'checkbox' or 'radio'" />
+              <span tal:content="python: vocab.getValue(item)"></span>
+
+              <br/>
+            </span>
+          </div>
+
+          <div tal:condition="python:vlen &gt; 4">
+            <!-- pulldown for longer vocabs -->
+            <select tal:attributes="name fieldName;
+                    id fieldName;
+                    multiple python:multiVal and 'multiple' or None;
+                    tabindex tabindex/next;">
+
+              <option selected="selected"
+                      tal:repeat="item vocab"
+                      tal:attributes="value item;
+                      selected python:test(value and multiVal and item in value or item==value, 'selected', '')"
+                      tal:content="python:vocab.getValue(item)"></option>
+	    </select>
+          </div>
+          
+          <div tal:condition="python:widget.addable">
+            <span tal:define="types python:widget.addableTypes(here, field)"
+                  tal:repeat="typename python:types.keys()"
+                  tal:omit-tag="">
+              <a href="#"
+                 tal:define="dest python:widget.getDestination(here);
+                 create string:createObject?type_name=${typename};
+                 readable_name python:types[typename]"
+                 tal:attributes="href string:${dest}/${create}"
+                 tal:content="string:Add New ${readable_name}">
+                Add new foo
+              </a>
+            </span>
+          </div>
+        </div>
+      </metal:use>
+    </metal:edit_macro>
+
+    <metal:search_macro define-macro="search">
       <div metal:use-macro="here/widgets/reference/macros/edit"></div>
-    </div>
+    </metal:search_macro>
 
   </body>
 </html>
