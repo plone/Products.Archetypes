@@ -73,6 +73,7 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST, RESPONSE):
+        "Get the raw content for this object (also used for the WebDAV SRC)"
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
