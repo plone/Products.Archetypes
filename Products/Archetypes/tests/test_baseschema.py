@@ -167,7 +167,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == ())
-        self.failUnless(field.searchable == 0)
+        self.failUnless(field.searchable == 1)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
         self.failUnless(field.enforceVocabulary == 0)

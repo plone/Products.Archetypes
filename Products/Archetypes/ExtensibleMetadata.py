@@ -19,6 +19,7 @@ from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
+from ComputedAttribute import ComputedAttribute
 
 _marker=[]
 
@@ -70,6 +71,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'subject',
             multiValued=1,
             accessor="Subject",
+            searchable=True,
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
@@ -299,6 +301,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
+    def _effective_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('effectiveDate').get(self)
+    
+    security.declarePublic(CMFCorePermissions.View, 'effective_date')
+    effective_date = ComputedAttribute(_effective_date, 1)
+
+
     security.declarePublic( CMFCorePermissions.View, 'ExpirationDate')
     def ExpirationDate(self):
         """Dublin Core element - date resource expires.
@@ -306,6 +317,14 @@ class ExtensibleMetadata(Persistence.Persistent):
         expires = self.getField('expirationDate').get(self)
         # XXX None? CEILING_DATE
         return expires is None and 'None' or expires.ISO()
+
+    def _expiratione_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('expirationDate').get(self)
+    
+    security.declarePublic(CMFCorePermissions.View, 'expiration_date')
+    expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(CMFCorePermissions.View, 'Date')
     def Date(self):
