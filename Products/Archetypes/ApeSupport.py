@@ -27,6 +27,8 @@ ArchGenXML has support for APE:
  When you invoke ArchGenXML with the option --ape-support the outline_od.xmi
  sample works with APE correctly all ape_config and the serializer/gateway
  stuff is generated for you.
+ 
+ApeSupport is tested with Ape 1.0 and PostgreSQL
 """
 
 from Products.Archetypes.BaseUnit import BaseUnit
@@ -55,6 +57,7 @@ typemap={
     'text':'string',
     'datetime':'string',
     'boolean':'int',
+    'integer':'int',
     #'reference':'string:list',
     'computed':'string' #ouch!!
 }
