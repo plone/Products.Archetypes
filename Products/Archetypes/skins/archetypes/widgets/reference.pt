@@ -128,6 +128,7 @@
                   <div>
                     <select name="add_reference.destination:record"
                             tal:attributes="id string:${field/getName}_destinations;
+                                            name string:${field/getName}_destination;
                                             tabindex tabindex/next"></select>
                   </div>
                 </div>
@@ -140,7 +141,7 @@
                       type="submit"
                       value="Add"
                       name="form.button.form_add"
-                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value=document.getElementById('${field/getName}_types').options[document.getElementById('${field/getName}_types').selectedIndex].value;;this.form['add_info.field:record'].value='';
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};
                                       tabindex tabindex/next;"
                       i18n:attributes="value"
                       />

@@ -75,10 +75,10 @@ ref = reference_object.UID()
 
 # If the field is multiValued, we must pass the existing
 # references in addition to the new one.
-if field.multiValued:
-    existing = tuple(accessor())
-    ref = (ref,)
-    ref = existing and ref + existing or ref
+#if field.multiValued:
+#    existing = tuple(accessor())
+#    ref = (ref,)
+#    ref = existing and ref + existing or ref
 
 # set a reference to the newly-created object
 # ANDRE: and if I cancel the newly-created object?

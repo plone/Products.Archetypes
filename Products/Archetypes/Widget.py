@@ -119,30 +119,27 @@ class ReferenceWidget(TypesWidget):
             search where the user can add a typeid instance
             """
             purl = getToolByName(instance, 'portal_url')
-            destinations = []
-            if typeinfo.globalAllow():
-                for registeredType in tool.listTypeInfo():
-                    if registeredType.globalAllow() or \
-                        typeinfo.getId() in registeredType.allowed_content_types:
-                        for brain in instance.portal_catalog(
-                            portal_type=registeredType.getId(),
-                            ):
-                            obj = brain.getObject()
-                            if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
-                                break
-                            destinations.append(purl.getRelativeUrl(obj))
-            else:
-                for registeredType in tool.listTypeInfo():
-                    if typeinfo.getId() in registeredType.allowed_content_types:
-                        for brain in instance.portal_catalog(
-                                         portal_type=registeredType.getId()):
-                            obj = brain.getObject()
-                            if not getattr(obj.aq_explicit, 'isPrincipiaFolderish', 0):
-                                break
-                            destinations.append(purl.getRelativeUrl(obj))
-            return destinations
+            # first, discover who can contain the type
+            searchFor = []
+            for regType in tool.listTypeInfo():
+                if typeinfo.globalAllow():
+                    searchFor.append(regType.getId())
+                elif regType.filter_content_types and \
+                    typeinfo.getId() in regType.allowed_content_types:
+                    searchFor.append(regType.getId())
+            # after, gimme the path/s
+            containers = []
+            for wanted in searchFor:
+                for brain in \
+                    instance.portal_catalog(portal_type=wanted):
+                    obj = brain.getObject()
+                    if obj != None and \
+                        hasattr(obj.aq_explicit,'isPrincipiaFolderish'):
+                        containers.append(purl.getRelativeUrl(obj))
+            # ok, go on...
+            return containers
 
-        tool = instance.portal_types
+        tool = getToolByName(instance, 'portal_types')
         types = []
 
         for typeid in field.allowed_types:
@@ -153,9 +150,10 @@ class ReferenceWidget(TypesWidget):
             value = {}
             value['id'] = typeid
             value['name'] = info.Title()
-            destinations = self.destination and [self.destination] or \
-                lookupDestinationsFor(info, tool)
-            value['destinations'] = destinations
+            if self.destination == None:
+                value['destinations'] = lookupDestinationsFor(info,tool)
+            else:
+                value['destinations'] = [self.getDestination(instance)]
             types.append(value)
 
         return types

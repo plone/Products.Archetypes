@@ -96,6 +96,10 @@
                    name="add_reference.type:record"
                    value=""
                    />
+            <input type="hidden"
+                   name="add_reference.destination:record"
+                   value=""
+                   />
 
             <tal:env define="env request/controller_state/kwargs">
               <tal:loop repeat="varname python:('reference_source_url',
