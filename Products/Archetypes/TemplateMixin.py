@@ -1,12 +1,12 @@
 from Schema import Schema
-from Field import ObjectField
+from Field import StringField
 from Widget import SelectionWidget
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from config import TOOL_NAME
 
 type_mixin = Schema((
-    ObjectField('layout',
+    StringField('layout',
                 accessor="getLayout",
                 mutator="setLayout",
                 default="base_view",
