@@ -43,6 +43,8 @@ base_factory_type_information = (
       , 'product': 'Unknown Package'
       , 'factory': 'addContent'
       , 'immediate_view': 'portal_form/base_edit'
+      , 'global_allow': 1
+      , 'filter_content_types': 0
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',

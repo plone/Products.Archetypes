@@ -18,12 +18,12 @@ def test_suite():
         'test_baseunit',
         'test_utils',
         'test_utils2',
-        'test_sqlstorage',
+        #'test_sqlstorage',
         'test_schemata', 
-        'test_sitepolicy', 
+        #'test_sitepolicy', 
         'test_referenceable',
         'test_referenceEngine',
-        'test_rename', 
+        #'test_rename', 
         ])
 
 if __name__ == '__main__':

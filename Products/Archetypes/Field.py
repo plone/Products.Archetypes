@@ -441,6 +441,8 @@ class TextField(ObjectField):
             return self.default
 
         if raw:
+            if IBaseUnit.isImplementedBy(value):
+                return value.getRaw()
             return value
         
         if mimetype is None:

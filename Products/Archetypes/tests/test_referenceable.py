@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.6 2003/05/28 14:19:41 bcsaller Exp $
+$Id: test_referenceable.py,v 1.7 2003/06/23 18:42:25 dreamcatcher Exp $
 """
 
 import unittest
@@ -15,15 +15,15 @@ except: # Zope > 2.6
 from Acquisition import aq_base
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
 from Products.Archetypes.tests.test_sitepolicy import makeContent
-
+from Products.CMFPlone.Portal import manage_addSite
 
 site = None
 
 class ReferenceableTests( SecurityRequestTest ):
     def setUp(self):
         SecurityRequestTest.setUp(self)
-        self.root.manage_addProduct[ 'CMFPlone' ].manage_addSite( 'testsite', \
-                                                                  custom_policy='Archetypes Site' )
+        manage_addSite( self.root, 'testsite', \
+                        custom_policy='Archetypes Site' )
 
     def test_hasUID( self ):
 
@@ -150,7 +150,7 @@ class ReferenceableTests( SecurityRequestTest ):
         at = site.archetype_tool
         
         folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
-        nonRef = makeContent( folder, portal_type='Document',title='Foo', id='nonRef')
+        nonRef = makeContent( folder, portal_type='DDocument',title='Foo', id='nonRef')
 
         ## This is really broken and I can't easily fix it
         assert folder.UID() == 'folder'
