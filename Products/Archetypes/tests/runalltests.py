@@ -4,13 +4,13 @@
 # Execute like:
 #   python runalltests.py
 #
-# Alternatively use the testrunner:
+# Alternatively use the testrunner: 
 #   python /path/to/Zope/utilities/testrunner.py -qa
 #
 
 import os, sys
 if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+    execfile(os.path.join(sys.path[0], 'framework.py')) 
 
 import unittest
 TestRunner = unittest.TextTestRunner
@@ -23,10 +23,6 @@ for test in tests:
     m = __import__(test)
     if hasattr(m, 'test_suite'):
         suite.addTest(m.test_suite())
-
-from doctestcase import findDocTests
-findDocTests(suite)
-
 
 if __name__ == '__main__':
     TestRunner().run(suite)

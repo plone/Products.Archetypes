@@ -225,8 +225,9 @@ def install_types(self, out, types, package_name):
             typesTool._delObject(type.portal_type)
         except:
             pass
-        
-        typeinfo_name = "%s: %s (%s)" % (package_name, type.portal_type, type.meta_type)
+
+        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
+
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.portal_type,
                                                 typeinfo_name=typeinfo_name)
@@ -373,17 +374,20 @@ def filterTypes(self, out, types, package_name):
 
     filtered_types = []
 
-    info = dict(typesTool.listDefaultTypeInformation())
-
     for rti in types:
         t = rti['klass']
 
-        typeinfo_name="%s: %s (%s)" % (package_name, t.portal_type, t.meta_type)
+        typeinfo_name="%s: %s" % (package_name, t.meta_type)
+        info = typesTool.listDefaultTypeInformation()
+        found = 0
+        for (name, ft) in info:
+            if name == typeinfo_name:
+                found = 1
+                break
 
-        if not info.has_key(typeinfo_name):
+        if not found:
             print >> out, ('%s is not a registered Type '
                            'Information' % typeinfo_name)
-
             continue
 
         isBaseObject = 0

@@ -39,24 +39,24 @@ if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
     from Products.CMFTestCase.setup import portal_name
     from Products.CMFTestCase.setup import portal_owner
-    # setup a CMF site
+    # setup a CMF site 
     CMFTestCase.setupCMFSite()
     PortalTestClass = CMFTestCase.CMFTestCase
 else:
     from Products.PloneTestCase import PloneTestCase
     from Products.PloneTestCase.setup import portal_name
     from Products.PloneTestCase.setup import portal_owner
-    # setup a Plone site
+    # setup a Plone site 
     PloneTestCase.setupPloneSite()
     PortalTestClass = PloneTestCase.PloneTestCase
 
 class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     """AT test case inside a CMF site
     """
-
+    
     __implements__ = PortalTestClass.__implements__ + \
                      attestcase.ATTestCase.__implements__
-
+    
     def login(self, name=ZopeTestCase.user_name):
         '''Logs in.'''
         uf = self.getPortal().acl_users
@@ -95,7 +95,7 @@ class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
     """AT test case for functional tests inside a CMF site
     """
-    __implements__ = Functional.__implements__ + ATSiteTestCase.__implements__
+    __implements__ = Functional.__implements__ + ATSiteTestCase.__implements__ 
 
 ###
 # Setup an archetypes site
@@ -129,19 +129,6 @@ def setupArchetypes(app, id=portal_name, quiet=0):
 
     qi = getToolByName(portal, 'portal_quickinstaller')
     installed = qi.listInstallableProducts(skipInstalled=True)
-
-    if 'Eventually' not in installed:
-        start = time.time()
-        if not quiet: ZopeTestCase._print('Adding Eventually (Event Service) ... ')
-        # Login as portal owner
-        newSecurityManager(None, user)
-        # Install Archetypes
-        qi.installProduct('Eventually')
-        # Log out
-        noSecurityManager()
-        get_transaction().commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-
     if 'CMFFormController' not in installed:
         start = time.time()
         if not quiet: ZopeTestCase._print('Adding CMFFormController ... ')

@@ -454,7 +454,6 @@ class BaseObject(Referenceable):
     def setDefaults(self):
         """Set field values to the default values
         """
-
         self.Schema().setDefaults(self)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
