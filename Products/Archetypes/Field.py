@@ -1,7 +1,9 @@
 from __future__ import nested_scopes
+
+import sys
+
 from copy import deepcopy
 from cgi import escape
-import sys
 from cStringIO import StringIO
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
@@ -607,7 +609,7 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
-        kwargs.update({'field': self.getName(),
+        kwargs.update({'field': self,
                        'encoding':kwargs.get('encoding', None),
                      })
         if accessor is None:
@@ -657,11 +659,19 @@ class ObjectField(Field):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
 
-    #XXX security.declareProtected(CMFCorePermissions.AccessPortalContent, 'getContentType')
+    security.declarePrivate('setContentType')
+    def setContentType(self, instance, value):
+        """Set mimetype in the base unit.
+        """
+        bu = self.getBaseUnit(instance)
+        bu.setContentType(instance, value)
+        self.set(instance, bu)
+
     security.declarePublic('getContentType')
     def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
-        otherwise, return None."""
+        otherwise, return default_content_type value or fallback to
+        'application/octet'."""
         value = ''
         if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
@@ -678,7 +688,7 @@ class ObjectField(Field):
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(raw), None)
         else:
-            # mimetype may be an imimetype object
+            # mimetype may be an mimetype object
             mimetype = str(mimetype)
         # failed
         if mimetype is None:
@@ -877,7 +887,7 @@ class FileField(ObjectField):
         """
         filename = self.getFilename(instance, fromBaseUnit=False)
         if not filename:
-            filename = '' # self.getName()
+            filename = ''
         mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
@@ -886,7 +896,7 @@ class FileField(ObjectField):
                       filename=filename, mimetype=mimetype)
         return bu
 
-    security.declarePublic('getFileName') # XXX
+    security.declarePrivate('getFilename')
     def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
         """
@@ -908,10 +918,11 @@ class FileField(ObjectField):
 
     security.declarePrivate('setFilename')
     def setFilename(self, instance, filename):
-        """Set file name in the base unit [PRIVATE]
+        """Set file name in the base unit.
         """
         bu = self.getBaseUnit(instance)
         bu.setFilename(filename)
+        self.set(instance, bu)
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
@@ -1056,6 +1067,8 @@ class TextField(FileField):
         # fix for external editor support
         # set mimetype to the last state if the mimetype in kwargs is None or 'None'
         mimetype = kwargs.get('mimetype', None)
+        # NOTE: 'None' might be transmitted by external editor or the widgets
+        # 'None' means None so no change to the mimetype
         if mimetype == 'None':
             kwargs['mimetype'] = self.getContentType(instance)
         # set filename to '' if not in kwargs
@@ -1164,10 +1177,20 @@ class IntegerField(ObjectField):
         'type' : 'integer',
         'size' : '10',
         'widget' : IntegerWidget,
-        'default' : 0,
+        'default' : None,
         })
 
     security  = ClassSecurityInfo()
+    
+    security.declarePrivate('validate_required')
+    def validate_required(self, instance, value, errors):
+        try:
+            int(value)
+        except (ValueError, TypeError):
+            result = False
+        else:
+            result = True            
+        return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1185,10 +1208,21 @@ class FloatField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'float',
-        'default': '0.0'
+        'default': None
         })
 
     security  = ClassSecurityInfo()
+
+    security.declarePrivate('validate_required')
+    def validate_required(self, instance, value, errors):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            result = False
+        else:
+            result = True            
+        return ObjectField.validate_required(self, instance, result, errors)
+
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1215,6 +1249,18 @@ class FixedPointField(ObjectField):
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
+
+#    XXX TODO
+#    security.declarePrivate('validate_required')
+#    def validate_required(self, instance, value, errors):
+#        try:
+#            int(value)
+#        except ValueError:
+#            result = False
+#        else:
+#            result = True            
+#        return ObjectField.validate_required(self, instance, result, errors)
+
 
     security  = ClassSecurityInfo()
 
@@ -1265,8 +1311,6 @@ class FixedPointField(ObjectField):
         return ObjectField.validate_required(self, instance, value, errors)
 
 class ReferenceField(ObjectField):
-    __implements__ = ObjectField.__implements__
-
     """A field for creating references between objects.
 
     get() returns the list of objects referenced under the relationship
@@ -1276,6 +1320,8 @@ class ReferenceField(ObjectField):
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
     """
+
+    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1298,7 +1344,6 @@ class ReferenceField(ObjectField):
         })
 
     security  = ClassSecurityInfo()
-
 
     security.declarePrivate('get')
     def get(self, instance, aslist=False, **kwargs):
@@ -1798,6 +1843,8 @@ class ImageField(FileField):
             return data
         elif callable(sizes):
             return sizes()
+        elif sizes is None:
+            return {}
         else:
             raise TypeError, 'Wrong self.sizes has wrong type' % type(sizes)
 
@@ -1969,8 +2016,8 @@ class ImageField(FileField):
         """Get size of the stored data used for get_size in BaseObject
         """
         sizes = self.getAvailableSizes(instance)
-        size=0
-        size+=len(str(self.get(instance)))
+        original = self.get(instance)
+        size = original and original.get_size() or 0
 
         if sizes:
             for name in sizes.keys():
@@ -1980,7 +2027,7 @@ class ImageField(FileField):
                 except AttributeError:
                     pass
                 else:
-                    size+=len(str(data))
+                    size+=data and data.get_size() or 0
         return size
 
     security.declareProtected(CMFCorePermissions.View, 'tag')
@@ -2001,7 +2048,7 @@ class ImageField(FileField):
         if width is None:
             width=img_width
 
-        url = instance.absolute_url()
+        url = instance.absolute_url() + '/' + self.getName ()
         if scale:
             url+='/' + self.getScaleName(scale)
 
@@ -2013,7 +2060,7 @@ class ImageField(FileField):
                  }
 
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
-                 'width="%(width)s" height="%(height)s"' % values
+                 'height="%(height)s" width="%(width)s"' % values
 
         if css_class is not None:
             result = '%s class="%s"' % (result, css_class)

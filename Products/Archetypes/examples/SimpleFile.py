@@ -1,5 +1,6 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     FileField('body',
@@ -15,4 +16,4 @@ class SimpleFile(BaseContent):
     schema = schema
     archetype_name = "Simple File Type"
 
-registerType(SimpleFile)
+registerType(SimpleFile, PKG_NAME)

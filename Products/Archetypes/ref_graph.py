@@ -33,7 +33,7 @@ class Node:
 
     def __init__(self, inst):
         self.id = obj2id(inst)
-        self.url = inst.absolute_url(1)
+        self.url = inst.absolute_url()
         self.uid = inst.UID()
         self.title = inst.title_or_id()
         self.text = '%s: %s' % (inst.getId(), inst.Title())
@@ -61,7 +61,7 @@ class Edge:
 
     __repr__ = __str__
 
-def local_refernece_graph(inst):
+def local_reference_graph(inst):
     nodes  = {}
     graphs = { 'forward' : {},
                'backward' : {},
@@ -94,6 +94,9 @@ def local_refernece_graph(inst):
         graphs['backward'].setdefault(ref.relationship, []).append(e)
 
     return graphs
+
+# typo, but keep API
+local_refernece_graph = local_reference_graph
 
 def build_graph(graphs, inst):
     fp = StringIO()
@@ -145,7 +148,7 @@ def build_graph(graphs, inst):
 
 if HAS_GRAPHVIZ:
     def getDot(inst):
-        g = local_refernece_graph(inst)
+        g = local_reference_graph(inst)
         data = build_graph(g, inst)
         return data
 
@@ -163,7 +166,7 @@ if HAS_GRAPHVIZ:
     def get_cmapx(inst):
         data = getDot(inst)
 
-        stdout, stdin = popen2('%s -Gpack -Tcmapx' %( GRAPHVIZ_BINARY,))
+        stdout, stdin = popen2('%s -Gpack -Tcmapx ' % GRAPHVIZ_BINARY)
         stdin.write(data)
         stdin.close()
         output = stdout.read()
@@ -173,4 +176,3 @@ if HAS_GRAPHVIZ:
 else:
     def get_png(inst): return None
     def get_cmapx(inst): return None
-

@@ -32,7 +32,7 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = at.getCatalogsByType(self.meta_type)
         for c in catalogs:
             c.uncatalog_object(self.__url())
-
+        
         # Specially control reindexing to UID catalog
         # the pathing makes this needed
         self._uncatalogUID(self)

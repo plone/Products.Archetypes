@@ -21,8 +21,7 @@ from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
-    ManageProperties
+from Products.CMFCore import CMFCorePermissions
 
 # this import can change with Zope 2.7 to
 try:
@@ -54,7 +53,7 @@ class OrderedContainer:
 
     security = ClassSecurityInfo()
 
-    security.declareProtected(ModifyPortalContent, 'moveObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObject')
     def moveObject(self, id, position):
         obj_idx  = self.getObjectPosition(id)
         if obj_idx == position:
@@ -71,66 +70,64 @@ class OrderedContainer:
     # if plone sometime depends on zope 2.7 it should be replaced by mixing in
     # the 2.7 specific class OSF.OrderedContainer.OrderedContainer
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectsByDelta')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsByDelta')
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
-
-        XXX zope 2.7 has a new argument subset_ids which isn't handled by this
-        implementation
         """
         if type(ids) is StringType:
             ids = (ids,)
         min_position = 0
-        #objects = list(self._objects)
-        obj_visible = []
-        obj_hidden =[]
-        obj_dict = {}
-
-        types_tool = getToolByName(self, 'portal_types')
-        types=types_tool.listContentTypes(by_metatype=1)
-
-        for obj in self._objects:
-            # sort out in portal visible and invisible objects in 2 lists
-            try:
-                types.index(obj['meta_type'])
-            except ValueError:
-                obj_hidden.append(obj)
-            else:
-                obj_dict[ obj['id'] ] = obj
-                obj_visible.append(obj)
-
-
+        objects = list(self._objects)
+        if subset_ids == None:
+            # OLD: subset_ids = [ obj['id'] for obj in objects ]
+            subset_ids = self.getCMFObjectsSubsetIds(objects)
+        else:
+            subset_ids = list(subset_ids)
         # unify moving direction
         if delta > 0:
             ids = list(ids)
             ids.reverse()
-            obj_visible.reverse()
+            subset_ids.reverse()
         counter = 0
 
         for id in ids:
-            try:
-                object = obj_dict[id]
-            except KeyError:
-                raise ValueError('The object with the id "%s" does not exist.'
-                                 % id)
-            old_position = obj_visible.index(object)
+            old_position = subset_ids.index(id)
             new_position = max( old_position - abs(delta), min_position )
             if new_position == min_position:
                 min_position += 1
             if not old_position == new_position:
-                obj_visible.remove(object)
-                obj_visible.insert(new_position, object)
+                subset_ids.remove(id)
+                subset_ids.insert(new_position, id)
                 counter += 1
 
         if counter > 0:
             if delta > 0:
-                obj_visible.reverse()
-            self._objects = tuple(obj_hidden + obj_visible)
+                subset_ids.reverse()
+            obj_dict = {}
+            for obj in objects:
+                obj_dict[ obj['id'] ] = obj
+            pos = 0
+            for i in range( len(objects) ):
+                if objects[i]['id'] in subset_ids:
+                    try:
+                        objects[i] = obj_dict[ subset_ids[pos] ]
+                        pos += 1
+                    except KeyError:
+                        raise ValueError('The object with the id "%s" does '
+                                         'not exist.' % subset_ids[pos])
+            self._objects = tuple(objects)
 
         return counter
 
+    security.declarePrivate('getCMFObjectsSubsetIds')
+    def getCMFObjectsSubsetIds(self, objs):
+        """Get the ids of only cmf objects (used for moveObjectsByDelta)
+        """
+        ttool = getToolByName(self, 'portal_types')
+        cmf_meta_types = ttool.listContentTypes(by_metatype=1)
+        return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
-    security.declareProtected(ModifyPortalContent, 'getObjectPosition')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'getObjectPosition')
     def getObjectPosition(self, id):
 
         objs = list(self._objects)
@@ -139,48 +136,46 @@ class OrderedContainer:
         if om: # only 1 in list if any
             return om[0]
 
-        raise NotFound(str(id))
+        raise NotFound, 'Object %s was not found' % str(id)
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectsUp')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsUp')
     def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
         """ Move an object up """
         self.moveObjectsByDelta(ids, -delta)
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectsDown')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsDown')
     def moveObjectsDown(self, ids, delta=1, RESPONSE=None):
         """ move an object down """
         self.moveObjectsByDelta(ids, delta)
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectsToTop')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsToTop')
     def moveObjectsToTop(self, ids, RESPONSE=None):
         """ move an object to the top """
         self.moveObjectsByDelta( ids, -len(self._objects) )
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectsToBottom')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsToBottom')
     def moveObjectsToBottom(self, ids, RESPONSE=None):
         """ move an object to the bottom """
         self.moveObjectsByDelta( ids, len(self._objects) )
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(ModifyPortalContent, 'moveObjectToPosition')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectToPosition')
     def moveObjectToPosition(self, id, position):
         """ Move specified object to absolute position.
         """
         delta = position - self.getObjectPosition(id)
         return self.moveObjectsByDelta(id, delta)
 
-    security.declareProtected(ModifyPortalContent, 'orderObjects')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'orderObjects')
     def orderObjects(self, key, reverse=None):
         """ Order sub-objects by key and direction.
-
-        Key can be an attribute or a method
         """
         ids = [ id for id, obj in sequence.sort( self.objectItems(),
                                         ( (key, 'cmp', 'asc'), ) ) ]
@@ -189,6 +184,15 @@ class OrderedContainer:
         return self.moveObjectsByDelta( ids, -len(self._objects) )
 
     # here the implementing of IOrderedContainer ends
+
+    def manage_renameObject(self, id, new_id, REQUEST=None):
+        " "
+        objidx = self.getObjectPosition(id)
+        method = OrderedContainer.inheritedAttribute('manage_renameObject')
+        result = method(self, id, new_id, REQUEST)
+        self.moveObject(new_id, objidx)
+
+        return result
 
 InitializeClass(OrderedContainer)
 
@@ -207,8 +211,9 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
         BaseFolder.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
-    security.declarePrivate('manage_renameObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
+        """ rename the object """
         objidx = self.getObjectPosition(id)
         result = BaseFolder.manage_renameObject(self, id, new_id, REQUEST)
         self.moveObject(new_id, objidx)

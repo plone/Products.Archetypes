@@ -186,10 +186,10 @@ class SQLMethod(Aqueduct.BaseQuery):
         argdata['sql_delimiter'] = '\0'
         argdata['sql_quote__'] = dbc.sql_quote__
 
-        # TODO: Review the argdata dictonary. The line bellow is receiving unicode 
-        # strings, mixed with standard strings. It is insane! Archetypes needs a policy 
-        # about unicode, and lots of tests on this way. I prefer to not correct it now, 
-        # only doing another workarround. We need to correct the cause of this problem, 
+        # TODO: Review the argdata dictonary. The line bellow is receiving unicode
+        # strings, mixed with standard strings. It is insane! Archetypes needs a policy
+        # about unicode, and lots of tests on this way. I prefer to not correct it now,
+        # only doing another workarround. We need to correct the cause of this problem,
         # not its side effects :-(
 
         try:
@@ -209,23 +209,23 @@ class SQLMethod(Aqueduct.BaseQuery):
         # We have two possible kw arguments:
         #   db_encoding:        The encoding used in the external database
         #   site_encoding:      The uncoding used for the site
-        #                       If not specified, we use sys.getdefaultencoding()        
+        #                       If not specified, we use sys.getdefaultencoding()
         db_encoding = kw.get('db_encoding',None)
 
         try:
             site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
         except AttributeError, KeyError:
             site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
-       
+
         if type(query) == type(u''):
             if db_encoding:
                 query = query.encode(db_encoding)
             else:
                 try:
-                    query = query.encode('latin-1')
+                    query = query.encode(site_encoding)
                 except UnicodeEncodingError:
                     query = query.encode('UTF-8')
-                    
+
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))
@@ -249,10 +249,10 @@ class SQLMethod(Aqueduct.BaseQuery):
             f.seek(0)
             result = RDB.File(f, brain, p, None)
         else:
-            if db_encoding:                
+            if db_encoding:
                 # Encode result before we wrap it in Result object
                 # We will change the encoding from source to either the specified target_encoding
-                # or the site default encoding                                
+                # or the site default encoding
 
                 # The data is a list of tuples of column data
                 encoded_result = []
@@ -266,11 +266,11 @@ class SQLMethod(Aqueduct.BaseQuery):
                             newcol = newcol.encode(site_encoding)
                         else:
                             newcol = col
-                        
+
                         columns += newcol,
-                        
+
                     encoded_result.append(columns)
-                                    
+
                 result = (result[0],encoded_result)
 
             result = Results(result, brain, p, None)

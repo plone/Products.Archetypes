@@ -1,38 +1,61 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
+
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_widgets',
-                                 'Cannot import ArcheSiteTestCase')
+from Testing import ZopeTestCase
 
-from os import curdir
-from os.path import join, abspath, dirname, split
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import PACKAGE_HOME
+from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.test_fields import FakeRequest
+from Products.Archetypes.atapi import *
+from OFS.Image import File
+from DateTime import DateTime
 
 stub_text_file = None
 stub_text_content = ''
 stub_bin_file = None
 stub_bin_content = ''
 
-from Products.Archetypes.public import *
-from OFS.Image import File
-from DateTime import DateTime
-
-from Products.Archetypes.tests.test_fields import FakeRequest
-
-
-class WidgetTests(ArcheSiteTestCase):
+class WidgetTests(ATSiteTestCase):
 
     def afterSetUp(self):
+        # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content
-        stub_text_file = file(join(PACKAGE_HOME, 'input', 'rest1.rst'))
+        stub_text_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
-        stub_bin_file = file(join(PACKAGE_HOME, 'input', 'word.doc'))
+        stub_bin_file = open(os.path.join(PACKAGE_HOME, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
         # Make SESSION var available
@@ -190,7 +213,7 @@ class WidgetTests(ArcheSiteTestCase):
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
         self.assertEqual(str(doc[field.getName()]), stub_text_content)
 
-    def afterClear(self):
+    def beforeTearDown(self):
         global stub_text_file, stub_bin_file
         stub_text_file.close()
         stub_bin_file.close()

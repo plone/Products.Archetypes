@@ -110,13 +110,13 @@ class Reference(Referenceable, SimpleItem):
     # Catalog support
     def targetId(self):
         target = self.getTargetObject()
-        if target:
+        if target is not None:
             return target.getId()
         return ''
 
     def targetTitle(self):
         target = self.getTargetObject()
-        if target:
+        if target is not None:
             return target.Title()
         return ''
 
@@ -357,7 +357,7 @@ class ReferenceResolver(Base):
 
         try:
             return portal_object.unrestrictedTraverse(path)
-        except KeyError:
+        except (KeyError, AttributeError):
             # ObjectManager may raise a KeyError when the object isn't there
             return None
 
@@ -631,12 +631,12 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         Note: targetId is the actual id of the target object, not its UID
         """
 
-        q = {}
-        if sid: q['sourceUID'] = sid
-        if tid: q['targetUID'] = tid
-        if relationship: q['relationship'] = relationship
-        if targetId: q['targetId'] = targetId
-        brains = self.searchResults(q, merge=merge)
+        query = {}
+        if sid: query['sourceUID'] = sid
+        if tid: query['targetUID'] = tid
+        if relationship: query['relationship'] = relationship
+        if targetId: query['targetId'] = targetId
+        brains = self.searchResults(query, merge=merge)
 
         return brains
 

@@ -1,6 +1,7 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('teaser',
@@ -47,4 +48,4 @@ class DDocument(TemplateMixin, BaseContent):
     actions = TemplateMixin.actions
 
 
-registerType(DDocument)
+registerType(DDocument, PKG_NAME)

@@ -8,9 +8,15 @@ __docformat__ = 'restructuredtext'
 
 from StringIO import StringIO
 
-from Products.CMFPlone.Portal import addPolicy
+try:
+    import Products.CMFPlone
+except:
+    class DefaultCustomizationPolicy: pass
+    def addPolicy(*args, **kwargs): pass
+else:
+    from Products.CMFPlone.Portal import addPolicy
+    from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 from Products.Archetypes.utils import shasattr
 
 PRODUCTS = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )

@@ -1,15 +1,44 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
+
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
-import unittest
-
-from Products.Archetypes.AggregatedStorage import AggregatedStorage
-from Products.Archetypes.public import Schema, StringField, BaseContent
-from Products.Archetypes.public import registerType
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import mkDummyInContext
+from Products.Archetypes.atapi import AggregatedStorage
+from Products.Archetypes.atapi import Schema
+from Products.Archetypes.atapi import StringField
+from Products.Archetypes.atapi import BaseContent
+from Products.Archetypes.atapi import registerType
 
 
 class Dummy(BaseContent):
@@ -32,10 +61,10 @@ class Dummy(BaseContent):
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
 
-registerType(Dummy)
+registerType(Dummy, 'Archetypes')
 
 
-class AggregatedStorageTestsNoCache(ArcheSiteTestCase):
+class AggregatedStorageTestsNoCache(ATSiteTestCase):
 
     caching = 0
 

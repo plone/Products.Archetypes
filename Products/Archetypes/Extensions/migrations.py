@@ -32,10 +32,10 @@ def reinstallArchetypes(portal, out):
     print >>out, 'Reinstalling Archetypes and it\'s dependencies'
     for product in products:
         if qi.isProductInstalled(product):
-            qi.reinstallProducts(product)
+            qi.reinstallProducts([product])
             print >>out, '... reinstalling %s' % product
         else:
-            qi.installProducts(product)
+            qi.installProducts([product])
             print >>out, '... installing %s' % product
     print >>out, 'Done\n'
        
@@ -271,7 +271,7 @@ def refreshCatalogs(portal, out):
 def migrate(self):
     """migrate an AT site"""
     out = StdoutStringIO()
-    portal = self
+    portal = getToolByName(self,'portal_url').getPortalObject()
 
     print >>out, "Begin Migration"
 

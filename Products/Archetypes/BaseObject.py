@@ -25,6 +25,7 @@ from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
+from Acquisition import Explicit
 from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
@@ -84,7 +85,7 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -211,7 +212,7 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
         """Get a field by id which is explicitly wrapped
-        
+
         XXX Maybe we should subclass field from Acquisition.Explicit?
         """
         return ExplicitAcquisitionWrapper(self.getField(key), self)
@@ -254,46 +255,72 @@ class BaseObject(Referenceable):
         return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
+    security.declareProtected(CMFCorePermissions.View, 'getFilename')
+    def getFilename(self, key=None):
+        """Returns the filename from a field.
+        """
+        value = None
+
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and shasattr(field, 'getFilename'):
+            return field.getFilename(self)
+
+        return value
+
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
-        """Returns the Content Type of a field or the primary field if available
+        """Returns the content type from a field.
         """
         value = 'text/plain'
 
-        # obj.getContentType() returns the mimetype of the first primary field
         if key is None:
-            pfield = self.getPrimaryField()
-            if pfield and shasattr(pfield, 'getContentType'):
-                return pfield.getContentType(self)
-            else:
-                return value
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
 
-        field = self.getField(key)
         if field and shasattr(field, 'getContentType'):
             return field.getContentType(self)
-        element = getattr(self, key, None)
-        if element and shasattr(element, 'getContentType'):
-            return element.getContentType()
+
         return value
 
+    # Backward compatibility
+    security.declareProtected(CMFCorePermissions.View, 'content_type')
     content_type = ComputedAttribute(getContentType, 1)
 
+    # XXX Where's get_content_type comes from??? There's no trace at both
+    # Zope and CMF. It should be removed ASAP!
     security.declareProtected(CMFCorePermissions.View, 'get_content_type')
-    def get_content_type(self):
-        """CMF compatibility method
-        """
-        return self.getContentType()
+    get_content_type = getContentType
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setContentType')
-    def setContentType(self, value):
-        """Sets the content type of the primary field
+    def setContentType(self, value, key=None):
+        """Sets the content type of a field.
         """
-        pfield = self.getPrimaryField()
-        if pfield and IFileField.isImplementedBy(pfield):
-            bu = pfield.getBaseUnit(self)
-            bu.setContentType(self, value)
-            pfield.set(self, bu)
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and IFileField.isImplementedBy(field):
+            field.setContentType(self, value)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setFilename')
+    def setFilename(self, value, key=None):
+        """Sets the filename of a field.
+        """
+        if key is None:
+            field = self.getPrimaryField()
+        else:
+            field = self.getField(key) or getattr(self, key, None)
+
+        if field and IFileField.isImplementedBy(field):
+            field.setFilename(self, value)
 
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
@@ -301,7 +328,8 @@ class BaseObject(Referenceable):
         PUT/manage_FTPget events.
         """
         fields = self.Schema().filterFields(primary=1)
-        if fields: return fields[0]
+        if fields:
+            return fields[0]
         return None
 
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
@@ -780,7 +808,7 @@ class BaseObject(Referenceable):
         """Check to see if we are created as temporary object by portal factory"""
         parent = aq_parent(aq_inner(self))
         return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
-    
+
     def getFolderWhenPortalFactory(self):
         """Return the folder where this object was created temporarily
         """
@@ -790,7 +818,7 @@ class BaseObject(Referenceable):
             return aq_parent(ctx)
         utool = getToolByName(self, 'portal_url')
         portal_object = utool.getPortalObject()
-        
+
         while ctx.getId() != 'portal_factory':
             # find the portal factory object
             if ctx == portal_object:
@@ -799,7 +827,7 @@ class BaseObject(Referenceable):
             ctx = aq_parent(ctx)
         # ctx is now the portal_factory in our parent folder
         return aq_parent(ctx)
-        
+
 
     # subobject access ########################################################
     #
@@ -835,7 +863,7 @@ class BaseObject(Referenceable):
 
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, str(mt) or 'application/octet')
+        return Wrapper(data, name, str(mt) or 'application/octet').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
@@ -845,46 +873,31 @@ class BaseObject(Referenceable):
         if data is not None:
             return data
         # or a standard attribute (maybe acquired...)
-        # DM 2004-08-10: this breaks FTP/WebDAV's PUT:
-        #  If a new object should be created with an id that can
-        #  be acquired, then the existing object is silently overwritten
-        #  rather than a new one created.
-        ## target = getattr(self, name, None)
+        target = None
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0
-            and not (
-                # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
-                # to check whether this is a browser request
-                method == 'GET'
-                or method == 'POST' and not isinstance(RESPONSE, xmlrpc.Response)
-                )
-            ):
+        # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+        # to check whether this is a browser request
+        if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
+            not (method in ('GET', 'POST') and not
+                 isinstance(RESPONSE, xmlrpc.Response))):
             if shasattr(self, name):
                 target = getattr(self, name)
-            else:
-                target = None
         else:
             # we are allowed to acquire
             target = getattr(self, name, None)
         if target is not None:
             return target
-        if (not method in ('GET', 'POST', 'HEAD') and
-            not isinstance(RESPONSE, xmlrpc.Response)):
+        if (method in ('PUT', 'MKCOL') and not
+            isinstance(RESPONSE, xmlrpc.Response)):
             from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
 
-        # Nothing has been found. Though it's not written anywere,
-        # from deep ZPublisher inspection it seems like
-        # we *SHOULD NOT* raise a notFoundError, but instead,
-        # return None and leave acquisition do it's job.
-        
-        # XXX according to Dieter Maurer the above comment is wrong. Returning
-        # None will result into a Unauthorized exception
+        # Nothing has been found. Raise an AttributeError and be done with it.
         raise AttributeError(name)
 
 InitializeClass(BaseObject)
 
-class Wrapper:
+class Wrapper(Explicit):
     """wrapper object for access to sub objects """
     __allow_access_to_unprotected_subobjects__ = 1
 
@@ -905,8 +918,6 @@ class Wrapper:
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
-
 MinimalSchema = BaseObject.schema
 
 __all__ = ('BaseObject', 'MinimalSchema', )
-

@@ -1,20 +1,20 @@
-NAME=Archetypes
+NAME=archetypes
 MAJOR_VERSION=1.3
-MINOR_VERSION=1
-RELEASE_TAG=-rc11
+MINOR_VERSION=2
+RELEASE_TAG=_dev_
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
-TAG=${PACKAGE_NAME}
+#CVSTAG=release-1_4_0-a1
 
-PYTHON="/usr/bin/python"
-TMPDIR=~/tmp
+PYTHON=/usr/local/bin/python2.3
+TMPDIR=/tmp
 
 CURDIR=~/dev/zope2/archetypes/Archetypes/branches/release-1_3-branch
 BASE_DIR=${CURDIR}/..
-SOFTWARE_HOME=/usr/lib/zope/Zope-2_7-branch
-INSTANCE_HOME=/var/lib/zope/plone
-ZOPE_CONFIG=${INSTANCE_HOME}/etc/zope.conf.test
-PACKAGES=Archetypes validation generator ArchExample ArchGenXML
-CVSROOT=-d:ext:dreamcatcher@cvs.sf.net:/cvsroot/archetypes
+SOFTWARE_HOME=/opt/zope/releases/Zope-2_7-branch/lib/python
+INSTANCE_HOME=/opt/zope/instances/plone21
+
+#ZOPE_CONFIG=~/src/instance/shellex/etc/zope.conf.test
+PACKAGES=Archetype
 
 RM=rm -f
 RMRF=rm -rf
@@ -25,7 +25,6 @@ LN=ln -sfn
 CP=cp
 TAR=tar
 MKDIR=mkdir -p
-CVS=cvs
 
 .PHONY : clean test reindent reindent_clean sdist
 .PHONY : default
@@ -33,22 +32,15 @@ CVS=cvs
 # default:     The default step (invoked when make is called without a target)
 default: clean test
 
-tag :
-	for package in ${PACKAGES}; do ${CD} ${BASE_DIR}/$$package && ${CVS} tag -F -R ${CVSTAG}; done
-
-clean_checkin :
-	for package in ${PACKAGES}; do ${CD} ${BASE_DIR}/$$package && ${CVS} ci -m"Cleanup whitespace"; done
-
 clean :
 	find . \( -name '*~' -o -name '*.py[co]' -o -name '*.bak' \) -exec rm {} \; -print
 
 reindent :
-	~/src/reindent.py -r -v .
+	~/scripts/reindent.py -r -v .
 
 test :
 	export INSTANCE_HOME=${INSTANCE_HOME}; \
 	export SOFTWARE_HOME=${SOFTWARE_HOME}; \
-	export ZOPE_CONFIG=${ZOPE_CONFIG}; \
 	cd ${CURDIR}/tests && ${PYTHON} runalltests.py
 
 

@@ -11,7 +11,7 @@ def install(self, include_demo=None, require_dependencies=1):
     if not hasattr(self, "_isPortalRoot"):
         print >> out, "Must be installed in a CMF Site (read Plone)"
         return
-    
+
     setupArchetypes(self, out, require_dependencies=require_dependencies)
 
     if include_demo or INSTALL_DEMO_TYPES:

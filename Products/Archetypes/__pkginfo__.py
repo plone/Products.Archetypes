@@ -1,15 +1,32 @@
+from Products import Archetypes as PRODUCT
+import os.path
 
-modname = 'Archetypes'
-version = '1.3.1-rc1'
+version=PRODUCT.__version__
+modname=PRODUCT.__name__
+
 # (major, minor, patchlevel, release info) where release info is:
 # -99 for alpha, -49 for beta, -19 for rc and 0 for final
 # increment the release info number by one e.g. -98 for alpha2
-numversion = (1, 3, 1, -19)
 
-license = 'GPL'
-copyright = '''Copyright (c) 2003 Benjamin Saller <bcsaller@yahoo.com>'''
+major, minor, bugfix =  version.split('.')
+bugfix, release = bugfix.split('-')
 
-author = "Archetypes developpement team"
+if 'alpha' in release:
+    relinfo=-99
+if 'beta' in release:
+    relinfo=-49
+if 'rc' in release:
+    relinfo=-19
+if 'final' in release:
+    relinfo=0
+
+numversion = (int(major), int(minor), int(bugfix), relinfo)
+
+license = 'BSD like'
+license_text = open(os.path.join(PRODUCT.__path__[0], 'LICENSE.txt')).read()
+copyright = '''Copyright (c) 2003-2004 Benjamin Saller <bcsaller@yahoo.com>'''
+
+author = "Archetypes developement team"
 author_email = "archetypes-devel@lists.sourceforge.net"
 
 short_desc = "A developers framework for rapidly developing and deploying rich, full featured content types within the context of Zope/CMF and Plone"

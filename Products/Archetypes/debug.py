@@ -92,7 +92,7 @@ class Log:
 class NullLog(Log):
     def __init__(self, target):
         pass
-    def log(self, msg): pass
+    def log(self, msg, **kwargs): pass
 
 class ClassLog(Log):
     last_frame_msg = None

@@ -147,6 +147,8 @@ class BaseFolderMixin(CatalogMultiplex,
     # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
     # as it insists on creating folders of type "Folder".
     # use instead "_at_type_subfolder" or our own type.
+    security.declareProtected(CMFCorePermissions.AddPortalFolders, 
+                              'manage_addFolder')
     def manage_addFolder( self
                         , id
                         , title=''

@@ -9,6 +9,10 @@ from Globals import InitializeClass
 # to keep backward compatibility
 has_btree = 1
 
+from webdav.NullResource import NullResource
+from OFS.ObjectManager import REPLACEABLE
+from ComputedAttribute import ComputedAttribute
+
 class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
@@ -88,8 +92,22 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected(CMFCorePermissions.View, 'view')
     view = SkinnedFolder.view
 
-    security.declareProtected(CMFCorePermissions.View, 'index_html')
-    index_html = SkinnedFolder.index_html
+    def index_html(self):
+        """ Allow creation of .
+        """
+        if self.has_key('index_html'):
+            return self._getOb('index_html')
+        request = getattr(self, 'REQUEST', None)
+        if request and request.has_key('REQUEST_METHOD'):
+            if (request.maybe_webdav_client and
+                request['REQUEST_METHOD'] in  ['PUT']):
+                # Very likely a WebDAV client trying to create something
+                nr = NullResource(self, 'index_html')
+                nr.__replaceable__ = REPLACEABLE
+                return nr
+        return None
+
+    index_html = ComputedAttribute(index_html, 1)
 
     security.declareProtected(CMFCorePermissions.View, 'Title')
     Title = BaseFolder.Title
@@ -106,8 +124,9 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription
 
-InitializeClass(BaseBTreeFolder)
+    manage_addFolder = BaseFolder.manage_addFolder
 
+InitializeClass(BaseBTreeFolder)
 
 BaseBTreeFolderSchema = BaseBTreeFolder.schema
 

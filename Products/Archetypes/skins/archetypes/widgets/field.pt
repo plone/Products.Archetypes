@@ -30,7 +30,7 @@
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
-      <label i18n:translate="" tal:content="python:widget.Label(here) + ':'">Field</label>
+      <label><span i18n:translate="" tal:content="python:widget.Label(here)">Field</span>:</label>
       <span tal:condition="field/workflowable | nothing"
             tal:omit-tag="">
         (
@@ -108,7 +108,7 @@
 
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:content="error_id">Validation Error</div>
+            <div tal:content="error_id" i18n:translate="">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
         </div>

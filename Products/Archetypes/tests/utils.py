@@ -1,5 +1,56 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
+
 import re
 from TAL import ndiff
+from Globals import package_home
+
+from Products.Archetypes.atapi import registerType
+from Products.Archetypes.atapi import process_types
+from Products.Archetypes.atapi import listTypes
+from Products.Archetypes.config import PKG_NAME
+
+PACKAGE_HOME = package_home(globals())
+
+def gen_class(klass, schema=None):
+    """generats and registers the klass
+    """
+    if schema is not None:
+        klass.schema = schema.copy()
+    registerType(klass, 'Archetypes')
+    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
+def mkDummyInContext(klass, oid, context, schema=None):
+    gen_class(klass, schema)
+    dummy = klass(oid=oid).__of__(context)
+    setattr(context, oid, dummy)
+    dummy.initializeArchetype()
+    return dummy
 
 def makeContent( container, portal_type, id='document', **kw ):
     container.invokeFactory( type_name=portal_type, id=id )
@@ -123,3 +174,29 @@ def populateFolder(folder, folder_type, doc_type):
     f223 = f22.folder223
     f223.invokeFactory(doc_type, id='doc2231')
     f223.invokeFactory(doc_type, id='doc2232')
+
+WRAPPER = '__at_is_wrapper_method__'
+ORIG_NAME = '__at_original_method_name__'
+def isWrapperMethod(meth):
+    return getattr(meth, WRAPPER, False)
+
+def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
+    old_method = getattr(klass, name)
+    if isWrapperMethod(old_method):
+        log('Wrapping already wrapped method at %s.%s' %
+            (klass.__name__, name))
+    new_name = pattern % name
+    setattr(klass, new_name, old_method)
+    setattr(method, ORIG_NAME, new_name)
+    setattr(method, WRAPPER, True)
+    setattr(klass, name, method)
+
+def unwrap_method(klass, name):
+    old_method = getattr(klass, name)
+    if not isWrapperMethod(old_method):
+        raise ValueError, ('Trying to unwrap non-wrapped '
+                           'method at %s.%s' % (klass.__name__, name))
+    orig_name = getattr(old_method, ORIG_NAME)
+    new_method = getattr(klass, orig_name)
+    delattr(klass, orig_name)
+    setattr(klass, name, new_method)

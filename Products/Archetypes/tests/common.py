@@ -6,6 +6,8 @@
 
 from Testing import ZopeTestCase
 
+from Products.Archetypes.tests.utils import *
+
 # Enable nice names for True and False from newer python versions
 try:
     dummy=True
@@ -73,22 +75,21 @@ from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 
-from ArchetypesTestCase import ArchetypesTestCase
-
-from ArchetypesTestCase import default_user
-from ArchetypesTestCase import default_role
+from Products.Archetypes.tests.ArchetypesTestCase import ArchetypesTestCase
+from Products.Archetypes.tests.ArchetypesTestCase import default_user
+from Products.Archetypes.tests.ArchetypesTestCase import default_role
 
 try:
-    from ArchetypesTestCase import ArcheSiteTestCase
+    from Products.Archetypes.tests.ArchetypesTestCase import ArcheSiteTestCase
 except ImportError, err:
     ZopeTestCase._print('%s\n' % err)
     hasArcheSiteTestCase = False
 else:
-    from ArchetypesTestCase import portal_name
-    from ArchetypesTestCase import portal_owner
+    from Products.Archetypes.tests.ArchetypesTestCase import portal_name
+    from Products.Archetypes.tests.ArchetypesTestCase import portal_owner
     hasArcheSiteTestCase = True
 
-from Products.Archetypes.tests import PACKAGE_HOME
+#from Products.Archetypes.tests import PACKAGE_HOME
 
 from Products.Archetypes.public import registerType, process_types, listTypes
 from Products.Archetypes.config import PKG_NAME
@@ -98,7 +99,7 @@ def gen_class(klass, schema=None):
     """
     if schema is not None:
         klass.schema = schema.copy()
-    registerType(klass)
+    registerType(klass, 'Archetypes')
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
 def mkDummyInContext(klass, oid, context, schema=None):

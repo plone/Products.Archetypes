@@ -32,9 +32,9 @@ Requires
 
   * Plone 2.0.4+
 
-  * CMF 1.4+
+  * CMF 1.4.7+
 
-  * Zope 2.7.0+
+  * Zope 2.7.4+ (may work with Zope 2.7.0+)
 
   * CMFFormController 1.0.3-beta+
 
@@ -75,6 +75,18 @@ Quickstart
   3. Create an external method, module Archetypes.Install, function: install
 
   4. Run it
+
+Unit testing
+
+ * Install ZopeTestCase into ZOPE_HOME/lib/python/Testing
+ 
+ * Install the PloneTestCase product
+
+ * Go into the root of your instance and run 
+   ZOPE_HOME/bin/test.py -v -C etc/zope.conf --libdir Products/Archetypes/
+
+ You can find ZopeTestCase and PloneTestCase at http://sf.net/projects/collective/
+ For now you have to get the cvs versions!
 
 Documentation
 
