@@ -1,44 +1,47 @@
 1.3.2-svn - Unreleased
 ======================
 
- * Change permission of OrderedBaseFolder's manage_renameObject to
-   make ftp works.
+ * Added Italian translation. Thanks to Mirto Silvio Busico.
+   [dtremea]
+
+ * Change permission of OrderedBaseFolder's manage_renameObject to make
+   FTP works.
    [panjunyong]
 
- * Fixed 1053960 Cancel goes back to previous schemata page, thx to 
+ * Fixed 1053960 Cancel goes back to previous schemata page, thanks to
    Alec Mitchell.
    [yenzenz]
 
- * Fix redirect of ZMI constructor, fix ZMI Base_add and base_edit
+ * Fix redirect of ZMI constructor, fix ZMI base_add and base_edit.
    [__gotcha]
 
- * Fixed 1058669 Wrong i18n:translate in widgets/field.pt
+ * Fixed 1058669 Wrong i18n:translate in widgets/field.pt.
    [yenzenz]
 
- * Use method getFilename in at_download.pt instead of direkt attribute access, 
+ * Use method getFilename in at_download.pt instead of direct attribute access,
    which ignores BaseUnit.
    [yenzenz]
 
- * Fixed 1084278 In www/generateDebug.zpt error in getTypeInfo(type['name'])
+ * Fixed 1084278 In www/generateDebug.zpt error in * getTypeInfo(type['name']).
    [yenzenz]
 
- * Applied patch in 1076864 schemata links need css declaration, thx to 
+ * Applied patch in 1076864 schemata links need css declaration, thanks to
    David Convent.
    [yenzenz]
 
- * Fixed 1067923 Field.py: ImageField.get_size does not work properly
+ * Fixed 1067923 Field.py: ImageField.get_size does not work properly.
    [yenzenz]
 
- * Fixed bugs in the reference graph feature that was broken for me
+ * Fixed bugs in the reference graph feature that was broken for me.
    [yenzenz]
 
- * Fixed 1066884 Field.py: getAvailableSizes, 1.3.1-rc4, thx to Steve McMahon
+ * Fixed 1066884 Field.py: getAvailableSizes 1.3.1-rc4. Thanks to Steve McMahon.
    [yenzenz]
 
- * Fixed path to kernel uuid pseudo file
+ * Fixed path to kernel uuid pseudo file.
    [tiran]
 
- * Don't use the format selector from wysiwyg
+ * Don't use the format selector from wysiwyg.
    [tiran]
 
  * Fixed __pkginfo__.py: use version.txt instead of coping a string to

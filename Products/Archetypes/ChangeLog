@@ -1,7 +1,12 @@
-2005-01-02  Junyong Pan <panjy@zopechina.com>
+2004-12-14  Dorneles Treméa  <deo@plonesolutions.com>
 
-        *  OrderedBaseFolder.py - Change permission of manage_renameObject to
-        make ftp work.
+	* i18n/archetypes-it.po: Added italian translation file. Thanks	to
+	Mirto Silvio Busico.
+
+2005-01-02  Junyong Pan  <panjy@zopechina.com>
+
+	* OrderedBaseFolder.py (manage_renameObject): Change permission to
+	make FTP work.
 
 2004-12-14  Dorneles Treméa  <deo@plonesolutions.com>
 
