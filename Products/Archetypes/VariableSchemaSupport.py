@@ -10,6 +10,7 @@ from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
 from Products.Archetypes.debug import log
 from Products.Archetypes.ClassGen import _modes
+from Products.Archetypes.utils import OrderedDict
 
 from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
 from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
@@ -72,12 +73,15 @@ class VariableSchemaSupport:
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
     def Schemata(self):
+        """Returns an ordered dictionary, which maps all Schemata names to
+        fields that belong to the Schemata."""
         schema = self.getAndPrepareSchema()
-        schemata = {}
+        schemata = OrderedDict()
         for f in schema.fields():
             sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = sub
+            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,
