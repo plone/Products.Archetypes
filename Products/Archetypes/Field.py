@@ -106,7 +106,7 @@ class Field(DefaultLayerContainer):
     def Vocabulary(self, content_instance=None):
         value = self.vocabulary
         if not isinstance(value, DisplayList):
-            if content_instance and type(value) is StringType:
+            if content_instance is not None and type(value) is StringType:
                 method = getattr(content_instance, self.vocabulary, None)
                 if method and callable(method):
                     value = method()
