@@ -5,11 +5,11 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema, MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.debug import log, ERROR
+from Products.Archetypes.debug import log, log_exc, ERROR
 
 import Persistence
 from Acquisition import aq_base
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
@@ -245,7 +245,21 @@ class ExtensibleMetadata(Persistence.Persistent):
                 log(msg, level=ERROR)
             else:
                 raise
-
+        except Unauthorized:
+            # Catch Unauthorized exception that could be raised by the
+            # discussion tool when the authenticated users hasn't
+            # ModifyPortalContent permissions. IMO this behavior is safe because
+            # this method is protected, too.
+            # Explanation:
+            # A user might have CreatePortalContent but not ModifyPortalContent
+            # so allowDiscussion could raise a Unauthorized error although it's
+            # called from trusted code. That is VERY bad inside setDefault()!
+            #
+            # XXX: Should we have our own implementation of
+            #      overrideDiscussionFor?
+            log_exc('Catched Unauthorized on disussiontool.' \
+                    'overrideDiscussionFor(%s)' % self.absolute_url(1),
+                    level=ERROR)
 
     # Vocabulary methods ######################################################
 
