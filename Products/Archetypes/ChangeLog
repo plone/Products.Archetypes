@@ -1,5 +1,8 @@
 2003-05-13  Sidnei da Silva  <sidnei@frodo.x3ng.intranet>
 
+	* skins/archetypes/widgets/calendar.pt: Allow to override calendar
+	default value on search widget from request.
+
 	* Storage.py (AttributeStorage.get): Strip acquisition wrappers
 	before doing getattr, and try to add them back before returning the value.
 

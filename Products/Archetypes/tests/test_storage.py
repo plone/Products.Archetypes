@@ -7,8 +7,6 @@ try:
 except: # Zope > 2.6
     pass
 
-import unittest
-
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes

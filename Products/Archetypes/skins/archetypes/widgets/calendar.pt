@@ -43,7 +43,7 @@
 	    <tal:from define="id fieldName;
 	      inputname  fieldName;
 	      formname   string:search_form;
-	      inputvalue python: min(request.form.get(fieldName, None) or ('1975-05-26',));
+	      inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
 	      tabindex tabindex/next; 
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
@@ -56,7 +56,7 @@
 	    <tal:to define="id fieldName;
 	      inputname  fieldName;
 	      formname   string:search_form;
-	      inputvalue python:max(request.form.get(fieldName, None) or ('2975-05-26',));
+	      inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
 	      tabindex tabindex/next;
               onfocus string:formtooltip('${fieldName}_help',1);
               onblur string:formtooltip('${fieldName}_help',0);"
