@@ -123,11 +123,16 @@ class MetadataStorage(StorageLayer):
     def initializeInstance(self, instance, item=None, container=None):
         base = aq_base(instance)
         if not hasattr(base, "_md"):
-            instance._p_changed = 1
             instance._md = PersistentMapping()
+            instance._p_changed = 1
 
     def initializeField(self, instance, field):
-        self.set(field.getName(), instance, field.default)
+        # Check for already existing field to avoid  the reinitialization
+        # (which means overwriting) of an already existing field after a
+        # copy or rename operation
+        base = aq_base (instance)
+        if not base._md.has_key(field.getName()):
+            self.set(field.getName(), instance, field.default)
 
     def get(self, name, instance, **kwargs):
         base = aq_base(instance)
@@ -150,15 +155,18 @@ class MetadataStorage(StorageLayer):
         if not hasattr(base, "_md"):
             log("Broken instance %s, no _md" % instance)
         else:
-            base._p_changed = 1
             del base._md[name]
+            base._p_changed = 1
 
     def cleanupField(self, instance, field, **kwargs):
-        self.unset(field.getName(), instance)
+        # Don't clean up the field self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
 
     def cleanupInstance(self, instance, item=None, container=None):
-        if hasattr(aq_base(instance), '_md'):
-            del instance._md
+        # Don't clean up the instance self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
