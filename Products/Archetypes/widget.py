@@ -66,11 +66,13 @@ class widget:
         value = getattr(self, name)
         if not value:
             return ''
-        domain = getattr(self, 'i18n_domain', None) or getattr(instance, 'i18n_domain', None)
+        domain = (getattr(self, 'i18n_domain', None) or
+                  getattr(instance, 'i18n_domain', None))
         if domain is None:
             return value
         msgid = getattr(self, name+'_msgid', None) or value
-        return i18n.translate(domain, msgid, mapping=instance.REQUEST, context=instance, default=value)
+        return i18n.translate(domain, msgid, mapping=instance.REQUEST,
+                              context=instance, default=value)
 
     def Label(self, instance):
         """Returns the label, possibly translated"""
@@ -81,8 +83,8 @@ class widget:
         value = self.description
         method = value and getattr(instance.aq_explicit, value, None)
         if method and callable(method):
-            ##Description methods can be called with kwargs and should
-            ##return the i18n version of the description
+            ## Description methods can be called with kwargs and should
+            ## return the i18n version of the description
             value = method(**kwargs)
             return value
 
