@@ -1,3 +1,8 @@
+2003-07-30  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* skins/archetypes/widgets/multiselection.pt: Fix the
+	multiselection widget. It was broken with Zope 2.7.
+
 2003-07-29  Sidnei da Silva  <sidnei@redesul.com.br>
 
 	* tests/test_sqlstorage.py (DummyTool.getConnFor): Fix
