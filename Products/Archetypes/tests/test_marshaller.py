@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.5.6.2 2004/05/31 17:19:46 shh42 Exp $
+$Id: test_marshaller.py,v 1.5.6.3 2004/06/23 14:36:02 tiran Exp $
 """
 
 import os, sys
@@ -104,6 +104,9 @@ class MarshallerTests(ArcheSiteTestCase):
     def setupCTR(self):
         #Modify the CTR to point to SimpleType
         ctr = self.portal.content_type_registry
+        if ctr.getPredicate('text'):
+            # ATCT has a predict
+            ctr.removePredicate('text')
         ctr.addPredicate('text', 'major_minor' )
         ctr.getPredicate('text' ).edit('text', '' )
         ctr.assignTypeName('text', 'DDocument')

@@ -2,7 +2,7 @@
 # ArchetypesTestCase and ArcheSiteTestCase classes
 #
 
-# $Id: common.py,v 1.3.24.4 2004/05/31 17:17:38 shh42 Exp $
+# $Id: common.py,v 1.3.24.5 2004/06/23 14:36:02 tiran Exp $
 
 from Testing import ZopeTestCase
 
@@ -26,6 +26,12 @@ else:
     config._config.rest_header_level = 3
     del config
 
+def createDummyInContext(klass, id, context):
+    dummy = klass(oid=id)
+    dummy = dummy.__of__(context)
+    dummy.initializeArchetype()
+    setattr(context, id, dummy)
+    return dummy
 
 # Import Interface for interface testing
 try:

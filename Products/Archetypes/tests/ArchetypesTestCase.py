@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.5 2004/06/23 13:37:42 tiran Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.6 2004/06/23 14:36:02 tiran Exp $
 
 from Testing import ZopeTestCase
 
@@ -64,6 +64,10 @@ else:
                self.portal attribute to access the site object.
             '''
             return PloneTestCase.PloneTestCase.getPortal(self)
+        
+        def getPermissionsOfRole(self, role):
+            perms = self.portal.permissionsOfRole(role)
+            return [p['name'] for p in perms if p['selected']]
 
         def _setup(self):
             '''Extends the portal setup.'''

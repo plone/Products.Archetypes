@@ -95,18 +95,20 @@ class FakeRequest:
         self.form = {}
 
 
-class ProcessingTest(ArchetypesTestCase):
+class ProcessingTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         txt_file.seek(0)
         img_file.seek(0)
-        self.makeDummy()
 
     def makeDummy(self):
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
+        portal = self.getPortal()
+        dummy = Dummy(oid='dummy')
+        dummy.initializeArchetype()
+        portal.dummy = dummy.__of__(portal)
+        self._dummy = dummy
         return self._dummy
 
     def test_processing(self):

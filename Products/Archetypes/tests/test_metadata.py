@@ -78,13 +78,19 @@ class DummyFolder(BaseFolder):
     portal_membership = DummyPortalMembership()
 
 
-class ExtensibleMetadataTest( ArchetypesTestCase ):
+class ExtensibleMetadataTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])
+        self.makeDummy()
         addMetadataTo(self._dummy)
+
+    def makeDummy(self):
+        portal = self.getPortal()
+        self._dummy = createDummyInContext(Dummy, id='dummy', context=portal)
+        return self._dummy
 
     def testAccessors(self):
         obj = self._dummy
@@ -130,17 +136,21 @@ class ExtensibleMetadataTest( ArchetypesTestCase ):
                             'isMetadata not set correctly for field %s.' % meta)
 
 
-class ExtMetadataContextTest( ArchetypesTestCase ):
+class ExtMetadataContextTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
         gen_class(DummyFolder)
-        self._parent = DummyFolder(oid='parent')
-        self._parent.initializeArchetype()
+        portal = self.getPortal()
+
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])        
+
+        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        self._parent = parent
+
         # create dummy in context of a plone folder
-        dummy = Dummy(oid='dummy').__of__(self._parent)
-        dummy.initializeArchetype()
-        self._parent.dummy = dummy
+        self._dummy = createDummyInContext(Dummy, id='dummy', context=parent)
 
     def testContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
@@ -157,6 +167,8 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
         compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
+        portal = self.getPortal()
+        self.failUnless(aq_parent(self._parent) is portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
         self.failUnless(dummy_parent is parent,
@@ -164,17 +176,21 @@ class ExtMetadataContextTest( ArchetypesTestCase ):
                          'Some tests will give you false results!'))
 
 
-class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
+class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
 
+    def afterSetUp(self):
+        gen_dummy()
+        portal = self.getPortal()
+        dummy = createDummyInContext(Dummy, id='dummy', context=portal)
+        self._dummy = dummy
+    
     def testDefaultLanguage(self):
         language = 'no'
-        gen_dummy()
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.portal_properties.site_properties.default_language = language
-        self._dummy.initializeArchetype()
+        portal = self.getPortal()
+        portal.portal_properties.site_properties.default_language = language
         self.failUnlessEqual(self._dummy.Language(), language)
 
-class ExtMetadataSetFormatTest( ArchetypesTestCase ):
+class ExtMetadataSetFormatTest(ArcheSiteTestCase):
     
     value = "fooooo"
     filename = 'foo.txt'
@@ -182,12 +198,18 @@ class ExtMetadataSetFormatTest( ArchetypesTestCase ):
     def afterSetUp(self):
         gen_dummy()
         gen_class(DummyFolder)
-        self._parent = DummyFolder(oid='parent')
-        self._parent.initializeArchetype()
-        # create dummy in context of a plone folder
-        dummy = Dummy(oid='dummy').__of__(self._parent)
-        dummy.initializeArchetype()
+        portal = self.getPortal()
 
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])        
+
+        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        self._parent = parent
+
+        # create dummy in context of a plone folder
+        dummy = createDummyInContext(Dummy, id='dummy', context=parent)
+        self._dummy = dummy
+        
         pfield = dummy.getPrimaryField()
         # tests do need afilefield
         self.failUnlessEqual(pfield.getName(), 'afilefield')
