@@ -1,6 +1,7 @@
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from OFS.Folder import Folder
 from Referenceable import Referenceable
@@ -21,7 +22,8 @@ class BaseFolderMixin(BaseObject,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable)
+    __implements__ = (IBaseFolder, IReferenceable) + \
+                     PortalContent.__implements__
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
@@ -101,5 +103,6 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         """We have to override setDescription here to handle arbitrary
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
+
 
 InitializeClass(BaseFolder)

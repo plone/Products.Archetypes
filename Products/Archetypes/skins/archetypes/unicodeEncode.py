@@ -1,5 +1,5 @@
 ## Script (Python) "unicodeEncode"
-##title=Test if a unicode string is in a unicode list
+##title=Return an encoded string using the site charset
 ##bind container=container
 ##bind context=context
 ##bind namespace=

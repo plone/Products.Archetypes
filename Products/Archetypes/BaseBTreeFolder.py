@@ -80,6 +80,9 @@ if has_btree:
         security.declareProtected(ModifyPortalContent, 'setTitle')
         setTitle = BaseFolder.setTitle
 
+        security.declareProtected(View, 'title_or_id')
+        title_or_id = BaseFolder.title_or_id
+
         security.declareProtected(View, 'Description')
         Description = BaseFolder.Description
 

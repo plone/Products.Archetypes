@@ -1,7 +1,7 @@
 """
 Unittests for marshaller
 
-$Id: test_marshaller.py,v 1.1.2.1 2003/11/11 15:37:33 dreamcatcher Exp $
+$Id: test_marshaller.py,v 1.4 2004/02/08 12:26:55 dreamcatcher Exp $
 """
 
 import os, sys
@@ -58,7 +58,7 @@ class MarshallerTests(ArcheSiteTestCase):
         site = self.getPortal()
         obj1 = makeContent(site, portal_type='DDocument', id='obj1')
 
-        wordFilePath = join(_prefix, "input", "pdb.doc")
+        wordFilePath = join(_prefix, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
         data = wordFile.read()
         wordFile.seek(0)
@@ -126,13 +126,18 @@ class MarshallerTests(ArcheSiteTestCase):
         obj = site.PUT_factory('test', 'application/msword', wordFile)
         site._setObject('test', obj)
 
+        obj = site['test']
+        request = site.REQUEST
+        request['BODYFILE'] = wordFile
+        obj.PUT()
+
         wordFile.seek(0)
         data = wordFile.read()
 
         word = site.test
 
         self.assertEqual(word.archetype_name, DDocument.archetype_name)
-        self.assertEqual(word.getBody(), data)
+        self.assertEqual(str(word.getBody(raw=1)), data)
 
 
 if __name__ == '__main__':

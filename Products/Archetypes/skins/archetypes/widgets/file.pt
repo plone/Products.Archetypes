@@ -1,13 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
-
   <head><title></title></head>
-
   <body>
 
     <!-- File Widgets -->
@@ -49,11 +45,7 @@
     </metal:define>
 
     <metal:define define-macro="view">
-      <metal:use use-macro="here/widgets/field/macros/view">
-	<metal:fill fill-slot="widget_view">
-	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
-	</metal:fill>
-      </metal:use>
+      <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
     </metal:define>
 
     <metal:define define-macro="edit">

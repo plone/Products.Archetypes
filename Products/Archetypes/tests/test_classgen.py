@@ -87,10 +87,13 @@ class Dummy(BaseContent):
 
 BaseUnit.portal_properties = PortalProperties()
 
-def gen_dummy():
-    Dummy.schema = deepcopy(schema)
-    registerType(Dummy)
+def gen_class(klass):
+    klass.schema = deepcopy(schema)
+    registerType(klass)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
+def gen_dummy():
+    gen_class(Dummy)
 
 class ClassGenTest( ArchetypesTestCase ):
 
@@ -143,7 +146,7 @@ class ClassGenTest( ArchetypesTestCase ):
     def test_linesfield(self):
         obj = self._dummy
         obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnlessEqual(obj.getAlinesfield(), ['Bla', 'Ble', 'Bli'])
+        self.failUnlessEqual(obj.getAlinesfield(), ('Bla', 'Ble', 'Bli'))
 
     def test_datefield(self):
         obj = self._dummy

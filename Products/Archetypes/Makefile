@@ -1,17 +1,17 @@
 NAME=archetypes
-MAJOR_VERSION=1.2
-MINOR_VERSION=1
-RELEASE_TAG=final
-PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}_${RELEASE_TAG}
+MAJOR_VERSION=1.3
+MINOR_VERSION=0
+RELEASE_TAG=_a2
+PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
 
 PYTHON="/usr/bin/python"
 TMPDIR=~/tmp
 
-CURDIR=~/src/archetypes/1_2/Archetypes
+CURDIR=~/src/archetypes/head/Archetypes
 BASE_DIR=${CURDIR}/..
 SOFTWARE_HOME=~/src/zope/2_7/lib/python
-INSTANCE_HOME=~/src/instance/test
-PACKAGES=Archetypes validation generator ArchExample ArchGenXML
+INSTANCE_HOME=~/src/instance/head
+PACKAGES=Archetypes validation generator ArchExample ArchGenXML I18NArchetypes
 
 
 RM=rm -f
@@ -48,7 +48,7 @@ sdist: reindent clean sdist_tgz
 # sdist_tgz:   Create a tgz archive file as a source distribution.
 #
 sdist_tgz:
-	echo -n "${MAJOR_VERSION}.${MINOR_VERSION}-${RELEASE_TAG}" >\
+	echo -n "${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}" >\
           ${CURDIR}/version.txt
 	${MKDIR} ${TMPDIR}/${PACKAGE_NAME}
 	${CD} ${TMPDIR}/${PACKAGE_NAME} && \

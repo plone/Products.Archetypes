@@ -46,7 +46,7 @@ class WidgetTests(ArcheSiteTestCase):
         stub_text_file = file(join(_prefix, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
-        stub_bin_file = file(join(_prefix, 'input', 'pdb.doc'))
+        stub_bin_file = file(join(_prefix, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
 
@@ -86,7 +86,6 @@ class WidgetTests(ArcheSiteTestCase):
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-
 
     def test_widgets(self):
         site = self.getPortal()
@@ -156,7 +155,7 @@ class WidgetTests(ArcheSiteTestCase):
         request.form.update(form)
         doc.processForm(REQUEST=request)
         self.assertEqual(field.getContentType(doc), 'application/msword')
-        self.assertEqual(doc[field.getName()], stub_bin_content)
+        self.assertEqual(str(doc[field.getName()]), stub_bin_content)
 
         form = {'richtextfield_text_format':'text/x-rst',
                 'richtextfield_file':'',
@@ -180,7 +179,7 @@ class WidgetTests(ArcheSiteTestCase):
         request.form.update(form)
         doc.processForm(REQUEST=request)
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
-        self.assertEqual(doc[field.getName()], stub_text_content)
+        self.assertEqual(str(doc[field.getName()]), stub_text_content)
 
     def beforeTearDown(self):
         global stub_text_file, stub_bin_file

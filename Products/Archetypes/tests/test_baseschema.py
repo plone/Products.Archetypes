@@ -130,7 +130,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == [])
+        self.failUnless(field.default == ())
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -188,7 +188,7 @@ class BaseSchemaTest(ArchetypesTestCase):
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == [])
+        self.failUnless(field.default == ())
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == ())
@@ -348,27 +348,27 @@ class BaseSchemaTest(ArchetypesTestCase):
         dummy.setEffectiveDate(DateTime())
         self.failUnless(isinstance(dummy.Date(), str))
 
-    def test_isEffective(self):
+    def test_contentEffective(self):
         dummy = self._dummy
         now = DateTime()
         then = DateTime() + 1000
-        self.failUnless(dummy.isEffective(now))
+        self.failUnless(dummy.contentEffective(now))
         dummy.setExpirationDate(then)
-        self.failUnless(dummy.isEffective(now))
+        self.failUnless(dummy.contentEffective(now))
         dummy.setEffectiveDate(now)
-        self.failUnless(dummy.isEffective(now))
+        self.failUnless(dummy.contentEffective(now))
         dummy.setEffectiveDate(then)
-        self.failIf(dummy.isEffective(now))
+        self.failIf(dummy.contentEffective(now))
 
-    def test_isExpired(self):
+    def test_contentExpired(self):
         dummy = self._dummy
         now = DateTime()
         then = DateTime() + 1000
-        self.failIf(dummy.isExpired())
+        self.failIf(dummy.contentExpired())
         dummy.setExpirationDate(then)
-        self.failIf(dummy.isExpired())
+        self.failIf(dummy.contentExpired())
         dummy.setExpirationDate(now)
-        self.failUnless(dummy.isExpired())
+        self.failUnless(dummy.contentExpired())
 
     def beforeTearDown(self):
         del self._dummy

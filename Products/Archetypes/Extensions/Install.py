@@ -20,3 +20,8 @@ def install(self, include_demo=None):
     print >> out, 'Successfully installed %s' % PKG_NAME
 
     return out.getvalue()
+
+def uninstall(portal):
+    prod = getattr(portal.portal_quickinstaller, PKG_NAME)
+    prod.portalobjects = [po for po in prod.portalobjects
+                          if po[-8:] != '_catalog']

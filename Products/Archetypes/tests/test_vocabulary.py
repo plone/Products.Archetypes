@@ -60,6 +60,8 @@ class DummyCatalog:
     def __call__(self, *args, **kwargs):
         return self._brains
 
+    indexes = lambda self:['portal_type']
+
     searchResults = __call__
 
 sample_data = [('Test123', Dummy('Test123'), '/Test123'),

@@ -49,8 +49,12 @@ class BaseContentMixin(BaseObject,
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
-    def PUT(self, REQUEST, RESPONSE):
+    def PUT(self, REQUEST=None, RESPONSE=None):
         """ HTTP PUT handler with marshalling support """
+        if not REQUEST:
+            REQUEST = self.REQUEST
+        if not RESPONSE:
+            RESPONSE = REQUEST.RESPONSE
         if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
@@ -64,7 +68,8 @@ class BaseContentMixin(BaseObject,
         try:
             filename = REQUEST._steps[-2] #XXX fixme, use a real name
         except:
-            filename = file.filename
+            filename = (getattr(file, 'filename', None) or
+                        getattr(file, 'name', None))
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')

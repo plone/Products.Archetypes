@@ -1,5 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
@@ -11,13 +9,8 @@
   <body>
 
     <!-- Epoz Widgets -->
-    <div metal:define-macro="view">
-      <div metal:use-macro="here/widgets/field/macros/view">
-	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor"/>
-	</div>
-      </div>
-    </div>
+    <metal:view_macro define-macro="view"
+		      tal:replace="structure accessor" />
 
     <metal:define define-macro="edit_area">
       <tal:define define="inputname fieldName;

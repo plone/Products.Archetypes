@@ -1,0 +1,16 @@
+The reference catalog is the new impl. of the Reference Engine. It has
+the following key differences.
+
+
+o References are implmented as "smart pointers" able to do policy during
+  relevant operations. 
+
+o References are implmented as real Zope Objects and should be easier to
+  migrate from site to site 
+
+o References are keyed on real UUIDs unique in both time and space. 
+
+o Reference can carry arbitrary metadata which can be used to qualify
+  the relationships and to impact policy. 
+
+Rock.
