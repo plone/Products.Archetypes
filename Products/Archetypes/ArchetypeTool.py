@@ -14,7 +14,6 @@ import sys
 import time
 from ZODB.PersistentMapping import PersistentMapping
 
-
 from interfaces.base import IBaseObject
 from ClassGen import generateClass
 from ReferenceEngine import ReferenceEngine
@@ -25,7 +24,7 @@ from utils import capitalize, findDict, DisplayList, unique
 import BaseContent
 import ExtensibleMetadata
 from Renderer import renderer
-
+from __future__ import nested_scopes
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
