@@ -6,6 +6,7 @@ from Field import I18NStringField, I18NTextField, ComputedField
 from Widget import TextAreaWidget, StringWidget
 from Storage import MetadataStorage
 from BaseObject import BaseObject
+from ZODB.PersistentMapping import PersistentMapping
 
 i18n_schema = Schema((
     I18NStringField('title',
