@@ -34,7 +34,6 @@ class ArchetypesRenderer(base):
         if context is _marker:
             raise RuntimeError, 'Context not found'
             
-        context.beginScope()
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
         context.setLocal('accessor', getattr(instance,
