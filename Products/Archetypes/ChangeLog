@@ -1,3 +1,22 @@
+2003-11-05  Sylvain Thénault  <syt@logilab.fr>
+	* Extensions/utils.py
+	extends fields'index attribute syntax to support extra
+	arguments. That allows for instance to add ZCTextIndex :
+	index='ZCTextIndex, lexicon_id=lexicon, index_type=Okapi BM25
+	Rank'
+
+	* __init__.py: make IndexIterator available even without Plone
+	and use it in base_edit, base_metadata and reference_edit
+
+	* Field.py: use the new getCharset script to get the site
+	charset. This is usefull for non plone site without
+	site_properties.
+
+	* skins/archetypes/unicodeEncode.py: use the new getCharset 
+	script to get the site charset. 
+
+	* Archetypes should now working as well with plain CMF site :)
+	
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
 	* BaseObject.py (BaseObject._migrateGetValue): Tentatively fix
