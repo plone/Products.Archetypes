@@ -893,7 +893,7 @@ class ReferenceField(ObjectField):
 
         # Remove schema added by Accessors/Mutator
         # It'll cause problems on addReference
-        del kwargs['schema']
+        if kwargs.has_key('schema'): del kwargs['schema']
 
         # Establish the relation through the ReferenceEngine
         tool=getToolByName(instance, REFERENCE_CATALOG)
