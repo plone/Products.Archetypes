@@ -61,7 +61,7 @@ class BaseObject(Implicit):
     schema = type = content_type
     _signature = None
 
-    installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
+    installMode = ['type', 'actions', 'indexes']
 
     __implements__ = IBaseObject
 
@@ -128,7 +128,6 @@ class BaseObject(Implicit):
             if parent is not None:
                 parent.manage_renameObject(
                     self.id, value,
-                    getattr(self, 'REQUEST', None)
                     )
             self._setId(value)
 
@@ -222,17 +221,19 @@ class BaseObject(Implicit):
 
     def __getitem__(self, key):
         """play nice with externaleditor again"""
-        if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
+        schema = self.Schema()
+        keys = schema.keys()
+        if key not in keys and key[:1] != "_": #XXX 2.2
             return getattr(self, key, None) or \
                    getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getEditAccessor(self)
+
+        accessor = schema[key].getEditAccessor(self)
         if not accessor:
-            accessor = self.Schema()[key].getAccessor(self)
-        try:
-            value = accessor(maybe_baseunit=1)
-        except TypeError:
-            # Fallback to no params call
-            value = accessor()
+            accessor = schema[key].getAccessor(self)
+
+        #This is the access mode used by external editor. We need the
+        #handling provided by BaseUnit when its available
+        value = accessor(raw=1)
         return value
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,

@@ -69,7 +69,10 @@ class BaseContent(BaseObject,
         file = REQUEST['BODYFILE']
         data = file.read()
         file.seek(0)
-        filename = REQUEST._steps[-2] #XXX fixme, use a real name
+        try:
+            filename = REQUEST._steps[-2] #XXX fixme, use a real name
+        except:
+            filename = file.filename
 
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
