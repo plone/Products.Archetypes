@@ -119,7 +119,7 @@ def build_graph(graphs, inst):
 
             for e in iter(edges):
                 if e in shown: continue
-                if direction == "backward":
+                if direction == "forward":
                     print >>fp, '\t%s -> %s [label="%s", href="%s/reference_graph"]' % (
                     e.src,
                     e.dest,
