@@ -379,7 +379,8 @@ class FileWidget(TypesWidget):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete is not empty_marker: return "DELETE_FILE", {}
+        if delete=='delete': return "DELETE_FILE", {}
+        if delete=='nochange' : return empty_marker
 
         value = None
 
@@ -515,7 +516,9 @@ class ImageWidget(FileWidget):
         value = None
         ## check to see if the delete hidden was selected
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete is not empty_marker: return "DELETE_IMAGE", {}
+        if delete=='delete': return "DELETE_IMAGE", {}
+        if delete=='nochange' : return empty_marker
+        
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
