@@ -640,7 +640,6 @@ class BaseObject(Referenceable):
             # at very first try to use the BaseUnit itself
             try:
                 if IFileField.isImplementedBy(field):
-                    print "BaseUnit for %s" % self
                     return field.getBaseUnit(self)
             except ConflictError:
                 raise
