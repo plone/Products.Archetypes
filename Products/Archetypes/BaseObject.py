@@ -241,13 +241,14 @@ class BaseObject(Implicit):
             return getattr(self, key, None) or \
                    getattr(aq_parent(aq_inner(self)), key, None)
 
-        accessor = schema[key].getEditAccessor(self)
+        field = schema[key]
+        accessor = field.getEditAccessor(self)
         if not accessor:
-            accessor = schema[key].getAccessor(self)
+            accessor = field.getAccessor(self)
 
         # This is the access mode used by external editor. We need the
         # handling provided by BaseUnit when its available
-        kw = {'raw':1}
+        kw = {'raw':1, 'field': field.__name__}
         value = mapply(accessor, **kw)
 
         return value
@@ -309,8 +310,9 @@ class BaseObject(Implicit):
         if errors:
             return errors
 
-        self.Schema().validate(self, REQUEST=REQUEST, errors=errors,
-                               data=data, metadata=metadata)
+        self.Schema().validate(instance=self, REQUEST=REQUEST,
+                               errors=errors, data=data, metadata=metadata)
+
         self.post_validate(REQUEST, errors)
 
         return errors
@@ -378,7 +380,6 @@ class BaseObject(Implicit):
                         size += len(value)
                     except (TypeError, AttributeError):
                         size += len(str(value))
-
         return size
 
     security.declarePrivate('_processForm')
@@ -421,7 +422,9 @@ class BaseObject(Implicit):
             # Set things by calling the mutator
             mutator = field.getMutator(self)
             __traceback_info__ = (self, field, mutator)
-            mutator(result[0], **result[1])
+            result[1].update({'field': field.__name__,
+                              'value': result[0]})
+            mapply(mutator, **result[1])
 
         self.reindexObject()
 

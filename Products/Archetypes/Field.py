@@ -433,6 +433,7 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
+        kwargs.update({'field': self.__name__})
         if accessor is None:
             args = [instance,]
             return mapply(self.get, *args, **kwargs)
