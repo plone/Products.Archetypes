@@ -52,9 +52,9 @@
               </strong>:<span tal:replace="python:errors[error]" />
               </div>
               </div>
-            -->
               <pre tal:content="structure request/controller_state" />
               <pre tal:content="structure request" />
+            -->
 
             <tal:fields repeat="field python: schematas[fieldset].fields()">
               <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
