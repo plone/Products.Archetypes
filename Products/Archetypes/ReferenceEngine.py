@@ -241,14 +241,14 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
         if type(object) not in STRING_TYPES:
-            object = object.aq_base
-            if not self.isReferenceable(object):
+            uobject = object.aq_base
+            if not self.isReferenceable(uobject):
                 raise ReferenceException
 
-            if not getattr(object, UUID_ATTR, None):
-                uuid = self._getUUIDFor(object)
+            if not getattr(uobject, UUID_ATTR, None):
+                uuid = self._getUUIDFor(uobject)
             else:
-                uuid = getattr(object, UUID_ATTR)
+                uuid = getattr(uobject, UUID_ATTR)
         else:
             uuid = object
             #and we look up the object
