@@ -5,7 +5,7 @@ AggregatedStorage for Archetypes
 
 Released as open-source under the current Archetypes license
 
-$Id: AggregatedStorage.py,v 1.1.2.1 2004/02/19 09:47:54 ajung Exp $
+$Id: AggregatedStorage.py,v 1.1.2.2 2004/02/19 16:35:24 ajung Exp $
 """
 
 from time import time
@@ -19,10 +19,11 @@ CACHE_TIMEOUT = 5  # timeout in seconds for cache entries to expire
 class AggregatedStorage(Storage):
     """ Implementation of the AggregatedStorage proposal as described in http://plone.org/development/teams/developer/AggregatedStorage """
 
-    def __init__(self):
-		self._reg_ag = Registry(StringType)  # registry for aggregators
-		self._reg_dag = Registry(StringType) # registry for disaggregators
-		self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
+    def __init__(self, caching=0):
+        self._reg_ag = Registry(StringType)  # registry for aggregators
+        self._reg_dag = Registry(StringType) # registry for disaggregators
+        self.cache = {}                      # map (objId, aggregator) -> (timestamp, result_dict)
+        self._caching = caching
 
     def registerAggregator(self, fieldname, methodname):
 		if self._reg_ag.get(fieldname):
@@ -39,8 +40,18 @@ class AggregatedStorage(Storage):
         methodname = self._reg_ag.get(name)
         if not methodname:
             raise KeyError('No aggregator registered for field "%s"' % name)
+        method = getattr(instance, methodname)
+        if not method:
+            raise KeyError('Aggregator "%s" for field "%s" not found' % (methodname, name))
+        result = method(name, instance, **kwargs)
+        if not isinstance(result, DictType):
+            raise TypeError('Result returned from an aggregator must be DictType')
+        return result[name]
 
-        cache_entry = self._cache_get(instance.getId(), methodname)
+        if self._caching:
+            cache_entry = self._cache_get(instance.getId(), methodname)
+        else:
+            cache_entry = None
 
         if cache_entry is None:
             method = getattr(instance, methodname)
@@ -50,7 +61,13 @@ class AggregatedStorage(Storage):
             if not isinstance(result, DictType):
                 raise TypeError('Result returned from an aggregator must be DictType')
 
-            self._cache_put(instance.getId(), methodname, result)
+            if self._caching:
+                self._cache_put(instance.getId(), methodname, result)
+
+            if not result.has_key(name):
+                raise KeyError('result dictionary returned from "%s"'
+                               ' does not contain an key for "%s"' % 
+                               (methodname, name))
             return result[name]
         else:
             return cache_entry[name]
