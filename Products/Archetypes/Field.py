@@ -83,7 +83,7 @@ class Field(DefaultLayerContainer):
         return self.__class__(**self.__dict__)
 
     def __repr__(self):
-        return "<Field %s(%s:%s)>" %(self.name, self.type, self.mode)
+        return "<Field %s(%s:%s)>" %(self.getName(), self.type, self.mode)
 
     def _widgetLayer(self):
         if hasattr(self, 'widget') and type(self.widget) == ClassType:
@@ -101,7 +101,7 @@ class Field(DefaultLayerContainer):
         for v in self.validators:
             if not validation.validatorFor(v):
                 log("WARNING: no validator %s for %s" % (v,
-                self.name))
+                self.getName()))
 
     def validate(self, value):
         for v in self.validators:
