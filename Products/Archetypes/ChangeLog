@@ -1,5 +1,8 @@
 2003-04-16  Sidnei da Silva  <sidnei@x3ng.com>
 
+        * BaseFolder.py: Add ExtensibleMetadata.schema to the Folder
+	schema. Otherwise, were dont really implement IExtensibleMetadata.
+
 	* BaseFolder.py (BaseFolder.manage_afterAdd): SkinnedFolder
 	subclasses CMFCatalogAware, so, now that Referenceable doenst
 	subclasses it anymore, we call SkinnedFolder.manage_afterAdd.

@@ -19,6 +19,8 @@ class BaseFolder(BaseObject, Referenceable, SkinnedFolder, ExtensibleMetadata):
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
 
+    schema = BaseObject.schema + ExtensibleMetadata.schema
+
     security = ClassSecurityInfo()
 
     def __init__(self, oid, **kwargs):
