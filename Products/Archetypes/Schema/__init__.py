@@ -373,8 +373,8 @@ class BasicSchema(Schemata):
         """
         Initialize a Schema.
 
-        The first positional argument may be a sequence of Fields. Otherwise,
-        args is taken to be a list of Fields.
+        The first positional argument must be a sequence of Fields. 
+        Currently args is taken to be a list of Fields - this may change
 
         Keyword arguments are added to my properties.
         """
@@ -388,8 +388,10 @@ class BasicSchema(Schemata):
                 for field in args[0]:
                     self.addField(field)
             else:
+                log('Schema construction takes a sequence of Fields. ' \
+                    'This behavior is deprecated and will be removed.) 
                 for field in args:
-                    self.addField(args[0])
+                    self.addField(field)
 
     def __add__(self, other):
         c = BasicSchema()
