@@ -1031,6 +1031,7 @@ class ImageField(ObjectField):
         'allowable_content_types' : ('image/gif','image/jpeg'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
+        'image_class': Image,
         })
 
     default_view = "view"
@@ -1082,7 +1083,8 @@ class ImageField(ObjectField):
 
         if has_pil:
             if self.original_size or self.max_size:
-                image = Image(self.getName(), self.getName(), value, mimetype)
+                image = self.image_class(self.getName(), self.getName(),
+                                         value, mimetype)
                 data = str(image.data)
                 if self.max_size:
                     if image.width > self.max_size[0] or \
@@ -1095,7 +1097,8 @@ class ImageField(ObjectField):
                     w,h = self.original_size
                 imgdata = self.scale(data,w,h)
 
-        image = Image(self.getName(), self.getName(), imgdata, mimetype)
+        image = self.image_class(self.getName(), self.getName(),
+                                 imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
@@ -1109,7 +1112,8 @@ class ImageField(ObjectField):
             w, h = size
             id = self.getName() + "_" + n
             imgdata = self.scale(data, w, h)
-            image2 = Image(id, self.getName(), imgdata, 'image/jpeg')
+            image2 = self.image_class(id, self.getName(),
+                                      imgdata, 'image/jpeg')
             # manually use storage
             delattr(image2, 'title')
             self.storage.set(id, instance, image2)
