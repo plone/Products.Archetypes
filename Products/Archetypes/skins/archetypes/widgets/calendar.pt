@@ -11,7 +11,8 @@
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure python:here.toPortalTime(accessor(), long_format=1)"/>
+	  <span tal:define="d accessor"
+	        tal:replace="structure python:d and here.toPortalTime(d, long_format=1) or 'not set'"/>
 	</div>
       </div>
     </div>
