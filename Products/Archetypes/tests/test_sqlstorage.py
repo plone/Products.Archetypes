@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-# -*- coding: latin1 -*-
-
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
@@ -317,12 +315,21 @@ class SQLStorageTest(SQLStorageTestBase):
         self.failUnless(value == 'Bla')
 
     def test_stringfield_bug1003868(self):
-        s = unicode('ação!', 'latin1')
+        s = unicode('aÃ§Ã£o!', 'utf8')
+        sp = self.portal.portal_properties.site_properties
         dummy = self._dummy
+
+        sp.default_charset = 'latin1'
         dummy.setAstringfield(s)
         value = dummy.getAstringfield()
         __traceback_info__ = (self.db_name, repr(value), s)
-        self.failUnless(value == s)
+        self.failUnlessEqual(value, s.encode(sp.default_charset))
+
+        sp.default_charset = 'utf8'
+        dummy.setAstringfield(s)
+        value = dummy.getAstringfield()
+        __traceback_info__ = (self.db_name, repr(value), s)
+        self.failUnlessEqual(value, s.encode(sp.default_charset))
 
     def test_textfield(self):
         dummy = self._dummy
