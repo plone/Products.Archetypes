@@ -7,7 +7,7 @@
 
    <div metal:fill-slot="main"
         tal:define="rejection here/rejectAnonymous;
-                    errors python:request.get('errors', {});
+                    errors options/state/getErrors|nothing;
                     Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     ct here/archetype_tool;
                     tabindex python:Iterator();">

@@ -14,7 +14,7 @@
 
    <div metal:fill-slot="main">
       <div metal:define-macro="main"
-	   tal:define="errors python:request.get('errors', {});
+	   tal:define="errors options/state/getErrors|nothing;
                    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                    tabindex python:Iterator();
                    schematas here/Schemata;

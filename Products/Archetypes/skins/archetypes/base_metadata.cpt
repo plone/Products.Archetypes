@@ -15,7 +15,7 @@
    <div metal:fill-slot="main">
       <div metal:define-macro="main"
 	   tal:define="rejection here/rejectAnonymous;
-	            errors python:request.get('errors', {});
+                   errors options/state/getErrors|nothing;
 		    Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();
                     fieldset request/fieldset|options/fieldset|string:metadata;
