@@ -42,7 +42,7 @@ class BaseCMFTest(CMFTestCase.CMFTestCase):
 
 class TestPermissions(BaseCMFTest):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
-                  'Fact', 'Complex Type']
+                  'Fact', 'ComplexType']
 
     def afterSetUp(self):
         BaseCMFTest.afterSetUp(self)
