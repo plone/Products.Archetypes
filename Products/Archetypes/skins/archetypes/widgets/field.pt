@@ -5,9 +5,10 @@
       i18n:domain="plone">
 
 <body>
-
+    
     <!-- Base Field Widgets -->
-    <div metal:define-macro="view">
+    <div metal:define-macro="view" tal:define="visState widget.isVisible(here, mode)">
+     <tal:condition condition="python: visState == 'visible'">
       <div tal:condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
         <span class="label" tal:condition="use_label|nothing" tal:content="python:widget.Label(here) + ':'">Field</span>
         <span tal:condition="field/workflowable|nothing"
@@ -32,9 +33,17 @@
 	      <div metal:define-slot="widget_view"/>
 	      <br/>
       </div>
+      </tal:condition>
     </div>
+      
+    <metal:define define-macro="hidden" tal:define="value python:widget.populate and field.getEditAccessor(here)() or '';
+	                                            value python:widget.postback and request.get(fieldName, value) or value;">
+	<input type="hidden" tal:attributes="name fieldName; value value"/>
+      </metal:define>
 
-    <metal:define define-macro="edit">
+    <metal:define define-macro="edit" tal:define="visState widget.isVisible(here, mode)">
+      <tal:condition condition="python: visState == 'visible'">
+
     <div class="row" tal:condition="python: 'edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)">
         <div tal:attributes="class python:test(field.required, 'required label', 'label')">
              <span i18n:translate="" tal:content="python:widget.Label(here)"></span>
@@ -70,6 +79,10 @@
              <div metal:define-slot="widget_body"></div>
         </div>
     </div>
+      </tal:condition>
+      <tal:condition condition="python: visState == 'hidden'>
+	<metal:use use-macro="here/widgets/field/macros/hidden"/>
+      </tal:condition>
     </metal:define>
 
    </body>

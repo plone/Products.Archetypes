@@ -29,6 +29,8 @@ class ArchetypesRenderer(base):
         context.setLocal('accessor', accessor)
         context.setLocal('widget', widget)
         context.setLocal('field', field)
+        context.setLocal('mode', mode)
+        
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)

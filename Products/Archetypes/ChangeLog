@@ -1,3 +1,10 @@
+2003-09-04  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* skins/archetypes/widgets/field.pt: adding back visiblity handling to widgets
+		widget=Foo(visible={'edit' : 'hidden'}, missing states default to visible
+		states can be visible, hidden, invisible
+	
+
 2003-08-08  Sylvain Thénault  <syt@logilab.fr>
 	* BaseObject.py: fix addSubObjects, remove _datify and Date
 

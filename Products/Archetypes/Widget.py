@@ -37,6 +37,16 @@ class TypesWidget(macrowidget):
                 return field
         return None
 
+    def isVisible(self, instance, mode='view'):
+        """decide if a field is visible in a given mode -> 'state' visible, hidden, invisible"""
+        # example: visible = { 'edit' :'hidden', 'view' : 'invisible' }
+        vis_dic = getattr(self, 'visible')
+        state = 'visible'
+        if not vis_dic: return state
+        state = vis_dic.get(mode, state)
+        return state
+    
+
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
