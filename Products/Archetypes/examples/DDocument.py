@@ -1,6 +1,5 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
-from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 
 schema = BaseSchema + Schema((
     TextField('teaser',

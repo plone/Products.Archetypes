@@ -7,7 +7,7 @@ from Acquisition import aq_base
 from Globals import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.Registry import registerStorage
+from Products.Archetypes.registry import registerStorage
 from Products.Archetypes.storage.BaseStorage import Storage, StorageLayer, _marker
 from Products.Archetypes.storage.AnnotationStorage import AnnotationStorage
 from Products.Archetypes.storage.AnnotationStorage import MetadataAnnotationStorage

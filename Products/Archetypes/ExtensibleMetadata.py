@@ -1,7 +1,7 @@
 import string
 
-from Products.Archetypes.Field import *
-from Products.Archetypes.Widget import *
+from Products.Archetypes.field import *
+from Products.Archetypes.widget import *
 from Products.Archetypes.schema import Schema
 from Products.Archetypes.schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata

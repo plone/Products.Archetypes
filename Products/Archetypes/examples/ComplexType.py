@@ -1,5 +1,5 @@
 from Products.Archetypes.public import *
-from Products.Archetypes import Field
+from Products.Archetypes import field
 from SimpleType import SimpleType
 
 fields = ['StringField',
@@ -12,7 +12,7 @@ fields = ['StringField',
 field_instances = []
 
 for f in fields:
-    field_instances.append(getattr(Field, f)(f.lower()))
+    field_instances.append(getattr(field, f)(f.lower()))
 
 schema = Schema(tuple(field_instances) + (
     LinesField('selectionlinesfield1',

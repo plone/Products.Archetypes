@@ -7,7 +7,7 @@ from Products.Archetypes.ATAnnotations import AT_ANN_STORAGE, AT_MD_STORAGE
 from Acquisition import aq_base
 
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.Registry import setSecurity
+from Products.Archetypes.registry import setSecurity
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance

@@ -7,7 +7,7 @@ from Globals import PersistentMapping
 
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
-from Products.Archetypes.Registry import setSecurity
+from Products.Archetypes.registry import setSecurity
 
 _marker = []
 

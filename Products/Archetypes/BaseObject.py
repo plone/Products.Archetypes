@@ -7,14 +7,14 @@ from Products.Archetypes.utils import fixSchema
 from Products.Archetypes.utils import getRelURL
 from Products.Archetypes.utils import getRelPath
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.Field import StringField
-from Products.Archetypes.Field import TextField
-from Products.Archetypes.Field import STRING_TYPES
+from Products.Archetypes.field import StringField
+from Products.Archetypes.field import TextField
+from Products.Archetypes.field import STRING_TYPES
 from Products.Archetypes.renderer import renderService
 from Products.Archetypes.schema import Schema
-from Products.Archetypes.Widget import IdWidget
-from Products.Archetypes.Widget import StringWidget
-from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.widget import IdWidget
+from Products.Archetypes.widget import StringWidget
+from Products.Archetypes.marshall import RFC822Marshaller
 from Products.Archetypes.ATAnnotations import ATAnnotatableMixin
 from Products.Archetypes.interfaces.field import IFileField
 

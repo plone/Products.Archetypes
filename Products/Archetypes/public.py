@@ -27,12 +27,12 @@ from Products.Archetypes.schema.Composite import CompositeSchema
 from Products.Archetypes.schema.Facade import FacadeMetadataSchema
 from Products.Archetypes.schema.VariableSchemaSupport import VariableSchemaSupport
 # marshaller
-from Products.Archetypes.Marshall import PrimaryFieldMarshaller
-from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.marshall import PrimaryFieldMarshaller
+from Products.Archetypes.marshall import RFC822Marshaller
 # fields
-from Products.Archetypes.Field import *
+from Products.Archetypes.field import *
 # widgets
-from Products.Archetypes.Widget import *
+from Products.Archetypes.widget import *
 # storage
 from Products.Archetypes.storage import *
 from Products.Archetypes.storage.AggregatedStorage import AggregatedStorage

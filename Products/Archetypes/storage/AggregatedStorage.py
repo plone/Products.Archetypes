@@ -14,8 +14,8 @@ from types import StringType, DictType
 from threading import Lock
 
 from Products.Archetypes.storage import Storage
-from Products.Archetypes.Registry import Registry
-from Products.Archetypes.Registry import registerStorage
+from Products.Archetypes.registry import Registry
+from Products.Archetypes.registry import registerStorage
 
 CACHE_TIMEOUT = 5  # timeout in seconds for cache entries to expire
 

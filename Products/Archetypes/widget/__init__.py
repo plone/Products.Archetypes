@@ -10,8 +10,8 @@ from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.renderer.widget import macrowidget
 from Products.Archetypes.debug import log
-from Products.Archetypes.Registry import registerPropertyType
-from Products.Archetypes.Registry import registerWidget
+from Products.Archetypes.registry import registerPropertyType
+from Products.Archetypes.registry import registerWidget
 
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo

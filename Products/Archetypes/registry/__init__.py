@@ -1,16 +1,14 @@
 import types
 import inspect
 
-from Products.Archetypes.utils import className
-
-from Products.Archetypes.interfaces.base import IBaseObject
-
-
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Globals import InitializeClass
 
-from config import DEBUG_SECURITY
+from Products.Archetypes.utils import className
+from Products.Archetypes.config import DEBUG_SECURITY
+from Products.Archetypes.interfaces.base import IBaseObject
+
 
 def getDoc(klass):
     doc = klass.__doc__ or ''

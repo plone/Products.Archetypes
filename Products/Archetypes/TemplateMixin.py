@@ -1,6 +1,6 @@
 from Products.Archetypes.schema import Schema
-from Products.Archetypes.Field import StringField
-from Products.Archetypes.Widget import SelectionWidget
+from Products.Archetypes.field import StringField
+from Products.Archetypes.widget import SelectionWidget
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
