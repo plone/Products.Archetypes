@@ -31,6 +31,14 @@
           </tal:if_visible>
         </metal:body_macro>
 
+        <metal:folderlisting_macro metal:define-macro="folderlisting"
+                                   tal:define="fl_macro here/folder_listing/macros/listing | nothing;
+                                               folderish here/isPrincipiaFolderish | nothing;">
+            <tal:if_folderlisting condition="python:folderish and fl_macro">
+                <metal:use_macro use-macro="fl_macro" />
+            </tal:if_folderlisting>
+        </metal:folderlisting_macro>
+
         <metal:footer_macro define-macro="footer" />
 
       </metal:main_macro>
