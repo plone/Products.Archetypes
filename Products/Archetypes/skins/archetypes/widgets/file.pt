@@ -12,7 +12,7 @@
      <metal:block define-slot="widget_label">
      </metal:block>
      <tal:define define="unit accessor">
-     <tal:block define="size unit/get_size | python: len(unit) or 0;
+     <tal:block define="size unit/get_size | python: unit and len(unit) or 0;
 	            icon unit/getBestIcon | nothing;
 		    filename value/filename|nothing"
 	 tal:condition="python:size>0">
