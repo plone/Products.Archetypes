@@ -308,9 +308,9 @@ class BaseObject(Implicit):
     def SearchableText(self):
         """full indexable text"""
         data = []
-        charset = self.portal_properties.site_properties.default_charset
+        charset = self.getCharset()
         for field in self.Schema().fields():
-            if field.searchable != 1:
+            if not field.searchable:
                 continue
             method = getattr(self, field.accessor)
             try:
@@ -321,16 +321,16 @@ class BaseObject(Implicit):
                 try:
                     datum =  method()
                 except:
-                    datum =  ''
+                    continue
             if datum:
-                if type(datum) is type([]) or type(datum) is type(()):
+                type_datum = type(datum)
+                if type_datum is type([]) or type_datum is type(()):
                     datum = ' '.join(datum)
                 # FIXME: we really need an unicode policy !
-                if type(datum) is type(u''):
+                if type_datum is type(u''):
                     datum = datum.encode(charset)
-                data.append(datum)
+                data.append(str(datum))
 
-        data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
         return data
 
