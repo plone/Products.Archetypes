@@ -90,6 +90,7 @@ base_factory_type_information = (
       , 'immediate_view': 'base_edit'
       , 'global_allow': True
       , 'filter_content_types': False
+      , 'allow_discussion': False
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -206,8 +207,10 @@ def modify_fti(fti, klass, pkg_name):
         fti[0]['content_icon'] = klass.content_icon
 
     if hasattr(klass, 'global_allow'):
-        allow = klass.global_allow
-        fti[0]['global_allow'] = allow
+        fti[0]['global_allow'] = klass.global_allow
+
+    if hasattr(klass, 'allow_discussion'):
+        fti[0]['allow_discussion'] = klass.allow_discussion
 
     if hasattr(klass, 'allowed_content_types'):
         allowed = klass.allowed_content_types
@@ -215,8 +218,7 @@ def modify_fti(fti, klass, pkg_name):
         fti[0]['filter_content_types'] = allowed and True or False
 
     if hasattr(klass, 'filter_content_types'):
-        filter = klass.filter_content_types
-        fti[0]['filter_content_types'] = filter
+        fti[0]['filter_content_types'] = klass.filter_content_types
 
     if hasattr(klass, 'immediate_view'):
         fti[0]['immediate_view'] = klass.immediate_view
