@@ -620,7 +620,7 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
-        if raw, return the base unit object, else return encoded raw data
+        If raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
