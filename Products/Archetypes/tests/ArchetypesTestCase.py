@@ -1,7 +1,7 @@
 #
 # ArchetypesTestCase
 #
-# $Id: ArchetypesTestCase.py,v 1.5.16.1 2004/05/13 15:59:16 shh42 Exp $
+# $Id: ArchetypesTestCase.py,v 1.5.16.2 2004/05/13 21:08:26 shh42 Exp $
 
 from Testing import ZopeTestCase
 
@@ -65,7 +65,20 @@ else:
             uf = self.portal.acl_users
             uf._doAddUser('manager', 'secret', ['Manager'], [])
 
+        # XXX Don't break third party tests
+
+        def getManagerUser(self):
+            # b/w compat
+            uf = self.portal.acl_users
+            return uf.getUserById('manager').__of__(uf)
+
+        def getMemberUser(self):
+            # b/w compat
+            uf = self.portal.acl_users
+            return uf.getUserById(default_user).__of__(uf)
+
     def setupArchetypes(app, id=portal_name, quiet=0):
+        '''Installs the Archetypes product into the portal.'''
         portal = app[id]
         if not hasattr(aq_base(portal), 'archetype_tool'):
             _start = time.time()
