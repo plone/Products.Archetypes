@@ -32,23 +32,13 @@
                            filename unit/filename | nothing"
                    condition="python:size &gt; 0">
 
-          <!---<a href="" tal:attributes="href string:${here/absolute_url}/$fieldName">--->
-            <!---<img tal:condition="icon" src=""--->
-                 <!---tal:attributes="src string:${here/portal_url}/$icon"/>--->
-              <!---<tal:i18n i18n:translate="">View</tal:i18n>--->
-              <!---<tal:filename tal:replace="filename | fieldName"/>--->
-          <!---</a>--->
-          <div class="discreet">
-          <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
-          <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
-          </div>
-          <a href=""
-             tal:condition="python:field.checkExternalEditor(here)"
-             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
-             tal:define="edit here/edit.gif">
-            <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
-            <tal:i18n i18n:translate="">Edit</tal:i18n>
-          </a>
+        <label>
+            <img tal:condition="icon" src=""
+                 tal:attributes="src string:${here/portal_url}/$icon"/>
+        Current image:
+        </label>
+          <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
+          <span class="discreet" tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
 
         </tal:block>
       </tal:define>
