@@ -325,7 +325,7 @@ class BaseObject(Implicit):
                     value = form.get(field.name)
 
                 #Set things by calling the mutator
-                if not value: continue
+                if value is None: continue
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
                 if text_format and not isFile:
