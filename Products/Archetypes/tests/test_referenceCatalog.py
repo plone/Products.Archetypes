@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.2 2003/11/07 18:23:35 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.3 2003/11/07 18:44:44 bcsaller Exp $
 """
 
 import os, sys
@@ -137,8 +137,8 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
 
         site.manage_delObjects(obj3.id)
         items = site.contentIds()
-        self.failUnless(obj3.id not in items)
-        self.failUnless(obj4.id not in items)
+        self.failIf(obj3.id in items)
+        self.failIf(obj4.id in items)
         
         
 
