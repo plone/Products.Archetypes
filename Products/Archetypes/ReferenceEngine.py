@@ -245,7 +245,7 @@ class ReferenceCatalog(UniqueObject, BTreeFolder2, ZCatalog):
             if not self.isReferenceable(object):
                 raise ReferenceException
 
-            if not hasattr(object, UUID_ATTR):
+            if not getattr(object, UUID_ATTR, None):
                 uuid = self._getUUIDFor(object)
             else:
                 uuid = getattr(object, UUID_ATTR)
