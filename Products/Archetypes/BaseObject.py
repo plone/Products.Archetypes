@@ -576,13 +576,14 @@ class BaseObject(Referenceable):
         values = {}
         for f in new_schema.fields():
             name = f.getName()
-            if name not in excluded_fields:
-                try:
-                    values[name] = self._migrateGetValue(name, new_schema)
-                except ValueError:
-                    if out != None:
-                        print >> out, ('Unable to get %s.%s'
-                                       % (str(self.getId()), name))
+            if name in excluded_fields: continue
+            if f.type == "reference": continue
+            try:
+                values[name] = self._migrateGetValue(name, new_schema)
+            except ValueError:
+                if out != None:
+                    print >> out, ('Unable to get %s.%s'
+                                   % (str(self.getId()), name))
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],

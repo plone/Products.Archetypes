@@ -1,7 +1,7 @@
 """
 Unittests for a reference Catalog
 
-$Id: test_referenceCatalog.py,v 1.8.16.6 2004/07/01 12:36:07 bcsaller Exp $
+$Id: test_referenceCatalog.py,v 1.8.16.7 2004/07/01 13:47:18 bcsaller Exp $
 """
 
 import os, sys
@@ -200,33 +200,38 @@ class ReferenceCatalogTests(ArcheSiteTestCase):
         # place a custom attribute on the reference
         # update schemas
         # test if attribute still exists on the reference object
+        rc = self.portal.reference_catalog
 
         obj1 = makeContent(self.folder, portal_type='Refnode',
                            id='one')
         uid = obj1.UID()
         obj2 = makeContent(self.folder, portal_type='Refnode', id='two')
-
+        uid2 = obj2.UID()
         # create reference
-        ref = obj1.addReference(obj2, relationship='A', attribute1="some_value")
+        obj1.update(link=[obj2.UID()])
+        ref = rc.getReferences(obj1)[0]
+        ref.attribute1 = "some_value"
+        ruid = ref.UID()
         self.failUnless(ref.attribute1=='some_value')
+
 
         get_transaction().commit(1)
         # update schema
         self.app.REQUEST.form['Archetypes.Refnode']=1
         self.app.REQUEST.form['update_all']=1
         self.portal.archetype_tool.manage_updateSchema(REQUEST=self.app.REQUEST)
-
         del obj1
-        # get the reference for obj1
-        rc = self.portal.reference_catalog
-        obj1 = rc.lookupObject(uid)
-        refs = rc.getReferences(obj1, relationship='A')
-        ref = refs[0]
 
+        # get the reference for obj1
+        obj1 = rc.lookupObject(uid)
+        refs = rc.getReferences(obj1, relationship=obj1.Schema()['link'].relationship)
+        ref = refs[0]
+        ruid2 = ref.UID()
+        assert ruid == ruid2, """ref uid got reassigned"""
         #check for the attribute
         self.failUnless(hasattr(ref, 'attribute1'), 'Custom attribute on reference object is lost during schema update')
         self.assertEqual(ref.attribute1, 'some_value')
-        self.verifyBrains()
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

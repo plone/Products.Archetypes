@@ -383,26 +383,22 @@ class BasicSchema(Schemata):
         """
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
-            if field.getName().lower() != 'id':
-                # always set defaults on writable fields
-                mutator = field.getMutator(instance)
-                if mutator is None:
-                    continue
-                #if not hasattr(aq_base(instance), field.getName()) and \
-                #   getattr(instance, field.getName(), None):
-                default = field.getDefault(instance)
-                # now handled by getDefault()
-                ##if field.default_method:
-                ##    method = getattr(instance, field.default_method, None)
-                ##    if method:
-                ##        default = method()
-                args = (default,)
-                kw = {'field': field.__name__}
-                if hasattr(field, 'default_content_type'):
-                    # specify a mimetype if the mutator takes a
-                    # mimetype argument
-                    kw['mimetype'] = field.default_content_type
-                mapply(mutator, *args, **kw)
+            if field.getName().lower() == 'id': continue
+            if field.type == "reference": continue
+
+            # always set defaults on writable fields
+            mutator = field.getMutator(instance)
+            if mutator is None:
+                continue
+            default = field.getDefault(instance)
+
+            args = (default,)
+            kw = {'field': field.__name__}
+            if hasattr(field, 'default_content_type'):
+                # specify a mimetype if the mutator takes a
+                # mimetype argument
+                kw['mimetype'] = field.default_content_type
+            mapply(mutator, *args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')
