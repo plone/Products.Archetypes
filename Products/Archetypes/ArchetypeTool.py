@@ -197,10 +197,6 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, "immediate_view"):
         fti[0]['immediate_view'] = klass.immediate_view
 
-    if not IReferenceable.isImplementedByInstancesOf(klass):
-        refs = findDict(fti[0]['actions'], 'id', 'references')
-        refs['visible'] = 0
-
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = 0
