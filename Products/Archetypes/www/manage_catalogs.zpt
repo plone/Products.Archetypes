@@ -34,16 +34,25 @@
 	
 	<form action="manage_updateCatalogs" method="POST" 
 	      tal:define="at here/archetype_tool;
-	                  catalogs at/listCatalogs;">
+	                  catalogs at/listCatalogs;
+	                  vocab at/getCatalogsInSite;">
 
-	 	 
-	    <table class="main" width="80%">
+	
+      <table class="main" width="80%">
 	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
 	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
 	  <td>
-	    <textarea cols="30" rows="4" 
-	      tal:attributes="name string:catalog_names_${meta_type/name}:lines;" 
-	      tal:content="python:'\n'.join([c.id for c in at.getCatalogsByType(meta_type['name'])])"></textarea>
+	    <select multiple="multiple"
+	      tal:define="value python:[c.id for c in at.getCatalogsByType(meta_type['name'])];"
+		tal:attributes="name string:catalog_names_${meta_type/name}:list;
+		                size python: len(vocab)">
+	      <option selected=""
+		tal:repeat="item vocab"
+		tal:attributes="value item;
+		selected python:test(item in value, 'selected', None);"
+		tal:content="item"/>
+	    </select>
+
           </td>
 	</tr>
       </table>

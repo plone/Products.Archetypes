@@ -17,6 +17,9 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
+from Products.CMFCore.interfaces.portal_catalog import portal_catalog as ICatalogTool
+from Products.ZCatalog.IZCatalog import IZCatalog
+
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.PersistentMapping import PersistentMapping
 
@@ -730,9 +733,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if key.startswith(prefix):
                 k = key[len(prefix):]
                 v = REQUEST.form.get(key)
-                if type(v) in (type(''), type(u'')):
-                    v = v.split('\n')
-                v = [i.strip() for i in v if i.strip()]
+                #if type(v) in (type(''), type(u'')):
+                #    v = v.split('\n')
+                #v = [i.strip() for i in v if i.strip()]
                 self.catalog_map[k] = v
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + "/manage_catalogs")
@@ -749,6 +752,21 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 pass
         return catalogs
 
+    def getCatalogsInSite(self):
+        """Return a list of ids for objects implementing ZCatalog"""
+        root_objects = self.portal_url.getPortalObject().objectValues()
+        res = []
+        for object in root_objects:
+            if ICatalogTool.isImplementedBy(object):
+                res.append(object.getId())
+                continue
+            if IZCatalog.isImplementedBy(object):
+                res.append(object.getId())
+                continue
 
+        res.sort()
+        
+        return res
+        
 
 InitializeClass(ArchetypeTool)
