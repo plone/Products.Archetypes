@@ -1,5 +1,7 @@
 class renderer:
-    def render(self, field_name, mode, widget, instance=None, field=None, accessor=None, **kwargs):
+
+    def render(self, field_name, mode, widget, instance=None,
+               field=None, accessor=None, **kwargs):
         if field is None:
             field = instance.Schema()[field_name]
 
