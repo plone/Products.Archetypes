@@ -1111,7 +1111,8 @@ class ImageField(ObjectField):
                         h = int(factor*image.height)
                 elif self.original_size:
                     w,h = self.original_size
-                imgdata = self.scale(data,w,h)
+                if w and h:
+                    imgdata = self.scale(data,w,h)
 
         image = self.image_class(self.getName(), self.getName(),
                                  imgdata, mimetype)
