@@ -321,8 +321,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return DisplayList(results).sortedByValue()
 
     ## Type/Schema Management
-    def listRegisteredTypes(self):
+    def listRegisteredTypes(self, inProject=None):
         """Return the list of sorted types"""
+        tt = getToolByName(self, "portal_types")
+        def isRegistered(type, tt=tt):
+            return tt.getTypeInfo(type['name']) != None
+        
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
             if v != 0: return v
@@ -335,6 +339,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         values = listTypes()
         values.sort(type_sort)
+        if inProject:
+            values = [v for v in values if isRegistered(v)]
+            
         return values
 
     def getTypeSpec(self, package, type):
@@ -397,17 +404,26 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         catalog = getToolByName(self, 'portal_catalog')
         result  = catalog({'UID' : uid})
         if result:
-            object = result[0]
-
-        return object
-
-    def getObject(self, uid):
-        object = self.lookupObject(uid)
-        if object:
-            return object.getObject()
+            #This is an awful workaround for the UID under containment
+            #problem. NonRefs will aq there parents UID which is so
+            #awful I am having trouble putting it into words.
+            for object in result:
+                o = object.getObject()
+                if o is not None:
+                    if IReferenceable.isImplementedBy(o):
+                        return o
         return None
 
+    def getObject(self, uid):
+        return self.lookupObject(uid)
 
+
+    def reference_url(self, object):
+        """Return a link to the object by reference"""
+        uid = object.UID()
+        return "%s/lookupObject?uid=%s" % (self.absolute_url(), uid)
+    
+    
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'"""
         catalog = getToolByName(self, 'portal_catalog')

@@ -1,7 +1,7 @@
 """ 
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.5 2003/04/30 22:43:34 bcsaller Exp $
+$Id: test_referenceable.py,v 1.6 2003/05/28 14:19:41 bcsaller Exp $
 """
 
 import unittest
@@ -142,6 +142,39 @@ class ReferenceableTests( SecurityRequestTest ):
         assert len(a.getRefs('KnowsAbout')) == 1
         assert len(a.getRefs()) == 2
 
+
+    def test_UIDunderContainment(self):
+        # If an object is referenced don't record its reference again
+        site = self.root.testsite
+        catalog = site.portal_catalog
+        at = site.archetype_tool
+        
+        folder = makeContent( site, portal_type='SimpleFolder',title='Foo', id='folder')
+        nonRef = makeContent( folder, portal_type='Document',title='Foo', id='nonRef')
+
+        ## This is really broken and I can't easily fix it
+        assert folder.UID() == 'folder'
+        assert nonRef.UID() != 'folder'
+
+    def test_hasRelationship(self):
+        site = self.root.testsite
+        catalog = site.portal_catalog
+        
+        a = makeContent( site, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( site, portal_type='DDocument',title='Foo', id='b')
+        c = makeContent( site, portal_type='DDocument',title='Foo', id='c')
+
+        #Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+
+        assert a.hasRelationshipTo(b) == 1
+        assert a.hasRelationshipTo(b, "KnowsAbout") == 1
+        assert a.hasRelationshipTo(b, "Foo") == 0
+        assert a.hasRelationshipTo(c) == 0
+        assert a.hasRelationshipTo(c, "KnowsAbout") == 0
+
+        #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
+        
         
 def test_suite():
     suite = unittest.TestSuite()
