@@ -23,10 +23,12 @@
         review_state
         </a>)
         </span>
+	<!-- Users don't care about content types
         <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
-              tal:omit-tag="">
-             (<span tal:replace="python:field.getContentType(here)" />)
+	tal:omit-tag="">
+	(<span tal:replace="python:field.getContentType(here)" />)
         </span>
+	-->
 	      <div metal:define-slot="widget_view"/>
 	      <br/>
       </div>
@@ -50,6 +52,7 @@
                                  class python:test(review_state, review_state, 'private')"
                  tal:content="review_state">review_state</a>)
              </span>
+	    <!-- I'll let this go, content authors might care -->
              <span tal:condition="python:hasattr(field, 'getContentType') and field.getContentType(here)"
                    tal:omit-tag="">
              (<span tal:replace="python:field.getContentType(here)" />)
