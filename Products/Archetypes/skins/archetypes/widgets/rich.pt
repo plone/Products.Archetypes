@@ -40,7 +40,12 @@ default.
 
               <span class="discreet" 
                     i18n:translate="upload_a_file">upload a file</span>
-              <metal:use use-macro="here/widgets/file/macros/file_upload" />
+              <input type="file"
+                     size="30"
+                     tabindex=""
+                     tal:attributes="name string:${fieldName}_file;
+                                     id string:${fieldName}_file;
+                                     tabindex tabindex/next;"/>
           </div>
         </metal:fill>
       </metal:use>
