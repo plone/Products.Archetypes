@@ -20,7 +20,7 @@ class FakeTransformer:
         self.expected = expected
 
     def convertTo(self, target_mimetype, orig, data=None, object=None, **kwargs):
-        assert orig == self.expected
+        assert orig == self.expected, '????'
         if data is None:
             data = datastream('test')
         data.setData(orig)
@@ -94,14 +94,22 @@ class UnicodeBaseUnitTest(ArchetypesTestCase):
         self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
 
     def test_store(self):
-        self.failUnless(type(self.bu.raw is type(u'')))
+        """check non binary string are stored as unicode"""
+        self.failUnless(type(self.bu.raw) is type(u''))
 
     def test_getRaw(self):
+        """check bu.getRaw return the ustring encoded with the default charset
+        or the specified one if any
+        """
         self.failUnlessEqual(self.bu.getRaw(), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(self.bu.getRaw('ISO-8859-1'), 'héhéhé')
 
     def test_transform(self):
+        """check the string given to the transformer is encoded using its 
+        original encoding, and finally returned using the default charset
+        """
         instance = Dummy()
+        instance.aq_parent = None
         instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
