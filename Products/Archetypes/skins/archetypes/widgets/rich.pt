@@ -11,8 +11,8 @@
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view"
-                   tal:define="binary python: here.isBinary(fieldName);">
-	  <span tal:condition="not:binary"
+             tal:define="transformable python: here.isTransformable(fieldName);">
+	  <span tal:condition="transformable"
                 tal:replace="structure accessor"/>
 	  <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
 	</div>

@@ -300,7 +300,11 @@ class ObjectField(Field):
             return self.default
 
     def getRaw(self, instance, **kwargs):
-        accessor = self.getAccessor(instance)
+        if self.accessor is not None:
+            accessor = self.getAccessor(instance)
+        else:
+            # self.accessor is None for fields wrapped by an I18NMixIn
+            accessor = None
         if accessor is None:
             return self.get(instance, **kwargs)
         return accessor(**kwargs)
@@ -537,16 +541,12 @@ class TextField(ObjectField):
         if not hasattr(value,'transform'): # oldBaseUnits have no transform
             return str(value)
 
-        data = value.transform(instance, mimetype, cache=1)
-        if not data:
-            data = value.transform(instance, 'text/plain', cache=1)
+        data = value.transform(instance, mimetype)
+        if not data and mimetype != 'text/plain':
+            data = value.transform(instance, 'text/plain')
+
         if not data:
             return ''
-
-        if idatastream.isImplementedBy(data):
-            data = data.getData()
-        if type(data) == type({}) and data.has_key('html'):
-            return data['html']
         return data
 
 
