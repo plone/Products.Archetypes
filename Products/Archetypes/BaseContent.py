@@ -72,7 +72,7 @@ class BaseContent(BaseObject, Referenceable,
 
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mime_type=REQUEST.get_header('Content-Type', None)
+        mimetype=REQUEST.get_header('Content-Type', None)
 
         file=REQUEST['BODYFILE']
         data = file.read()
@@ -80,11 +80,11 @@ class BaseContent(BaseObject, Referenceable,
         filename = REQUEST._steps[0] #XXX fixme, use a real name
 
         #transformer = getToolByName(self, 'transform_tool')
-        #mime_type   = transformer.classify(data, mime_type=type)
+        #mimetype   = transformer.classify(data, mimetype=type)
 
         #Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mime_type=mime_type)
+        ddata = marshaller.demarshall(self, data, mimetype=mimetype)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)

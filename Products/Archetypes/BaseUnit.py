@@ -26,9 +26,9 @@ class newBaseUnit(File):
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', instance=None, mime_type=None):
+    def __init__(self, name, file='', instance=None, mimetype=None):
         self.id = name
-        self.update(file, instance, mime_type)
+        self.update(file, instance, mimetype)
 
     def update(self, data, instance, mimetype=None):
         #Convert from file/str to str/unicode as needed
@@ -141,12 +141,12 @@ class newBaseUnit(File):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mime_type=REQUEST.get_header('Content-Type', None)
+        mimetype=REQUEST.get_header('Content-Type', None)
 
         file=REQUEST['BODYFILE']
         data = file.read()
 
-        self.update(data, mime_type=mime_type)
+        self.update(data, mimetype=mimetype)
 
         self.aq_parent.reindexObject()
         RESPONSE.setStatus(204)
@@ -169,14 +169,14 @@ class oldBaseUnit(File, ObjectManager):
     __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
-    def __init__(self, name, file='', instance=None, mime_type=None):
+    def __init__(self, name, file='', instance=None, mimetype=None):
         self.id = name
         self.filename = ''
         self.data = ''
         self.size = 0
         self.content_type = None
-        self.mimetype = mime_type
-        self.update(file, mime_type)
+        self.mimetype = mimetype
+        self.update(file, mimetype)
 
     def __str__(self):
         #This should return the default transform for the type,
@@ -193,30 +193,30 @@ class oldBaseUnit(File, ObjectManager):
         self.aq_parent.reindexObject()
         return self.getHTML()
 
-    def update(self, file, mime_type=None):
+    def update(self, file, mimetype=None):
         if file and (type(file) is not type('')):
             if hasattr(file, 'filename') and file.filename != '':
                 self.fullfilename = getattr(file, 'filename')
                 self.filename = basename(self.fullfilename)
 
-        driver, mime_type = self._driverFromType(mime_type, file)
+        driver, mimetype = self._driverFromType(mimetype, file)
 
-        self.content_type = mime_type
-        self._update_data(file, mime_type, driver)
+        self.content_type = mimetype
+        self._update_data(file, mimetype, driver)
 
-    def _driverFromType(self, mime_type, file=None):
+    def _driverFromType(self, mimetype, file=None):
         driver = None
         try:
-            plugin = selectPlugin(file=file, mime_type=mime_type)
-            mime_type = str(plugin)
+            plugin = selectPlugin(file=file, mimetype=mimetype)
+            mimetype = str(plugin)
             driver    = plugin.getConverter()
         except:
             log_exc()
             plugin = lookupContentType('text/plain')
-            mime_type = str(plugin)
+            mimetype = str(plugin)
             driver    = plugin.getConverter()
 
-        return driver, mime_type
+        return driver, mimetype
 
 
     def _update_data(self, file, content_type, driver):
@@ -328,8 +328,8 @@ class oldBaseUnit(File, ObjectManager):
 
         file=REQUEST['BODYFILE']
         data = file.read()
-        driver, mime_type = self._driverFromType(type, file)
-        self._update_data(data, mime_type, driver)
+        driver, mimetype = self._driverFromType(type, file)
+        self._update_data(data, mimetype, driver)
         self.size = len(data)
 
         self.aq_parent.reindexObject()

@@ -119,8 +119,8 @@ class BaseObject(Implicit):
         element = getattr(self, key, None)
         if element and hasattr(aq_base(element), 'isBinary'):
             return element.isBinary()
-        mime_type = self.getContentType(key)
-        if mime_type and mime_type.find('text') >= 0:
+        mimetype = self.getContentType(key)
+        if mimetype and mimetype.find('text') >= 0:
             return 0
         return 1
 
@@ -313,7 +313,7 @@ class BaseObject(Implicit):
                 # text field with formatting
                 if hasattr(field, 'allowable_content_types') and \
                    field.allowable_content_types:
-                    #was a mime_type specified
+                    #was a mimetype specified
                     text_format = form.get("%s_text_format" % field.getName())
                 # or a file?
                 fileobj = form.get('%s_file' % field.getName())
@@ -331,7 +331,7 @@ class BaseObject(Implicit):
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
                 if text_format and not isFile:
-                    mutator(value, mime_type=text_format)
+                    mutator(value, mimetype=text_format)
                 else:
                     mutator(value)
 

@@ -29,13 +29,13 @@ class ContentTypeTest( unittest.TestCase ):
 
     def test_textfieldwithmime(self):
         obj = self._dummy
-        obj.setAtextfield('Bla', mime_type='text/restructured')
+        obj.setAtextfield('Bla', mimetype='text/restructured')
         self.failUnless(obj.getAtextfield().getRaw() == 'Bla')
         self.failUnless(obj.getField('atextfield').getContentType(obj) == 'text/restructured')
 
     def test_textfieldwithmime2(self):
         obj = self._dummy
-        obj.setAtextfield('Bla', mime_type='text/structured')
+        obj.setAtextfield('Bla', mimetype='text/structured')
         self.failUnless(obj.getAtextfield().getRaw() == 'Bla')
         self.failUnless(obj.getField('atextfield').getContentType(obj) == 'text/structured')
 
@@ -54,13 +54,13 @@ class ContentTypeTest( unittest.TestCase ):
 
     def test_filefieldwithmime(self):
         obj = self._dummy
-        obj.setAfilefield('Bla', mime_type='text/restructured')
+        obj.setAfilefield('Bla', mimetype='text/restructured')
         self.failUnless(str(obj.getAfilefield()) == 'Bla')
         self.failUnless(obj.getField('afilefield').getContentType(obj) == 'text/restructured')
 
     def test_filefieldwithmime2(self):
         obj = self._dummy
-        obj.setAfilefield('Bla', mime_type='text/structured')
+        obj.setAfilefield('Bla', mimetype='text/structured')
         self.failUnless(str(obj.getAfilefield()) == 'Bla')
         self.failUnless(obj.getField('afilefield').getContentType(obj) == 'text/structured')
 

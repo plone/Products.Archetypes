@@ -280,17 +280,17 @@ class FileField(StringField):
         })
 
     def _process_input(self, value, default=None,
-                       mime_type=None, **kwargs):
+                       mimetype=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
-            if mime_type is None:
-                mime_type, enc = guess_content_type('', value, mime_type)
+            if mimetype is None:
+                mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
             f_name = ''
@@ -299,14 +299,14 @@ class FileField(StringField):
             if isinstance(value, FileType):
                 f_name = value.name
             value = value.read()
-            if mime_type is None:
-                mime_type, enc = guess_content_type(f_name, value, mime_type)
+            if mimetype is None:
+                mimetype, enc = guess_content_type(f_name, value, mimetype)
             size = len(value)
             if size == 0:
                 # This new file has no length, so we keep
                 # the orig
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
@@ -315,13 +315,13 @@ class FileField(StringField):
         return None
 
     def set(self, instance, value, **kwargs):
-        if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = None
+        if not kwargs.has_key('mimetype'):
+            kwargs['mimetype'] = None
 
-        value, mime_type = self._process_input(value,
+        value, mimetype = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
-        kwargs['mime_type'] = mime_type
+        kwargs['mimetype'] = mimetype
 
         # FIXME: ugly hack
         try:
@@ -329,8 +329,8 @@ class FileField(StringField):
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
-        types_d[self.getName()] = mime_type
-        value = File(self.getName(), '', value, mime_type)
+        types_d[self.getName()] = mimetype
+        value = File(self.getName(), '', value, mimetype)
         ObjectField.set(self, instance, value, **kwargs)
 
 
@@ -352,18 +352,22 @@ class TextField(ObjectField):
     def defaultView(self):
         return self.default_output_type
 
-    def _process_input(self, value, default=None, \
-                       mime_type=None, **kwargs):
+    def _process_input(self, value, default=None, 
+                       mimetype=None, encoding=None, **kwargs):
         # We also need to handle the case where there is a baseUnit
         # for this field containing a valid set of data that would
         # not be reuploaded in a subsequent edit, this is basically
         # migrated from the old BaseObject.set method
         if type(value) in STRING_TYPES:
-            if mime_type is None:
-                mime_type, enc = guess_content_type('', str(value), mime_type)
+            if encoding is not None and type(value) == type(u''):
+                value = value.encode(encoding)
+            else:
+                value = str(value)
+            if mimetype is None:
+                mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mime_type
-            return value, mime_type
+                return default, mimetype
+            return value, mimetype
         else:
             if ((isinstance(value, FileUpload) and value.filename != '') or
                 (isinstance(value, FileType) and value.name != '')):
@@ -374,19 +378,19 @@ class TextField(ObjectField):
                 if isinstance(value, FileType):
                     f_name = value.name
                 value = value.read()
-                if mime_type is None:
-                    mime_type, enc = guess_content_type(f_name, value, mime_type)
+                if mimetype is None:
+                    mimetype, enc = guess_content_type(f_name, value, mimetype)
                 size = len(value)
                 if size == 0:
                     # This new file has no length, so we keep
                     # the orig
-                    return default, mime_type
-                return value, mime_type
+                    return default, mimetype
+                return value, mimetype
 
             elif IBaseUnit.isImplementedBy(value):
-                if mime_type is None:
-                    mime_type, enc = guess_content_type('', str(value), mime_type)
-                return value, getattr(aq_base(value), 'mimetype', mime_type)
+                if mimetype is None:
+                    mimetype, enc = guess_content_type('', str(value), mimetype)
+                return value, getattr(aq_base(value), 'mimetype', mimetype)
 
         raise TextFieldException('Value is not File, String or BaseUnit on %s: %r' % (self.getName(), type(value)))
 
@@ -398,10 +402,10 @@ class TextField(ObjectField):
                 value = accessor(raw=1)
             except TypeError:
                 value = accessor()
-        mime_type = getattr(aq_base(value), 'mimetype', None)
-        if mime_type is None:
-            mime_type, enc = guess_content_type('', str(value), None)
-        return mime_type
+        mimetype = getattr(aq_base(value), 'mimetype', None)
+        if mimetype is None:
+            mimetype, enc = guess_content_type('', str(value), None)
+        return mimetype
 
 
     def getRaw(self, instance, **kwargs):
@@ -424,7 +428,7 @@ class TextField(ObjectField):
             return value
         
         if mimetype is None:
-            mimetype = 'text/html' # XXX: default_output_type ?
+            mimetype =  self.default_output_type or 'text/plain'
         
         if not hasattr(value,'transform'): # oldBaseUnits have no transform
             return str(value)
@@ -443,18 +447,20 @@ class TextField(ObjectField):
 
 
     def set(self, instance, value, **kwargs):
-        if not kwargs.has_key('mime_type'):
-            kwargs['mime_type'] = None
+        if not kwargs.has_key('mimetype'):
+            kwargs['mimetype'] = None
+        if not kwargs.has_key('encoding'):
+            kwargs['encoding'] = None
 
-        value, mime_type = self._process_input(value,
-                                               default=self.default, \
-                                               **kwargs)
-        kwargs['mime_type'] = mime_type
+        value, mimetype = self._process_input(value,
+                                              default=self.default,
+                                              **kwargs)
+        kwargs['mimetype'] = mimetype
 
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
-            bu = BaseUnit(self.getName(), value, mime_type=mime_type, instance=instance)
+            bu = BaseUnit(self.getName(), value, mimetype=mimetype, instance=instance)
 
         ObjectField.set(self, instance, bu, **kwargs)
 
@@ -878,8 +884,8 @@ class ImageField(ObjectField):
         # test for scaling it.
         if has_pil:
             if self.original_size or self.max_size:
-                mime_type = kwargs.get('mime_type', 'image/png')
-                image = Image(self.getName(), self.getName(), value, mime_type)
+                mimetype = kwargs.get('mimetype', 'image/png')
+                image = Image(self.getName(), self.getName(), value, mimetype)
                 data=str(image.data)
                 if self.max_size:
                     if image.width > self.max_size[0] or image.height > self.max_size[1]:
@@ -891,10 +897,10 @@ class ImageField(ObjectField):
                     w,h=self.original_size
                 imgdata=self.scale(data,w,h)
         else:
-            mime_type = kwargs.get('mime_type', 'image/png')
+            mimetype = kwargs.get('mimetype', 'image/png')
             imgdata=value
 
-        image = Image(self.getName(), self.getName(), imgdata, mime_type)
+        image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
         ObjectField.set(self, instance, image, **kwargs)
 

@@ -1,4 +1,7 @@
 2003-06-18  Sylvain Thénault  <syt@logilab.fr>
+	* always use mimetype (and not mime_type) as variable / argument,
+	for consistency.
+	
 	* TransformTool.py: fix persistence bug in the transformations
 	mapping , add support for list and dictionary in
 	transforms'configuration.
