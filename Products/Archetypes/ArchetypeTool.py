@@ -114,7 +114,7 @@ def process_types(types, pkg_name):
         typeName = rti['name']
         klass  = rti['klass']
         module = rti['module']
-        
+
         if hasattr(module, "factory_type_information"):
             fti = module.factory_type_information
         else:
@@ -150,7 +150,7 @@ def _guessPackage(base):
 
 def registerType(klass, package=None):
     if not package: package = _guessPackage(klass.__module__)
-    
+
     ## registering a class results in classgen doing its thing
     ## Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)
@@ -336,7 +336,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return '%s.%s' % (module, klass)
 
     def listTypes(self, package=None):
-        """just the names"""
+        """just the class"""
         return [t['klass'] for t in listTypes(package)]
 
 
