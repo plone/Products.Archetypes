@@ -79,7 +79,11 @@
    brain doesn't have a valid uid.
    [tiran]
 
- * Refresh the uid catalog and reference catalog after migration
+ * Refresh the uid catalog and reference catalog after migration.
+   [tiran]
+
+ * Don't commit full transactions inside migration. This may lead to database
+   corruption.
    [tiran]
 
 1.3.0-beta5 - 2004-08-06
