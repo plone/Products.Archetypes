@@ -1,3 +1,8 @@
+2004-12-04  Cyrille Lebeaupin  <cyrille.lebeaupin@ingeniweb.com>
+
+	* utils.py (getMsgId): Compare type to string, unicode and int types, not
+	only StringType. Fix bug with interger keys in DisplayList.
+
 2004-12-04  Dorneles Treméa  <deo@plonesolutions.com>
 
 	* Field.py (getBaseUnit): Remove unnecessary code to give precedence
