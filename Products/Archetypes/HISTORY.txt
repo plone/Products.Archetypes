@@ -1,6 +1,12 @@
 1.3.0-rc3 -
 ======================
 
+ * Partly fixed [ 1024966 ] Reference migration problem: 1.3a2 --> 1.3rc2.
+   References without a relationship name will get the relationship name
+   EMPTY_RELATIONSHIP which is 'related' by default. That should be fine for all
+   people.
+   [tiran]
+
  * Added 'swallowResizeExceptions' attribute to ImageField. When the property is
    set to True all exceptions raised by PIL are captured and the specified scale
    isn't created.

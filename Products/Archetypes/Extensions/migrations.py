@@ -13,6 +13,9 @@ from Products.Archetypes.interfaces.base import IBaseObject
 # required if you don't have enough space and memory
 USE_FULL_TRANSACTIONS = False
 
+# value used for empty relationships
+EMPTY_RELATIONSHIP = 'related'
+
 class StdoutStringIO(StringIO):
     """StringIO that also writes to stdout
     """
@@ -78,6 +81,9 @@ def migrateReferences(portal, out):
                 targetBrains = uc(**{olduididx:targetUID})
                 assert(len(targetBrains) == 1,'catalog query for OLD uid (%s) returned %d results instead of 1' % (targetUID,len(targetBrains)))
                 targetObj=targetBrains[0].getObject()
+                # fix empty relationship
+                if not relationship:
+                    relationship = EMPTY_RELATIONSHIP
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
                 count+=1        
@@ -116,9 +122,12 @@ def migrateReferences(portal, out):
             if not targetObject:
                 print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
                 continue
-                
+            relationship = brain.relationship
+            # fix empty relationship
+            if not relationship:
+                relationship = EMPTY_RELATIONSHIP
+            sourceObject.addReference(targetObject, relationship = relationship)
             count+=1
-            sourceObject.addReference(targetObject,relationship=brain.relationship)
             if not count % 10:
                 print >>out, '.',
             # avoid eating up all RAM
