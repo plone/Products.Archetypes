@@ -440,7 +440,21 @@ class EpozWidget(TextAreaWidget):
         'macro' : "widgets/epoz",
         })
 
+class InAndOutWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/inandout",
+        'size' : '6',
+        'helper_js': ('widgets/js/inandout.js',),
+        })
 
+class PicklistWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/picklist",
+        'size' : '6',
+        'helper_js': ('widgets/js/picklist.js',),
+        })
 
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
@@ -448,7 +462,7 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           )
+           'InAndOutWidget', 'PicklistWidget',)
 
 from Registry import registerWidget
 
@@ -586,6 +600,22 @@ registerWidget(EpozWidget,
                title='Epoz',
                description='Renders a HTML Epoz widget',
                used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(InAndOutWidget,
+	       title='In & Out',
+	       description=('Renders a widget for moving items '
+                            'from one list to another. Items are '
+                            'removed from the first list.'),
+	       used_for=('Products.Archetypes.Field.LinesField',)
+	       )
+
+registerWidget(PicklistWidget,
+	       title='Picklist',
+	       description=('Render a widget to pick from one '
+                            'list to populate another.  Items '
+                            'stay in the first list.'),
+               used_for=('Products.Archetypes.Field.LinesField',)
                )
 
 from Registry import registerPropertyType

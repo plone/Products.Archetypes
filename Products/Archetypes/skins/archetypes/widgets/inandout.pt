@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- In & Out Widget -->
+    <!-- by Spanky: Snow-Sprint, Schruns, Austria 2004 -->
+
+    <div class="field" metal:define-macro="view">
+      <metal:block define-slot="widget_label">
+      </metal:block>
+      <metal:block use-macro="here/widgets/field/macros/view">
+        <metal:block fill-slot="widget_view"
+                     tal:define="vocab python:field.Vocabulary(here);
+                     value python:accessor();
+                     display python:here.displayValue(vocab, value);">
+          <span tal:replace="structure display"/>
+        </metal:block>
+      </metal:block>
+    </div>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body"
+                    tal:define="vocab python:field.Vocabulary(here);
+                    vlen python:len(vocab)">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="not:field/required|nothing"
+                 tal:attributes="name string:$fieldName:default:list;" />
+
+            <table>
+                <tr tal:define="value python:accessor();
+                                        vocab python:field.Vocabulary(here);">
+                <td>
+                    <select
+                      multiple="multiple"
+                      tal:attributes="name string:${fieldName}_options;
+                        id string:${fieldName}_options;
+                        size widget/size;
+                        tabindex tabindex/next;
+                        onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
+
+                    <tal:block tal:repeat="item vocab">
+                        <option
+                            tal:define="label python:vocab.getValue(item)"
+                            tal:condition="python:test(here.unicodeTestIn(item, value), 0, 1)"
+                            tal:attributes="value item;"
+                            tal:content="label" />
+                    </tal:block>
+
+                  </select>
+                </td>
+
+                <td>
+                    <input type="button" class="context" value=">>"
+                            tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')" /><br />
+                    <input type="button" class="context" value="<<"
+                            tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')" />
+                </td>
+
+                <td>
+                  <select
+                      multiple="multiple"
+                      tal:attributes="name string:${fieldName}:list;
+                        id string:${fieldName};
+                        size widget/size;
+                        tabindex tabindex/next;
+                        onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
+
+                    <tal:block tal:repeat="item vocab">
+                        <option selected
+                            tal:define="label python:vocab.getValue(item)"
+                            tal:condition="python:test(here.unicodeTestIn(item, value), 1, 0)"
+                            tal:attributes="value item;"
+                            tal:content="label" />
+                    </tal:block>
+
+                  </select>
+                </td>
+                </tr>
+            </table>
+
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/multiselection/macros/edit">
+      </div>
+    </div>
+
+  </body>
+</html>

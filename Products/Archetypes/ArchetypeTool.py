@@ -66,7 +66,9 @@ except ImportError:
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
-_zmi = os.path.join(_skins, 'zmi')
+_zmi = os.path.join(_www, 'zmi')
+document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
+folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
 # Never actually used
@@ -322,17 +324,24 @@ def registerClasses(context, package, types=None):
                                              'portal_type':portal_type}
                                       ))
 
-        klass.manage_options = (({'label' : 'Edit',
+        position = 0
+        for item in klass.manage_options:
+            if item['label'] != 'Contents':
+                continue
+            position += 1
+        folderish = getattr(klass, 'isPrincipiaFolderish', position)
+        options = list(klass.manage_options)
+        options.insert(position, {'label' : 'Edit',
                                   'action' : editFormName
-                                  },) +
-                                klass.manage_options)
-
+                                  })
+        klass.manage_options = tuple(options)
         generatedForm = getattr(module, addFormName)
         context.registerClass(
             t['klass'],
             constructors=(generatedForm,
                           constructor),
             visibility=None,
+            icon=folderish and folder_icon or document_icon,
             )
 
 def listTypes(package=None):

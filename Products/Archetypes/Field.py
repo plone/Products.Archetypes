@@ -508,14 +508,14 @@ class FileField(StringField):
             if mimetype is None:
                 mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mimetype
-            return value, mimetype
+                return default, mimetype, ''
+            return value, mimetype, ''
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
             f_name = ''
-            if isinstance(value, FileUpload):
+            if isinstance(value, FileUpload) or hasattr(value, 'filename'):
                 f_name = value.filename
-            if isinstance(value, FileType):
+            if isinstance(value, FileType) or hasattr(value, name):
                 f_name = value.name
             value = value.read()
             if mimetype is None:
@@ -524,8 +524,8 @@ class FileField(StringField):
             if size == 0:
                 # This new file has no length, so we keep
                 # the orig
-                return default, mimetype
-            return value, mimetype
+                return default, mimetype, f_name
+            return value, mimetype, f_name
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
@@ -548,9 +548,9 @@ class FileField(StringField):
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
-        value, mimetype = self._process_input(value,
-                                               default=self.default,
-                                               **kwargs)
+        value, mimetype, f_name = self._process_input(value,
+                                                      default=self.default,
+                                                      **kwargs)
         kwargs['mimetype'] = mimetype
 
         if value=="DELETE_FILE":
@@ -574,6 +574,7 @@ class FileField(StringField):
             value = ''
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
+        setattr(value, 'filename', f_name or self.getName())
         ObjectField.set(self, instance, value, **kwargs)
 
     def validate_required(self, instance, value, errors):
