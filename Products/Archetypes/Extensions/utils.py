@@ -169,7 +169,6 @@ def install_types(self, out, types, package_name):
             pass
 
         typeinfo_name = "%s: %s" % (package_name, type.__name__)
-
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.__name__,
                                                 typeinfo_name=typeinfo_name)
@@ -184,25 +183,42 @@ def install_actions(self, out, types):
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    catalog = getToolByName(self, 'portal_catalog')
-    catalog = aq_base(catalog)
-
+    
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
 
         for field in cls.schema.fields():
             if field.index:
+                portal_catalog = catalog = getToolByName(self, 'portal_catalog')
+                
                 if type(field.index) is StringType:
                     index = (field.index,)
-                else:
+                elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
-
+                else:
+                    raise SyntaxError("Invalid Index Specification %r"%field.index)
+                
                 for alternative in index:
                     installed = None
-                    schema = alternative.split(':', 1)
-                    if len(schema) == 2 and schema[1] == 'schema':
-                        # FIXME: why do we try/except this part ?
+                    index_spec = alternative.split(':', 1)
+                    use_column  = 0 
+                    if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
+                        use_column = 1
+                    index_spec = index_spec[0]
+
+                    parts = index_spec.split('|')
+                    # we want to be able to specify which catalog we want to use
+                    # for each index. syntax is
+                    # index=('member_catalog/:schema',)
+                    # portal catalog is used by default if not specified
+                    if parts[0].find('/') > 0:
+                        str_idx = parts[0].find('/')
+                        catalog_name = parts[0][:str_idx]
+                        parts[0] = parts[0][str_idx+1:]
+                        catalog = getToolByName(self, catalog_name)
+                    
+                    if use_column:
                         try:
                             if field.accessor not in catalog.schema():
                                 catalog.addColumn(field.accessor)
@@ -210,13 +226,10 @@ def install_indexes(self, out, types):
                             import traceback
                             traceback.print_exc(file=out)
 
-                    # we may want to add a field to metadata without
-                    # indexing it
-                    if not schema[0]:
-                        continue
-
-                    parts = schema[0].split('|')
-
+                    # if you want to add a schema field without an index
+                    #if not parts[0]:
+                    #    continue
+                        
                     for itype in parts:
                         extras = itype.split(',')
                         if len(extras) > 1:
