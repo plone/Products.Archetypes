@@ -1,6 +1,7 @@
 """
 """
 
+##############################################################################
 # patch 1:
 # Fixes #1013363 (renaming of folders nukes all references to AT objects inside
 # them)
@@ -27,3 +28,16 @@ PortalContent._notifyOfCopyTo = _notifyOfCopyTo
 from Products.CMFCore.PortalFolder import PortalFolder
 PortalFolder._at_orig_notifyOfCopyTo = PortalFolder._notifyOfCopyTo
 PortalFolder._notifyOfCopyTo = _notifyOfCopyTo
+
+##############################################################################
+# patch 2:
+# module aliases for persistence
+
+# XXX TODO
+# archetype tool
+# archetype ttw tool
+# reference catalog
+# uid catalog
+# reference objects
+
+
