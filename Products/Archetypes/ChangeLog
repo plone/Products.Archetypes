@@ -1,6 +1,8 @@
 2003-09-04  Sidnei da Silva  <sidnei@plone.org>
 
 	* Marshall.py (RFC822Marshaller.marshall): And more marshalling fixes.
+	(RFC822Marshaller.marshall): Dang. Missing a parameter to
+	getContentType call.
 
 	* BaseObject.py (BaseObject.__getitem__): Avoid breakage when
 	fields dont take **kw.

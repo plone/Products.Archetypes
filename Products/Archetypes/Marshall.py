@@ -48,7 +48,7 @@ class PrimaryFieldMarshaller(Marshaller):
         else:
             log("WARNING: PrimaryFieldMarshaller(%r): field %r does not return a IBaseUnit instance." % (instance, p.getName()))
             if hasattr(p, 'getContentType'):
-                content_type = p.getContentType() or 'text/plain'
+                content_type = p.getContentType(instance) or 'text/plain'
             else:
                 content_type = data and guess_content_type(data) or 'text/plain'
             length = len(data)
@@ -89,7 +89,7 @@ class RFC822Marshaller(Marshaller):
             body   = body.getRaw()
         else:
             if p and hasattr(p, 'getContentType'):
-                content_type = p.getContentType() or 'text/plain'
+                content_type = p.getContentType(instance) or 'text/plain'
             else:
                 content_type = body and guess_content_type(body) or 'text/plain'
 
