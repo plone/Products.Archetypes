@@ -1,9 +1,19 @@
-After 1.3.0-rc3
-===============
+<<<<<<< .mine
+1.3.0 -
+==================
 
  * Fixed [ 1032587 ] Error in field.Vocabulary. Thanks to Danny Bloemendaal
    for the catch.
    [dtremea]
+
+ * Disabled two unit tests in test_marshaller because they were causing a memory
+   fault in glibc. It's probably the cause of either wvWare or the test doc
+   file.
+   [tiran]
+
+ * Added transaction_note to PloneCompat and use it instead of the one from
+   Plone to keep backward comp. with CMF as requested on the mailing list.
+   [tiran]
 
 1.3.0-rc3 - 2004-09-18
 ======================
