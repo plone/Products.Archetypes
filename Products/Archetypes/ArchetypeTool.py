@@ -714,8 +714,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not instances:
             for t in self.listTypes(package, type):
                 instance = t('fake_instance')
+                instance._at_is_fake_instance = True
+                # XXX _is_fake_instance will go away in AT 1.4
+                instance._is_fake_instance = True
                 wrapped = instance.__of__(context)
-                wrapped._at_is_fake_instance = True
                 wrapped.initializeArchetype()
                 #if isinstance(wrapped, DefaultDublinCoreImpl):
                 #    DefaultDublinCoreImpl.__init__(wrapped)
