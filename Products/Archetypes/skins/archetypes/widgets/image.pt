@@ -12,12 +12,10 @@
       <tal:def define="img accessor; inline python: img and
 	       (img.getSize() &lt;= widget.display_threshold) and
 	       (request.get('HTTP_ACCEPT', '').find(img.getContentType()) &gt;= 0)">
-	<img tal:replace="structure img/tag"
-	     tal:condition="inline"
-	     src="foo.png"
-	     alt="image" />
-	<tal:if condition="not:inline">
-	</tal:if>
+	      <img tal:replace="structure img/tag"
+               tal:condition="inline"
+               src="foo.png"
+               alt="image" />
       </tal:def>
     </div>
 
@@ -30,14 +28,34 @@
 
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
-	<metal:fill fill-slot="widget_body">
-	  <div>
-	    <metal:display use-macro="here/widgets/image/macros/image_display">
-	      <br />
-	    </metal:display>
-	  </div>
-	  <metal:use use-macro="here/widgets/file/macros/file_edit"/>
-	</metal:fill>
+        <metal:fill fill-slot="widget_body">
+          <div>
+            <metal:display use-macro="here/widgets/image/macros/image_display">
+              <br />
+	        </metal:display>
+	      </div>
+	      <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
+          <div tal:condition="accessor">
+            <input class="noborder"
+                   type="checkbox"
+                   value="on"
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_checkbox;
+                       checked python:str(value) == '1';"
+		     />
+            <span i18n:translate="delete_image">delete image</span>
+          </div>
+          <div>
+            <input type="file"
+                   size="30"
+                   tabindex=""
+                   tal:attributes="name string:${fieldName}_file;
+                                   tabindex tabindex/next;"
+            />
+          </div>
+	    </metal:fill>
       </metal:use>
     </metal:define>
 
