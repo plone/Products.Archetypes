@@ -1,3 +1,8 @@
+2003-04-15  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* Made widget.Description more runtime callable by looking for an
+	optional method on the class of its name and returning its value. 
+
 2003-04-15  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* skins/archetypes/widgets/lines.pt: Should be :lines, not
