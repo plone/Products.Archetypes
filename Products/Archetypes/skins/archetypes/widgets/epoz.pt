@@ -3,9 +3,9 @@
 <html xmlns:tal="http://xml.zope.org/namespaces/tal"
   xmlns:metal="http://xml.zope.org/namespaces/metal"
   i18n:domain="plone">
-  
+
   <body>
-    
+
     <!-- Epoz Widgets -->
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
@@ -16,7 +16,12 @@
     </div>
 
     <metal:define define-macro="edit_area">
-      <tal:define define="inputname fieldName;inputvalue python:request.get(fieldName, accessor())">
+      <tal:define define="inputname fieldName;
+           value python: accessor();
+           base python: hasattr(value, 'isUnit');
+	   binary python: base and value.isBinary() or here.isBinary(fieldName);
+	   content python: (base == 1) and value.getRaw() or value ;
+	   inputvalue python: (binary == 0) and content or ''">
 	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
       <input type="hidden" tal:attributes="name string: ${fieldName}_text_format;" value="text/html"/>
@@ -25,18 +30,18 @@
 
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
-	<metal:fill  metal:fill-slot="widget_body">
+	<metal:fill metal:fill-slot="widget_body">
 	  <metal:widget use-macro="here/widgets/epoz/macros/edit_area">The Widget</metal:widget>
 	</metal:fill>
       </metal:use>
     </metal:define>
-    
+
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/string/macros/edit">
       </div>
     </div>
-    
+
   </body>
-  
+
 </html>
 
