@@ -14,7 +14,7 @@ from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 
 from Products.Archetypes.exceptions import ObjectFieldException, \
-     TextFieldException, FileFieldException
+     TextFieldException, FileFieldException, ReferenceException
 from Products.Archetypes.Widget import *
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
@@ -1392,10 +1392,11 @@ class ReferenceField(ObjectField):
             if abs_paths.has_key(b.getPath()):
                 uid = abs_paths[b.getPath()].UID
                 if uid is None:
-                    # XXX igh! TEMPORARY WORKAROUND. FIX ME!
                     # the brain doesn't have an uid because the catalog has a
-                    # stalled object. THAT IS BAD!
-                    continue
+                    # staled object. THAT IS BAD!
+                    raise ReferenceExeption("Brain for the object at %s "\
+                        "doesn't have an UID assigned with. Please update your"\
+                        " reference catalog!" % b.getPath())
                 pairs.append((uid, label(b)))
          
         if not self.required and not self.multiValued:

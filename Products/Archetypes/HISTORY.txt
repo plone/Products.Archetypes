@@ -61,10 +61,6 @@
  * Fixed [ 1006491 ] File widget makes useless str(value) conversion
    [tiran, lurker]
    
- * Added temporary fix for [ 1007163 ] ReferenceField._Vocabulary returns
-   stalled brains
-   [tiran]
-
  * Fixed possible issue inside ArchetypeTool.getWidgets() by calling
    initializeArchetype() on the wrapped dummy instance.
    [tiran]
@@ -77,6 +73,13 @@
  * Added getRaw() method to LinesField which is returning the output of get().
    Before this change the edit accessor was using the accessor which might be an
    overwritten accessor. Thx to Joel Burton who has figured out the problem.
+   [tiran]
+
+ * Raise an ReferenceException inside Field.ReferenceField._Vocabulary when the
+   brain doesn't have a valid uid.
+   [tiran]
+
+ * Refresh the uid catalog and reference catalog after migration
    [tiran]
 
 1.3.0-beta5 - 2004-08-06
