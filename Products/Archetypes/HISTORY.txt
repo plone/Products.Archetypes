@@ -1,11 +1,10 @@
-1.3.2-svn - Unreleased CMF1_5 integration
+1.3.3-rc1 - Unreleased CMF1_5_1 integration
 =========================================
 
 * Added fixes for http://www.zope.org/Collectors/CMF/49/ so generated fti would work normally
 [whit]
 
 after 1.3.2-final
-=================
 
 unreleased
 =====================
@@ -58,6 +57,35 @@ unreleased
    [yenzenz]
 
 >>>>>>> .merge-right.r3853
+=======
+ * Added subject to SearchableText.
+   [tiran]
+ 
+ * Added ComputedAttributes for effective_date and expiration_date.
+   [tiran]
+
+1.3.3-rc1 - 2005-03-25
+======================
+
+ * Fixed [ 1163878 ] Field.toString() always return the same thing; thx to 
+   flacoste for his Patch
+   [yenzenz]
+
+ * Fixed [ 1153525 ] zid.pt hidden mode hardcode field name; thx to 
+   flacoste for his Patch
+   [yenzenz]
+
+ * Fixed Referencefield making it possible to completely avoid ugly paths in the selectionlist.
+   (set vocabulary_display_path_bound=-1 to never get the paths)
+   [elvix]
+
+ * Fixed problem with encoding enforcement on TextField. Now has same behavior 
+   as StringField, but is neutral to old behaviour. If you call 'get' on a 
+   TextField and give a kwarg 'encoding' it has been ignored, now its used.
+   It returns the encoding requested.
+   [yenzenz]
+
+>>>>>>> .merge-right.r3857
  * Fixed [ 1160362 ] AT 1.3.2-final bug on PrimaryFieldMarshaller by adding the
    missing import of shasattr in Marshall.
    [tiran]
