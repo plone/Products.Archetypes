@@ -1,7 +1,7 @@
 from Products.Archetypes.public import *
 from DateTime import DateTime
 
-content_type = BaseSchema + FieldList((
+schema = BaseSchema + FieldList((
     TextField('quote',
               searchable=1,
               required=1,
@@ -30,7 +30,7 @@ content_type = BaseSchema + FieldList((
 
 class Fact(BaseContent):
     """A quoteable fact or tidbit"""
-    type = content_type
+    schema = schema
 
     
 registerType(Fact)

@@ -19,10 +19,10 @@ from Products.CMFCore  import CMFCorePermissions
 from DateTime import DateTime
 import unittest
 
-content_type = BaseSchema 
+schema = BaseSchema 
 
 class Dummy(BaseContent):
-    type = content_type
+    schema = schema
     
    
 class BaseSchemaTest( unittest.TestCase ):

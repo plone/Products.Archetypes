@@ -149,7 +149,9 @@ def registerType(type, package=None):
         'klass' : type,
         'name'  : type.meta_type,
         'package' : package,
-        'type' : type.type, ## XXX to schema
+        'schema' : type.schema,
+        # backward compatibility, remove later
+        'type' : type.schema,
         }
     _types[type.meta_type] = data
 
@@ -180,7 +182,7 @@ class Schema(SimpleItem):
 
         exec text in ns
         schema = ns['schema']
-        schema = BaseContent.BaseContent.type + ExtensibleMetadata.ExtensibleMetadata.type + schema
+        schema = BaseContent.BaseContent.Schema() + ExtensibleMetadata.ExtensibleMetadata.Schema() + schema
         self.schema = schema
         
     def register(self, typesTool):
@@ -450,7 +452,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         object = self.getObject(UID)
         #if object:
         #    import pdb;pdb.set_trace()
-        log(object, object.type, dir(object))
+        log(object, object.Schema(), dir(object))
         
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() +

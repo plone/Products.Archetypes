@@ -9,6 +9,6 @@ from Schema import Schema, MetadataSchema
 from Field  import *
 from Widget import *
 
-BaseFolderSchema = BaseFolder.type + ExtensibleMetadata.type
+BaseFolderSchema = BaseFolder.schema + ExtensibleMetadata.schema
 
-BaseSchema = BaseContent.type + ExtensibleMetadata.type
+BaseSchema = BaseContent.schema + ExtensibleMetadata.schema

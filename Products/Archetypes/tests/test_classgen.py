@@ -44,7 +44,7 @@ class Dummy(BaseContent):
     pass
 
 def gen_dummy():
-    Dummy.type = deepcopy(schema)
+    Dummy.schema = deepcopy(schema)
     registerType(Dummy)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
    

@@ -32,9 +32,9 @@ class Generator:
 
     def makeMethod(self, klass, field, mode, methodName):
         if mode == "r":
-            method = lambda self, field=field.name: self.type[field].get(self)
+            method = lambda self, field=field.name: self.Schema()[field].get(self)
         elif mode == "w":
-            method = lambda self, value, field=field.name, **kw: self.type[field].set(self, value, **kw)
+            method = lambda self, value, field=field.name, **kw: self.Schema()[field].set(self, value, **kw)
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
@@ -60,6 +60,17 @@ class ClassGenerator:
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
 
+    def checkSchema(self, klass):
+        #backward compatibility, should be removed later on
+        if klass.__dict__.has_key('type') and not klass.__dict__.has_key('schema'):
+            import warnings
+            warnings.warn('Class %s has type attribute, should be schema' % klass.__name__,
+                          DeprecationWarning,
+                          stacklevel = 4)
+            klass.schema = klass.type
+        if not hasattr(klass, 'Schema'):
+            klass.Schema = lambda self: self.schema
+
     def generateClass(self, klass):
         #We are going to assert a few things about the class here
         #before we start, set meta_type, portal_type based on class
@@ -67,8 +78,10 @@ class ClassGenerator:
         klass.meta_type = klass.__name__
         klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name', self.generateName(klass))
+
+        self.checkSchema(klass)
         
-        fields = klass.type.fields()
+        fields = klass.schema.fields()
         generator = Generator()            
         for field in fields:
             #Make sure we want to muck with the class for this field

@@ -151,7 +151,7 @@ def install_indexes(self, out, types):
         if 'indexes' not in cls.installMode:
             continue
         
-        for field in cls.type.fields():
+        for field in cls.schema.fields():
             if field.index:
                 parts = field.index.split('|',1)
                 itype = parts[0]

@@ -21,7 +21,7 @@ class ExtensibleMetadata(DefaultDublinCoreImpl, Persistence.Persistent):
     security.declareObjectPublic()
     security.setDefaultAccess('allow')
     
-    type = MetadataFieldList((
+    schema = type = MetadataFieldList((
         ObjectField('allowDiscussion',
                       accessor="isDiscussable",
                       mutator="allowDiscussion",

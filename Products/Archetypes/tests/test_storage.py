@@ -35,7 +35,7 @@ class ChangeStorageTest( unittest.TestCase ):
         self.failUnless(dummy.getAlinesfield() == ['bla','bla','bla'])
         self.failUnless(dummy.getAnobjectfield() == 'someothertext')
         
-        for field in dummy.type.fields():
+        for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.name] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
@@ -67,7 +67,7 @@ class MetadataStorageTest( ClassGenTest ):
     def setUp(self):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        for field in dummy.type.fields():
+        for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
@@ -77,7 +77,7 @@ class AttributeStorageTest( ClassGenTest ):
     def setUp( self ):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
-        for field in dummy.type.fields():
+        for field in dummy.schema.fields():
             if field.name in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 

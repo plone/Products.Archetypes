@@ -39,14 +39,14 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
         """The primary field is some object that responds to
         PUT/manage_FTPget events. 
         """
-        fields = self.type.filterFields(primary=1)
+        fields = self.Schema().filterFields(primary=1)
         if fields: return fields[0]
         return None
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
     def PUT(self, REQUEST, RESPONSE):
-        if not self.type.hasLayer('marshall'):
+        if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
         
@@ -61,7 +61,7 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
         #mime_type   = transformer.classify(data, mime_type=type)
 
         #Marshall the data
-        marshaller = self.type.getLayerImpl('marshall')
+        marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshaller.demarshall(self, data, mime_type=mime_type)
         if self.demarshall_hook:
             self.demarshall_hook(ddata)
@@ -73,11 +73,11 @@ class BaseContent(BaseObject, Referenceable, PortalContent, ExtensibleMetadata):
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST, RESPONSE):
-        if not self.type.hasLayer('marshall'):
+        if not self.Schema().hasLayer('marshall'):
             RESPONSE.setStatus(501) # Not implemented
             return RESPONSE
 
-        marshaller = self.type.getLayerImpl('marshall')
+        marshaller = self.Schema().getLayerImpl('marshall')
         ddata = marshall.marshall(self)
         if self.marshall_hook:
             ddata = self.marshall_hook(ddata)

@@ -93,11 +93,11 @@ class BaseUnit(File):
     
     def __str__(self):
         ## XXX make sure default view points to a RFC-2046 name
-        v =self.transform(self.parent.type[self.id].defaultView(),
+        v =self.transform(self.parent.Schema()[self.id].defaultView(),
                               cache=1)
         log("%s: cvt %s to %s" % (self.id,
                                   self.mimetype,
-                                  self.parent.type[self.id].defaultView()), v)
+                                  self.parent.Schema()[self.id].defaultView()), v)
         return v
     
     # Hook needed for catalog

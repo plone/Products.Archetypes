@@ -30,7 +30,7 @@ class BaseSQLStorage(StorageLayer):
     def initalizeInstance(self, instance):
         c_tool = getToolByName(instance, TOOL_NAME)
         connection_id = c_tool.getConnFor(instance)
-        fields = instance.type.fields()
+        fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.isImplementedBy(f) \
                   and ISQLStorage.isImplementedBy(f.getStorage())]
         columns = []

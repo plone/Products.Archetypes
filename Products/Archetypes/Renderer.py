@@ -37,9 +37,9 @@ class ArchetypesRenderer(base):
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
         context.setLocal('accessor', getattr(instance,
-                                             instance.type[field_name].accessor))
+                                             instance.Schema()[field_name].accessor))
         context.setLocal('widget', widget)
-        context.setLocal('field', instance.type[field_name])
+        context.setLocal('field', instance.Schema()[field_name])
         context.setLocal('request', instance.REQUEST)
         if kwargs:
             for k,v in kwargs.items():

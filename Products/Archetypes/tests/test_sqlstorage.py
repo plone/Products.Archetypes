@@ -28,7 +28,7 @@ class Dummy(BaseContent):
     pass
 
 def gen_dummy(storage_class):
-    Dummy.type = Schema((
+    Dummy.schema = Schema((
         ObjectField('aobjectfield',
                     storage = storage_class(),
                     widget = StringWidget(label = 'aobjectfield',

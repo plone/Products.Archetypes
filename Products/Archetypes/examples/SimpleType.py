@@ -1,6 +1,6 @@
 from Products.Archetypes.public import *
 
-content_type = BaseSchema + Schema((
+schema = BaseSchema + Schema((
     TextField('body',
               required=1,
               searchable=1,
@@ -16,7 +16,7 @@ content_type = BaseSchema + Schema((
 
 class SimpleType(BaseContent):
     """A simple archetype"""
-    type = content_type
+    schema = schema
     
                   
 registerType(SimpleType)

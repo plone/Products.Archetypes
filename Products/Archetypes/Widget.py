@@ -21,7 +21,7 @@ class TypesWidget(macrowidget):
     def findField(self, instance):
         #This is a sad hack, I don't want widgets to have to take a
         #reference to a field or its own name
-        for field in instance.type.fields():
+        for field in instance.Schema().fields():
             if not hasattr(field, 'widget'):
                 continue
             if field.widget is self:

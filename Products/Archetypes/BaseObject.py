@@ -40,7 +40,7 @@ content_type = Schema((
 class BaseObject(Implicit):
     security = ClassSecurityInfo()
 
-    type = content_type
+    schema = type = content_type
     installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
     
     __implements__ = IBaseObject
@@ -69,10 +69,10 @@ class BaseObject(Implicit):
         self.cleanupLayers()
 
     def initalizeLayers(self):
-        self.type.initalizeLayers(self)
+        self.Schema().initalizeLayers(self)
 
     def cleanupLayers(self):
-        self.type.cleanupLayers(self)
+        self.Schema().cleanupLayers(self)
 
     security.declarePublic("getId")
     def getId(self):
@@ -90,7 +90,7 @@ class BaseObject(Implicit):
     
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'getField')
     def getField(self, key):
-        return self.type.get(key)
+        return self.Schema().get(key)
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
@@ -109,7 +109,7 @@ class BaseObject(Implicit):
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", **kwargs):
         try:
-            widget = self.type[field_name].widget
+            widget = self.Schema()[field_name].widget
             return renderer.render(field_name, mode, widget, self,
                                    **kwargs)
         except Exception, E:
@@ -160,28 +160,28 @@ class BaseObject(Implicit):
     def __getitem__(self, key):
         """play nice with externaleditor again"""
         ## Also play nice with aq again... doh!
-        if key not in self.type.keys() and key[:1] != "_": #XXX 2.2
+        if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
             return getattr(self, key)
         return self.get(key)
 
 ##     security.declareProtected(CMFCorePermissions.View, 'get')
 ##     def get(self, key, **kwargs):
 ##         """return editable version of content"""
-##         accessor = self.type[key]
+##         accessor = self.Schema()[key]
 ##         return accessor()
 
 ##     def set(self, key, value, **kw):
-##         mutator = getattr(self, self.type[key].mutator)
+##         mutator = getattr(self, self.Schema()[key].mutator)
 ##         mutator(value, **kw)
         
     def edit(self, **kwargs):
         self.update(**kwargs)
 
     def setDefaults(self):
-        self.type.setDefaults(self)
+        self.Schema().setDefaults(self)
             
     def update(self, **kwargs):
-        self.type.updateAll(self, **kwargs)
+        self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
         
@@ -222,7 +222,7 @@ class BaseObject(Implicit):
         if errors:
             return errors
         
-        self.type.validate(self, REQUEST=REQUEST, errors=errors)
+        self.Schema().validate(self, REQUEST=REQUEST, errors=errors)
         self.post_validate(REQUEST, errors)
 
         return errors
@@ -231,7 +231,7 @@ class BaseObject(Implicit):
     def SearchableText(self):
         """full indexable text"""
         data = []
-        for field in self.type.fields():
+        for field in self.Schema().fields():
             if field.searchable != 1: continue
             try:
                 method = getattr(self, field.accessor)
@@ -252,7 +252,7 @@ class BaseObject(Implicit):
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for name in self.type.keys():
+        for name in self.Schema().keys():
             field = getattr(self, name, None)
             if hasattr(field, "isUnit"):
                 size += field.get_size()
@@ -269,7 +269,7 @@ class BaseObject(Implicit):
     def _processForm(self, data=1, metadata=None):
         request = self.REQUEST
         form = request.form
-        schema = self.type
+        schema = self.Schema()
         fields = []
 
         if data: fields += schema.filterFields(metadata=0)

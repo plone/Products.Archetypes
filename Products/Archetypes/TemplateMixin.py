@@ -16,7 +16,7 @@ type_mixin = FieldList((
 
 
 class TemplateMixin:
-    type = type_mixin
+    schema = type = type_mixin
     actions = (
         { 'id': 'view',
           'name': 'View',
