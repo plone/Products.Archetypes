@@ -10,6 +10,7 @@ from StringIO import StringIO
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
@@ -228,6 +229,17 @@ def modify_fti(fti, klass, pkg_name):
     if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = False
+
+    # set folder_listing to 'view' if the class implements ITemplateMixin
+    if not ITemplateMixin.isImplementedByInstancesOf(klass):
+        actions = []
+        for action in fti[0]['actions']:
+            if action['id'] != 'folderlisting':
+                actions.append(action)
+            else:
+                action['action']="string:${folder_url}/view"
+                actions.append(action)
+        fti[0]['actions'] = tuple(actions)
 
     # remove folderlisting action from non folderish content types
     if not getattr(klass,'isPrincipiaFolderish', None):
