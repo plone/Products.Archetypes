@@ -12,7 +12,6 @@ if context.hasI18NContent():
    oldLang = REQUEST.SESSION.get('PREV_CONTENT_LANGUAGE', None)
    if oldLang is not None:
       context.setCurrentLanguage(lang=oldLang)
-   else:
       del REQUEST.SESSION['PREV_CONTENT_LANGUAGE']
       
 portal_status_message = REQUEST.get('portal_status_message', 'Content changes saved.')
