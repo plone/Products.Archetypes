@@ -5,7 +5,7 @@
   <body>
     <div metal:fill-slot="main">
       <div tal:repeat="field python: here.type.filterFields(isMetadata=0)">
-	<span tal:replace="structure python: here.widget(field.name, mode='view')"/><br/>
+	<span metal:use-macro="python: here.widget(field.name, mode='view')"/><br/>
       </div>
     </div>
   </body>

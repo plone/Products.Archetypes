@@ -26,8 +26,7 @@
         <span class="legend" tal:content="here/archetype_name"></span>
 
 	<div tal:repeat="field python: here.type.filterFields(isMetadata=0)">
-	  <span metal:use-macro="python: here.widget(field.name, mode='edit', field=field,
-	    tabindex=tabindex, errors=errors)"/><br/>
+	  <span metal:use-macro="python: here.widget(field.name, mode='edit')"/><br/>
 	</div>
 
 	

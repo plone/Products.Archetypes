@@ -25,8 +25,7 @@
 	  <span class="legend" tal:content="here/archetype_name"></span>
 	  
 	  <div tal:repeat="field python: here.type.filterFields(isMetadata=1)">
-	    <span tal:replace="structure python: here.widget(field.name, mode='edit', field=field,
-	      tabindex=tabindex, errors=errors)"/><br/>
+	    <span metal:use-macro="python: here.widget(field.name, mode='edit')"/><br/>
 	  </div>
 	  
 	  <input type="hidden" name="form_submitted" tal:attributes="value template/id" />
