@@ -162,7 +162,7 @@ class xxBaseUnit(File):
         return ''
 
         
-class BaseUnit(File):
+class BaseUnit(File, ObjectManager):
     """ """
     security = ClassSecurityInfo()
     __replaceable__ = REPLACEABLE
