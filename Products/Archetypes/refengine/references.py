@@ -15,6 +15,7 @@ from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.lib.utils import unique
@@ -47,7 +48,6 @@ import zLOG
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
-STRING_TYPES = (StringType, UnicodeType)
 
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References

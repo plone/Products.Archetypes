@@ -30,6 +30,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
+from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.lib.layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit

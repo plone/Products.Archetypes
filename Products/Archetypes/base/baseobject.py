@@ -2,7 +2,7 @@ from Products.Archetypes.lib.annotations import ATAnnotatableMixin
 from Products.Archetypes.lib.logging import log_exc, log
 from Products.Archetypes.field import StringField
 from Products.Archetypes.field import TextField
-from Products.Archetypes.field import STRING_TYPES
+from Products.Archetypes.config import STRING_TYPES
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField

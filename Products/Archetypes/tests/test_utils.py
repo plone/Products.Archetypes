@@ -5,7 +5,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import make_uuid
 
 class UidGeneratorTest(ArchetypesTestCase):

@@ -10,7 +10,7 @@ if not hasArcheSiteTestCase:
 
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 
 class BaseReferenceableTests(ArcheSiteTestCase):
 

@@ -23,6 +23,7 @@ from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import mapply
 from Products.Archetypes.renderer import renderService
 from Products.Archetypes.registry.typeregistry import typeRegistry
+from Products.Archetypes.lib.register import listTypes
 
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
@@ -58,19 +59,6 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-try:
-    from Products.CMFPlone.Configuration import getCMFVersion
-except ImportError:
-    # Configuration and getCMFVersion come with Plone 2.0
-    def getCMFVersion():
-        from os.path import join
-        from Globals import package_home
-        from Products.CMFCore import cmfcore_globals
-        path=join(package_home(cmfcore_globals),'version.txt')
-        file=open(path, 'r')
-        _version=file.read()
-        file.close()
-        return _version.strip()
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
@@ -537,7 +525,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def _listAllTypes(self):
         """list all types -- either currently known or known to us."""
-        allTypes = typesRegistry.copy(); allTypes.update(self._types)
+        allTypes = typeRegistry.copy(); allTypes.update(self._types)
         return allTypes.keys()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
@@ -546,7 +534,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Returns a list of tuples indicating which schema have changed.
            Tuples have the form (schema, changed)"""
         list = []
-        currentTypes = typesRegistry
+        currentTypes = typeRegistry
         ourTypes = self._types
         modified = False
         keys = self._listAllTypes()
@@ -598,7 +586,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # can't update it if you require that it be in the catalog.
             catalog = getToolByName(self, 'portal_catalog')
             portal = getToolByName(self, 'portal_url').getPortalObject()
-            meta_types = [typesRegistry[t]['meta_type'] for t in update_types]
+            meta_types = [typeRegistry[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                     search_sub=True, apply_func=self._updateObject)
@@ -606,7 +594,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                     search_sub=True, apply_func=self._updateChangedObject)
             for t in update_types:
-                self._types[t] = typesRegistry[t]['signature']
+                self._types[t] = typeRegistry[t]['signature']
             self._p_changed = True
         return out.getvalue()
 

@@ -10,9 +10,13 @@ from Products.Archetypes.refengine.common import PluggableCatalog
 from Products.Archetypes.refengine.common import ReferenceResolver
 from Products.Archetypes.refengine.common import RelativPathCatalogBrains
 from Products.Archetypes.refengine.common import _catalog_dtml
+from Products.Archetypes.refengine.references import Reference
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.config import REFERENCE_ANNOTATION
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import STRING_TYPES
+from Products.Archetypes.config import UUID_ATTR
+from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.refengine.referenceable import Referenceable
 from Products.Archetypes.lib.utils import unique
@@ -45,6 +49,8 @@ import zLOG
 class ReferenceCatalogBrains(RelativPathCatalogBrains):
     pass
 
+class ReferenceBaseCatalog(PluggableCatalog):
+    BASE_CLASS = ReferenceCatalogBrains
 
 class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     """Reference catalog

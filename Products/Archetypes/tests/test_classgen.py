@@ -8,7 +8,7 @@ from utils import *
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
-from Products.Archetypes.baseunit import BaseUnit
+from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
 from Products.Archetypes.interfaces.base import IBaseUnit

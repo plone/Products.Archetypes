@@ -12,7 +12,7 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes import listTypes
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes import field
 from Products.Archetypes.field import ScalableImage, Image
 from OFS.Image import File, Image

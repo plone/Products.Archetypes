@@ -11,7 +11,7 @@ from test_classgen import Dummy
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes.field import *
 from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
-from Products.Archetypes.baseunit import BaseUnit
+from Products.Archetypes.lib.baseunit import BaseUnit
 from Products.PortalTransforms.data import datastream
 instance = Dummy()
 

@@ -17,7 +17,7 @@ if not hasArcheSiteTestCase:
     raise TestPreconditionFailed('test_rename', 'Cannot import ArcheSiteTestCase')
 
 from Products.Archetypes.lib.utils import wrap_method, unwrap_method, shasattr
-from Products.Archetypes.basecontent import BaseContent
+from Products.Archetypes.base.basecontent import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
 class Counter:

@@ -11,7 +11,7 @@ from os.path import join, abspath, dirname, split
 
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.baseunit import BaseUnit
+from Products.Archetypes.lib.baseunit import BaseUnit
 
 from test_classgen import Dummy, gen_dummy
 
