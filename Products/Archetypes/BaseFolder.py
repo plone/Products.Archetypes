@@ -1,6 +1,7 @@
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from Referenceable import Referenceable
 from CatalogMultiplex  import CatalogMultiplex
@@ -14,7 +15,8 @@ from interfaces.metadata import IExtensibleMetadata
 class BaseFolderMixin(BaseObject, Referenceable, CatalogMultiplex,
                       SkinnedFolder):
 
-    __implements__ = (IBaseFolder, IReferenceable)
+    __implements__ = (IBaseFolder, IReferenceable) + \
+                     PortalContent.__implements__
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
