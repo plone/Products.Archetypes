@@ -189,7 +189,7 @@ class MySQLStorage(BaseSQLStorage):
     db_type_map = {
         'object': 'text',
         'fixedpoint': 'float',
-        'reference': 'varchar',
+        'reference': 'text',
         'datetime': 'datetime',
         }
 
