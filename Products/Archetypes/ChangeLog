@@ -1,5 +1,10 @@
 2003-04-19  Sidnei da Silva  <sidnei@x3ng.com>
 
+	* content_driver/reST.py (Converter.convertData): Rendering of
+	reST was broken. It was not rendering references the right way,
+	and it didnt seem like it was doing the right thing with
+	titles. Updated to use docutils.core.publish_string.
+
 	* tests/test_baseunit.py: Added minimal test for BaseUnit.
 
 2003-04-18  Sidnei da Silva  <sidnei@x3ng.com>

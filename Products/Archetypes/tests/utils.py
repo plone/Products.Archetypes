@@ -2,8 +2,9 @@ import re
 from TAL import ndiff
 
 def normalize_html(s):
-    s = re.sub(r"[ \t]+", " ", s)
-    s = re.sub(r"/>", ">", s)
+    s = re.sub(r"\s+", " ", s)
+    s = re.sub(r"(?s)\s+<", "<", s)
+    s = re.sub(r"(?s)>\s+", ">", s)
     return s
 
 def nicerange(lo, hi):

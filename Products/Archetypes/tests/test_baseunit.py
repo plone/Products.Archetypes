@@ -35,6 +35,8 @@ class BaseUnitTest( unittest.TestCase ):
         expected = out.read()
         out.close()
         got = self.bu()
+        got = normalize_html(got)
+        expected = normalize_html(expected)
         # useful for debugging
         # print showdiff(got, expected)
         self.assertEquals(got, expected)
