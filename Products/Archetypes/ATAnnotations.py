@@ -110,7 +110,8 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
                 return default
             else:
                 btree = self[k]
-                return btree.get(subkeys[1], default)        else:
+                return btree.get(subkeys[1], default)
+        else:
             raise TypeError('Invalid subkey type %s, must be string or tuple' % type(subkeys))
     
     def setSubkey(self, key, value, subkey=()):
