@@ -4,6 +4,7 @@ from ArchetypeTool import registerType, process_types, listTypes
 from BaseContent import BaseContent
 from BaseFolder import BaseFolder
 from BaseBTreeFolder import BaseBTreeFolder
+from OrderedBaseFolder import OrderedBaseFolder
 
 from ExtensibleMetadata import ExtensibleMetadata
 
