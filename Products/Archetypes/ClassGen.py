@@ -55,6 +55,11 @@ class Generator:
 
         setattr(klass, methodName, method)
 
+        #All the method to be published (for XML-RPC)
+        method.__doc__ = "%s %s" % (mode, field.getName())
+        
+
+
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
         if not hasattr(klass, "security"):
