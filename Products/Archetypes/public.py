@@ -17,12 +17,14 @@ from Products.Archetypes.BaseObject import MinimalSchema
 from Products.Archetypes.BaseContent import BaseSchema
 from Products.Archetypes.BaseFolder import BaseFolderSchema
 from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolderSchema
+from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolderSchema
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadataSchema
 # schemata classes
 from Products.Archetypes.Schema import BasicSchema
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.Schema import ManagedSchema
+from Products.Archetypes.TemplateMixin import TemplateMixinSchema
 from Products.Archetypes.Schema.Composite import CompositeSchema
 from Products.Archetypes.Schema.Facade import FacadeMetadataSchema
 from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
