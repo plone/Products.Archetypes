@@ -1037,9 +1037,9 @@ class TextField(FileField):
 
         if not shasattr(value, 'transform'): # oldBaseUnits have no transform
             return str(value)
-        data = value.transform(instance, mimetype)
+        data = value.transform(instance, mimetype, encoding=kwargs.get('encoding',None))
         if not data and mimetype != 'text/plain':
-            data = value.transform(instance, 'text/plain')
+            data = value.transform(instance, 'text/plain', encoding=kwargs.get('encoding',None))
         return data or ''
 
     security.declarePrivate('getBaseUnit')

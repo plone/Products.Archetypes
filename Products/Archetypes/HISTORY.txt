@@ -1,6 +1,12 @@
 after 1.3.2-final
 =================
 
+ * Fixed problem with encoding enforcement on TextField. Now has same behavior 
+   as StringField, but is neutral to old behaviour. If you call 'get' on a 
+   TextField and give a kwarg 'encoding' it has been ignored, now its used.
+   It returns the encoding requested.
+   [yenzenz]
+
  * Fixed [ 1160362 ] AT 1.3.2-final bug on PrimaryFieldMarshaller by adding the
    missing import of shasattr in Marshall.
    [tiran]
