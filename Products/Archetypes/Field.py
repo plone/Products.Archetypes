@@ -760,7 +760,7 @@ class LinesField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs)
+        value = ObjectField.get(self, instance, **kwargs) or ()
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
             return tuple([encode(v, instance, **kwargs) for v in value])
         else:
