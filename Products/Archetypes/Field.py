@@ -403,11 +403,6 @@ class Field(DefaultLayerContainer):
         s = s + '}'
         return s
 
-    def getContentType(self, instance):
-        """Return the type of file of this object if known; otherwise,
-        return None."""
-        return None
-
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw

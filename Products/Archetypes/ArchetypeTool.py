@@ -3,7 +3,7 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType, StringTypes
+from types import StringType
 from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
@@ -20,7 +20,6 @@ from Products.Archetypes.utils import capitalize, findDict, DisplayList, unique
 from Products.Archetypes.Renderer import renderer
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from Globals import InitializeClass, PersistentMapping
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
@@ -89,14 +88,6 @@ base_factory_type_information = (
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        'visible' : 0,
                        },
-
-                     { 'id' : 'ttw_schema',
-                       'name' : 'Schema Management',
-                       'action' : 'string:${object_url}/schema_editor',
-                       'permissions' : (CMFCorePermissions.ManagePortal,),
-                       'visible': 1,
-                       'condition' : 'python: object.archetype_tool.getProvidedSchema(object) is not None',
-                       },
                      )
       }, )
 
@@ -117,6 +108,10 @@ def fixActionsForType(portal_type, typesTool):
             cmfver=getCMFVersion()
 
             for action in portal_type.actions:
+                # DM: "Expression" derives from "Persistent" and
+                #  we must not put persistent objects into class attributes.
+                #  Thus, copy "action"
+                action = action.copy()
                 if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                     # Then we know actions are defined new style as
                     # ActionInformations
@@ -239,7 +234,8 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-_types_callback = []
+# DM (avoid persistency bug): 
+##_types_callback = []
 
 def _guessPackage(base):
     if base.startswith('Products'):
@@ -271,8 +267,9 @@ def registerType(klass, package=None):
     key = "%s.%s" % (package, klass.meta_type)
     _types[key] = data
 
-    for tc in _types_callback:
-        tc(klass, package)
+    # DM (avoid persistency bug): 
+##    for tc in _types_callback:
+##        tc(klass, package)
 
 def listTypes(package=None):
     values = _types.values()
@@ -365,16 +362,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
+        # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-        for k, t in _types.items():
-            self._types[k] = {'signature':t['signature'], 'update':1}
-        cb = lambda klass, package:self.registerType(klass, package)
-        _types_callback.append(cb)
-        self.last_types_update = DateTime()
-
-        # SchemaProvider Data
-        self._managedSchema = PersistentMapping()
-        self._schemaColloctorRegistry = PersistentMapping()
+##        for k, t in _types.items():
+##            self._types[k] = {'signature':t['signature'], 'update':1}
+##        cb = lambda klass, package:self.registerType(klass, package)
+##        DM: never put something referencing a persistent object into
+##            a module global variable!
+##        _types_callback.append(cb)
+##        self.last_types_update = DateTime()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -684,16 +680,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     index = manage_reindex
 
 
+    def _listAllTypes(self):
+        """list all types -- either currently known or known to us."""
+        allTypes = _types.copy(); allTypes.update(self._types)
+        return allTypes.keys()
+
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
         """Returns a list of tuples indicating which schema have changed.
            Tuples have the form (schema, changed)"""
         list = []
-        keys = self._types.keys()
+        currentTypes = _types
+        ourTypes = self._types; modified = 0
+        keys = self._listAllTypes()
         keys.sort()
         for t in keys:
-            list.append((t, self._types[t]['update']))
+            if t not in ourTypes:
+                # add it
+                ourTypes[t] = currentTypes[t]['signature']; modified = 1
+                list.append((t, 0))
+            elif t not in currentTypes:
+                # huh: what shall we do? We remove it -- this might be wrong!
+                del ourTypes[t]; modified = 1
+                # we do not add an entry because we cannot update
+                # these objects (having no longer type information for them)
+            else:
+                list.append((t, ourTypes[t] != currentTypes[t]['signature']))
+        if modified: self._p_changed = 1
         return list
 
 
@@ -707,12 +721,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         update_types = []
         if REQUEST is None:
-            for t in self._types.keys():
-                if self._types[t]['update']:
-                    update_types.append(t)
+            # DM (avoid persistency bug): avoid code duplication
+            update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
+##            for t in self._types.keys():
+##                if self._types[t]['update']:
+##                    update_types.append(t)
             update_all = 0
         else:
-            for t in self._types.keys():
+            # DM (avoid persistency bug):
+            for t in self._listAllTypes():
                 if REQUEST.form.get(t, 0):
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
@@ -732,7 +749,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
                 search_sub=1, apply_func=self._updateChangedObject)
         for t in update_types:
-            self._types[t]['update'] = 0
+            # DM (avoid persistency bug): set to current signature
+##            self._types[t]['update'] = 0
+            self._types[t] = _types[t]['signature']
         self._p_changed = 1
         return out.getvalue()
 
@@ -744,44 +763,47 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if not o._isSchemaCurrent():
             o._updateSchema()
 
-    def __setstate__(self, v):
-        """Add a callback to track product registrations"""
-        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
-        global _types
-        global _types_callback
-        if hasattr(self, '_types'):
-            if not hasattr(self, 'last_types_update') or \
-                   self.last_types_update.lessThan(last_load):
-                for k, t in _types.items():
-                    if self._types.has_key(k):
-                        update = (t['signature'] !=
-                                  self._types[k]['signature'])
-                    else:
-                        update = 1
-                    self._types[k] = {'signature':t['signature'],
-                                      'update':update}
-                cb = lambda klass, package:self.registerType(klass, package)
-                _types_callback.append(cb)
-                self.last_types_update = DateTime()
+# DM (avoid persistency bug): 
+##    def __setstate__(self, v):
+##        """Add a callback to track product registrations"""
+##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
+##        global _types
+##        global _types_callback
+##        import sys
+##        if hasattr(self, '_types'):
+##            if not hasattr(self, 'last_types_update') or \
+##                   self.last_types_update.lessThan(last_load):
+##                for k, t in _types.items():
+##                    if self._types.has_key(k):
+##                        update = (t['signature'] !=
+##                                  self._types[k]['signature'])
+##                    else:
+##                        update = 1
+##                    self._types[k] = {'signature':t['signature'],
+##                                      'update':update}
+##                cb = lambda klass, package:self.registerType(klass, package)
+##                _types_callback.append(cb)
+##                self.last_types_update = DateTime()
 
 
-    security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'registerType')
-    def registerType(self, klass, package):
-        """This gets called every time registerType is called as soon as the
-        hook is installed by setstate"""
-        # See if the schema has changed.  If it has, flag it
-        update = 0
-        sig = klass.schema.signature()
-        key = "%s.%s" % (package, klass.meta_type)
-        old_data = self._types.get(key, None)
-        if old_data:
-            update = old_data.get('update', 0)
-            old_sig = old_data.get('signature', None)
-            if sig != old_sig:
-                update = 1
-        self._types[key] = {'signature':sig, 'update':update}
-        self._p_changed = 1
+# DM (avoid persistency bug): 
+##    security.declareProtected(CMFCorePermissions.ManagePortal,
+##                              'registerType')
+##    def registerType(self, klass, package):
+##        """This gets called every time registerType is called as soon as the
+##        hook is installed by setstate"""
+##        # See if the schema has changed.  If it has, flag it
+##        update = 0
+##        sig = klass.schema.signature()
+##        key = "%s.%s" % (package, klass.meta_type)
+##        old_data = self._types.get(key, None)
+##        if old_data:
+##            update = old_data.get('update', 0)
+##            old_sig = old_data.get('signature', None)
+##            if sig != old_sig:
+##                update = 1
+##        self._types[key] = {'signature':sig, 'update':update}
+##        self._p_changed = 1
 
 
     # Catalog management
@@ -856,59 +878,5 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return self.reference_catalog.lookupObject(uid)
 
     getObject=lookupObject
-
-
-    ## Schema Provider Hooks
-    ##
-    def registerSchemaCollector(self, schemaCollector):
-        self._schemaColloctorRegistry[schemaCollector.name] = schemaCollector
-
-    def getSchemaCollector(self, name):
-        return self._schemaColloctorRegistry[name]
-
-    def provideSchema(self, provider, schema):
-        #XXX
-        # Even here we don't allow for both policies which could be the case
-        # Ex: All my folders add x,y,z to content and this one adds a,b as well
-        # Easy enough to composite, but who knows... sometimes is just an override
-        schema = schema.copy()
-        try:
-            uid = provider.UID()
-        except AttributeError:
-            uid = provider
-
-        # This instance of the schema brought to you by...
-        from Products.Archetypes.Schema.Editor import SchemaEditor
-        se = SchemaEditor(schema, self)
-        se.assignProvider(uid)
-            
-        if type(provider) in StringTypes:
-            #Register for the type (should be a meta_type, but whatever)
-            self._managedSchema[provider] = schema
-        else:
-            # Register for an instance UUID
-            self._managedSchema[provider.UID()] = schema
-
-    def getProvidedSchema(self, object):
-        """
-        An object that is triggered as a Schema provider doesn't provide its
-        own schema, but rather a managed schema, back to the object.
-        This provider may be providing this schema by its type or by its UUID
-        """
-        try:
-            uid = object.UID()
-        except AttributeError:
-            uid = object
-        schema = self._managedSchema.get(uid)
-        if not schema:
-            mt = getattr(aq_base(object), 'meta_type', None)
-            if mt:
-                schema = self._managedSchema.get(mt)
-
-        # XXX this is highly questionable
-        if not schema:
-            return getattr(aq_base(object), 'schema', None)
-        return schema
-    
 
 InitializeClass(ArchetypeTool)

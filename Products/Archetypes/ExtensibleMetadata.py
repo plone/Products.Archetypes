@@ -1,19 +1,19 @@
+from Products.Archetypes.Field import *
+from Products.Archetypes.Widget import *
+from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import DisplayList
+
+import Persistence
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Field import *
-from Widget import *
-from Schema import MetadataSchema
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
-from interfaces.metadata import IExtensibleMetadata
-from debug import log, log_exc
-import Persistence
-
-from utils import DisplayList
-
 from Products.CMFDefault.utils import _dtmldir
+
 _marker=[]
 
 FLOOR_DATE = DateTime( 1000, 0 ) # always effective
@@ -79,6 +79,16 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label='Contributors',
                 label_msgid="label_contributors",
                 description_msgid="help_contributors",
+                i18n_domain="plone"),
+        ),
+        LinesField(
+            'creators',
+            accessor="Creators",
+            widget=LinesWidget(
+                label='Creators',
+                label_msgid="label_creators",
+                description_msgid="help_creators",
+                visible={'view':'hidden', 'edit':'hidden'},
                 i18n_domain="plone"),
         ),
         DateTimeField(
@@ -148,23 +158,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 d = {'on' : 1, 'off': 0, 'none':None, '':None}
                 allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
-        # XXX This try block is a workaround for a CMF bug: overrideDiscussionFor 
-        # checks for the ModifyPortalContent permission and raises an 
-        # 'Unauthorized' if it's not available.  However, the mechanism used 
-        # does not take into account proxy roles.  If you have an anonymous user 
-        # creating an archetypes object via a script that uses a proxy role, an 
-        # exception gets raised in allowDiscussion, and that causes the setting 
-        # of all metadata to get rolled back.  This try block prevents that rollback
-        # by swallowing the exception.  You still can't modify the discussion
-        # flag, but at least things work if you don't try to do so.  Security
-        # is correctly enforced by the declareProtected statement above, which
-        # does see proxy roles.  I understand the problem will be fixed in 
-        # CMF 1.5.
-        try:
-            dtool.overrideDiscussionFor(self, allowDiscussion)
-        except 'Unauthorized':
-            log_exc()
-            
+        dtool.overrideDiscussionFor(self, allowDiscussion)
 
     # Vocabulary methods ######################################################
 
@@ -235,6 +229,10 @@ class ExtensibleMetadata(Persistence.Persistent):
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
         pass
+
+    def Identifer(self):
+        """ dublin core getId method"""
+        return self.getId()
 
     #  DublinCore utility methods #############################################
 
@@ -347,6 +345,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 modification_date = DateTime( modification_date )
             self.modification_date = self._datify(modification_date)
 
+
     security.declarePrivate( '_datify' )
     def _datify(self, attrib):
         if attrib == 'None':
@@ -359,18 +358,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
     #  DublinCore interface query methods
     #
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'Creator')
-    def Creator(self):
-        # XXX: fixme using 'portal_membership' -- should iterate over
-        #       *all* owners
-        "Dublin Core element - resource creator"
-        owner = self.getOwner()
-        if hasattr( owner, 'getUserName' ):
-            return owner.getUserName()
-        return 'No owner'
-
     security.declareProtected(CMFCorePermissions.View,
                               'Publisher')
     def Publisher(self):
@@ -402,6 +389,47 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX: fixme using 'portal_metadata' (we need to prepend the
         #      right prefix to self.getPhysicalPath().
         return self.absolute_url()
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'listContributors')
+    def listContributors(self):
+        """Dublin Core element - Contributors"""
+        return self.Contributors()
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addCreator')
+    def addCreator(self, creator=None):
+        """ Add creator to Dublin Core creators.
+        """
+        if creator is None:
+            mtool = getToolByName(self, 'portal_membership')
+            creator = mtool.getAuthenticatedMember().getId()
+
+        # call self.listCreators() to make sure self.creators exists
+        if creator and not creator in self.listCreators():
+            self.setCreators(self.creators + (creator, ))
+
+    security.declareProtected(CMFCorePermissions.View, 'listCreators')
+    def listCreators(self):
+        """ List Dublin Core Creator elements - resource authors.
+        """
+        creators = self.Schema()['creators']
+        if not creators.get(self):
+            # for content created with CMF versions before 1.5
+            owner = self.getOwner()
+            if hasattr(owner, 'getId'):
+                creators.set(self, (owner.getId(),))
+            else:
+                creators.set(self, ())
+
+        return creators.get(self)
+
+    security.declareProtected(CMFCorePermissions.View, 'Creator')
+    def Creator(self):
+        """ Dublin Core Creator element - resource author.
+        """
+        creators = self.listCreators()
+        return creators and creators[0] or ''
 
     #
     #  DublinCore utility methods
@@ -531,6 +559,5 @@ class ExtensibleMetadata(Persistence.Persistent):
                            , rights=rights
                            )
         self.reindexObject()
-
 
 InitializeClass(ExtensibleMetadata)

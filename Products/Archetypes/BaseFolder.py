@@ -6,7 +6,6 @@ from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.SchemaProvider import SchemaProvider
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -15,8 +14,7 @@ from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
 from OFS.Folder import Folder
 
-class BaseFolderMixin(SchemaProvider,
-                      BaseObject,
+class BaseFolderMixin(BaseObject,
                       Referenceable,
                       CatalogMultiplex,
                       SkinnedFolder,
@@ -36,7 +34,6 @@ class BaseFolderMixin(SchemaProvider,
     def __init__(self, oid, **kwargs):
         # Call skinned first cause baseobject will set new defaults on
         # those attributes anyway
-        SchemaProvider.__init__(self)
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
 
@@ -86,6 +83,18 @@ class BaseFolderMixin(SchemaProvider,
         """
         return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
 
+    security.declareProtected(CMFCorePermissions.View, 'Title')
+    def Title(self, **kwargs):
+        """We have to override Title here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        return self.getField('title').get(self, **kwargs)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setTitle')
+    def setTitle(self, value, **kwargs):
+        """We have to override setTitle here to handle arbitrary
+        arguments since PortalFolder defines it."""
+        self.getField('title').set(self, value, **kwargs)
 
 InitializeClass(BaseFolderMixin)
 
