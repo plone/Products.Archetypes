@@ -515,7 +515,7 @@ class FileField(StringField):
             f_name = ''
             if isinstance(value, FileUpload) or hasattr(value, 'filename'):
                 f_name = value.filename
-            if isinstance(value, FileType) or hasattr(value, name):
+            if isinstance(value, FileType) or hasattr(value, 'name'):
                 f_name = value.name
             value = value.read()
             if mimetype is None:

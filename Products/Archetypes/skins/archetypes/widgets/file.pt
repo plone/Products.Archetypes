@@ -35,9 +35,9 @@
     </div>
 
     <metal:define define-macro="file_edit">
-        <metal use-macro="here/widgets/file/macros/file_delete" />
-        <metal use-macro="here/widgets/file/macros/file_upload" />
-        <metal use-macro="here/widgets/file/macros/file_view"/>
+        <metal:block use-macro="here/widgets/file/macros/file_delete" />
+        <metal:block use-macro="here/widgets/file/macros/file_upload" />
+        <metal:block use-macro="here/widgets/file/macros/file_view" />
     </metal:define>
 
     <metal:define define-macro="file_delete">
