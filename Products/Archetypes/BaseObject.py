@@ -294,7 +294,7 @@ class BaseObject(Implicit):
             fields = schemata[fieldset].fields()
         else:
             if data: fields += schema.filterFields(metadata=0)
-            if metadata: fields += schema.filterFields(metdata=1)
+            if metadata: fields += schema.filterFields(metadata=1)
 
         form_keys = form.keys()
         for field in fields:
