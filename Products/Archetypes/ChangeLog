@@ -1,20 +1,29 @@
+2003-06-18  Sylvain Thénault  <syt@logilab.fr>
+	* TransformTool.py: fix persistence bug in the transformations
+	mapping , add support for list and dictionary in
+	transforms'configuration.
+
+	* www/configureTransform.pt: use some simple widgets according to
+	config metadata.
+	
+
 2003-06-10  Geoff Davis <geoff@geoffdavis.net>
 
-    * Field.py: added max_size attribute to ImageField.  max_size is 
-    a 2-tuple that specifies the maximum width and height for an image.  
-    Images larger than max_size will be rescaled so that their dimensions 
-    are <= max_size.  Rescaling preserves the image's aspect ratio and
-    requires PIL.
+	* Field.py: added max_size attribute to ImageField.  max_size is 
+	a 2-tuple that specifies the maximum width and height for an image.  
+	Images larger than max_size will be rescaled so that their dimensions 
+	are <= max_size.  Rescaling preserves the image's aspect ratio and
+	requires PIL.
 
-    * Schema.py: fixed a bug in validate when no REQUEST is passed in 
+	* Schema.py: fixed a bug in validate when no REQUEST is passed in 
 
-    * Widget.py: added size and maxlength attributes to the StringWidget
+	* Widget.py: added size and maxlength attributes to the StringWidget
 
-    * widgets/string.pt: added support for size and maxlength widget 
-    attributes
+	* widgets/string.pt: added support for size and maxlength widget 
+	attributes
 
-    * widgets/zid.pt: allow a form to override member.visible_ids by 
-    defining a value for the variable visible_ids
+	* widgets/zid.pt: allow a form to override member.visible_ids by 
+	defining a value for the variable visible_ids
 
 2003-06-06  Sylvain Thénault  <syt@logilab.fr>
 

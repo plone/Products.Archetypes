@@ -22,7 +22,7 @@
 	 class="error" />
 
     <tal:block tal:condition="params">
-      <table width="50%">
+      <table width="80%">
 	<tr tal:repeat="param params">
            <tal:block tal:define="meta python:here.get_parameter_infos(param);
                                   type python:meta[0];
@@ -30,9 +30,11 @@
                                   label python:meta[1] or param;">
 	    <td tal:content="label">Parameter's label</td>
 	    <td>             
-<!--                     <p tal:content="widget" /> -->
-                     <metal:block metal:use-macro="python:path(widget)" /> 
+               <metal:block metal:use-macro="python:path(widget)" /> 
 	    </td>
+            <td tal:content="python:meta[2]">
+              field description
+            </td>
           </tal:block>
 	</tr>
       </table>

@@ -510,13 +510,16 @@ class Transform(Implicit, Item, RoleManager, Persistent):
     def get_parameter_infos(self, key):
         """ get informations about a parameter
 
-        return a tuple (type, label [, type specific data])
-        where type in string, int, list, dict
+        return a tuple (type, label, description [, type specific data])
+        where type in (string, int, list, dict)
+              label and description are two string describing the field
+        there may be some additional elements specific to the type :
+             (key label, value label) for the dict type
         """
         try:
             return tuple(self._config_metadata[key])
         except KeyError:
-            return 'string', ''
+            return 'string', '', ''
         
     security.declareProtected(CMFCorePermissions.ManagePortal, 'set_parameters')
     def set_parameters(self, REQUEST=None, **kwargs):

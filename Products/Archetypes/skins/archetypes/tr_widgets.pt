@@ -1,3 +1,8 @@
+<div metal:define-macro="int_widget">
+  <input tal:attributes="name param;
+			 value python:here.get_parameter_value(param);"/>
+</div>
+
 <div metal:define-macro="string_widget">
   <input tal:attributes="name param;
 			 value python:here.get_parameter_value(param);"/>
@@ -9,7 +14,7 @@
 </div>
 
 <div metal:define-macro="dict_widget">
-              <table tal:define="titles python:meta[2];">
+              <table tal:define="titles python:meta[3];">
                 <tr> 
                   <th tal:content="python:titles[0]"/>
                   <th tal:content="python:titles[1]"/>
