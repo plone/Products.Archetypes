@@ -63,8 +63,6 @@ class AttributeValidator(Implicit):
     so, if it's using AttributeStorage, and if so, check the
     read_permission against the object being accessed. All other cases
     return '1' which means allow.
-    
-    Sidney
     """
 
     def __call__(self, name, value):
@@ -132,9 +130,6 @@ class BaseObject(Referenceable):
 
     typeDescMsgId = ''
     typeDescription = ''
-
-    # set this to 1 if you use schematas and want to use the DHTML screen
-    USE_PRELOAD_SCHEMATA_UI=0
 
     __implements__ = (IBaseObject, ) + Referenceable.__implements__
 

@@ -48,16 +48,20 @@ __docformat__ = 'restructuredtext'
 ##
 import warnings
 import unittest
+import doctest
 
 from Testing.ZopeTestCase import TestCase
 from Testing.ZopeTestCase import ZopeTestCase
-from Testing.ZopeTestCase import doctest
 from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
-ExtensionClass.Base.__module__ = ExtensionClass
-ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+try:
+    ExtensionClass.Base.__module__ = ExtensionClass
+    ExtensionClass.ExtensionClass.__module__ = ExtensionClass
+except TypeError:
+    # fails with Zope 2.8 on. Probably also not really needed then.
+    pass
 
 def ZopeDocTestSuite(*modules, **kw):
     """Based on Sid's FunctionalDocFileSuite

@@ -52,7 +52,7 @@ from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
-
+from Products.Archetypes.BaseObject import AttributeValidator
 
 # dynamicly calculate which modules should be exported
 import sys
