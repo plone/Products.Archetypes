@@ -1,5 +1,5 @@
-<!--
 <dtml-if "field.getName() == REQUEST.get('reference_focus', None)">
+<!--
 function focusOnReferenceField() {
   document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').focus();
 }
@@ -13,5 +13,5 @@ function unRegisterPloneFunction(func){
 
 unRegisterPloneFunction(setFocus);
 registerPloneFunction(focusOnReferenceField);
-</dtml-if>
 -->
+</dtml-if>
