@@ -13,7 +13,7 @@
     </metal:view_macro>
 
     <div metal:define-macro="edit">
-      <div metal:use-macro="field_macro | here/widgets/field/macros/edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
 	<div metal:fill-slot="widget_body">
 	  <textarea
 	   tabindex="#"

@@ -163,7 +163,7 @@ class MetadataStorage(StorageLayer):
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
 
-from Registry import registerStorage
+from Products.Archetypes.Registry import registerStorage
 
 for name in __all__:
     storage = locals()[name]

@@ -9,10 +9,6 @@ from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
-# marker that AT should generate a method -- used to discard unwanted
-#  inherited methods
-AT_GENERATE_METHOD = []
-
 
 _modes = {
     'r' : { 'prefix'   : 'get',
@@ -49,17 +45,32 @@ class Generator:
         if mode == "r":
             def generatedAccessor(self, **kw):
                 """Default Accessor."""
-                return self.Schema()[name].get(self, **kw)
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
+                    kw['schema'] = schema
+                return schema[name].get(self, **kw)
             method = generatedAccessor
         elif mode == "m":
             def generatedEditAccessor(self, **kw):
                 """Default Edit Accessor."""
-                return self.Schema()[name].getRaw(self, **kw)
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
+                    kw['schema'] = schema
+                return schema[name].getRaw(self, **kw)
             method = generatedEditAccessor
         elif mode == "w":
             def generatedMutator(self, value, **kw):
                 """Default Mutator."""
-                return self.Schema()[name].set(self, value, **kw)
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
+                    kw['schema'] = schema
+                return schema[name].set(self, value, **kw)
             method = generatedMutator
         else:
             raise GeneratorError("""Unhandled mode for method creation:
@@ -111,8 +122,10 @@ class ClassGenerator:
                                        self.generateName(klass))
 
         self.checkSchema(klass)
-
         fields = klass.schema.fields()
+        self.generateMethods(klass, fields)
+
+    def generateMethods(self, klass, fields):
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
@@ -135,8 +148,7 @@ class ClassGenerator:
             methodName = generator.computeMethodName(field, mode)
 
         # Avoid name space conflicts
-        if not hasattr(klass, methodName) \
-               or getattr(klass, methodName) is AT_GENERATE_METHOD:
+        if not hasattr(klass, methodName):
             if type.has_key(methodName):
                 raise GeneratorError("There is a conflict"
                                      "between the Field(%s) and the attempt"
@@ -171,3 +183,4 @@ def add%s(self, id, **kwargs):
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass
+generateMethods = _cg.generateMethods

@@ -256,6 +256,7 @@ class Field(DefaultLayerContainer):
                         break
 
         if error == 1:
+            label = self.widget.Label(instance)
             errors[name] = translate(
                 'archetypes', 'error_vocabulary',
                 {'val': val, 'name': label}, instance,
@@ -276,7 +277,8 @@ class Field(DefaultLayerContainer):
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
-                    kw = {'content_instance' : content_instance}
+                    kw = {'content_instance' : content_instance,
+                          'field' : self}
                     value = mapply(method, *args, **kw)
 
             # Post process value into a DisplayList, templates will use
@@ -417,6 +419,7 @@ class ObjectField(Field):
         })
 
     def get(self, instance, **kwargs):
+        __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
             return self.storage.get(self.getName(), instance, **kwargs)
@@ -442,10 +445,12 @@ class ObjectField(Field):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
+        __traceback_info__ = (self.getName(), instance, value, kwargs)
         self.storage.set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
         kwargs['field'] = self
+        __traceback_info__ = (self.getName(), instance, kwargs)
         self.storage.unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
@@ -886,6 +891,10 @@ class ReferenceField(ObjectField):
 
         kwargs.setdefault('referenceClass', self.referenceClass)
 
+        # Remove schema added by Accessors/Mutator
+        # It'll cause problems on addReference
+        if kwargs.has_key('schema'): del kwargs['schema']
+
         # Establish the relation through the ReferenceEngine
         tool=getToolByName(instance, REFERENCE_CATALOG)
         refname=self.relationship
@@ -936,6 +945,10 @@ class ReferenceField(ObjectField):
         value = ObjectField.Vocabulary(self, content_instance)
         if value:
             return value
+        else:
+            return self._Vocabulary(content_instance).sortedByValue()
+
+    def _Vocabulary(self, content_instance=None):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)

@@ -15,6 +15,7 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from Products.Archetypes.config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
+from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo, Permissions
 from Globals import InitializeClass
@@ -238,8 +239,10 @@ class OrderedContainer:
     security.declareProtected(ModifyPortalContent, 'orderObjects')
     def orderObjects(self, key, reverse=None):
         """ Order sub-objects by key and direction.
+        
+        Key can be an attribute or a method
         """
-        ids = [ id for id, obj in sort( self.objectItems(),
+        ids = [ id for id, obj in sequence.sort( self.objectItems(),
                                         ( (key, 'cmp', 'asc'), ) ) ]
         if reverse:
             ids.reverse()
@@ -248,21 +251,13 @@ class OrderedContainer:
     # here the implementing of IOrderedContainer ends
 
 
-    def manage_renameObject(self, id, new_id, REQUEST=None):
-        " "
-        objidx = self.getObjectPosition(id)
-        method = OrderedContainer.inheritedAttribute('manage_renameObject')
-        result = method(self, id, new_id, REQUEST)
-        self.moveObject(new_id, objidx)
-
-        return result
-
 InitializeClass(OrderedContainer)
 
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
-    __implements__ = (OrderedContainer.__implements__, BaseFolder.__implements__,)
+    __implements__ = OrderedContainer.__implements__ + \
+                     BaseFolder.__implements__
 
     security = ClassSecurityInfo()
 
@@ -273,9 +268,12 @@ class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
         ExtensibleMetadata.__init__(self)
 
     security.declarePrivate('manage_renameObject')
-    def manage_renameObject(self, item, container):
-        BaseFolder.manage_renameObject(self, item, container)
-        OrderedContainer.manage_renameObject(self, item, container)
+    def manage_renameObject(self, id, new_id, REQUEST=None):
+        objidx = self.getObjectPosition(id)
+        result = BaseFolder.manage_renameObject(self, id, new_id, REQUEST)
+        self.moveObject(new_id, objidx)
+
+        return result
 
 
 class old_OrderedBaseFolder(BaseObject,

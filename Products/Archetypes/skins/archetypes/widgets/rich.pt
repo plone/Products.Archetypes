@@ -16,7 +16,7 @@
     </metal:view_macro>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="binary python: here.isBinary(fieldName);">
 	  <div class="group">

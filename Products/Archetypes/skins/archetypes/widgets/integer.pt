@@ -10,7 +10,7 @@
     <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define metal:define-macro="edit">
-      <metal:use metal:use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use metal:use-macro="here/widgets/field/macros/edit">
 	<input metal:fill-slot="widget_body"
 	       type="text"
 	       name=""

@@ -2,9 +2,9 @@
 # Fabiano Weimar dos Santos <fabiano@x3ng.com.br>, 2003
 msgid ""
 msgstr ""
-"Project-Id-Version: Archetypes 1.0\n"
-"POT-Creation-Date: 2003-01-03 12:33:09 -0200\n"
-"PO-Revision-Date: 2003-01-03 12:33:09 -0200\n"
+"Project-Id-Version: Archetypes 1.3\n"
+"POT-Creation-Date: 2004-01-18 16:00 +0100\n"
+"PO-Revision-Date: 2004-01-18 16:00 +0100\n"
 "Last-Translator: Fabiano Weimar dos Santos <fabiano@x3ng.com.br>\n"
 "Language-Team: Archetypes Framework <archetypes-devel@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,9 @@ msgstr ""
 "Language-name: English\n"
 "Preferred-encodings: utf-8 latin1\n"
 "Domain: archetypes\n"
+
+# -----------------------------------------------------------------------------
+# ZPT translations
 
 # <table i18n:attributes="summary" class="listing"  summary="table_summary" cellpadding="0" cellspacing="0" width="100%">
 msgid "table_summary"
@@ -39,10 +42,10 @@ msgstr "Copy objects from folders and then click the reference button. This will
 # -----------------------------------------------------------------------------
 # Python code translations
 
-#: Schema.py
+#: Field.py
 msgid "error_required"
 msgstr "${name} is required, please correct."
 
-#: Schema.py
+#: Field.py
 msgid "error_vocabulary"
 msgstr "Value ${val} is not allowed for vocabulary of element ${name}."

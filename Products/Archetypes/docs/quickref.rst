@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2003/09/12 03:37:10 $
-:Version: $Revision: 1.10 $
+:Date: $Date: 2004/03/03 11:59:25 $
+:Version: $Revision: 1.11 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -463,7 +463,7 @@ Additional notes about Factory Type Information
       class Foo(BaseContent):
           actions = ({'id': 'view',
 	              'name': 'View',
-                      'action': 'custom_view',
+                      'action': 'string:${object_url}/custom_view',
                       'permissions': (CMFCorePermissions.View,)
                      },)
 

@@ -13,7 +13,7 @@
 		      tal:replace="structure accessor"/>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
 	<metal:fill metal:fill-slot="widget_body">
 	  <input type="hidden"
 		 tal:attributes="name fieldName;
