@@ -10,7 +10,7 @@
 
     <metal:define define-macro="view">
       <metal:use use-macro="here/widgets/field/macros/view">
-	<metal:fill fill-slot="widget_view"> 
+	<metal:fill fill-slot="widget_view">
 	  <span tal:replace="python:', '.join(accessor())"/>
 	</metal:fill>
       </metal:use>
@@ -18,25 +18,30 @@
 
     <metal:define define-macro="edit">
     <metal:use use-macro="here/widgets/field/macros/edit">
-    <metal:fill fill-slot="widget_body" 
+    <metal:fill fill-slot="widget_body"
 	    tal:define="vocab python:field.Vocabulary(here);
 	        format python:test(field.widget.format,field.widget.format,'select');
 	        vlen  python: len(vocab);
 	        ">
-	  <span tal:repeat="item vocab" tal:omit-tag=""
+
+        <input type="hidden"
+              value=""
+              tal:attributes="name string:$fieldName:default:list;" />
+
+         <span tal:repeat="item vocab" tal:omit-tag=""
 	    tal:condition="python:format=='checkbox'">
- 	    <input 
-	      tal:attributes="type string:checkbox; 
-	      name string:$fieldName:list; 
-	      id fieldName; 
-	      tabindex tabindex/next; 
+ 	    <input
+	      tal:attributes="type string:checkbox;
+	      name string:$fieldName:list;
+	      id fieldName;
+	      tabindex tabindex/next;
 	      checked python:test(unicode(item) in [unicode(val) for val in value], 'checked', None);
 	      value item;"
 	      tal:content="python: vocab.getValue(item)" />
 	      <br>
 	  </span>
-	  
-        <select multiple="multiple" 
+
+        <select multiple="multiple"
 	    tal:condition="python:format=='select'"
            tal:attributes="name string:${fieldName}:list;
                 id fieldName;
@@ -50,8 +55,8 @@
                 tal:attributes="value item;
                     selected python:test(unicode(item) in [unicode(val) for val in value], 'selected', None);"
 		        tal:content="python: vocab.getValue(item)"
-		        /> 
-	    </select>	  
+		        />
+	    </select>
 	</metal:fill>
     </metal:use>
     </metal:define>

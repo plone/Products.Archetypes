@@ -293,8 +293,8 @@ class BaseObject(Implicit):
         if fieldset is not None:
             fields = schemata[fieldset].fields()
         else:
-            if data: fields += schema.filterFields(metadata=0)
-            if metadata: fields += schema.filterFields(metadata=1)
+            if data: fields += schema.filterFields(isMetadata=0)
+            if metadata: fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
         for field in fields:

@@ -26,18 +26,18 @@
       <h1 i18n:translate="heading_edit_item">
       Edit
           <span i18n:name="itemtype">
-                <span i18n:translate=""         
-                      tal:content="here/archetype_name" 
+                <span i18n:translate=""
+                      tal:content="here/archetype_name"
                       tal:omit-tag="">Item type</span>
-          </span> 
+          </span>
 
           <span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'default'">
                [
-                <span i18n:translate=""         
-                      tal:content="fieldset" 
+                <span i18n:translate=""
+                      tal:content="fieldset"
                       tal:omit-tag="">fieldset</span>
                ]
-          </span> 
+          </span>
       </h1>
 
      <div tal:condition="fieldsets">
@@ -53,15 +53,15 @@
 
       <form class="group"
 	    name="edit_form"
-	    method="post" 
+	    method="post"
 	    enctype="multipart/form-data"
 	    tal:attributes="action request/URL">
-	
+
 <!--
  	<div tal:condition="errors" class="error">
           <div tal:repeat="error errors/keys">
            <strong tal:content="error">Field</strong>: <span tal:replace="python:errors[error]" />
-	  </div> 
+	  </div>
 	</div>
 -->
 
@@ -79,20 +79,20 @@
 
 	  <div class="row">
             <div class="label">&nbsp;</div>
-            <div class="field" tal:define="process_creation request/process_creation|nothing;"> 
-	      <input class="context" 
+            <div class="field" tal:define="process_creation request/process_creation|nothing;">
+	      <input class="context"
 		     tabindex=""
-		     type="submit" 
-		     name="Change" 
+		     type="submit"
+		     name="Change"
                      i18n:attributes="value"
-		     value="Save" 
-		     tal:attributes="tabindex tabindex/next;" /> 
+		     value="Save"
+		     tal:attributes="tabindex tabindex/next;" />
             </div>
 	  </div>
 
     </form>
     </div>
 </div>
-	   
+
 </body>
 </html>

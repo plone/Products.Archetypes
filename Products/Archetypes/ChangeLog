@@ -1,3 +1,11 @@
+2003-05-05  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* BaseObject.py (BaseObject._processForm): Wrong property. Should
+	be isMetadata, not metadata.
+
+	* skins/archetypes/widgets/multiselection.pt: Add default value
+	for when no option was selected.
+
 2003-05-01  Benjamin Saller  <bcsaller@yahoo.com>
 
 	* ReferenceEngine.py (ReferenceEngine._addBref): There was a
