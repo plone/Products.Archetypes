@@ -66,7 +66,7 @@
         <span class="legend" i18n:translate="" tal:content="here/archetype_name"></span>
 
 	<tal:fields repeat="field python: schematas[fieldset].fields()">
-	    <metal:fieldMacro use-macro="python: here.widget(field.name, mode='edit')"/>
+	    <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
         </tal:fields>
 
 	<input type="hidden" name="form_submitted" value="1"
