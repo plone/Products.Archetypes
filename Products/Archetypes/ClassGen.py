@@ -45,24 +45,30 @@ class Generator:
         if mode == "r":
             def generatedAccessor(self, **kw):
                 """Default Accessor."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
                     kw['schema'] = schema
                 return schema[name].get(self, **kw)
             method = generatedAccessor
         elif mode == "m":
             def generatedEditAccessor(self, **kw):
                 """Default Edit Accessor."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
                     kw['schema'] = schema
                 return schema[name].getRaw(self, **kw)
             method = generatedEditAccessor
         elif mode == "w":
             def generatedMutator(self, value, **kw):
                 """Default Mutator."""
-                schema = self.Schema()
-                if not kw.has_key('schema'):
+                if kw.has_key('schema'):
+                    schema = kw['schema']
+                else:
+                    schema = self.Schema()
                     kw['schema'] = schema
                 return schema[name].set(self, value, **kw)
             method = generatedMutator
