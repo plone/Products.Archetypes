@@ -1,5 +1,5 @@
 from AccessControl import ClassSecurityInfo
-from Acquisition import Explicit
+from Acquisition import Explicit, aq_base
 from Globals import InitializeClass
 from OFS.Image import File
 from OFS.ObjectManager import ObjectManager, REPLACEABLE

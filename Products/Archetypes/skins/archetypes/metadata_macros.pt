@@ -1,23 +1,31 @@
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+  <head><title></title></head>
   <body>
-    
+
     <div metal:define-macro="header">
 
       <h1 i18n:translate="heading_edit_item">
-      Edit
-          <span i18n:name="itemtype">
-                <span i18n:translate=""
-                      tal:content="here/archetype_name"
-                      tal:omit-tag="">Item type</span>
-          </span>
+	Edit
+	<span i18n:name="itemtype">
+	  <span i18n:translate=""
+		tal:content="here/archetype_name"
+	  tal:omit-tag="">Item type</span>
+	</span>
 
-          <span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'metadata'">
-               [
-                <span i18n:translate=""
-                      tal:content="fieldset"
-                      tal:omit-tag="">fieldset</span>
-               ]
-          </span>
+	<span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'metadata'">
+	  [
+	  <span i18n:translate=""
+		tal:content="fieldset"
+	  tal:omit-tag="">fieldset</span>
+	  ]
+	</span>
       </h1>
 
       <p>
@@ -31,6 +39,6 @@
       </p>
 
     </div>
-    
+
   </body>
 </html>
