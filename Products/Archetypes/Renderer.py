@@ -1,15 +1,17 @@
 import sys
 
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.generator.renderer import renderer as base
+from Products.generator.renderer import renderer as BaseRenderer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 
 _marker = []
 
-class ArchetypesRenderer(base):
-    __implements__ = ILayer
+class ArchetypesRenderer(BaseRenderer):
+    # XXX it says it's implementing layer but it doesn't implement the required
+    # methods!
+    #__implements__ = ILayer
     
     security = ClassSecurityInfo()
     # XXX FIXME more security
