@@ -29,7 +29,9 @@ Requires
 
         WARNING ! Those packages was used to be installed as Zope products, 
         this not the case anymore. They should be installed as regular python 
-        package (look at the packages'README file for more info).
+        package (look at the packages'README file for more info). If you're 
+        really allergic to distutils, you can keep them as provided in your 
+        Products and that should work anyway.
 
         Zope product "PortalTransforms" should also be installed if you want 
         to use the new base units. You should also install the
