@@ -37,6 +37,14 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
+        
+    if not hasattr(self, "mimetypes_registry"):
+        addTool = self.manage_addProduct['Archetypes'].manage_addTool
+        addTool('MimeTypes Registry')
+
+    if not hasattr(self, "portal_transforms"):
+        addTool = self.manage_addProduct['Archetypes'].manage_addTool
+        addTool('Portal Transforms')
 
 
     #and the tool uses an index
