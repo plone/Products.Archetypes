@@ -1,3 +1,13 @@
+2003-12-13  Sidnei da Silva  <sidnei@awkly.org>
+
+	* ArchetypeTool.py (ArchetypeTool.getSearchWidgets): Applied Joel
+	Burton's fixes from head, plus a few more changes to make it work
+	even better.
+
+	* Extensions/utils.py (install_tools): Fixed migration from 1.0
+
+	* skins/archetypes/widgets/calendar.pt: A tal:omit-tag too much.
+
 2003-12-06  Sidnei da Silva  <sidnei@awkly.org>
 
 	* Widget.py (ImageWidget.process_form): Added maxlength and size

@@ -1,9 +1,11 @@
 import sys, traceback, os
+from os.path import isdir, join
 from types import *
 
-from OFS.ObjectManager import BadRequestException
 from Globals import package_home
-
+from Globals import PersistentMapping
+from OFS.ObjectManager import BadRequestException
+from Acquisition import aq_base
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, createDirectoryView, manage_listAvailableDirectories
@@ -30,18 +32,22 @@ def install_dependencies(self, out):
     qi.installProduct('CMFFormController',locked=1)
     qi.installProduct('PortalTransforms',)
 
-
 def install_tools(self, out):
-    if not hasattr(self, "archetype_tool"):
+    at = getToolByName(self, 'archetype_tool', None)
+    if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
 
         ##Test some of the templating code
-        at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
+    else:
+        # Migration from 1.0
+        if not hasattr(aq_base(at), '_registeredTemplates'):
+            at._registeredTemplates = PersistentMapping()
+        if not hasattr(aq_base(at), 'catalog_map'):
+            at.catalog_map = PersistentMapping()
 
     install_catalog(self, out)
-
 
 def install_catalog(self, out):
     if not hasattr(self, UID_CATALOG):
@@ -50,10 +56,10 @@ def install_catalog(self, out):
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = getToolByName(self, UID_CATALOG)
 
-        for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                      ('Type', 'FieldIndex'),
-                                      ('Title', 'FieldIndex'),
-                                      ):
+        for indexName, indexType in (('UID', 'FieldIndex'),
+                                     ('Type', 'FieldIndex'),
+                                     ('Title', 'FieldIndex'),
+                                     ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
             except:
@@ -71,12 +77,11 @@ def install_templates(self, out):
     at = self.archetype_tool
     at.registerTemplate('base_view')
 
-
-
-def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
+def install_subskin(self, out, globals=types_globals,
+                    product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
 
-    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
+    fullProductSkinsPath = join(package_home(globals), product_skins_dir)
     productSkinsPath = minimalpath(fullProductSkinsPath)
     registered_directories = manage_listAvailableDirectories()
     if productSkinsPath not in registered_directories:
@@ -88,8 +93,8 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
-        if os.path.isdir(os.path.join(fullProductSkinsPath, productSkinName)) \
-               and productSkinName != 'CVS':
+        if (isdir(join(fullProductSkinsPath, productSkinName))
+            and productSkinName != 'CVS'):
             for skinName in skinstool.getSkinSelections():
                 path = skinstool.getSkinPath(skinName)
                 path = [i.strip() for i in  path.split(',')]
@@ -102,7 +107,6 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
                 path = ','.join(path)
                 skinstool.addSkinSelection(skinName, path)
 
-
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     for type in types:
@@ -111,7 +115,7 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name="%s: %s" % (package_name, type.__name__)
+        typeinfo_name = "%s: %s" % (package_name, type.__name__)
 
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.__name__,
@@ -120,8 +124,6 @@ def install_types(self, out, types, package_name):
         t = getattr(typesTool, type.__name__, None)
         if t:
             t.title = type.archetype_name
-
-
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
@@ -153,7 +155,8 @@ def install_indexes(self, out, types):
                         except:
                             pass
 
-                    # we may want to add a field to metadata without indexing it
+                    # we may want to add a field to metadata without
+                    # indexing it
                     if not schema[0]:
                         continue
 
@@ -184,7 +187,6 @@ def install_indexes(self, out, types):
 
                     if installed:
                         break
-
 
 
 def isPloneSite(self):
@@ -219,7 +221,8 @@ def filterTypes(self, out, types, package_name):
                 break
 
         if not found:
-            print >> out, '%s is not a registered Type Information' % typeinfo_name
+            print >> out, ('%s is not a registered Type '
+                           'Information' % typeinfo_name)
             continue
 
         isBaseObject = 0
@@ -234,9 +237,11 @@ def filterTypes(self, out, types, package_name):
         if isBaseObject:
             filtered_types.append(t)
         else:
-            print >> out, """%s doesnt implements IBaseObject. Possible misconfiguration.""" % repr(t) + \
-                          """ Check if your class has an '__implements__ = IBaseObject'""" + \
-                          """ (or IBaseContent, or IBaseFolder)"""
+            print >> out, ("%s doesnt implements IBaseObject. "
+                           "Possible misconfiguration. "
+                           "Check if your class has an "
+                           "'__implements__ = IBaseObject' "
+                           "(or IBaseContent, or IBaseFolder)" % repr(t))
 
     return filtered_types
 
@@ -265,14 +270,11 @@ def setupEnvironment(self, out, types,
 
 
 ## The master installer
-def installTypes(self,
-                 out,
-                 types,
-                 package_name,
-                 globals=types_globals,
-                 product_skins_dir='skins'):
+def installTypes(self, out, types, package_name,
+                 globals=types_globals, product_skins_dir='skins'):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)
-    #Pass the unfiltered types into setup as it does that on its own
-    setupEnvironment(self, out, types, package_name, globals, product_skins_dir)
+    # Pass the unfiltered types into setup as it does that on its own
+    setupEnvironment(self, out, types, package_name,
+                     globals, product_skins_dir)
