@@ -161,7 +161,7 @@ class BaseObject(Implicit):
         """Return the default value of a field
         """
         field = self.getField(field)
-        return field.default
+        return field.getDefault(self)
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):

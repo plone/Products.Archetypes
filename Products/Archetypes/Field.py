@@ -440,11 +440,12 @@ class Field(DefaultLayerContainer):
         return className(self)
 
     security.declarePublic('getDefault')
-    def getDefault(self):
+    def getDefault(self, instance):
         """Return the default value to be used for initializing this
         field"""
         if self.default_method:
-            return self.default_method()
+            method = getattr(instance, self.default_method)
+            return method()
         else:
             return self.default
 
@@ -519,8 +520,8 @@ class ObjectField(Field):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.getDefault(), _initializing_=1, **kwargs)
-            return self.getDefault()
+                self.set(instance, self.getDefault(instance), _initializing_=1, **kwargs)
+            return self.getDefault(instance)
 
     def getRaw(self, instance, **kwargs):
         if self.accessor is not None:
@@ -722,7 +723,7 @@ class FileField(ObjectField):
         if not filename:
             filename = self.getName()
         mimetype = self.getContentType(instance, fromBaseUnit=False)
-        value = self.getRaw(instance) or self.getDefault()
+        value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
             value = str(aq_base(value).data)
         bu = BaseUnit(filename, aq_base(value), instance,
@@ -824,8 +825,8 @@ class TextField(FileField):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.getDefault(), _initializing_=1, **kwargs)
-            return self.getDefault()
+                self.set(instance, self.getDefault(instance), _initializing_=1, **kwargs)
+            return self.getDefault(instance)
 
         if raw:
             return value
@@ -850,7 +851,7 @@ class TextField(FileField):
         pass to processing method without one and add mimetype
         returned to kwargs. Assign kwargs to instance.
         """
-        value = self._process_input(value, default=self.getDefault(), **kwargs)
+        value = self._process_input(value, default=self.getDefault(instance), **kwargs)
         encoding = kwargs.get('encoding')
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
@@ -984,10 +985,10 @@ class FixedPointField(ObjectField):
         'validators' : ('isDecimal'),
         })
 
-    def _to_tuple(self, value):
+    def _to_tuple(self, instance, value):
         """ COMMENT TO-DO """
         if not value:
-            value = self.getDefault() # Does this sounds right?
+            value = self.getDefault(instance)
         value = value.split('.')
         __traceback_info__ = (self, value)
         if len(value) < 2:
@@ -999,19 +1000,19 @@ class FixedPointField(ObjectField):
         return value
 
     def set(self, instance, value, **kwargs):
-        value = self._to_tuple(value)
+        value = self._to_tuple(instance, value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
         template = '%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
-        if value is None: return self.getDefault()
-        if type(value) in [StringType]: value = self._to_tuple(value)
+        if value is None: return self.getDefault(instance)
+        if type(value) in [StringType]: value = self._to_tuple(instance, value)
         return template % value
 
     def validate_required(self, instance, value, errors):
-        value = sum(self._to_tuple(value))
+        value = sum(self._to_tuple(instance, value))
         return ObjectField.validate_required(self, instance, value, errors)
 
 class ReferenceField(ObjectField):
@@ -1252,7 +1253,7 @@ class CMFObjectField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
-        value = self._process_input(value, default=self.getDefault(), \
+        value = self._process_input(value, default=self.getDefault(instance), \
                                     **kwargs)
         if value is None or value == '':
             # do nothing

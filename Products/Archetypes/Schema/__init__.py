@@ -398,7 +398,7 @@ class BasicSchema(Schemata):
                     continue
                 #if not hasattr(aq_base(instance), field.getName()) and \
                 #   getattr(instance, field.getName(), None):
-                default = field.getDefault()
+                default = field.getDefault(instance)
                 # now handled by getDefault()
                 ##if field.default_method:
                 ##    method = getattr(instance, field.default_method, None)

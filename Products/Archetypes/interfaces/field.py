@@ -99,7 +99,7 @@ class IField(Interface):
     def getType():
         """Return the type of this field as a string"""
 
-    def getDefault():
+    def getDefault(instance):
         """Return the default value to be used for initializing this
         field"""
 
