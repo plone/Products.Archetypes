@@ -46,7 +46,6 @@ content_type = Schema((
                 accessor='Title',
                 widget=StringWidget(
     label_msgid="label_title",
-    description=None,
     i18n_domain="plone"),
                 )),
 

@@ -34,8 +34,6 @@ class TypesWidget(macrowidget):
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
-        if self.description == '': # description = None means don't use default
-            self.description = 'Enter a value for %s.' % self.label
 
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
