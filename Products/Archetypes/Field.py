@@ -184,7 +184,7 @@ class Field(DefaultLayerContainer):
             strategy  = 'and'
             validators = self.validators
         
-        if type(validators) not in [type(()), type([])]:
+        if type(validators) not in (TupleType, ListType):
             validators = (validators,)
         else:
             validators = tuple(validators)
@@ -299,11 +299,9 @@ class Field(DefaultLayerContainer):
         if value:
             # coerce value into a list called values
             values = value
-            if isinstance(value, type('')) or \
-                   isinstance(value, type(u'')):
+            if type(value) in STRING_TYPES:
                 values = [value]
-            elif not (isinstance(value, type((1,))) or \
-                      isinstance(value, type([]))):
+            elif type(value) not in (TupleType, ListType):
                 raise TypeError("Field value type error")
             vocab = self.Vocabulary(instance)
             # filter empty
@@ -312,7 +310,7 @@ class Field(DefaultLayerContainer):
             # extract valid values from vocabulary
             valids = []
             for v in vocab:
-                if type(v) in [type(()), type([])]:
+                if type(v) in (TupleType, ListType):
                     v = v[0]
                 if not type(v) in [type(''), type(u'')]:
                     v = str(v)
