@@ -1,7 +1,7 @@
 """
 Unittests for a Schema Provider
 
-$Id: test_schemaProvider.py,v 1.1.2.9 2004/04/20 15:37:16 bcsaller Exp $
+$Id: test_schemaProvider.py,v 1.1.2.10 2004/04/20 16:29:51 bcsaller Exp $
 """
 
 import os, sys
@@ -15,7 +15,7 @@ from Acquisition import aq_base
 import Products.Archetypes.config as config
 from Products.Archetypes.public import *
 from Products.Archetypes.examples.DDocument import schema as DDocumentSchema
-from Products.Archetypes.SchemaProvider import *
+from Products.Archetypes.Schema.Provider import *
 from Products.Archetypes.Schema.Collection import getAxisManagers
 
 class MementoTool:
