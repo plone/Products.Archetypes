@@ -32,6 +32,11 @@ try:
     hasZopeOrderedSupport=1
 except ImportError:
     hasZopeOrderedSupport=0
+    
+try:
+    from zExceptions import NotFound
+except ImportError:
+    class NotFound(Exception): pass
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
 # OrderedBaseFolder work without Plone 2.0
@@ -203,7 +208,7 @@ class OrderedContainer:
         if om: # only 1 in list if any
             return om[0]
 
-        raise RuntimeError('Object %s was not found'%str(id))
+        raise NotFound(str(id))
 
     security.declareProtected(ModifyPortalContent, 'moveObjectsUp')
     def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
