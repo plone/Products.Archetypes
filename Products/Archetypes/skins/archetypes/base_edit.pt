@@ -10,7 +10,9 @@
                     Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();">
 
-
+      <h1 tal:content="string:Edit ${here/archetype_name}"></h1>
+	
+      <p tal:content="string:Fill in the details of this ${here/archetype_name}."></p>  
 
       <form class="group"
 	    name="edit_form"
@@ -22,7 +24,7 @@
 <!--	<div tal:condition="errors" class="error"
 	  tal:content="errors"/>
 -->
-	
+
         <span class="legend" tal:content="here/archetype_name"></span>
 
 	<div tal:repeat="field python: here.type.filterFields(isMetadata=0)">

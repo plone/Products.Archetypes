@@ -10,7 +10,7 @@
                     Iterator python:modules['Products.CMFPlone'].IndexIterator;
                     tabindex python:Iterator();">
 
-
+      <h1>Edit Properties</h1>
 
       <form class="group"
 	    name="edit_form"
