@@ -10,6 +10,7 @@ from ZPublisher.HTTPRequest import FileUpload
 from ZODB.PersistentMapping import PersistentMapping
 from debug import log, log_exc
 from types import FileType
+from DateTime import DateTime
 import operator
 
 from Schema import Schema, Schemata

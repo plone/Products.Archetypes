@@ -1,3 +1,7 @@
+2003-07-15  Sidnei da Silva  <sidnei@redesul.com.br>
+
+	* BaseObject.py: Missing import.
+
 2003-07-11  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* skins/archetypes/base_edit.pt: Show 'default' schemata when
