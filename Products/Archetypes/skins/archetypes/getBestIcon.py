@@ -10,6 +10,6 @@ mtr = getToolByName(context, 'mimetypes_registry', None)
 if mtr is not None:
     mtiList = mtr.lookup(context.getContentType())
     if len(mtiList):
-        return mti[0].icon_path
+        return mtiList[0].icon_path
 else:
     return context.getIcon()
