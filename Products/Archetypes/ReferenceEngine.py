@@ -88,8 +88,11 @@ class ReferenceEngine(Base):
 
 
     def _addBref(self, object, target, relationship):
+        key = (object, relationship)
         brefs = self.bref.get(target, [])
-        brefs.insert(0, (object, relationship))
+        if key in brefs:
+            return 
+        brefs.insert(0, key)
         self.bref[target] = brefs
 
     def _delRef(self, object, target, relationship=None):

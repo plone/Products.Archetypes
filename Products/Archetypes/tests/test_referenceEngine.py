@@ -29,6 +29,29 @@ class TestReferenceEngine(unittest.TestCase):
     def tearDown( self ):
         del self.re
 
+    def test_clearBrefs(self):
+        re = self.re
+        ar = re.addReference
+        gr = re.getRefs
+        gb = re.getBRefs
+        a = 'a'
+        b = 'b'
+        c = 'c'
+
+        ar(a, b, 'KnowsAbout')
+        ar(a, b, 'Includes')
+        assert len(gr(a)) == 2
+        ar(a, c, 'FooBar')
+        assert len(gr(a)) == 3
+
+        #delete the refs to C
+        re.deleteReference(a, c)
+        assert gb(c) == []
+        assert gr(a, 'FooBar') == []
+
+        assert gb(a) == [] #How could this ever happen, but still
+        assert gr(c) == [] #Again, impossible
+        
     def test_delete(self):
         re = self.re
         ar = re.addReference

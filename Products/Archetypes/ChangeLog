@@ -1,3 +1,8 @@
+2003-05-01  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* ReferenceEngine.py (ReferenceEngine._addBref): There was a
+	problem with Brefs getting added more than once since an
+	assumption was violated with the addition of relationships. Fixed.
 
 2003-04-30  Benjamin Saller  <bcsaller@yahoo.com>
 
