@@ -11,7 +11,7 @@
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
-	  <span tal:replace="structure accessor"/>
+	  <span tal:replace="python:', '.join(accessor())"/>
 	</div>
       </div>
     </div>

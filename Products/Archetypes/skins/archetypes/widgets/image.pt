@@ -10,7 +10,7 @@
     <div metal:define-macro="view">
       <div metal:use-macro="here/widgets/field/macros/view">
 	<div metal:fill-slot="widget_view">
-	  <tal:def define="img accessor; inline python:
+	  <tal:def define="img accessor; inline python: img and
 	                         (img.getSize() <= widget.display_threshold) and
 				 (request.get('HTTP_ACCEPT', '').find(img.getContentType()) >= 0)">
 	    <img tal:replace="structure img" tal:condition="inline" src="foo.png" />

@@ -10,7 +10,7 @@
 
     <metal:define define-macro="file_view">
     <tal:define define="unit accessor">
-    <div tal:define="size unit/get_size | python: 0;
+    <div tal:define="size unit/get_size | python: len(unit) or 0;
 	            icon unit/getIcon | nothing;
 		    filename value/filename|nothing">
 	 <a href="" tal:attributes="href string: ${here/absolute_url}/${fieldName}/;">
