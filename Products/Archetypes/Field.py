@@ -966,7 +966,8 @@ try:
     has_pil=1
 except:
     # no PIL, no scaled versions!
-    log("Warning: no Python Imaging Libraries (PIL) found. Imagefield can't scale.")
+    log("Warning: no Python Imaging Libraries (PIL) found."+\
+        "Archetypes based ImageField's don't scale if neccessary.")
     has_pil=None
 
 class Image(BaseImage):
@@ -1071,11 +1072,20 @@ class ImageField(ObjectField):
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            if self.sizes:
+            if self.sizes and has_pil:
                 # unset different sizes
                 for n, size in self.sizes.items():
                     id = self.getName() + "_" + n
-                    self.storage.unset(id, instance, **kwargs)
+                    try:
+                        # the following line may throw exceptions on types, if the 
+                        # type-developer add sizes to a field in an existing
+                        # instance and a user try to remove an image uploaded before 
+                        # that changed. The problem is, that the behavior for non 
+                        # existent keys isnt defined. I assume a keyerror will be
+                        # thrown
+                        self.storage.unset(id, instance, **kwargs)
+                    except KeyError:
+                        pass
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
