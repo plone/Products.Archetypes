@@ -366,7 +366,6 @@ def installTypes(self, out, types, package_name,
     # Pass the unfiltered types into setup as it does that on its own
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies)
-    refreshReferenceCatalog(self, out, types, package_name)
 
 
 def refreshReferenceCatalog(self, out, types, package_name):
