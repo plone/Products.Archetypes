@@ -1,10 +1,10 @@
 
 modname = 'Archetypes'
-version = '1.3.0-rc2'
+version = '1.4-devel'
 # (major, minor, patchlevel, release info) where release info is:
 # -99 for alpha, -49 for beta, -19 for rc and 0 for final
 # increment the release info number by one e.g. -98 for alpha2
-numversion = (1, 3, 0, -18)
+numversion = (1, 4, 0, -99)
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003 Benjamin Saller <bcsaller@yahoo.com>'''

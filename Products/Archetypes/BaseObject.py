@@ -15,6 +15,7 @@ from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.ATAnnotations import ATAnnotatableMixin
 from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
@@ -71,7 +72,7 @@ content_type = Schema((
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Referenceable):
+class BaseObject(Referenceable, ATAnnotatableMixin):
 
     security = ClassSecurityInfo()
 
@@ -83,7 +84,7 @@ class BaseObject(Referenceable):
     typeDescMsgId = ''
     typeDescription = ''
 
-    __implements__ = (IBaseObject, ) + Referenceable.__implements__ 
+    __implements__ = IBaseObject, ATAnnotatableMixin.__implements__, Referenceable.__implements__
 
     def __init__(self, oid, **kwargs):
         self.id = oid
