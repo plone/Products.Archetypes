@@ -28,6 +28,8 @@
 	    cols widget/cols;
 	    rows widget/rows;
 	    tabindex tabindex/next;
+            onfocus string:formtooltip('${fieldName}_help',1);
+            onblur string:formtooltip('${fieldName}_help',0);
 	    "><span tal:repeat="item value" tal:replace="python: '%s\n' % item"></span></textarea>
 	</div>
       </div>
