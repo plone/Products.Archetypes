@@ -27,7 +27,27 @@ def make_uuid(*args):
     r = str(random()*100000000000000000L)
     data = t +' '+ r +' '+ _v_network +' '+ str(args)
     uid = md5(data).hexdigest()
-    return uid
+    return uid    
+
+# linux kernel uid generator. It's a little bit slower but a little bit better
+KERNEL_UUID = '/proc/sys/kernel/random/uuids'
+
+if os.path.isfile(KERNEL_UUID):
+    HAS_KERNEL_UUID = True
+    def uuid_gen():
+        fp = open(KERNEL_UUID, 'r')
+        while 1:
+            uid = fp.read()[:-1]
+            fp.seek(0)
+            yield uid
+    uid_gen = uuid_gen()
+    
+    def kernel_make_uuid(*args):
+        return uid_gen.next()
+else:
+    HAS_KERNEL_UUID = False
+    kernel_make_uuid = make_uuid
+
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)

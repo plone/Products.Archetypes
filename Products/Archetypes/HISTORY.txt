@@ -82,6 +82,16 @@
 
  * do not assume templates have title_or_id attribute
    [runyaga]
+
+ * Added kernel_make_uuid which is using /proc/sys/kernel/random/uuids as source
+   for unique ids. Thx to Ben for this cool idea. :)
+   The kernel uuid generator is actually a tiny bit slower than our uuid
+   generator but it should be safer if you are worried about the uniqueness of
+   uuids.
+   [bcsaller, tiran]
+
+ * Fixed [ 1002481 ] Missing i18n: <any>, added at_search_any msgid.
+   [tiran]
    
 1.3.0-beta4 - 2004-07-09
 ========================
