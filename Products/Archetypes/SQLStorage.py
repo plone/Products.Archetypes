@@ -193,7 +193,7 @@ class MySQLSQLStorage(BaseSQLStorage):
                       set UID=<dtml-sqlvar UID type="string">"""
     query_select = """select <dtml-var field> from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
-    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s"> \
+    query_update = """update <dtml-var table> set <dtml-var field>=<dtml-sqlvar value type="%s" optional> \
                       where  <dtml-sqltest UID op="eq" type="string">"""
     query_delete = """delete from <dtml-var table> \
                       where <dtml-sqltest UID op="eq" type="string">"""
@@ -208,6 +208,9 @@ class MySQLSQLStorage(BaseSQLStorage):
         'string': 'text',
         }
 
+    def table_exists(self, instance):
+        result =  [r[0].lower() for r in self._query(instance, '''show tables''', {})]
+        return instance.portal_type.lower() in result
 
 class OracleSQLStorage(BaseSQLStorage):
     __implements__ = BaseSQLStorage.__implements__

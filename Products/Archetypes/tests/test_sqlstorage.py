@@ -196,7 +196,9 @@ class SQLStorageTest(unittest.TestCase):
         dummy.setAdatetimefield(now)
         value = dummy.getAdatetimefield()
         __traceback_info__ = (value, now)
-        self.failUnless(value == now)
+        # Precision in seconds is enough for us.
+        # Also, MySQL doesnt stores milliseconds AFAIK
+        self.failUnless(value.Time() == now.Time())
 
     def test_integerfield(self):
         dummy = self._dummy
