@@ -13,6 +13,9 @@
    CEILING_DATE from year 9999 to year 2500.
    [tiran]
 
+ * Fixed [ 1012238 ] Cannot set field using boolean widget under IE
+   [duncanb]
+
 1.3.0-rc1 - 2004-08-16
 ======================
 

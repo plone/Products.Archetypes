@@ -17,12 +17,6 @@
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill metal:fill-slot="widget_body">
-	  <input type="hidden"
-		 tal:attributes="name fieldName;
-		 id string:${fieldName}_hidden;
-		 value value;"
-		 />
-
 	  <script>
 	    // this function turns a checkbox into a radio button... sort of
 	    function toggle_boolean(visibleCheckbox, hiddenBoolean) {
@@ -45,8 +39,14 @@
 		 name string:${fieldName}_visible;
 		 onClick string:toggle_boolean('${fieldName}', '${fieldName}_hidden');; return true;
 		 id fieldName;
-		 checked python:str(value) == '1';"
+		 checked python:not not value;"
 		 />
+	  <input type="hidden"
+		 tal:attributes="name fieldName;
+		 id string:${fieldName}_hidden;
+		 value value;"
+		 />
+
 
 	</metal:fill>
       </metal:use>
