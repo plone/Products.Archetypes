@@ -283,12 +283,15 @@ class BaseObject(Implicit):
 
         methodName = "validate_%s" % name
 
+        res = 1
         if hasattr(aq_base(self), methodName):
             method = getattr(self, methodName)
             result = method(value)
             if result is not None:
                 errors[name] = result
-
+                res = 0
+        return res
+        
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
