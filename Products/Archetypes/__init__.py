@@ -58,13 +58,11 @@ from Products.Archetypes.tools.ttwtool import ArchTTWTool
 this_module = sys.modules[__name__]
 import Products.MimetypesRegistry
 import Products.PortalTransforms
-import Products.validation
 mtr_info = getPkgInfo(Products.MimetypesRegistry)
 pt_info = getPkgInfo(Products.PortalTransforms)
-val_info = getPkgInfo(Products.validation)
 
 at_version = __version__
-for info in (mtr_info, pt_info, val_info, ):
+for info in (mtr_info, pt_info ):
     if not hasattr(info, 'at_versions'):
         raise RuntimeError('The product %s has no at_versions assigend. ' \
                            'Please update to a newer version.' % info.modname)
