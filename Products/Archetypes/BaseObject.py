@@ -117,6 +117,7 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
+        __traceback_info__ = (self, item, container)
         Referenceable.manage_afterAdd(self, item, container)
         self.initializeLayers(item, container)
 
