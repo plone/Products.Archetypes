@@ -60,6 +60,7 @@ class ATAnnotations(DictMixin, Explicit, Persistent):
         if type(key) is not StringType:
             raise TypeError('ATAnnotations key must be a string')
         try:
+            # XXX do we need an acquisition context?
             annotations = aq_base(self._obj)._at_annotations_
         except AttributeError:
             annotations = aq_base(self._obj)._at_annotations_ = OOBTree()

@@ -1,5 +1,31 @@
+1.4-devel
+=========
+
+ * The generator product was sacrified in favor or a new renderer subpackage
+
+ * Renamed or moved nearly all files around:
+     o all modules and packages are lower case so you can easily guess which
+       part of an import is a package/module and which is a class or function
+     o all modules have been moved to the right subpackages (all storage related
+       stuff into the storage/ subpackage and so on)
+     o field, refengine, registry, widget and marshall are now a package
+
+ * Introduced new annotation feature which consist of a mixin for BaseObject and
+   an ATAnnotation object which is returned by 
+   ATAnnotatableMixin.getAnnotation(). The ATAnnotation object is a dict like
+   object with some additional methods. Internally it's using an OOBTree that is
+   stored as _at_annotations_ on the object.
+
 1.3.0-rc3 -
 ======================
+
+ * Fixed [ 1025842 ] Missing i18n:translate in widgets/field.pt <label>
+
+ * Cleaned up and fixed ExtensibleMetadata class:
+     o no more direct attribute access or attribute storage
+     o rearranged some lines
+     o use 'date is None and fallback or date' because testing for is None is
+       much faster than testing a DateTime instance for not None.
 
  * Added SQL* and VariableSchemaSupport to public.py. Please import only from
    public!
