@@ -31,7 +31,7 @@ if __name__ == '__main__':
 from common import *
 from utils import *
 
-from Products.Archetypes.examples import *
+from Products.Archetypes.example import *
 from Products.Archetypes.config import *
 from Products.Archetypes.lib.vocabulary import DisplayList
 

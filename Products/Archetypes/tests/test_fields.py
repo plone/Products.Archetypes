@@ -39,8 +39,8 @@ from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import ZOPE_LINES_IS_TUPLE_TYPE
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes.lib.vocabulary import DisplayList
-from Products.Archetypes import fields
-from Products.Archetypes.fields import ScalableImage, Image
+from Products.Archetypes import field as at_fields
+from Products.Archetypes.field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 from Products.CMFTestCase.setup import portal_name
@@ -64,7 +64,7 @@ test_fields = [
 
 field_instances = []
 for type, name in test_fields:
-    field_instances.append(getattr(fields, type)(name))
+    field_instances.append(getattr(at_fields, type)(name))
 
 txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()

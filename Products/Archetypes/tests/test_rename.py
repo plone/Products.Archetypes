@@ -40,7 +40,7 @@ from common import *
 from utils import *
 
 from Products.Archetypes.lib.utils import wrap_method, unwrap_method, shasattr
-from Products.Archetypes.bases.basecontent import BaseContent
+from Products.Archetypes.base.basecontent import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
 class Counter:

@@ -33,7 +33,7 @@ from utils import *
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.schemata import Schemata, getNames
+from Products.Archetypes.schema import Schemata, getNames
 
 from DateTime import DateTime
 import unittest

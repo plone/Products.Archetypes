@@ -40,7 +40,7 @@ from utils import *
 from Products.Archetypes.atapi import *
 
 from Products.Archetypes import config
-from Products.Archetypes.examples.DDocument import DDocument
+from Products.Archetypes.example.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
 from ZPublisher.HTTPRequest import HTTPRequest

@@ -33,7 +33,7 @@ from utils import *
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
-from Products.Archetypes.bases.baseobject import BaseObject
+from Products.Archetypes.base.baseobject import BaseObject
 
 from Products.Archetypes.validation import validationService
 from Products.Archetypes.interfaces.validation import IValidator

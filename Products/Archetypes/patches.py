@@ -60,19 +60,19 @@ PortalFolder._notifyOfCopyTo = _notifyOfCopyTo
 import sys
 
 # import list of modules
-from Products.Archetypes.tools import archetypetool
-from Products.Archetypes.tools import ttwtool
+from Products.Archetypes.tool import archetypetool
+from Products.Archetypes.tool import ttwtool
 from Products.Archetypes.refengine import engine
 from Products.Archetypes.refengine import references
 from Products.Archetypes.lib import baseunit
-from Products.Archetypes.examples import complextype
-from Products.Archetypes.examples import dynamicdocument
-from Products.Archetypes.examples import fact
-from Products.Archetypes.examples import refnode
-from Products.Archetypes.examples import simplebtreefolder
-from Products.Archetypes.examples import simplefile
-from Products.Archetypes.examples import simplefolder
-from Products.Archetypes.examples import simpletype
+from Products.Archetypes.example import complextype
+from Products.Archetypes.example import dynamicdocument
+from Products.Archetypes.example import fact
+from Products.Archetypes.example import refnode
+from Products.Archetypes.example import simplebtreefolder
+from Products.Archetypes.example import simplefile
+from Products.Archetypes.example import simplefolder
+from Products.Archetypes.example import simpletype
 
 # alias mapping
 mapping = {
@@ -81,14 +81,14 @@ mapping = {
     'Products.Archetypes.ReferenceEngine' : engine,
     'Products.Archetypes.references'      : references,
     'Products.Archetypes.BaseUnit'        : baseunit,
-    'Products.Archetypes.examples.ComplexType'  : complextype,
-    'Products.Archetypes.examples.DDocument'    : dynamicdocument,
-    'Products.Archetypes.examples.Fact'         : fact,
-    'Products.Archetypes.examples.RefNode'      : refnode,
-    'Products.Archetypes.examples.SimpleBTreeFolder' : simplebtreefolder,
-    'Products.Archetypes.examples.SimpleFile'   : simplefile,
-    'Products.Archetypes.examples.SimpleFolder' : simplefolder,
-    'Products.Archetypes.examples.SimpleType'   : simpletype,
+    'Products.Archetypes.example.ComplexType'  : complextype,
+    'Products.Archetypes.example.DDocument'    : dynamicdocument,
+    'Products.Archetypes.example.Fact'         : fact,
+    'Products.Archetypes.example.RefNode'      : refnode,
+    'Products.Archetypes.example.SimpleBTreeFolder' : simplebtreefolder,
+    'Products.Archetypes.example.SimpleFile'   : simplefile,
+    'Products.Archetypes.example.SimpleFolder' : simplefolder,
+    'Products.Archetypes.example.SimpleType'   : simpletype,
     }
 
 # create aliases from dottedpath to module

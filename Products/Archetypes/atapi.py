@@ -31,42 +31,42 @@ from Products.Archetypes.lib.register import process_types
 from Products.Archetypes.lib.register import listTypes
 from Products.Archetypes.lib.register import registerClasses
 # base classes
-from Products.Archetypes.bases import BaseObject
-from Products.Archetypes.bases import BaseContent
-from Products.Archetypes.bases import BaseContentMixin
-from Products.Archetypes.bases import BaseFolder
-from Products.Archetypes.bases import BaseFolderMixin
-from Products.Archetypes.bases import BaseTool
-from Products.Archetypes.bases import BaseFolderishTool
-from Products.Archetypes.bases import BaseBTreeFolder
-from Products.Archetypes.bases import OrderedBaseFolder
-from Products.Archetypes.bases import ExtensibleMetadata
-from Products.Archetypes.bases import TemplateMixin
+from Products.Archetypes.base import BaseObject
+from Products.Archetypes.base import BaseContent
+from Products.Archetypes.base import BaseContentMixin
+from Products.Archetypes.base import BaseFolder
+from Products.Archetypes.base import BaseFolderMixin
+from Products.Archetypes.base import BaseTool
+from Products.Archetypes.base import BaseFolderishTool
+from Products.Archetypes.base import BaseBTreeFolder
+from Products.Archetypes.base import OrderedBaseFolder
+from Products.Archetypes.base import ExtensibleMetadata
+from Products.Archetypes.base import TemplateMixin
 # base class schemata instances
-from Products.Archetypes.bases import MinimalSchema
-from Products.Archetypes.bases import BaseSchema
-from Products.Archetypes.bases import BaseFolderSchema
-from Products.Archetypes.bases import BaseBTreeFolderSchema
-from Products.Archetypes.bases import ExtensibleMetadataSchema
-from Products.Archetypes.bases import OrderedBaseFolderSchema
+from Products.Archetypes.base import MinimalSchema
+from Products.Archetypes.base import BaseSchema
+from Products.Archetypes.base import BaseFolderSchema
+from Products.Archetypes.base import BaseBTreeFolderSchema
+from Products.Archetypes.base import ExtensibleMetadataSchema
+from Products.Archetypes.base import OrderedBaseFolderSchema
 # schemata classes
-from Products.Archetypes.schemata import *
-#from Products.Archetypes.schemata import BasicSchema
-#from Products.Archetypes.schemata import Schema
-#from Products.Archetypes.schemata import MetadataSchema
-#from Products.Archetypes.schemata import ManagedSchema
-#from Products.Archetypes.schemata import CompositeSchema
-#from Products.Archetypes.schemata import FacadeMetadataSchema
-#from Products.Archetypes.schemata import VariableSchemaSupport
+from Products.Archetypes.schema import *
+#from Products.Archetypes.schema import BasicSchema
+#from Products.Archetypes.schema import Schema
+#from Products.Archetypes.schema import MetadataSchema
+#from Products.Archetypes.schema import ManagedSchema
+#from Products.Archetypes.schema import CompositeSchema
+#from Products.Archetypes.schema import FacadeMetadataSchema
+#from Products.Archetypes.schema import VariableSchemaSupport
 # marshaller
-from Products.Archetypes.marshallers import PrimaryFieldMarshaller
-from Products.Archetypes.marshallers import RFC822Marshaller
+from Products.Archetypes.marshall import PrimaryFieldMarshaller
+from Products.Archetypes.marshall import RFC822Marshaller
 # fields
-from Products.Archetypes.fields import *
+from Products.Archetypes.field import *
 # widgets
-from Products.Archetypes.widgets import *
+from Products.Archetypes.widget import *
 # storage
-from Products.Archetypes.storages import *
+from Products.Archetypes.storage import *
 #from Products.Archetypes.storage.AggregatedStorage import AggregatedStorage
 #from Products.Archetypes.storage.SQLStorage import BaseSQLStorage
 #from Products.Archetypes.storage.SQLStorage import GadflySQLStorage

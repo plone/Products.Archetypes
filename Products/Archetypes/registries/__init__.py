@@ -138,7 +138,7 @@ class TypeDescription:
 
     def schemata(self):
         # Build a temp instance.
-        from Products.Archetypes.schemata import getSchemata
+        from Products.Archetypes.schema import getSchemata
         return getSchemata(self.klass('test'))
 
     def signature(self):

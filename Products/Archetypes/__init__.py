@@ -109,8 +109,8 @@ else:
 ###
 # Tools
 ###
-from Products.Archetypes.tools.archetypetool import ArchetypeTool
-from Products.Archetypes.tools.ttwtool import ArchTTWTool
+from Products.Archetypes.tool.archetypetool import ArchetypeTool
+from Products.Archetypes.tool.ttwtool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
@@ -134,7 +134,7 @@ def initialize(context):
                    ).initialize(context)
 
     if REGISTER_DEMO_TYPES:
-        import Products.Archetypes.examples
+        import Products.Archetypes.example
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)

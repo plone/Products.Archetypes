@@ -86,3 +86,4 @@ except ImportError:
     HAS_PIL=False
 else:
     HAS_PIL=True
+

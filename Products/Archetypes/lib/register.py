@@ -39,7 +39,7 @@ from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
 from Products.Archetypes.lib.classgen import generateClass
 from Products.Archetypes.lib.classgen import generateCtor
 from Products.Archetypes.lib.classgen import generateZMICtor
-from Products.Archetypes.storages.sql.config import SQLStorageConfig
+from Products.Archetypes.storage.sql.config import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
@@ -47,7 +47,7 @@ from Products.Archetypes.lib.logging import log
 from Products.Archetypes.lib.utils import findDict
 from Products.Archetypes.lib.vocabulary import DisplayList
 from Products.Archetypes.lib.utils import mapply
-from Products.Archetypes.renderer import renderService
+from Products.Archetypes.render import renderService
 from Products.Archetypes.registries.typeregistry import typeRegistry
 
 from Products.CMFCore import CMFCorePermissions
