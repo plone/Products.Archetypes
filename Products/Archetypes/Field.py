@@ -694,6 +694,12 @@ class TextField(ObjectField):
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
 
+        # fix for external editor support
+        # set mimetype to the last state if the mimetype in kwargs is None or 'None'
+        mimetype = kwargs.get('mimetype', None)
+        if not mimetype or mimetype == 'None':
+            kwargs['mimetype'] = self.getContentType(instance)
+
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
                              encoding=encoding,
