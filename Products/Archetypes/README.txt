@@ -32,7 +32,7 @@ Requires
 
   * Plone 2.0.4+
 
-  * CMF 1.4+
+  * CMF 1.4.7+
 
   * Zope 2.7.0+
 
