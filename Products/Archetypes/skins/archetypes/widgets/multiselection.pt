@@ -24,7 +24,7 @@
     <metal:fill fill-slot="widget_body"
        tal:define="vocab python:field.Vocabulary(here);
                    format python:test(field.widget.format,field.widget.format,'select');
-                   vlen  python: len(vocab);">
+                   vlen  python: len(vocab)">
 
         <input type="hidden"
                value=""
@@ -32,15 +32,21 @@
                tal:attributes="name string:$fieldName:default:list;" />
         <span tal:repeat="item vocab" tal:omit-tag=""
               tal:condition="python:format=='checkbox'">
+        <tal:block tal:define="tabindex tabindex/next">
         <input
            tal:attributes="type string:checkbox;
                            name string:$fieldName:list;
-                           id fieldName;
-                           tabindex tabindex/next;
+                           id string:${fieldName}_${tabindex};
+                           tabindex tabindex;
                            checked python:test(here.unicodeTestIn(item, value), 'checked', None);
-                           value python:vocab.getValue(item);" />
-	      <br>
-	  </span>
+                           value item;" 
+          />
+ 	<label for="field"
+               tal:attributes="for string:${fieldName}_${tabindex}" 
+               tal:content="python:vocab.getValue(item)" />
+	<br />
+        </tal:block>
+	</span>
 
         <select multiple="multiple"
 	  tal:condition="python:format=='select'"

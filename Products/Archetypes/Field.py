@@ -1014,9 +1014,9 @@ class ImageField(ObjectField):
 
     def get(self, instance, **kwargs):
         image = ObjectField.get(self, instance, **kwargs)
-        if kwargs.get('unwrapped', 0):
-            return image
-        return image.__of__(instance)
+        if hasattr(image, '__of__') and not kwargs.get('unwrapped', 0):
+            return image.__of__(instance)
+        return image
 
     def set(self, instance, value, **kwargs):
         # do we have to delete the image?
