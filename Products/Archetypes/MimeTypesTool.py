@@ -11,11 +11,9 @@ from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import Persistent, InitializeClass
+from Globals import InitializeClass
 from ZODB.PersistentMapping import PersistentMapping
-from Globals import Persistent
-from Acquisition import Implicit, aq_parent
-from OFS.SimpleItem import Item
+from Acquisition import aq_parent
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.debug import log, log_exc
 
@@ -58,18 +56,6 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
         # initialize mime types
         initialize(self)
 
-    security.declarePrivate('manage_afterAdd')
-    def manage_afterAdd(self, item, container):
-        """ overload manage_afterAdd to update the portal_transforms tool if
-        it exists
-        """
-        Folder.manage_afterAdd(self, item, container)
-        if self is item and hasattr(self, 'portal_transforms'):
-            # FIXME : this is required due to a hard dependancy from transform
-            # tool to the mime types tool
-            log('Fixed portal_transforms registry')
-            self.portal_transforms.update_mimetypes_registry()
-
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_delObjects')
     def manage_delObjects(self, ids, REQUEST=None):
         """ delete the selected mime types """
@@ -82,7 +68,7 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
     def manage_addMimeType(self, id, mimetypes, extensions, icon_path, binary=0,
                            REQUEST=None):
         """add a mime type to the tool"""
-        mt = MimeTypeItem(id, mimetypes, extensions, binary)
+        mt = mimetype(id, mimetypes, extensions, binary)
         self.register(mt, icon_path)
         if REQUEST is not None:
             REQUEST['RESPONSE'].redirect(self.absolute_url()+'/manage_main')
@@ -115,7 +101,7 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
         mimetype must implement imimetype
         """
         assert implements(mimetype, imimetype)
-        mimetype = MimeTypeItem(mimetype.name(), mimetype.mimetypes, mimetype.extensions, mimetype.binary)
+#        mimetype = MimeTypeItem(mimetype.name(), mimetype.mimetypes, mimetype.extensions, mimetype.binary)
         mimetype.icon_path = icon_path or guess_icon_path(mimetype)
         for t in mimetype.mimetypes:
             mt = split(t)
@@ -126,7 +112,7 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
                 raise 'Bad mime type %s' % t
             group = self._mimetypes.setdefault(major, PersistentMapping())
             if group.has_key(minor):
-                log('Warning: redefining mime type %s' % t)
+                log('Warning: redefining mime type %s (%s)' % (t, mimetype.__class__))
             group[minor] = mimetype
 
         for e in mimetype.extensions:
@@ -135,7 +121,6 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
                     e, self.extensions[e], mimetype))
             #we don't validate fmt yet, but its ["txt", "html"]
             self.extensions[e] = mimetype
-        #self._p_changed = 1
 
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'unregister')
@@ -151,13 +136,16 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
                 continue
             major, minor = mt
             group = self._mimetypes.get(major, {})
-            if group.get(minor) is mimetype:
+            if group.get(minor) == mimetype:
                 del group[minor]
+            else:
+                reg = group.get(minor)
 
         for e in mimetype.extensions:
-            if self.extensions.get(e) is mimetype:
+            if self.extensions.get(e) == mimetype:
                 del self.extensions[e]
-        #self._p_changed = 1
+            else:
+                reg = self.extensions.get(e)
 
 
     security.declarePublic('mimetypes')
@@ -191,6 +179,8 @@ class MimeTypesTool(UniqueObject, ActionProviderBase, Folder):
             v = group.get(minor)
             if v:
                 v = (v,)
+            else:
+                return
             # FIXME : raise an exception if not registered mime_type ?
         return tuple([m.__of__(self) for m in v])
 
@@ -288,16 +278,3 @@ def guess_icon_path(mimetype, icons_dir=ICONS_DIR, icon_ext='png'):
 def split(name):
     """ split a mime type in a (major / minor) 2-uple """
     return name.split('/', 1)
-
-class MimeTypeItem(mimetype, Implicit, Item, Persistent):
-    """ A mimetype object to be managed inside the mimetypes tool """
-
-    security = ClassSecurityInfo()
-    __implements__ = (imimetype,)
-
-    security.declarePublic('name')
-    security.declarePublic('major')
-    security.declarePublic('minor')
-    security.declarePublic('normalized')
-
-InitializeClass(MimeTypeItem)
