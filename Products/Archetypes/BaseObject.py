@@ -108,13 +108,9 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", **kwargs):
-        try:
-            widget = self.Schema()[field_name].widget
-            return renderer.render(field_name, mode, widget, self,
-                                   **kwargs)
-        except Exception, E:
-            return "%s:%s -> %s" % (self.portal_type, field_name, E)
-
+        widget = self.Schema()[field_name].widget
+        return renderer.render(field_name, mode, widget, self,
+                               **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key):
