@@ -99,7 +99,8 @@ class newBaseUnit(File):
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = self.portalEncoding(instance)
-            encoding = data.getMetadata().get("encoding") or encoding
+            encoding = data.getMetadata().get("encoding") or encoding \
+                       or portal_encoding
             if portal_encoding != encoding:
                 _data = unicode(_data, encoding).encode(portal_encoding)
             return _data
