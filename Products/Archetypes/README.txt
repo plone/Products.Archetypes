@@ -47,6 +47,8 @@ Requires
 
   * validation
 
+  * MimetypesRegistry
+
   **Note:** Installing generator and validation as Python packages is no
   longer supported by Archetypes. If they are installed as Python packages,
   they will be silently ignored.
