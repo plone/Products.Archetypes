@@ -1,8 +1,0 @@
-[default]
-title = References
-
-[validators]
-validators=
-
-[actions]
-action.success=traverse_to:string:pasteReference

@@ -1,4 +1,4 @@
-from interface import Interface
+from Interface import Interface
 
 class ISchemata(Interface):
     """Schemata (roughly) represents a group of fields"""
@@ -77,6 +77,7 @@ class ISchemata(Interface):
         """
 
 class ISchema(ISchemata):
+    """ Schema """
 
     def edit(instance, name, value):
         """Call the mutator by name on instance,

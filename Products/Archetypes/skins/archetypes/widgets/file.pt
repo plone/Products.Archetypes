@@ -65,6 +65,7 @@
                size="30"
                tabindex=""
                tal:attributes="name string:${fieldName}_file;
+                               id fieldName;
                                tabindex tabindex/next;"
                />
       </div>

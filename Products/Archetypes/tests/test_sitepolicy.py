@@ -18,10 +18,12 @@ class SitePolicyTests(ArcheSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'Complex Type']
 
-    def test_new( self ):
-        # catalog should have one entry, for index_html or frontpage
-        # and another for Members
-        self.assertEqual( len( self.portal.portal_catalog ), 2 )
+    # This test sucks, it doesn't test a unit, or assert anything
+    # useful --bcsaller
+    ##def test_new( self ):
+    ##    # catalog should have one entry, for index_html or frontpage
+    ##    # and another for Members
+    ##    self.assertEqual( len( self.portal.portal_catalog ), 2 )
 
     def test_availabledemotypes(self):
         portal_types = self.portal.portal_types.listContentTypes()
@@ -42,10 +44,11 @@ class SitePolicyTests(ArcheSiteTestCase):
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
-        new_size = size + len(str(now))
+        # subtract 4 because an empty DateTime field has this size
+        new_size = size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
+        new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(100)
         new_size = new_size + 2
@@ -63,10 +66,10 @@ class SitePolicyTests(ArcheSiteTestCase):
         size = content.get_size()
         now = DateTime()
         content.setExpirationDate(now)
-        new_size = size + len(str(now))
+        new_size = size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setEffectiveDate(now)
-        new_size = new_size + len(str(now))
+        new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         text = 'Bla bla bla'
         content.setTitle(text)

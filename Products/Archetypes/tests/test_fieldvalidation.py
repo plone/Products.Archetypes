@@ -47,7 +47,7 @@ for req in 0,1: # 0 == not required, 1 == required
         settings.append(
             {'field': {'required': req, 'validators': validator},
              'value': 'bass',
-             'assertion': lambda result:result == 'v1: bass'}
+             'assertion': lambda result:result.startswith('v1: bass')}
             )
 
     # the trombone is in the vocabulary

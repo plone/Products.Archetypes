@@ -1,3 +1,90 @@
+2004-07-12 jensens <jens.klein@jensquadrat.de>
+  
+  * Implemented migration from 1.2.x to 1.3 CVS
+
+2004-07-02 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+  * Improve vocabulary. Now you can mix every types of keys in a DisplayList.
+  
+  * Add 18n msg ids in allow_discussion vocabulary.
+
+2004-07-01 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+  * Fix bug 890592. Now DisplayList can have None as key. All keys are converted
+    into string
+
+2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
+
+	* ArchetypeTool.py (ArchetypeTool.manage_migrate): Added very
+	simple form that lets you migrate and update schemas without the hassle
+	of creating an external method. (I believe the migration script is
+	too easily overlooked.)
+
+2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
+
+	* BaseObject.py (BaseObject._updateSchema): Moved call to
+	field.getContentType() to the point after self.initializeArchetype(),
+	which effectively fixes migration for me.
+
+2004-06-30 clebeaupin <cyrille.lebeaupin@ingeniweb.com>
+
+   * Vocabulary supports i18n translation. It uses field or widget i18n_domain 
+     property
+   
+   * Improve template to be xhtml compliant: attribute 'for' from <label> is
+     linked to an attribute 'id' from input field
+
+2004-06-07   Spanky: SpankyFromBRC in #plone IRC
+	
+   * A while back I added a feature for textarea widgets called 'append_only'.
+     This allows you to make a "permanent record"-type text area, where your
+     entries are added to the top of a uneditable region.  I had to make a
+     fix where if you were using default_output_type, it would continually
+     apply the transformation.  Let me know if there are any problems with
+     this code.
+	
+
+2004-05-28   Philipp Auersperg <phil _at_ bluedynamics.com>
+
+   * created interface definitions for IReference and IContentReference
+    in interfaces/referenceengine.py
+
+
+2004-05-27   Philipp Auersperg <phil _at_ bluedynamics.com>
+
+  some changes after a discussion with ben and kapil:
+    
+    * ReferenceField.get method:
+    
+       - if the ReferenceField is not multiValued, the accessor returns the object instance(or None for void reverences)
+       and not an array with one object instance (attention, may break existing code, but not data)
+    
+    * ReferenceField.set:
+    
+       - accept uids or objects as arguments
+    
+       - for singlevalued reference fields: accept single uid or object as parameter
+    
+    * Referenceable and IReferenceable:
+    
+       - I added .getReferenceImpl and .getBackReferenceImpl,
+         returning the reference objects (e.g. for retrieving the metadata)
+    
+       - and created .getReferences and .getBackReferences as alias to .getRefs and .getBRefs for
+         future consistency (more expressive names)
+
+2004-05-24  Christian Heimes <heimes@faho.rwth-aachen.de>
+
+    * Fixed multiple small interfaces glitches
+    
+    * Subclass some fields from FileField and reworked FileField
+      including interfaces
+      
+    * Now requires MimetypesRegistry as seperate product from
+      http://sf.net/projects/archetypes
+      
+    * Fixed some unit tests
+
 2004-05-09  Christian Heimes <heimes@faho.rwth-aachen.de>
 
     * Introduced new validators syntax (again). The {'strategy' : 'and', 

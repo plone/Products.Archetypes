@@ -4,21 +4,19 @@ import os.path
 import sys
 from copy import deepcopy
 from types import StringType
-from md5 import md5
 from DateTime import DateTime
 from StringIO import StringIO
 
-from Products.Archetypes.interfaces.base import IBaseObject, IBaseFolder
+from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
 from Products.Archetypes.ClassGen import generateClass, generateCtor, \
      generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
-from Products.Archetypes.config import PKG_NAME, TOOL_NAME, UID_CATALOG
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.utils import capitalize, findDict, DisplayList, \
-     unique, mapply
+from Products.Archetypes.config import TOOL_NAME, UID_CATALOG, HAS_GRAPHVIZ
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import findDict, DisplayList, mapply
 from Products.Archetypes.Renderer import renderer
 
 from AccessControl import ClassSecurityInfo
@@ -35,6 +33,7 @@ from Products.ZCatalog.IZCatalog import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
+from ZODB.POSException import ConflictError
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -103,9 +102,10 @@ base_factory_type_information = (
 
                      { 'id': 'references',
                        'name': 'References',
-                       'action': 'string:${object_url}/reference_edit',
-                       'permissions': (CMFCorePermissions.ModifyPortalContent,),
-                       'visible' : 0,
+                       'action': 'string:${object_url}/reference_graph',
+                       'condition': 'object/archetype_tool/has_graphviz',
+                       'permissions': (CMFCorePermissions.View,),
+                       'visible' : 1,
                        },
                      )
       }, )
@@ -252,8 +252,6 @@ def process_types(types, pkg_name):
 
 
 _types = {}
-# DM (avoid persistency bug):
-##_types_callback = []
 
 def _guessPackage(base):
     if base.startswith('Products'):
@@ -287,9 +285,25 @@ def registerType(klass, package=None):
     key = "%s.%s" % (package, data['meta_type'])
     _types[key] = data
 
-    # DM (avoid persistency bug):
-##    for tc in _types_callback:
-##        tc(klass, package)
+def fixAfterRenameType(context, old_portal_type, new_portal_type):
+    """Helper method to fix some vars after renaming a type in portal_types
+    
+    It will raise an IndexError if called with a nonexisting old_portal_type. 
+    If you like to swallow the error please use a try/except block in your own
+    code and do NOT 'fix' this method.
+    """
+    at_tool = getToolByName(context, TOOL_NAME)
+    __traceback_info__ = (context, old_portal_type, new_portal_type)
+    # will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
+    old_type = [t for t in _types.values()
+                if t['portal_type'] == old_portal_type][0]
+
+    # rename portal type
+    old_type['portal_type'] = new_portal_type
+
+    # copy old templates to new portal name without references
+    old_templates = at_tool._templates.get(old_portal_type)
+    at_tool._templates[new_portal_type] = deepcopy(old_templates)
 
 def registerClasses(context, package, types=None):
     registered = listTypes(package)
@@ -405,6 +419,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_updateSchemaForm',
           },
 
+        { 'label'  : 'Migration',
+          'action' : 'manage_migrationForm',
+          },
+
         )  + SQLStorageConfig.manage_options
         )
 
@@ -420,6 +438,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchemaForm')
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_migrationForm')
+    manage_migrationForm = PageTemplateFile('migrationForm', _www)
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchemaForm')
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
@@ -438,13 +459,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.catalog_map['Reference'] = [] # References not in portal_catalog
         # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-##        for k, t in _types.items():
-##            self._types[k] = {'signature':t['signature'], 'update':1}
-##        cb = lambda klass, package:self.registerType(klass, package)
-##        DM: never put something referencing a persistent object into
-##            a module global variable!
-##        _types_callback.append(cb)
-##        self.last_types_update = DateTime()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchema')
@@ -473,12 +487,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'registerTemplate')
     def registerTemplate(self, template, name=None):
         # Lookup the template by name
-        obj = self.unrestrictedTraverse(template, None)
-        if obj:
-            if not name:
+        if not name:
+            obj = self.unrestrictedTraverse(template, None)
+            if obj:
                 name = obj.title_or_id()
-        else:
-            name = template
+            else:
+                name = template
 
         self._registeredTemplates[template] = name
 
@@ -538,7 +552,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Return the list of sorted types"""
         tt = getToolByName(self, "portal_types")
         def isRegistered(type, tt=tt):
-            return tt.getTypeInfo(type['name']) != None
+            return tt.getTypeInfo(type['portal_type']) != None
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
@@ -598,7 +612,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
-        except:
+        except ConflictError:
+            raise
+        except: # XXX bare exception
             pass
         if uninstall is not None:
             if REQUEST:
@@ -820,7 +836,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self, REQUEST=None):
+    def manage_updateSchema(self, REQUEST=None, update_all=None):
         """Make sure all objects' schema are up to date"""
 
         out = StringIO()
@@ -830,10 +846,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if REQUEST is None:
             # DM (avoid persistency bug): avoid code duplication
             update_types = [ti[0] for ti in self.getChangedSchema() if ti[1]]
-##            for t in self._types.keys():
-##                if self._types[t]['update']:
-##                    update_types.append(t)
-            update_all = 0
         else:
             # DM (avoid persistency bug):
             for t in self._listAllTypes():
@@ -841,77 +853,52 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', 0)
 
-        # Use the catalog's ZopeFindAndApply method to walk through
-        # all objects in the portal.  This works much better than
-        # relying on the catalog to find objects, because an object
-        # may be uncatalogable because of its schema, and then you
-        # can't update it if you require that it be in the catalog.
-        catalog = getToolByName(self, 'portal_catalog')
-        portal = getToolByName(self, 'portal_url').getPortalObject()
-        meta_types = [_types[t]['meta_type'] for t in update_types]
-        if update_all:
-            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                search_sub=1, apply_func=self._updateObject)
-        else:
-            catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                search_sub=1, apply_func=self._updateChangedObject)
-        for t in update_types:
-            # DM (avoid persistency bug): set to current signature
-##            self._types[t]['update'] = 0
-            self._types[t] = _types[t]['signature']
-        self._p_changed = 1
+        # XXX: Enter this block only when there are types to update!
+        if update_types:
+            # Use the catalog's ZopeFindAndApply method to walk through
+            # all objects in the portal.  This works much better than
+            # relying on the catalog to find objects, because an object
+            # may be uncatalogable because of its schema, and then you
+            # can't update it if you require that it be in the catalog.
+            catalog = getToolByName(self, 'portal_catalog')
+            portal = getToolByName(self, 'portal_url').getPortalObject()
+            meta_types = [_types[t]['meta_type'] for t in update_types]
+            if update_all:
+                catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                    search_sub=1, apply_func=self._updateObject)
+            else:
+                catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
+                    search_sub=1, apply_func=self._updateChangedObject)
+            for t in update_types:
+                self._types[t] = _types[t]['signature']
+            self._p_changed = 1
         return out.getvalue()
 
+    # a counter to ensure that in a given interval a subtransaction commit is 
+    # done.
+    subtransactioncounter = 0
+    
     def _updateObject(self, o, path):
-        sys.stdout.write('updating %s\n' % o.getId())
         o._updateSchema()
+        # subtransactions to avoid eating up RAM when used inside a 
+        # 'ZopeFindAndApply' like in manage_updateSchema
+        self.subtransactioncounter+=1
+        # only every 250 objects a sub-commit, otherwise it eats up all diskspace
+        if not self.subtransactioncounter % 250:
+            get_transaction().commit(1) 
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
-            o._updateSchema()
+            self._updateObject(o, path)
 
-# DM (avoid persistency bug):
-##    def __setstate__(self, v):
-##        """Add a callback to track product registrations"""
-##        ArchetypeTool.inheritedAttribute('__setstate__')(self, v)
-##        global _types
-##        global _types_callback
-##        import sys
-##        if hasattr(self, '_types'):
-##            if not hasattr(self, 'last_types_update') or \
-##                   self.last_types_update.lessThan(last_load):
-##                for k, t in _types.items():
-##                    if self._types.has_key(k):
-##                        update = (t['signature'] !=
-##                                  self._types[k]['signature'])
-##                    else:
-##                        update = 1
-##                    self._types[k] = {'signature':t['signature'],
-##                                      'update':update}
-##                cb = lambda klass, package:self.registerType(klass, package)
-##                _types_callback.append(cb)
-##                self.last_types_update = DateTime()
-
-
-# DM (avoid persistency bug):
-##    security.declareProtected(CMFCorePermissions.ManagePortal,
-##                              'registerType')
-##    def registerType(self, klass, package):
-##        """This gets called every time registerType is called as soon as the
-##        hook is installed by setstate"""
-##        # See if the schema has changed.  If it has, flag it
-##        update = 0
-##        sig = klass.schema.signature()
-##        key = "%s.%s" % (package, klass.meta_type)
-##        old_data = self._types.get(key, None)
-##        if old_data:
-##            update = old_data.get('update', 0)
-##            old_sig = old_data.get('signature', None)
-##            if sig != old_sig:
-##                update = 1
-##        self._types[key] = {'signature':sig, 'update':update}
-##        self._p_changed = 1
-
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_updateSchema')
+    def manage_migrate(self, REQUEST=None):
+        """Run Extensions.migrations.migrate."""
+        from Products.Archetypes.Extensions.migrations import migrate
+        out = migrate(self)
+        self.manage_updateSchema()
+        return out
 
     # Catalog management
     security.declareProtected(CMFCorePermissions.View,
@@ -955,6 +942,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
+            except ConflictError:
+                raise
             except Exception, E:
                 log("No tool", name, E)
                 pass
@@ -978,6 +967,20 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return res
 
+    security.declareProtected(CMFCorePermissions.View, 'visibleLookup')
+    def visibleLookup(self, field, vis_key, vis_value='visible'):
+        """Checks the value of a specific key in the field widget's 'visible'
+           dictionary... returns 1 or 0 so it can be used within a lambda as
+           the predicate for a filterFields call"""
+        vis_dict = field.widget.visible
+        value = ""
+        if vis_dict.has_key(vis_key):
+            value = field.widget.visible[vis_key]
+        if value==vis_value:
+            return 1
+        else:
+            return 0
+
     def lookupObject(self,uid):
         import warnings
         warnings.warn('ArchetypeTool.lookupObject is dreprecated',
@@ -986,4 +989,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     getObject=lookupObject
 
+
+    def has_graphviz(self):
+        """runtime check for graphviz, used in condition on tab"""
+        return HAS_GRAPHVIZ
 InitializeClass(ArchetypeTool)

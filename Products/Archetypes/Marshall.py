@@ -1,4 +1,4 @@
-from types import StringType, ListType, TupleType
+from types import ListType, TupleType
 
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
@@ -8,8 +8,15 @@ from Products.Archetypes.debug import log
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
 
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
+
 class Marshaller:
-    __implements__ = (IMarshall, ILayer)
+    __implements__ = IMarshall, ILayer
+
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
 
     def __init__(self, demarshall_hook=None, marshall_hook=None):
         self.demarshall_hook = demarshall_hook
@@ -43,7 +50,14 @@ class Marshaller:
     def cleanupField(self, instance, field):
         pass
 
+InitializeClass(Marshaller)
+
 class PrimaryFieldMarshaller(Marshaller):
+
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
+
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         p.set(instance, data, **kwargs)
@@ -72,7 +86,13 @@ class PrimaryFieldMarshaller(Marshaller):
 
         return (content_type, length, data)
 
+InitializeClass(PrimaryFieldMarshaller)
+
 class RFC822Marshaller(Marshaller):
+
+    security = ClassSecurityInfo()
+    security.declareObjectPrivate()
+    security.setDefaultAccess('deny')
 
     def demarshall(self, instance, data, **kwargs):
         from Products.CMFDefault.utils import parseHeadersBody
@@ -110,19 +130,21 @@ class RFC822Marshaller(Marshaller):
             else:
                 content_type = body and guess_content_type(body) or 'text/plain'
 
-        headers = {}
+        headers = []
         fields = [f for f in instance.Schema().fields()
                   if f.getName() != pname]
         for field in fields:
             value = instance[field.getName()]
             if type(value) in [ListType, TupleType]:
                 value = '\n'.join([str(v) for v in value])
-            headers[field.getName()] = str(value)
+            headers.append((field.getName(), str(value)))
 
-        headers['Content-Type'] = content_type or 'text/plain'
+        headers.append(('Content-Type', content_type or 'text/plain'))
 
-        header = formatRFC822Headers(headers.items())
+        header = formatRFC822Headers(headers)
         data = '%s\n\n%s' % (header, body)
         length = len(data)
 
         return (content_type, length, data)
+
+InitializeClass(RFC822Marshaller)

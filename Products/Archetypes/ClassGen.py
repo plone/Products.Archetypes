@@ -1,9 +1,8 @@
 from __future__ import nested_scopes
-import os, os.path
 import re
+from types import FunctionType as function
 
-from Products.Archetypes.debug import log
-from Products.Archetypes.utils import pathFor, unique, capitalize
+from Products.Archetypes.utils import capitalize
 
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
@@ -83,11 +82,22 @@ class Generator:
                                 methodName,
                                 mode))
 
+        # Zope security requires all security protected methods to have a
+        # function name. It uses this name to determine which roles are allowed
+        # to access the method.
+        # This code is renaming the internal name from e.g. generatedAccessor to
+        # methodName.
+        method = function(method.func_code,
+                          method.func_globals,
+                          methodName,
+                          method.func_defaults,
+                          method.func_closure,
+                         )
         setattr(klass, methodName, method)
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
-        if not hasattr(klass, "security"):
+        if not klass.__dict__.has_key('security'):
             security = klass.security = ClassSecurityInfo()
         else:
             security = klass.security
@@ -95,6 +105,7 @@ class ClassGenerator:
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
         security.declareProtected(perm, methodName)
+        #security.setDefaultAccess("deny")
 
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
@@ -112,8 +123,12 @@ class ClassGenerator:
         if not hasattr(klass, 'Schema'):
             def Schema(self):
                 """Return a (wrapped) schema instance for
-                this object instance."""
-                return ImplicitAcquisitionWrapper(self.schema, self)
+                this object instance.
+                """
+                schema = self.schema
+                #if hasattr(schema, 'wrapped'):
+                #    return schema.wrapped(self)
+                return ImplicitAcquisitionWrapper(schema, self)
             klass.Schema = Schema
 
     def generateClass(self, klass):

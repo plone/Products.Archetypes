@@ -1,4 +1,3 @@
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
@@ -7,24 +6,23 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from OFS.PropertyManager import PropertyManager
+from ZODB.POSException import ConflictError
 
-class BaseContentMixin(BaseObject,
-                       Referenceable,
-                       CatalogMultiplex,
+class BaseContentMixin(CatalogMultiplex,
+                       BaseObject,
                        PortalContent,
                        Historical):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
-    __implements__ = ((IBaseContent, IReferenceable) +
-                      PortalContent.__implements__)
+    __implements__ = IBaseContent, IReferenceable, PortalContent.__implements__
 
     isPrincipiaFolderish=0
     manage_options = PortalContent.manage_options + Historical.manage_options
@@ -33,21 +31,20 @@ class BaseContentMixin(BaseObject,
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
-        PortalContent.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
+
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        PortalContent.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        PortalContent.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
+
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, \
                               'PUT')
@@ -72,14 +69,19 @@ class BaseContentMixin(BaseObject,
         file.seek(0)
         try:
             filename = REQUEST._steps[-2] #XXX fixme, use a real name
+        except ConflictError:
+            raise
         except:
             filename = (getattr(file, 'filename', None) or
                         getattr(file, 'name', None))
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.demarshall(self, data, mimetype=mimetype,
-                                      filename=filename)
+        ddata = marshaller.demarshall(self, data,
+                                      mimetype=mimetype,
+                                      filename=filename,
+                                      REQUEST=REQUEST,
+                                      RESPONSE=RESPONSE)
         if hasattr(aq_base(self), 'demarshall_hook') \
            and self.demarshall_hook:
             self.demarshall_hook(ddata)
@@ -104,7 +106,7 @@ class BaseContentMixin(BaseObject,
             return RESPONSE
 
         marshaller = self.Schema().getLayerImpl('marshall')
-        ddata = marshaller.marshall(self)
+        ddata = marshaller.marshall(self, REQUEST=REQUEST, RESPONSE=RESPONSE)
         if hasattr(aq_base(self), 'marshall_hook') \
            and self.marshall_hook:
             ddata = self.marshall_hook(ddata)
@@ -128,8 +130,7 @@ class BaseContent(BaseContentMixin,
     """A not-so-basic CMF Content implementation with Dublin Core
     Metadata included"""
 
-    __implements__ = (BaseContentMixin.__implements__ +
-                      (IExtensibleMetadata,))
+    __implements__ = BaseContentMixin.__implements__, IExtensibleMetadata
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
 

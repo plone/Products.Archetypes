@@ -2,4 +2,4 @@ zope-cmfplone
 python-validation
 python-generator
 zope-cmftransforms
-
+zope-mimetypesregistry

@@ -15,8 +15,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security = ClassSecurityInfo()
 
-    __implements__ = (CMFBTreeFolder.__implements__, ) + \
-                     (BaseFolder.__implements__, )
+    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
 
     def __init__(self, oid, **kwargs):
         CMFBTreeFolder.__init__(self, id)
@@ -24,15 +23,20 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
+        # call BaseFolder before CMFBTree to initialize the storage first
         BaseFolder.manage_afterAdd(self, item, container)
+        CMFBTreeFolder.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
+        # call BaseFolder before CMFBTree to initialize the storage first
         BaseFolder.manage_afterClone(self, item)
+        CMFBTreeFolder.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseFolder.manage_beforeDelete(self, item, container)
+        CMFBTreeFolder.manage_beforeDelete(self, item, container)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """

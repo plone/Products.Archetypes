@@ -2,13 +2,13 @@ from types import ListType, TupleType
 
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
-     ILayerRuntime, ILayer
+     ILayerRuntime
 from Products.Archetypes.interfaces.schema import ICompositeSchema, \
      IBindableSchema
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from Acquisition import Implicit, aq_base, aq_parent, aq_inner
+from Acquisition import Implicit, aq_parent, aq_inner
 from Products.CMFCore.CMFCorePermissions import View, ModifyPortalContent
 
 class CompositeSchema(Implicit):
@@ -18,7 +18,7 @@ class CompositeSchema(Implicit):
     Note that if field names overlap, they last schema wins.
     """
 
-    __implements__ = (ICompositeSchema, ILayerRuntime, ILayerContainer)
+    __implements__ = ICompositeSchema, ILayerRuntime, ILayerContainer
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

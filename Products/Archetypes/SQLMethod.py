@@ -5,6 +5,7 @@ from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
+import sys, types
 
 try:
     from IOBTree import Bucket
@@ -192,6 +193,25 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         if src__: return query
 
+        # Get the encoding arguments
+        # We have two possible kw arguments:
+        #   db_encoding:        The encoding used in the external database
+        #   site_encoding:      The uncoding used for the site
+        #                       If not specified, we use sys.getdefaultencoding()        
+        db_encoding = kw.get('db_encoding',None)
+
+        try:
+            site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
+        except AttributeError, KeyError:
+            site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
+        
+        if db_encoding:
+            query = query.encode(db_encoding)
+        else:
+            # if database does not have an encoding setting, we could
+            # consider that it stores strings, not unicode.
+            query = str(query)
+
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))
         else:
@@ -212,6 +232,30 @@ class SQLMethod(Aqueduct.BaseQuery):
             f.seek(0)
             result = RDB.File(f, brain, p, None)
         else:
+            if db_encoding:                
+                # Encode result before we wrap it in Result object
+                # We will change the encoding from source to either the specified target_encoding
+                # or the site default encoding                                
+
+                # The data is a list of tuples of column data
+                encoded_result = []
+                for row in result[1]:
+                    columns = ()
+                    for col in row:
+                        if isinstance(col, types.StringType):
+                            # coerce column to unicode with database encoding
+                            newcol = unicode(col,db_encoding)
+                            # Encode column as string with site_encoding
+                            newcol = newcol.encode(site_encoding)
+                        else:
+                            newcol = col
+                        
+                        columns += newcol,
+                        
+                    encoded_result.append(columns)
+                                    
+                result = (result[0],encoded_result)
+
             result = Results(result, brain, p, None)
 
         columns = result._searchable_result_columns()

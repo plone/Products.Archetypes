@@ -1,4 +1,5 @@
-from Products.Archetypes.debug import log, log_exc
+from types import StringType
+
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
 
@@ -6,14 +7,14 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import CMFCorePermissions
-from Products.PortalTransforms.utils import getToolByName
+from Products.MimetypesRegistry.common import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-from Products.PortalTransforms.mime_types import text_plain, \
-     application_octet_stream
+#from Products.MimetypesRegistry.mime_types import text_plain, \
+#     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
 class BaseUnit(File):
-    __implements__ = (WriteLockInterface, IBaseUnit)
+    __implements__ = WriteLockInterface, IBaseUnit
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -48,8 +49,7 @@ class BaseUnit(File):
         self.raw  = data
         self.size = len(data)
         # taking care of stupid IE
-        self.filename = filename.split("\\")[-1]
-
+        self.setFilename(filename)
 
     def transform(self, instance, mt):
         """Takes a mimetype so object.foo.transform('text/plain') should return
@@ -67,7 +67,9 @@ class BaseUnit(File):
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
         #being used with APE
-        if not hasattr(instance, 'aq_parent'):
+        # Also don't break if transform was applied with a stale instance
+        # from the catalog while rebuilding the catalog
+        if not instance or not hasattr(instance, 'aq_parent'):
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')
@@ -99,6 +101,8 @@ class BaseUnit(File):
 
     def __str__(self):
         return self.getRaw()
+
+    __call__ = __str__
 
     def __len__(self):
         return self.get_size()
@@ -146,8 +150,25 @@ class BaseUnit(File):
         """return the imimetype object for this BU"""
         return self.mimetype
 
+    def setContentType(self, value):
+        """
+        """
+        #print value, self.getContentType()
+        self.mimetype = value
+
     def content_type(self):
         return self.getContentType()
+
+    def getFilename(self):
+        return self.filename
+
+    def setFilename(self, filename):
+        """
+        """
+        if type(filename) is StringType:
+            self.filename = filename.split("\\")[-1]
+        else:
+            self.filename = filename
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
@@ -155,8 +176,9 @@ class BaseUnit(File):
         """download method"""
         filename = self.filename
         if self.filename:
+            #print self.filename
             RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename=%s' % self.filename)
+                               'attachment; filename=%s' % self.getFilename())
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 

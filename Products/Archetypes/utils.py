@@ -1,19 +1,18 @@
 import sys
-import os.path
+import os, os.path
 import types
 import time, random, md5, socket
 from inspect import getargs
-from types import TupleType, ListType
+from types import TupleType, ListType, StringType
 from UserDict import UserDict as BaseDict
-
-from Products.Archetypes.debug import log
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
+from Products.CMFCore.utils import getToolByName
+
+import Products.generator.i18n as i18n
 
 try:
     _v_network = socket.gethostbyname(socket.gethostname())
@@ -170,6 +169,8 @@ def unique(s):
             u.append(x)
     return u
 
+
+
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
@@ -223,6 +224,8 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -244,6 +247,8 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
         v = self._keys.get(key, None)
         if v: return v[1]
         for k, v in self._keys.items():
@@ -251,11 +256,62 @@ class DisplayList:
                 return v[1]
         return default
 
+##    def getIndex(self, key):
+##        "get index from key"
+##        v = self._keys.get(key, None)
+##        if v: return v[0]
+##        for k, v in self._keys.items():
+##            if repr(key) == repr(k):
+##                return v[0]
+##                
+##        return None
+##        
+##    def getIndexesFromKeys(self, keys):
+##        "get indexes from keys (list or not)"
+##        list_type = (type(keys) in (ListType, TupleType))
+##        
+##        if not list_type:
+##            v = self._keys.get(keys, None)
+##            if v: 
+##               return [v[0]]
+##            else:
+##               return []
+##        
+##        indexes = []
+##        
+##        for k in keys:
+##            v = self._keys.get(k, None)
+##            if v:
+##                indexes.append(v[0])
+##                
+##        return indexes
+##        
+##    def getKeysFromIndexes(self, indexes):
+##        "get keys from indexes (list or not)"
+##        list_type = (type(indexes) in (ListType, TupleType))
+##        build_indexes = dict([(v[0], k) for k, v in self._keys.items()])
+##        
+##        if not list_type:
+##            if build_indexes.has_key(indexes):
+##                return build_indexes[indexes]
+##            else:
+##                return None
+##            
+##        keys = []
+##        
+##        for i in indexes:
+##            if build_indexes.has_key(i):
+##                keys.append(build_indexes[i])
+##                
+##        return keys
+
     def getMsgId(self, key):
         "get i18n msgid"
-        try:
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
+        if self._i18n_msgids.has_key(key):
             return self._i18n_msgids[key]
-        except (KeyError, AttributeError):
+        else:
             return self._keys[key][1]
 
     def keys(self):
@@ -315,6 +371,47 @@ class DisplayList:
 
 InitializeClass(DisplayList)
 
+class Vocabulary(DisplayList):
+    """
+    Wrap DisplayMist class and add internationalisation"""
+    
+    security = ClassSecurityInfo()
+    security.setDefaultAccess('allow')
+    
+    def __init__(self, display_list, instance, i18n_domain):
+        self._keys = display_list._keys
+        self._i18n_msgids = display_list._i18n_msgids
+        self._values = display_list._values
+        self._itor   = display_list._itor
+        self.index = display_list.index
+        self._instance = instance
+        self._i18n_domain = i18n_domain
+        
+    def getValue(self, key, default=None):
+        """
+        Get i18n value
+        """
+        if type(key) is not StringType:
+            raise TypeError('DisplayList keys must be strings')
+        v = self._keys.get(key, None)
+        value = default
+        if v: 
+            value = v[1]
+        else:
+            for k, v in self._keys.items():
+                if repr(key) == repr(k):
+                    value = v[1]
+                    break
+                    
+        if self._i18n_domain and self._instance:
+            msg = self._i18n_msgids.get(key, None) or value
+        
+            return i18n.translate(self._i18n_domain, msg,
+                                  context=self._instance, default=value)
+        else:
+            return value
+
+InitializeClass(Vocabulary)
 
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for
@@ -382,10 +479,23 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    portal_path = self.portal_url.getPortalObject().getPhysicalPath()
+    urlTool = getToolByName(self, 'portal_url')
+    portal_path = urlTool.getPortalObject().getPhysicalPath()
     ppath = ppath[len(portal_path):]
     return ppath
 
 def getRelURL(self, ppath):
     return '/'.join(getRelPath(self, ppath))
 
+def getPkgInfo(product):
+    """Get the __pkginfo__ from a product
+    
+    chdir before importing the product
+    """
+    prd_home = product.__path__[0]
+    cur_dir = os.path.abspath(os.curdir)
+    os.chdir(prd_home)
+    pkg = __import__('%s.__pkginfo__' % product.__name__, product, product,
+                      ['__pkginfo__'])
+    os.chdir(cur_dir)
+    return pkg

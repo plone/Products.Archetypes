@@ -1,11 +1,23 @@
 from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_catalog
 from Products.Archetypes.Extensions.utils import install_referenceCatalog
 from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *
+from Products.Archetypes.interfaces.base import IBaseObject
 
+
+def reinstallArchetypes(portal,out):
+    ''' lets quickinstaller reinstall the archetypes '''
+    # heuristic: if there is no reference_catalog, lets reinstall
+    refcat=getToolByName(portal,REFERENCE_CATALOG,None)
+    if not refcat:
+        print >>out, 'reinstalling Archetypes...'
+        getToolByName(portal,'portal_quickinstaller').reinstallProducts(['Archetypes'])
+        print >>out, 'reinstalled Archetypes.'
+        
 def fixArchetypesTool(portal, out):
     at = portal.archetype_tool
 
@@ -20,66 +32,63 @@ def fixArchetypesTool(portal, out):
     install_catalog(portal, out)
 
 
-def toReferenceCatalog(portal, out):
+def migrateReferences(portal, out):
+    # FIRST
+    # a 1.2 -> 1.3 (new annotation style) migration path
+    
+    at = getToolByName(portal, TOOL_NAME)
+    rc = getToolByName(portal, REFERENCE_CATALOG)
+    uc = getToolByName(portal, UID_CATALOG)
 
-    if not hasattr(portal, REFERENCE_CATALOG):
-        install_referenceCatalog(portal, out)
-        print >>out, "Added Reference Catalog"
-        rc = getattr(portal, REFERENCE_CATALOG)
-        uc = getattr(portal, UID_CATALOG)
-
-        #Now map the old references on AT to the RC
-        at = portal.archetype_tool
-        refs = getattr(at, 'refs', None)
-        if not refs: return
-
-        #we want to
-        # assign new UUIDs
-        # map old refs to new UUIDs in the new catalog
-        # remove the old mappings from the AT
-
-        # adding new reference using the RC will accomplish our goals
-        # and then we can delete the old '_uid' attr
-        allbrains = portal.portal_catalog()
-        for brain in allbrains:
-            #Get a uid for each thingie
-            sourceObj = brain.getObject()
-            sourceUID = getattr(sourceObj.aq_base, '_uid', None)
-            if not sourceUID: continue
-            rc.registerObject(sourceObj)
-            sourceObj.reindexObject() #try for a UID update
-
-
+    count=0
+    
+    # Old 1.2 style references are stored inside archetype_tool on the 'ref'
+    # attribute
+    refs = getattr(at, 'refs', None)
+    if refs:
+        print >>out, 'migrating reference from Archetypes 1.2'
+        count=0
+        print >>out, "Old references are stored in %s, so migrating them to new style reference annotations." % (TOOL_NAME)
+        allbrains = uc()
         for brain in allbrains:
             sourceObj = brain.getObject()
-            sourceUID = getattr(sourceObj.aq_base, '_uid', None)
+            sourceUID = getattr(sourceObj.aq_base, olduididx, None)
             if not sourceUID: continue
-
+            # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
-                tObj = uc(UID=targetUID)[0].getObject()
-                rc.addReference(sourceObj, tObj, relationship)
-
-        #remove all the old UIDs
-        for brain in allbrains:
-            sObject = brain.getObject()
-            if hasattr(sObject, '_uid'):
-                delattr(sObject, '_uid')
-
-        #Reindex for new UUIDs
-        uc.manage_reindexIndex()
-        rc.manage_reindexIndex()
-
+                # get target object
+                targetBrains = uc(**{olduididx:targetUID})
+                assert(len(targetBrains) == 1,'catalog query for OLD uid (%s) returned %d results instead of 1' % (targetUID,len(targetBrains)))
+                targetObj=targetBrains[0].getObject()
+                # create new style reference
+                rc.addReference(sourceObj, targetObj, relationship)
+                count+=1        
+                # avoid eating up all RAM
+                if not count % 250:
+                    get_transaction().commit(1) 
+                print >>out, "%s old references migrated." % count
+        # after all remove the old-style reference attribute
+        delattr(at, 'refs')
+        get_transaction().commit()
+        return
+    
     else:
+        # :-( XXX THE FOLLOWING ISNT TESTED, just copied from old buggy code !!!
+        # maybe theres something useful for code-recycling in
+        # --jensens
+                    
+        # SECOND
+        # a 1.3.b2 -> 1.3 (new annotation style) migration path
         # We had a reference catalog, make sure its doing annotation
         # based references
-        rc = getattr(portal, REFERENCE_CATALOG)
-        uc = getattr(portal, UID_CATALOG)
-        import pdb;pdb.set_trace()
-
+    
         # looks like its a folder with stuff in it.. old style
         # we want to do this quickly so we will grab all the
         # objects for each unique source ID and push them into
         # that source object
+        
+        print >>out, 'migrating reference from Archetypes 1.3. beta2'
+
         sids = rc.uniqueValuesFor('sourceUID')
         for sid in sids:
             set = rc(sourceUID=sid)
@@ -90,27 +99,110 @@ def toReferenceCatalog(portal, out):
                 # we need to uncatalog the ref at its current path
                 # and then stick it on the new object and index it
                 # again under its new relative pseudo path
-                path = brain.getPath()
-                ref = getattr(rc, path, None)
-                if ref is None: continue
-                if path.find('ref_') != -1:
-                    rc.uncatalog_object(path)
-                    uc.uncatalog_object(path)
 
-                    # make sure id==uid
-                    setattr(ref, UUID_ATTR, make_uuid())
-                    ref.id = ref.UID()
-                    # now stick this in the annotation
-                    # unwrap the ref
-                    ref = aq_base(ref)
-                    annotations[ref.UID()] = ref
-                rc._delOb(path)
-            # I might have to do this each time (to deal with an
-            # edge case), but I suspect not
-            sourceObject._catalogRefs(portal)
+                targetObject=rc.lookupObject(brain.targetUID)
+                if not targetObject:
+                    print >>out,  'mirateReferences: Warning: no targetObject found for UID ',brain.targetUID
+                    continue
+                
+                count+=1
+                sourceObject.addReference(targetObject,relationship=brain.relationship)
 
+#            sourceObject._catalogRefs(portal)
+
+        print >>out, "%s old references migrated (reference metadata not restored)." % count
 
     print >>out, "Migrated References"
+
+# reference metadata cannot be restored since reference-catalog is no more
+# a btree and in AT 1.3.b2 reference_catalog was a btreefolder
+##                path = brain.getPath()
+##                ref = getattr(rc, path, None)
+##                if ref is None: continue
+##                if path.find('ref_') != -1:
+##                    rc.uncatalog_object(path)
+##                    uc.uncatalog_object(path)
+##    
+##                    # make sure id==uid
+##                    setattr(ref, UUID_ATTR, make_uuid())
+##                    ref.id = ref.UID()
+##                    # now stick this in the annotation
+##                    # unwrap the ref
+##                    ref = aq_base(ref)
+##                    annotations[ref.UID()] = ref
+##                rc._delOb(path)
+            # I might have to do this each time (to deal with an
+            # edge case), but I suspect not
+
+    #Reindex for new UUIDs
+    uc.manage_reindexIndex()
+    rc.manage_reindexIndex()
+
+olduididx = 'old_tmp_at_uid'
+
+def migrateUIDs(portal, out):
+    count=0
+    uc = getToolByName(portal, UID_CATALOG)    
+    
+    # temporary add a new index    
+    if olduididx not in uc.indexes():
+        uc.addIndex(olduididx, 'FieldIndex', extra=None)
+        if not olduididx in uc.schema():
+            uc.addColumn(olduididx)
+    
+    # clear UID Catalog 
+    uc.manage_catalogClear()
+    
+    # rebuild UIDS on objects and in catalog
+    allbrains = portal.portal_catalog()
+    for brain in allbrains:
+        # get a uid for each thingie
+        obj = brain.getObject()
+        if not IBaseObject.isImplementedBy(obj): 
+            continue #its no Archetype instance, so leave it
+        
+        objUID = getattr(obj.aq_base, '_uid', None)        
+        if objUID: #continue    # not an old style AT?
+            setattr(obj, olduididx, objUID) # this one can be part of the catalog
+            delattr(obj, '_uid')
+            setattr(obj, UUID_ATTR, None)
+        obj._register()            # creates a new UID
+        obj._updateCatalog(portal) # to be sure
+        count+=1
+        # avoid eating up all RAM
+        if not count % 250:
+            get_transaction().commit(1) 
+    get_transaction().commit()        
+    print >>out, count, "UID's migrated."
+
+def removeOldUIDs(portal, out):
+    # remove temporary needed index 
+    uc = getToolByName(portal, UID_CATALOG)    
+    if olduididx in uc.indexes():
+        uc.delIndex(olduididx)
+        if olduididx in uc.schema():
+            uc.delColumn(olduididx)
+    count=0
+    allbrains = uc()
+    for brain in allbrains:
+        #Get a uid for each thingie
+        obj = brain.getObject()
+        objUID = getattr(obj.aq_base, olduididx, None)        
+        if not objUID: continue # not an old style AT
+        delattr(obj, olduididx)
+        obj._updateCatalog(portal) 
+        count+=1
+        # avoid eating up all RAM
+        if not count % 250:
+            get_transaction().commit(1) 
+    get_transaction().commit()
+    print >>out, count, "old UID attributes removed."
+
+def migrateSchemas(portal, out):
+    at = getToolByName(portal, TOOL_NAME)
+    msg = at.manage_updateSchema(update_all=1)    
+    get_transaction().commit()
+    print >>out, msg
 
 def migrate(self):
     """migrate an AT site"""
@@ -120,7 +212,10 @@ def migrate(self):
     print >>out, "Begin Migration"
 
     fixArchetypesTool(portal, out)
-    toReferenceCatalog(portal, out)
-
+    reinstallArchetypes(portal,out)
+    migrateSchemas(portal, out)
+    migrateUIDs(portal, out)
+    migrateReferences(portal,out)
+    removeOldUIDs(portal, out)
     print >>out, "Archetypes Migration Successful"
     return out.getvalue()

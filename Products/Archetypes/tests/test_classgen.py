@@ -9,8 +9,9 @@ from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes import listTypes
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.PortalTransforms.MimeTypesTool import MimeTypesTool
+from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
+from Products.Archetypes.interfaces.base import IBaseUnit
 
 from Products.CMFCore.DiscussionTool import DiscussionTool
 
@@ -34,6 +35,7 @@ schema = BaseSchema + Schema((
                                   )),
 
     FileField('afilefield',
+              primary=1,
               widget=RichWidget(description="Just a file field for the testing",
                                   label="A File Field",
                                   )),
@@ -87,8 +89,7 @@ class Dummy(BaseContent):
 BaseUnit.portal_properties = PortalProperties()
 
 def gen_class(klass):
-    klass.schema = deepcopy(schema)
-    klass.schema = schema
+    klass.schema = schema.copy()
     registerType(klass)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
@@ -168,6 +169,15 @@ class ClassGenTest( ArchetypesTestCase ):
         obj.setAwriteonlyfield('bla')
         self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
 
+    def test_getbaseunit(self):
+        obj = self._dummy
+        for field in obj.Schema().fields():
+            if not hasattr(field,'getBaseUnit'):
+                continue
+            bu = field.getBaseUnit(obj)
+            self.failUnless(IBaseUnit.isImplementedBy(bu),
+               'Return value of %s.getBaseUnit() does not implement BaseUnit: %s' % (field.__class__, type(bu)))
+            
 
 def test_suite():
     from unittest import TestSuite, makeSuite

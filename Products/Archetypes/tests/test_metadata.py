@@ -78,13 +78,19 @@ class DummyFolder(BaseFolder):
     portal_membership = DummyPortalMembership()
 
 
-class ExtensibleMetadataTest( ArchetypesTestCase ):
+class ExtensibleMetadataTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])
+        self.makeDummy()
         addMetadataTo(self._dummy)
+
+    def makeDummy(self):
+        portal = self.getPortal()
+        self._dummy = createDummyInContext(Dummy, id='dummy', context=portal)
+        return self._dummy
 
     def testAccessors(self):
         obj = self._dummy
@@ -130,48 +136,160 @@ class ExtensibleMetadataTest( ArchetypesTestCase ):
                             'isMetadata not set correctly for field %s.' % meta)
 
 
-class ExtMetadataContextTest( ArchetypesTestCase ):
+class ExtMetadataContextTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
         gen_class(DummyFolder)
-        self._parent = DummyFolder(oid='parent')
-        self._parent.initializeArchetype()
+        portal = self.getPortal()
+
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])
+
+        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        self._parent = parent
+
         # create dummy in context of a plone folder
-        self._dummy = Dummy(oid='dummy').__of__(self._parent)
-        self._dummy.initializeArchetype()
+        self._dummy = createDummyInContext(Dummy, id='dummy', context=parent)
 
     def testContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
 
         compareMetadataOf(self, self._parent, data='parent', time=1001)
-        compareMetadataOf(self, self._dummy, data='dummy', time=9998)
+        compareMetadataOf(self, self._parent.dummy, data='dummy', time=9998)
 
     def testUnwrappedContext(self):
         addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
 
         compareMetadataOf(self, aq_base(self._parent), data='parent', time=1001)
-        compareMetadataOf(self, aq_base(self._dummy), data='dummy', time=9998)
+        compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
-        dummy_parent = aq_base(aq_parent(self._dummy))
+        portal = self.getPortal()
+        self.failUnless(aq_parent(self._parent) == portal)
+        dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
         self.failUnless(dummy_parent is parent,
                         ('Parent is not the parent of dummy! '
                          'Some tests will give you false results!'))
 
 
-class ExtMetadataDefaultLanguageTest( ArchetypesTestCase ):
+class ExtMetadataDefaultLanguageTest(ArcheSiteTestCase):
 
     def testDefaultLanguage(self):
+        # This is handled at creation time, so the prop must be set
+        # then, its not a runtime fallback to the property
         language = 'no'
+
+        portal = self.getPortal()
+        portal.portal_properties.site_properties._updateProperty('default_language', language)
+
+        #Create a proper object
+        self.folder.invokeFactory(id="dummy",
+                                  type_name="SimpleType")
+        dummy = getattr(self.folder, 'dummy')
+        self.failUnlessEqual(dummy.Language(), language)
+
+class ExtMetadataSetFormatTest(ArcheSiteTestCase):
+
+    value = "fooooo"
+    filename = 'foo.txt'
+
+    def afterSetUp(self):
         gen_dummy()
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.portal_properties.site_properties.default_language = language
-        self._dummy.initializeArchetype()
-        self.failUnlessEqual(self._dummy.Language(), language)
+        gen_class(DummyFolder)
+        portal = self.getPortal()
+
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])
+
+        parent = createDummyInContext(DummyFolder, id='parent', context=portal)
+        self._parent = parent
+
+        # create dummy in context of a plone folder
+        dummy = createDummyInContext(Dummy, id='dummy', context=parent)
+        self._dummy = dummy
+
+        pfield = dummy.getPrimaryField()
+        # tests do need afilefield
+        self.failUnlessEqual(pfield.getName(), 'afilefield')
+        pfield.set(dummy, self.value, filename=self.filename, mimetype='text/plain')
+
+        self._parent.dummy = dummy
+
+    def testSetFormat(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+
+        self.failUnlessEqual(dummy.Format(), 'text/plain')
+        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
+        self.failUnlessEqual(dummy.content_type, 'text/plain')
+        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
+
+        dummy.setFormat('image/gif')
+        self.failUnlessEqual(dummy.Format(), 'image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        self.failUnlessEqual(dummy.content_type, 'image/gif')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
+
+    def testSetContentType(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+
+        dummy.setContentType('text/plain')
+        self.failUnlessEqual(dummy.Format(), 'text/plain')
+        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
+        self.failUnlessEqual(dummy.content_type, 'text/plain')
+        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
+
+        dummy.setContentType('image/gif')
+        self.failUnlessEqual(dummy.Format(), 'image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        self.failUnlessEqual(dummy.content_type, 'image/gif')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
+        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
+
+
+    def testMultipleChanges(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+
+        dummy.setContentType('image/gif')
+        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        dummy.setFormat('application/pdf')
+        self.failUnlessEqual(dummy.Format(), 'application/pdf')
+        dummy.setContentType('image/jpeg')
+        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
+
+        self.failUnlessEqual(pfield.get(dummy).filename, self.filename)
+        self.failUnlessEqual(pfield.get(dummy).data, self.value)
+
+    def testChangesOnFieldChangesObject(self):
+        dummy = self._parent.dummy
+        pfield = dummy.getPrimaryField()
+
+        data = pfield.get(dummy)
+        self.failUnlessEqual(data.content_type, 'text/plain')
+
+        data.content_type = 'image/jpeg'
+
+        self.failUnlessEqual(data.content_type, 'image/jpeg')
+
+        pfield.set(dummy, data)
+        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
+        self.failUnlessEqual(dummy.getContentType(), 'image/jpeg')
+        self.failUnlessEqual(dummy.content_type, 'image/jpeg')
+        self.failUnlessEqual(dummy.get_content_type(), 'image/jpeg')
+        self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
 
 
 def test_suite():
@@ -180,6 +298,7 @@ def test_suite():
     suite.addTest(makeSuite(ExtensibleMetadataTest))
     suite.addTest(makeSuite(ExtMetadataContextTest))
     suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
+    suite.addTest(makeSuite(ExtMetadataSetFormatTest))
     return suite
 
 if __name__ == '__main__':

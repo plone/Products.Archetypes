@@ -1,14 +1,12 @@
+import sys
+
 from Products.Archetypes.config import *
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes import Validators
-from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import DisplayList, getPkgInfo
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
-from Products.CMFCore.TypesTool import TypesTool, typeClasses
 
 ###
 ## security
@@ -36,8 +34,36 @@ allow_class(DisplayList)
 registerDirectory('skins', globals())
 
 from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     registerType, process_types, listTypes
+     process_types, listTypes, fixAfterRenameType
+ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
+
+
+###
+# Test dependencies
+###
+this_module = sys.modules[__name__]
+import Products.MimetypesRegistry
+import Products.PortalTransforms
+import Products.generator
+import Products.validation
+at_info = getPkgInfo(this_module)
+mtr_info = getPkgInfo(Products.MimetypesRegistry)
+pt_info = getPkgInfo(Products.PortalTransforms)
+gen_info = getPkgInfo(Products.generator)
+val_info = getPkgInfo(Products.validation)
+
+at_version = at_info.version
+for info in (mtr_info, pt_info, gen_info, val_info, ):
+    if at_version not in info.at_versions:
+        raise RuntimeError('The current Archetypes version %s is not in list ' \
+                           'of compatible versions for %s!\nList: %s' % \
+                           (at_version, info.modname, info.at_versions)
+                          ) 
+
+###
+# Tools
+###
 
 tools = (
     ArchetypeTool,
@@ -55,7 +81,7 @@ def initialize(context):
                    ).initialize(context)
 
     if REGISTER_DEMO_TYPES:
-        import examples
+        import Products.Archetypes.examples
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)
@@ -74,3 +100,6 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
+
+    context.registerHelpTitle('Archetypes Help')
+    context.registerHelp(directory='interfaces')

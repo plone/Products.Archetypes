@@ -1,28 +1,18 @@
 import sha
 
-from Products.Archetypes import registerType
-from Products.Archetypes.BaseContent import BaseContent
-from Products.Archetypes.interfaces.base import IBaseContent
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schemata
+from Products.Archetypes.Schema import Schemata, WrappedSchemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
-from Products.Archetypes.debug import log
 from Products.Archetypes.ClassGen import _modes
 from Products.Archetypes.utils import OrderedDict
 
-from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
-from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
+from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
-from DateTime import DateTime
 from Globals import InitializeClass
 
-from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
-     _verifyActionPermissions
-from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore import CMFCorePermissions
-
+from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
 
@@ -57,7 +47,7 @@ class VarClassGen(ClassGenerator):
 
 schemadict={}
 
-class VariableSchemaSupport:
+class VariableSchemaSupport (Base):
     """
     Mixin class to support instance-based schemas
     Attention: must be before BaseFolder or BaseContent in
@@ -88,7 +78,10 @@ class VariableSchemaSupport:
     security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
-        return self.getAndPrepareSchema()
+        schema = self.getAndPrepareSchema()
+        #if hasattr(schema, 'wrapped'):
+        #    return schema.wrapped(self)
+        return schema
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')
@@ -96,7 +89,8 @@ class VariableSchemaSupport:
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha.new(str([f._properties for f in s.values()])+str(self.__class__)).hexdigest()
+        hash=sha.new(str([f.__dict__ for f in s.values()]) +
+                     str(self.__class__)).hexdigest()
 
         if schemadict.has_key(hash): #ok we had that shema already, so take it
             schema=schemadict[hash]

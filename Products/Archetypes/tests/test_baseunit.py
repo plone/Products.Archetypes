@@ -15,15 +15,6 @@ from Products.Archetypes.BaseUnit import BaseUnit
 
 from test_classgen import Dummy, gen_dummy
 
-try:
-    __file__
-except NameError:
-    # Test was called directly, so no __file__ global exists.
-    _prefix = abspath(curdir)
-else:
-    # Test was called by another test.
-    _prefix = abspath(dirname(__file__))
-
 
 class BaseUnitTest( ArchetypesTestCase ):
 
@@ -49,10 +40,10 @@ class BaseUnitTest( ArchetypesTestCase ):
 
 tests = []
 
-input_files = glob.glob(join(_prefix, "input", "rest*.rst"))
+input_files = glob.glob(join(PACKAGE_HOME, "input", "rest*.rst"))
 for f in input_files:
     fname = split(f)[1]
-    outname = join(_prefix, "output", '%s.out' % fname.split('.')[0])
+    outname = join(PACKAGE_HOME, "output", '%s.out' % fname.split('.')[0])
 
     class BaseUnitTestSubclass(BaseUnitTest):
         input = f

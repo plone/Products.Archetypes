@@ -115,6 +115,30 @@ class DisplayListTest(ArchetypesTestCase):
         assert dlb_s.values() == ['X', 'Y', 'Z']
         dlc_s = dlc.sortedByKey()
         assert dlc_s.values() == ['Z', 'X', 'Y']
+        
+##    def test_getIndex(self):
+##        a = ((None,'a',), (2,'b'), ('c', 'c'))
+##        dla = DisplayList(a)
+##        
+##        self.assertEquals(dla.getIndex(None), 1)
+##        self.assertEquals(dla.getIndex(2), 2)
+##        self.assertEquals(dla.getIndex('c'), 3)
+##        
+##    def test_getIndexesFromKeys(self):
+##        a = ((None,'a',), (2,'b'), ('c', 'c'))
+##        dla = DisplayList(a)
+##        
+##        self.assertEquals(dla.getIndexesFromKeys([None, 2]), [1,2])
+##        self.failUnless(dla.getIndexesFromKeys([None, 'a']) == [1])
+##        
+##
+##    def test_getKeysFromIndexes(self):
+##        a = ((None,'a',), (2,'b'), ('c', 'c'))
+##        dla = DisplayList(a)
+##        
+##        self.assertEquals(dla.getKeysFromIndexes([1,2]), [None, 2])
+##        self.failUnless(dla.getKeysFromIndexes([1,5]) == [None])
+    
 
 
 def test_suite():

@@ -1,8 +1,15 @@
 import types
+import inspect
 
 from Products.Archetypes.utils import className
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
+
+from AccessControl import ClassSecurityInfo
+from AccessControl.SecurityInfo import ACCESS_PUBLIC
+from Globals import InitializeClass
+
+from config import DEBUG_SECURITY
 
 def getDoc(klass):
     doc = klass.__doc__ or ''
@@ -143,10 +150,12 @@ class TypeDescription:
 
     def schemata(self):
         from Products.Archetypes.Schema import getSchemata
-        return getSchemata(self.klass)
+        # Build a temp instance.
+        return getSchemata(self.klass('test'))
 
     def signature(self):
-        return self.klass.getSchema().signature()
+        # Build a temp instance.
+        return self.klass('test').Schema().signature()
 
     def portal_type(self):
         return self.klass.portal_type
@@ -157,21 +166,120 @@ class TypeDescription:
     def basetypes(self):
         return findBaseTypes(self.klass)
 
+def _getSecurity(klass, create=True):
+    # a Zope 2 class can contain some attribute that is an instance
+    # of ClassSecurityInfo. Zope 2 scans through things looking for
+    # an attribute that has the name __security_info__ first
+    info = vars(klass)
+    security = None
+    for k, v in info.items():
+        if hasattr(v, '__security_info__'):
+            security = v
+            break
+    # Didn't found a ClassSecurityInfo object
+    if security is None:
+        if not create:
+            return None
+        # we stuff the name ourselves as __security__, not security, as this
+        # could theoretically lead to name clashes, and doesn't matter for
+        # zope 2 anyway.
+        security = ClassSecurityInfo()
+        setattr(klass, '__security__', security)
+        if DEBUG_SECURITY:
+            print '%s has no ClassSecurityObject' % klass.__name__
+    return security
+
+def mergeSecurity(klass):
+    # This method looks into all the base classes and tries to
+    # merge the security declarations into the current class.
+    # Not needed in normal circumstances, but useful for debugging.
+    bases = list(inspect.getmro(klass))
+    bases.reverse()
+    security = _getSecurity(klass)
+    for base in bases[:-1]:
+        s = _getSecurity(base, create=False)
+        if s is not None:
+            if DEBUG_SECURITY:
+                print base, s.names, s.roles
+            # Apply security from the base classes to this one
+            s.apply(klass)
+            continue
+        cdict = vars(base)
+        b_perms = cdict.get('__ac_permissions__', ())
+        if b_perms and DEBUG_SECURITY:
+            print base, b_perms
+        for item in b_perms:
+            permission_name = item[0]
+            security._setaccess(item[1], permission_name)
+            if len(item) > 2:
+                security.setPermissionDefault(permission_name, item[2])
+        roles = [(k, v) for k, v in cdict.items() if k.endswith('__roles__')]
+        for k, v in roles:
+            name = k[:-9]
+            security.names[name] = v
+
+def setSecurity(klass, defaultAccess=None, objectPermission=None):
+    """Set security of classes
+
+    * Adds ClassSecurityInfo if necessary
+    * Sets default access ('deny' or 'allow')
+    * Sets permission of objects
+    """
+    security = _getSecurity(klass)
+    if defaultAccess:
+        security.setDefaultAccess(defaultAccess)
+    if objectPermission:
+        if objectPermission == 'public':
+            security.declareObjectPublic()
+        elif objectPermission == 'private':
+            security.declareObjectPrivate()
+        else:
+            security.declareObjectProtected(objectPermission)
+
+    InitializeClass(klass)
+
+    if DEBUG_SECURITY:
+        if getattr(klass, '__allow_access_to_unprotected_subobjects__', False):
+            print '%s: Unprotected access is allowed: %s' % (
+                  klass.__name__, klass.__allow_access_to_unprotected_subobjects__)
+        for name in klass.__dict__.keys():
+            method = getattr(klass, name)
+            if name.startswith('_') or type(method) != types.MethodType:
+                continue
+            if not security.names.has_key(name):
+                print '%s.%s has no security' % (klass.__name__, name)
+            elif security.names.get(name) is ACCESS_PUBLIC:
+                print '%s.%s is public' % (klass.__name__, name)
+
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
+    # XXX check me high > low security order.
+    #setSecurity(klass, defaultAccess=None, objectPermission=None)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
+    # XXX check me high > low security order.
+    #setSecurity(klass, defaultAccess=None, objectPermission=None)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
+
+    setSecurity(klass, defaultAccess='allow', objectPermission=None)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
 def registerStorage(klass, **kw):
+    setSecurity(klass, defaultAccess=None, objectPermission=None)
     storage = StorageDescription(klass, **kw)
     storageDescriptionRegistry.register(storage.id, storage)
 

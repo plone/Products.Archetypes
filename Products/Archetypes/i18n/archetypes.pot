@@ -122,14 +122,6 @@ msgstr "Select where you want to create that."
 
 
 #: widgets/reference.pt
-#. <a i18n:translate="label_hide_add_form">
-#.  hide add form
-#. </a>
-msgid "label_hide_add_form"
-msgstr "hide add form"
-
-
-#: widgets/reference.pt
 #. <label i18n:translate="label_what">
 #.  What
 #. </label>
@@ -181,5 +173,3 @@ msgstr "Reference Added."
 #. Content changes saved.
 msgid "message_content_changes_saved"
 msgstr "Content changes saved."
-
-

@@ -1,0 +1,172 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Archetypes 1.3\n"
+"POT-Creation-Date: 2004-01-18 16:00 +0100\n"
+"PO-Revision-Date: 2004-07-10 20:26:02 -0200\n"
+"Last-Translator: Mikhail Kashkin (http://keysolutions.ru/)\n"
+"Language-Team: Russian <mailbox@xen.ru>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Code: ru\n"
+"Language-Name: Русский\n"
+"Preferred-Encodings: utf-8 cp1251\n"
+"Domain: archetypes\n"
+
+#: skins/archetypes/reference_edit.cpt
+#. <table i18n:attributes="summary" summary="table_summary">
+msgid "table_summary"
+msgstr "Связи объекта"
+
+
+#: skins/archetypes/reference_edit.cpt
+#. <span i18n:translate="label_referencing">
+#.   Referencing
+#.  </span>
+msgid "label_referencing"
+msgstr "Установка связей"
+
+
+#: skins/archetypes/reference_edit.cpt
+#. <span i18n:translate="label_referenced">
+#.  Referenced By
+#. </span>
+msgid "label_referenced"
+msgstr "Относится к"
+
+
+#: skins/zmi/base_edit.pt
+#. <input i18n:attributes="value" value="Save" type="submit" />
+msgid "Save"
+msgstr "Сохранить"
+
+
+#: skins/zmi/base_add.pt
+#. <input i18n:attributes="value" value="Add" type="submit" />
+## 1 more: skins/archetypes/widgets/reference.pt
+msgid "Add"
+msgstr "Добавить"
+
+
+#: skins/archetypes/reference_edit.cpt
+#. <a href="" i18n:attributes="title" title="Delete reference">
+msgid "Delete reference"
+msgstr "Удалить связь"
+
+
+#: skins/archetypes/reference_edit.cpt
+#. <input i18n:attributes="value" value="reference" type="submit" />
+msgid "Reference"
+msgstr "Связи"
+
+
+#: skins/archetypes/reference_edit.cpt
+#. <p i18n:translate="label_copy">
+#.  Copy objects from folders and then click the reference button.
+#.  This will create references.
+#. </p>
+msgid "label_copy"
+msgstr "Для добавления связей на странице со списком файлов скопируйте элемент и вернитесь на эту страницу."
+
+
+#: Field.py
+#. ${name} is required, please correct.
+msgid "error_required"
+msgstr "Поле ${name} обязательно для заполнения."
+
+
+#: Field.py
+#. Value ${val} is not allowed for vocabulary of element ${name}.
+msgid "error_vocabulary"
+msgstr "Значение ${val} не входит в словарь допистимых значений элемента ${name}."
+
+
+#: Field.py
+#. at
+msgid "label_at"
+msgstr "в"
+
+
+#: Field.py
+#. <no reference>
+msgid "label_no_reference"
+msgstr "<Нет связей>"
+
+
+#: widgets/reference.pt
+#. <div class="formHelp" i18n:translate="help_select_content_to_create">
+#.  Select what content type you wish to create.
+#. </div>
+msgid "help_select_content_to_create"
+msgstr "Выберите какога типа данные хотите создать."
+
+
+#: widgets/reference.pt
+#. <div class="formHelp" i18n:translate="help_select_where_to_create">
+#.  Select where you want to create that.
+#. </div>
+msgid "help_select_where_to_create"
+msgstr "Выберите где хотите создать."
+
+
+#: widgets/reference.pt
+#. <a i18n:translate="label_hide_add_form">
+#.  hide add form
+#. </a>
+msgid "label_hide_add_form"
+msgstr "скрыть форму добавления"
+
+
+#: widgets/reference.pt
+#. <label i18n:translate="label_what">
+#.  What
+#. </label>
+msgid "label_what"
+msgstr "Что"
+
+
+#: widgets/reference.pt
+#. <label i18n:translate="label_where">
+#.  Where
+#. </label>
+msgid "label_where"
+msgstr "Где"
+
+
+#: widgets/reference.pt
+#. <legend i18n:translate="legend_add_new">
+#.  add new
+#. </legend>
+msgid "legend_add_new"
+msgstr "добавить новую"
+
+
+#: widgets/rich.pt
+#. <strong i18n:translate="uppercase_or">OR</strong>
+msgid "uppercase_or"
+msgstr "ИЛИ"
+
+
+#: widgets/rich.pt
+#. <label i18n:translate="upload_a_file">Upload a File</label>
+msgid "upload_a_file"
+msgstr "Закачать файл"
+
+
+#: skins/archetypes/content_edit.cpy
+#. Add New Item operation was cancelled.
+msgid "message_add_new_item_cancelled"
+msgstr "Операция добавления отменена."
+
+
+#: skins/archetypes/content_edit.cpy
+#. Reference Added.
+msgid "message_reference_added"
+msgstr "Ссылка добавлена."
+
+
+#: skins/archetypes/content_edit.cpy
+#. Content changes saved.
+msgid "message_content_changes_saved"
+msgstr "Изменения сохранены."

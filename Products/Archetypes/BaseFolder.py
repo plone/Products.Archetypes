@@ -2,29 +2,27 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, Unauthorized
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
+from Products.CMFCore.utils import getToolByName
 from OFS.Folder import Folder
 
-class BaseFolderMixin(BaseObject,
-                      Referenceable,
-                      CatalogMultiplex,
+class BaseFolderMixin(CatalogMultiplex,
+                      BaseObject,
                       SkinnedFolder,
                       Folder
                       ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable) + \
-                     PortalContent.__implements__
+    __implements__ = IBaseFolder, IReferenceable, PortalContent.__implements__
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"
@@ -38,26 +36,60 @@ class BaseFolderMixin(BaseObject,
         SkinnedFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
 
+    def _notifyOfCopyTo(self, container, op=0):
+        """In the case of a move (op=1) we need to make sure
+        references are mainained for all referencable objects within
+        the one being moved.
+       
+        manage_renameObject calls _notifyOfCopyTo so that the
+        object being renamed doesn't lose its references. But
+        manage_ renameObject calls _delObject which calls
+        manage_beforeDelete on all the children of the object
+        being renamed which deletes all references for children
+        of the object being renamed. Here is a patch that does
+        recursive calls for _notifyOfCopyTo to address that
+        problem.
+        """
+        if op==1: # For efficiency, remove if op==0 needs something
+            for child in self.contentValues():
+                if IReferenceable.isImplementedBy(child):
+                    child._notifyOfCopyTo(self, op)
+            return Referenceable._notifyOfCopyTo(self, container, op)
+
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
         Folder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
+
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
-        Folder.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
+        Folder.manage_afterClone(self, item)
+
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
-        Folder.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
+        Folder.manage_beforeDelete(self, item, container)
+
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'manage_delObjects')
+    def manage_delObjects(self, ids=[], REQUEST=None):
+        """ We need to enforce security. """
+        mt=getToolByName(self, 'portal_membership')
+        if type(ids) is str:
+            ids = [ids]
+        for id in ids:
+            item = self._getOb(id)
+            if not mt.checkPermission(CMFCorePermissions.ModifyPortalContent, item):
+                raise Unauthorized, (
+                    "Do not have permissions to remove this object")
+        SkinnedFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
     security.declareProtected(CMFCorePermissions.ListFolderContents,
                               'listFolderContents')
@@ -104,8 +136,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
 
-    __implements__ = (BaseFolderMixin.__implements__ +
-                      (IExtensibleMetadata,))
+    __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 
@@ -130,6 +161,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         """We have to override setDescription here to handle arbitrary
         arguments since PortalFolder defines it."""
         self.getField('description').set(self, value, **kwargs)
+
 
 
 InitializeClass(BaseFolder)

@@ -16,7 +16,6 @@ class Dummy(BaseContent):
 
     def __init__(self, oid, **kwargs):
         BaseContent.__init__(self, oid, **kwargs)
-        self.initializeArchetype()
         self.firstname = ''
         self.lastname = ''
 
@@ -36,11 +35,11 @@ class Dummy(BaseContent):
 registerType(Dummy)
 
 
-class AggregatedStorageTestsNoCache(unittest.TestCase):
+class AggregatedStorageTestsNoCache(ArcheSiteTestCase):
 
     caching = 0
 
-    def setUp(self):
+    def afterSetUp(self):
         self._storage = AggregatedStorage(caching=self.caching)
         self._storage.registerAggregator('whole_name', 'get_name')
         self._storage.registerDisaggregator('whole_name', 'set_name')
@@ -48,9 +47,14 @@ class AggregatedStorageTestsNoCache(unittest.TestCase):
         schema = Schema( (StringField('whole_name', storage=self._storage),
                          ))
 
-        self._instance = Dummy('dummy')
-        self._instance.schema = schema
+        portal = self.getPortal()
+        
+        # to enable overrideDiscussionFor
+        self.setRoles(['Manager'])        
 
+        dummy = createDummyInContext(Dummy, id='dummy', context=portal)
+        dummy.schema = schema
+        self._instance = dummy
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']

@@ -1,12 +1,13 @@
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.debug import log_exc, log, _default_logger
 from Products.Archetypes.interfaces.base import IBaseObject, IBaseUnit
-from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import DisplayList, mapply, fixSchema
+from Products.Archetypes.utils import DisplayList, mapply, fixSchema, \
+    getRelURL, getRelPath
 from Products.Archetypes.Field import StringField, TextField, STRING_TYPES
 from Products.Archetypes.Renderer import renderer
-from Products.Archetypes.Schema import Schema, Schemata
+from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Widget import IdWidget, StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces.field import IFileField
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
@@ -15,7 +16,9 @@ from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
+from ComputedAttribute import ComputedAttribute
 
+from Referenceable import Referenceable
 from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
@@ -54,7 +57,7 @@ content_type = Schema((
     marshall = RFC822Marshaller()
                       )
 
-class BaseObject(Implicit):
+class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
 
@@ -62,7 +65,7 @@ class BaseObject(Implicit):
     _signature = None
 
     installMode = ['type', 'actions', 'indexes']
-    
+
     typeDescMsgId = ''
     typeDescription = ''
 
@@ -82,21 +85,50 @@ class BaseObject(Implicit):
             if kwargs:
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
-            self.mark_creation_flag()
+            self.markCreationFlag()
+        except ConflictError:
+            raise
         except:
+            import traceback
+            print "Error on initAT", traceback.print_exc()
             log_exc()
+            #_default_logger.log_exc()
+            #raise
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'markCreationFlag')
+    def markCreationFlag(self, request=None):
+        """XXX explain me
+        """
+        if not request:
+            request = getattr(self, 'REQUEST', None)
+        if not request:
+            log("markCreationFlag: Can't get request from %s" % repr(self))
+            return
+        session = getattr(request, 'SESSION', None)
+        if not session:
+            log("markCreationFlag: Can't get session from request")
+            return
+        id = self.getId()
+        referrer = request.get('HTTP_REFERER', aq_parent(self).absolute_url())
+        # XXX do we really need sessions?
+        cflag = session.get('__creation_flag__', {})
+        cflag[id] = referrer
+        session.set('__creation_flag__', cflag)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
+        __traceback_info__ = (self, item, container)
+        Referenceable.manage_afterAdd(self, item, container)
         self.initializeLayers(item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        pass
+        Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.cleanupLayers(item, container)
+        Referenceable.manage_beforeDelete(self, item, container)
 
     security.declarePrivate('initializeLayers')
     def initializeLayers(self, item=None, container=None):
@@ -130,6 +162,8 @@ class BaseObject(Implicit):
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
+                self._v_cp_refs = 1 # See Referenceable, keep refs on
+                                    # what is a move/rename
                 parent.manage_renameObject(
                     self.id, value,
                     )
@@ -161,7 +195,7 @@ class BaseObject(Implicit):
         """Return the default value of a field
         """
         field = self.getField(field)
-        return field.default
+        return field.getDefault(self)
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
@@ -182,7 +216,7 @@ class BaseObject(Implicit):
         """Returns wether a field is transformable
         """
         field = self.getField(name)
-        return isinstance(field, TextField)  or not self.isBinary(name)
+        return isinstance(field, TextField) or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
@@ -216,6 +250,25 @@ class BaseObject(Implicit):
             return element.getContentType()
         return value
 
+    content_type = ComputedAttribute(getContentType, 1)
+
+    security.declareProtected(CMFCorePermissions.View, 'get_content_type')
+    def get_content_type(self):
+        """CMF compatibility method
+        """
+        return self.getContentType()
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setContentType')
+    def setContentType(self, value):
+        """Sets the content type of the primary field
+        """
+        pfield = self.getPrimaryField()
+        if pfield and IFileField.isImplementedBy(pfield):
+            bu = pfield.getBaseUnit(self)
+            bu.setContentType(value)
+            pfield.set(self, bu)
+
     security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
         """The primary field is some object that responds to
@@ -234,6 +287,8 @@ class BaseObject(Implicit):
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
+        except ConflictError:
+            raise
         except:
             log_exc()
             return None, 0
@@ -284,12 +339,6 @@ class BaseObject(Implicit):
 
         return value
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'edit')
-    def edit(self, **kwargs):
-        """Alias for update()
-        """
-        self.update(**kwargs)
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
@@ -297,8 +346,13 @@ class BaseObject(Implicit):
         """
         self.Schema().setDefaults(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'update')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
+    def edit(self, **kwargs):
+        """Alias for update()
+        """
+        self.update(**kwargs)
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):
         """Change the values of the field and reindex the object
         """
@@ -373,6 +427,8 @@ class BaseObject(Implicit):
                 # handle the mimetype argument
                 try:
                     datum =  method()
+                except ConflictError:
+                    raise
                 except:
                     continue
 
@@ -389,6 +445,7 @@ class BaseObject(Implicit):
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
                 # FIXME: we really need an unicode policy !
+                type_datum = type(datum)
                 if type_datum is UnicodeType:
                     datum = datum.encode(charset)
                 data.append(str(datum))
@@ -398,7 +455,8 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
-        """ Return site default charset, or utf-8 """
+        """ Return site default charset, or utf-8
+        """
         purl = getToolByName(self, 'portal_url')
         container = purl.getPortalObject()
         if getattr(container, 'getCharset', None):
@@ -418,16 +476,8 @@ class BaseObject(Implicit):
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
-        for name in self.Schema().keys():
-            value = self[name]
-            if IBaseUnit.isImplementedBy(value):
-                size += value.get_size()
-            else:
-                if value is not None:
-                    try:
-                        size += len(value)
-                    except (TypeError, AttributeError):
-                        size += len(str(value))
+        for field in self.Schema().fields():
+            size+=field.get_size(self)
         return size
 
     security.declarePrivate('_processForm')
@@ -469,6 +519,9 @@ class BaseObject(Implicit):
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)
+            # required for ComputedField et al
+            if mutator is None:
+                continue
             __traceback_info__ = (self, field, mutator)
             result[1]['field'] = field.__name__
             mapply(mutator, result[0], **result[1])
@@ -522,19 +575,16 @@ class BaseObject(Implicit):
 
         # read all the old values into a dict
         values = {}
-        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
-            if name not in excluded_fields:
-                try:
-                    values[name] = self._migrateGetValue(name, new_schema)
-                except ValueError:
-                    if out != None:
-                        print >> out, ('Unable to get %s.%s'
-                                       % (str(self.getId()), name))
-                else:
-                    if hasattr(f, 'getContentType'):
-                        mimes[name] = f.getContentType(self)
+            if name in excluded_fields: continue
+            if f.type == "reference": continue
+            try:
+                values[name] = self._migrateGetValue(name, new_schema)
+            except ValueError:
+                if out != None:
+                    print >> out, ('Unable to get %s.%s'
+                                   % (str(self.getId()), name))
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -557,8 +607,7 @@ class BaseObject(Implicit):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                if mimes.has_key(name):
-                    kw['mimetype'] = mimes[name]
+                kw['mimetype'] = f.getContentType(self)
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
@@ -694,7 +743,7 @@ class BaseObject(Implicit):
         if objects:
             if REQUEST is None:
                 REQUEST = self.REQUEST
-            key = '/'.join(self.getPhysicalPath())
+            key = getRelURL(self, self.getPhysicalPath())
             session = REQUEST.SESSION
             defined = session.get(key, {})
             defined.update(objects)
@@ -705,7 +754,7 @@ class BaseObject(Implicit):
         """Get a dictionary of objects from the session
         """
         try:
-            data = REQUEST.SESSION[self.absolute_url()][name]
+            data = REQUEST.SESSION[getRelURL(self, self.getPhysicalPath())][name]
         except AttributeError:
             return
         except KeyError:
@@ -735,6 +784,7 @@ class BaseObject(Implicit):
         if hasattr(REQUEST, 'RESPONSE'):
             REQUEST.RESPONSE.notFoundError("%s\n%s" % (name, ''))
 
+InitializeClass(BaseObject)
 
 class Wrapper:
     """wrapper object for access to sub objects """
@@ -757,4 +807,3 @@ class Wrapper:
             RESPONSE.setHeader('Content-Length', len(self._data))
         return self._data
 
-InitializeClass(BaseObject)

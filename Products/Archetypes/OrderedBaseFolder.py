@@ -9,7 +9,6 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -17,14 +16,14 @@ from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from Products.Archetypes.config import USE_OLD_ORDEREDFOLDER_IMPLEMENTATION
 from DocumentTemplate import sequence
 
-from AccessControl import ClassSecurityInfo, Permissions
+from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore.CMFCorePermissions import AddPortalFolders, \
-     AddPortalContent, ModifyPortalContent, ManageProperties
+from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
+    ManageProperties
 
 # this import can change with Zope 2.7 to
 try:
@@ -32,6 +31,11 @@ try:
     hasZopeOrderedSupport=1
 except ImportError:
     hasZopeOrderedSupport=0
+    
+try:
+    from zExceptions import NotFound
+except ImportError:
+    class NotFound(Exception): pass
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
 # OrderedBaseFolder work without Plone 2.0
@@ -112,9 +116,9 @@ class OrderedContainer:
     if hasZopeOrderedSupport:
         # got the IOrderedContainer interface from zope 2.7, too
         # make shure this implementation fullfilles both interfaces
-        __implements__  = (IOrderedContainer, IZopeOrderedContainer)
+        __implements__  = IOrderedContainer, IZopeOrderedContainer
     else:
-        __implements__  = (IOrderedContainer,)
+        __implements__  = IOrderedContainer
 
     security = ClassSecurityInfo()
 
@@ -203,7 +207,7 @@ class OrderedContainer:
         if om: # only 1 in list if any
             return om[0]
 
-        raise RuntimeError('Object %s was not found'%str(id))
+        raise NotFound(str(id))
 
     security.declareProtected(ModifyPortalContent, 'moveObjectsUp')
     def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
@@ -260,8 +264,8 @@ InitializeClass(OrderedContainer)
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
-    __implements__ = OrderedContainer.__implements__ + \
-                     BaseFolder.__implements__ + (DynamicType,)
+    __implements__ = OrderedContainer.__implements__,\
+                     BaseFolder.__implements__, DynamicType
 
     security = ClassSecurityInfo()
 
@@ -288,9 +292,8 @@ class old_OrderedBaseFolder(BaseObject,
     """ An ordered base Folder implementation
         DEPRECATED, may be removed in next releaeses """
 
-    __implements__ = (IBaseFolder, IReferenceable,
-                      IExtensibleMetadata,
-                      IOrderedFolder)
+    __implements__ = IBaseFolder, IReferenceable, IExtensibleMetadata,\
+                     IOrderedFolder
 
     manage_options = SkinnedFolder.manage_options
     content_icon = "folder_icon.gif"

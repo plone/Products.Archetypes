@@ -1,4 +1,4 @@
-import sys, traceback, os
+import traceback, os
 from os.path import isdir, join
 from types import *
 
@@ -8,21 +8,18 @@ from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, createDirectoryView, manage_listAvailableDirectories
+     registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
-from Products.CMFCore.ActionInformation import ActionInformation
-from Products.CMFCore.Expression import Expression
 from Products.Archetypes.ArchetypeTool import fixActionsForType
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.config import *
 
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
+from Products.MimetypesRegistry.Extensions.Install \
+     import install as install_mimetypes_registry
 
-from Products.ZCatalog.ZCatalog import manage_addZCatalog
 from Products.Archetypes.ReferenceEngine import \
      manage_addReferenceCatalog, manage_addUIDCatalog
 
@@ -39,6 +36,7 @@ def install_dependencies(self, out, required=1):
         else:
             return
     qi.installProduct('CMFFormController',locked=1)
+    qi.installProduct('MimetypesRegistry',)
     qi.installProduct('PortalTransforms',)
 
 def install_tools(self, out):
@@ -61,12 +59,12 @@ def install_tools(self, out):
 
 def install_catalog(self, out):
 
-    index_defs=(('UID', 'FieldIndex'),
+    index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
                  ('Title', 'FieldIndex'),
                  ('portal_type', 'FieldIndex'),
-             )
+               )
 
     if not hasattr(self, UID_CATALOG):
         #Add a zcatalog for uids
@@ -74,26 +72,16 @@ def install_catalog(self, out):
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
 
     catalog = getToolByName(self, UID_CATALOG)
-    schema = catalog.schema()
-    indexes = catalog.indexes()
-    schemaFields = []
-
-    for indexName, indexType in ( ('UID', 'FieldIndex'),
-                                  ('Type', 'FieldIndex'),
-                                  ('id', 'FieldIndex'),
-                                  ('Title', 'FieldIndex'),
-                                  ('portal_type', 'FieldIndex'),
-                                  ):
-        try:
-            if indexName not in indexes:
+    for indexName, indexType in index_defs:
+        try: #ugly try catch XXX FIXME
+            if indexName not in catalog.indexes():
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in schema:
+            if not indexName in catalog.schema():
                 catalog.addColumn(indexName)
-                schemaFields.append(indexName)
         except:
             pass
 
-    catalog.manage_reindexIndex(ids=schemaFields)
+    catalog.manage_reindexIndex()
 
 def install_referenceCatalog(self, out):
     if not hasattr(self, REFERENCE_CATALOG):
@@ -107,8 +95,6 @@ def install_referenceCatalog(self, out):
                                       ('sourceUID', 'FieldIndex'),
                                       ('targetUID', 'FieldIndex'),
                                       ('relationship', 'FieldIndex'),
-                                      ('targetId', 'FieldIndex'),
-                                      ('targetTitle', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
@@ -120,7 +106,7 @@ def install_referenceCatalog(self, out):
             except:
                 pass
 
-        #catalog.manage_reindexIndex()
+        catalog.manage_reindexIndex()
 
 
 def install_templates(self, out):
@@ -367,6 +353,7 @@ def setupEnvironment(self, out, types,
     install_actions(self, out, types)
 
     install_portal_transforms(self)
+    install_mimetypes_registry(self)
 
 
 ## The master installer

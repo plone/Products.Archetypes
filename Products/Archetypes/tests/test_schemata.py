@@ -53,7 +53,8 @@ class SchemataTest( ArchetypesTestCase ):
                                       'description', 'contributors',
                                       'creators', 'effectiveDate',
                                       'expirationDate', 'language',
-                                      'rights'])
+                                      'rights', 'creation_date',
+                                      'modification_date'])
 
 
 def test_suite():

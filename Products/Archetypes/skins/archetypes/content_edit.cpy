@@ -13,8 +13,18 @@ SESSION = REQUEST.SESSION
 
 old_id = context.getId()
 
-new_context = context.portal_factory.doCreate(context, id)
+try:
+    new_context = context.portal_factory.doCreate(context, id)
+except AttributeError:
+    # Fallback for AT + plain CMF where we don't have a portal_factory
+    new_context = context
 new_context.processForm()
+
+# Get the current language and put it in request/LANGUAGE
+form = REQUEST.form
+if form.has_key('current_lang'):
+    form['language'] = form.get('current_lang')
+    
 
 portal_status_message = context.translate(
     msgid='message_content_changes_saved',
@@ -123,6 +133,9 @@ if state.errors:
                 portal_status_message=portal_status_message)
 
 context.remove_creation_mark(old_id)
+if not state.errors:
+    from Products.CMFPlone import transaction_note
+    transaction_note('Edited %s %s at %s' % (new_context.meta_type, new_context.title_or_id(), new_context.absolute_url()))
 
 return state.set(status='success',
                  context=new_context,

@@ -10,9 +10,24 @@ if not hasArcheSiteTestCase:
 
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
-
+from Products.Archetypes.utils import DisplayList
 
 class ReferenceableTests(ArcheSiteTestCase):
+
+    def verifyBrains(self):
+        uc = getattr(self.portal, UID_CATALOG)
+        rc = getattr(self.portal, REFERENCE_CATALOG)
+
+        #Verify all UIDs resolve
+        brains = uc()
+        uobjects = [b.getObject() for b in brains]
+        self.failIf(None in uobjects, """bad uid resolution""")
+
+        #Verify all references resolve
+        brains = rc()
+        robjects = [b.getObject() for b in brains]
+        self.failIf(None in robjects, """bad ref catalog resolution""")
+        return uobjects, robjects
 
     def test_hasUID( self ):
         doc = makeContent( self.folder
@@ -33,14 +48,75 @@ class ReferenceableTests(ArcheSiteTestCase):
                           , title='Foo'
                           , id=obj_id)
 
+
         UID = doc.UID()
-        self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
+        # This test made an assumption about other UIDs in the system
+        # that are wrong with things like ATCT
+        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         # ensure object has a _p_jar
         get_transaction().commit(1)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
-        self.failUnless(catalog.uniqueValuesFor('UID') == (UID,))
+        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         self.failUnless(doc.UID() == UID)
+
+
+    def test_renameKeepsReferences(self):
+        container = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='container')
+
+        obj1 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='obj1')
+        obj2 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Foo',
+                           id='obj2')
+
+        obj1.addReference(obj2)
+
+        self.verifyBrains()
+        get_transaction().commit(1)
+        obj1.setId('foo')
+        get_transaction().commit(1)
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
+
+    def test_renamecontainerKeepsReferences( self ):
+        # test for #956677: renaming the container causes contained objects
+        #                   to lose their refs
+        container = makeContent(self.folder,
+                                portal_type='SimpleFolder',
+                                title='Spam',
+                                id='container')
+        obj1 = makeContent(self.folder.container,
+                           portal_type='SimpleType',
+                           title='Eggs',
+                           id='obj1')
+        obj2 = makeContent(self.folder,
+                           portal_type='SimpleType',
+                           title='Foo',
+                           id='obj2')
+
+        obj1.addReference(obj2)
+
+        a,b = self.verifyBrains()
+        get_transaction().commit(1)
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
+
+        self.folder.manage_renameObject(id='container',
+                                        new_id='cont4iner')
+        c, d = self.verifyBrains()
+
+        self.assertEquals(obj2.getBRefs(), [obj1])
+        self.assertEquals(obj1.getRefs(), [obj2])
 
     def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
@@ -69,15 +145,91 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(UID in uniq)
         self.failUnless(UID2 in uniq)
 
+    def test_setUID_keeps_relationships(self):
+        obj_id   = 'demodoc'
+        known_id = 'known_doc'
+        owned_id = 'owned_doc'
+
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=obj_id)
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=known_id)
+        c = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=owned_id)
+
+        #Two made up kinda refs
+        a.addReference(b, "KnowsAbout")
+        b.addReference(a, "KnowsAbout")
+        a.addReference(c, "Owns")
+
+        refs = a.getRefs()
+        assert b in refs
+        assert c in refs
+        assert a.getRefs('KnowsAbout') == [b]
+        assert b.getRefs('KnowsAbout') == [a]
+        assert a.getRefs('Owns') == [c]
+        assert c.getBRefs('Owns')== [a]
+
+        old_uid = a.UID()
+
+        # Check existing forward refs
+        fw_refs = a.getReferenceImpl()
+        old_refs = []
+        [old_refs.append(o.sourceUID) for o in fw_refs
+         if not o.sourceUID in old_refs]
+        self.assertEquals(len(old_refs), 1)
+        self.assertEquals(old_refs[0], old_uid)
+
+        # Check existing backward refs
+        fw_refs = a.getBackReferenceImpl()
+        old_refs = []
+        [old_refs.append(o.targetUID) for o in fw_refs
+         if not o.targetUID in old_refs]
+        self.assertEquals(len(old_refs), 1)
+        self.assertEquals(old_refs[0], old_uid)
+
+        new_uid = '9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9'
+        a._setUID(new_uid)
+        self.assertEquals(a.UID(), new_uid)
+
+        # Check existing forward refs got reassigned
+        fw_refs = a.getReferenceImpl()
+        new_refs = []
+        [new_refs.append(o.sourceUID) for o in fw_refs
+         if not o.sourceUID in new_refs]
+        self.assertEquals(len(new_refs), 1)
+        self.assertEquals(new_refs[0], new_uid)
+
+        # Check existing backward refs got reassigned
+        fw_refs = a.getBackReferenceImpl()
+        new_refs = []
+        [new_refs.append(o.targetUID) for o in fw_refs
+         if not o.targetUID in new_refs]
+        self.assertEquals(len(new_refs), 1)
+        self.assertEquals(new_refs[0], new_uid)
+
+        refs = a.getRefs()
+        assert b in refs
+        assert c in refs
+        assert a.getRefs('KnowsAbout') == [b]
+        assert b.getRefs('KnowsAbout') == [a]
+        assert a.getRefs('Owns') == [c]
+        assert c.getBRefs('Owns')== [a]
+
+        self.verifyBrains()
+
     def test_relationships(self):
 
         obj_id   = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
 
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id=obj_id)
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id=known_id)
-        c = makeContent( self.folder, portal_type='DDocument',title='Foo', id=owned_id)
+        a = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=obj_id)
+        b = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=known_id)
+        c = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=owned_id)
 
         #Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -104,11 +256,17 @@ class ReferenceableTests(ArcheSiteTestCase):
         future_payment_id = 'cta_receber'
         payment2_id = 'quitacao'
 
-        account = makeContent( self.folder, portal_type='DDocument',title='Account', id=account_id)
-        invoice = makeContent( self.folder, portal_type='DDocument',title='Invoice', id=invoice_id)
-        payment = makeContent( self.folder, portal_type='DDocument',title='Payment', id=payment_id)
-        future_payment = makeContent( self.folder, portal_type='DDocument',title='Future Payment', id=future_payment_id)
-        payment2 = makeContent( self.folder, portal_type='DDocument',title='Payment 2', id=payment2_id)
+        account = makeContent( self.folder, portal_type='DDocument',
+                               title='Account', id=account_id)
+        invoice = makeContent( self.folder, portal_type='DDocument',
+                               title='Invoice', id=invoice_id)
+        payment = makeContent( self.folder, portal_type='DDocument',
+                               title='Payment', id=payment_id)
+        future_payment = makeContent( self.folder, portal_type='DDocument',
+                                      title='Future Payment',
+                                      id=future_payment_id)
+        payment2 = makeContent( self.folder, portal_type='DDocument',
+                                title='Payment 2', id=payment2_id)
 
         invoice.addReference(payment, "Owns")
         invoice.addReference(future_payment, "Owns")
@@ -186,6 +344,21 @@ class ReferenceableTests(ArcheSiteTestCase):
 
         #XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
+
+    def test_graph(self):
+        if HAS_GRAPHVIZ:
+            # This just asserts that nothing went wrong
+            a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+            b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+            c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
+
+            #Two made up kinda refs
+            a.addReference(b, "KnowsAbout")
+            c.addReference(a, "Owns")
+            assert a.getReferenceMap()
+            assert a.getReferencePng()
+
+
     def test_folderishDeleteCleanup(self):
         self.folder.invokeFactory(type_name="Folder", id="reftest")
         folder = getattr(self.folder, "reftest")
@@ -222,9 +395,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         doc = makeContent(self.folder,
                           portal_type='DDocument',
                           id='demodoc')
-        doc.setTitle('sometitle')
-        doc.update() # reindex
-        
+        doc.update(title="sometitle")
         brain = catalog(UID=doc.UID())[0]
         self.assertEquals(brain.Title, doc.Title())
 
@@ -242,21 +413,110 @@ class ReferenceableTests(ArcheSiteTestCase):
         c.addReference(ref)
         ref.addReference(c)
         self.verifyBrains()
-        
-    def verifyBrains(self):
-        uc = getattr(self.portal, UID_CATALOG)
-        rc = getattr(self.portal, REFERENCE_CATALOG)
 
-        #Verify all UIDs resolve
-        brains = uc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad uid resolution""")
+    def test_referenceFieldVocab(self):
+        dummy = makeContent(self.folder, portal_type="Refnode", id="dummy")
+        test123 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test123")
+        test124 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test124")
+        test125 = makeContent(self.folder, portal_type="Refnode",
+                              id="Test125")
 
-        #Verify all references resolve
-        brains = rc()
-        objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad ref catalog resolution""")
+        expected = DisplayList([
+            (test123.UID(), test123.getId()),
+            (test124.UID(), test124.getId()),
+            (test125.UID(), test125.getId()),
+            (dummy.UID(), dummy.getId()),
+            ])
+        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
 
+        # We should have the option of nothing
+        dummy.Schema()['adds'].required = 0
+        dummy.Schema()['adds'].multiValued = 0
+
+        expected = DisplayList([
+            ('', '<no reference>'),
+            (test123.UID(), test123.getId()),
+            (test124.UID(), test124.getId()),
+            (test125.UID(), test125.getId()),
+            (dummy.UID(), dummy.getId()),
+            ])
+        assert dummy.Schema()['adds'].Vocabulary(dummy) == expected
+
+    def test_noReferenceAfterDelete(self):
+        # Deleting target should delete reference
+        # added by GL
+        a = makeContent(self.folder, portal_type='DDocument', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        self.folder._delObject('b')
+
+        self.failUnlessEqual(a.getRefs(), [])
+
+    def test_noBackReferenceAfterDelete(self):
+        # Deleting source should delete back reference
+        # added by GL
+        a = makeContent(self.folder, portal_type='DDocument', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        self.folder._delObject('a')
+
+        self.failUnlessEqual(b.getBRefs(), [])
+
+    def test_copyPasteSupport(self):
+        # copy/paste behaviour test
+        # in another folder, pasted object should lose all references
+        # added by GL (for bug #985393)
+        org_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Destination folder',
+                                 id='dst_folder')
+        a = makeContent(org_folder, portal_type='DDocument', id='a')
+        b = makeContent(org_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+
+        cb = org_folder.manage_copyObjects(ids=['a'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_a = getattr(dst_folder, 'a')
+
+        # The copy should'nt have references
+        self.failUnlessEqual(copy_a.getRefs(), [])
+        self.failIf(copy_a in b.getBRefs())
+
+        # Original object should keep references
+        self.failUnlessEqual(a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [a])
+
+    def test_cutPasteSupport(self):
+        # cut/paste behaviour test
+        # in another folder, pasted object should keep the references
+        # added by GL (for bug #985393)
+        org_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type='SimpleFolder',
+                                 title='Destination folder',
+                                 id='dst_folder')
+        a = makeContent(org_folder, portal_type='DDocument', id='a')
+        b = makeContent(org_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+        get_transaction().commit(1)
+        cb = org_folder.manage_cutObjects(ids=['a'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_a = getattr(dst_folder, 'a')
+
+        self.failUnlessEqual(copy_a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [copy_a])
 
 def test_suite():
     from unittest import TestSuite, makeSuite

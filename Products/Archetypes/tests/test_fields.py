@@ -18,17 +18,6 @@ from Products.Archetypes.Field import ScalableImage, Image
 from OFS.Image import File, Image
 from DateTime import DateTime
 
-from test_classgen import Dummy as BaseDummy
-
-try:
-    __file__
-except NameError:
-    # Test was called directly, so no __file__ global exists.
-    _prefix = abspath(curdir)
-else:
-    # Test was called by another test.
-    _prefix = abspath(dirname(__file__))
-
 fields = ['ObjectField', 'StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
@@ -37,12 +26,12 @@ fields = ['ObjectField', 'StringField',
           ]
 
 field_instances = []
-for f in fields:
-    field_instances.append(getattr(Field, f)(f.lower()))
+for name in fields:
+    field_instances.append(getattr(Field, name)(name.lower()))
 
-txt_file = open(join(_prefix, 'input', 'rest1.rst'))
+txt_file = open(join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
-img_file = open(join(_prefix, 'input', 'tool.gif'))
+img_file = open(join(PACKAGE_HOME, 'input', 'tool.gif'))
 img_content = img_file.read()
 
 field_values = {'objectfield':'objectfield',
@@ -68,8 +57,8 @@ expected_values = {'objectfield':'objectfield',
                    'floatfield': 1.5,
                    'fixedpointfield': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
-                   'photofield':'<img src="photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
+                   'imagefield':'<img src="portal/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />', # this only works for Plone b/c of monkeypatch
+                   'photofield':'<img src="portal/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />'}
 
 empty_values = {'objectfield':None,
                    'stringfield':'',
@@ -89,9 +78,9 @@ if not ZOPE_LINES_IS_TUPLE_TYPE:
     expected_values['linesfield'] = list(expected_values['linesfield'])
 
 
-schema = Schema(tuple(field_instances))# + BaseDummy.schema.copy()
+schema = Schema(tuple(field_instances))
 
-class Dummy(BaseDummy):
+class Dummy(BaseContentMixin):
     schema = schema
     def Title(self): return 'Spam' # required for ImageField
 
@@ -104,19 +93,22 @@ class FakeRequest:
         self.form = {}
 
 
-class ProcessingTest(ArchetypesTestCase):
+class ProcessingTest(ArcheSiteTestCase):
 
     def afterSetUp(self):
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         txt_file.seek(0)
         img_file.seek(0)
-        self.makeDummy()
 
     def makeDummy(self):
-        self._dummy = Dummy(oid='dummy')
-        self._dummy.initializeArchetype()
-        return self._dummy
+        portal = self.getPortal()
+        dummy = Dummy(oid='dummy')
+        dummy.initializeArchetype()
+        dummy = dummy.__of__(portal)
+        portal.dummy = dummy
+        self._dummy = dummy
+        return dummy
 
     def test_processing(self):
         dummy = self.makeDummy()
@@ -125,7 +117,7 @@ class ProcessingTest(ArchetypesTestCase):
         dummy.REQUEST = request
         dummy.processForm(data=1)
         for k, v in expected_values.items():
-            got = dummy.Schema()[k].get(dummy)
+            got = dummy.getField(k).get(dummy)
             if isinstance(got, File):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
@@ -160,11 +152,26 @@ class ProcessingTest(ArchetypesTestCase):
         dummy.REQUEST = request
         dummy.processForm()
         for k, v in expected_values.items():
-            got = dummy.Schema()[k].get(dummy)
+            got = dummy.getField(k).get(dummy)
             if isinstance(got, (File, ScalableImage, Image)):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
+
+    def test_get_size(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        dummy.processForm()
+        size = 0
+        for k, v in expected_values.items():
+            field = dummy.getField(k)
+            s = field.get_size(dummy)
+            size+=s
+            self.failUnless(s, 'got: %s, field: %s' % (s, k))
+        self.failUnlessEqual(size, dummy.get_size())
 
     def test_validation(self):
         dummy = self.makeDummy()

@@ -29,7 +29,6 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.Validators import DateValidator
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.public import registerType
 
@@ -181,7 +180,6 @@ testInstances = [
     (BC('test'), ()),
     (BF('test'), ()),
     (OBF('test'), ()),
-    (DateValidator('isValidDate'), ()),
 ]
 
 for testClass in testClasses:

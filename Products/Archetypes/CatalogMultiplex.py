@@ -1,10 +1,13 @@
 from Products.Archetypes.config import *
 
+from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.CMFCorePermissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
+from Referenceable import Referenceable
+from Globals import InitializeClass
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -20,6 +23,9 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.catalog_object(self, self.__url())
 
+        self._catalogUID(self)
+        self._catalogRefs(self)
+
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         at = getToolByName(self, TOOL_NAME)
@@ -30,7 +36,7 @@ class CatalogMultiplex(CMFCatalogAware):
         # Specially control reindexing to UID catalog
         # the pathing makes this needed
         self._uncatalogUID(self)
-
+        self._uncatalogRefs(self)
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
@@ -53,20 +59,20 @@ class CatalogMultiplex(CMFCatalogAware):
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, self.__url(), idxs=lst)
 
-        # Specially control reindexing to UID catalog
-        # the pathing makes this needed
         self._catalogUID(self)
+        self._catalogRefs(self)
+
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        CMFCatalogAware.manage_afterAdd(self, item, container)
         self.indexObject()
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        CMFCatalogAware.manage_afterClone(self, item)
         self.reindexObject()
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.unindexObject()
+
+InitializeClass(CatalogMultiplex)

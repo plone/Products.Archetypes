@@ -6,7 +6,7 @@ from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base, aq_inner, aq_parent
+from Acquisition import aq_base
 from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
 
@@ -104,11 +104,11 @@ class SQLStorageConfig (SimpleItem):
     def getDefaultConnFor(self, ob):
         """ Return the default conn, if applicable, for ob.
         """
+    
         types_tool = getToolByName( self, 'portal_types', None )
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
             return self._default_conn
-
         return None
 
     security.declareProtected( ManagePortal, 'getConfigurableTypes')

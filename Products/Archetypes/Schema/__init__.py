@@ -1,38 +1,27 @@
 from __future__ import nested_scopes
-from types import ListType, TupleType, ClassType, FileType
+from types import ListType, TupleType
 
-from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.Storage import AttributeStorage, MetadataStorage
+from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.interfaces.field import IField, IObjectField, \
-     IImageField
+from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
 from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
-from Products.Archetypes.exceptions import ObjectFieldException
-from Products.Archetypes.utils import capitalize, DisplayList, \
-     OrderedDict, mapply
-from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import OrderedDict, mapply
+from Products.Archetypes.debug import log
 
-from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
-from DateTime import DateTime
+from Acquisition import aq_base, Explicit
 from Globals import InitializeClass
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
-from ZPublisher.HTTPRequest import FileUpload
 
 __docformat__ = 'reStructuredText'
 
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""
-
     return [f.getName() for f in schema.fields()]
-
 
 def getSchemata(obj):
     """Returns an ordered dictionary, which maps all Schemata names to fields
@@ -41,12 +30,11 @@ def getSchemata(obj):
     schema = obj.Schema()
     schemata = OrderedDict()
     for f in schema.fields():
-        sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+        sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
         sub.addField(f)
-        schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+        schemata[f.schemata] = sub.__of__(obj)
 
     return schemata
-
 
 class Schemata:
     """Manage a list of fields by grouping them together.
@@ -57,7 +45,7 @@ class Schemata:
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = (ISchemata,)
+    __implements__ = ISchemata
 
     def __init__(self, name='default', fields=None):
         """Initialize Schemata and add optional fields."""
@@ -175,6 +163,7 @@ class Schemata:
                               'addField')
     def addField(self, field):
         """Adds a given field to my dictionary of fields."""
+        field = aq_base(field)
         if IField.isImplementedBy(field):
             name = field.getName()
             if name not in self._names:
@@ -222,6 +211,7 @@ class Schemata:
 
         return [f.getName() for f in self.fields() if f.searchable]
 
+class WrappedSchemata(Schemata, Explicit): pass
 
 class SchemaLayerContainer(DefaultLayerContainer):
     """Some layer management for schemas"""
@@ -325,7 +315,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
 class BasicSchema(Schemata):
     """Manage a list of fields and run methods over them."""
 
-    __implements__ = (ISchema)
+    __implements__ = ISchema
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -391,25 +381,22 @@ class BasicSchema(Schemata):
         """
         ## XXX think about layout/vs dyn defaults
         for field in self.values():
-            if field.getName().lower() != 'id':
-                # always set defaults on writable fields
-                mutator = field.getMutator(instance)
-                if mutator is None:
-                    continue
-                #if not hasattr(aq_base(instance), field.getName()) and \
-                #   getattr(instance, field.getName(), None):
-                default = field.default
-                if field.default_method:
-                    method = getattr(instance, field.default_method, None)
-                    if method:
-                        default = method()
-                args = (default,)
-                kw = {'field': field.__name__}
-                if hasattr(field, 'default_content_type'):
-                    # specify a mimetype if the mutator takes a
-                    # mimetype argument
-                    kw['mimetype'] = field.default_content_type
-                mapply(mutator, *args, **kw)
+            if field.getName().lower() == 'id': continue
+            if field.type == "reference": continue
+
+            # always set defaults on writable fields
+            mutator = field.getMutator(instance)
+            if mutator is None:
+                continue
+            default = field.getDefault(instance)
+
+            args = (default,)
+            kw = {'field': field.__name__}
+            if hasattr(field, 'default_content_type'):
+                # specify a mimetype if the mutator takes a
+                # mimetype argument
+                kw['mimetype'] = field.default_content_type
+            mapply(mutator, *args, **kw)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'updateAll')
@@ -571,7 +558,7 @@ class BasicSchema(Schemata):
 
 class Schema(BasicSchema, SchemaLayerContainer):
 
-    __implements__ = (ILayerRuntime, ILayerContainer, ISchema)
+    __implements__ = ILayerRuntime, ILayerContainer, ISchema
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -600,10 +587,12 @@ class Schema(BasicSchema, SchemaLayerContainer):
         return c
 
     security.declareProtected(CMFCorePermissions.View, 'copy')
-    def copy(self):
+    def copy(self, factory=None):
         """Returns a deep copy of this Schema.
         """
-        c = Schema()
+        if factory is None:
+            factory = self.__class__
+        c = factory()
         for field in self.fields():
             c.addField(field.copy())
         # Need to be smarter when joining layers
@@ -614,12 +603,19 @@ class Schema(BasicSchema, SchemaLayerContainer):
             c.registerLayer(k, v)
         return c
 
+    security.declareProtected(CMFCorePermissions.View, 'wrapped')
+    def wrapped(self, parent):
+        schema = self.copy(factory=WrappedSchema)
+        return schema.__of__(parent)
+
+class WrappedSchema(Schema, Explicit): pass
+
 class ManagedSchema(Schema):
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = (IManagedSchema, ) + Schema.__implements__
+    __implements__ = IManagedSchema, Schema.__implements__
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'delSchemata')

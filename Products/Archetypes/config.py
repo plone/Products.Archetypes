@@ -1,3 +1,5 @@
+from Products.PortalTransforms.libtransforms import utils as transform_utils
+
 PKG_NAME = "Archetypes"
 SKIN_NAME = "archetypes"
 TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
@@ -23,3 +25,23 @@ USE_OLD_ORDEREDFOLDER_IMPLEMENTATION = 0
 ## can disable the change.
 ## See http://zope.org/Collectors/Zope/924
 ZOPE_LINES_IS_TUPLE_TYPE = 1
+
+## MYSQL SQLStorage Table Type
+## To use connections with ACID transactions you should define it as
+## INNODB. The MySQL default table type is MyISAM.
+MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
+
+## Debug security settings of Fields, Widgets and Storages?
+DEBUG_SECURITY=False
+#DEBUG_SECURITY=True
+
+## If you have graphviz http://www.research.att.com/sw/tools/graphviz/
+## and its frontend "dot" installed on your system set this to True
+try:
+    GRAPHVIZ_BINARY = transform_utils.bin_search('dotxx')
+except transform_utils.MissingBinary:
+    # graphviz not found
+    GRAPHVIZ_BINARY = None
+    HAS_GRAPHVIZ = False
+else:
+    HAS_GRAPHVIZ = True
