@@ -125,6 +125,18 @@
    [tiran, alecacct]
 
  * Fixed [ 1018821 ] _processInput in Field.py should rewind
+   [batlogg]
+
+ * Part fix of bug #1013363 (renaming of folders nukes all references to AT 
+   objects inside them): 
+   It works now for AT folders, but renaming of non-AT folders stil breaks refs
+   to their contained items so ATContentTypes based portals should be fine now
+   (except you rename the portal itself)
+   [zworkb]
+
+ * Added monkey patch for CMFCatalogAware, PortalContent and PortalFolder to
+   fix the second part of bug #1013363
+   [tiran]
 
 1.3.0-rc1 - 2004-08-16
 ======================

@@ -2,10 +2,12 @@ import sys
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
+import Products.Archetypes.public
+import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
 from zLOG import LOG, PROBLEM
