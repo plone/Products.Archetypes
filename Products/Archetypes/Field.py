@@ -1148,7 +1148,7 @@ class ReferenceField(ObjectField):
 
         'relationship' : None, # required
         'allowed_types' : (),  # a tuple of portal types, empty means allow all
-
+        'allowed_types_method' :None,
         'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
                                             # display path as well
         'vocabulary_custom_label': None, # e.g. "b.getObject().title_or_id()".
@@ -1250,8 +1250,14 @@ class ReferenceField(ObjectField):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
         uc = getToolByName(content_instance, config.UID_CATALOG)
+        
+        allowed_types=self.allowed_types
+        allowed_types_method=getattr(self,'allowed_types_method',None)
+        if allowed_types_method:
+            meth=getattr(content_instance,allowed_types_method)
+            allowed_types=meth(self)
 
-        skw = self.allowed_types and {'portal_type':self.allowed_types} or {}
+        skw = allowed_types and {'portal_type':allowed_types} or {}
         brains = uc.searchResults(**skw)
 
         if self.vocabulary_custom_label is not None:
