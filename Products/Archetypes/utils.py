@@ -16,7 +16,7 @@ from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import _verifyActionPermissions, getToolByName
 
 try:
-    _v_network = socket.gethostbyname(socket.gethostbyname())
+    _v_network = socket.gethostbyname(socket.gethostname())
 except:
     _v_network = random.random() * 100000000000000000L
 
