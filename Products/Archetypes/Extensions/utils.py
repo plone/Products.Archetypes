@@ -149,13 +149,19 @@ def install_referenceCatalog(self, out, rebuild=False):
         catalog.manage_rebuildCatalog()
 
 def install_templates(self, out):
-    at = self.archetype_tool
-    at.registerTemplate('base_view')
+    at = getToolByName(self, 'archetype_tool')
+    at.registerTemplate('base_view', 'Base View')
+    
+    # fix name of base_view
+    #rt = at._registeredTemplates
+    #if 'base_view' not in rt.keys() or rt['base_view'] == 'base_view':
+    #    at.registerTemplate(base_view)
 
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
-    at = self.archetype_tool
+    at = getToolByName(self, 'archetype_tool')
+    
     for t in types:
         klass = t['klass']
         if ITemplateMixin.isImplementedByInstancesOf(klass):
@@ -218,7 +224,7 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s (%s)" % (package_name, type.portal_type, type.meta_type)
+        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
 
         typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
                                                 id=type.portal_type,
@@ -369,7 +375,7 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
-        typeinfo_name="%s: %s (%s)" % (package_name, t.portal_type, t.meta_type)
+        typeinfo_name="%s: %s" % (package_name, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:
