@@ -247,7 +247,7 @@ class Field(DefaultLayerContainer):
                 return res
 
         # all ok 
-        return True
+        return None
 
     def validate_validators(self, value, instance, errors, **kwargs):
         """
