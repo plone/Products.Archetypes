@@ -258,6 +258,7 @@ class ReferenceWidget(TypesWidget):
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
+                    place = getattr(instance, destination)
                     place = place()
                 if isinstance(place, ListType):
                     options[typeid] = place
@@ -279,6 +280,7 @@ class ReferenceWidget(TypesWidget):
                 else:
                     place = getattr(aq_base(instance), destination, destination)
                     if callable(place):
+                        place = getattr(instance, destination)
                         place = place()
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
