@@ -17,6 +17,8 @@ TemplateMixinSchema = Schema((
                 write_permission=CMFCorePermissions.ModifyPortalContent,
                 default_method="getDefaultLayout",
                 vocabulary="_voc_templates",
+                # we can't use enforce because we may use the view name from the
+                # type information
                 #enforceVocabulary=1,
                 widget=SelectionWidget(description="Choose a template that will be used for viewing this item.",
                                        description_msgid = "help_template_mixin",
@@ -50,12 +52,15 @@ class TemplateMixin(Base):
         'gethtml': 'source_html',
         }
 
-    default_view = 'base_view'
+    # if default_view is None TemplateMixin is using the immediate_view from
+    # the type information
+    default_view = None
     suppl_views = ()
 
     security = ClassSecurityInfo()
 
     index_html = None # setting index_html to None forces the usage of __call__
+
     def __call__(self):
         """return a view based on layout"""
         v = getTemplateFor(self, self.getLayout())
