@@ -201,11 +201,25 @@ class Field(DefaultLayerContainer):
         if res is not None:
             return res
 
-        for v in self.validators:
-            res = validation.validate(v, value, instance=instance,
-                                      errors=errors, **kwargs)
-            if res != 1:
-                return res
+        isEmpty = 0
+        if not self.required:
+            if type(value) in STRING_TYPES:
+                isEmpty = not value.strip()
+            else:
+                isEmpty = not value
+        
+        if not self.required and isEmpty:
+            # Don't check the value using the validators if the value is not
+            # required and if it's empty
+            # else it break because an empty email address doesn't validate but
+            # the email address isn't required
+            pass
+        else:
+            for v in self.validators:
+                res = validation.validate(v, value, instance=instance,
+                                          errors=errors, **kwargs)
+                if res != 1:
+                    return res
 
     def validate_required(self, instance, value, errors):
         if not value:
