@@ -1,4 +1,5 @@
 from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
 from ExtensionClass import Base
 from Products.CMFCore  import CMFCorePermissions
 from Schema import Schema
@@ -70,8 +71,14 @@ class I18NMixin(Base):
 
     def __init__(self):
         self._translations_states = PersistentMapping()
-        # we need to delete title property so we can still use property sheet from the ZMI
-        self.manage_delProperties(('title',))
+        
+##     security.declarePrivate('manage_afterAdd')
+##     def manage_afterAdd(self, item, container):
+##         # we need to delete title property so we can still use property sheet from the ZMI
+##         try:
+##             aq_base(self).manage_delProperties(('title',))
+##         except KeyError:
+##             pass
         
     # we need to override some Dublin Core methods to make them works cleanly i18nized
     
