@@ -37,7 +37,11 @@ if (not state.kwargs.get('reference_source_url') and
 fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference['field']]
+
 destination = field.widget.getDestination(context)
+if hasattr(add_reference, 'destination'):
+    destination = add_reference.destination
+
 mutator = field.getMutator(context)
 accessor = field.getAccessor(context)
 

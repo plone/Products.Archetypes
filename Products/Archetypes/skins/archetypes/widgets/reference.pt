@@ -6,77 +6,141 @@
   <head><title></title></head>
   <body>
 
-    <!-- Reference Widgets -->
     <metal:view_macro define-macro="view">
-      <a href="#"
-	 tal:define="obj python:here.archetype_tool.lookupObject(uid = accessor());"
-	 tal:attributes="href obj/absolute_url"
-	 tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-      tal:condition="python:not field.multiValued and obj is not None"></a>
-      <tal:block tal:condition="python:field.multiValued"
-		 tal:repeat="obj python:[here.archetype_tool.lookupObject(uid = uid) for uid in (accessor() or [])]">
-	<a href="#"
-	   tal:attributes="href obj/absolute_url"
-	   tal:content="python:obj.Title() or obj.absolute_url(relative=1)"
-	tal:condition="python:obj is not None"></a>
-      </tal:block>
+      <tal:define define="targets python:here.getRefs(field.relationship)"
+                  condition="targets">
+
+        <a href="#"
+           tal:define="obj python:targets[0]"
+           tal:condition="not:field/multiValued"
+           tal:attributes="href obj/absolute_url"
+           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+          Sole target object's title
+        </a>
+
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="obj targets">
+            <a href="#"
+	       tal:attributes="href obj/absolute_url"
+	       tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Target Title
+            </a>
+          </li>
+        </ul>
+
+      </tal:define>
     </metal:view_macro>
 
-    <div metal:define-macro="edit">
-      <div metal:use-macro="field_macro | here/widgets/field/macros/edit">
-	<div metal:fill-slot="widget_body"
-	     tal:define="vocab python:field.Vocabulary(here);
-	     fieldName python:test(field.multiValued,fieldName+':list',fieldName);
-	     vlen python: len(vocab);">
-	  <input type="hidden"
-		 value=""
-		 tal:condition="python: (not field.required) and field.multiValued"
-		 tal:attributes="name string:$fieldName:default:list" />
-	  <div tal:condition="python: vlen &lt; 4">
-	    <!-- Radio when the vocab is short < 4 -->
-	    <span tal:repeat="item vocab"
-		  tal:omit-tag="">
-	      <input class="noborder"
-		     tabindex=""
-		     type="radio"
-		     tal:attributes="name fieldName;
-		     checked python: field.containsValueAsString(item,value);
-		     value item; tabindex tabindex/next;
-		     type python:test(field.multiValued,'checkbox','radio');" />
-	      <span tal:content="python: vocab.getValue(item)"></span>&#160;
-	    </span>
-	  </div><!-- Pulldown when longer -->
-	  <div tal:condition="python: vlen &gt;= 4">
-	    <select tal:attributes="name fieldName;
-		    id fieldName;
-		    multiple python:test(field.multiValued,'multiple','');
-		    tabindex tabindex/next;">
-	      <option selected="selected"
-		      tal:repeat="item vocab"
-		      tal:attributes="selected python:test(field.containsValueAsString(item,value), 'selected', None);
-		      value item;"
-	      tal:content="python: vocab.getValue(item)"></option>
-	    </select>
-	  </div><!-- handle "addable" option -->
-	  <div tal:condition="field/addable|nothing">
-	    <span tal:repeat="addable field/allowed_types"
-		  tal:omit-tag="">
-	      <a href="#"
-		 tal:define="create string:createObject?type_name=${addable};
-		 dest python:test(field.destination, '%s%s' % (portal_url, field.destination), container.absolute_url())"
-		 tal:attributes="href string:${dest}/${create}"
-		 tal:content="string:Add New ${addable}">
-		Add new foo
-	      </a>
-	    </span>
-	  </div>
-	</div>
-      </div>
-    </div>
+    <metal:edit_macro define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 
-    <div metal:define-macro="search">
+        <div metal:fill-slot="widget_body"
+             tal:define="multiVal field/multiValued;
+             vocab python:field.Vocabulary(here);
+             fieldName python:multiVal and fieldName+':list' or fieldName;
+             vlen python:len(vocab);">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="python:not field.required and multiVal"
+                 tal:attributes="name string:$fieldName:default:list" />
+
+          <div tal:condition="python:vlen < 5">
+            <!-- checkbox or radio for short vocabs -->
+            <span tal:repeat="item vocab"
+                  tal:omit-tag="">
+              <input class="noborder"
+                     tabindex=""
+                     type="radio"
+                     tal:attributes="name fieldName;
+                     checked python:test(value and multiVal and item in value or item==value, value, '');
+                     tabindex tabindex/next; value item;
+                     type python:multiVal and 'checkbox' or 'radio'" />
+              <span tal:content="python: vocab.getValue(item)"></span>
+
+              <br/>
+            </span>
+          </div>
+
+          <div tal:condition="python:vlen &gt; 4">
+            <!-- pulldown for longer vocabs -->
+            <select tal:attributes="name fieldName;
+                    id fieldName;
+                    multiple python:multiVal and 'multiple' or None;
+                    tabindex tabindex/next;">
+
+              <option selected="selected"
+                      tal:repeat="item vocab"
+                      tal:attributes="value item;
+                      selected python:test(value and multiVal and item in value or item==value, 'selected', '')"
+                      tal:content="python:vocab.getValue(item)"></option>
+	    </select>
+          </div>
+
+          <div tal:condition="python:widget.addable"
+            tal:define="types python:widget.addableTypes(here, field)">
+
+            <a tal:attributes="id string:${field/getName}_link;
+                onclick string:${field/getName}_show()"
+                style="cursor:pointer"
+                tal:content="string:Add New ${widget/label}">add new</a>
+
+            <div tal:attributes="id string:${field/getName}_fieldset"
+                style="display:none">
+              <a tal:attributes="onclick string:${field/getName}_hide()"
+                    style="cursor:pointer">hide add form</a>
+              <fieldset>
+                <legend>add new</legend>
+                <div class="field">
+                  <label>What</label>
+                  <div class="formHelp">Select what content type you wish create.</div>
+                  <div>
+                    <select tal:define="id string:${field/getName}_types"
+                      tal:attributes="id id;
+                        tabindex tabindex/next;
+                        onchange string:${field/getName}_update(this)" >
+                      <option tal:repeat="type types"
+                        tal:attributes="value type/id"
+                        tal:content="type/name" />
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Where</label>
+                  <div class="formHelp">Select where you want to create that.</div>
+                  <div>
+                    <select name="add_reference.destination:record"
+                      tal:attributes="id string:${field/getName}_destinations;
+                      tabindex tabindex/next"></select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label></label>
+                  <div class="formHelp"></div>
+                  <div>
+                    <input class="context"
+                      tabindex=""
+                      type="submit"
+                      name="form.button.form_add"
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;alert(this.form['add_reference.field:record'].value);;this.form['add_reference.type:record'].value=document.getElementById('${field/getName}_types').options[document.getElementById('${field/getName}_types').selectedIndex].value;;alert(this.form['add_reference.type:record'].value);;this.form['add_info.field:record'].value='';
+                        tabindex tabindex/next;"
+                      i18n:attributes="value"
+                      value="Add"
+                      />
+                  </div>
+                </div>
+              </fieldset>
+              <script tal:content="structure here/reference_js" />
+            </div>
+          </div>
+        </div>
+      </metal:use>
+    </metal:edit_macro>
+
+    <metal:search_macro define-macro="search">
       <div metal:use-macro="here/widgets/reference/macros/edit"></div>
-    </div>
+    </metal:search_macro>
 
   </body>
 </html>
