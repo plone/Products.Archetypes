@@ -36,6 +36,11 @@ class ReferenceEngine(Base):
         return brefs
 
     def addReference(self, object, target, relationship=None):
+        """The beforeAddReference hook will be called on the target with
+        the object attempting to add the reference. An exception will
+        prevent the references from being added.
+        """
+
         if type(object) != StringType:
             oid = object.UID()
         else:
@@ -48,6 +53,14 @@ class ReferenceEngine(Base):
 
         refs = self.refs.get(oid, [])
 
+        
+        add_hook = getattr(target, 'beforeAddReference', None)
+        if add_hook and callable(add_hook):
+            try:
+                add_hook(object)
+            except:
+                return
+            
         if tid not in refs:
             self._addRef(oid, tid, refs=refs, relationship=relationship)
             self._addBref(oid, tid, relationship=relationship)
@@ -124,7 +137,11 @@ class ReferenceEngine(Base):
 
 
     def deleteReference(self, object, target):
-        """Remove a single ref/backref pair from an object"""
+        """Remove a single ref/backref pair from an object, the
+        beforeDeleteReference hook will be called on the target, an
+        exception will prevent the reference from being deleted
+        """
+
         if type(object) != StringType:
             oid = object.UID()
         else:
@@ -134,6 +151,14 @@ class ReferenceEngine(Base):
             tid = target.UID()
         else:
             tid = target
+
+        del_hook = getattr(target, 'beforeDeleteReference', None)
+        if del_hook and callable(del_hook):
+            try:
+                del_hook(object)
+            except:
+                return
+
 
         self._delRef(oid, tid)
         self._delBref(tid, oid)
