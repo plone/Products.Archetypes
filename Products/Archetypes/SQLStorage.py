@@ -147,6 +147,8 @@ class BaseSQLStorage(StorageLayer):
             log('created table %s\n' % args['table'])
         try:
             self._query(instance, self.query_insert, args)
+        except ConflictError:
+            raise
         except:
             # usually, duplicate key
             # raise SQLInitException(msg)
@@ -240,6 +242,8 @@ class BaseSQLStorage(StorageLayer):
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
             query, result = method(test__=1, **args)
+        except ConflictError:
+            raise
         except:
             # dunno what could happen here raise
             # SQLCleanupException(msg)
@@ -342,6 +346,8 @@ class GadflySQLStorage(BaseSQLStorage):
             self._query(instance,
                         'select * from <dtml-var table>',
                         {'table': instance.portal_type.lower()})
+        except ConflictError:
+            raise
         except:
             return 0
         else:

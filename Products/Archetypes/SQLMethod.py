@@ -6,6 +6,7 @@ from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
 import sys, types
+from ZODB.POSException import ConflictError
 
 try:
     from IOBTree import Bucket
@@ -153,6 +154,8 @@ class SQLMethod(Aqueduct.BaseQuery):
 
         try:
             DB__ = dbc()
+        except ConflictError:
+            raise
         except:
             raise 'Database Error', (
             '%s is not connected to a database' % self.id)
@@ -217,6 +220,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         else:
             try:
                 result = DB__.query(query, context.max_rows_)
+            except ConflictError:
+                raise
             except:
                 log_exc(msg='Database query failed', reraise=1)
 
@@ -273,6 +278,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         dbc, DB__ = self._get_dbc()
         try:
             DB__.tpc_abort()
+        except ConflictError:
+            raise
         except:
             log_exc(msg = 'Database abort failed')
 
