@@ -119,7 +119,10 @@ class Referenceable(Base):
         """
         uc = getToolByName(self, config.UID_CATALOG)
 
-        setattr(self, config.UUID_ATTR, None)
+        if not hasattr(self,config.UUID_ATTR) or len(uc(UID=self.UID())):
+            #if the object has no UID or the UID already exists, get a new one
+            setattr(self, config.UUID_ATTR, None)
+
         self._register()
         # the UID index needs to be updated for any annotations we
         # carry
