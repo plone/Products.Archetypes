@@ -18,7 +18,7 @@ from Schema import Schema, Schemata
 from Field import StringField, TextField
 from Widget import IdWidget, StringWidget
 from utils import DisplayList
-from interfaces.base import IBaseObject
+from interfaces.base import IBaseObject, IBaseUnit
 from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
@@ -335,13 +335,13 @@ class BaseObject(Implicit):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
         for name in self.Schema().keys():
-            field = getattr(self, name, None)
-            if hasattr(field, "isUnit"):
+            value = self[name]
+            if IBaseUnit.isImplementedBy(value):
                 size += field.get_size()
             else:
                 try:
                     size += len(field)
-                except:
+                except TypeError:
                     pass
 
         return size

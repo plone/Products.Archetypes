@@ -1,3 +1,8 @@
+2003-11-05  Sidnei da Silva  <sidnei@plone.org>
+
+	* BaseObject.py (BaseObject.get_size): Fix for when the value is
+	a BaseUnit. Also, use the 'standard' way to get the raw value.
+
 2003-11-05  Sylvain Thénault  <syt@logilab.fr>
 	* Extensions/utils.py
 	extends fields'index attribute syntax to support extra
