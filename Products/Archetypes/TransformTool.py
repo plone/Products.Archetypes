@@ -29,13 +29,14 @@ _www = os.path.join(os.path.dirname(__file__), 'www')
 
 """ TODO:
 
-  _ required transforms configuration
+  _ required transforms configuration (policy)
   _ user interface for chain construction
-  _ use Schema for transform configuration ? that maybe nice but may be a weird
+  _ use Schema for transform configuration ? that would be nice but may be a weird
     dependency...
   _ allow only one output type for transform ?
   _ make transforms thread safe
   _ make more transforms
+  _ write doc about how to write a transformation
 """
 
 def import_from_name(module_name):
@@ -67,7 +68,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
     manage_addTransformForm = PageTemplateFile('addTransform', _www)
     manage_reloadAllTransforms = PageTemplateFile('reloadAllTransforms', _www)
 
-    manage_options = (Folder.manage_options +
+    manage_options = ((Folder.manage_options[0],) + Folder.manage_options[2:] +
                       (
         { 'label'   : 'Reload transforms',
           'action' : 'manage_reloadAllTransforms'},
@@ -154,7 +155,7 @@ class TransformTool(UniqueObject, ActionProviderBase, Folder):
 
     def unregisterTransform(self, name):
         """ unregister a known transform """
-        self._unmapTransform(self._bindings[name])
+        self._unmapTransform(getattr(self, name))
 
     security.declarePublic('classify')
     def classify(self, data, mimetype=None, filename=None):
@@ -412,15 +413,16 @@ class Transform(Implicit, Item, RoleManager, Persistent):
                 transform.config[param] = value
             else:
                 log('Warning: ignored parameter %s' % param)
+                
+        tr_tool = aq_parent(self)
         if kwargs.has_key('inputs') or kwargs.has_key('outputs'):
             # need to remap transform
-            tr_tool = aq_parent(self)
             # FIXME: not sure map / unmap is a correct access point
             tr_tool._unmapTransform(transform)
             tr_tool._mapTransform(transform)
 
         if REQUEST is not None:
-            REQUEST['RESPONSE'].redirect(aq_parent(self).absolute_url()+'/manage')
+            REQUEST['RESPONSE'].redirect(tr_tool.absolute_url()+'/manage')
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'inputs')
     def inputs(self):
@@ -442,3 +444,88 @@ class Transform(Implicit, Item, RoleManager, Persistent):
 
 
 InitializeClass(Transform)
+
+
+class TransformsChain(Implicit, Item, RoleManager, Persistent):
+    """ a transforms chain is suite of transforms to apply in order.
+    It follows the transform API so that a chain is itself a transform.
+    """
+
+    meta_type = 'TransformsChain'
+
+    meta_types = all_meta_types = ()
+
+    manage_options = (
+                      ({'label':'Configure',
+                       'action':'manage_main'},
+                       {'label':'Reload',
+                       'action':'manage_reloadTransform'},) +
+                      Item.manage_options
+                      )
+
+    manage_main = PageTemplateFile('configureTransform', _www)
+    manage_reloadTransform = PageTemplateFile('reloadTransform', _www)
+
+    security = ClassSecurityInfo()
+
+    def __init__(self, id, transform_ids):
+        self.id = id
+        self._tr_ids = transform_ids
+        self._chain_init()
+
+    def __setstate__(self, state):
+        """ __setstate__ is called whenever the instance is loaded
+            from the ZODB, like when Zope is restarted.
+            
+            We should rebuild the chain at this time
+        """
+        Transform.inheritedAttribute('__setstate__')(self, state)
+        self._chain_init()
+
+
+    def _chain_init(self):
+        """ build the transforms chain """
+        tr_tool = aq_parent(self)
+        self._chain = c = chain()
+        for id in self._tr_ids:
+            transform = getattr(tr_tool, id)
+            if transform.meta_type == 'Transform':
+                c.registerTransform(transform.id, transform._transform)
+            else:
+                c.registerTransform(transform.id, transform._chain)
+
+    security.declarePrivate('manage_beforeDelete')
+    def manage_beforeDelete(self, item, container):
+        Item.manage_beforeDelete(self, item, container)
+        if self is item:
+            aq_parent(self).unregisterTransform(self.id)
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'get_parameters')
+    def get_parameters(self):
+        """ get transform's parameters names """
+        pass        
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'set_parameters')
+    def set_parameters(self, REQUEST=None, **kwargs):
+        """ set transform's parameters """
+        pass
+    
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'inputs')
+    def inputs(self):
+        """ return a list of input mime types """
+        return self._chain.inputs
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'outputs')
+    def outputs(self):
+        """ return a list of output mime types """
+        return self._chain.outputs
+
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'reload')
+    def reload(self):
+        """ reload the module where the transformation class is defined """
+        tr_tool = aq_parent(self)
+        for id in self._tr_ids:
+            transform = getattr(tr_tool, id)
+            transform.reload()
+
+InitializeClass(TransformsChain)
