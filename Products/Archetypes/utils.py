@@ -382,10 +382,7 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    try:
-        urlTool = aq_parent(self).portal_url
-    except AttributeError:
-        urlTool = self.portal_url
+    urlTool = getToolByName(self, 'portal_url')
     portal_path = urlTool.getPortalObject().getPhysicalPath()
     ppath = ppath[len(portal_path):]
     return ppath
