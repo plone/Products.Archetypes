@@ -110,8 +110,6 @@ def install_referenceCatalog(self, out):
                                       ('sourceUID', 'FieldIndex'),
                                       ('targetUID', 'FieldIndex'),
                                       ('relationship', 'FieldIndex'),
-                                      ('targetId', 'FieldIndex'),
-                                      ('targetTitle', 'FieldIndex'),
                                       ):
             try:
                 catalog.addIndex(indexName, indexType, extra=None)
