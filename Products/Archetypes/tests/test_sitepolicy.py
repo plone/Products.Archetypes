@@ -1,7 +1,7 @@
-""" 
+"""
 Unittests for a Referenceable engine.
 
-$Id: test_sitepolicy.py,v 1.3 2003/04/07 20:07:24 dreamcatcher Exp $
+$Id: test_sitepolicy.py,v 1.4 2003/07/10 21:19:14 dreamcatcher Exp $
 """
 
 import unittest
@@ -13,6 +13,7 @@ except: # Zope > 2.6
     pass
 
 from Products.CMFCore.tests.base.testcase import SecurityRequestTest
+from Products.CMFPlone.Portal import manage_addSite
 from Acquisition import aq_base
 
 def makeContent(site, portal_type, id='document', **kw ):
@@ -26,8 +27,9 @@ class SitePolicyTests( SecurityRequestTest ):
 
     def setUp(self):
         SecurityRequestTest.setUp(self)
-        self.root.manage_addProduct[ 'CMFPlone' ].manage_addSite( 'testsite', \
-                                                                  custom_policy='Archetypes Site' )
+        manage_addSite( self.root, 'testsite', \
+                        custom_policy='Archetypes Site' )
+
     def test_new( self ):
         site = self.root.testsite
         # catalog should have one entry, for index_html or frontpage
@@ -40,11 +42,12 @@ class SitePolicyTests( SecurityRequestTest ):
         self.failUnless('DDocument' in portal_types)
         self.failUnless('SimpleType' in portal_types)
         self.failUnless('SimpleFolder' in portal_types)
+        self.failUnless('ComplexType' in portal_types)
         self.failUnless('Fact' in portal_types)
-        
+
     def test_creationdemotypes(self):
         site = self.root.testsite
-        demo_types = ['DDocument', 'SimpleType', 'Fact']
+        demo_types = ['DDocument', 'SimpleType', 'Fact', 'ComplexType']
         for t in demo_types:
             makeContent(site, portal_type=t, id=t)
             self.failUnless(t in site.contentIds())

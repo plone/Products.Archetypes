@@ -21,6 +21,16 @@ import urllib
 
 from config import *
 
+try:
+    from Products.PortalTransforms.interfaces import idatastream
+except ImportError:
+    if USE_NEW_BASEUNIT:
+        raise ImportError('The PortalTransforms package is required with new base unit')
+    from interfaces.interface import Interface
+    class idatastream(Interface):
+        """ Dummy idatastream for when PortalTransforms isnt available """
+
+    
 class newBaseUnit(File):
     __implements__ = (WriteLockInterface, IBaseUnit)
 

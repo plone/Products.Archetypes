@@ -4,7 +4,6 @@ from Products.CMFCore.DirectoryView import addDirectoryViews, registerDirectory,
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
-
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.utils import findDict
 from Products.Archetypes import types_globals
@@ -16,6 +15,8 @@ from OFS.ObjectManager import BadRequestException
 from Globals import package_home
 import sys, traceback, os
 from types import *
+
+from Products.PortalTransforms.Extensions.Install import install  as install_portal_transforms
 
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
@@ -40,7 +41,6 @@ def install_tools(self, out):
         ##Test some of the templating code
         at = getToolByName(self, 'archetype_tool')
         at.registerTemplate('base_view', "Normal View")
-
 
     #and the tool uses an index
     catalog = getToolByName(self, 'portal_catalog')
@@ -133,7 +133,7 @@ def install_navigation(self, out, types):
     nav_tool.addTransitionFor('default', "content_edit", 'failure', 'action:edit')
     nav_tool.addTransitionFor('default', "content_edit", 'success', 'script:change_lang')
     nav_tool.addTransitionFor('default', "content_edit", 'next_schemata', 'action:edit')
-    
+
     nav_tool.addTransitionFor('default', "change_lang", 'success', 'action:view')
 
     nav_tool.addTransitionFor('default', "base_edit", 'failure', 'base_edit')
@@ -141,20 +141,6 @@ def install_navigation(self, out, types):
 
     nav_tool.addTransitionFor('default', "base_metadata", 'failure', 'base_metadata')
     nav_tool.addTransitionFor('default', "base_metadata", 'success', 'script:content_edit')
-    
-    #Translations edit
-    nav_tool.addTransitionFor('default', "content_translate", 'failure', 'action:translate')
-    nav_tool.addTransitionFor('default', "content_translate", 'success', 'action:view')
-    nav_tool.addTransitionFor('default', "content_translate", 'next_schemata', 'action:translate')
-
-    nav_tool.addTransitionFor('default', "base_translation", 'failure', 'base_translation')
-    nav_tool.addTransitionFor('default', "base_translation", 'success', 'script:content_translate')
-
-    nav_tool.addTransitionFor('default', "content_translations", 'failure', 'action:translations')
-    nav_tool.addTransitionFor('default', "content_translations", 'success', 'action:view')
-
-    nav_tool.addTransitionFor('default', "manage_translations_form", 'failure', 'manage_translations_form')
-    nav_tool.addTransitionFor('default', "manage_translations_form", 'success', 'script:content_translations')
 
     #And References
     nav_tool.addTransitionFor('default', 'reference_edit', 'success', 'pasteReference')
@@ -181,10 +167,10 @@ def install_actions(self, out, types):
                 cmfver=getCMFVersion()
 
                 for action in portal_type.actions:
-                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased': 
+                    if cmfver[:7] >= "CMF-1.4" and cmfver != 'Unreleased':
                         #then we know actions are defined new style as ActionInformations
                         hits = [a for a in new if a.id==action['id']]
-                        
+
                         #change action and condition into expressions,
                         #if they are still strings
                         if action.has_key('action') and type(action['action']) in (type(''), type(u'')):
@@ -263,6 +249,11 @@ def isPloneSite(self):
     for base in self.__class__.__bases__:
         if base.__name__ == "PloneSite":
             return 1
+    if 'plone_utils' in self.objectIds():
+        # Possibly older PloneSite
+        # It may be risky to assert this, but the user should
+        # have upgrade anyway, so its his fault :)
+        return 1
     return 0
 
 
@@ -309,6 +300,7 @@ def setupEnvironment(self, out, types,
     install_actions(self, out, types)
 
     install_portal_transforms(self)
+
     if isPloneSite(self):
         install_validation(self, out, types)
         install_navigation(self, out, types)

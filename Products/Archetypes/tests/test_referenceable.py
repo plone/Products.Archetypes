@@ -1,9 +1,6 @@
 """
 Unittests for a Referenceable engine.
 
-$Id: test_referenceable.py,v 1.9 2003/07/04 09:56:51 syt Exp $
-"""
-
 import unittest
 import Zope
 

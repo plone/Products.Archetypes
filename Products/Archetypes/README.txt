@@ -16,7 +16,7 @@ Features
     * Simple schemas with working default policy.
     * Power and flexibility with lowered incidental complexity.
     * Integration with rich content sources such as Office Product Suites.
-    * Full automatic form generation     
+    * Full automatic form generation
     * i18n content on a field basis
 
 Requires
@@ -27,14 +27,13 @@ Requires
         Zope products "PortalTransforms", "generator", "validation"
         should also be installed. You should also install the
         I18NTExtIndexNG product if you want to use the i18n content
-        features of archetypes. All that products are also available 
+        features of archetypes. All that products are also available
         on SF Archetypes CVS.
-
 
 Quickstart
 
-    Or, in an existing Plone site, 
-    
+    Or, in an existing Plone site,
+
     1) Edit config.py and change INSTALL_DEMO_TYPES to 1
     2) restart server
     3) Create an external method, module Archetypes.Install, function: install

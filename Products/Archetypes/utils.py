@@ -259,25 +259,30 @@ class OrderedDict(BaseDict):
             self._keys = self.data.keys()
         else:
             self._keys = []
-            
+
     def __setitem__(self, key, item):
         if not self.data.has_key(key):
             self._keys.append(key)
         return BaseDict.__setitem__(self, key, item)
-        
+
     def __delitem__(self, key):
         BaseDict.__delitem__(self, key)
         self._keys.remove(key)
-        
-    def clear(self): 
+
+    def clear(self):
         BaseDict.clear(self)
         self._keys = []
-        
-    def keys(self): 
+
+    def keys(self):
         return self._keys
-    
-    def items(self): 
+
+    def items(self):
         return [(k, self.get(k)) for k in self._keys]
+
+    def reverse(self):
+        items = list(self.items())
+        items.reverse()
+        return items
 
     def values(self):
         return [self.get(k) for k in self._keys]
@@ -300,5 +305,5 @@ class OrderedDict(BaseDict):
         v = self.data.get(k)
         del self.data[k]
         return (k, v)
-    
+
 InitializeClass(OrderedDict)

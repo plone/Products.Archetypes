@@ -86,7 +86,7 @@ class Field(DefaultLayerContainer):
         'type' : None,
         'widget': StringWidget,
         'validators' : (),
-        'index' : None, # "KeywordIndex" "<type>|schema"
+        'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'schemata' : 'default',
         }
 
@@ -158,6 +158,10 @@ class Field(DefaultLayerContainer):
             return None
 
     def Vocabulary(self, content_instance=None):
+        """
+        COMMENT TODO
+        """
+
         value = self.vocabulary
         if not isinstance(value, DisplayList):
             if content_instance is not None and type(value) in STRING_TYPES:
@@ -207,6 +211,7 @@ class Field(DefaultLayerContainer):
     def checkExternalEditor(self, instance):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance """
+
         pp = getToolByName(instance, 'portal_properties')
         sp = getattr(pp, 'site_properties', None)
         if sp is not None:
@@ -252,7 +257,8 @@ class Field(DefaultLayerContainer):
         return getattr(instance, self.mutator, None)
 
     def hasI18NContent(self):
-        """return true it the field has I18N content"""
+        """Return true it the field has I18N content. Currently not
+        implemented."""
         return 0
 
     def toString(self):
@@ -622,10 +628,11 @@ class LinesField(ObjectField):
 
     def set(self, instance, value, **kwargs):
         """
-        If passed-in value is a string, split at line breaks and 
+        If passed-in value is a string, split at line breaks and
         remove leading and trailing white space before storing in object
         with rest of properties.
         """
+        __traceback_info__ = value, type(value)
         if type(value) == type(''):
             value =  value.split('\n')
         value = [v.strip() for v in value if v.strip()]
@@ -646,10 +653,8 @@ class IntegerField(ObjectField):
     def set(self, instance, value, **kwargs):
         if value=='':
             value=None
-        try:
-            value = int(value)
-        except TypeError:
-            value = self.default
+        # should really blow if value is not valid
+        value = int(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -657,7 +662,8 @@ class FloatField(ObjectField):
     """A field that stores floats"""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'float'
+        'type' : 'float',
+        'default': '0.0'
         })
 
     def set(self, instance, value, **kwargs):
@@ -665,10 +671,9 @@ class FloatField(ObjectField):
         None."""
         if value=='':
             value=None
-        try:
-            value = float(value)
-        except TypeError:
-            value = None
+
+        # should really blow if value is not valid
+        value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -686,6 +691,7 @@ class FixedPointField(ObjectField):
         })
 
     def _to_tuple(self, value):
+        """ COMMENT TO-DO """
         value = value.split('.') # FIXME: i18n?
         if len(value) < 2:
             value = (int(value[0]), 0)
@@ -827,6 +833,9 @@ class BooleanField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class CMFObjectField(ObjectField):
+    """
+    COMMENT TODO
+    """
     __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
@@ -1016,11 +1025,13 @@ class ImageField(ObjectField):
         ###
 
         # test for scaling it.
+        imgdata = value
+        mimetype = kwargs.get('mimetype', 'image/png')
+
         if has_pil:
             if self.original_size or self.max_size:
-                mimetype = kwargs.get('mimetype', 'image/png')
                 image = Image(self.getName(), self.getName(), value, mimetype)
-                data=str(image.data)
+                data = str(image.data)
                 if self.max_size:
                     if image.width > self.max_size[0] or image.height > self.max_size[1]:
                         factor = min(float(self.max_size[0])/float(image.width),
@@ -1028,11 +1039,8 @@ class ImageField(ObjectField):
                         w = int(factor*image.width)
                         h = int(factor*image.height)
                 elif self.original_size:
-                    w,h=self.original_size
-                imgdata=self.scale(data,w,h)
-        else:
-            mimetype = kwargs.get('mimetype', 'image/png')
-            imgdata=value
+                    w,h = self.original_size
+                imgdata = self.scale(data,w,h)
 
         image = Image(self.getName(), self.getName(), imgdata, mimetype)
         image.filename = hasattr(value, 'filename') and value.filename or ''
@@ -1042,7 +1050,7 @@ class ImageField(ObjectField):
         if not has_pil or not self.sizes:
             return
 
-        data= str(image.data)
+        data = str(image.data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
@@ -1058,10 +1066,10 @@ class ImageField(ObjectField):
         keys = {'height':int(w or h), 'width':int(h or w)}
 
         original_file=StringIO(data)
-        image=PIL.Image.open(original_file)
-        image=image.convert('RGB')
+        image = PIL.Image.open(original_file)
+        image = image.convert('RGB')
         image.thumbnail((keys['width'],keys['height']))
-        thumbnail_file=StringIO()
+        thumbnail_file = StringIO()
         image.save(thumbnail_file, "JPEG")
         thumbnail_file.seek(0)
         return thumbnail_file.read()
@@ -1183,7 +1191,6 @@ class I18NTextField(I18NMixIn, TextField): pass
 class I18NLinesField(I18NMixIn, LinesField): pass
 class I18NImageField(I18NMixIn, ImageField): pass
 
-
 InitializeClass(Field)
 
 __all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField',
@@ -1191,11 +1198,7 @@ __all__ = ('Field', 'ObjectField', 'StringField', 'MetadataField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
            'CMFObjectField', 'ImageField',
-
            'I18NStringField', 'I18NMetadataField',
            'I18NFileField', 'I18NTextField', 'I18NLinesField',
            'I18NImageField',
-
-           'FieldList', 'MetadataFieldList', # Those two should go
-                                             # away after 1.0
            )

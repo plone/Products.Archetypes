@@ -58,7 +58,7 @@ class BaseObject(Implicit):
         self.id = oid
         self._master_language = None
         self._translations_states = PersistentMapping()
-            
+
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -341,7 +341,7 @@ class BaseObject(Implicit):
                         old_value = self._translations_states.get(lang_desc[0], '')
                         if old_value.find('outdated') == -1:
                             self._translations_states[lang_desc[0]] = old_value + ' (outdated)'
-                        
+
             # else try to get and set the translation state
             elif form.has_key('_translation_state'):
                 self._translations_states[base_lang] = form['_translation_state']
@@ -375,7 +375,7 @@ class BaseObject(Implicit):
                 kwargs = {}
                 if field.hasI18NContent():
                     kwargs['lang'] = base_lang
-                    
+
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)
                 else:
@@ -540,7 +540,7 @@ class BaseObject(Implicit):
         elif not isinstance( attrib, DateTime ):
             attrib = DateTime( attrib )
         return attrib
-    
+
     security.declarePublic( 'Date' )
     def Date( self ):
         """FIXME: overriden from DublinCore to deal with blank value...
@@ -558,7 +558,7 @@ class BaseObject(Implicit):
     # images that may result from the transformation of a pdf field to html)
     #
     # those objects are specific to a session
-    
+
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
@@ -584,7 +584,7 @@ class BaseObject(Implicit):
         return Wrapper(data, name, mt or 'application/octet')
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
-        """ transparent access to session subobjects 
+        """ transparent access to session subobjects
         """
         # is it a registered sub object
         data = self.getSubObject(name, REQUEST, RESPONSE)
@@ -606,7 +606,7 @@ class Wrapper:
         self._data = data
         self._filename = filename
         self._mimetype = mimetype
-        
+
     def __call__(self, REQUEST=None, RESPONSE=None):
         if RESPONSE is None:
             RESPONSE = REQUEST.RESPONSE

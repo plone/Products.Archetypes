@@ -12,9 +12,10 @@
     <metal:use use-macro="here/widgets/field/macros/view">
     <metal:fill fill-slot="widget_view"
 	   tal:define="vocab python:field.Vocabulary(here);
-	               display python: vocab.getValue(unicode(str(accessor())))">
+                       value python:accessor();
+	               display python:here.displayValue(vocab, value)">
         <span tal:replace="structure display"/>
-	</metal:fill>
+    </metal:fill>
     </metal:use>
     </metal:define>
 
@@ -32,7 +33,7 @@
 		            tabindex=""
 		            type="radio"
 		            tal:attributes="name fieldName;
-		                checked python: value is not None and unicode(str(value)) == unicode(str(item));
+		                checked python: here.checkSelected(item, value);
 		                value python:unicode(str(item));
                         tabindex tabindex/next;
                         onfocus string:formtooltip('${fieldName}_help',1);
@@ -50,7 +51,7 @@
                     ">
 	            <option tal:repeat="item vocab"
                     	tal:attributes="value item;
-                        selected python:test(value is not None and unicode(str(value)) == unicode(str(item)), 'selected', None);"
+                        selected python:test(here.checkSelected(item, value), 'selected', None);"
 		        tal:content="python: vocab.getValue(item)"
                         i18n:translate=""
 		        />
