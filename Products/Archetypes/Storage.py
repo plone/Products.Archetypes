@@ -67,7 +67,10 @@ class ObjectManagedStorage(Storage):
     __implements__ = IStorage
     
     def get(self, name, instance, **kwargs):
-        return instance._getOb(name)
+        try:
+            return instance._getOb(name)
+        except Exception, msg:
+            raise AttributeError(msg)
 
     def set(self, name, instance, value, **kwargs):
         try:
