@@ -86,7 +86,7 @@ class VariableSchemaSupport (Base):
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha.new(str([f._properties for f in s.values()])+str(self.__class__)).hexdigest()
+        hash=sha.new(str([f.__dict__ for f in s.values()])+str(self.__class__)).hexdigest()
 
         if schemadict.has_key(hash): #ok we had that shema already, so take it
             schema=schemadict[hash]

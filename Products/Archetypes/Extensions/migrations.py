@@ -43,7 +43,7 @@ def migrateReferences(portal, out):
             # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
-                targetBrains = uc(olduididx=targetUID)
+                targetBrains = uc(**{olduididx:targetUID})
                 targetObj=targetBrains[0].getObject()
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
