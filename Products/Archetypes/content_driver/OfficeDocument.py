@@ -13,7 +13,7 @@ class OfficeDocument:
         filedest.write(self.data)
         filedest.close()
         self.binary = bin_search("wvWare")
-        
+
     def Convert(self):
         "Convert the document"
         os.system('cd "%s" && %s "%s.doc" > "%s.html"' % (self.tmpdir, self.binary, self.name, self.name))
@@ -22,7 +22,7 @@ class OfficeDocument:
         for f in os.listdir("%s" % self.tmpdir):
             os.remove("%s/%s" % (self.tmpdir, f))
         os.rmdir("%s" % self.tmpdir)
-        
+
     def getHTML(self):
         htmlfile = open("%s/%s.html" % (self.tmpdir, self.name), 'r')
         html = htmlfile.read()
@@ -34,7 +34,7 @@ class OfficeDocument:
         for f in os.listdir(self.tmpdir):
             result = re.match("^.+\.(?P<ext>.+)$", f)
             if result is not None:
-                ext = result.group('ext') 
+                ext = result.group('ext')
                 if ext in ('png', 'jpg', 'gif', 'wmz', 'wmf'): imgs.append(f)
         path = "%s/" % self.tmpdir
         return path, imgs

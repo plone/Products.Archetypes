@@ -9,7 +9,7 @@ import os.path
 
 # Warning:
 # If you get a message saying the constant wdBrowserLevel cannot
-# be found this means you need to run makepy see 
+# be found this means you need to run makepy see
 # win32com/client/makepy.py for more information
 
 class OfficeDocument:
@@ -26,7 +26,7 @@ class OfficeDocument:
         self.filedest.write(data)
         self.filedest.close()
 
-        
+
     def Convert(self):
         pythoncom.CoInitialize()
 
@@ -70,7 +70,7 @@ class OfficeDocument:
         for f in os.listdir(self.tmpdir):
             result = re.match("^.+\.(?P<ext>.+)$", f)
             if result is None: continue
-            ext = result.group('ext') 
+            ext = result.group('ext')
             if ext in ('png', 'jpg', 'gif', 'wmf', 'wmz'): imgs.append(f)
 
         path = "%s\\" % self.tmpdir

@@ -28,22 +28,22 @@ norm  = "\033[00m"
 class Log:
     closeable = 0
     fp = None
-    
+
     def __init__(self, target=sys.stderr):
         self.target = target
         self._open()
-        
+
     def _open(self):
         if self.fp is not None and not self.fp.closed:
             return self.fp
-        
+
         if type(self.target) is StringType:
             fp = open(self.target, "a+")
             self.closeable = 1
         else:
             self.fp = self.target
 
-    
+
     def _close(self):
         if self.closeable:
             self.fp.close()
@@ -51,7 +51,7 @@ class Log:
     def munge_message(self, msg, **kwargs):
         """Override this to messge with the message for subclasses"""
         return msg
-    
+
     def log(self, msg, *args, **kwargs):
         self._open()
         self.fp.write("%s\n" % (self.munge_message(msg, **kwargs)))
@@ -66,8 +66,8 @@ class Log:
 
     def __call__(self, msg):
         self.log(msg)
-    
-        
+
+
 class NullLog(Log):
     def __init__(self, target):
         pass
@@ -81,7 +81,7 @@ class ClassLog(Log):
         index = path.find("Products")
         if index != -1:
             path = path[index:]
-            
+
         frame = "%s[%s]:%s\n" % (path, frame[2], frame[3])
         if COLOR:
             frame = "%s%s%s" %(color, frame, norm)
@@ -96,7 +96,7 @@ class ClassLog(Log):
         collapse = kwargs.get("collapse", 1)
         offset   = kwargs.get("offset", 0) + 3
         color    = COLORS[kwargs.get("color", 'green')]
-        
+
         frame = ''
         try:
             frames = self.generateFrames(offset, offset+deep)
@@ -109,7 +109,7 @@ class ClassLog(Log):
 			del frames
 		except:
 			pass
-		
+
         if collapse == 1:
             if frame == self.last_frame_msg:
                 frame = ''
@@ -128,7 +128,7 @@ class ZPTLogger(ClassLog):
             # or <template...
             print f
 	return frames
-	
+
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
 	level = kwargs.get('level', INFO)
@@ -140,7 +140,7 @@ class ZLogger(ClassLog):
     def log_exc(self, msg=None, *args, **kwargs):
         LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
 
-	    
+
 _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()
 _zlogger = ZLogger()

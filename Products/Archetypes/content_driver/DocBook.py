@@ -1,9 +1,9 @@
 from ContentDriver import ContentDriver
-from Products.Archetypes.debug import log, log_exc #DBG 
+from Products.Archetypes.debug import log, log_exc #DBG
 import re, os, tempfile
 
 class Converter(ContentDriver):
-    mime_type = 'text/xml' 
+    mime_type = 'text/xml'
 
 
     def convertData(self, instance, data):
@@ -58,32 +58,32 @@ class DocBook:
         """
         self.prefix = "/usr" # The path prefix where xsltproc is installed
         self.tmpdir = tempfile.mktemp()
-        log('DocBook.__init__> self.tmpdir: %s'%self.tmpdir) #DBG 
+        log('DocBook.__init__> self.tmpdir: %s'%self.tmpdir) #DBG
         self.name = name
         self.data = data
         os.mkdir('%s' % self.tmpdir)
         filedest = open("%s/%s.dbk" % (self.tmpdir, self.name), "w")
         filedest.write(self.data)
         filedest.close()
-    
+
     def Convert(self):
         "Convert the document"
         command = 'cd "%s" && %s/bin/xsltproc %s/share/sgml/docbook/xsl-stylesheets-1.52.2/html/docbook.xsl "%s.dbk" > "%s.html"' % (self.tmpdir, self.prefix, self.prefix, self.name, self.name)
-        log('Convert> %s'%command) #DBG 
+        log('Convert> %s'%command) #DBG
         os.system(command)
-        log('Convert> converted') #DBG 
+        log('Convert> converted') #DBG
 
     def cleandir(self):
         for f in os.listdir("%s" % self.tmpdir):
             os.remove("%s/%s" % (self.tmpdir, f))
         os.rmdir("%s" % self.tmpdir)
-        
+
     def getHTML(self):
-        log('getHTML> tmpdir: %s, name: %s'%(self.tmpdir, self.name)) #DBG 
+        log('getHTML> tmpdir: %s, name: %s'%(self.tmpdir, self.name)) #DBG
         htmlfile = open("%s/%s.html" % (self.tmpdir, self.name), 'r')
-        log('getHTML> about to read') #DBG 
+        log('getHTML> about to read') #DBG
         html = htmlfile.read()
-        log('getHTML> read') #DBG 
+        log('getHTML> read') #DBG
         htmlfile.close()
         return html
 
@@ -92,8 +92,8 @@ class DocBook:
         for f in os.listdir(self.tmpdir):
             result = re.match("^.+\.(?P<ext>.+)$", f)
             if result is not None:
-                ext = result.group('ext') 
+                ext = result.group('ext')
                 if ext in ('png', 'jpg', 'gif', 'wmz', 'wmf'): imgs.append(f)
         path = "%s/" % self.tmpdir
-        log('getImages> path: %s, imgs: %s'%(path, imgs)) #DBG 
+        log('getImages> path: %s, imgs: %s'%(path, imgs)) #DBG
         return path, imgs

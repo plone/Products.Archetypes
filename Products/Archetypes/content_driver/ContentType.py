@@ -7,7 +7,7 @@ class ContentType:
     security = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess("allow")
-    
+
     def __init__(self, name,
                  mime_types=None,
                  extensions=None,
@@ -15,8 +15,8 @@ class ContentType:
                  icon="document_icon.gif"):
         if not mime_types: mime_types = []
         if not extensions: extensions = []
-        
-        self.name = name        
+
+        self.name = name
         self.mime_types = mime_types
         self.extensions = extensions
         self.binary = binary
@@ -30,7 +30,7 @@ class ContentType:
 
     def getIcon(self):
         return getattr(self, 'icon', 'document_icon.gif')
-    
+
     def getMimeType(self):
         return self.mime_types[0]
 
@@ -50,11 +50,11 @@ class ContentTypeManager:
         self.extensions = {}
         self.mime_types  = {}
         self.converters = {}
-        
+
         #We mark the last one in the list as the default
         self.default = None
         if len(content_types): self.default = content_types[-1]
-        
+
         self.process_types(content_types)
 
     def addType(self, content_type, default=0):
@@ -66,7 +66,7 @@ class ContentTypeManager:
 
         if default == 1:
             self.default = content_type
-            
+
     def process_types(self, content_types):
         for ct in content_types:
             self.addType(ct)
@@ -97,8 +97,8 @@ class ContentTypeManager:
         if callable(klass):
             klass = klass()
         return klass
-        
-        
+
+
     def associateConverter(self, converter, content_type=None):
         if not content_type:
             content_type = self.mime_types.get(converter.mime_type)
@@ -118,13 +118,13 @@ _ctm = ContentTypeManager()
 
 def registerConverter(converter, content_type):
     _ctm.associateConverter(converter, content_type=content_type)
-    
+
 def addContentType(ct, default=0):
     _ctm.addType(ct, default)
     return ct
 
 def selectPlugin(file='', mime_type=''):
-    ''' Find a converter for 'file'. 
+    ''' Find a converter for 'file'.
         If 'file' is type(file), get 'mime_type' from 'file.headers',
         otherwise try getting a plugin from the file extension,
         otherwise use the passed-in 'mime_type',
@@ -140,7 +140,7 @@ def selectPlugin(file='', mime_type=''):
     ext = os.path.splitext(filename)[1]
     if file and filename:
         return _ctm.getByExtension(ext)
-            
+
     return _ctm.getByMimeType(mime_type) or _ctm.getDefault()
 
 def getDefaultPlugin(file='', mime_type=''):
@@ -151,14 +151,14 @@ def lookupContentType(string):
     if string begins with a '.' we look for an extension
     if it contains a '/' we check mime-types
     """
-    ct = None 
+    ct = None
     if string.startswith('.'):
         ct =  _ctm.getByExtension(string[1:])
     elif '/' in string:
         ct =  _ctm.getByMimeType(string)
-    
+
     return ct or _ctm.getDefault()
-    
+
 def getConverter(content_type):
     return _ctm.getConverter(content_type)
 
