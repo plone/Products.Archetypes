@@ -5,7 +5,7 @@ class IVocabulary(Interface):
 
     def getDisplayList(self, instance):
         """ returns an object of class DisplayList as defined in
-            Products.Archetypes.utils.
+            Products.Archetypes.lib.vocabulary
 
             The instance of the content is given as parameter.
         """
@@ -32,6 +32,6 @@ class IVocabulary(Interface):
 
     def showLeafsOnly(self):
         """ returns true for flat vocabularies. In hierachical (tree-like)
-            vocabularies it defines if only leafs should be displayed, or
-            knots and leafs.
+            vocabularies it defines if only leafs should be displayed/selectable,
+            or knots and leafs.
         """
