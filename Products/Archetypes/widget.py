@@ -43,7 +43,7 @@ class widget:
     _properties = {
         'description' : '',
         'label' : '',
-        'visible' : 1, ##XXX Remove for modes
+        'visible' : {'edit':'visible', 'view':'visible'},
         'attributes' : ''
         }
 

@@ -1,0 +1,52 @@
+Source: generator
+Section: python
+Priority: optional
+Maintainer: Sylvain Thenault <sylvain.thenault@logilab.fr> 
+Build-Depends-Indep: debhelper (>= 3.0.0), python2.1-dev, python2.2-dev, python2.3-dev
+Standards-Version: 3.6.0
+
+Package: python-generator
+Architecture: all
+Depends: python (>= 2.3), python (<< 2.4), python2.3-generator (>= ${Source-Version})
+Description: Widget generator for Archetypes [dummy package]
+ Widget generator for Archetypes
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+ .        
+ This package is an empty dummy package that always depends on
+ a package built for Debian's default Python version.
+
+
+
+Package: python2.1-generator
+Architecture: all
+Depends: python2.1
+Description: Widget generator for Archetypes [built for python2.1]
+ Widget generator for Archetypes
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+ . 
+ This package is built with Python 2.1.
+
+
+Package: python2.2-generator
+Architecture: all
+Depends: python2.2
+Description: Widget generator for Archetypes [built for python2.2]
+ Widget generator for Archetypes
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+ . 
+ This package is built with Python 2.2.
+
+
+Package: python2.3-generator
+Architecture: all
+Depends: python2.3
+Description: Widget generator for Archetypes [built for python2.3]
+ Widget generator for Archetypes
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+ . 
+ This package is built with Python 2.3.
+

@@ -18,5 +18,3 @@ class renderer:
     def setupContext(self, field_name, mode, widget, instance, field, accessor,
                      **kwargs):
         return {}
-
-
