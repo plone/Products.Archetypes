@@ -1123,6 +1123,7 @@ class ImageField(ObjectField):
                 image = self.image_class(self.getName(), self.getName(),
                                          value, mimetype)
                 data = str(image.data)
+                w=h=0
                 if self.max_size:
                     if image.width > self.max_size[0] or \
                            image.height > self.max_size[1]:
