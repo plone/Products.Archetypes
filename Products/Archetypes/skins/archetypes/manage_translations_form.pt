@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
       metal:use-macro="here/main_template/macros/master"
-      i18n:domain="plone">
+      i18n:domain="archetypes">
 
 <body>
 
@@ -17,7 +17,12 @@
           tal:define="master_lang here/getMasterLanguage"
           tal:attributes="action python:here.portal_form_url(template.id)">
 
-      <table>
+      <table class="listing" id="sortable">
+        <tr>
+         <th>&nbsp;</th>
+         <th i18n:translate="">language</th>
+         <th i18n:translate="">state</th>
+        </tr>
 	<tr tal:repeat="lang here/getFilteredLanguages">
           <tal:block tal:define="lang_id python:lang[0];
                                  lang_title python:lang[1];">
@@ -28,6 +33,8 @@
 		tal:content="string:${lang_title} (${lang_id})"/>
 	    <td tal:condition="python:lang_id == master_lang">
 		<b tal:content="string:${lang_title} (${lang_id})"/>
+	    </td>
+	    <td tal:content="python:here.getTranslationState(lang_id)">
 	    </td>
           </tal:block>
 	</tr>

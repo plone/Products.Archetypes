@@ -7,6 +7,7 @@ from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
+from ZODB.PersistentMapping import PersistentMapping
 from debug import log, log_exc
 from types import FileType
 import operator
@@ -55,7 +56,9 @@ class BaseObject(Implicit):
     def __init__(self, oid, **kwargs):
         self.id = oid
         self._master_language = None
-        
+        self._translations_states = PersistentMapping()
+            
+
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -300,7 +303,6 @@ class BaseObject(Implicit):
 
         return size
 
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               '_processForm')
     def _processForm(self, data=1, metadata=None):
@@ -319,12 +321,28 @@ class BaseObject(Implicit):
 
         form_keys = form.keys()
         base_lang = self.getLanguage()
-        lang = form.get('new_lang', form.get('lang', base_lang))
-        if lang != base_lang:
-            # check this is a valid language id
-            self.languageDescription(lang)
-            # set language cookie
-            self.setI18NCookie(lang)
+        if self.hasI18NContent():
+            # FIXME : update existant objects
+            if not hasattr(self, '_translations_states'):
+                self._translations_states = PersistentMapping()
+            # do we need to update the current language ?
+            lang = form.get('new_lang', form.get('lang', base_lang))
+            if lang != base_lang:
+                # FIXME: check this is a valid language id
+                self.languageDescription(lang)
+                # set language cookie
+                self.setI18NCookie(lang)            
+            # set other translations as outdated if we are currently processing
+            # the main translation
+            m_lang = self.getMasterLanguage()
+            if lang == m_lang:
+                for lang_desc in self.getFilteredLanguages():
+                    if lang_desc[0] != m_lang:
+                        self._translations_states[lang_desc[0]] += ' (outdated)'
+            # else try to get and set the translation state
+            elif form.has_key('_translation_state'):
+                self._translations_states[lang] = form['_translation_state']
+                
         for field in fields:
             if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
                 text_format = None
@@ -351,10 +369,10 @@ class BaseObject(Implicit):
                 if value is None: continue
                 mutator = getattr(self, field.mutator)
                 __traceback_info__ = (self, field, mutator)
+                kwargs = {}
                 if field.hasI18NContent():
-                    kwargs = {'lang': lang}
-                else:
-                    kwargs = {}
+                    kwargs['lang'] = lang
+                    
                 if text_format and not isFile:
                     mutator(value, mimetype=text_format, **kwargs)
                 else:
@@ -407,11 +425,17 @@ class BaseObject(Implicit):
         if lang:
             return lang
         REQUEST = self.REQUEST
-        if REQUEST is not None and hasattr(REQUEST, 'cookies'):
-            language = REQUEST.cookies.get('I18N_CONTENT_LANGUAGE', 'en')
+        if REQUEST is not None and hasattr(REQUEST, 'form'):
+            language = REQUEST.form.get('lang')
+            if language is None and hasattr(REQUEST, 'cookies'):
+                language = REQUEST.cookies.get('I18N_CONTENT_LANGUAGE', 'en')
         else:
-            language = 'en'
-        return language
+            try:
+                sp = self.portal_properties.site_properties
+                language = sp.getProperty('default_language', 'en')
+            except AttributeError:
+                language = None
+        return language or "en"
 
     security.declarePublic("getMasterLanguage")
     def getMasterLanguage(self):
@@ -422,11 +446,21 @@ class BaseObject(Implicit):
             sp = self.portal_properties.site_properties
             return sp.getProperty('default_language', 'en')
         except AttributeError:
-            log('NO SITE PROPERTIES !')
             return 'en'
 
+    security.declarePublic("getTranslationState")
+    def getTranslationState(self, lang=None):
+        """return the string describing the translation state"""
+        lang = self.getLanguage(lang)
+        try:
+            return self._translations_states[lang]
+        except:
+            if lang == self.getMasterLanguage():
+                return "master translation"
+            return ''
+
     def manage_translations(self, REQUEST=None, **kwargs):
-        """delete given translations"""
+        """delete given translations or set the master translation"""
         if not kwargs:
             kwargs = REQUEST.form
         try:

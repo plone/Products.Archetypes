@@ -1,6 +1,20 @@
+2003-06-23  Sylvain Thénault  <syt@logilab.fr>
+
+	* BaseObject.py: add methods to handle a master translation and
+	others translations states.
+
+	* public.py: add i18N content related actions (not sure they are
+	in the right place...)
+	
+	* skins/archetypes/base_translation.pt: template to edit a
+	translation while viewing the master translation.
+
+	* skins/archetypes/manage_translations_form.pt: form to delete
+	existant translations or change the master translation.
+	
 2003-06-22  Geoff Davis <geoff@geoffdavis.net> (plonista)
 
-	* ArchetypeTool.py: added mechanism for monitoring object schemae.  Schema
+    * ArchetypeTool.py: added mechanism for monitoring object schemae.  Schema
     are signed at registration time, and when a schema signature changes, it is 
     flagged in ArchetypeTool._types.  Added a new tab on the tool that lets you
     see which types have schema that have changed and lets you update all the

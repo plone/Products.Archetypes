@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
       lang="en-US"
       metal:use-macro="here/main_template/macros/master"
-      i18n:domain="plone">
+      i18n:domain="archetypes">
 
 <metal:block fill-slot="javascript_head_slot">
 <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing" tal:condition="macro">
@@ -79,6 +79,23 @@
             <span metal:use-macro="python: here.widget(field.getName(), mode='view', use_label=0)"/>
           </tal:block>
         </tal:fields>
+
+
+	<div class="row">
+	    <div class="label">
+		 <span i18n:translate="">Translation state</span>
+		 <div id="_translation_state_help" class="help" style="visibility:hidden;">
+		   A string describing the translation state
+		 </div>
+	    </div> 
+	    <div class="field">
+	      <input type="text" name="_translation_state" 
+                     onfocus="formtooltip('_translation_state_help',1)"
+                     onblur="formtooltip('_translation_state_help',0)"
+                     tal:attributes="value here/getTranslationState;" />
+	    </div>
+	</div>
+
 
         <input type="hidden" name="form_submitted" value="1" tal:attributes="value template/id" />
         <input type="hidden" name="fieldset" value="default" tal:attributes="value fieldset" />

@@ -37,7 +37,7 @@
 		      <option value="" 
                               tal:attributes="value python:lang[0]; 
                                               selected python:current == lang[0]" 
-                              tal:content="python:lang[1]+' ('+lang[0]+')'" />
+                              tal:content="python:lang[0]+' ('+lang[1]+')'" />
 		    </tal:block>
 		  </select>
                 </div>
