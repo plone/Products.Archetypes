@@ -201,9 +201,15 @@ def installTypes(self,
                  product_skins_dir='skins'):
     """Use this for your site with your types"""
 
-    filtered_types = []
-    typesTool = self.portal_types
+    types = filterTypes(self, out, types, package_name)
+    install_types(self, out, types, package_name)
+    setupEnvironment(self, out, types, package_name, globals, product_skins_dir)
+        
+def filterTypes(self, out, types, package_name):
+    typesTool = getToolByName(self, 'portal_types')
 
+    filtered_types = []
+    
     for t in types:
         typeinfo_name="%s: %s" % (package_name, t.__name__)
         info = typesTool.listDefaultTypeInformation()
@@ -224,13 +230,17 @@ def installTypes(self,
                           """ Check if your class has an '__implements__ = IBaseObject'""" + \
                           """ (or IBaseContent, or IBaseFolder)"""
 
-            
-        
+    return filtered_types        
 
-    types = filtered_types
+
+def setupEnvironment(self, out, types,
+                     package_name,
+                     globals=types_globals,
+                     product_skins_dir='skins'):
+
+    types = filterTypes(self, out, types, package_name)
     install_tools(self, out)
     install_subskin(self, out, globals, product_skins_dir)
-    install_types(self, out, types, package_name)
 
     install_indexes(self, out, types)
     install_actions(self, out, types)
@@ -238,5 +248,4 @@ def installTypes(self,
     if isPloneSite(self):
         install_validation(self, out, types)
         install_navigation(self, out, types)
-        
-
+    

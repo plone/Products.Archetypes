@@ -1,6 +1,6 @@
 from Products.Archetypes.config import *
 from Products.Archetypes import listTypes
-from Products.Archetypes.Extensions.utils import installTypes
+from Products.Archetypes.Extensions.utils import installTypes, setupEnvironment
 from StringIO import StringIO
 
 def install(self, include_demo=None):
@@ -14,6 +14,8 @@ def install(self, include_demo=None):
         print >> out, "Installing %s" % listTypes(PKG_NAME)
         installTypes(self, out, listTypes(PKG_NAME), PKG_NAME)
         print >> out, 'Successfully installed the demo types.'
+    else:
+        setupEnvironment(self, out, [], PKG_NAME)
 
     print >> out, 'Successfully installed %s' % PKG_NAME
         
