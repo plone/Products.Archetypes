@@ -12,6 +12,7 @@ from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
+from Products.CMFCore.utils import getToolByName
 from OFS.Folder import Folder
 
 class BaseFolderMixin(BaseObject,
@@ -43,6 +44,12 @@ class BaseFolderMixin(BaseObject,
         BaseObject.manage_afterAdd(self, item, container)
         Folder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
+        
+        if self==item:
+            # we can assume that this object is the root of the imported
+            # object tree
+            getToolByName(self,'reference_catalog').catalogReferences(self)
+            
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
