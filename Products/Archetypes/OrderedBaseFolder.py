@@ -2,7 +2,7 @@
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 
-$Id: OrderedBaseFolder.py,v 1.6 2003/12/06 16:43:20 dreamcatcher Exp $
+$Id: OrderedBaseFolder.py,v 1.7 2004/01/22 20:12:59 ajung Exp $
 """
 
 from AccessControl import ClassSecurityInfo, Permissions
@@ -199,7 +199,7 @@ class OrderedContainer:
         if om: # only 1 in list if any
             return om[0]
 
-        raise NotFound('Object %s was not found'%str(id))
+        raise RuntimeError('Object %s was not found'%str(id))
 
     security.declareProtected(ModifyPortalContent, 'moveObjectsUp')
     def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
