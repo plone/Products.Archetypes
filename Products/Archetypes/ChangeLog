@@ -19,6 +19,12 @@
 	
 2003-11-05  Sidnei da Silva  <sidnei@plone.org>
 
+        * skins/archetypes/widgets/*: Removed cruft (onfocus/onblur from
+	Plone 1.0.x).
+
+	* Widget.py (RichWidget.process_form): Better handling of
+	upload/content-type/typed-in text.
+
 	* BaseObject.py (BaseObject._migrateGetValue): Tentatively fix
 	migrateGetValue by using __getitem__ (which looks up
 	getEditAccessor, then falls back to getAcessor.
@@ -96,12 +102,12 @@
 	code to be sure that modify_fti was called and the correct actions
 	installed.
 
-	
+
 2003-10-03    <demo@bazil.runyaga.org>
 
 	* BaseContent.py (BaseContent.PUT): Dont Trust Content-Type Sent
 	By Client. We have the filename, so we can figure it out.
-	
+
 
 2003-10-03  Sidnei da Silva  <sidnei@dreamcatcher.homeunix.org>
 
@@ -362,7 +368,7 @@
 
 	* Field.py (Field.validate): Patch by Azazel. Allow passing kwargs
 	to the validators, as they seem to already support kwargs in the
-	method signatures. 
+	method signatures.
 
 	* BaseObject.py (BaseObject._processForm): As suggested by George
 	Pan, have a REQUEST argument on the processForm method to allow

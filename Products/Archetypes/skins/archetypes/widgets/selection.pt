@@ -32,25 +32,20 @@
 	    <!-- Radio when the vocab is short < 4 -->
             <tal:radios repeat="item vocab">
 	            <input class="noborder"
-		            tabindex=""
-		            type="radio"
-		            tal:attributes="name fieldName;
-		                checked python:here.checkSelected(item, value);
-		                value python:unicode(str(item));
-                        tabindex tabindex/next;
-                        onfocus string:formtooltip('${fieldName}_help',1);
-                        onblur string:formtooltip('${fieldName}_help',0);"
-                        />&nbsp;<span i18n:translate="" tal:content="python: vocab.getValue(item)"/>
+			   tabindex=""
+			   type="radio"
+			   tal:attributes="name fieldName;
+			   checked python:here.checkSelected(item, value);
+			   value python:unicode(str(item));
+			   tabindex tabindex/next;"
+			   />&nbsp;<span i18n:translate="" tal:content="python: vocab.getValue(item)"/>
                 <br />
 		    </tal:radios>
         </tal:shortVocab>
         <tal:longVocab condition="python: (vlen >= 4 and format=='flex') or (format in ('select','pulldown'))">
         <!-- Pulldown when longer -->
 	        <select tal:attributes="name fieldName; id fieldName;
-                    tabindex tabindex/next;
-                    onfocus string:formtooltip('${fieldName}_help',1);
-                    onblur string:formtooltip('${fieldName}_help',0);
-                    ">
+			tabindex tabindex/next;">
 	            <option tal:repeat="item vocab"
                     	tal:attributes="value item;
                         selected python:test(here.checkSelected(item, value), 'selected', None);"

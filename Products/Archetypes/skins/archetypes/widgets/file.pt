@@ -39,9 +39,8 @@
 	   size="30" 
 	   tabindex="" 
 	   tal:attributes=" name string:${fieldName}_file;
-	   tabindex tabindex/next; 
-           onfocus string:formtooltip('${fieldName}_help',1);
-           onblur string:formtooltip('${fieldName}_help',0)" />
+	   tabindex tabindex/next;"
+	   />
 	  <metal:block metal:use-macro="here/widgets/file/macros/file_view"/>
     </metal:define>
 

@@ -34,17 +34,15 @@
                        size="30"
                        tabindex="#"
                        tal:attributes="name fieldName;
-                                       value python:test(here.show_id(), value, '');
-                                       tabindex tabindex/next;
-                                       onfocus string:formtooltip('${fieldName}_help',1);
-                                       onblur string:formtooltip('${fieldName}_help',0);
-                       "/>
+		       value python:test(here.show_id(), value, '');
+		       tabindex tabindex/next;"
+		       />
             </metal:use>
       </tal:block>
       <tal:block tal:condition="python:not visible_ids">
-	<input type="hidden" 
-	  name="id" 
-	  tal:attributes="value python:request.get('id', here.getId())" 
+	<input type="hidden"
+	  name="id"
+	  tal:attributes="value python:request.get('id', here.getId())"
 	/>
 	</tal:block>
 

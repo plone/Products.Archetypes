@@ -32,21 +32,18 @@
 	      <span i18n:translate="" tal:content="string: New ${fieldName}">New keywords</span>
                             <br />
                             <textarea id="entered_subjects"
-                              name="subject:lines"
-                              rows="11"
-                              cols="15"
-                              wrap="off"
-                              tabindex=""
-                              onfocus="formtooltip('keywords_help',1)"
-                              onblur="formtooltip('keywords_help',0)"
-                              tal:attributes="id string:${fieldName}_keywords;
-		                              name string:${fieldName}_keywords:lines;
-                                              onfocus string:formtooltip('${fieldName}_help',1);
-                                              onblur string:formtooltip('${fieldName}_help',0);
-		                              tabindex tabindex/next;"
-                              tal:define="subject python:request.get(fieldName,[])"
-                              tal:content="python:'\n'.join(subject)"
-                              >selected keywords</textarea>&nbsp;
+				      name="subject:lines"
+				      rows="11"
+				      cols="15"
+				      wrap="off"
+				      tabindex=""
+				      tal:attributes="id string:${fieldName}_keywords;
+				      name string:${fieldName}_keywords:lines;
+				      tabindex tabindex/next;"
+				      tal:define="subject python:request.get(fieldName,[])"
+				      tal:content="python:'\n'.join(subject)">
+			      selected keywords
+			      </textarea>&nbsp;
 
 	    </div>
 	  </tal:condition>
@@ -59,13 +56,9 @@
                                 size="14"
                                 multiple="multiple"
                                 tabindex=""
-                                onfocus="formtooltip('keywords_help',1)"
-                                onblur="formtooltip('keywords_help',0)"
-                                tal:attributes="id string:${fieldName}_existing_keywords;
-		                                name string:${fieldName}_existing_keywords:list;
-                                                onfocus string:formtooltip('${fieldName}_help',1);
-                                                onblur string:formtooltip('${fieldName}_help',0);
-		                                tabindex tabindex/next;">
+				tal:attributes="id string:${fieldName}_existing_keywords;
+				name string:${fieldName}_existing_keywords:list;
+				tabindex tabindex/next;">
                           <option value="#" tal:repeat="keyword allowedKeywords"
                                   tal:content="keyword" tal:attributes="value keyword;
                                                                         selected python:test(here.unicodeTestIn(keyword, contentKeywords), 'selected', None)">

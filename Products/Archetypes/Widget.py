@@ -115,10 +115,11 @@ class TextAreaWidget(TypesWidget):
 
         if hasattr(field, 'allowable_content_types') and \
                field.allowable_content_types:
-            text_format = form.get("%s_text_format" % field.getName())
+            format_field = "%s_text_format" % field.getName()
+            text_format = form.get(format_field, empty_marker)
         kwargs = {}
 
-        if text_format:
+        if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
         return value, kwargs
@@ -198,10 +199,10 @@ class FileWidget(TypesWidget):
         if fileobj is empty_marker: return empty_marker
 
         filename = getattr(fileobj, 'filename', '') or \
-                   isinstance(fileobj, FileType) and \
-                   getattr(fileobj, 'name', '')
+                   (isinstance(fileobj, FileType) and \
+                    getattr(fileobj, 'name', ''))
 
-        if filename != '':
+        if filename:
             value = fileobj
 
         if not value: return None
@@ -230,34 +231,37 @@ class RichWidget(TypesWidget):
         # text field with formatting
         if hasattr(field, 'allowable_content_types') and \
            field.allowable_content_types:
-            #was a mimetype specified
-            text_format = form.get("%s_text_format" % field.getName(),
-                                   empty_marker)
+            # was a mimetype specified
+            format_field = "%s_text_format" % field.getName()
+            text_format = form.get(format_field, empty_marker)
 
         # or a file?
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
-        if fileobj is empty_marker:
-            return empty_marker
+        if fileobj is not empty_marker:
 
-        filename = getattr(fileobj, 'filename', '') or \
-                   isinstance(fileobj, FileType) and \
-                   getattr(fileobj, 'name', '')
+            filename = getattr(fileobj, 'filename', '') or \
+                       (isinstance(fileobj, FileType) and \
+                        getattr(fileobj, 'name', ''))
 
-        if filename != '':
-            value = fileobj
-            isFile = 1
+            if filename:
+                value = fileobj
+                isFile = 1
 
+        kwargs = {}
         if not value:
             value = form.get(field.getName(), empty_marker)
+            if text_format is not empty_marker and text_format:
+                kwargs['mimetype'] = text_format
 
         if value is empty_marker: return empty_marker
 
-        kwargs = {}
-        kwargs['mimetype'] = text_format
-        if instance.isBinary(field.getName()) and not isFile:
-            # file field with content, no new content uploaded
-            return None
+        if value and not isFile:
+            # Value filled, no file uploaded
+            if kwargs.get('mimetype') == str(field.getContentType(instance)) \
+                   and instance.isBinary(field.getName()):
+                # Was an uploaded file, same content type
+                del kwargs['mimetype']
 
         return value, kwargs
 
@@ -296,10 +300,10 @@ class ImageWidget(FileWidget):
         if fileobj is empty_marker: return empty_marker
 
         filename = getattr(fileobj, 'filename', '') or \
-                   isinstance(fileobj, FileType) and \
-                   getattr(fileobj, 'name', '')
+                   (isinstance(fileobj, FileType) and \
+                    getattr(fileobj, 'name', ''))
 
-        if filename != '':
+        if filename:
             value = fileobj
 
         if not value: return None

@@ -24,18 +24,16 @@
       <div metal:use-macro="here/widgets/field/macros/edit">
 	<div metal:fill-slot="widget_body">
 	    <div tal:define="id fieldName;
-	      inputname  fieldName;
-	      formname   string:edit_form;
-	      inputvalue python: test(value, value, '');
-	      tabindex tabindex/next;
-              onfocus string:formtooltip('${fieldName}_help',1);
-              onblur string:formtooltip('${fieldName}_help',0);"
-	      tal:omit-tag="">
-	      <div metal:use-macro="here/calendar_slot/macros/calendarDatePickerBox">
-		a calendar, hopefully
-	      </div>
+		 inputname  fieldName;
+		 formname   string:edit_form;
+		 inputvalue python: test(value, value, '');
+		 tabindex tabindex/next;
+		 tal:omit-tag="">
+		 <div metal:use-macro="here/calendar_slot/macros/calendarDatePickerBox">
+		   a calendar, hopefully
+		 </div>
 	    </div>
-	</div>
+	  </div>
       </div>
     </div>
 
@@ -43,26 +41,23 @@
       <metal:field use-macro="here/widgets/field/macros/edit">
 	<metal:slot fill-slot="widget_body">
 	    <tal:from define="id fieldName;
-	      inputname  fieldName;
-	      formname   string:search_form;
-	      inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
-	      tabindex tabindex/next;
-              onfocus string:formtooltip('${fieldName}_help',1);
-              onblur string:formtooltip('${fieldName}_help',0);"
-	      tal:omit-tag="">
+		      inputname  fieldName;
+		      formname   string:search_form;
+		      inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
+		      tabindex tabindex/next;
+		      tal:omit-tag="">
 	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully
 	      </metal:box>
 	    </tal:from>
 	    -
 	    <tal:to define="id fieldName;
-	      inputname  fieldName;
-	      formname   string:search_form;
-	      inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
-	      tabindex tabindex/next;
-              onfocus string:formtooltip('${fieldName}_help',1);
-              onblur string:formtooltip('${fieldName}_help',0);"
-	      tal:omit-tag="">
+		    inputname  fieldName;
+		    formname   string:search_form;
+		    inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
+		    tabindex tabindex/next;"
+		    />
+	    tal:omit-tag="">
 	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
 		a calendar, hopefully
 	      </metal:box>

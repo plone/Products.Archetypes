@@ -27,8 +27,11 @@
 	">
 	<div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
-      <input type="hidden" tal:attributes="name string: ${fieldName}_text_format;" value="text/html"/>
-
+      <metal:block define-slot="text_format">
+        <input type="hidden"
+               tal:attributes="name string:${fieldName}_text_format;"
+               value="text/html"/>
+      </metal:block>
     </metal:define>
 
     <metal:define define-macro="edit">

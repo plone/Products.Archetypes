@@ -26,12 +26,11 @@
                size="30"
                tabindex="#"
                tal:attributes="name fieldName;
-                               value value;
-                               size widget/size;
-                               maxlength widget/maxlength;
-                               tabindex tabindex/next;
-                               onfocus string:formtooltip('${fieldName}_help',1);
-                               onblur string:formtooltip('${fieldName}_help',0);"/>
+	       value value;
+	       size widget/size;
+	       maxlength widget/maxlength;
+	       tabindex tabindex/next;"
+	       />
     </metal:use>
     </metal:define>
 
