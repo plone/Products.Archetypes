@@ -65,6 +65,9 @@
    BaseObject.__getitem__ now throws an Unauthorized exception when trying to
    get an item starting with _ and it throws a KeyError when trying to access
    a nonexisting object. Also it's using explicit acquisition.
+   
+ * Fixed unicodeTestIn.py: return False immediately when the list is None or empty
+   [tiran]
 
 1.3.0-rc1 - 2004-08-16
 ======================
