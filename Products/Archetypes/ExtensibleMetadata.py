@@ -1,20 +1,28 @@
+import string
+
+from Products.Archetypes.Field import *
+from Products.Archetypes.Widget import *
+from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes.utils import DisplayList
+
+import Persistence
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Field import *
-from Widget import *
-from Schema import MetadataSchema
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
-from interfaces.metadata import IExtensibleMetadata
-from debug import log, log_exc
-import Persistence
-
-from utils import DisplayList
-
 from Products.CMFDefault.utils import _dtmldir
+
 _marker=[]
+
+try:
+    True
+except NameError:
+    True=1
+    False=0
 
 FLOOR_DATE = DateTime( 1000, 0 ) # always effective
 CEILING_DATE = DateTime( 9999, 0 ) # never expires
@@ -57,7 +65,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
-                description_msgid="help_keywords",
+                description_msgid="help_keyword",
                 i18n_domain="plone"),
         ),
         TextField(
@@ -81,9 +89,20 @@ class ExtensibleMetadata(Persistence.Persistent):
                 description_msgid="help_contributors",
                 i18n_domain="plone"),
         ),
+        LinesField(
+            'creators',
+            accessor="Creators",
+            widget=LinesWidget(
+                label='Creators',
+                label_msgid="label_creators",
+                description_msgid="help_creators",
+                visible={'view':'hidden', 'edit':'hidden'},
+                i18n_domain="plone"),
+        ),
         DateTimeField(
             'effectiveDate',
             mutator = 'setEffectiveDate',
+            languageIndependent = True,
             widget=CalendarWidget(
                 label="Effective Date",
                 description=("Date when the content should become available "
@@ -95,6 +114,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'expirationDate',
             mutator = 'setExpirationDate',
+            languageIndependent = True,
             widget=CalendarWidget(
                 label="Expiration Date",
                 description=("Date when the content should no longer be "
@@ -115,7 +135,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 description_msgid="help_language",
                 i18n_domain="plone"),
         ),
-        StringField(
+        TextField(
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
@@ -212,13 +232,17 @@ class ExtensibleMetadata(Persistence.Persistent):
         Dublin Core element - resource format
         """
         # FIXME: get content type from marshaller
-        return
+        return self.getContentType()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setFormat')
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
         pass
+
+    def Identifer(self):
+        """ dublin core getId method"""
+        return self.getId()
 
     #  DublinCore utility methods #############################################
 
@@ -331,6 +355,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 modification_date = DateTime( modification_date )
             self.modification_date = self._datify(modification_date)
 
+
     security.declarePrivate( '_datify' )
     def _datify(self, attrib):
         if attrib == 'None':
@@ -343,18 +368,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
     #  DublinCore interface query methods
     #
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'Creator')
-    def Creator(self):
-        # XXX: fixme using 'portal_membership' -- should iterate over
-        #       *all* owners
-        "Dublin Core element - resource creator"
-        owner = self.getOwner()
-        if hasattr( owner, 'getUserName' ):
-            return owner.getUserName()
-        return 'No owner'
-
     security.declareProtected(CMFCorePermissions.View,
                               'Publisher')
     def Publisher(self):
@@ -386,6 +399,47 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX: fixme using 'portal_metadata' (we need to prepend the
         #      right prefix to self.getPhysicalPath().
         return self.absolute_url()
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'listContributors')
+    def listContributors(self):
+        """Dublin Core element - Contributors"""
+        return self.Contributors()
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addCreator')
+    def addCreator(self, creator=None):
+        """ Add creator to Dublin Core creators.
+        """
+        if creator is None:
+            mtool = getToolByName(self, 'portal_membership')
+            creator = mtool.getAuthenticatedMember().getId()
+
+        # call self.listCreators() to make sure self.creators exists
+        if creator and not creator in self.listCreators():
+            self.setCreators(self.creators + (creator, ))
+
+    security.declareProtected(CMFCorePermissions.View, 'listCreators')
+    def listCreators(self):
+        """ List Dublin Core Creator elements - resource authors.
+        """
+        creators = self.Schema()['creators']
+        if not creators.get(self):
+            # for content created with CMF versions before 1.5
+            owner = self.getOwner()
+            if hasattr(owner, 'getId'):
+                creators.set(self, (owner.getId(),))
+            else:
+                creators.set(self, ())
+
+        return creators.get(self)
+
+    security.declareProtected(CMFCorePermissions.View, 'Creator')
+    def Creator(self):
+        """ Dublin Core Creator element - resource author.
+        """
+        creators = self.listCreators()
+        return creators and creators[0] or ''
 
     #
     #  DublinCore utility methods
@@ -515,6 +569,5 @@ class ExtensibleMetadata(Persistence.Persistent):
                            , rights=rights
                            )
         self.reindexObject()
-
 
 InitializeClass(ExtensibleMetadata)

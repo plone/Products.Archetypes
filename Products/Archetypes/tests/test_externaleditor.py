@@ -10,7 +10,7 @@ from common import *
 from utils import *
 
 from Products.Archetypes.public import *
-from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.interfaces.base import IBaseUnit
 from StringIO import StringIO

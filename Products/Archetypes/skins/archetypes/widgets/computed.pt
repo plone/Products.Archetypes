@@ -10,18 +10,30 @@
 
     <!-- Computed Widgets -->
 
-    <metal:view_macro define-macro="view">
-      <tal:block replace="structure accessor">computed element</tal:block>
-    </metal:view_macro>
+    <metal:view_macro define-macro="view"
+                      tal:define="voc python:field.Vocabulary(here);
+                                  key accessor;
+                                  value python:voc and voc.getValue(key) or key"
+		      tal:replace="structure value" />
 
     <metal:define define-macro="edit">
-      <tal:block condition="use_label|nothing">
-	<span class="label"
-	tal:content="python:widget.Label(here) + ':'">Field</span>
-      </tal:block>
-      <metal:use use-macro="here/widgets/computed/macros/view">
-	It doesn't make any sense to "edit" a computed field
-      </metal:use>
+        <div class="field"
+             tal:define="visState python:widget.isVisible(here, mode);
+                         visCondition python:field.widget.testCondition(here, portal, template);"
+             tal:condition="python:visState == 'visible' and visCondition">
+          <label i18n:translate=""
+                 tal:content="python:widget.Label(here)"
+                 tal:attributes="for python:field.getName()">
+          </label>
+          <div class="formHelp"
+               tal:define="description python:widget.Description(here)"
+               tal:content="structure description"
+               tal:attributes="id string:${fieldName}_help"
+               i18n:translate="">
+            Help
+          </div>
+          <metal:use use-macro="here/widgets/computed/macros/view" />
+      </div>
     </metal:define>
 
     <div metal:define-macro="search">

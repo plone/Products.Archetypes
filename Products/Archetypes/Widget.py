@@ -1,19 +1,28 @@
-from Acquisition import aq_base
-
-from debug import log
-from utils import className, unique, capitalize
-from types import FileType
-from types import DictType # needed for ugly hack in class TypesWidget def isVisible
-
+from types import DictType, FileType, StringType, UnicodeType
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.Expression import Expression, createExprContext
+from Products.Archetypes.debug import log
+from Products.Archetypes.utils import className, unique, capitalize
 from Products.generator.widget import macrowidget
+
+from Acquisition import aq_base, aq_parent
+
+try:
+    True
+except NameError:
+    True=1
+    False=0
 
 class TypesWidget(macrowidget):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
         'populate' : 1,  # should this field be populated in edit and view?
-        'postback' : 1,  # should this field be repopulated with POSTed value when an error occurs?
+        'postback' : 1,  # should this field be repopulated with POSTed
+                         # value when an error occurs?
         'show_content_type' : 0,
+        'helper_js': (),
+        'helper_css': (),
         })
 
     def getName(self):
@@ -24,23 +33,14 @@ class TypesWidget(macrowidget):
         return className(self)
 
     def bootstrap(self, instance):
-        if not self.description or not self.label:
-            field = self.findField(instance)
-            name = field.getName()
-            if not self.label:
-                self.label = capitalize(name)
-            if self.description == '': # description == None, don't use default
-                self.description = "Enter a value for %s" % self.label
+        """Override if your widget needs data from the instance."""
+        return
 
-    def findField(self, instance):
-        # This is a sad hack, I don't want widgets to have to take a
-        # reference to a field or its own name
-        for field in instance.Schema().fields():
-            if not hasattr(field, 'widget'):
-                continue
-            if field.widget is self:
-                return field
-        return None
+    def populateProps(self, field):
+        """This is called when the field is created."""
+        name = field.getName()
+        if not self.label:
+            self.label = capitalize(name)
 
     def isVisible(self, instance, mode='view'):
         """decide if a field is visible in a given mode -> 'state'
@@ -51,14 +51,36 @@ class TypesWidget(macrowidget):
         if not vis_dic:
             return state
         # ugly hack ...
-        if type(vis_dic)==DictType:
+        if type(vis_dic) == DictType:
             state = vis_dic.get(mode, state)
         return state
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def setCondition(self, condition):
+        """Set the widget expression condition."""
+        self.condition = condition
+
+    def getCondition(self):
+        """Return the widget text condition."""
+        return self.condition
+
+    def testCondition(self, folder, portal, object):
+        """Test the widget condition."""
+        try:
+            if self.condition:
+                ec = createExprContext(folder, portal, object)
+                return Expression(self.condition)(ec)
+            else:
+                return 1
+        except AttributeError:
+            return 1
+
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
-        if value is empty_marker: return empty_marker
+        if value is empty_marker:
+            return empty_marker
+        if emptyReturnsMarker and value == '':
+            return empty_marker
         return value, {}
 
 class StringWidget(TypesWidget):
@@ -92,7 +114,71 @@ class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro' : "widgets/reference",
+
+        'addable' : 0, # create createObject link for every addable type
+        'destination' : None, # may be name of method on instance or string.
+                              # destination is relative to portal root
+        'helper_css' : ('content_types.css',),
         })
+
+    def addableTypes(self, instance, field):
+        """Returns a dictionary which maps portal_type to its human readable
+        form."""
+        def lookupDestinationsFor(typeinfo, tool):
+            """
+            search where the user can add a typeid instance
+            """
+            purl = getToolByName(instance, 'portal_url')
+            # first, discover who can contain the type
+            searchFor = []
+            for regType in tool.listTypeInfo():
+                if typeinfo.globalAllow():
+                    searchFor.append(regType.getId())
+                elif regType.filter_content_types and \
+                    typeinfo.getId() in regType.allowed_content_types:
+                    searchFor.append(regType.getId())
+            # after, gimme the path/s
+            containers = []
+            for wanted in searchFor:
+                for brain in \
+                    instance.portal_catalog(portal_type=wanted):
+                    obj = brain.getObject()
+                    if obj != None and \
+                        hasattr(obj.aq_explicit,'isPrincipiaFolderish'):
+                        containers.append(purl.getRelativeUrl(obj))
+            # ok, go on...
+            return containers
+
+        tool = getToolByName(instance, 'portal_types')
+        types = []
+
+        for typeid in field.allowed_types:
+            info = tool.getTypeInfo(typeid)
+            if info is None:
+                raise ValueError, 'No such portal type: %s' % typeid
+
+            value = {}
+            value['id'] = typeid
+            value['name'] = info.Title()
+            if self.destination == None:
+                value['destinations'] = lookupDestinationsFor(info,tool)
+            else:
+                value['destinations'] = [self.getDestination(instance)]
+            types.append(value)
+
+        return types
+
+    def getDestination(self, instance):
+        """ Destination for adding references """
+        purl = getToolByName(instance, 'portal_url')
+        if not self.destination:
+            return '.'
+        else:
+            value = getattr(aq_base(instance), self.destination,
+                            self.destination)
+            if callable(value):
+                value = value()
+        return purl.getPortalPath() + value
 
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -109,14 +195,18 @@ class TextAreaWidget(TypesWidget):
         'format': 0,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """handle text formatting"""
         text_format = None
         value = None
         # text field with formatting
         value = form.get(field.getName(), empty_marker)
 
-        if value is empty_marker: return empty_marker
+        if value is empty_marker:
+            return empty_marker
+
+        if emptyReturnsMarker and value == '':
+            return empty_marker
 
         if hasattr(field, 'allowable_content_types') and \
                field.allowable_content_types:
@@ -148,6 +238,9 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
+        'helper_js': ('jscalendar/calendar_stripped.js',
+                      'jscalendar/calendar-en.js'),
+        'helper_css': ('jscalendar/calendar-system.css',),
         })
 
 class SelectionWidget(TypesWidget):
@@ -174,7 +267,7 @@ class KeywordWidget(TypesWidget):
         'roleBasedAdd' : 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
         name = field.getName()
@@ -200,7 +293,7 @@ class FileWidget(TypesWidget):
         'show_content_type' : 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
@@ -224,7 +317,6 @@ class FileWidget(TypesWidget):
         return value, {}
 
 
-
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -234,7 +326,7 @@ class RichWidget(TypesWidget):
         'format': 1,
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """complex form processing, includes handling for text
         formatting and file objects"""
         # This is basically the old processing chain from base object
@@ -288,7 +380,7 @@ class IdWidget(TypesWidget):
         'is_autogenerated' : 'isIDAutoGenerated',  # script used to determine if an ID is autogenerated
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """the id might be hidden by the widget and not submitted"""
         value = form.get('id', empty_marker)
         if not value or value is empty_marker or not value.strip():
@@ -302,7 +394,7 @@ class ImageWidget(FileWidget):
         'display_threshold': 102400, # only display if size <= threshold, otherwise show link
         })
 
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None, emptyReturnsMarker=False):
         """form processing that deals with image data (and its delete case)"""
         value = None
         ## check to see if the delete hidden was selected
@@ -360,7 +452,21 @@ class EpozWidget(TextAreaWidget):
         'macro' : "widgets/epoz",
         })
 
+class InAndOutWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/inandout",
+        'size' : '6',
+        'helper_js': ('widgets/js/inandout.js',),
+        })
 
+class PicklistWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro' : "widgets/picklist",
+        'size' : '6',
+        'helper_js': ('widgets/js/picklist.js',),
+        })
 
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
@@ -368,31 +474,35 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'SelectionWidget', 'MultiSelectionWidget', 'KeywordWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
-           )
+           'InAndOutWidget', 'PicklistWidget',)
 
 from Registry import registerWidget
 
 registerWidget(StringWidget,
                title='String',
-               description='Renders a HTML text input box which accepts a single line of text',
+               description=('Renders a HTML text input box which '
+                            'accepts a single line of text'),
                used_for=('Products.Archetypes.Field.StringField',)
                )
 
 registerWidget(DecimalWidget,
                title='Decimal',
-               description='Renders a HTML text input box which accepts a fixed point value',
+               description=('Renders a HTML text input box which '
+                            'accepts a fixed point value'),
                used_for=('Products.Archetypes.Field.FixedPointField',)
                )
 
 registerWidget(IntegerWidget,
                title='Integer',
-               description='Renders a HTML text input box which accepts a integer value',
+               description=('Renders a HTML text input box which '
+                            'accepts a integer value'),
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
 registerWidget(ReferenceWidget,
                title='Reference',
-               description='Renders a HTML text input box which accepts a reference value',
+               description=('Renders a HTML text input box which '
+                            'accepts a reference value'),
                used_for=('Products.Archetypes.Field.IntegerField',)
                )
 
@@ -404,14 +514,16 @@ registerWidget(ComputedWidget,
 
 registerWidget(TextAreaWidget,
                title='Text Area',
-               description='Renders a HTML Text Area for typing a few lines of text',
+               description=('Renders a HTML Text Area for typing '
+                            'a few lines of text'),
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.TextField')
                )
 
 registerWidget(LinesWidget,
                title='Lines',
-               description='Renders a HTML textarea for a list of values, one per line',
+               description=('Renders a HTML textarea for a list '
+                            'of values, one per line'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -423,20 +535,24 @@ registerWidget(BooleanWidget,
 
 registerWidget(CalendarWidget,
                title='Calendar',
-               description='Renders a HTML input box with a helper popup box for choosing dates',
+               description=('Renders a HTML input box with a helper '
+                            'popup box for choosing dates'),
                used_for=('Products.Archetypes.Field.DateTimeField',)
                )
 
 registerWidget(SelectionWidget,
                title='Selection',
-               description='Renders a HTML selection widget, which can be represented as a dropdown, or as a group of radio buttons',
+               description=('Renders a HTML selection widget, which '
+                            'can be represented as a dropdown, or as '
+                            'a group of radio buttons'),
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',
-               description='Renders a HTML selection widget, where you can be choose more than one value',
+               description=('Renders a HTML selection widget, where '
+                            'you can be choose more than one value'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
 
@@ -448,7 +564,9 @@ registerWidget(KeywordWidget,
 
 registerWidget(RichWidget,
                title='Rich Widget',
-               description='Renders a HTML widget that allows you to type some content, choose formatting and/or upload a file',
+               description=('Renders a HTML widget that allows you to '
+                            'type some content, choose formatting '
+                            'and/or upload a file'),
                used_for=('Products.Archetypes.Field.TextField',)
                )
 
@@ -466,13 +584,15 @@ registerWidget(IdWidget,
 
 registerWidget(ImageWidget,
                title='Image',
-               description='Renders a HTML widget for uploading/displaying an image',
+               description=('Renders a HTML widget for '
+                            'uploading/displaying an image'),
                used_for=('Products.Archetypes.Field.ImageField',)
                )
 
 registerWidget(LabelWidget,
                title='Label',
-               description='Renders a HTML widget that only displays the label',
+               description=('Renders a HTML widget that only '
+                            'displays the label'),
                used_for=None
                )
 
@@ -492,6 +612,22 @@ registerWidget(EpozWidget,
                title='Epoz',
                description='Renders a HTML Epoz widget',
                used_for=('Products.Archetypes.Field.StringField',)
+               )
+
+registerWidget(InAndOutWidget,
+               title='In & Out',
+               description=('Renders a widget for moving items '
+                            'from one list to another. Items are '
+                            'removed from the first list.'),
+               used_for=('Products.Archetypes.Field.LinesField',)
+               )
+
+registerWidget(PicklistWidget,
+               title='Picklist',
+               description=('Render a widget to pick from one '
+                            'list to populate another.  Items '
+                            'stay in the first list.'),
+               used_for=('Products.Archetypes.Field.LinesField',)
                )
 
 from Registry import registerPropertyType

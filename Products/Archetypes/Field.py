@@ -1,40 +1,55 @@
 from __future__ import nested_scopes
 from copy import copy, deepcopy
-from AccessControl import ClassSecurityInfo, getSecurityManager
-from Acquisition import aq_base, aq_parent, aq_inner
-from types import ListType, TupleType, ClassType, FileType
-from UserDict import UserDict
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore  import CMFCorePermissions
-from Globals import InitializeClass
-from Widget import *
-from utils import capitalize, DisplayList, className, mapply
-from debug import log, log_exc
-from ZPublisher.HTTPRequest import FileUpload
-from BaseUnit import BaseUnit
+from types import ListType, TupleType, ClassType, FileType, DictType
 from types import StringType, UnicodeType
-from Storage import AttributeStorage, MetadataStorage, ObjectManagedStorage, \
-     ReadOnlyStorage
-from DateTime import DateTime
-from Layer import DefaultLayerContainer
-from interfaces.field import IField, IObjectField, IImageField
-from interfaces.layer import ILayerContainer, ILayerRuntime, ILayer
-from interfaces.storage import IStorage
-from interfaces.base import IBaseUnit
-from exceptions import ObjectFieldException, TextFieldException, \
-     FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT
-from OFS.content_types import guess_content_type
-from OFS.Image import File
-from ComputedAttribute import ComputedAttribute
-from Products.PortalTransforms.interfaces import idatastream
+from UserDict import UserDict
 
-import config
+from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG
+from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IField, IObjectField, \
+     IImageField
+from Products.Archetypes.interfaces.layer import ILayerContainer, \
+     ILayerRuntime, ILayer
+from Products.Archetypes.exceptions import ObjectFieldException, \
+     TextFieldException, FileFieldException
+from Products.Archetypes.Widget import *
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes.ReferenceEngine import Reference
+from Products.Archetypes.utils import capitalize, DisplayList, \
+     className, mapply
+from Products.Archetypes.debug import log, log_exc
+from Products.Archetypes import config
+from Products.Archetypes.Storage import AttributeStorage, \
+     MetadataStorage, ObjectManagedStorage, ReadOnlyStorage
 
 from Products.validation import validation
+import Products.generator.i18n as i18n
+from Products.PortalTransforms.interfaces import idatastream
+
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from Acquisition import aq_base, aq_parent, aq_inner
+from DateTime import DateTime
+from OFS.content_types import guess_content_type
+from OFS.Image import File
+from Globals import InitializeClass
+from ComputedAttribute import ComputedAttribute
+from ZPublisher.HTTPRequest import FileUpload
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore  import CMFCorePermissions
+
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
+
+try:
+    True
+except NameError:
+    True=1
+    False=0
+
+_marker = []
 
 __docformat__ = 'reStructuredText'
 
@@ -109,6 +124,7 @@ class Field(DefaultLayerContainer):
         'validators' : (),
         'index' : None, # "KeywordIndex" or "<index_type>:schema"
         'schemata' : 'default',
+        'languageIndependent' : False,
         }
 
     def __init__(self, name, **kwargs):
@@ -144,10 +160,13 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given
+        instantiate the widget if a class was given and call
+        widget.populateProps
         """
-        if hasattr(self, 'widget') and type(self.widget) == ClassType:
-            self.widget = self.widget()
+        if hasattr(self, 'widget'):
+            if type(self.widget) == ClassType:
+                self.widget = self.widget()
+            self.widget.populateProps(self)
 
     def _validationLayer(self):
         """
@@ -159,25 +178,163 @@ class Field(DefaultLayerContainer):
 
         Note: XXX this is not compat with aq_ things like scripts with __call__
         """
-        if type(self.validators) not in [type(()), type([])]:
-            self.validators = (self.validators,)
+        if type(self.validators) is DictType:
+            strategy   = self.validators.get('strategy', 'and').lower()
+            validators = self.validators.get('handlers', ( ))
+        else:
+            strategy  = 'and'
+            validators = self.validators
 
-        for v in self.validators:
-            if not validation.validatorFor(v):
-                log("WARNING: no validator %s for %s" % (v,
+        if type(validators) not in (TupleType, ListType):
+            validators = (validators,)
+        else:
+            validators = tuple(validators)
+
+        if strategy not in ('and', 'or'):
+            raise ValueError("strategy %s not in ('and', 'or')" % strategy)
+
+        for vname in validators:
+            try:
+                v = validation.validatorFor(vname)
+            except KeyError:
+                v = None
+            if not v:
+                log("WARNING: no validator %s for %s" % (vname,
                 self.getName()))
 
-    def validate(self, value, **kwargs):
+        self.validators = {'strategy' : strategy, 'handlers' : validators }
+
+    def validate(self, value, instance, errors={}, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-        for v in self.validators:
-            res = validation.validate(v, value, **kwargs)
-            if res != 1:
+        name = self.getName()
+        if errors and errors.has_key(name):
+            return 1
+
+        if self.required:
+            res = self.validate_required(instance, value, errors)
+            if res is not None:
                 return res
-            return None
+
+        if self.enforceVocabulary:
+            res = self.validate_vocabulary(instance, value, errors)
+            if res is not None:
+                return res
+
+        res = instance.validate_field(name, value, errors)
+        if res is not None:
+            return res
+
+        # check if we are allowed to use the validators
+        # Don't validate if the field is empty and not required
+        # XXX: This is a temporary fix. Need to be fixed right for AT 2.0
+        #      content_edit / BaseObject.processForm() calls widget.process_form
+        #      a second time!
+        isEmpty = False
+        if self.validators:
+            widget = self.widget
+            # XXX: required for unit test
+            request = getattr(instance, 'REQUEST', None)
+            if request:
+                form   = request.form
+                result = widget.process_form(instance, self, form,
+                                             empty_marker=_marker,
+                                             emptyReturnsMarker=True)
+                if result is _marker or result is None: # FileWidget returns None
+                    isEmpty = True
+
+        return self.validate_validators(value, instance=instance, errors=errors,
+                                 isEmpty=isEmpty, **kwargs)
+
+    def validate_validators(self, value, instance, errors, isEmpty, **kwargs):
+        """
+        """
+        strategy   = self.validators.get('strategy')
+        validators = self.validators.get('handlers')
+        results    = {}
+
+        if strategy == 'and':
+            # not failed unless explicitly failed
+            failed = 0
+        else:
+            # failed unless one test has succeded
+            failed = 1
+
+        for name in validators:
+            results[name] = validation.validate(name, value, instance=instance,
+                                                errors=errors, field=self,
+                                                isEmpty=isEmpty, **kwargs)
+
+        for name, res in results.items():
+            if res != 1 and strategy == 'and':
+                failed = 1
+            if res == 1 and strategy == 'or':
+                failed = 0
+
+        if failed:
+            return '\n'.join(['%s: %s' % (name, res)
+                              for name, res in results.items()
+                              if res != 1 ])
+
+
+    def validate_required(self, instance, value, errors):
+        if not value:
+            label = self.widget.Label(instance)
+            name = self.getName()
+            error = i18n.translate(
+                'archetypes', 'error_required',
+                {'name': label}, instance,
+                default = "%s is required, please correct."
+                % label,
+                )
+            errors[name] = error
+            return error
+        return None
+
+    def validate_vocabulary(self, instance, value, errors):
+        """Make sure value is inside the allowed values
+        for a given vocabulary"""
+        error = None
+        if value:
+            # coerce value into a list called values
+            values = value
+            if type(value) in STRING_TYPES:
+                values = [value]
+            elif type(value) not in (TupleType, ListType):
+                raise TypeError("Field value type error")
+            vocab = self.Vocabulary(instance)
+            # filter empty
+            values = [instance.unicodeEncode(v)
+                      for v in values if v.strip()]
+            # extract valid values from vocabulary
+            valids = []
+            for v in vocab:
+                if type(v) in (TupleType, ListType):
+                    v = v[0]
+                if not type(v) in [type(''), type(u'')]:
+                    v = str(v)
+                valids.append(instance.unicodeEncode(v))
+            # check field values
+            for val in values:
+                error = 1
+                for v in valids:
+                    if val == v:
+                        error = None
+                        break
+
+        if error == 1:
+            label = self.widget.Label(instance)
+            errors[self.getName()] = error = i18n.translate(
+                'archetypes', 'error_vocabulary',
+                {'val': val, 'name': label}, instance,
+                default = "Value %s is not allowed for vocabulary "
+                "of element %s." % (val, label),
+                )
+
+        return error
 
     def Vocabulary(self, content_instance=None):
         """
@@ -245,16 +402,6 @@ class Field(DefaultLayerContainer):
                 return 1
         return None
 
-    security.declarePublic('getStorageName')
-    def getStorageName(self):
-        """Return the storage name that is configured for this field
-        as a string"""
-        return self.storage.getName()
-
-    def getStorageType(self):
-        """Return the type of the storage of this field as a string"""
-        return className(self.storage)
-
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         """Return the widget name that is configured for this field as
@@ -316,6 +463,12 @@ class Field(DefaultLayerContainer):
         s = s + '}'
         return s
 
+    security.declarePublic('isLanguageIndependent')
+    def isLanguageIndependent(self, instance):
+        """Get the language independed flag for i18n content
+        """
+        return self.languageIndependent
+
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -331,14 +484,17 @@ class ObjectField(Field):
         'default_content_type' : 'application/octet',
         })
 
+    security  = ClassSecurityInfo()
+
     def get(self, instance, **kwargs):
+        __traceback_info__ = (self.getName(), instance, kwargs)
         try:
             kwargs['field'] = self
-            return self.storage.get(self.getName(), instance, **kwargs)
+            return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', 0):
-                self.set(instance, self.default,_initializing_=1,**kwargs)
+                self.set(instance, self.default, _initializing_=1, **kwargs)
             return self.default
 
     def getRaw(self, instance, **kwargs):
@@ -347,6 +503,7 @@ class ObjectField(Field):
         else:
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
+        kwargs.update({'field': self.__name__})
         if accessor is None:
             args = [instance,]
             return mapply(self.get, *args, **kwargs)
@@ -356,24 +513,39 @@ class ObjectField(Field):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = aq_base(value)
-        self.storage.set(self.getName(), instance, value, **kwargs)
+        __traceback_info__ = (self.getName(), instance, value, kwargs)
+        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
     def unset(self, instance, **kwargs):
-        kwargs['field'] = self
-        self.storage.unset(self.getName(), instance, **kwargs)
+        #kwargs['field'] = self
+        __traceback_info__ = (self.getName(), instance, kwargs)
+        self.getStorage(instance).unset(self.getName(), instance, **kwargs)
 
     def setStorage(self, instance, storage):
         if not IStorage.isImplementedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
-        value = self.get(instance)
+        # raw=1 is required for TextField
+        value = self.get(instance, raw=1)
         self.unset(instance)
         self.storage = storage
         if hasattr(self.storage, 'initializeInstance'):
             self.storage.initializeInstance(instance)
         self.set(instance, value)
 
-    def getStorage(self):
+    def getStorage(self, instance=None):
         return self.storage
+
+    security.declarePublic('getStorageName')
+    def getStorageName(self, instance=None):
+        """Return the storage name that is configured for this field
+        as a string"""
+        return self.getStorage(instance).getName()
+
+    security.declarePublic('getStorageType')
+    def getStorageType(self, instance=None):
+        """Return the type of the storage of this field as a string"""
+        return className(self.getStorage(instance))
+
 
 class StringField(ObjectField):
     """A field that stores strings"""
@@ -392,7 +564,7 @@ class StringField(ObjectField):
         kwargs['field'] = self
         # Remove acquisition wrappers
         value = decode(aq_base(value), instance, **kwargs)
-        self.storage.set(self.getName(), instance, value, **kwargs)
+        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
 class FileField(StringField):
     """Something that may be a file, but is not an image and doesn't
@@ -418,24 +590,25 @@ class FileField(StringField):
             if mimetype is None:
                 mimetype, enc = guess_content_type('', value, mimetype)
             if not value:
-                return default, mimetype
-            return value, mimetype
+                return default, mimetype, ''
+            return value, mimetype, ''
         elif ((isinstance(value, FileUpload) and value.filename != '') or
               (isinstance(value, FileType) and value.name != '')):
             f_name = ''
-            if isinstance(value, FileUpload):
+            if isinstance(value, FileUpload) or hasattr(value, 'filename'):
                 f_name = value.filename
-            if isinstance(value, FileType):
+            if isinstance(value, FileType) or hasattr(value, 'name'):
                 f_name = value.name
+            # Get only last part from a 'c:\\folder\\file.ext'
+            f_name = f_name.split('\\')[-1]
             value = value.read()
             if mimetype is None:
                 mimetype, enc = guess_content_type(f_name, value, mimetype)
             size = len(value)
             if size == 0:
-                # This new file has no length, so we keep
-                # the orig
-                return default, mimetype
-            return value, mimetype
+                # This new file has no length, so we keep the orig
+                return default, mimetype, f_name
+            return value, mimetype, f_name
         raise FileFieldException('Value is not File or String')
 
     def getContentType(self, instance):
@@ -458,16 +631,16 @@ class FileField(StringField):
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
+        value, mimetype, f_name = self._process_input(value,
+                                                      default=self.default,
+                                                      **kwargs)
+        kwargs['mimetype'] = mimetype
+
         if value=="DELETE_FILE":
             if hasattr(aq_base(instance), '_FileField_types'):
                 delattr(aq_base(instance), '_FileField_types')
             ObjectField.unset(self, instance, **kwargs)
             return
-
-        value, mimetype = self._process_input(value,
-                                               default=self.default,
-                                               **kwargs)
-        kwargs['mimetype'] = mimetype
 
         # FIXME: ugly hack
         try:
@@ -475,9 +648,21 @@ class FileField(StringField):
         except AttributeError:
             types_d = {}
             instance._FileField_types = types_d
+        if value is None:
+            # do not send None back as file value if we get a default (None)
+            # value back from _process_input.  This prevents
+            # a hard error (NoneType object has no attribute 'seek') from
+            # occurring if someone types in a bogus name in a file upload
+            # box (at least under Mozilla).
+            value = ''
         types_d[self.getName()] = mimetype
         value = File(self.getName(), '', value, mimetype)
+        setattr(value, 'filename', f_name or self.getName())
         ObjectField.set(self, instance, value, **kwargs)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: value and str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 class TextField(ObjectField):
     """Base Class for Field objects that rely on some type of
@@ -539,7 +724,7 @@ class TextField(ObjectField):
 
     def getRaw(self, instance, raw=0, **kwargs):
         """
-        if raw, return the base unit object, else return encoded raw data
+        If raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
@@ -559,7 +744,7 @@ class TextField(ObjectField):
         If we are unable to transform data, return an empty string. """
         try:
             kwargs['field'] = self
-            value = self.storage.get(self.getName(), instance, **kwargs)
+            value = self.getStorage(instance).get(self.getName(), instance, **kwargs)
             if not IBaseUnit.isImplementedBy(value):
                 return encode(value, instance, **kwargs)
         except AttributeError:
@@ -592,6 +777,12 @@ class TextField(ObjectField):
         if type(value) is type(u'') and encoding is None:
             encoding = 'UTF-8'
 
+        # fix for external editor support
+        # set mimetype to the last state if the mimetype in kwargs is None or 'None'
+        mimetype = kwargs.get('mimetype', None)
+        if mimetype == 'None':
+            kwargs['mimetype'] = self.getContentType(instance)
+
         if not IBaseUnit.isImplementedBy(value):
             value = BaseUnit(self.getName(), value, instance=instance,
                              encoding=encoding,
@@ -599,17 +790,6 @@ class TextField(ObjectField):
                              filename=kwargs.get('filename', ''))
 
         ObjectField.set(self, instance, value, **kwargs)
-
-    def setStorage(self, instance, storage):
-        if not IStorage.isImplementedBy(storage):
-            raise ObjectFieldException, "Not a valid Storage method"
-        value = self.get(instance, raw=1)
-        self.unset(instance)
-        self.storage = storage
-        if hasattr(self.storage, 'initializeInstance'):
-            self.storage.initializeInstance(instance)
-        self.set(instance, value)
-
 
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
@@ -644,7 +824,7 @@ class LinesField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'lines',
-        'default' : [],
+        'default' : (),
         'widget' : LinesWidget,
         })
 
@@ -656,15 +836,20 @@ class LinesField(ObjectField):
         """
         __traceback_info__ = value, type(value)
         if type(value) in STRING_TYPES:
-            value = value.split('\n')
+            value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs)
-        return [encode(v, instance, **kwargs) for v in value]
+        value = ObjectField.get(self, instance, **kwargs) or ()
+        if config.ZOPE_LINES_IS_TUPLE_TYPE:
+            return tuple([encode(v, instance, **kwargs) for v in value])
+        else:
+            return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -716,7 +901,7 @@ class FixedPointField(ObjectField):
     _properties.update({
         'type' : 'fixedpoint',
         'precision' : 2,
-        'default' : '0.0',
+        'default' : '0.00',
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
@@ -747,103 +932,127 @@ class FixedPointField(ObjectField):
         if type(value) in [StringType]: value = self._to_tuple(value)
         return template % value
 
+    def validate_required(self, instance, value, errors):
+        value = sum(self._to_tuple(value))
+        return ObjectField.validate_required(self, instance, value, errors)
+
 class ReferenceField(ObjectField):
-    """A field for containing a reference"""
     __implements__ = ObjectField.__implements__
+
+    """A field for creating references between objects.
+
+    Values used in get() and set() methods are either string or list
+    depending on multiValued. The strings represent UIDs.
+
+    If no vocabulary is provided by you, one will be assembled based on
+    allowed_types.
+    """
 
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'reference',
-        'default': None,
+        'default' : None,
         'widget' : ReferenceWidget,
-        'allowed_types' : (),
-        'allowed_type_column' : 'portal_type',
-        'addable': 0,
-        'destination': None,
-        'relationship':None
+
+        'relationship' : None, # required
+        'allowed_types' : (),  # a tuple of portal types, empty means allow all
+
+        'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
+                                            # display path as well
+
+        'referenceClass' : Reference,
         })
 
-    def containsValueAsString(self, value, attrval):
-        """
-        checks wether the attribute contains a value
-           if the field is a scalar -> comparison
-           if it is multiValued     -> check for 'in'
-        """
-        if self.multiValued:
-            return str(value) in [str(a) for a in attrval]
-        else:
-            return str(value) == str(attrval)
+
+    def get(self, instance, **kwargs):
+        """Not really publicly useful.
+
+        See IReferenceable for more convenient ways."""
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        value = [ref.targetUID for ref in
+                 tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued: # return a string or None if single valued
+            if len(value) > 1:
+                log('%s of %s is single valued but multiple %s relationships '
+                    'exist: %s' %
+                    (self.getName(), instance, self.relationship, value))
+
+            if len(value) == 0:
+                value = None
+            else:
+                value = value[0]
+
+        return value
 
     def set(self, instance, value, **kwargs):
-        """ Add one or more passed in references to the object.
-        Before setting the value the reference gets also be established
-        in the reference tool
+        """Mutator.
+
+        ``value`` is a list of UIDs or one UID string to which I will add a
+        reference to. None and [] are equal.
+
+        Keyword arguments may be passed directly to addReference(), thereby
+        creating properties on the reference objects.
         """
+        tool = getToolByName(instance, REFERENCE_CATALOG)
+        targetUIDs = [ref.targetUID for ref in
+                      tool.getReferences(instance, self.relationship)]
+
+        if not self.multiValued and value:
+            value = (value,)
 
         if not value:
-            value=None
-        __traceback_info__ = (instance, self.getName(), value)
+            value = ()
 
-        # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance,TOOL_NAME)
-        refname=self.relationship
+        add = [v for v in value if v and v not in targetUIDs]
+        sub = [t for t in targetUIDs if t not in value]
 
-        # XXX: thats too cheap, but I need the proof of concept before
-        # going on
-        instance.deleteReferences(refname)
-        newValue = []
-        if self.multiValued:
-            if type(value) in (type(()),type([])):
-                for uid in value:
-                    if uid:
-                        target=tool.lookupObject(uid=uid)
-                        if target is None:
-                            raise ValueError, "Invalid reference %s" % uid
-                        instance.addReference(target, refname)
-                        newValue.append(uid)
-        else:
-            if value:
-                target=tool.lookupObject(uid=value)
-                if target is None:
-                    raise ValueError, "Invalid reference %s" % value
-                instance.addReference(target, refname)
-                newValue = value
+        # tweak keyword arguments for addReference
+        addRef_kw = kwargs.copy()
+        addRef_kw.setdefault('referenceClass', self.referenceClass)
+        if addRef_kw.has_key('schema'): del addRef_kw['schema']
 
-        # and now do the normal assignment
-        ObjectField.set(self, instance, newValue, **kwargs)
+        for uid in add:
+            __traceback_info__ = (instance, uid, value, targetUIDs)
+            # throws IndexError if uid is invalid
+            tool.addReference(instance, uid, self.relationship, **addRef_kw)
+
+        for uid in sub:
+            tool.deleteReference(instance, uid, self.relationship)
 
     def Vocabulary(self, content_instance=None):
-        # If we have a method providing the list of types go with it,
-        # it can always pull allowed_types if it needs to (not that we
-        # pass the field name)
-        value = ObjectField.Vocabulary(self, content_instance)
-        if value:
-            return value
-        results = []
-        if self.allowed_types:
-            catalog = getToolByName(content_instance, config.UID_CATALOG)
-
-            # the else branch is for backwards compatibility: we
-            # switched to look up portal_type by default instead of
-            # Type for AT 1.2.4
-            if self.allowed_type_column in catalog.indexes():
-                kw = {self.allowed_type_column:self.allowed_types}
-            else:
-                kw = {'Type':self.allowed_types}
-
-            results = catalog(**kw)
+        """Use vocabulary property if it's been defined."""
+        if self.vocabulary:
+            return ObjectField.Vocabulary(self, content_instance)
         else:
-            archetype_tool = getToolByName(content_instance, TOOL_NAME)
-            results = archetype_tool.Content()
-        results = [(r, r.getObject()) for r in results]
-        value = [(r.UID, obj and (str(obj.Title().strip()) or \
-                                  str(obj.getId()).strip())  or \
-                  log('Field %r: Object at %r could not be found' % \
-                      (self.getName(), r.getURL())) or \
-                  r.Title or r.UID) for r, obj in results]
+            return self._Vocabulary(content_instance).sortedByValue()
+
+    def _Vocabulary(self, content_instance):
+        pairs = []
+        pc = getToolByName(content_instance, 'portal_catalog')
+        uc = getToolByName(content_instance, config.UID_CATALOG)
+        brains = pc.searchResults(portal_type=self.allowed_types)
+
+        if len(brains) > self.vocabulary_display_path_bound:
+            at = i18n.translate(domain='archetypes', msgid='label_at',
+                                context=content_instance, default='at')
+            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
+                                           b.getPath())
+        else:
+            label = lambda b:b.Title or b.id
+
+        for b in brains:
+            uid = uc.getMetadataForUID(b.getPath())['UID']
+            pairs.append((uid, label(b)))
+
         if not self.required and not self.multiValued:
-            value.insert(0, ('', '<no reference>'))
-        return DisplayList(value)
+            no_reference = i18n.translate(domain='archetypes',
+                                          msgid='label_no_reference',
+                                          context=content_instance,
+                                          default='<no reference>')
+            pairs.insert(0, ('', no_reference))
+
+        return DisplayList(pairs)
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -926,7 +1135,7 @@ class CMFObjectField(ObjectField):
 
     def get(self, instance, **kwargs):
         try:
-            return self.storage.get(self.getName(), instance, **kwargs)
+            return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # object doesnt exists
             tt = getToolByName(instance, 'portal_types', None)
@@ -940,7 +1149,10 @@ class CMFObjectField(ObjectField):
             if not hasattr(aq_base(info), 'constructInstance'):
                 raise ValueError('Cannot construct content type: %s' % \
                                  type_name)
-            return info.constructInstance(instance, self.getName(), **kwargs)
+            args = [instance, self.getName()]
+            for k in ['field', 'schema']:
+                del kwargs[k]
+            return mapply(info.constructInstance, *args, **kwargs)
 
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
@@ -966,6 +1178,8 @@ try:
     has_pil=1
 except:
     # no PIL, no scaled versions!
+    log("Warning: no Python Imaging Libraries (PIL) found."+\
+        "Archetypes based ImageField's don't scale if neccessary.")
     has_pil=None
 
 class Image(BaseImage):
@@ -1043,7 +1257,7 @@ class ImageField(ObjectField):
         will be deleted (None is understood as no-op)
         """
 
-    __implements__ = ObjectField.__implements__ + (IImageField,)
+    __implements__ = ObjectField.__implements__ #, IImageField)
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1052,8 +1266,8 @@ class ImageField(ObjectField):
         'original_size': None,
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
-        'default_content_type' : 'image/gif',
-        'allowable_content_types' : ('image/gif','image/jpeg'),
+        'default_content_type' : 'image/png',
+        'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'image_class': Image,
@@ -1070,10 +1284,7 @@ class ImageField(ObjectField):
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
-            # unset different sizes
-            for n, size in self.sizes.items():
-                id = self.getName() + "_" + n
-                self.storage.unset(id, instance, **kwargs)
+            self.removeScales(image)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
             return
@@ -1103,14 +1314,42 @@ class ImageField(ObjectField):
                     # the orig
                     return
 
-        ###
-        ### store the original
-        ###
+        kwargs = self._updateKwargs(instance, value, **kwargs)
+        imgdata = self.rescaleOriginal(value, **kwargs)
+        # XXX add self.ZCacheable_invalidate() later
+        self.createOriginal(instance, imgdata, **kwargs)
+        self.createScales(instance)
 
-        # test for scaling it.
-        imgdata = value
+    def _updateKwargs(self, instance, value, **kwargs):
+        # get filename from kwargs, then from the value
+        # if no filename is available set it to ''
+        vfilename = getattr(value, 'filename', '')
+        kfilename = kwargs.get('filename', '')
+        if kfilename:
+            filename = kfilename
+        else:
+            filename = vfilename
+        kwargs['filename'] = filename
+
+        # set mimetype from kwargs, then from the field itself
+        # if no mimetype is available set it to 'image/png'
+        kmimetype = kwargs.get('mimetype', None)
+        imimetype = self.getContentType(instance)
+        if kmimetype:
+            mimetype = kmimetype
+        elif imimetype:
+            mimetype = imimetype
+        else:
+            mimetype = 'image/png'
+        kwargs['mimetype'] = mimetype
+        return kwargs
+
+    def rescaleOriginal(self, value, **kwargs):
+        """rescales the original image and sets the data
+
+        for self.original_size or self.max_size
+        """
         mimetype = kwargs.get('mimetype', 'image/png')
-
         if has_pil:
             if self.original_size or self.max_size:
                 image = self.image_class(self.getName(), self.getName(),
@@ -1127,48 +1366,95 @@ class ImageField(ObjectField):
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
-                    imgdata = self.scale(data,w,h)
+                    value = self.scale(data,w,h)
 
+        return value
+
+    def createOriginal(self, instance, value, **kwargs):
+        """create the original image (save it)
+        """
+        mimetype = kwargs.get('mimetype', 'image/png')
+        filename = kwargs.get('filename', '')
         image = self.image_class(self.getName(), self.getName(),
-                                 imgdata, mimetype)
-        image.filename = hasattr(value, 'filename') and value.filename or ''
+                                 value, mimetype)
+        image.filename = filename
         delattr(image, 'title')
         ObjectField.set(self, instance, image, **kwargs)
 
-        # now create the scaled versions
+    def removeScales(self, instance):
+        """Remove the scaled image
+        """
+        if self.sizes:
+            for name, size in self.sizes.items():
+                id = self.getName() + "_" + name
+                try:
+                    # the following line may throw exceptions on types, if the
+                    # type-developer add sizes to a field in an existing
+                    # instance and a user try to remove an image uploaded before
+                    # that changed. The problem is, that the behavior for non
+                    # existent keys isn't defined. I assume a keyerror will be
+                    # thrown. Ignore that.
+                    self.getStorage(instance).unset(id, instance, **kwargs)
+                except KeyError:
+                    pass
+
+    def createScales(self, instance):
+        """creates the scales and save them
+        """
         if not has_pil or not self.sizes:
             return
-
-        data = str(image.data)
+        img = self.getRaw(instance)
+        if not img:
+            return
+        data = str(img.data)
         for n, size in self.sizes.items():
             w, h = size
             id = self.getName() + "_" + n
-            imgdata = self.scale(data, w, h)
-            image2 = self.image_class(id, self.getName(),
-                                      imgdata, 'image/jpeg')
+            imgdata, format = self.scale(data, w, h)
+            image = self.image_class(id, self.getName(),
+                                     imgdata,
+                                     'image/%s' % format
+                                     )
             # manually use storage
-            delattr(image2, 'title')
-            self.storage.set(id, instance, image2)
+            delattr(image, 'title')
+            self.getStorage(instance).set(id, instance, image)
 
-
-    def scale(self,data,w,h):
+    def scale(self, data, w, h):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
-        keys = {'height':int(h), 'width':int(w)}
+        size = int(w), int(h)
 
-        pilfilter = 0 # NEAREST
+        pilfilter = PIL.Image.NEAREST
         #check for the pil version and enable antialias if > 1.1.3
         if PIL.Image.VERSION >= "1.1.3":
-            pilfilter = 1 # ANTIALIAS
+            pilfilter = PIL.Image.ANTIALIAS
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
-        image = image.convert('RGB')
-        image.thumbnail((keys['width'],keys['height']), pilfilter)
+        # consider image mode when scaling
+        # source images can be mode '1','L,','P','RGB(A)'
+        # convert to greyscale or RGBA before scaling
+        # preserve palletted mode (but not pallette)
+        # for palletted-only image formats, e.g. GIF
+        # PNG compression is OK for RGBA thumbnails
+        original_mode = image.mode
+        if original_mode == '1':
+            image = image.convert('L')
+        elif original_mode == 'P':
+            image = image.convert('RGBA')
+        image.thumbnail(size, pilfilter)
+        # XXX: tweak to make the unit test
+        #      test_fields.ProcessingTest.test_processing_fieldset run
+        format = image.format and image.format or 'PNG'
+        # decided to only preserve palletted mode
+        # for GIF, could also use   image.format in ('GIF','PNG')
+        if original_mode == 'P' and format == 'GIF':
+            image = image.convert('P')
         thumbnail_file = StringIO()
-        image.save(thumbnail_file, "JPEG", quality=88)
+        # quality parameter doesn't affect lossless formats
+        image.save(thumbnail_file, format, quality=88)
         thumbnail_file.seek(0)
-        return thumbnail_file.read()
+        return thumbnail_file, format.lower()
 
     def getContentType(self, instance):
         img = self.getRaw(instance)
@@ -1176,6 +1462,9 @@ class ImageField(ObjectField):
             return img.getContentType()
         return ''
 
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(Field)
 
@@ -1458,10 +1747,15 @@ class PhotoField(ObjectField):
     default_view = "view"
 
     def set(self, instance, value, **kw):
-        if isinstance(value, StringType):
+        if type(value) is StringType:
             value = StringIO(value)
-        image = ScalableImage(self.name, file=value, displays=self.displays)
+        image = ScalableImage(self.getName(), file=value,
+                              displays=self.displays)
         ObjectField.set(self, instance, image, **kw)
+
+    def validate_required(self, instance, value, errors):
+        value = getattr(value, 'get_size', lambda: str(value))()
+        return ObjectField.validate_required(self, instance, value, errors)
 
 InitializeClass(PhotoField)
 
@@ -1469,7 +1763,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField',
+           'CMFObjectField', 'ImageField', 'PhotoField',
            )
 
 from Registry import registerField

@@ -1,6 +1,7 @@
+from Products.Archetypes.Registry import registerValidator
 from Products.validation.interfaces import ivalidator
+
 from DateTime import DateTime
-from Registry import registerValidator
 
 class DateValidator:
 

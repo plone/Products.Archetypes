@@ -24,6 +24,10 @@ schema = Schema(tuple(field_instances) + (
                vocabulary='_get_selection_vocab',
                widget=SelectionWidget(label='Selection'),
                ),
+    LinesField('selectionlinesfield3',
+               vocabulary='_get_selection_vocab2',
+               widget=MultiSelectionWidget(label='MultiSelection'),
+               ),
     TextField('richtextfield',
               allowable_content_types=('text/plain',
                                        'text/structured',
@@ -41,5 +45,9 @@ class ComplexType(SimpleType):
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'), ))
+
+    def _get_selection_vocab2(self):
+        return DisplayList((('Test','Test'),('Test2','Test2'), ))
+
 
 registerType(ComplexType)

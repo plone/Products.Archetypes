@@ -30,6 +30,18 @@
       </div>
     </div>
 
+    <div metal:define-macro="hidden">
+      <input type="hidden"
+             name=""
+             value=""
+             tabindex="#"
+             tal:attributes="name string:${fieldName}:lines;
+                             value python:'\n'.join(value);
+                             tabindex tabindex/next;" />
+
+    </div>
+
+
   </body>
 
 </html>

@@ -1,13 +1,13 @@
+from Products.Archetypes.SQLMethod import SQLMethod
+from Products.Archetypes.interfaces.storage import IStorage, ISQLStorage
+from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.interfaces.layer import ILayer
+from Products.Archetypes.debug import log
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.Storage import StorageLayer, type_map
+
 from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
-from SQLMethod import SQLMethod
-from interfaces.storage import IStorage, ISQLStorage
-from interfaces.field import IObjectField
-from interfaces.layer import ILayer
-from debug import log
-from config import TOOL_NAME
-from Storage import StorageLayer, type_map
-from sys import exc_info
 
 class BaseSQLStorage(StorageLayer):
     # SQLStorage that is more or less ISO SQL, should be

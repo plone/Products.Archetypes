@@ -1,26 +1,27 @@
 import sha
 
-from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
-from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
-from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
-     _verifyActionPermissions
-from Products.CMFCore.Expression import createExprContext
-from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes import registerType
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.Field       import *
-from Products.Archetypes.Widget      import *
+from Products.Archetypes.Field import *
+from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
+from Products.Archetypes.debug import log
+from Products.Archetypes.ClassGen import _modes
+from Products.Archetypes.utils import OrderedDict
 
+from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
+from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
+from DateTime import DateTime
 from Globals import InitializeClass
 
-from Products.Archetypes.debug import log
-from DateTime import DateTime
+from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
+     _verifyActionPermissions
+from Products.CMFCore.Expression import createExprContext
+from Products.CMFCore import CMFCorePermissions
 
-from Products.Archetypes.ClassGen import _modes
 
 class VarClassGen(ClassGenerator):
 
@@ -72,12 +73,15 @@ class VariableSchemaSupport:
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
     def Schemata(self):
+        """Returns an ordered dictionary, which maps all Schemata names to
+        fields that belong to the Schemata."""
         schema = self.getAndPrepareSchema()
-        schemata = {}
+        schemata = OrderedDict()
         for f in schema.fields():
             sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = sub
+            schemata[f.schemata] = ImplicitAcquisitionWrapper(sub, obj)
+
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,

@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.3 2003/11/03 22:14:27 dreamcatcher Exp $
+# $Id: common.py,v 1.3.24.1 2004/04/25 22:07:12 tiran Exp $
 
 # enable nice names for True and False from newer python versions
 try:
@@ -13,6 +13,16 @@ except NameError: # python 2.1
     __all__Boolean = ('True', 'False',)
 else:
     __all__Boolean = ()
+
+# fix zope 2.7+ configuration
+try:
+    from App import config
+except ImportError:
+    pass
+else:
+    config._config.rest_input_encoding = 'ascii'
+    config._config.rest_output_encoding = 'ascii'
+    config._config.rest_header_level = 3
 
 def Xprint(s):
     """print helper

@@ -19,22 +19,21 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="binary python: here.isBinary(fieldName);">
-	  <div class="group">
-	    <div class="row">Enter text and choose a format for the <span tal:content="python:widget.Label(here)"/></div>
-	    <div class="row">
-	      <metal:use use-macro="here/widgets/epoz/macros/edit_area">
-		<metal:fill fill-slot="text_format"/>
-	      </metal:use>
-	    </div>
-	    <div metal:use-macro="here/widgets/textarea/macros/area_format" />
-	    <div class="row">
-	      <strong>OR</strong>
-	    </div>
-	    <div class="row">
-	      <div class="label">Upload a File</div>
-	      <metal:use use-macro="here/widgets/file/macros/file_edit"/>
-	    </div>
-	  </div>
+            <metal:use use-macro="here/widgets/epoz/macros/edit_area">
+                <metal:fill fill-slot="text_format"/>
+            </metal:use>
+            
+            <div metal:use-macro="here/widgets/textarea/macros/area_format" />
+            
+            <div class="field">
+                <strong i18n:translate="uppercase_or">OR</strong>
+            </div>
+            
+            <div class="field">
+                <label i18n:translate="upload_a_file">Upload a File</label>
+                <metal:use use-macro="here/widgets/file/macros/file_upload"/>
+                <metal:use use-macro="here/widgets/file/macros/file_view"/>
+            </div>
 	</metal:fill>
       </metal:use>
     </metal:define>
