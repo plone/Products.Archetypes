@@ -39,6 +39,10 @@ class SafeFileWrapper:
     def close(self):
 	self.fp.close()
 
+    def __getattr__(self, key):
+	return getattr(self.fp, key)
+    
+
 class Log:
     closeable = 0
     fp = None
