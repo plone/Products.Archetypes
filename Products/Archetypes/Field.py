@@ -23,7 +23,7 @@ from interfaces.storage import IStorage
 from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException, TextFieldException, \
      FileFieldException
-from config import TOOL_NAME, USE_NEW_BASEUNIT, REFERENCE_CATALOG
+from config import TOOL_NAME, USE_NEW_BASEUNIT
 from OFS.content_types import guess_content_type
 from OFS.Image import File
 from ComputedAttribute import ComputedAttribute
@@ -147,13 +147,10 @@ class Field(DefaultLayerContainer):
 
     def _widgetLayer(self):
         """
-        instantiate the widget if a class was given and call
-        widget.populateProps
+        instantiate the widget if a class was given
         """
-        if hasattr(self, 'widget'):
-            if type(self.widget) == ClassType:
-                self.widget = self.widget()
-            self.widget.populateProps(self)
+        if hasattr(self, 'widget') and type(self.widget) == ClassType:
+            self.widget = self.widget()
 
     def _validationLayer(self):
         """
@@ -179,7 +176,6 @@ class Field(DefaultLayerContainer):
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
-
         for v in self.validators:
             res = validation.validate(v, value, **kwargs)
             if res != 1:
@@ -538,13 +534,10 @@ class TextField(ObjectField):
         value = self.get(instance, raw=1, **kwargs)
         if raw or not IBaseUnit.isImplementedBy(value):
             return value
-        try:
-            return value.getRaw(encoding=kwargs.get('encoding'),
-                                instance=instance)
-        except TypeError:
-            # FIXME: backward compat, getRaw doesn't take encoding
-            # argument on old base units
-            value.getRaw()
+        kw = {'encoding':kwargs.get('encoding'),
+              'instance':instance}
+        args = []
+        return mapply(value.getRaw, *args, **kw)
 
     def get(self, instance, mimetype=None, raw=0, **kwargs):
         """ If raw, return the base unit object, else return value of
@@ -641,7 +634,7 @@ class LinesField(ObjectField):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'lines',
-        'default' : (),
+        'default' : [],
         'widget' : LinesWidget,
         })
 
@@ -657,16 +650,11 @@ class LinesField(ObjectField):
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v.strip()]
         value = filter(None, value)
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            return tuple([encode(v, instance, **kwargs) for v in value])
-        else:
-            return [encode(v, instance, **kwargs) for v in value]
+        return [encode(v, instance, **kwargs) for v in value]
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -786,40 +774,25 @@ class ReferenceField(ObjectField):
         __traceback_info__ = (instance, self.getName(), value)
 
         # Establish the relation through the ReferenceEngine
-        tool=getToolByName(instance, REFERENCE_CATALOG)
+        tool=getToolByName(instance,TOOL_NAME)
         refname=self.relationship
 
-        refs=tool.getReferences(instance,refname)
-        if refs:
-            targetUIDs=[r.targetUID for r in refs]
-        else:
-            targetUIDs=[]
-
+        # XXX: thats too cheap, but I need the proof of concept before
+        # going on
+        instance.deleteReferences(refname)
         newValue = []
-
         if self.multiValued:
-            #add the new refs
-            if value:
-                value=[v for v in value if v]
-                #add new references
+            if type(value) in (type(()),type([])):
                 for uid in value:
-                    if uid not in targetUIDs:
-                        target=tool.lookupObject(uuid=uid)
+                    if uid:
+                        target=tool.lookupObject(uid=uid)
                         if target is None:
                             raise ValueError, "Invalid reference %s" % uid
-
-                        instance.addReference(target,refname)
-                    newValue.append(uid)
-
-                #delete references
-                for uid in targetUIDs:
-                    if uid and uid not in value:
-                        target=tool.lookupObject(uid)
-                        if target:
-                            instance.deleteReference(target,refname)
+                        instance.addReference(target, refname)
+                        newValue.append(uid)
         else:
-            if value :
-                target=tool.lookupObject(uuid=value)
+            if value:
+                target=tool.lookupObject(uid=value)
                 if target is None:
                     raise ValueError, "Invalid reference %s" % value
                 instance.addReference(target, refname)
@@ -838,41 +811,27 @@ class ReferenceField(ObjectField):
         results = []
         if self.allowed_types:
             catalog = getToolByName(content_instance, config.UID_CATALOG)
-            kw = {self.allowed_type_column:self.allowed_types}
+            
+            # the else branch is for backwards compatbility:
+            #  we switched to look up portal_type by default instead of Type for AT 1.2.4
+            if self.allowed_type_column in catalog.indexes():
+                kw = {self.allowed_type_column:self.allowed_types}
+            else:
+                kw = {'Type':self.allowed_types}
+                
             results = catalog(**kw)
         else:
             archetype_tool = getToolByName(content_instance, TOOL_NAME)
             results = archetype_tool.Content()
-
-        value = [(r.UID, r.Title and r.Title or r.id) for r in results]
-        
+        results = [(r, r.getObject()) for r in results]
+        value = [(r.UID, obj and (str(obj.Title().strip()) or \
+                                  str(obj.getId()).strip())  or \
+                  log('Field %r: Object at %r could not be found' % \
+                      (self.getName(), r.getURL())) or \
+                  r.Title or r.UID) for r, obj in results]
         if not self.required and not self.multiValued:
             value.insert(0, ('', '<no reference>'))
         return DisplayList(value)
-
-    def addableTypes(self, instance):
-        # XXX This needs to be fixed so it works with allowed_types being
-        # a list of Type Titles (which is the default way of specifying
-        # allowed_types).
-        # Currently, you need to set 'allowed_type_column' property to
-        # 'portal_type' and set 'allowed_types' accordingly to have the
-        # addable=1 feature work.
-        """Returns a dictionary that maps portal_type to its human readable
-        form."""
-        tool = getToolByName(instance, 'portal_types')
-        if tool is None:
-            msg = "Couldn't get portal_types tool from this context"
-            raise AttributeError(msg)
-
-        d = {}
-        for typeid in self.allowed_types:
-            info = tool.getTypeInfo(typeid)
-            if info is None:
-                raise ValueError('No such content type: %s' % typeid)
-            d[typeid] = info.Title()
-
-        return d
-
 
 class ComputedField(ObjectField):
     """A field that stores a read-only computation"""
@@ -1493,7 +1452,7 @@ __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField', 'PhotoField',
+           'CMFObjectField', 'ImageField',
            )
 
 from Registry import registerField

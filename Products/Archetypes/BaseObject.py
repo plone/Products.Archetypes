@@ -14,7 +14,6 @@ from debug import log, log_exc
 from types import FileType
 from DateTime import DateTime
 import operator
-from inspect import getargs
 
 from Schema import Schema, Schemata
 from Field import StringField, TextField
@@ -39,14 +38,10 @@ content_type = Schema((
                 accessor="getId",
                 mutator="setId",
                 default=None,
-                widget=IdWidget(
-    label="Short Name",
-    label_msgid="label_short_name",
-    description="Should not contain spaces, underscores or mixed case. "\
-    "Short Name is part of the item's web address.",
-    description_msgid="help_shortname",
-    visible={'view' : 'invisible'},
-    i18n_domain="plone"),
+                widget=IdWidget(label_msgid="label_name",
+                                description_msgid="help_name",
+                                visible={'view' : 'invisible'},
+                                i18n_domain="plone"),
                 ),
 
     StringField('title',
@@ -54,12 +49,10 @@ content_type = Schema((
                 searchable=1,
                 default='',
                 accessor='Title',
-                widget=StringWidget(
-    label_msgid="label_title",
-    description=None,
-    i18n_domain="plone"),
+                widget=StringWidget(label_msgid="label_title",
+                                    description_msgid="help_title",
+                                    i18n_domain="plone"),
                 )),
-
     marshall = RFC822Marshaller()
                       )
 
@@ -255,8 +248,8 @@ class BaseObject(Implicit):
         if not accessor:
             accessor = schema[key].getAccessor(self)
 
-        # This is the access mode used by external editor. We need the
-        # handling provided by BaseUnit when its available
+        #This is the access mode used by external editor. We need the
+        #handling provided by BaseUnit when its available
         kw = {'raw':1}
         value = mapply(accessor, **kw)
 
@@ -373,7 +366,6 @@ class BaseObject(Implicit):
 
         return encoding
 
-
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
@@ -481,6 +473,7 @@ class BaseObject(Implicit):
 
         # read all the old values into a dict
         values = {}
+        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
             if name not in excluded_fields:
@@ -490,6 +483,9 @@ class BaseObject(Implicit):
                     if out != None:
                         print >> out, ('Unable to get %s.%s'
                                        % (str(self.getId()), name))
+                else:
+                    if hasattr(f, 'getContentType'):
+                        mimes[name] = f.getContentType(self)
 
         obj_class = self.__class__
         current_class = getattr(sys.modules[self.__module__],
@@ -511,9 +507,12 @@ class BaseObject(Implicit):
 
         for f in new_schema.fields():
             name = f.getName()
+            kw = {}
             if name not in excluded_fields and values.has_key(name):
+                if mimes.has_key(name):
+                    kw['mimetype'] = mimes[name]
                 try:
-                    self._migrateSetValue(name, values[name])
+                    self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
                     if out != None:
                         print >> out, ('Unable to set %s.%s to '
@@ -601,16 +600,17 @@ class BaseObject(Implicit):
 
 
     security.declarePrivate('_migrateSetValue')
-    def _migrateSetValue(self, name, value, old_schema=None):
+    def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
         field = schema.get(name, None)
         # try using the field's mutator
         if field:
             mutator = field.getMutator(self)
-            if mutator:
+            if mutator is not None:
                 try:
-                    mutator(value)
+                    args = [value,]
+                    mapply(mutator, *args, **kw)
                     return
                 except ConflictError:
                     raise
