@@ -1422,10 +1422,10 @@ class ReferenceField(ObjectField):
         elif len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.getId, at,
+            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
                                            b.getPath())
         else:
-            label = lambda b:b.Title or b.getId
+            label = lambda b:b.Title or b.id
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
@@ -2025,7 +2025,7 @@ class ImageField(FileField):
                  }
 
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
-                 'width="%(width)s" height="%(height)s"' % values
+                 'height="%(height)s" width="%(width)s"' % values
 
         if css_class is not None:
             result = '%s class="%s"' % (result, css_class)
