@@ -15,6 +15,7 @@ from OFS.SimpleItem import SimpleItem
 from OFS.Folder import Folder
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
+
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog import portal_catalog as ICatalogTool
@@ -71,28 +72,27 @@ base_factory_type_information = (
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
-                       'action': 'base_view',
+                       'action': 'string:${object_url}/base_view',
                        'permissions': (CMFCorePermissions.View,),
                        },
 
                      { 'id': 'edit',
                        'name': 'Edit',
-                       'action': 'base_edit',
+                       'action': 'string:${object_url}/base_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
                        'name': 'Properties',
-                       'action': 'base_metadata',
+                       'action': 'string:${object_url}/base_metadata',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'references',
                        'name': 'References',
-                       'action': 'reference_edit',
+                       'action': 'string:${object_url}/reference_edit',
                        'permissions': (CMFCorePermissions.ModifyPortalContent,),
                        },
-
                      )
       }, )
 
@@ -141,6 +141,9 @@ def fixActionsForType(portal_type, typesTool):
             if cmfver[:7] >= "CMF-1.4" or cmfver == 'Unreleased':
                 if hasattr(portal_type,'aliases'):
                     typeInfo.setMethodAliases(portal_type.aliases)
+                else:
+                    #Custom views might need to reguess the aliases
+                    typeInfo._guessMethodAliases()
                     
             
             typeInfo._actions = tuple(new)
@@ -283,47 +286,6 @@ def listTypes(package=None):
 def getType(name):
     return _types[name]
 
-class TTWSchema(SimpleItem):
-    def __init__(self, oid, text=None):
-        self.id = oid
-        self.text = text
-        if text:
-            self.compileSchema(text)
-
-
-    def compileSchema(self, text):
-        """Take the text of a schema and produce a field list
-        by evaling in a preped namespace"""
-        ns = {}
-        # We need to import these here to avoid circular imports
-        import BaseContent
-        import ExtensibleMetadata
-
-        exec "from Products.Archetypes.public import *" in ns
-
-        exec text in ns
-        schema = ns['schema']
-        schema = BaseContent.BaseContent.Schema() + \
-                 ExtensibleMetadata.ExtensibleMetadata.Schema() + schema
-        self.schema = schema
-
-    def register(self, typesTool):
-        #update reg with types tool
-        #update actions
-        #changes to schema might need classgen changes
-        try:
-            typesTool._delObject(self.id)
-        except:
-            pass
-
-        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                            id=self.id,
-                                            typeinfo_name="%s: %s" % (PKG_NAME, "TTW" ))
-        t = getattr(typesTool, self.id, None)
-        if t:
-            process_types((t,), PKG_NAME)
-
-
 class WidgetWrapper:
     """ Wrapper used for drawing widgets without an instance (for ex.,
     for a search form) """
@@ -349,39 +311,34 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security = ClassSecurityInfo()
 
-    meta_types = all_meta_types = ((
-        { 'name'   : 'Schema',
-          'action' : 'manage_addSchemaForm'},
-        ))
+    meta_types = all_meta_types = ()
 
     manage_options=(
-        (Folder.manage_options[0],) +
         (
-        { 'label'  : 'Templates',
-          'action' : 'manage_templateForm',
-          },
-
         { 'label'  : 'Types',
           'action' : 'manage_debugForm',
           },
 
-        { 'label'  : 'Update Schema',
-          'action' : 'manage_updateSchemaForm',
+        {  'label'  : 'Catalogs',
+           'action' : 'manage_catalogs',
+           },
+        
+        { 'label'  : 'Templates',
+          'action' : 'manage_templateForm',
           },
 
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
            },
 
-        {  'label'  : 'Catalogs',
-           'action' : 'manage_catalogs',
-           },
+        { 'label'  : 'Update Schema',
+          'action' : 'manage_updateSchemaForm',
+          },
 
         )  + SQLStorageConfig.manage_options
         )
 
     manage_uids = PageTemplateFile('viewContents', _www)
-    manage_addSchemaForm = PageTemplateFile('addSchema', _www)
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
     manage_debugForm = PageTemplateFile('generateDebug', _www)
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
@@ -460,6 +417,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """list all the templates"""
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
+    def bindTemplate(self, meta_type, templateList):
+        """create binding between a type and its associated views"""
+        self._templates[meta_type] = templateList
+        
     def manage_templates(self, REQUEST=None):
         """set all the template/type mappings"""
         prefix = 'template_names_'
@@ -467,7 +428,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if key.startswith(prefix):
                 k = key[len(prefix):]
                 v = REQUEST.form.get(key)
-                self._templates[k] = v
+                self.bindTemplate(k, v)
 
         add = REQUEST.get('addTemplate')
         name = REQUEST.get('newTemplate')
@@ -703,22 +664,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     ## Management Forms
-    def manage_addSchema(self, id, schema, REQUEST=None):
-        """add a schema to the generator tool"""
-        schema = schema.replace('\r', '')
-
-        if not self._schemas.has_key(id):
-            s = TTWSchema(id, schema)
-            self._schemas[id] = s
-            portal_types = getToolByName(self, 'portal_types')
-            s.register(portal_types)
-
-        if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() + \
-                                             "/manage_workspace")
-
-
-
     def manage_doGenerate(self, sids=(), REQUEST=None):
         """(Re)generate types """
         schemas = []
@@ -806,9 +751,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if hasattr(self, '_types'):
             if not hasattr(self, 'last_types_update') or self.last_types_update.lessThan(last_load):
                 for t in _types.values():
-#                    if t['klass'].meta_type == 'Survey':
-#                        import pdb
-#                        pdb.set_trace()
                     meta_type = t['klass'].meta_type
                     if self._types.has_key(meta_type):
                         update = (t['signature'] != self._types[meta_type]['signature'])
