@@ -409,7 +409,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         # possible problem: assumes fields with same name can be
         # searched with the same widget
-
         widgets = {}
         for t in self.listTypes(package):
             instance = t('fake')

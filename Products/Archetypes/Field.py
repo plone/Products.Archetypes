@@ -657,8 +657,10 @@ class IntegerField(ObjectField):
     def set(self, instance, value, **kwargs):
         if value=='':
             value=None
-        # should really blow if value is not valid
-        value = int(value)
+        else:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = int(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
@@ -675,9 +677,10 @@ class FloatField(ObjectField):
         None."""
         if value=='':
             value=None
-
-        # should really blow if value is not valid
-        value = float(value)
+        else:
+            # should really blow if value is not valid
+            __traceback_info__ = (self.getName(), instance, value, kwargs)
+            value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
 
