@@ -136,7 +136,11 @@ class BaseSQLStorage(StorageLayer):
         for field in fields:
             type = self.db_type_map.get(field.type, field.type)
             name = field.getName()
-            columns.append('%s %s' % (name, type))
+            # MySQL supports escape for columns names!
+            if self.__class__.__name__ == 'MySQLSQLStorage':
+                columns.append('`%s` %s' % (name, type))
+            else:
+                columns.append('%s %s' % (name, type))
         parent = container or aq_parent(aq_inner(instance))
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
@@ -361,20 +365,20 @@ class MySQLSQLStorage(BaseSQLStorage):
 
     __implements__ = BaseSQLStorage.__implements__
 
-    query_create = ('create table <dtml-var table> '
+    query_create = ('create table `<dtml-var table>` '
                     '(UID char(50) primary key not null, '
                     'PARENTUID char(50) <dtml-var columns>) TYPE = %s' % MYSQL_SQLSTORAGE_TABLE_TYPE)
-    query_select = ('select <dtml-var field> '
-                    'from <dtml-var table> where '
+    query_select = ('select `<dtml-var field>` '
+                    'from `<dtml-var table>` where '
                     '<dtml-sqltest UID op="eq" type="string">')
-    query_insert = ('insert into <dtml-var table> '
+    query_insert = ('insert into `<dtml-var table>` '
                     'set UID=<dtml-sqlvar UID type="string">, '
                     'PARENTUID=<dtml-sqlvar PARENTUID type="string">')
-    query_update = ('update <dtml-var table> set '
-                    '<dtml-var field>=<dtml-sqlvar value '
+    query_update = ('update `<dtml-var table>` set '
+                    '`<dtml-var field>`=<dtml-sqlvar value '
                     'type="%s" optional> where '
                     '<dtml-sqltest UID op="eq" type="string">')
-    query_delete = ('delete from <dtml-var table> '
+    query_delete = ('delete from `<dtml-var table>` '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
     db_type_map = {'object'     : 'text',

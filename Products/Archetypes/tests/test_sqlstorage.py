@@ -1,3 +1,5 @@
+# -*- coding: latin1 -*-
+
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
@@ -60,7 +62,7 @@ except ImportError:
     print >>sys.stderr, 'Failed to import ZPsycopgDA'
 else:
     ZopeTestCase.installProduct('ZPsycopgDA', 0)
-    connectors['Postgre'] = 'dbname=demo user=demo'
+    connectors['Postgre'] = 'dbname=demo user=demo host=gandalf'
 
 # MySQL
 
@@ -72,9 +74,9 @@ else:
     ZopeTestCase.installProduct('ZMySQLDA', 0)
     transactional = 1 # needs INNODB!
     if transactional:
-        connectors['MySQL'] = '+demo@localhost demo'
+        connectors['MySQL'] = '+demo@gandalf demo'
     else:
-        connectors['MySQL'] = '-demo@localhost demo'
+        connectors['MySQL'] = '-demo@gandalf demo'
         def cleanupMySQL(self):
             instance = self._dummy
             args = {}
@@ -292,6 +294,14 @@ class SQLStorageTest(SQLStorageTestBase):
         value = dummy.getAstringfield()
         __traceback_info__ = (self.db_name, repr(value), 'Bla')
         self.failUnless(value == 'Bla')
+
+    def test_stringfield_bug1003868(self):
+        s = unicode('ação!', 'latin1')
+        dummy = self._dummy
+        dummy.setAstringfield(s)
+        value = dummy.getAstringfield()
+        __traceback_info__ = (self.db_name, repr(value), s)
+        self.failUnless(value == s)
 
     def test_textfield(self):
         dummy = self._dummy
