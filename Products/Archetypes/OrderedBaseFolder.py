@@ -253,7 +253,8 @@ InitializeClass(OrderedContainer)
 class new_OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
-    __implements__ = (OrderedContainer.__implements__, BaseFolder.__implements__,)
+    __implements__ = OrderedContainer.__implements__ + \
+                     BaseFolder.__implements__
 
     security = ClassSecurityInfo()
 
