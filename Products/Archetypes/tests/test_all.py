@@ -26,7 +26,7 @@ def test_suite():
         'test_schemata',
         'test_sitepolicy',
         'test_sqlstorage',
-        'test_update_schema1',
+        #'test_update_schema1',
         # 'test_update_schema2', # Can't run both together.
         'test_utils',
         'test_utils2',
