@@ -218,8 +218,12 @@
 
     </div>
 
-    <metal:footer_macro define-macro="footer" />
-
+    <metal:footer_macro define-macro="footer">
+      <div metal:use-macro="here/document_byline/macros/byline">
+        Get the byline - contains details about author and modification date.
+      </div>
+    </metal:footer_macro>
+        
   </body>
 
 </html>
