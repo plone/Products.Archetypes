@@ -279,6 +279,8 @@ def install_indexes(self, out, types):
                         catalog_name = parts[0][:str_idx]
                         parts[0] = parts[0][str_idx+1:]
                         catalog = getToolByName(self, catalog_name)
+                    else:
+                        catalog = portal_catalog
 
                     if use_column:
                         try:
