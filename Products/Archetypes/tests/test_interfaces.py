@@ -181,7 +181,7 @@ registerType(OBF, PROJECTNAME)
 # format: (instance object, (list interface objects))
 # take care: you must provide an instance, not a class!
 testInstances = [
-    (EM(), ()),
+    # (EM(), ()), XXX See comment on ExtensibleMetadata
     (BC('test'), ()),
     (BF('test'), ()),
     (OBF('test'), ()),

@@ -20,9 +20,7 @@ from interfaces.base import IBaseUnit
 from exceptions import ObjectFieldException
 from Products.CMFCore.utils import getToolByName
 
-
 __docformat__ = 'reStructuredText'
-
 
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""

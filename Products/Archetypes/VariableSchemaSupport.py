@@ -2,9 +2,10 @@ import sha
 
 from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
 from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
-from Products import CMFCore
-from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, _verifyActionPermissions
+from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
+     _verifyActionPermissions
 from Products.CMFCore.Expression import createExprContext
+from Products.CMFCore import CMFCorePermissions
 from Products.Archetypes import registerType
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.interfaces.base import IBaseContent
@@ -16,13 +17,12 @@ from Products.Archetypes.ClassGen import ClassGenerator, Generator
 
 from Globals import InitializeClass
 
-
 from Products.Archetypes.debug import log
 from DateTime import DateTime
 
 from Products.Archetypes.ClassGen import _modes
 
-class VarClassGen (ClassGenerator):
+class VarClassGen(ClassGenerator):
 
     def __init__(self, schema):
         self.schema=schema
@@ -52,21 +52,25 @@ class VarClassGen (ClassGenerator):
                     self.handle_mode(klass, generator, type, field, 'm')
 
         InitializeClass(klass)
-        InitializeClass(klass)
 
 schemadict={}
 
 class VariableSchemaSupport:
-    '''
+    """
     Mixin class to support instance-based schemas
     Attention: must be before BaseFolder or BaseContent in
     the inheritance list, e.g:
 
-    class Blorf(VariableSchemaSupport,BaseContent):
+    class Blorf(VariableSchemaSupport, BaseContent):
         def getSchema():
             return some schema definition...
 
-    '''
+    """
+
+    security = ClassSecurityInfo()
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'Schemata')
     def Schemata(self):
         schema = self.getAndPrepareSchema()
         schemata = {}
@@ -76,9 +80,13 @@ class VariableSchemaSupport:
             schemata[f.schemata] = sub
         return schemata
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'Schema')
     def Schema(self):
         return self.getAndPrepareSchema()
 
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'getAndPrepareSchema')
     def getAndPrepareSchema(self):
         s = self.getSchema()
 
@@ -96,8 +104,15 @@ class VariableSchemaSupport:
         return schema
 
     # supposed to be overloaded. here the object can return its own schema
+    security.declareProtected(CMFCorePermissions.View,
+                              'getSchema')
     def getSchema(self):
         return self.schema
 
-    def setSchema(self,schema):
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'getAndPrepareSchema')
+    def setSchema(self, schema):
         self.schema=schema
+
+InitializeClass(VariableSchemaSupport)
+

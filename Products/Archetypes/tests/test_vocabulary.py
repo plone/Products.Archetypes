@@ -70,7 +70,7 @@ class VocabularyTest(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self)
         user = self.getManagerUser()
-        newSecurityManager( None, user )
+        newSecurityManager(None, user)
         registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         site = self.getPortal()

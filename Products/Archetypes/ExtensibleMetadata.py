@@ -27,12 +27,12 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     # XXX This is not completely true. We need to review this later
     # and make sure it is true.
+    # Just so you know, the problem here is that Title
+    # is on BaseObject.schema, so it does implement IExtensibleMetadata
+    # as long as both are used together.
     __implements__ = IExtensibleMetadata
 
     security = ClassSecurityInfo()
-    # XXX GAAK! We should avoid this.
-    # security.declareObjectPublic()
-    # security.setDefaultAccess('allow')
 
     schema = type = MetadataSchema(
         (

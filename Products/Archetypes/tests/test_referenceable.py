@@ -29,6 +29,7 @@ class ReferenceableTests(ArcheSiteTestCase):
         self.failUnless(hasattr(aq_base(doc), '_uid'))
         self.failUnless(getattr(aq_base(doc), '_uid', None))
 
+
     def test_renamedontchangeUID( self ):
         site = self.getPortal()
         catalog = site.uid_catalog
