@@ -10,15 +10,16 @@ from OFS.Image import File
 from DateTime import DateTime
 from Acquisition import aq_base
 
-#XXX import ClientForm
+try:
+    import ClientForm
+except ImportError:
+    raise TestPreconditionFailed('test_widgets', 'Cannot import ClientForm')
 import urllib2
 
 
 from Products.Archetypes.tests.test_sitepolicy import makeContent
 from thread import start_new_thread
 from utils import start_http
-
-import unittest
 
 field_values = {'objectfield':'objectfield',
                 'stringfield':'stringfield',
@@ -55,7 +56,6 @@ def findEditForm(forms):
             return f
     return None
 
-# XXX
 class WidgetTests(ArcheSiteTestCase):
     def afterSetUp(self):
         ArcheSiteTestCase.afterSetUp(self) 
@@ -107,5 +107,5 @@ else:
     import unittest
     def test_suite():
         suite = unittest.TestSuite()
-        #XXX suite.addTest(unittest.makeSuite(WidgetTests))
+        suite.addTest(unittest.makeSuite(WidgetTests))
         return suite 

@@ -2,7 +2,7 @@
 # PloneTestCase
 #
 
-# $Id: common.py,v 1.1.2.4 2003/10/21 02:18:46 tiran Exp $
+# $Id: common.py,v 1.1.2.5 2003/10/21 14:28:24 tiran Exp $
 
 from Testing import ZopeTestCase
 from ArchetypesTestCase import ArchetypesTestCase
@@ -52,11 +52,22 @@ def Xprint(s):
     """
     ZopeTestCase._print(str(s))
 
+class TestPreconditionFailed(Exception):
+    """ some modules are missing or other preconditions have failed """
+    def __init__(self, test, precondition):
+        self.test = test
+        self.precondition = precondition
+
+    def __str__(self):
+        return """Some modules are missing or other preconditions for the test %s
+have failed: %s """ % (self.test, self.precondition)
+
 __all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
            'verifyClass', 'verifyObject', 'BrokenImplementation',
            'DoesNotImplement', 'BrokenMethodImplementation', 
            'getImplementsOfInstances', 'flattenInterfaces',
-           'newSecurityManager', 'noSecurityManager' ) \
+           'newSecurityManager', 'noSecurityManager', 
+           'TestPreconditionFailed' ) \
            + __all__Boolean
 
 

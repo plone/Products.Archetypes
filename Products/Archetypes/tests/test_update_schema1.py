@@ -12,7 +12,10 @@ from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
 from Products.Archetypes.public import listTypes, registerType
-#XXX from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
+try:
+    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
+except ImportError:
+    raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema') 
 import sys, os, shutil
 
 # We are breaking up the update schema test into 2 separate parts, since
@@ -90,5 +93,5 @@ else:
     import unittest
     def test_suite():
         suite = unittest.TestSuite()
-        #XXX suite.addTest(unittest.makeSuite(test_update_schema1))
+        suite.addTest(unittest.makeSuite(test_update_schema1))
         return suite 
