@@ -750,6 +750,31 @@ class BaseObject(Referenceable):
                 return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
+    security.declareProtected(CMFCorePermissions.View, 'isTemporary')
+    def isTemporary(self):
+        """Check to see if we are created as temporary object by portal factory"""
+        parent = aq_parent(aq_inner(self))
+        return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
+    
+    def getFolderWhenPortalFactory(self):
+        """Return the folder where this object was created temporarily
+        """
+        ctx = aq_inner(self)
+        if not ctx.isTemporary():
+            # not a temporary object!
+            return aq_parent(ctx)
+        utool = getToolByName(self, 'portal_url')
+        portal_object = utool.getPortalObject()
+        
+        while ctx.getId() != 'portal_factory':
+            # find the portal factory object
+            if ctx == portal_object:
+                # uups, shouldn't happen!
+                return ctx
+            ctx = aq_parent(ctx)
+        # ctx is now the portal_factory in our parent folder
+        return aq_parent(ctx)
+        
 
     # subobject access ########################################################
     #

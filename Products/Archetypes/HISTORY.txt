@@ -89,6 +89,10 @@
  * General cleanup of imports and public.py. Also include Marshallers in public.
    [tiran]
 
+ * Fixed [ 1007850 ] Cancel content creation fails with portal factory tool
+   Archetypes is playing nice again with portal factory
+   [tiran]
+
 1.3.0-beta5 - 2004-08-06
 ========================
 
