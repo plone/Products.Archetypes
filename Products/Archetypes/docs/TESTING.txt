@@ -1,0 +1,8 @@
+Requirements
+============
+
+* ZopeTestCase
+
+* CMFTestCase
+
+http://zope.org/Members/shh/

@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- File Widgets -->
+
+    <div metal:define-macro="file_view">
+      <metal:label define-slot="widget_label" />
+      <tal:define define="unit accessor;
+                          showLink showLink|python:1">
+        <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
+                           icon unit/getBestIcon | nothing;
+                           filename unit/filename | nothing"
+                   condition="python:size &gt; 0">
+
+          <tal:link condition="showLink">
+              <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/at_download">
+                <img tal:condition="icon" src=""
+                     tal:attributes="src string:${here/portal_url}/$icon"/>
+                <tal:filename tal:replace="filename | fieldName"/>
+                (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+                <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+              </a>
+          </tal:link>
+          <span tal:condition="not:showLink">
+              <span i18n:translate="">Current file info:</span><br/>
+              <img tal:condition="icon" src=""
+                   tal:attributes="src string:${here/portal_url}/$icon"/>
+              <tal:filename tal:replace="filename | fieldName"/>
+              (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+              <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
+          </span>
+          <a href=""
+             tal:condition="python:field.checkExternalEditor(here)"
+             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
+             tal:define="edit here/edit.gif">
+            <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+            <tal:i18n i18n:translate="">Edit</tal:i18n>
+          </a>
+
+        </tal:block>
+      </tal:define>
+    </div>
+
+    <metal:define define-macro="file_edit" tal:define="showLink python:0">
+      <metal:block use-macro="here/widgets/file/macros/file_view" />
+      <div tal:condition="accessor" style="padding-top:1em;">
+        <input class="noborder"
+               type="radio"
+               value="nochange"
+               tabindex=""
+               checked="checked"
+               tal:attributes="tabindex tabindex/next;
+                   name string:${fieldName}_delete;
+                   id string:${fieldName}_nochange;
+                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+         <label for="" 
+                tal:attributes="for string:${fieldName}_nochange;
+                                " 
+                i18n:translate="nochange_image">
+                Don't change
+         </label>    
+         <br/>
+         <tal:delete tal:condition="python: not field.required">
+            <input class="noborder"
+                   type="radio"
+                   value="delete"
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_delete;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+             />
+             <label for="" 
+                    tal:attributes="for string:${fieldName}_delete;
+                                    " 
+                    i18n:translate="delete_file">
+                    Delete current file
+             </label><br />         
+         </tal:delete>
+          <input class="noborder"
+                 type="radio"
+                 value=""
+                 tabindex=""
+                 onclick=""
+                 tal:attributes="tabindex tabindex/next;
+                     name string:${fieldName}_delete;
+                     id string:${fieldName}_upload;
+                     onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+           <label for="" 
+                  tal:attributes="for string:${fieldName}_upload;" 
+                  i18n:translate="upload_file">
+                  Replace with new file:
+           </label>
+           <div style="padding-left:1.5em;padding-top:0.5em;">
+              <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+           </div>         
+      </div>
+      <div tal:condition="not: accessor">
+        <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+      </div>
+      
+    </metal:define>
+
+
+    <metal:define define-macro="file_upload">
+        <input type="file"
+               size="30"
+               tabindex=""
+               disabled="disabled"
+               tal:attributes="name string:${fieldName}_file;
+                               id string:${fieldName}_file;
+                               tabindex tabindex/next;
+                               disabled python:test(accessor()=='', None, 'disabled')"
+               />
+    </metal:define>
+
+    <metal:define define-macro="view">
+      <metal:use use-macro="here/widgets/file/macros/file_view" />
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body">
+          <metal:use use-macro="here/widgets/file/macros/file_edit" />
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <metal:define define-macro="search">
+      <metal:use use-macro="here/widgets/file/macros/edit" />
+    </metal:define>
+
+  </body>
+
+</html>
