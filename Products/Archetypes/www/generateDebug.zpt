@@ -30,15 +30,22 @@
 	
 	<form action="manage_debug" method="POST" 
 	      tal:define="gen here/archetype_tool;
-	  types gen/listRegisteredTypes	;
+  	      types gen/listRegisteredTypes;
 	  ">
 	  
 	    <table class="content_type" width="80%" tal:repeat="type types">
 	      <tr>
 		<th class="title" 
 			tal:define="typ python: here.portal_types.getTypeInfo(type['name']);
-				    installed python: test(typ != None, 'installed', 'not installed')"
-			tal:content="string: ${type/package}::${type/name}   [$installed]"/> 
+                                    package type/package;
+                                    type_name type/name;
+				    installed python: test(typ != None, 'installed', 'not installed');
+                                    spec python:here.getTypeSpec(package, type_name)">
+                <a href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
+		[dump schema]
+                </a>
+                <span tal:replace="string: ${package}::${type_name} [$installed]" />
+	       </th>
 	      </tr>
 	      <tr>
 		<td>

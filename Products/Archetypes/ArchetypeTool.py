@@ -227,6 +227,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_debugForm',
           },
         
+        { 'label'  : 'Generate',
+          'action' : 'manage_generateForm',
+          },
+
         {  'label'  : 'UIDs',
            'action' : 'manage_uids',
            },        
@@ -238,6 +242,20 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     manage_templateForm = PageTemplateFile('manageTemplates',_www)
     manage_generateForm = PageTemplateFile('generateView', _www)
     manage_debugForm = PageTemplateFile('generateDebug', _www)
+    manage_dumpSchemaForm = PageTemplateFile('schema', _www)
+
+    def manage_dumpSchema(self, REQUEST=None):
+        """XML Dump Schema of passed in class"""
+        from Products.Archetypes.Schema import getSchemata
+        package = REQUEST.get('package', '')
+        type_name = REQUEST.get('type_name', '')
+        spec = self.getTypeSpec(package, type_name)
+        type = self.lookupType(package, type_name)
+        options = {}
+        options['classname'] = spec
+        options['schematas'] = getSchemata(type['klass'])
+        REQUEST.RESPONSE.setHeader('Content-Type', 'text/xml')
+        return self.manage_dumpSchemaForm(**options)
     
     def __init__(self):
         ReferenceEngine.__init__(self)
@@ -288,6 +306,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         values = listTypes()
         values.sort(type_sort)
         return values
+
+    def getTypeSpec(self, package, type):
+        t = self.lookupType(package, type)
+        module = t['klass'].__module__
+        klass = t['name']
+        return '%s.%s' % (module, klass)
 
     def listTypes(self, package=None):
         """just the names"""

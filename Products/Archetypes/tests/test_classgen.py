@@ -53,6 +53,7 @@ class ClassGenTest( unittest.TestCase ):
     def setUp( self ):
         gen_dummy()
         self._dummy = Dummy(oid='dummy')
+        self._dummy.initalizeArchetype()
 
     def test_methods(self):
         klass = self._dummy

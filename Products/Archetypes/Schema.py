@@ -23,47 +23,46 @@ from Products.validation import validation
 # Used in fields() method
 def index_sort(a, b): return  a._index - b._index
 
+def getNames(schema):
+    return [f.name for f in schema.fields()]
 
-class Schema(UserDict, DefaultLayerContainer):
-    """Manage a list of fields and run methods over them"""
+def getSchemata(klass):
+    schema = klass.schema
+    schemata = {}
+    for f in schema.fields():
+        sub = schemata.get(f.schemata, Schemata(name=f.schemata))
+        sub.addField(f)
+        schemata[f.schemata] = sub
+    return schemata
 
-    __implements__ = (ILayerRuntime, ILayerContainer)
-    
+class Schemata(UserDict):
+    """Manage a list of fields by grouping them together"""
+
     security = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess("allow")
+    __allow_access_to_unprotected_subobjects__ = 1
 
-    _properties = {
-        'marshal' : None
-        }
-
-
-    def __init__(self, *args, **kwargs):
+    order_fields = None
+    index = 0
+    
+    def __init__(self, name='default', fields=None):
+        self.name = name
         UserDict.__init__(self)
-        DefaultLayerContainer.__init__(self)
-        
-        self._props = self._properties.copy()
-        self._props.update(kwargs)
-        
-        self.order_fields = None
-        self.index = 0
-        if len(args):
-            if type(args[0]) in [ListType, TupleType]:
-                for field in args[0]:
-                    self.addField(field)
-            else:
-                self.addField(args[0])
 
-        #Layer init work
-        marshall = self._props.get('marshall')
-        if marshall:
-            self.registerLayer('marshall', marshall)
+        if fields is not None:
+            if type(fields) not in [ListType, TupleType]:
+                fields = (fields, )
+                
+            for field in fields:
+                self.addField(field)
 
-        
-        
-        
+    security.declarePublic('getName')
+    def getName(self):
+        return self.name
+    
     def __add__(self, other):
-        c = Schema()
+        c = Schemata()
         #We can't use update and keep the order so we do it manually
         for field in self.fields():
             c.addField(field)
@@ -71,7 +70,7 @@ class Schema(UserDict, DefaultLayerContainer):
             c.addField(field)
         return c
 
-
+    security.declarePublic('fields')
     def fields(self):
         """list all the fields in order"""
         if self.order_fields is None:
@@ -81,6 +80,13 @@ class Schema(UserDict, DefaultLayerContainer):
 
         return self.order_fields
 
+    security.declarePublic('widgets')
+    def widgets(self):
+        """list all the widgets in order, keyed by field name"""
+        widgets = {}
+        for f in self.fields():
+            widgets[f.name] = f.widget
+        return widgets
 
     def filterFields(self, *args, **kwargs):
         """Args is a list of callable conditions
@@ -110,8 +116,61 @@ class Schema(UserDict, DefaultLayerContainer):
                 results.append(field)
 
         return results
+
+    security.declarePrivate('addField')
+    def addField(self, field):
+        if IField.isImplementedBy(field):
+            self[field.name] = field
+            field._index = self.index
+            self.index +=1
+        else:
+            log_exc('Object doesnt implements IField: %s' % field)
+
+    security.declarePublic('searchable')
+    def searchable(self):
+        """return the names of all the searchable fields"""
+        return [f.name for f in self.values() if f.searchable]
+
+class Schema(Schemata, UserDict, DefaultLayerContainer):
+    """Manage a list of fields and run methods over them"""
+
+    __implements__ = (ILayerRuntime, ILayerContainer)
     
+    security = ClassSecurityInfo()
+    security.declareObjectPublic()
+    security.setDefaultAccess("allow")
+
+    _properties = {
+        'marshal' : None
+        }
+
+    def __init__(self, *args, **kwargs):
+        UserDict.__init__(self)
+        DefaultLayerContainer.__init__(self)
         
+        self._props = self._properties.copy()
+        self._props.update(kwargs)
+        
+        if len(args):
+            if type(args[0]) in [ListType, TupleType]:
+                for field in args[0]:
+                    self.addField(field)
+            else:
+                self.addField(args[0])
+
+        #Layer init work
+        marshall = self._props.get('marshall')
+        if marshall:
+            self.registerLayer('marshall', marshall)
+
+    def __add__(self, other):
+        c = Schema()
+        #We can't use update and keep the order so we do it manually
+        for field in self.fields():
+            c.addField(field)
+        for field in other.fields():
+            c.addField(field)
+        return c
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     def edit(self, instance, name, value):
@@ -154,12 +213,6 @@ class Schema(UserDict, DefaultLayerContainer):
             if field.name in keys:
                 method(kwargs[field.name])
             
-    def addField(self, field):
-        if IField.isImplementedBy(field):
-            self[field.name] = field
-            field._index = self.index
-            self.index +=1
-
     security.declarePublic("allow")
     def allow(self, key):
         """Allow update to keys of this name (must be a valid field)"""
@@ -263,11 +316,6 @@ class Schema(UserDict, DefaultLayerContainer):
                     log_exc()
                     errors[name] = E
 
-    security.declarePublic('searchable')
-    def searchable(self):
-        """return the names of all the searchable fields"""
-        return [f.name for f in self.values() if f.searchable]
-
     #ILayerRuntime
     def initalizeLayers(self, instance):
         # scan each field looking for registered layers
@@ -336,6 +384,7 @@ class MetadataSchema(Schema):
         """
         field.isMetadata = 1
         field.storage = MDS
+        field.schemata = 'metadata'
         if 'm' not in field.generateMode:
             field.generateMode = 'mVc'
         

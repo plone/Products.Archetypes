@@ -9,6 +9,9 @@ class TypesWidget(macrowidget):
         'modes' : ('view', 'edit'),
         })
 
+    def getName(self):
+        return self.__class__.__name__
+
     def bootstrap(self, instance):
         if not self.description or not self.label:
             field = self.findField(instance)

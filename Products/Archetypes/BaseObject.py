@@ -10,7 +10,7 @@ from debug import log, log_exc
 from types import FileType
 import operator
 
-from Schema import Schema
+from Schema import Schema, Schemata
 from Field import StringField
 from Widget import IdWidget, StringWidget
 from utils import DisplayList
@@ -325,7 +325,9 @@ class BaseObject(Implicit):
         """Process the schema looking for data in the form"""
         self._processForm(data=data, metadata=metadata)
         
-
-        
+    def Schemata(self):
+        from Products.Archetypes.Schema import getSchemata
+        return getSchemata(self)
+    
 InitializeClass(BaseObject)
 

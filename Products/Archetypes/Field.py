@@ -60,6 +60,7 @@ class Field(DefaultLayerContainer):
         'widget': StringWidget,
         'validators' : (),
         'index' : None, # "KeywordIndex" "<type>|schema"
+        'schemata' : 'default',
         }
 
     def __init__(self, name, **kwargs):
@@ -139,6 +140,13 @@ class Field(DefaultLayerContainer):
             return None
         return getSecurityManager().checkPermission( perm, instance )
 
+    security.declarePublic('getStorageName')
+    def getStorageName(self):
+        return self.storage.getName()
+
+    security.declarePublic('getWidgetName')
+    def getWidgetName(self):
+        return self.widget.getName() 
 
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
@@ -306,9 +314,6 @@ class TextField(ObjectField):
         value, mime_type = self._process_input(value,
                                                default=self.default, \
                                                **kwargs)
-        if value == self.default:
-            # do nothing
-            return
         if IBaseUnit.isImplementedBy(value):
             bu = value
         else:
