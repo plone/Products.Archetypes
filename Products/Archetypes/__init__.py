@@ -18,8 +18,13 @@ from ArchetypeTool import ArchetypeTool, \
                           process_types, \
                           listTypes
 
+from TransformTool import TransformTool
+from MimeTypesTool import MimeTypesTool
+
 tools = (
     ArchetypeTool,
+    TransformTool,
+    MimeTypesTool,
     )
 
 ###

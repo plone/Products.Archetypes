@@ -5,7 +5,7 @@ except ImportError:
     # Zope < 2.6
     try:
         from Interface import Base as Interface, Attribute
-    except ImportError: 
+    except ImportError:
         class Interface:
             """ """
             pass
