@@ -80,7 +80,7 @@
                           tal:condition="not: fieldset">
                   <span i18n:name="type">
                     <span i18n:translate=""
-                          tal:content="here/archetype_name" />
+                          tal:content="type_name|here/archetype_name" />
                   </span>
                   Details
                 </tal:type>

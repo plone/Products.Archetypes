@@ -3,6 +3,7 @@
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
                    rejection here/rejectAnonymous;
                    tabindex tabindex|python:Iterator();
+                   type_name here/getPortalTypeName|here/archetype_name;
                    fieldset request/fieldset|options/fieldset|string:metadata;
                    schematas here/Schemata;
                    fields python:schematas[fieldset].fields();
@@ -59,7 +60,7 @@
     <fieldset>
 
       <legend i18n:translate=""
-        tal:content="here/archetype_name" />
+        tal:content="type_name|here/archetype_name" />
 
       <!--
         <div tal:condition="errors" class="error">
