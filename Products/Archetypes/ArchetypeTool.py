@@ -414,6 +414,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_updateSchemaForm',
           },
 
+        { 'label'  : 'Migration',
+          'action' : 'manage_migrationForm',
+          },
+
         )  + SQLStorageConfig.manage_options
         )
 
@@ -429,6 +433,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_updateSchemaForm')
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_migrationForm')
+    manage_migrationForm = PageTemplateFile('migrationForm', _www)
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_dumpSchemaForm')
     manage_dumpSchemaForm = PageTemplateFile('schema', _www)
@@ -868,6 +875,15 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
             o._updateSchema()
+
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'manage_updateSchema')
+    def manage_migrate(self, REQUEST=None):
+        """Run Extensions.migrations.migrate."""
+        from Products.Archetypes.Extensions.migrations import migrate
+        out = migrate(self)
+        self.manage_updateSchema()
+        return out
 
     # Catalog management
     security.declareProtected(CMFCorePermissions.View,

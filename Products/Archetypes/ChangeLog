@@ -8,6 +8,13 @@
 
 2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
 
+	* ArchetypeTool.py (ArchetypeTool.manage_migrate): Added very
+	simple form that lets you migrate and update schemas without the hassle
+	of creating an external method. (I believe the migration script is
+	too easily overlooked.)
+
+2004-07-01  Daniel Nouri  <dpunktnpunkt@web.de>
+
 	* BaseObject.py (BaseObject._updateSchema): Moved call to
 	field.getContentType() to the point after self.initializeArchetype(),
 	which effectively fixes migration for me.
