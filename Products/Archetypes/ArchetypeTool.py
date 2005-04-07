@@ -197,11 +197,6 @@ def fixActionsForType(portal_type, typesTool):
             typeInfo.__dict__.update(portal_type.factory_type_information)
             typeInfo._p_changed = True
 
-def safe_del(klass, attr):
-    try:
-        delattr(klass, attr)
-    except AttributeError:
-        pass
 
 def modify_fti(fti, klass, pkg_name):
     fti[0]['id'] = klass.__name__
@@ -212,29 +207,23 @@ def modify_fti(fti, klass, pkg_name):
 
     if hasattr(klass, 'content_icon'):
         fti[0]['content_icon'] = klass.content_icon
-        safe_del(klass, 'content_icon')
 
     if hasattr(klass, 'global_allow'):
         fti[0]['global_allow'] = klass.global_allow
-        safe_del(klass, 'global_allow')
 
     if hasattr(klass, 'allow_discussion'):
         fti[0]['allow_discussion'] = klass.allow_discussion
-        safe_del(klass, 'allow_discussion')
 
     if hasattr(klass, 'allowed_content_types'):
         allowed = klass.allowed_content_types
-        safe_del(klass, 'allowed_content_types')
         fti[0]['allowed_content_types'] = allowed
         fti[0]['filter_content_types'] = allowed and True or False
 
     if hasattr(klass, 'filter_content_types'):
         fti[0]['filter_content_types'] = klass.filter_content_types
-        safe_del(klass, 'filter_content_types')
 
     if hasattr(klass, 'immediate_view'):
         fti[0]['immediate_view'] = klass.immediate_view
-        safe_del(klass, 'immediate_view')
 
     if not IReferenceable.isImplementedByInstancesOf(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
