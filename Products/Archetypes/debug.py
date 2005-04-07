@@ -4,7 +4,7 @@ import sys
 import traceback
 import pprint
 from types import StringType
-from zLOG import LOG, INFO, ERROR
+from zLOG import LOG, INFO, ERROR, BLATHER
 import warnings
 
 from Products.Archetypes.config import PKG_NAME, DEBUG
