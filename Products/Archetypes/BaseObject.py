@@ -153,8 +153,6 @@ class BaseObject(Referenceable):
         except ConflictError:
             raise
         except:
-            import traceback
-            print "Error on initAT", traceback.print_exc()
             log_exc()
             #_default_logger.log_exc()
             #raise
