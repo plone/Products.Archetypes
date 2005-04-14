@@ -83,7 +83,6 @@
                 title="Required">
             (Required)
           </span>
-
           <div class="formHelp"
                tal:define="description python:widget.Description(here)"
                tal:content="structure description"
@@ -91,7 +90,6 @@
                i18n:translate="">
             Help
           </div>
-
           <span tal:condition="field/workflowable | nothing"
                 tal:omit-tag="">
             State:
@@ -105,7 +103,6 @@
               review_state
             </a>
           </span>
-
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
             <div tal:content="error_id" i18n:translate="">Validation Error</div>
