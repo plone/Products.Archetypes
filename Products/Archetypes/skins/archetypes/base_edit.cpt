@@ -51,6 +51,10 @@
               tal:attributes="src string:$portal_url/$item">
       </script>
     </tal:js>
+    <tal:block define="macro edit_macros/javascript_head | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
   </metal:javascript_head>
 
   <metal:css fill-slot="css_slot">
@@ -62,6 +66,10 @@
              tal:content="string:@import url($portal_url/$item);">
       </style>
     </tal:css>
+    <tal:block define="macro edit_macros/css | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
   </metal:css>
     
   <body>
