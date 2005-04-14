@@ -1,0 +1,40 @@
+===========================
+Coding rules for Archetypes
+===========================
+
+---------
+Read this
+---------
+
+http://www.python.org/peps/pep-0008.html
+http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/ZopePythonNamingConventions
+http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/ClassesAttributesMethods
+http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/CodeOptimization
+
+--------
+Overview
+--------
+
+* Write unit tests for new features or bugs
+
+* Don't use the string module - use string methods instead
+
+* Use startswith/endswith instead of slicing
+
+* Use isinstance(egg, str) instead of  type(egg) is StringType
+
+* Use interfaces instead of isinstance() or issubclass() if possible
+
+* Follow the naming convention mentioned in PEP 008 and 
+  ZopePythonNamingConventions
+
+* Don't create strings by adding them - instead use the list.append(str),
+ ''.join(list) trick
+
+* Avoid creating large lists in memory
+
+* Avoid loading lot's of objects from ZODB at once - use objectIds() instead
+  objectValues()
+
+* Avoid waking objects from their ghost state - use the catalog and brains if
+  possible

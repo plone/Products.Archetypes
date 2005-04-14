@@ -43,7 +43,7 @@ from Products.Archetypes.tests.utils import populateFolder
 
 from Products.Archetypes.tests.utils import wrap_method
 from Products.Archetypes.tests.utils import unwrap_method
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.lib.utils import shasattr
 from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 

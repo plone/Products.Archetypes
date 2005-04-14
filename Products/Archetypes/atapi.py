@@ -23,7 +23,68 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""Forward compatibility module
 """
-from Products.Archetypes.public import *
+"""
+# registering and type processing
+from Products.Archetypes.lib.register import registerType
+from Products.Archetypes.lib.register import process_types
+from Products.Archetypes.lib.register import listTypes
+from Products.Archetypes.lib.register import registerClasses
+# base classes
+from Products.Archetypes.base import BaseObject
+from Products.Archetypes.base import BaseContent
+from Products.Archetypes.base import BaseContentMixin
+from Products.Archetypes.base import BaseFolder
+from Products.Archetypes.base import BaseFolderMixin
+from Products.Archetypes.base import BaseTool
+from Products.Archetypes.base import BaseFolderishTool
+from Products.Archetypes.base import BaseBTreeFolder
+from Products.Archetypes.base import OrderedBaseFolder
+from Products.Archetypes.base import ExtensibleMetadata
+from Products.Archetypes.base import TemplateMixin
+# base class schemata instances
+from Products.Archetypes.base import MinimalSchema
+from Products.Archetypes.base import BaseSchema
+from Products.Archetypes.base import BaseFolderSchema
+from Products.Archetypes.base import BaseBTreeFolderSchema
+from Products.Archetypes.base import ExtensibleMetadataSchema
+from Products.Archetypes.base import OrderedBaseFolderSchema
+# schemata classes
+from Products.Archetypes.schema import *
+#from Products.Archetypes.schema import BasicSchema
+#from Products.Archetypes.schema import Schema
+#from Products.Archetypes.schema import MetadataSchema
+#from Products.Archetypes.schema import ManagedSchema
+#from Products.Archetypes.schema import CompositeSchema
+#from Products.Archetypes.schema import FacadeMetadataSchema
+#from Products.Archetypes.schema import VariableSchemaSupport
+# marshaller
+from Products.Archetypes.marshall import PrimaryFieldMarshaller
+from Products.Archetypes.marshall import RFC822Marshaller
+# fields
+from Products.Archetypes.field import *
+# widgets
+from Products.Archetypes.widget import *
+# storage
+from Products.Archetypes.storage import *
+#from Products.Archetypes.storage.AggregatedStorage import AggregatedStorage
+#from Products.Archetypes.storage.SQLStorage import BaseSQLStorage
+#from Products.Archetypes.storage.SQLStorage import GadflySQLStorage
+#from Products.Archetypes.storage.SQLStorage import MySQLSQLStorage
+#from Products.Archetypes.storage.SQLStorage import PostgreSQLStorage
+#from Products.Archetypes.storage.SQLStorage import SQLServerStorage
+# misc
+from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes.lib.vocabulary import Vocabulary
+from Products.Archetypes.lib.classgen import AT_GENERATE_METHOD
+from Products.Archetypes.lib.baseunit import BaseUnit
+from Products.Archetypes.lib.logging import log
+from Products.Archetypes.lib.logging import log_exc
 
+# dynamicly calculate which modules should be exported
+import sys
+skipExports = ('skipExports', 'sys',)
+__all__ = tuple([ export
+                  for export in dir(sys.modules[__name__])
+                  if export not in skipExports and not export.startswith('_')
+                ])

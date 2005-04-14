@@ -37,6 +37,7 @@ from Testing import ZopeTestCase
 
 # a list of dotted paths to modules which contains doc tests
 PORTALDOCTEST_MODULES = (
+    'Products.Archetypes.lib.utils',
     )
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase

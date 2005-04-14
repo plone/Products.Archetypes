@@ -15,6 +15,9 @@
 		      tal:replace="structure value"/>
 
     <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+	<metal:fill metal:fill-slot="widget_body"
+           tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
 	  <script>
 	    // this function turns a checkbox into a radio button... sort of
 	    function toggle_boolean(visibleCheckbox, hiddenBoolean) {
@@ -28,10 +31,6 @@
 	    return true;
 	    }
 	  </script>
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-	<metal:fill metal:fill-slot="widget_body_label_prefix"
-           tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
-	  
 
 	  <input class="noborder"
 		 type="checkbox"

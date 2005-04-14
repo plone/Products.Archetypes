@@ -40,7 +40,7 @@
 	  <option selected=""
 		  tal:repeat="item mimetypes"
 		  tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
-		  tal:content="python: here.lookupMime(item)" />
+		  tal:content="item" />
 	</select>
       </tal:define>
     </metal:define>

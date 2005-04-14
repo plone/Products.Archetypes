@@ -40,7 +40,8 @@ from Products.CMFCore.utils import getToolByName
 def test_suite():
     import unittest
     suite = unittest.TestSuite()
-    from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+    from Testing.ZopeTestCase import doctest
+    FileSuite = doctest.FunctionalDocFileSuite
     #basepath = os.path.dirname(os.path.abspath(__file__))
     files = ['traversal.txt']
     for file in files:
