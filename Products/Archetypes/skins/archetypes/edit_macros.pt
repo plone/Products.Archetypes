@@ -5,7 +5,6 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
-
   <head><title></title></head>
   <body>
 
@@ -22,7 +21,7 @@
       </h1>
 
       <div id="archetypes-schemata-links" 
-           tal:condition="python:fieldsets and not use_preload">
+           tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
@@ -55,49 +54,40 @@
         </tal:description>
     </div>
 
-    <div metal:define-macro="body"
-            tal:define="schematas           here/Schemata;
-                        fs_info             python:here.getFieldsetInfo(errors=errors, schematas=schematas, fieldsets=fieldsets);
-                        fieldsetToShow      fs_info/default;
-                        fieldsetsToShow     python:test(use_preload, fieldsets, [fieldset]);
-                        fieldsetsWithErrors fs_info/fieldsets_with_errors">
-
-      <style>
-      .fieldset-label-error-selected {color: red; font-weight: bold}
-      .fieldset-label-error-normal {color: red}
-      .fieldset-label-noerror-selected {font-weight: bold}
-      .fieldset-label-noerror {}
-      .fieldset-box {
-                     clear:right;
-                     }
-      </style>
-
+    <div metal:define-macro="body">
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
             action=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
-        <input 
-            tal:condition="use_preload" 
-            type="hidden" 
-            id="defaultFieldset" 
-            value="" 
-            tal:attributes="value   fieldsetToShow" />
+        <fieldset>
 
-        <tal:fieldset tal:repeat="fieldset fieldsets">
-        <fieldset id=""
-            class="fieldset-box"
-            name="at_fieldset"
-            tal:define="fields      python:schematas[fieldset].editableFields(here);"
-            tal:attributes="id      string:fieldset_${fieldset};">
+          <legend tal:define="iconname python: here.getIcon(1);
+                              icon python: here.portal_url() + '/' + iconname">
+    
+              <img alt="" tal:attributes="src icon" />
+          
+              <tal:legend define="fieldset python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset">
+                <tal:fieldset i18n:translate="legend_fieldset_details"
+                              tal:condition="fieldset">
+                  <span i18n:name="fieldset">
+                    <span i18n:translate=""
+                          tal:content="fieldset" />
+                  </span>
+                  Details
+                </tal:fieldset>
+                <tal:type i18n:translate="legend_type_details"
+                          tal:condition="not: fieldset">
+                  <span i18n:name="type" tal:define="fti python:here.portal_types.getTypeInfo(here)">
 
-          <tal:legend tal:condition="not:use_preload">
-            <metal:block use-macro="here/legend_macros/macros/single_legend" />
-          </tal:legend>
-          <tal:legend tal:condition="use_preload">
-            <metal:block use-macro="here/legend_macros/macros/preload_legend" />
-          </tal:legend>
+                    <span i18n:translate=""
+                          tal:content="fti/title_or_id" />
+                  </span>
+                  Details
+                </tal:type>
+              </tal:legend>
+          </legend>
 
           <metal:block define-slot="extra_top" />
 
@@ -112,7 +102,6 @@
           <div class="formControls">
 
             <input type="hidden"
-                   tal:condition="not:use_preload"
                    name="fieldset"
                    value="default"
                    tal:attributes="value fieldset"
@@ -192,7 +181,7 @@
                    tal:define="fieldset_index python:fieldsets.index(fieldset);
                                n_fieldsets python:len(fieldsets)">
 
-                <input tal:condition="python:fieldset_index &gt; 0 and not use_preload"
+                <input tal:condition="python:fieldset_index &gt; 0"
                        class="context"
                        tabindex=""
                        type="submit"
@@ -202,7 +191,7 @@
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
-                <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1 and not use_preload"
+                <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1"
                        class="context"
                        tabindex=""
                        type="submit"
@@ -236,12 +225,6 @@
           </div>
 
         </fieldset>
-        </tal:fieldset>
-        <script language="JavaScript" tal:condition="use_preload">
-        <!--
-        initializeFieldsets()
-        //-->
-        </script>
 
       </form>
 

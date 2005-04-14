@@ -5,14 +5,13 @@ from Products.Archetypes.interfaces.base import IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.Archetypes.utils import shasattr, mapply
+from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from Acquisition import aq_get
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
@@ -60,9 +59,7 @@ class BaseContentMixin(CatalogMultiplex,
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
-        """ HTTP PUT handler with marshalling support
-        """
-
+        """ HTTP PUT handler with marshalling support """
         if not REQUEST:
             REQUEST = self.REQUEST
         if not RESPONSE:
@@ -80,9 +77,11 @@ class BaseContentMixin(CatalogMultiplex,
             if data is _marker:
                 raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
         else:
-            data = ''
+            data = file.read()
             file.seek(0)
-
+        
+        # XXX should we maybe not accept PUT requests without a
+        # content type?
         mimetype = REQUEST.get_header('content-type', None)
 
         try:
@@ -94,35 +93,34 @@ class BaseContentMixin(CatalogMultiplex,
                         getattr(file, 'name', None))
 
         # XXX remove after we are using global services
-        # use the request to find an object in the traversal hierachy that is
+        # use the request to find an object in the traversal hirachie that is
         # able to acquire a mimetypes_registry instance
         # This is a hack to avoid the acquisition problem on FTP/WebDAV object
         # creation
-        parents = (self,) + tuple(REQUEST.get('PARENTS', ()))
+        parents = REQUEST.get('PARENTS', None)
         context = None
-        for parent in parents:
-            if getToolByName(parent, 'mimetypes_registry', None) is not None:
-                context = parent
-                break
+        if parents is not None:
+            for parent in parents:
+                if aq_get(parent, 'mimetypes_registry', None, 1) is not None:
+                    context = parent
+                    break
 
         # Marshall the data
         marshaller = self.Schema().getLayerImpl('marshall')
-
-        args = [self, data]
-        kwargs = {'file':file,
-                  'context':context,
-                  'mimetype':mimetype,
-                  'filename':filename,
-                  'REQUEST':REQUEST,
-                  'RESPONSE':RESPONSE}
-        ddata = mapply(marshaller.demarshall, *args, **kwargs)
-
-        if (shasattr(self, 'demarshall_hook') and self.demarshall_hook):
+        ddata = marshaller.demarshall(self, data,
+                                      mimetype=mimetype,
+                                      filename=filename,
+                                      REQUEST=REQUEST,
+                                      RESPONSE=RESPONSE,
+                                      context=context)
+        if shasattr(self, 'demarshall_hook') \
+           and self.demarshall_hook:
             self.demarshall_hook(ddata)
 
         self.reindexObject()
         RESPONSE.setStatus(204)
         return RESPONSE
+
 
     security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST=None, RESPONSE=None):
