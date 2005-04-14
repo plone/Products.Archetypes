@@ -1,1 +1,0 @@
-from Products.Archetypes.interfaces.templatemixin import ITemplateMixin
