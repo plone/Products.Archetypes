@@ -28,11 +28,10 @@
 
 from Testing import ZopeTestCase
 
-import warnings
-warnings.warn('The usage of the ArchetypesTestCase module is deprecated',
-              category=DeprecationWarning, stacklevel=2)
-
 from Products.Archetypes.tests.attestcase import ATTestCase as \
     ArchetypesTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase as \
     ArcheSiteTestCase
+
+from Products.Archetypes.tests.attestcase import *
+from Products.Archetypes.tests.atsitetestcase import *

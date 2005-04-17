@@ -49,20 +49,20 @@ from Products.Archetypes.interfaces.orderedfolder import *
 from Products.Archetypes.interfaces.referenceable import *
 from Products.Archetypes.interfaces.storage import *
 
-from Products.Archetypes.base.baseobject import BaseObject
-from Products.Archetypes.base.basecontent import BaseContent
-from Products.Archetypes.base.basefolder import BaseFolder
-from Products.Archetypes.lib.baseunit import BaseUnit
-from Products.Archetypes import field as at_fields # use __all__ field
-from Products.Archetypes.marshall import Marshaller, PrimaryFieldMarshaller, \
+from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.BaseContent import BaseContent
+from Products.Archetypes.BaseFolder import BaseFolder
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes import Field as at_field# use __all__ field
+from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
-from Products.Archetypes.base.baseorderedfolder import OrderedBaseFolder
-from Products.Archetypes.schema import Schema
-from Products.Archetypes.storage.sql.storage import BaseSQLStorage, GadflySQLStorage, \
+from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
+from Products.Archetypes.Schema import Schema
+from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
-from Products.Archetypes.storage import Storage, ReadOnlyStorage, \
+from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.base.extensiblemetadata import ExtensibleMetadata
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.atapi import registerType
 
 def className(klass):
@@ -171,13 +171,12 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
 
-    klass = at_fields.Field # not used but set to class Field
+    klass = at_field.Field # not used but set to class Field
     forcedImpl = ()
 
     def testFieldInterface(self):
-        from Products.Archetypes.registries import availableFields
-        for fieldname, fielddescription in availableFields():
-            klass = fielddescription.klass
+       for fieldname in at_field.__all__:
+            klass = getattr(at_field, fieldname)
             instance = klass()
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
             for iface in self.getImplementsOf(instance):

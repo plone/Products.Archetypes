@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=
-##title=Introspect context schema and saves on session REQUESTs values
+##title=Introspect context schema and saves on session REQUESTs values 
 ##
 REQUEST = context.REQUEST
 # hey, don't forget to increment object number for sessions

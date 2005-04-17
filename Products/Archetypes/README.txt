@@ -1,8 +1,7 @@
 Archetypes
 
-  Archetypes (formerly known as CMFTypes) is a developers framework
-  for rapidly developing and deploying rich, full featured content
-  types within the context of Zope/CMF and Plone.
+  Archetypes is a developers framework for rapidly developing and deploying 
+  rich, full featured content types within the context of Zope/CMF and Plone.
 
   Archetypes is based around the idea of an _Active Schema_. Rather
   than provide a simple description of a new data type, Archetype
@@ -30,11 +29,11 @@ Features
 
 Requires
 
-  * Plone 2.0.5+
+  * Plone 2.0.4+
 
   * CMF 1.4.7+
 
-  * Zope 2.7.4+
+  * Zope 2.7.4+ (may work with Zope 2.7.0+)
 
   * CMFFormController 1.0.3-beta+
 
@@ -44,13 +43,23 @@ Requires
   
   * PortalTransforms
 
+  * generator
+
+  * validation
+
   * MimetypesRegistry
 
-  * Marshall
+  * docutils > 0.3.3 (see notes)
 
-  * For unit testing: ZopeTestCase and CMFTestCase from collective's cvs.
+  **Note:** Installing generator and validation as Python packages is no
+  longer supported by Archetypes. If they are installed as Python packages,
+  they will be silently ignored.
 
-  **Note:** You should remove the deprecated generator and validation products.
+  Note to docutils: You have to install a new version of docutils for Zope 2.7.0!
+  Zope 2.7.1+ will be shipped with docutils 0.3.3. You can download docutils at
+  http://docutils.sf.net/. Either you have to remove
+  ZOPE_HOME/lib/python/docutils after installing docutils or you have to replace
+  Zope's version by docutils 0.3.3+.
 
 Quickstart
 
@@ -80,4 +89,4 @@ Unit testing
 
 Documentation
 
-  See the docs directory.
+  See the docs directory and "plone.org":http://plone.org/documentation/archetypes/

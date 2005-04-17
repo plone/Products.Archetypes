@@ -37,9 +37,9 @@ from Acquisition import aq_base
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-from Products.Archetypes.example import *
+from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
-from Products.Archetypes.lib.vocabulary import DisplayList
+from Products.Archetypes.atapi import DisplayList
 
 class BaseReferenceableTests(ATSiteTestCase):
 
@@ -525,6 +525,21 @@ class BaseReferenceableTests(ATSiteTestCase):
             (dummy.UID(), dummy.getId()),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
+        
+        field = field.copy()
+        field.vocabulary_display_path_bound = 1
+        expected = DisplayList([
+            ('', '<no reference>'),
+            (test123.UID(), test123.getId()),
+            (test124.UID(), test124.getId()),
+            (test125.UID(), test125.getId()),
+            (dummy.UID(), dummy.getId()),
+            ])
+        self.failIfEqual(field.Vocabulary(dummy), expected)
+        field.vocabulary_display_path_bound = -1
+        self.assertEquals(field.Vocabulary(dummy), expected)
+
+        
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference

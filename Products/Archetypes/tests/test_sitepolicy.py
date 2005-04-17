@@ -34,8 +34,8 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
-from Products.Archetypes.example import complextype
-from Products.Archetypes.lib.classgen import generateCtor
+from Products.Archetypes.examples import ComplexType as complextype
+from Products.Archetypes.ClassGen import generateCtor
 import Products.Archetypes.tests.test_classgen
 
 from DateTime import DateTime
@@ -79,7 +79,7 @@ class SitePolicyTests(ATSiteTestCase):
         new_size = new_size + len(str(now)) - 4
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(100)
-        new_size = new_size + 2
+        new_size = new_size -1
         self.assertEqual(new_size, content.get_size())
         content.setIntegerfield(1)
         new_size = new_size - 2

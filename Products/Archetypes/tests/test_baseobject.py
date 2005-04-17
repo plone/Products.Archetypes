@@ -36,7 +36,6 @@ from Products.Archetypes.tests.utils import mkDummyInContext
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.lib.baseunit import BaseUnit
 
 from types import StringType
 
