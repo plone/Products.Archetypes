@@ -24,7 +24,7 @@ ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
 try:
-    from Products.CMFPlone.PloneUtilities import IndexIterator
+    from Products.CMFPlone import IndexIterator
 except ImportError:
     from PloneCompat import IndexIterator
 allow_class(IndexIterator)

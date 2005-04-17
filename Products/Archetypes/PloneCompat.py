@@ -2,7 +2,7 @@
 """
 
 try:
-    from Products.CMFPlone.PloneUtilities import IndexIterator
+    from Products.CMFPlone import IndexIterator
 except ImportError:
     class IndexIterator:
         __allow_access_to_unprotected_subobjects__ = 1
