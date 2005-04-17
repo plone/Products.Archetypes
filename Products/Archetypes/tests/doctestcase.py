@@ -23,22 +23,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""Doc test suite for doc tests inside Zope 2 or Portal
-
-Example:
-DOCTESTS = (
-    'dotted.path.to.a.module.as.string',
-    'another.module.path',
-    )
-
-def test_suite():
-    suite = ZopeDocTestSuite(test_class=TestClass,
-                             extraglobs={},
-                             *DOCTESTS
-                             )
-    return suite
-
-
+"""
 """
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
@@ -49,19 +34,15 @@ __docformat__ = 'restructuredtext'
 import warnings
 import unittest
 
-from Testing.ZopeTestCase import TestCase
-from Testing.ZopeTestCase import ZopeTestCase
-from Testing.ZopeTestCase import doctest
+from Testing.ZopeTestCase.base import TestCase
+from Testing.ZopeTestCase.ZopeTestCase import ZopeTestCase
+from Testing.ZopeTestCase.zopedoctest import doctest
 from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
-try:
-    ExtensionClass.Base.__module__ = ExtensionClass
-    ExtensionClass.ExtensionClass.__module__ = ExtensionClass
-except TypeError:
-    # fails with Zope 2.8 on. Probably also not really needed then.
-    pass
+ExtensionClass.Base.__module__ = ExtensionClass.__name__
+ExtensionClass.ExtensionClass.__module__ = ExtensionClass.__name__
 
 def ZopeDocTestSuite(*modules, **kw):
     """Based on Sid's FunctionalDocFileSuite
@@ -85,7 +66,7 @@ def ZopeDocTestSuite(*modules, **kw):
             name = 'ZDT%s' % name
         test_class = type(name, (TestCase, test_class), {})
 
-    # If the test_class does not have a runTest attribute, 
+    # If the test_class does not have a runTest attribute,
     # we add one.
     #if not hasattr(test_class, 'runTest'):
     setattr(test_class, 'runTest', None)
@@ -103,12 +84,12 @@ def ZopeDocTestSuite(*modules, **kw):
         test.globs['self'] = test_instance
         test.globs['app'] = test_instance.app
         if ztc_interfaces.IPortalTestCase.isImplementedBy(test_instance):
-            test.globs['portal'] = test_instance.portal
+            test.globs['portal'] = test_instance.getPortal()
         if kwsetUp is not None:
             kwsetUp(test_instance)
 
     kw['setUp'] = setUp
-    
+
     # tearDown
     kwtearDown = kw.get('tearDown')
     def tearDown(test):
@@ -117,7 +98,7 @@ def ZopeDocTestSuite(*modules, **kw):
         test_instance.tearDown()
 
     kw['tearDown'] = tearDown
-    
+
     # other options
     if 'optionflags' not in kw:
         kw['optionflags'] = (doctest.ELLIPSIS

@@ -418,17 +418,6 @@ class Field(DefaultLayerContainer):
 
         return value
 
-    security.declarePublic('vocabularyTranslate')
-    def vocabularyTranslate(self, key, instance=None, default=None):
-      vocabulary = self.Vocabulary(instance)
-      return self.Vocabulary(instance).getValue(key, default)
-
-    security.declarePublic('getDisplayValue')
-    def getDisplayValue(self, instance, **kwargs):
-      default = kwargs.get('default', self.getDefault(instance))
-      value = self.get(instance)
-      return self.vocabularyTranslate(value, instance, default)
-
     security.declarePublic('checkPermission')
     def checkPermission(self, mode, instance):
         """

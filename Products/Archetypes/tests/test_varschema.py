@@ -36,9 +36,9 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.Schema import Schemata
-from Products.Archetypes.Schema import getNames
-from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
+from Products.Archetypes.schema import Schemata
+from Products.Archetypes.schema import getNames
+from Products.Archetypes.schema import VariableSchemaSupport
 
 from DateTime import DateTime
 
@@ -52,7 +52,7 @@ class Dummy(VariableSchemaSupport,BaseContent):
 class VarSchemataTest( ATTestCase ):
 
     def afterSetUp(self):
-        registerType(Dummy, 'Archetypes')
+        registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
 

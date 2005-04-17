@@ -52,10 +52,6 @@ _modes = {
             'attr'     : 'mutator',
             'security' : 'write_permission',
             },
-    'd' : { 'prefix'   : 'getDisplay',
-            'attr'     : 'display_accessor',
-            'security' : 'read_permission',
-            },
 
     }
 
@@ -105,16 +101,6 @@ class Generator:
                     kw['schema'] = schema
                 return schema[name].set(self, value, **kw)
             method = generatedMutator
-        elif mode == "d":
-            def generatedDisplayAccessor(self, **kw):
-                """Default Display Accessor."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].getDisplayValue(self, **kw)
-            method = generatedDisplayAccessor
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
@@ -194,15 +180,12 @@ class ClassGenerator:
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
-            assert not 'd' in field.mode, 'd is an implicit mode'
 
             # Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'type')
             for mode in field.mode: #(r, w)
                 self.handle_mode(klass, generator, type, field, mode)
-                if mode == 'r':
-                    self.handle_mode(klass, generator, type, field, 'd')
                 if mode == 'w':
                     self.handle_mode(klass, generator, type, field, 'm')
 
