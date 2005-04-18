@@ -50,6 +50,14 @@
    names, so passing it along is redundant. Backed up by optilude.
    [madduck]
 
+ * Make Schema.setDefaults pass _initializing_:True in kwargs. Also remove the
+   hack from Field.get, which would set a field to defaults when an
+   AttributeError occurred during read. Rationale:
+   BaseObject.initializeArchetype calls Schema.setDefaults for every new
+   instance, so the AttributeError should really just not happen. Thus we do
+   not catch it anymore. Supported by optilude.
+   [madduck]
+
 1.3.2-svn - Unreleased
 ======================
 
