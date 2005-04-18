@@ -6,11 +6,9 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=
+from Products.CMFCore.utils import getToolByName
 
-encoding = 'utf-8'
-p_props = getattr(container, 'portal_properties', None)
-if p_props is not None:
-    site_props = getattr(p_props, 'site_properties', None)
-    if site_props is not None:
-        encoding = site_props.getProperty('default_charset')
-return encoding
+utils = getToolByName(container, 'plone_utils', None)
+if utils is not None:
+    return utils.getSiteEncoding()
+return 'utf-8'
