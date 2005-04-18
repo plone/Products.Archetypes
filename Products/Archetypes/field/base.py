@@ -559,8 +559,14 @@ class ObjectField(Field):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
-        kwargs['field'] = self
-        return self.getStorage(instance).get(self.getName(), instance, **kwargs)
+        try:
+            kwargs['field'] = self
+            return self.getStorage(instance).get(self.getName(), instance, **kwargs)
+        except AttributeError:
+            # happens if new Atts are added and not yet stored in the instance
+            if not kwargs.get('_initializing_', False):
+                self.set(instance, self.getDefault(instance), _initializing_=True, **kwargs)
+            return self.getDefault(instance)
 
     security.declarePrivate('getRaw')
     def getRaw(self, instance, **kwargs):
