@@ -45,6 +45,11 @@
    stored as _at_annotations_ on the object.
    [tiran]
 
+ * removed call to BaseObject.initializeLayers from
+   BaseObject.manage_afterAdd. Layers are initialised by the generated AT
+   factory (add*).
+   [madduck]
+
 1.3.2-svn - Unreleased
 ======================
 
