@@ -8,7 +8,10 @@
 ##parameters=
 from Products.CMFCore.utils import getToolByName
 
-utils = getToolByName(container, 'plone_utils', None)
-if utils is not None:
-    return utils.getSiteEncoding()
+properties = getToolByName(container, 'portal_properties', None)
+if properties is not None:
+    site_properties = getattr(properties, 'site_properties', None)
+    if site_properties is not None:
+        return site_properties.getProperty('default_charset')
+
 return 'utf-8'

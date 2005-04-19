@@ -567,9 +567,12 @@ class BaseObject(Referenceable):
     def getCharset(self):
         """ Return site default charset, or utf-8
         """
-        utils = getToolByName(self, 'plone_utils', None)
-        if utils is not None:
-            return utils.getSiteEncoding()
+        properties = getToolByName(self, 'portal_properties', None)
+        if properties is not None:
+            site_properties = getattr(properties, 'site_properties', None)
+            if site_properties is not None:
+                return site_properties.getProperty('default_charset')
+
         return 'utf-8'
 
     security.declareProtected(CMFCorePermissions.View, 'get_size')

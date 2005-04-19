@@ -2,9 +2,7 @@
  * Applied two performance optimizations:
    - BaseObject.getCharset() no longer calls the PythonScript of same name.
      This method is called bazillions of times and using a script here is
-     enormously wasteful. The script has been kept as fallback. Also, the
-     method (and the script) now use plone_utils.getSiteEncoding() instead of
-     manually walking through the property sheets.
+     enormously wasteful. The script has been kept as fallback.
    - ExtensibleMetadata.listCreators() now calls getOwnerTuple() instead
      of getOwner() to avoid lookup of user folder and user.
    [stefan]
