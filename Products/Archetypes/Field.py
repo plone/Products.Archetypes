@@ -1103,9 +1103,9 @@ class FileField(ObjectField):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
-    security.declarePrivate('download')
+    security.declareProtected(CMFCorePermissions.View, 'download')
     def download(self, instance, REQUEST=None, RESPONSE=None):
-        """Kicks download [PRIVATE]
+        """Kicks download.
 
         Writes data including file name and content type to RESPONSE
         """
