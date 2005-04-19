@@ -1,3 +1,8 @@
+ * Added optional 'visible_only' argument to Schemata.editableFields();
+   modified base_edit to use 'visible_only=True' so the edit form will
+   not display schemata that contain no visibly editable fields.  Default
+   behaviour for editableFields should remain the same.
+   [rafrombrc]
 
  * Applied two performance optimizations:
    - BaseObject.getCharset() no longer calls the PythonScript of same name.
