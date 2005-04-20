@@ -36,9 +36,9 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.schema import Schemata
-from Products.Archetypes.schema import getNames
-from Products.Archetypes.schema import VariableSchemaSupport
+from Products.Archetypes.Schema import Schemata
+from Products.Archetypes.Schema import getNames
+from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
 
 from DateTime import DateTime
 
@@ -52,21 +52,20 @@ class Dummy(VariableSchemaSupport,BaseContent):
 class VarSchemataTest( ATTestCase ):
 
     def afterSetUp(self):
-        registerType(Dummy)
+        registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-        self._dummy = Dummy(oid='dummy')
 
-    def test_variableschema(self):
-
-        dummy = self._dummy
-        dummy.update(id='dummy1')
-        self.assertEqual(dummy.getId(),'dummy1')
+    def test_variableschema(self):        
+        self.folder.dummy = Dummy(oid='dummy')
+        dummy = self.folder.dummy
+        dummy.setTitle('dummy1')
+        self.assertEqual(dummy.Title(),'dummy1')
 
         #change the schema
         dummy.schema=schema1
         #try to read an old value using the new schema
-        self.assertEqual(dummy.getId(),'dummy1')
-        dummy.update(additionalField='flurb')
+        self.assertEqual(dummy.Title(),'dummy1')
+        dummy.setAdditionalField('flurb')
         #check if we can read the new field using the new schema
         self.assertEqual(dummy.getAdditionalField(),'flurb')
 
