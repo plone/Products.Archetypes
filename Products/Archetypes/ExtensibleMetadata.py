@@ -271,7 +271,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             #
             # XXX: Should we have our own implementation of
             #      overrideDiscussionFor?
-            log_exc('Catched Unauthorized on discussiontool.' \
+            log_exc('caught Unauthorized on discussiontool.' \
                     'overrideDiscussionFor(%s)' % self.absolute_url(1),
                     level=BLATHER)
 
