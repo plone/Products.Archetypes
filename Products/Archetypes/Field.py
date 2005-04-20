@@ -461,7 +461,7 @@ class Field(DefaultLayerContainer):
 
         Arguments:
 
-        permission -- A permission name
+        mode -- 'w' for write or 'r' for read
         instance -- The object being accessed according to the permission
         """
         if mode in ('w', 'write', 'edit', 'set'):
