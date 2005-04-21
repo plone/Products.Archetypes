@@ -80,7 +80,7 @@ class BaseAnnotationStorage(Storage):
         ann = getAnnotation(instance)
         ann.setSubkey(self._key, value, subkey=name)
         if self._migrate:
-            self._cleanup(name instance, value, **kwargs) 
+            self._cleanup(name, instance, value, **kwargs) 
 
     security.declarePrivate('unset')
     def unset(self, name, instance, **kwargs):

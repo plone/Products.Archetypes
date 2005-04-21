@@ -45,6 +45,12 @@ from Products.Archetypes.SQLStorage import GadflySQLStorage
 from Products.Archetypes.SQLStorage import MySQLSQLStorage
 from Products.Archetypes.SQLStorage import PostgreSQLStorage
 from Products.Archetypes.SQLStorage import SQLServerStorage
+# annotation
+from Products.Archetypes.annotations import getAnnotation
+from Products.Archetypes.annotations import AT_ANN_STORAGE
+from Products.Archetypes.annotations import AT_MD_STORAGE
+from Products.Archetypes.annotations import AT_FIELD_MD
+from Products.Archetypes.annotations import AT_REF
 # misc
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import IntDisplayList
