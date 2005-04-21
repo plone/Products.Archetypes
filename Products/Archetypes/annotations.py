@@ -27,10 +27,12 @@
 from UserDict import DictMixin
 
 from BTrees.OOBTree import OOBTree
-from Acquisition import Explicit, aq_base
+from Acquisition import Explicit
+from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
 from Globals import InitializeClass
+from Products.Archetypes.utils import shasattr
 
 from Products.Archetypes.interfaces.annotations import IATAnnotations
 from Products.Archetypes.interfaces.annotations import IATAnnotatable
