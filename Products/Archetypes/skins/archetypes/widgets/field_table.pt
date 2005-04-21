@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <metal:view_macro define-macro="view"
+		      tal:define="label_macro label_macro|here/widgets/field_table/macros/label;
+		      data_macro data_macro|here/widgets/field_table/macros/data;">
+      <tr class="field">
+	<metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
+      </tr>
+    </metal:view_macro>
+
+    <metal:label_macro define-macro="label">
+      <td>
+	<metal:use_label use-macro="here/widgets/field/macros/label" />
+      </td>
+    </metal:label_macro>
+
+    <metal:data_macro define-macro="data">
+      <td>
+	<metal:use_data use-macro="here/widgets/field/macros/data" />
+      </td>
+    </metal:data_macro>
+
+  </body>
+</html>
