@@ -1761,6 +1761,10 @@ class ImageField(FileField):
         object/image_normal
         object/image_big
         object/image_maxi
+        
+        the official API to get tag (in a pagetemplate) is
+        obj.getField('image').tag(obj, scale='mini')
+        ...
 
         sizes may be the name of a method in the instance or a callable which
         returns a dict.
