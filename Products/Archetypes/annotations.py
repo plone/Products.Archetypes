@@ -110,7 +110,8 @@ class ATAnnotations(DictMixin, Explicit):
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             return self.get(k, default)
-        raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+        else:
+            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
     def setSubkey(self, key, value, subkey):
         """Stores data using a key and one subkey
@@ -118,7 +119,8 @@ class ATAnnotations(DictMixin, Explicit):
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             self[k] = value
-        raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+        else:
+            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
     def delSubkey(self, key, subkeys=()):
         """Removes a subkey
@@ -126,7 +128,8 @@ class ATAnnotations(DictMixin, Explicit):
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             del self[k]
-        raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+        else:
+            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
     def hasSubkey(self, key, subkeys=()):
         """Checks for the existence of a sub key
@@ -134,7 +137,8 @@ class ATAnnotations(DictMixin, Explicit):
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             return self.has_key(k)
-        raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+        else:
+            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
     def getObject(self):
         return self._obj

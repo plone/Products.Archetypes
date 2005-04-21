@@ -56,6 +56,11 @@ class BaseAnnotationStorage(Storage):
         """Migrates data from the original storage
         """
         raise NotImplementedError
+        
+    def _cleanup(self, name, instance, value, **kwargs):
+        """Clean up data in set method
+        """
+        raise NotImplementedError
 
     security.declarePrivate('get')
     def get(self, name, instance, **kwargs):
@@ -74,6 +79,8 @@ class BaseAnnotationStorage(Storage):
         value = aq_base(value)
         ann = getAnnotation(instance)
         ann.setSubkey(self._key, value, subkey=name)
+        if self._migrate:
+            self._cleanup(name instance, value, **kwargs) 
 
     security.declarePrivate('unset')
     def unset(self, name, instance, **kwargs):
@@ -102,6 +109,10 @@ class AnnotationStorage(BaseAnnotationStorage):
         self.set(name, instance, value, **kwargs)
         delattr(instance, name)
         return value
+    
+    def _cleanup(self, name, instance, value, **kwargs):
+        if shasattr(instance, name):
+            delattr(instance, name)
 
 registerStorage(AnnotationStorage)
 
@@ -128,6 +139,13 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         self.set(name, instance, value, **kwargs)
         del md[name]
         return value
+        
+    def _cleanup(self, name, instance, value, **kwargs):
+        md = aq_base(instance)._md
+        try:
+            del md[name]
+        except KeyError:
+            pass
 
     security.declarePrivate('initializeInstance')
     def initializeInstance(self, instance, item=None, container=None):
