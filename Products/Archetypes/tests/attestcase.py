@@ -43,8 +43,8 @@ else:
 #  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
 #  * Plone and PloneTestCase for Plone tests
 #USE_PLONETESTCASE = True
-USE_PLONETESTCASE = False
-#USE_PLONETESTCASE = HAS_PLONE
+#USE_PLONETESTCASE = False
+USE_PLONETESTCASE = HAS_PLONE
 
 if not USE_PLONETESTCASE:
     # setup is installing some required products

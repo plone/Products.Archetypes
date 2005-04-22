@@ -34,7 +34,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
-from Products.Archetypes.storage.aggregated import AggregatedStorage
+from Products.Archetypes.atapi import AggregatedStorage
 from Products.Archetypes.atapi import Schema
 from Products.Archetypes.atapi import StringField
 from Products.Archetypes.atapi import BaseContent
@@ -61,7 +61,7 @@ class Dummy(BaseContent):
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
 
-registerType(Dummy)
+registerType(Dummy, 'Archetypes')
 
 
 class AggregatedStorageTestsNoCache(ATSiteTestCase):

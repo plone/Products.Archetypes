@@ -79,9 +79,10 @@
                 </tal:fieldset>
                 <tal:type i18n:translate="legend_type_details"
                           tal:condition="not: fieldset">
-                  <span i18n:name="type">
+                  <span i18n:name="type" tal:define="fti python:here.portal_types.getTypeInfo(here)">
+
                     <span i18n:translate=""
-                          tal:content="type_name|here/archetype_name" />
+                          tal:content="fti/title_or_id" />
                   </span>
                   Details
                 </tal:type>
@@ -173,7 +174,8 @@
             <input type="hidden"
                    name="last_referer"
                    tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
-                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or here.aq_parent.absolute_url()"                   />
+                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or here.aq_parent.absolute_url()"
+                   />
 
             <metal:block define-slot="buttons"
                    tal:define="fieldset_index python:fieldsets.index(fieldset);

@@ -34,8 +34,8 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.lib.vocabulary import DisplayList
-from Products.Archetypes.lib.utils import make_uuid
+from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import make_uuid
 
 class UidGeneratorTest(ATTestCase):
     """Some ppl have reported problems with uids. This test isn't mathematical

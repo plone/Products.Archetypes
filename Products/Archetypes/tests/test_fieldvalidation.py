@@ -36,10 +36,9 @@ from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
-from Products.Archetypes.base.baseobject import BaseObject
-
-from Products.Archetypes.validation import validationService
-from Products.Archetypes.interfaces.validation import IValidator
+from Products.Archetypes.BaseObject import BaseObject
+from Products.validation import validation as validationService
+from Products.validation.interfaces.IValidator import IValidator
 
 class MyValidator:
     __implements__ = (IValidator,)

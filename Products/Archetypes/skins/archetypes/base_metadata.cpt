@@ -74,10 +74,10 @@
       <input type="hidden" name="current_lang" value=""
        tal:attributes="value request/LANGUAGE|default_language|default" />
 
-       <tal:comment replace="nothing">
-            This comes from edit_macros, which is somehow used by base_edit.  it seems
-            base_metadata and base_edit are NOT generated the same way ;-(
-       </tal:comment>
+        <tal:comment replace="nothing">
+        This comes from edit_macros, which is somehow used by base_edit.  it seems
+        base_metadata and base_edit are NOT generated the same way ;-(
+        </tal:comment>
             <input type="hidden"
                    name="add_reference.field:record"
                    value=""

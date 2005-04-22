@@ -65,6 +65,33 @@ class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
             user = user.__of__(uf)
         newSecurityManager(None, user)
 
+    # XXX Don't break third party tests
+
+    def getPermissionsOfRole(self, role):
+        perms = self.portal.permissionsOfRole(role)
+        return [p['name'] for p in perms if p['selected']]
+
+    def _setup(self):
+        '''Extends the portal setup.'''
+        # BBB remove in AT 1.4
+        PortalTestClass._setup(self)
+        # Add a manager user
+        uf = self.portal.acl_users
+        uf._doAddUser('manager', 'secret', ['Manager'], [])
+
+    def getManagerUser(self):
+        # BBB remove in AT 1.4
+        # b/w compat
+        uf = self.portal.acl_users
+        return uf.getUserById('manager').__of__(uf)
+
+    def getMemberUser(self):
+        # BBB remove in AT 1.4
+        # b/w compat
+        uf = self.portal.acl_users
+        return uf.getUserById(default_user).__of__(uf)
+
+
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
     """AT test case for functional tests inside a CMF site
     """

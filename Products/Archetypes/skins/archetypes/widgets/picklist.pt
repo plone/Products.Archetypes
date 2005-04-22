@@ -64,12 +64,11 @@
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')">
 
-                  <tal:block tal:repeat="vocab_item vocab">
+                  <tal:block tal:repeat="single_value value">
                     <option
-                      tal:define="label python:here.translate(vocab.getMsgId(vocab_item), default=vocab.getValue(vocab_item))"
-                      tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 1, 0)"
-                      tal:attributes="value vocab_item;"
-                      tal:content="label" 
+                      tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
+                      tal:attributes="value single_value;"
+                      tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
 		      selected="selected">
                       option
                     </option>
