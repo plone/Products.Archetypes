@@ -202,11 +202,11 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
-        if (isdir(join(fullProductSkinsPath, productSkinName))
-            and productSkinName != 'CVS'
-            and productSkinName != '.svn'
-            and productSkinName != '.arch-ids'
-            and productSkinName != '{arch}'):
+        # skip directories with a dot or special dirs
+        # or maybe just startswith('.')?
+        if productSkinName.find('.') != -1 or productSkinName in ('CVS', '{arch}'):
+            continue
+        if isdir(join(fullProductSkinsPath, productSkinName)):
             for skinName in skinstool.getSkinSelections():
                 path = skinstool.getSkinPath(skinName)
                 path = [i.strip() for i in  path.split(',')]
@@ -454,8 +454,8 @@ def setupEnvironment(self, out, types,
 ## The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
-                 require_dependencies=1, refresh_references=1,
-                 install_deps=1):
+                 require_dependencies=True, refresh_references=False,
+                 install_deps=True):
     """Use this for your site with your types"""
     ftypes = filterTypes(self, out, types, package_name)
     install_types(self, out, ftypes, package_name)

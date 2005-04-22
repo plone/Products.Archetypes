@@ -38,6 +38,7 @@ from Products.Archetypes.annotations import AT_MD_STORAGE
 from Products.Archetypes.annotations import getAnnotation
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerStorage
+from Products.Archetypes.utils import shasattr
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
