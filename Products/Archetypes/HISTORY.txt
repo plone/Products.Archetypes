@@ -1,5 +1,14 @@
+post 1.3.3-rc3 
+==============
+
+ * Fixed [ 1187630 ] AT rebuilds reference catalog by default on product install
+   [yenzenz]
+
 1.3.3-rc3 - 2005-04-21
 ======================
+
+ * Added optional 'visible_only' argument to Schemata.editableFields();
+   modified base_edit to use 'visible_only=True' so the edit form will
    not display schemata that contain no visibly editable fields.  Default
    behaviour for editableFields should remain the same.
    [rafrombrc]
