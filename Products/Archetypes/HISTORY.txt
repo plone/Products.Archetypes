@@ -1,3 +1,7 @@
+ * Fix issue #1174598 default action title overrides custom title if set
+   using 'name' instead of 'title'.
+   [alecm]
+
  * Made the show_hm flag for CalendarWidget work.
    [alecm]
 

@@ -165,13 +165,12 @@ def fixActionsForType(portal_type, typesTool):
                     if action.has_key('condition') and \
                            type(action['condition']) in (type(''), type(u'')):
                         action['condition'] = Expression(action['condition'])
+                    if action.has_key('name'):
+                        action['title'] = action['name']
+                        del action['name']
                     if hits:
                         hits[0].__dict__.update(action)
                     else:
-                        if action.has_key('name'):
-                            action['title'] = action['name']
-                            del action['name']
-
                         new.append(ActionInformation(**action))
                 else:
                     hit = findDict(new, 'id', action['id'])
