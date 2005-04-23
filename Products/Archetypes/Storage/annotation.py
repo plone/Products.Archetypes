@@ -107,8 +107,8 @@ class AnnotationStorage(BaseAnnotationStorage):
         value = getattr(aq_base(instance), name, _marker)
         if value is _marker:
                 raise AttributeError(name)
+        delattr(instance, name) # explicit del althought set would do the job, too
         self.set(name, instance, value, **kwargs)
-        delattr(instance, name)
         return value
     
     def _cleanup(self, name, instance, value, **kwargs):
