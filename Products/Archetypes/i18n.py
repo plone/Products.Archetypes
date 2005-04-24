@@ -11,7 +11,7 @@ translate = None
 
 def translate_wrapper(domain, msgid, mapping=None, context=None, 
                       target_language=None, default=None):
-    # wrapper for calling the translate() method with a fallback value
+    """ wrapper for calling the translate() method with a fallback value """
 
     if hasattr(service, 'utranslate'):
         res = service.utranslate(domain, msgid, mapping=mapping, context=context, 
@@ -31,7 +31,7 @@ def null_translate(domain, msgid, mapping=None, context=None,
     return default
 
 def initialize():
-    """ must be calles after Products are there and ready """
+    """ must be called after Products are there and ready """
     global service, translate
     service = getGlobalTranslationService()
     if service is DummyTranslationService:
