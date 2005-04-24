@@ -1,3 +1,13 @@
+pre 1.3.1 
+=========
+
+ * fixed translation encoding problems, see
+   http://plone.org/collector/3972, thx to [naro].
+   removed checks against Localizer (whoever uses it
+   should move to PlacelessTranslatonService.
+   removed check against Zope 2.5
+   [yenzenz]
+
 1.3.0-final17 - 2005-04-22
 ==========================
 
