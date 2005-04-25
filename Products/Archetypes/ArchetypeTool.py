@@ -566,7 +566,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         results = []
         if type(instance) is not StringType:
-            instance = instance.portal_type
+            fti = instance.getTypeInfo()
+            instance = getattr(self.getTypeInfo(), 'portal_type', None)
         try:
             templates = self._templates[instance]
         except KeyError:
@@ -575,7 +576,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # self._templates[instance] = ['base_view',]
             # templates = self._templates[instance]
         for t in templates:
-            results.append((t, self._registeredTemplates[t]))
+            results.append((t, self._registeredTemplates[t]))            
 
         return DisplayList(results).sortedByValue()
 
@@ -617,6 +618,35 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self.registerTemplate(name)
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
+    
+    security.declareProtected(CMFCorePermissions.View, 'getRegisteredArchetypesByMetaType')
+    def getRegisteredArchetypesByMetaType(self):
+        """ Returns a dictionary with meta_type as key, TypeInfo as value """
+        registered_archetypes_by_meta_type = {}
+        for t in listTypes():
+            registered_archetypes_by_meta_type[t['meta_type']]=t    
+        return registered_archetypes_by_meta_type
+    
+    security.declareProtected(CMFCorePermissions.View, 'listTemplateEnabledPortalTypes')
+    def listTemplateEnabledPortalTypes(self):
+        """Return a list of portal_types with ITemplateMixin
+        """    
+        tt = getToolByName(self, 'portal_types')
+        if tt is None:
+            return []
+        
+        ftis = tt.listTypeInfo()
+        registered_archetypes_by_meta_type = self.getRegisteredArchetypesByMetaType()
+        
+        template_mixin_enabled_ftis = []
+        for fti in ftis:
+            fti_meta_type = fti.content_meta_type
+            if fti_meta_type in registered_archetypes_by_meta_type.keys()  and \
+               self.isTemplateEnabled(registered_archetypes_by_meta_type[fti_meta_type]):
+                template_mixin_enabled_ftis.append(fti)
+                
+        return template_mixin_enabled_ftis
+                  
 
     # Type/Schema Management
     security.declareProtected(CMFCorePermissions.View, 'listRegisteredTypes')
