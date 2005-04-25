@@ -144,6 +144,12 @@ class ATAnnotations(DictMixin, Explicit):
 
     def getObject(self):
         return self._obj
+        
+    def getAnnotationObject(self):
+        try:
+            return self._obj.__annotations__
+        except AttributeError:
+            return None
 
     # DictMixin does define the following methods:
     #def __iter__(self):
