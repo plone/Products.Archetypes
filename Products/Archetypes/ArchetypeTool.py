@@ -608,12 +608,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Sets all the template/type mappings.
         """
         prefix = 'template_names_'
-        #import pdb; pdb.set_trace()
         for key in REQUEST.form.keys():
             if key.startswith(prefix):
                 k = key[len(prefix):]
                 v = REQUEST.form.get(key)
-                print "bind %s to %s" % (k,v)
                 self.bindTemplate(k, v)
 
         add = REQUEST.get('addTemplate')
