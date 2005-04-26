@@ -566,8 +566,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         results = []
         if not type(instance_or_portaltype) in StringTypes:
-            portal_type = getattr(instance_or_portaltype.getTypeInfo(), 
-                          'id', None)
+            portal_type = instance_or_portaltype.getTypeInfo().getId()
         else:
             portal_type = instance_or_portaltype
         try:

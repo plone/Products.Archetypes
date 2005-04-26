@@ -26,10 +26,10 @@
               <span tal:replace="string: ${fti/title_or_id}" /></h3>
           <p tal:condition="python:fti.id != fti.content_meta_type">
             Using meta_type <code tal:replace="string:${fti/content_meta_type}"/></p>
-          <tal tal:define="overlaping python:fti.content_meta_type!=fti.id and [t for t in at.lookupTemplates(fti.content_meta_type) if t not in at.lookupTemplates(fti.id)]">
+          <tal tal:define="overlaping python:fti.content_meta_type!=fti.getId() and [t for t in at.lookupTemplates(fti.content_meta_type) if t not in at.lookupTemplates(fti.getId())]">
             <tal:condition tal:condition="overlaping">
              <p>
-             Templates bind to from portal_type different meta_type:</p>
+             Templates bind to the from portal_type different meta_type:</p>
              <ul>
                 <li tal:repeat="item overlaping" tal:content="item" />
              </ul>
@@ -41,8 +41,8 @@
       </td>
 	  <td>
 	    <select multiple="multiple"
-	            tal:define="currentselection python:at.lookupTemplates(fti.id);"
-		        tal:attributes="name string:template_names_${fti/id}:list;
+	            tal:define="currentselection python:at.lookupTemplates(fti.getId());"
+		        tal:attributes="name string:template_names_${fti/getId}:list;
 		                        size python: len(vocab)">
 	      <option selected=""
 		          tal:repeat="item vocab"
