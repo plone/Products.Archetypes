@@ -3,7 +3,7 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType
+from types import StringType, StringTypes
 from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
@@ -559,17 +559,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     security.declareProtected(CMFCorePermissions.View, 'lookupTemplates')
-    def lookupTemplates(self, instance=None):
+    def lookupTemplates(self, instance_or_portaltype=None):
         """Lookup templates by giving an instance or a portal_type.
 
         Returns a DisplayList.
         """
         results = []
-        if type(instance) is not StringType:
-            fti = instance.getTypeInfo()
-            instance = getattr(self.getTypeInfo(), 'portal_type', None)
+        if not type(instance_or_portaltype) in StringTypes:
+            portal_type = getattr(instance_or_portaltype.getTypeInfo(), 
+                          'portal_type', None)
+        else:
+            portal_type = instance_or_portaltype
         try:
-            templates = self._templates[instance]
+            templates = self._templates[portal_type]
         except KeyError:
             return DisplayList()
             # XXX Look this up in the types tool later
@@ -606,10 +608,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Sets all the template/type mappings.
         """
         prefix = 'template_names_'
+        #import pdb; pdb.set_trace()
         for key in REQUEST.form.keys():
             if key.startswith(prefix):
                 k = key[len(prefix):]
                 v = REQUEST.form.get(key)
+                print "bind %s to %s" % (k,v)
                 self.bindTemplate(k, v)
 
         add = REQUEST.get('addTemplate')
