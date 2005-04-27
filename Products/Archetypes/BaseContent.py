@@ -17,6 +17,8 @@ from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
 
+import urllib
+
 _marker = []
 
 class BaseContentMixin(CatalogMultiplex,
@@ -91,6 +93,7 @@ class BaseContentMixin(CatalogMultiplex,
         except:
             filename = (getattr(file, 'filename', None) or
                         getattr(file, 'name', None))
+        filename = urllib.unquote_plus(filename)
 
         # XXX remove after we are using global services
         # use the request to find an object in the traversal hirachie that is
