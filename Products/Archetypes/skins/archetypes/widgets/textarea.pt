@@ -40,7 +40,7 @@
               <span i18n:translate=""
                     tal:condition="python:(content_length &lt; 333)"
                     tal:content="structure accessor">content</span>
-                    <textarea readonly i18n:translate=""
+                    <textarea readonly="readonly" i18n:translate=""
                               tal:condition="python:(content_length &gt;= 333)"
                               tal:content="content"
                               tal:attributes="cols widget/cols;
