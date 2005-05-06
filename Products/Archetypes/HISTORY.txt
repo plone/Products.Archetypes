@@ -1,3 +1,25 @@
+post 1.3.3-final
+================
+
+ * Unquoted filename when uploaded from ftp/webdav
+   [panjunyong]
+
+ * Fixed [ 1184475 ] Template Mixin UI still borked.
+   Attention: All types are bound to portal_type know. If you're using
+   a type where meta_type!=portal_type you have to rebind your templates
+   to the type! This should affect not too many people.
+   [yenzenz]
+
+ * Fix issue #1174598 default action title overrides custom title if set
+   using 'name' instead of 'title'.
+   [alecm]
+
+ * Made the show_hm flag for CalendarWidget work.
+   [alecm]
+
+ * Added hidden macro to boolean widget fixes issue #1144139.
+   [alecm]
+
 1.3.3-final - 2005-04-22
 ========================
 

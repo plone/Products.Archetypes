@@ -2286,9 +2286,11 @@ class ImageField(FileField):
         if width is None:
             width=img_width
 
-        url = instance.absolute_url() + '/' + self.getName ()
+        url = instance.absolute_url()
         if scale:
-            url+='/' + self.getScaleName(scale)
+            url+= '/' + self.getScaleName(scale)
+        else:
+            url+= '/' + self.getName()
 
         values = {'src' : url,
                   'alt' : alt and alt or instance.Title(),

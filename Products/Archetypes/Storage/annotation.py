@@ -39,6 +39,7 @@ from Products.Archetypes.annotations import getAnnotation
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerStorage
 from Products.Archetypes.utils import shasattr
+from Products.CMFCore.utils import getToolByName
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
@@ -107,8 +108,8 @@ class AnnotationStorage(BaseAnnotationStorage):
         value = getattr(aq_base(instance), name, _marker)
         if value is _marker:
                 raise AttributeError(name)
+        delattr(instance, name) # explicit del althought set would do the job, too
         self.set(name, instance, value, **kwargs)
-        delattr(instance, name)
         return value
     
     def _cleanup(self, name, instance, value, **kwargs):
@@ -175,3 +176,70 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         pass
 
 registerStorage(MetadataAnnotationStorage)
+
+def migrateStorageOfType(portal, portal_type, schema):
+    """Migrate storage from attribute to annotation storage
+    
+    portal - portal
+    portal_type - portal type name to migrate
+    schema - schema of the type
+    
+    The schema is used to detect annotation and metadata annotation stored field for
+    migration.
+    """
+    catalog = getToolByName(portal, 'portal_catalog')
+    brains = catalog(Type = portal_type)
+    
+    fields = [ field.getName()
+        for field in schema.fields() 
+        if field.storage.__class__ == AnnotationStorage
+        ]
+    md_fields = [ field.getName()
+        for field in schema.fields() 
+        if field.storage.__class__ == MetadataAnnotationStorage
+        ]
+    
+    for brain in brains:
+        obj = brain.getObject()
+        if obj is None:
+            continue
+        
+        try: state = obj._p_changed
+        except: state = 0
+        
+        ann = getAnnotation(obj)
+        clean_obj = aq_base(obj)
+        _attr2ann(clean_obj, ann, fields)
+        _meta2ann(clean_obj, ann, md_fields)
+        
+        if state is None: obj._p_deactivate()
+
+def _attr2ann(clean_obj, ann, fields):
+    """Attribute 2 annotation
+    """
+    for field in fields:
+        if not ann.hasSubkey(AT_ANN_STORAGE, field):
+            value = getattr(clean_obj, field, _marker)
+            if value is not _marker:
+                delattr(obj, field)
+                ann.setSubkey(AT_ANN_STORAGE, value, subkey=field)
+        else:
+            value = getattr(clean_obj, field, _marker)
+            if value is not _marker:
+                delattr(obj, field)
+    
+def _meta2ann(clean_obj, ann, fields):
+    """metadata 2 annotation
+    """
+    md = clean_obj._md
+    for field in fields:
+        if not ann.hasSubkey(AT_MD_STORAGE, field):
+            value = md.get(field, _marker)
+            if value is not _marker:
+                del md[field]
+                ann.setSubkey(AT_MD_STORAGE, value, subkey=field)
+        else:
+            try:
+                del md[field]
+            except KeyError:
+                pass
