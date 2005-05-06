@@ -5,13 +5,13 @@ RELEASE_TAG=_dev_
 PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
 #CVSTAG=release-1_4_0-a1
 
-PYTHON=/usr/local/bin/python2.3
+PYTHON=/usr/bin/python
 TMPDIR=/tmp
 
-CURDIR=~/dev/zope2/archetypes/Archetypes/branches/release-1_3-branch
-BASE_DIR=${CURDIR}/..
-SOFTWARE_HOME=/opt/zope/releases/Zope-2_7-branch/lib/python
-INSTANCE_HOME=/opt/zope/instances/plone21
+CURDIR=$(shell pwd)
+BASE_DIR=$(shell dirname ${CURDIR})
+SOFTWARE_HOME=~/src/zope/trunk/lib/python
+INSTANCE_HOME=~/src/instance/plone21
 
 #ZOPE_CONFIG=~/src/instance/shellex/etc/zope.conf.test
 PACKAGES=Archetype
