@@ -124,7 +124,7 @@ class ATAnnotations(DictMixin, Explicit):
         else:
             raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
-    def delSubkey(self, key, subkey):
+    def delSubkey(self, key, subkeys=()):
         """Removes a subkey
         """
         if isinstance(subkey, basestring):
@@ -133,7 +133,7 @@ class ATAnnotations(DictMixin, Explicit):
         else:
             raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
-    def hasSubkey(self, key, subkey):
+    def hasSubkey(self, key, subkeys=()):
         """Checks for the existence of a sub key
         """
         if isinstance(subkey, basestring):
@@ -144,12 +144,6 @@ class ATAnnotations(DictMixin, Explicit):
 
     def getObject(self):
         return self._obj
-        
-    def getAnnotationObject(self):
-        try:
-            return self._obj.__annotations__
-        except AttributeError:
-            return None
 
     # DictMixin does define the following methods:
     #def __iter__(self):
