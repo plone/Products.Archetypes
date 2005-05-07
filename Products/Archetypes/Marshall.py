@@ -124,6 +124,15 @@ class RFC822Marshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
         from Products.CMFDefault.utils import parseHeadersBody
+        # We don't want to pass file forward.
+        if kwargs.has_key('file'):
+            if not data:
+                # XXX Yuck! Shouldn't read the whole file, never.
+                # OTOH, if you care about large files, you should be
+                # using the PrimaryFieldMarshaller or something
+                # similar.
+                data = kwargs['file'].read()
+            del kwargs['file']
         headers, body = parseHeadersBody(data)
         for k, v in headers.items():
             if v.strip() == 'None':
@@ -137,9 +146,6 @@ class RFC822Marshaller(Marshaller):
         if not kwargs.get('mimetype', None):
             kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
-        # We don't want to pass file forward.
-        if kwargs.has_key('file'):
-            del kwargs['file']
         if p is not None:
             mutator = p.getMutator(instance)
             if mutator is not None:

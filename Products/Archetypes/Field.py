@@ -900,6 +900,9 @@ class FileField(ObjectField):
                                            shasattr(value, 'seek'))):
             # Can't get filename from those.
             pass
+        elif value is None:
+            # Special case for setDefault
+            value = ''
         else:
             klass = getattr(value, '__class__', None)
             raise FileFieldException('Value is not File or String (%s - %s)' %
@@ -1154,9 +1157,9 @@ class TextField(FileField):
     def setContentType(self, instance, value):
         """Set mimetype in the base unit.
         """
-        bu = self.get(instance)
+        bu = self.get(instance, raw=True)
         if shasattr(bu, 'setContentType'):
-            bu.setContentType(value)
+            bu.setContentType(instance, value)
             self.set(instance, bu)
         else:
             log('Did not get a BaseUnit to set the content type',
@@ -1213,6 +1216,9 @@ class TextField(FileField):
             # Can't get filename from those.
             body = value.read(CHUNK)
             value.seek(0)
+        elif value is None:
+            # Special case for setDefault.
+            value = ''
         else:
             klass = getattr(value, '__class__', None)
             raise TextFieldException('Value is not File or String (%s - %s)' %

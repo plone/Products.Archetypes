@@ -486,8 +486,11 @@ class BasicSchema(Schemata):
 
         keys = kwargs.keys()
 
-        for field in self.values():
-            if field.getName() not in keys:
+        for name in keys:
+
+            field = self.get(name, None)
+
+            if field is None:
                 continue
 
             if not field.writeable(instance):
@@ -496,7 +499,7 @@ class BasicSchema(Schemata):
             # If passed the test above, mutator is guaranteed to
             # exist.
             method = field.getMutator(instance)
-            method(kwargs[field.getName()])
+            method(kwargs[name])
 
     security.declareProtected(CMFCorePermissions.View, 'allow')
     def allow(self, name):

@@ -64,7 +64,6 @@ class BaseContentMixin(CatalogMultiplex,
     def PUT(self, REQUEST=None, RESPONSE=None):
         """ HTTP PUT handler with marshalling support
         """
-
         if not REQUEST:
             REQUEST = self.REQUEST
         if not RESPONSE:
