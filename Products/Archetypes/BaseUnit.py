@@ -4,7 +4,6 @@ from types import StringType
 
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
@@ -73,7 +72,6 @@ class BaseUnit(File):
         self.size = len(data)
         # taking care of stupid IE
         self.setFilename(filename)
-        self._cacheExpire()
 
     def transform(self, instance, mt, **kwargs):
         """Takes a mimetype so object.foo.transform('text/plain') should return
@@ -210,7 +208,6 @@ class BaseUnit(File):
         mimetype = result[0]
         self.mimetype = str(mimetype)
         self.binary = mimetype.binary
-        self._cacheExpire()
 
     def getFilename(self):
         """Return the file name.
@@ -225,11 +222,6 @@ class BaseUnit(File):
             self.filename = filename.split("\\")[-1]
         else:
             self.filename = filename
-        self._cacheExpire()
-
-    def _cacheExpire(self):
-        if shasattr(self, '_v_transform_cache'):
-            delattr(self, '_v_transform_cache')
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")

@@ -343,13 +343,13 @@ class SQLStorageTest(SQLStorageTestBase):
         __traceback_info__ = (self.db_name, repr(value), None)
         # Gadfly represents None as an empty string
         if self.db_name == 'Gadfly':
-            self.failUnless(str(value) == '', (value, ''))
+            self.failUnless(value == '')
         else:
-            self.failUnless(value is None, (value, None))
+            self.failUnless(value is None)
         dummy.setAtextfield('Bla')
         value = dummy.getAtextfield()
         __traceback_info__ = (self.db_name, repr(value), 'Bla')
-        self.failUnless(str(value) == 'Bla', (value, 'Bla'))
+        self.failUnless(value == 'Bla')
 
     def test_datetimefield(self):
         dummy = self._dummy
@@ -458,8 +458,7 @@ class SQLStorageTest(SQLStorageTestBase):
         dummy = self._dummy
         content = 'The book is on the table!'
         dummy.setAtextfield(content)
-        got = dummy.getAtextfield()
-        self.failUnless(str(got) == content, (got, content))
+        self.failUnless(dummy.getAtextfield() == content)
         portal = self.portal
         obj_id = 'dummy'
         new_id = 'new_dummy'
@@ -467,8 +466,7 @@ class SQLStorageTest(SQLStorageTestBase):
         get_transaction().commit(1)
         portal.manage_renameObject(obj_id, new_id)
         dummy = getattr(portal, new_id)
-        got = dummy.getAtextfield()
-        self.failUnless(str(got) == content, (got, content))
+        self.failUnless(dummy.getAtextfield() == content)
 
 ## Xiru: These 3 tests below need some refactory!
 

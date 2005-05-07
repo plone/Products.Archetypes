@@ -463,8 +463,7 @@ class BasicSchema(Schemata):
             default = field.getDefault(instance)
 
             args = (default,)
-            kw = {'field': field.__name__,
-                  '_initializing_': True}
+            kw = {'field': field.__name__}
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
@@ -486,11 +485,8 @@ class BasicSchema(Schemata):
 
         keys = kwargs.keys()
 
-        for name in keys:
-
-            field = self.get(name, None)
-
-            if field is None:
+        for field in self.values():
+            if field.getName() not in keys:
                 continue
 
             if not field.writeable(instance):
@@ -499,7 +495,7 @@ class BasicSchema(Schemata):
             # If passed the test above, mutator is guaranteed to
             # exist.
             method = field.getMutator(instance)
-            method(kwargs[name])
+            method(kwargs[field.getName()])
 
     security.declareProtected(CMFCorePermissions.View, 'allow')
     def allow(self, name):
