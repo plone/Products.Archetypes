@@ -36,10 +36,9 @@ from Testing import ZopeTestCase
 from OFS.Image import File
 from Globals import package_home
 
-prefix = os.path.dirname(package_home(globals()))
-
 ZopeTestCase.installProduct('Archetypes')
 from Products.Archetypes.public import MetadataStorage, BaseContent
+from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 class FileLike:
 
@@ -274,7 +273,7 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.failIf(f)
 
     def test_string_pdf(self):
-        f = open(os.path.join(prefix, 'tests', 'input', 'webdav.pdf')).read()
+        f = open(os.path.join(PACKAGE_HOME, 'input', 'webdav.pdf')).read()
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'application/pdf')
