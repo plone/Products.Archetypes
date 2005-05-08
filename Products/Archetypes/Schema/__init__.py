@@ -108,16 +108,10 @@ class Schemata(Base):
         """
         ret = []
         for field in self.fields():
-            if field.writeable(instance, debug=False):
-                if not visible_only:
-                    ret.append(field)
-                else:
-                    visible = True
-                    if hasattr(field.widget, 'visible') and \
-                       field.widget.visible.get('edit', 'visible') != 'visible':
-                        visible = False
-                    if visible:
-                        ret.append(field)
+            if field.writeable(instance, debug=False) and    \
+                   not visible_only or                       \
+                   field.widget.isVisible(instance, 'edit'):
+                ret.append(field)
         return ret
 
     security.declareProtected(CMFCorePermissions.View, 'viewableFields')
