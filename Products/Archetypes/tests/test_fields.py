@@ -35,6 +35,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.attestcase import HAS_PLONE
+from Products.Archetypes.tests.attestcase import HAS_PLONE21
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -103,7 +104,11 @@ expected_values = {'objectfield':'objectfield',
                    }
 if HAS_PLONE:
     # Plone has a patch which removed the border="0" 
-    expected_values['imagefield'] = '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
+    if HAS_PLONE21:
+        expected_values['imagefield'] = '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
+    else:
+        # Plone 2.0 has a longdesc attribute
+        expected_values['imagefield'] = '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" longdesc="" height="16" width="16" />' % portal_name
 
 empty_values = {'objectfield':None,
                    'stringfield':'',
