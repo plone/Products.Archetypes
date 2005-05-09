@@ -86,7 +86,7 @@ class PortalCopyTests(ATSiteTestCase):
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')
         self._image = open(imgpath).read()
 
-        portal = self.getPortal()
+        portal = self.portal
 
         portal.invokeFactory('DDocument', id='document')
         doc = portal.document
@@ -105,7 +105,7 @@ class PortalCopyTests(ATSiteTestCase):
         self.failUnless(bodyfield.getContentType(doc), 'text/x-rst')
 
     def test_created_doc(self):
-        portal = self.getPortal()
+        portal = self.portal
         self.failUnless(portal, 'document')
         doc = portal.document
         self._test_doc(doc)
@@ -114,7 +114,7 @@ class PortalCopyTests(ATSiteTestCase):
         app = self.app
         user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
         newSecurityManager(None, user)
-        app.manage_clone(self.getPortal(), 'newportal')
+        app.manage_clone(self.portal, 'newportal')
         noSecurityManager()
         get_transaction().commit(1)
 

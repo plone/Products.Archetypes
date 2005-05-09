@@ -76,13 +76,11 @@ class AggregatedStorageTestsNoCache(ATSiteTestCase):
         schema = Schema( (StringField('whole_name', storage=self._storage),
                          ))
 
-        portal = self.getPortal()
-        
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])        
 
         self._instance = mkDummyInContext(klass=Dummy, oid='dummy',
-                                          context=self.getPortal(), schema=schema)
+                                          context=self.portal, schema=schema)
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']

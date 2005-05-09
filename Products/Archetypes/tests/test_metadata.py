@@ -128,7 +128,7 @@ class ExtensibleMetadataTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.getPortal(), schema=schema)
+                                       context=self.portal, schema=schema)
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
         self.makeDummy()
@@ -186,9 +186,9 @@ class ExtMetadataContextTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.getPortal(), schema=schema)
+                                       context=self.portal, schema=schema)
         gen_class(DummyFolder)
-        portal = self.getPortal()
+        portal = self.portal
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
@@ -216,7 +216,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
         compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
-        portal = self.getPortal()
+        portal = self.portal
         self.failUnless(aq_parent(self._parent) == portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
@@ -242,7 +242,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        portal = self.getPortal()
+        portal = self.portal
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
