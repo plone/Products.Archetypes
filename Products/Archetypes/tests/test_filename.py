@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -164,12 +165,25 @@ class SetFilenameTest(ATTestCase):
         self.assertEqual(field1.getFilename(obj), filename1)
         self.assertEqual(field2.getFilename(obj), filename2)
 
+class StrangeIdTest(ATSiteTestCase):
+    def test_strangeUnallowedIds(self):
+        """ Certain IDs give an error and are unusable
+
+        They're set in zope's lib/python/App/Product.py. Examples:
+        home, version, icon.
+        """
+        strangeIds = ['home', 'version', 'icon']
+        for id in strangeIds:
+            self.folder.invokeFactory('Folder', id)
+            self.assert_(id in self.folder.objectIds())
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(GetFilenameTest))
     suite.addTest(makeSuite(SetFilenameTest))
+    suite.addTest(makeSuite(StrangeIdTest))
     return suite
 
 if __name__ == '__main__':
