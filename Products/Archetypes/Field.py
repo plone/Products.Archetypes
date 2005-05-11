@@ -1677,17 +1677,17 @@ class ReferenceField(ObjectField):
 
         skw = allowed_types and {'portal_type':allowed_types} or {}
         brains = uc.searchResults(**skw)
-
+        #import pdb;pdb.set_trace()
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
         #elif len(brains) > self.vocabulary_display_path_bound:
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.Title or b.id, at,
+            label = lambda b:'%s %s %s' % (b.title_or_id(), at,
                                            b.getPath())
         else:
-            label = lambda b:b.Title or b.id
+            label = lambda b:b.title_or_id()
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
