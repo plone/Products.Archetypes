@@ -1037,9 +1037,11 @@ class FileField(ObjectField):
 
         mimetype = kwargs.get('mimetype', self.default_content_type)
         filename = kwargs.get('filename', '')
+        if type(value) not in StringTypes:
+            value=str(value)            
 
         obj = self._make_file(self.getName(), title='',
-                              file=str(value), instance=instance)
+                              file=value, instance=instance)
         setattr(obj, 'filename', filename) # filename or self.getName())
         setattr(obj, 'content_type', mimetype)
         try:
