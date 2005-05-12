@@ -1662,6 +1662,15 @@ class ReferenceField(ObjectField):
             return ObjectField.Vocabulary(self, content_instance)
         else:
             return self._Vocabulary(content_instance).sortedByValue()
+        
+    def _brains_title_or_id(self, brain, instance):
+        """ ensure the brain has a title or an id and return it as unicode"""
+        brain =  aq_base(brain)
+        ret = getattr(brain,'Title',None) or getattr(brain,'id',None)
+        if ret is not None and type(ret) in StringTypes:
+            return decode(ret, instance)
+        assert("problem with catalog, brain has not Title nor id")
+            
 
     def _Vocabulary(self, content_instance):
         pairs = []
@@ -1684,10 +1693,10 @@ class ReferenceField(ObjectField):
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:'%s %s %s' % (b.title_or_id(), at,
-                                           b.getPath())
+            label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance), 
+                                             at, b.getPath())
         else:
-            label = lambda b:b.title_or_id()
+            label = lambda b:self._brains_title_or_id(b, content_instance)
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
