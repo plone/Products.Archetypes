@@ -114,7 +114,7 @@ def install_referenceCatalog(self, out, rebuild=False):
     catalog = getToolByName(self, REFERENCE_CATALOG, None)
     if catalog and not IReferenceCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
-        aq_parent(catalog).manage_delObjects([REFERENCE_CATALOGG,])
+        aq_parent(catalog).manage_delObjects([REFERENCE_CATALOG,])
         catalog = None
         rebuild = 1
 

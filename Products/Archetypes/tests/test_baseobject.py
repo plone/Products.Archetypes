@@ -77,7 +77,7 @@ class BaseObjectTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
                                       schema=schema)
     
     def test_searchableText(self):

@@ -3,7 +3,7 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType
+from types import StringType, StringTypes
 from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
@@ -165,13 +165,12 @@ def fixActionsForType(portal_type, typesTool):
                     if action.has_key('condition') and \
                            type(action['condition']) in (type(''), type(u'')):
                         action['condition'] = Expression(action['condition'])
+                    if action.has_key('name'):
+                        action['title'] = action['name']
+                        del action['name']
                     if hits:
                         hits[0].__dict__.update(action)
                     else:
-                        if action.has_key('name'):
-                            action['title'] = action['name']
-                            del action['name']
-
                         new.append(ActionInformation(**action))
                 else:
                     hit = findDict(new, 'id', action['id'])
@@ -560,23 +559,25 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
 
     security.declareProtected(CMFCorePermissions.View, 'lookupTemplates')
-    def lookupTemplates(self, instance=None):
+    def lookupTemplates(self, instance_or_portaltype=None):
         """Lookup templates by giving an instance or a portal_type.
 
         Returns a DisplayList.
         """
         results = []
-        if type(instance) is not StringType:
-            instance = instance.portal_type
+        if not type(instance_or_portaltype) in StringTypes:
+            portal_type = instance_or_portaltype.getTypeInfo().getId()
+        else:
+            portal_type = instance_or_portaltype
         try:
-            templates = self._templates[instance]
+            templates = self._templates[portal_type]
         except KeyError:
             return DisplayList()
             # XXX Look this up in the types tool later
             # self._templates[instance] = ['base_view',]
             # templates = self._templates[instance]
         for t in templates:
-            results.append((t, self._registeredTemplates[t]))
+            results.append((t, self._registeredTemplates[t]))            
 
         return DisplayList(results).sortedByValue()
 
@@ -618,6 +619,35 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self.registerTemplate(name)
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
+    
+    security.declareProtected(CMFCorePermissions.View, 'getRegisteredArchetypesByMetaType')
+    def getRegisteredArchetypesByMetaType(self):
+        """ Returns a dictionary with meta_type as key, TypeInfo as value """
+        registered_archetypes_by_meta_type = {}
+        for t in listTypes():
+            registered_archetypes_by_meta_type[t['meta_type']]=t    
+        return registered_archetypes_by_meta_type
+    
+    security.declareProtected(CMFCorePermissions.View, 'listTemplateEnabledPortalTypes')
+    def listTemplateEnabledPortalTypes(self):
+        """Return a list of portal_types with ITemplateMixin
+        """    
+        tt = getToolByName(self, 'portal_types')
+        if tt is None:
+            return []
+        
+        ftis = tt.listTypeInfo()
+        registered_archetypes_by_meta_type = self.getRegisteredArchetypesByMetaType()
+        
+        template_mixin_enabled_ftis = []
+        for fti in ftis:
+            fti_meta_type = fti.content_meta_type
+            if fti_meta_type in registered_archetypes_by_meta_type.keys()  and \
+               self.isTemplateEnabled(registered_archetypes_by_meta_type[fti_meta_type]):
+                template_mixin_enabled_ftis.append(fti)
+                
+        return template_mixin_enabled_ftis
+                  
 
     # Type/Schema Management
     security.declareProtected(CMFCorePermissions.View, 'listRegisteredTypes')

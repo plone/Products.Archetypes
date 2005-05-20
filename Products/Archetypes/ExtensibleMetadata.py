@@ -213,15 +213,9 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
-        """Retrieve the default language, or fall back to the default setting"""
-        default = self.getField('language').default
-        if default is None:
-            return default
-        try:
-            properties = getToolByName(self, 'portal_properties')
-            return getattr(properties.site_properties, 'default_language', default)
-        except AttributeError:
-            return default
+        """Retrieve the default language"""
+        # XXX This method is kept around for backward compatibility only
+        return config.LANGUAGE_DEFAULT
 
     security.declareProtected(CMFCorePermissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
@@ -271,7 +265,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             #
             # XXX: Should we have our own implementation of
             #      overrideDiscussionFor?
-            log_exc('caught Unauthorized on discussiontool.' \
+            log_exc('Catched Unauthorized on discussiontool.' \
                     'overrideDiscussionFor(%s)' % self.absolute_url(1),
                     level=BLATHER)
 

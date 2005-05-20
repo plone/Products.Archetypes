@@ -108,16 +108,10 @@ class Schemata(Base):
         """
         ret = []
         for field in self.fields():
-            if field.writeable(instance, debug=False):
-                if not visible_only:
-                    ret.append(field)
-                else:
-                    visible = True
-                    if hasattr(field.widget, 'visible') and \
-                       field.widget.visible.get('edit', 'visible') != 'visible':
-                        visible = False
-                    if visible:
-                        ret.append(field)
+            if field.writeable(instance, debug=False) and    \
+                   not visible_only or                       \
+                   field.widget.isVisible(instance, 'edit'):
+                ret.append(field)
         return ret
 
     security.declareProtected(CMFCorePermissions.View, 'viewableFields')
@@ -463,7 +457,8 @@ class BasicSchema(Schemata):
             default = field.getDefault(instance)
 
             args = (default,)
-            kw = {'field': field.__name__}
+            kw = {'field': field.__name__,
+                  '_initializing_': True}
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
@@ -485,8 +480,11 @@ class BasicSchema(Schemata):
 
         keys = kwargs.keys()
 
-        for field in self.values():
-            if field.getName() not in keys:
+        for name in keys:
+
+            field = self.get(name, None)
+
+            if field is None:
                 continue
 
             if not field.writeable(instance):
@@ -495,7 +493,7 @@ class BasicSchema(Schemata):
             # If passed the test above, mutator is guaranteed to
             # exist.
             method = field.getMutator(instance)
-            method(kwargs[field.getName()])
+            method(kwargs[name])
 
     security.declareProtected(CMFCorePermissions.View, 'allow')
     def allow(self, name):

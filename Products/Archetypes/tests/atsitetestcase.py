@@ -59,7 +59,7 @@ class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     
     def login(self, name=ZopeTestCase.user_name):
         '''Logs in.'''
-        uf = self.getPortal().acl_users
+        uf = self.portal.acl_users
         user = uf.getUserById(name)
         if not hasattr(user, 'aq_base'):
             user = user.__of__(uf)

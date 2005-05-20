@@ -203,15 +203,15 @@ class ClassGenerator:
         setattr(field, attr, methodName)
 
 def generateCtor(name, module):
+    # self is a App.FactoryDispater, Destination() is the real folder
     ctor = """
 def add%(name)s(self, id, **kwargs):
-    o = %(name)s(id)
-    self._setObject(id, o)
-    o = getattr(self, id)
-    o.initializeArchetype(**kwargs)
+    obj = %(name)s(id)
+    self._setObject(id, obj)
+    obj = self._getOb(id)
+    obj.initializeArchetype(**kwargs)
     return id
-""" % {'name':name}
-
+""" % {'name' : name}
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
 
@@ -231,7 +231,6 @@ def manage_add%(name)s(self, id, REQUEST=None):
         REQUEST.RESPONSE.redirect(url + '/manage_edit%(name)sForm?manage_tabs_message=' + manage_tabs_message)
     return id
 """ % {'name':name}
-
     exec zmi_ctor in module.__dict__
     return getattr(module, "manage_add%s" % name)
 

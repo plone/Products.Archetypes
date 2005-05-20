@@ -128,7 +128,7 @@ class ExtensibleMetadataTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.getPortal(), schema=schema)
+                                       context=self.portal, schema=schema)
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
         self.makeDummy()
@@ -186,9 +186,9 @@ class ExtMetadataContextTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.getPortal(), schema=schema)
+                                       context=self.portal, schema=schema)
         gen_class(DummyFolder)
-        portal = self.getPortal()
+        portal = self.portal
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
@@ -216,7 +216,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
         compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
-        portal = self.getPortal()
+        portal = self.portal
         self.failUnless(aq_parent(self._parent) == portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
@@ -230,25 +230,11 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
         # then, its not a runtime fallback to the property
-        if config.LANGUAGE_DEFAULT is None:
-            language = None
-        else:
-            language = 'no'
-
-        portal = self.getPortal()
-        try:
-            sp = getToolByName(portal, 'portal_properties').site_properties
-        except AttributeError:
-            # XXX CMF doesn't have site properties
-            pass
-        else:
-            sp._updateProperty('default_language', language)
-
-        #Create a proper object
         self.folder.invokeFactory(id="dummy",
                                   type_name="SimpleType")
         dummy = getattr(self.folder, 'dummy')
-        self.failUnlessEqual(dummy.Language(), language)
+        self.failUnlessEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
+
 
 class ExtMetadataSetFormatTest(ATSiteTestCase):
 
@@ -256,7 +242,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        portal = self.getPortal()
+        portal = self.portal
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])

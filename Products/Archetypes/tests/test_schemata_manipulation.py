@@ -45,7 +45,7 @@ from DateTime import DateTime
 
 class SchemataManipulationTest( ATTestCase ):
 
-    def setUp(self):
+    def afterSetUp(self):
         self.schema = ManagedSchema(
                (StringField('a', schemata='waldi'),
                 StringField('d', schemata='nasbaer'),

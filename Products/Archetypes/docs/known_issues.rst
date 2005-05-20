@@ -16,6 +16,33 @@ list`_.
 
 .. contents::
 
+
+Large Files and FileField/TextField/ImageField
+----------------------------------------------
+
+In order to try to make Archetypes perform slightly better when
+uploading/downloading large files, the FileField has been optimized to
+store and return ``OFS.Image.File`` instances. This can be a problem
+on the following case:
+
+- You have a ``metadata`` entry on your catalog with a name that
+   matches a field or a accessor on your archetype.
+- Your have the said field using AttributeStorage
+- You have your catalog on a mounted storage
+
+The same can happen on ImageField and TextField, though YMMV. The
+issue is that a Persistent object can end up in the ``ZCatalog``
+metadata.
+
+In this case, you may end up getting a 'Unable to store object from
+foreign connection' (can't remember the exact spelling) error. To
+solve this, you should probably do one of:
+
+- Change your field to a ``StringField`` *or*
+- Change your storage to ``MetadataStorage`` or some other storage
+  that doesn't store into attributes with the name of the field.
+
+
 ImageField generates "Decoder jpeg not available" error on OSX.
 ---------------------------------------------------------------
 
