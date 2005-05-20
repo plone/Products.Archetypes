@@ -1,5 +1,5 @@
-post 1.3.3-final
-================
+1.3.4-beta1 - 2005-05-20
+========================
 
  * Fixed [ 1192453 ] Typo in Extensions/utils.py on line 117
    thx to salmacis.
