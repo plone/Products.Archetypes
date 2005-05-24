@@ -15,5 +15,11 @@ class SimpleFile(BaseContent):
     """An File (test) type"""
     schema = schema
     archetype_name = "Simple File Type"
+    
+    def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
+                        filename, REQUEST, RESPONSE):
+        """For unit tests
+        """
+        self.called_afterPUT_hook = True
 
 registerType(SimpleFile, PKG_NAME)

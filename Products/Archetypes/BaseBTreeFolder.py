@@ -125,6 +125,9 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     setDescription = BaseFolder.setDescription
 
     manage_addFolder = BaseFolder.manage_addFolder
+    
+    MKCOL = BaseFolder.MKCOL
+    MKCOL_handler = BaseFolder.MKCOL_handler
 
 InitializeClass(BaseBTreeFolder)
 

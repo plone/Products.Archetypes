@@ -186,6 +186,18 @@ class BaseFolderMixin(CatalogMultiplex,
             ob.reindexObject()
         except AttributeError:
             pass
+            
+    def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
+        """Hook into the MKCOL (make collection) process to call manage_afterMKCOL
+        """
+        result = SkinnedFolder.MKCOL_handler(self, id, REQUEST, RESPONSE)
+        self.manage_afterMKCOL(id, result, REQUEST, RESPONSE)
+        return result
+        
+    def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
+        """After MKCOL handler
+        """
+        pass
 
 InitializeClass(BaseFolderMixin)
 

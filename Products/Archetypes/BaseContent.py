@@ -122,7 +122,7 @@ class BaseContentMixin(CatalogMultiplex,
 
         if (shasattr(self, 'demarshall_hook') and self.demarshall_hook):
             self.demarshall_hook(ddata)
-
+        self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
         self.reindexObject()
         RESPONSE.setStatus(204)
         return RESPONSE
@@ -157,6 +157,13 @@ class BaseContentMixin(CatalogMultiplex,
         while data is not None:
             RESPONSE.write(data.data)
             data=data.next
+        
+    security.declarePrivate('manage_afterPUT')    
+    def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
+                        filename, REQUEST, RESPONSE):
+        """After webdav/ftp PUT method
+        """
+        pass
 
 InitializeClass(BaseContentMixin)
 

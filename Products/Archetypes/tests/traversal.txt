@@ -250,6 +250,9 @@ Create a CTR predicate to map any content to ``DDocument``:
   >>> print folder.test_document.body
   Simple Folder Document Content
   <BLANKLINE>
+  
+  >>> folder.test_document.called_afterPUT_hook
+  True
 
   >>> print http(r"""
   ... PUT /%s/simple_btree_folder/test_document HTTP/1.1
@@ -272,6 +275,9 @@ Create a CTR predicate to map any content to ``DDocument``:
   >>> print folder.test_document.body
   BTree Folder Document Content
   <BLANKLINE>
+  
+  >>> folder.test_document.called_afterPUT_hook
+  True
 
 Make sure it's possible to create a item named ``index_html`` into a
 AT-based folder.
@@ -349,6 +355,11 @@ should be of the same kind as the parent:
   >>> folder = self.portal.simple_folder.simple_folder
   >>> print folder.getPortalTypeName()
   SimpleFolder
+  
+manage_afterMKCOL is called in the MKCOL_handler code for all Archetypes. The
+test types are assigning a dummy var called_afterMKCOL_hook.
+  >>> folder.called_afterMKCOL_hook
+  True
 
   >>> print http(r"""
   ... MKCOL /%s/simple_btree_folder/simple_btree_folder HTTP/1.1
@@ -360,4 +371,7 @@ should be of the same kind as the parent:
   >>> folder = self.portal.simple_btree_folder.simple_btree_folder
   >>> print folder.getPortalTypeName()
   SimpleBTreeFolder
+  >>> folder.called_afterMKCOL_hook
+  True
+  
 
