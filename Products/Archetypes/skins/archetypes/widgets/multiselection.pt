@@ -65,6 +65,17 @@
       </div>
     </div>
 
+    <metal:hidden_macro define-macro="hidden">
+      <input type="hidden"
+             tal:define="value python:accessor()"
+             name=""
+             value=""
+             tabindex="#"
+             tal:attributes="name fieldName;
+                             value python:'\n'.join(value);
+                             tabindex tabindex/next;" />
+    </metal:hidden_macro>
+
   </body>
 </html>
 

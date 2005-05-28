@@ -35,7 +35,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 
-from Products.Archetypes.validation import validationService
+from Products.validation import validation as validationService
 
 class TestValidation(ATTestCase):
     def test_inNumericRange(self):
@@ -80,12 +80,12 @@ class TestValidation(ATTestCase):
 
     def test_isUnixLikeName(self):
         v = validationService.validatorFor('isUnixLikeName')
-        self.failUnless(v('abcd'))
-        self.failUnless(v('a_123456'))
-        self.failIf(v('123'))
-        self.failIf(v('ab.c'))
-        self.failIf(v('ab,c'))
-        self.failIf(v('aaaaaaaab')) # too long
+        self.failUnlessEqual(v('abcd'), 1)
+        self.failUnlessEqual(v('a_123456'), 1)
+        self.failIfEqual(v('123'), 1)
+        self.failIfEqual(v('ab.c'), 1)
+        self.failIfEqual(v('ab,c'),1 )
+        self.failIfEqual(v('aaaaaaaab'), 1) # too long
 
 
 def test_suite():

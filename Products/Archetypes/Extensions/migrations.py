@@ -1,40 +1,12 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-
 import sys
 from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog
-from Products.Archetypes.lib.utils import make_uuid
+from Products.Archetypes.utils import make_uuid
+from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.config import REFERENCE_CATALOG
-from Products.Archetypes.config import UID_CATALOG
 
 # WARNING!
 # Using full transactions after every migration step may be dangerous but it's
@@ -47,7 +19,7 @@ EMPTY_RELATIONSHIP = 'related'
 class StdoutStringIO(StringIO):
     """StringIO that also writes to stdout
     """
-
+    
     def write(self, s):
         print >> sys.stdout, str(s),
         StringIO.write(self, s)
@@ -60,13 +32,13 @@ def reinstallArchetypes(portal, out):
     print >>out, 'Reinstalling Archetypes and it\'s dependencies'
     for product in products:
         if qi.isProductInstalled(product):
-            qi.reinstallProducts(product)
+            qi.reinstallProducts([product])
             print >>out, '... reinstalling %s' % product
         else:
-            qi.installProducts(product)
+            qi.installProducts([product])
             print >>out, '... installing %s' % product
     print >>out, 'Done\n'
-
+       
 def fixArchetypesTool(portal, out):
     at = portal.archetype_tool
 
@@ -84,13 +56,13 @@ def fixArchetypesTool(portal, out):
 def migrateReferences(portal, out):
     # FIRST
     # a 1.2 -> 1.3 (new annotation style) migration path
-
+    
     at = getToolByName(portal, TOOL_NAME)
     rc = getToolByName(portal, REFERENCE_CATALOG)
     uc = getToolByName(portal, UID_CATALOG)
 
     count=0
-
+    
     # Old 1.2 style references are stored inside archetype_tool on the 'ref'
     # attribute
     refs = getattr(at, 'refs', None)
@@ -114,13 +86,13 @@ def migrateReferences(portal, out):
                     relationship = EMPTY_RELATIONSHIP
                 # create new style reference
                 rc.addReference(sourceObj, targetObj, relationship)
-                count+=1
+                count+=1        
                 if not count % 10:
                     print >>out, '.',
                 # avoid eating up all RAM
                 if not count % 250:
                     print >>out, '*',
-                    get_transaction().commit(1)
+                    get_transaction().commit(1) 
             print >>out, "\n%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
@@ -129,13 +101,13 @@ def migrateReferences(portal, out):
             get_transaction().commit()
         else:
             get_transaction().commit(1)
-
+    
     else:
         # SECOND
         # a 1.3.b2 -> 1.3 (new annotation style) migration path
         # We had a reference catalog, make sure its doing annotation
         # based references
-
+    
         # reference metadata cannot be restored since reference-catalog is no more
         # a btree and in AT 1.3.b2 reference_catalog was a btreefolder
 
@@ -161,7 +133,7 @@ def migrateReferences(portal, out):
             # avoid eating up all RAM
             if not count % 250:
                 print >>out, '*',
-                get_transaction().commit(1)
+                get_transaction().commit(1) 
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
         print >>out, '\nDone\n'
@@ -181,27 +153,27 @@ olduididx = 'old_tmp_at_uid'
 
 def migrateUIDs(portal, out):
     count=0
-    uc = getToolByName(portal, UID_CATALOG)
+    uc = getToolByName(portal, UID_CATALOG)    
     print >>out, 'Migrating uids\n'
-
-    # temporary add a new index
+    
+    # temporary add a new index    
     if olduididx not in uc.indexes():
         uc.addIndex(olduididx, 'FieldIndex', extra=None)
         if not olduididx in uc.schema():
             uc.addColumn(olduididx)
-
-    # clear UID Catalog
+    
+    # clear UID Catalog 
     uc.manage_catalogClear()
-
+    
     # rebuild UIDS on objects and in catalog
     allbrains = portal.portal_catalog()
     for brain in allbrains:
         # get a uid for each thingie
         obj = brain.getObject()
-        if not IBaseObject.isImplementedBy(obj):
+        if not IBaseObject.isImplementedBy(obj): 
             continue #its no Archetype instance, so leave it
-
-        objUID = getattr(aq_base(obj), '_uid', None)
+        
+        objUID = getattr(aq_base(obj), '_uid', None)        
         if objUID is not None: #continue    # not an old style AT?
             setattr(obj, olduididx, objUID) # this one can be part of the catalog
             delattr(obj, '_uid')
@@ -214,7 +186,7 @@ def migrateUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            get_transaction().commit(1)
+            get_transaction().commit(1) 
     print >>out, '\nDone\n'
     if USE_FULL_TRANSACTIONS:
         get_transaction().commit()
@@ -224,8 +196,8 @@ def migrateUIDs(portal, out):
     print >>out, count, "UID's migrated."
 
 def removeOldUIDs(portal, out):
-    # remove temporary needed index
-    uc = getToolByName(portal, UID_CATALOG)
+    # remove temporary needed index 
+    uc = getToolByName(portal, UID_CATALOG)    
     print >>out, 'Removing old uids\n'
     if olduididx in uc.indexes():
         uc.delIndex(olduididx)
@@ -236,17 +208,17 @@ def removeOldUIDs(portal, out):
     for brain in allbrains:
         #Get a uid for each thingie
         obj = brain.getObject()
-        objUID = getattr(aq_base(obj), olduididx, None)
+        objUID = getattr(aq_base(obj), olduididx, None)        
         if objUID is None: continue # not an old style AT
         delattr(obj, olduididx)
-        obj._updateCatalog(portal)
+        obj._updateCatalog(portal) 
         count+=1
         if not count % 10:
             print >>out, '.',
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            get_transaction().commit(1)
+            get_transaction().commit(1) 
 
     if USE_FULL_TRANSACTIONS:
         get_transaction().commit()
@@ -277,11 +249,11 @@ def migrateCatalogIndexes(portal, out):
                 catalog.addColumn(indexName)
         except:
             pass
-
+    
     rc = getToolByName(portal, REFERENCE_CATALOG)
     add_indexes = ('targetId', 'FieldIndex'),
     [addIndex(rc, n, t) for n, t in add_indexes]
-
+    
 def refreshCatalogs(portal, out):
     uc = getToolByName(portal, UID_CATALOG)
     rc = getToolByName(portal, REFERENCE_CATALOG)
@@ -299,7 +271,7 @@ def refreshCatalogs(portal, out):
 def migrate(self):
     """migrate an AT site"""
     out = StdoutStringIO()
-    portal = self
+    portal = getToolByName(self,'portal_url').getPortalObject()
 
     print >>out, "Begin Migration"
 

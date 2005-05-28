@@ -37,14 +37,20 @@ except ImportError:
     HAS_PLONE = False
 else:
     HAS_PLONE = True
+    try:
+        from Products.CMFPlone.migrations import v2_1
+    except ImportError:
+        HAS_PLONE21 = False
+    else:
+        HAS_PLONE21 = True
 
 # Use either plain CMF or Plone to run the portal tests
 # You have to install:
 #  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
 #  * Plone and PloneTestCase for Plone tests
 #USE_PLONETESTCASE = True
-USE_PLONETESTCASE = False
-#USE_PLONETESTCASE = HAS_PLONE
+#USE_PLONETESTCASE = False
+USE_PLONETESTCASE = HAS_PLONE
 
 if not USE_PLONETESTCASE:
     # setup is installing some required products
