@@ -1,4 +1,30 @@
-from Products.PortalTransforms.libtransforms import utils as transform_utils
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
 
 PKG_NAME = "Archetypes"
 SKIN_NAME = "archetypes"
@@ -7,9 +33,8 @@ TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
 UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True ##Initialize the demo types
-INSTALL_DEMO_TYPES = False ##Install the demo types
-DEBUG =  False ## Hide debug messages
-#DEBUG = True  ## See debug messages
+INSTALL_DEMO_TYPES = True ##Install the demo types
+DEBUG = True  ## See debug messages
 
 ##Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"
@@ -20,6 +45,7 @@ REFERENCE_ANNOTATION = "at_references"
 ## default archetypes returns a tuple, too. If this breaks your software you
 ## can disable the change.
 ## See http://zope.org/Collectors/Zope/924
+## BBB
 ZOPE_LINES_IS_TUPLE_TYPE = True
 
 ## MYSQL SQLStorage Table Type
@@ -35,7 +61,9 @@ DEBUG_SECURITY=False
 ## and its frontend "dot" installed on your system set this to True
 ## You need dot version > 1.10 with cmapx support.
 try:
+    from Products.PortalTransforms.libtransforms import utils as transform_utils
     GRAPHVIZ_BINARY = transform_utils.bin_search('dot')
+    del transform_utils
 except transform_utils.MissingBinary:
     # graphviz not found
     GRAPHVIZ_BINARY = None
@@ -46,13 +74,30 @@ else:
 ## comment out the following line to enable the reference graph tool
 HAS_GRAPHVIZ = False
 
-## protect attributes of AttributeStorage from unallowed access?
-ATTRIBUTE_SECURITY = False
+## backward compatibility:
+## BBB
+from types import StringTypes as STRING_TYPES
 
-## set language default for metadata, it will be overwritten by portal-settings!
-## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't
-## like default here. They expect empty string ('') for language neutral content.
-## If your product relies on the old behaviour and you dont need content-i18n,
-## it's save to use 'en'. Otherwise keep it empty for the future.
-LANGUAGE_DEFAULT=''
-#LANGUAGE_DEFAULT='en'
+## detect Python Imaging Libraries
+try:
+    from PIL import Image
+except ImportError:
+    # no PIL, no scaled versions!
+    from Products.Archetypes.lib.logging import log
+    log("Warning: no Python Imaging Libraries (PIL) found."+\
+        "Archetypes based ImageField's don't scale if neccessary.")
+    del log
+    HAS_PIL=False
+else:
+    HAS_PIL=True
+    del Image
+
+## kernel uuid interface
+## used by Products.Archetypes.lib.utils.make_kernel_uuid()
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
+
+import os
+_www = os.path.join(os.path.dirname(__file__), 'www')
+_skins = os.path.join(os.path.dirname(__file__), 'skins')
+_zmi = os.path.join(_www, 'zmi')
+del os

@@ -34,7 +34,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
-from Products.Archetypes.atapi import AggregatedStorage
+from Products.Archetypes.storage.aggregated import AggregatedStorage
 from Products.Archetypes.atapi import Schema
 from Products.Archetypes.atapi import StringField
 from Products.Archetypes.atapi import BaseContent
@@ -61,7 +61,7 @@ class Dummy(BaseContent):
         setattr(instance, 'firstname', firstname)
         setattr(instance, 'lastname', lastname)
 
-registerType(Dummy, 'Archetypes')
+registerType(Dummy)
 
 
 class AggregatedStorageTestsNoCache(ATSiteTestCase):
@@ -76,11 +76,13 @@ class AggregatedStorageTestsNoCache(ATSiteTestCase):
         schema = Schema( (StringField('whole_name', storage=self._storage),
                          ))
 
+        portal = self.getPortal()
+        
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])        
 
         self._instance = mkDummyInContext(klass=Dummy, oid='dummy',
-                                          context=self.portal, schema=schema)
+                                          context=self.getPortal(), schema=schema)
 
     def test_basetest(self):
         field = self._instance.Schema()['whole_name']

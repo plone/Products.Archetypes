@@ -36,6 +36,7 @@ from Products.Archetypes.tests.utils import mkDummyInContext
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.lib.baseunit import BaseUnit
 
 from types import StringType
 
@@ -77,7 +78,7 @@ class BaseObjectTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
+        self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.getPortal(),
                                       schema=schema)
     
     def test_searchableText(self):

@@ -36,16 +36,16 @@ from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.Schema import Schemata
-from Products.Archetypes.Schema import ManagedSchema
-from Products.Archetypes.Schema import getNames
+from Products.Archetypes.schema import Schemata
+from Products.Archetypes.schema import ManagedSchema
+from Products.Archetypes.schema import getNames
 
 from DateTime import DateTime
 
 
 class SchemataManipulationTest( ATTestCase ):
 
-    def afterSetUp(self):
+    def setUp(self):
         self.schema = ManagedSchema(
                (StringField('a', schemata='waldi'),
                 StringField('d', schemata='nasbaer'),

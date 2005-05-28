@@ -44,10 +44,8 @@ from Products.Archetypes.tests.test_classgen import schema
 from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes import config
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.config import PKG_NAME
-from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 
@@ -90,8 +88,7 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
     obj.setLanguage(data)
     obj.setRights(data)
 
-def compareMetadataOf(test, obj, data='default',
-                      mimetype='application/octet-stream', time=1000):
+def compareMetadataOf(test, obj, data='default', mimetype='application/octet-stream', time=1000):
     l_data = (data,)
     test.failUnless(obj.Title() == data, 'Title')
     test.failUnless(obj.Subject() == l_data,
@@ -102,16 +99,6 @@ def compareMetadataOf(test, obj, data='default',
                     'effective date')
     test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
                     'expiration date')
-    if aq_base(obj) is obj:
-        # If the object is not acquisition wrapped, then those
-        # ComputedAttributes won't get executed because the
-        # declaration requires it to be wrapped
-        # like: ComputedAttribute(method, 1)
-        test.failUnless(isinstance(obj.effective_date, ComputedAttribute))
-        test.failUnless(isinstance(obj.expiration_date, ComputedAttribute))
-    else:
-        test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 0)))
-        test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
     # XXX BROKEN! test.failUnless(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
     test.failUnless(obj.Language() == data, 'Language')
@@ -128,7 +115,7 @@ class ExtensibleMetadataTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.portal, schema=schema)
+                                       context=self.getPortal(), schema=schema)
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
         self.makeDummy()
@@ -186,9 +173,9 @@ class ExtMetadataContextTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
-                                       context=self.portal, schema=schema)
+                                       context=self.getPortal(), schema=schema)
         gen_class(DummyFolder)
-        portal = self.portal
+        portal = self.getPortal()
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
@@ -216,7 +203,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
         compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
 
     def testIsParent(self):
-        portal = self.portal
+        portal = self.getPortal()
         self.failUnless(aq_parent(self._parent) == portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
@@ -230,11 +217,13 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
         # then, its not a runtime fallback to the property
+        # It has to return None by default.
+
+        #Create a proper object
         self.folder.invokeFactory(id="dummy",
                                   type_name="SimpleType")
         dummy = getattr(self.folder, 'dummy')
-        self.failUnlessEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
-
+        self.failUnlessEqual(dummy.Language(), None)
 
 class ExtMetadataSetFormatTest(ATSiteTestCase):
 
@@ -242,7 +231,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        portal = self.portal
+        portal = self.getPortal()
 
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])

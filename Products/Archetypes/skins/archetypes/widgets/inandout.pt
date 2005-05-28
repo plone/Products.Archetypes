@@ -101,11 +101,12 @@
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
   
-                  <tal:block tal:repeat="single_value value">
+                  <tal:block tal:repeat="vocab_item vocab">
                     <option
-                      tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
-                      tal:attributes="value single_value;"
-                      tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
+                      tal:define="label python:here.translate(vocab.getMsgId(vocab_item), default=vocab.getValue(vocab_item))"
+                      tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 1, 0)"
+                      tal:attributes="value vocab_item;"
+                      tal:content="label" 
               selected="selected">
                       option
                     </option>

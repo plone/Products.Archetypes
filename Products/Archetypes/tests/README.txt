@@ -4,15 +4,8 @@ Archetypes Unit Testing Suite
   
     ZopeTestCase
     
-      download and install latest from 
-      "collective CVS":http://cvs.sourceforge.net/viewcvs.py/collective/ZopeTestCase
-
-
-    PloneTestCase
-
-      download and install latest from 
-      "collective CVS":http://cvs.sourceforge.net/viewcvs.py/collective/PloneTestCase
-
+      "ZopeTestCase":http://zope.org/Members/shh/ZopeTestCase 0.9.0 or higher. 
+      "Download":http://zope.org/Members/shh/ZopeTestCase-0.9.0.tar.gz
       
     ArchetypesTestUpdateSchema 
     

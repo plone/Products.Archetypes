@@ -34,7 +34,7 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.utils import OrderedDict
+from Products.Archetypes.lib.vocabulary import OrderedDict
 
 
 class OrderedDictTest( ATTestCase ):

@@ -42,7 +42,7 @@ def gen_class(klass, schema=None):
     """
     if schema is not None:
         klass.schema = schema.copy()
-    registerType(klass, 'Archetypes')
+    registerType(klass)
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
 def mkDummyInContext(klass, oid, context, schema=None):

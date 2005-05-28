@@ -20,7 +20,7 @@
                    condition="python:size &gt; 0">
 
           <tal:link condition="showLink">
-              <a href="" tal:attributes="href string:${here/absolute_url}/at_download/$fieldName">
+              <a href="" tal:attributes="href string:${here/absolute_url}/$fieldName/at_download">
                 <img tal:condition="icon" src=""
                      tal:attributes="src string:${here/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
@@ -29,14 +29,20 @@
               </a>
           </tal:link>
           <span tal:condition="not:showLink">
+              <span i18n:translate="">Current file info:</span><br/>
               <img tal:condition="icon" src=""
                    tal:attributes="src string:${here/portal_url}/$icon"/>
               <tal:filename tal:replace="filename | fieldName"/>
-              <span class="discreet">
-                  <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
-                  <tal:size content="python:'%s KB' % (size / 1024)">0 KB</tal:size>
-              </span>
+              (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+              <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
           </span>
+          <a href=""
+             tal:condition="python:field.checkExternalEditor(here)"
+             tal:attributes="href string:${here/absolute_url}/$fieldName/external_edit;"
+             tal:define="edit here/edit.gif">
+            <img tal:replace="structure python:edit.tag(title='Edit with External Editor')" />
+            <tal:i18n i18n:translate="">Edit</tal:i18n>
+          </a>
 
         </tal:block>
       </tal:define>
@@ -54,12 +60,12 @@
                    name string:${fieldName}_delete;
                    id string:${fieldName}_nochange;
                    onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
-         <label for=""
+         <label for="" 
                 tal:attributes="for string:${fieldName}_nochange;
-                                "
+                                " 
                 i18n:translate="nochange_image">
                 Don't change
-         </label>
+         </label>    
          <br/>
          <tal:delete tal:condition="python: not field.required">
             <input class="noborder"
@@ -71,12 +77,12 @@
                        id string:${fieldName}_delete;
                        onclick string:document.getElementById('${fieldName}_file').disabled=true;"
              />
-             <label for=""
+             <label for="" 
                     tal:attributes="for string:${fieldName}_delete;
-                                    "
+                                    " 
                     i18n:translate="delete_file">
                     Delete current file
-             </label><br />
+             </label><br />         
          </tal:delete>
           <input class="noborder"
                  type="radio"
@@ -87,19 +93,19 @@
                      name string:${fieldName}_delete;
                      id string:${fieldName}_upload;
                      onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
-           <label for=""
-                  tal:attributes="for string:${fieldName}_upload;"
+           <label for="" 
+                  tal:attributes="for string:${fieldName}_upload;" 
                   i18n:translate="upload_file">
                   Replace with new file:
            </label>
            <div style="padding-left:1.5em;padding-top:0.5em;">
               <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
-           </div>
+           </div>         
       </div>
       <div tal:condition="not: accessor">
         <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
       </div>
-
+      
     </metal:define>
 
 
@@ -107,11 +113,12 @@
         <input type="file"
                size="30"
                tabindex=""
-               disabled=""
+               disabled="disabled"
                tal:attributes="name string:${fieldName}_file;
                                id string:${fieldName}_file;
                                tabindex tabindex/next;
-                               disabled python:test(accessor(), 'disabled', None)"/>
+                               disabled python:test(accessor()=='', None, 'disabled')"
+               />
     </metal:define>
 
     <metal:define define-macro="view">
