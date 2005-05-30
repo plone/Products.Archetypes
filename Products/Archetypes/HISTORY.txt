@@ -1,6 +1,9 @@
 1.3.4-devel
 ========================
 
+ * Cleaned up base_view and added slot proxies for CSS and JavaScript slots.
+   [madduck]
+
  * Introduced manage_afterPUT and manage_afterMKCOL hooks that are called
    after a webdav or ftp PUT/MKCOL operation.
    [tiran]
@@ -96,6 +99,13 @@
 
  * Added ComputedAttributes for effective_date and expiration_date.
    [tiran]
+
+ * Removed extraneous newlines from skins/widgets/field.pt to enable inline
+   rendering.
+   [madduck]
+
+ * Cleaned up base_edit and added slot proxies for CSS and JavaScript slots.
+   [madduck]
 
 1.3.3-rc1 - 2005-03-25
 ======================

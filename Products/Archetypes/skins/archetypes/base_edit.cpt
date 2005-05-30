@@ -38,19 +38,11 @@
     </tal:block>
   </metal:head>
   
-  <metal:head fill-slot="javascript_head_slot">
+  <metal:javascript_head fill-slot="javascript_head_slot">
     <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
-    <tal:css condition="css"
-             repeat="item css">
-      <style type="text/css"
-             media="all"
-             tal:condition="python:exists('portal/%s' % item)"
-             tal:content="string:@import url($portal_url/$item);">
-      </style>
-    </tal:css>
     <tal:js condition="js"
             repeat="item js">
       <script type="text/javascript"
@@ -59,8 +51,27 @@
               tal:attributes="src string:$portal_url/$item">
       </script>
     </tal:js>
-  </metal:head>
+    <tal:block define="macro edit_macros/javascript_head | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:javascript_head>
 
+  <metal:css fill-slot="css_slot">
+    <tal:css condition="css"
+             repeat="item css">
+      <style type="text/css"
+             media="all"
+             tal:condition="python:exists('portal/%s' % item)"
+             tal:content="string:@import url($portal_url/$item);">
+      </style>
+    </tal:css>
+    <tal:block define="macro edit_macros/css | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:css>
+    
   <body>
 
     <metal:fill fill-slot="main">
