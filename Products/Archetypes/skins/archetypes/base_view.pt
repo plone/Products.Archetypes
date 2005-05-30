@@ -9,14 +9,29 @@
 
   <head><title></title></head>
 
-  <metal:head fill-slot="javascript_head_slot"
-              tal:define="fields python:here.Schema().fields();
-                          css python:here.getUniqueWidgetAttr(fields, 'helper_css')">
-    <tal:js define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
-            condition="macro">
-      <metal:macro use-macro="macro" />
+  <metal:javascript_head fill-slot="javascript_head_slot">
+    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+               condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+    <tal:js define="js python:here.getUniqueWidgetAttr(fields, 'helper_js')"
+            condition="js"
+            repeat="item js">
+      <script type="text/javascript"
+              charset="iso-8859-1"
+              tal:condition="python:exists('portal/%s' % item)"
+              tal:attributes="src string:$portal_url/$item">
+      </script>
     </tal:js>
-    <tal:css condition="css"
+    <tal:block define="macro edit_macros/javascript_head | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:javascript_head>
+
+  <metal:css fill-slot="css_slot">
+    <tal:css define="css python:here.getUniqueWidgetAttr(fields, 'helper_css')"
+             condition="css"
              repeat="item css">
       <style type="text/css"
              media="all"
@@ -24,7 +39,12 @@
              tal:content="string:@import url($portal_url/$item);">
       </style>
     </tal:css>
-  </metal:head>
+    <tal:block define="macro edit_macros/css | nothing"
+                    condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+  </metal:css>
+    
   <body>
     <metal:fill fill-slot="main">
       <metal:main_macro define-macro="main"
