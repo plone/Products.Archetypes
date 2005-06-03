@@ -10,8 +10,8 @@
   <head><title></title></head>
 
   <metal:javascript_head fill-slot="javascript_head_slot">
-    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
-               condition="macro">
+    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head |
+              condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
     <tal:comment replace="nothing">
