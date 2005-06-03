@@ -1,7 +1,17 @@
 1.4-devel
 =========
 
- * Cleaned up base_view and added slot proxies for CSS and JavaScript slots.
+  * Merged madduck-refactor-content-edit-1_4 branch r4282:4366 into
+    release-1_4-branch:
+    - content_edit.cpy cannot be called directly by other .cpy scripts,
+      because FormController seems to bestow control upon content_edit.cpy on
+      invocation. This patch moves the code (unchaned) to content_edit_impl.py
+      and replaces content_edit.cpy with a simple call to this .py. As
+      a result, SQLWindowStorage can use AT's content_edit and needs no code
+      duplication, and AT continues to work as before.
+      For reference, please see:
+        http://thread.gmane.org/gmane.comp.web.zope.plone.archetypes.devel/4959
+        http://thread.gmane.org/gmane.comp.web.zope.plone.user/35620
    [madduck]
 
  * fixed [ 1171059 ] Archetypes should not set language explicitly on content
