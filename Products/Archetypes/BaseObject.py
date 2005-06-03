@@ -740,7 +740,7 @@ class BaseObject(Referenceable):
         schema = fixSchema(schema)
 
         # First see if the new field name is managed by the current schema
-        field = schema.get(name, None)
+        field = schema.get(getattr(new_schema.get(name,None),'old_field_name',name), None)
         if field:
             # at very first try to use the BaseUnit itself
             try:
@@ -768,7 +768,15 @@ class BaseObject(Referenceable):
                 raise
             except:
                 pass
+            #no luck use standard method to get the value 
+            return field.get(self)
+
             # still no luck -- try to get the value directly
+            # this part should be remove because for some fields this will fail
+            # if you get the value directly for example for FixPointField
+            # stored value is (0,0) but the input value is a string.
+            # at this time FixPointField fails if he got a tuple as input value
+            #because of this line value = value.replace(',','.')
             try:
                 return self[field.getName()]
             except ConflictError:

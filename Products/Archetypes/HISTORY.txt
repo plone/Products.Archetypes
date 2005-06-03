@@ -1,6 +1,10 @@
 1.3.4-devel
 ========================
 
+  * Make it easy to rename fields and keep its content. Introduced a property 
+    old_field_name. Patch from Kai Hoppert. Thx!
+    [yenzenz]
+
   * Merged madduck-refactor-content-edit-1_3 branch r4283:4363 into
     release-1_3-branch:
     - content_edit.cpy cannot be called directly by other .cpy scripts,

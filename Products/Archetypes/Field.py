@@ -206,6 +206,7 @@ class Field(DefaultLayerContainer):
     security = ClassSecurityInfo()
 
     _properties = {
+        'old_field_name':None,
         'required' : False,
         'default' : None,
         'default_method' : None,
@@ -2700,3 +2701,4 @@ registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
 registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
+registerPropertyType('old_field_name', 'string')
