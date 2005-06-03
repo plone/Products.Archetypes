@@ -1,7 +1,25 @@
 1.3.4-devel
 ========================
 
- * Cleaned up base_view and added slot proxies for CSS and JavaScript slots.
+ * Merged madduck-renderingfixes-1_3 branch r3956:4361 into
+   release-1_3-branch:
+    - Reworked base_{view,edit} wrt CSS and Javascript. previously, CSS and
+      Javascript were both rendered into the javascript_head_slot and there
+      was no way to influence it really, other than on a per-field basis with
+      helper_css and helper_js. No way to do it per-type though. My patch
+      splits CSS into the css_slot and makes both templates look in the user
+      templates for optional CSS/Javascript macros ('css' and 'javascript')
+      much in the same way that the header/typedescription/body/footer parts
+      are acquired. For base_edit, this is trivial since edit_macros is
+      defined inside the css and javascript macros provided by the user (they
+      are evaluated in the context of base_edit itself, which defines
+      edit_macros). For base_view, this is not possible. Thus there is code
+      duplication, which I documented in the form of comments in the
+      templates.
+    - Added a condition to the errors span for each field in widgets/field.pt
+      such that in the absence of an error, no HTML is generated. This avoids
+      some rendering problems when multiple widgets are to be rendered on the
+      same HTML line.
    [madduck]
 
  * Introduced manage_afterPUT and manage_afterMKCOL hooks that are called
@@ -99,13 +117,6 @@
 
  * Added ComputedAttributes for effective_date and expiration_date.
    [tiran]
-
- * Removed extraneous newlines from skins/widgets/field.pt to enable inline
-   rendering.
-   [madduck]
-
- * Cleaned up base_edit and added slot proxies for CSS and JavaScript slots.
-   [madduck]
 
 1.3.3-rc1 - 2005-03-25
 ======================
