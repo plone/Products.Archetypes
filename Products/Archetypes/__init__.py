@@ -23,17 +23,11 @@ ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
-try:
-    from Products.CMFPlone import IndexIterator
-except ImportError:
-    from PloneCompat import IndexIterator
+from PloneCompat import IndexIterator
 allow_class(IndexIterator)
 
-try:
-    from Products.CMFPlone import transaction_note
-except ImportError:
-    from PloneCompat import transaction_note
-allow_class(transaction_note)
+from PloneCompat import transaction_note
+ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
