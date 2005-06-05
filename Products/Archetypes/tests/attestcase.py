@@ -34,7 +34,7 @@ from Testing.ZopeTestCase.functional import Functional
 try:
     import Products.CMFPlone
 except ImportError:
-    HAS_PLONE = False
+    HAS_PLONE = HAS_PLONE21 = False
 else:
     HAS_PLONE = True
     try:
