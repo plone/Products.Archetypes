@@ -13,7 +13,7 @@
     <metal:fill fill-slot="main">
       <metal:main_macro define-macro="main">
         <div class="reference_graph">
-          <img usemap="#G" tal:attributes="src string:${here/absolute_url}/getReferencePng;
+          <img alt="" usemap="#G" src="#" tal:attributes="src string:${here/absolute_url}/getReferencePng;
           "/>
           <div tal:replace="structure here/getReferenceMap"/>
         </div>

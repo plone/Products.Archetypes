@@ -70,7 +70,7 @@
           <legend tal:define="iconname python: here.getIcon(1);
                               icon python: here.portal_url() + '/' + iconname">
     
-              <img alt="" tal:attributes="src icon" />
+              <img alt="" src="#" tal:attributes="src icon" />
           
               <tal:legend define="fieldset python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset">
                 <tal:fieldset i18n:translate="legend_fieldset_details"
