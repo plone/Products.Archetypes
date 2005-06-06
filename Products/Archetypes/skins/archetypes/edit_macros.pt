@@ -51,7 +51,7 @@
                                      default here/typeDescription| nothing;"
                          tal:condition="default">
 
-          <p tal:content="python:here.translate(msgid=msgid, default=default)">
+          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default)">
             type description
           </p>
 
@@ -64,34 +64,6 @@
             enctype="multipart/form-data"
             action=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id">
-
-        <fieldset>
-
-          <legend tal:define="iconname python: here.getIcon(1);
-                              icon python: here.portal_url() + '/' + iconname">
-    
-              <img alt="" src="#" tal:attributes="src icon" />
-          
-              <tal:legend define="fieldset python:(len(fieldsets) &gt; 1 and fieldset != 'default') and fieldset">
-                <tal:fieldset i18n:translate="legend_fieldset_details"
-                              tal:condition="fieldset">
-                  <span i18n:name="fieldset">
-                    <span i18n:translate=""
-                          tal:content="fieldset" />
-                  </span>
-                  Details
-                </tal:fieldset>
-                <tal:type i18n:translate="legend_type_details"
-                          tal:condition="not: fieldset">
-                  <span i18n:name="type" tal:define="fti python:here.portal_types.getTypeInfo(here)">
-
-                    <span i18n:translate=""
-                          tal:content="fti/title_or_id" />
-                  </span>
-                  Details
-                </tal:type>
-              </tal:legend>
-          </legend>
 
           <metal:block define-slot="extra_top" />
 
@@ -227,8 +199,6 @@
             <metal:block define-slot="extra_buttons" />
 
           </div>
-
-        </fieldset>
 
       </form>
 
