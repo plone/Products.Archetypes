@@ -142,7 +142,7 @@ class ISchema(ISchemata):
     def replaceField(name, field):
         """Replace field under ``name`` with ``field``"""
         
-    def moveField(self, name, direction=None, pos=None, after=None, before=None):
+    def moveField(name, direction=None, pos=None, after=None, before=None):
         """Move a field
         
         name:
