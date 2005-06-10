@@ -103,15 +103,15 @@
     </metal:define>
 
 
-    <metal:define define-macro="file_upload">
+    <metal:define define-macro="file_upload">      
         <input type="file"
                size="30"
                tabindex=""
-               disabled=""
                tal:attributes="name string:${fieldName}_file;
                                id string:${fieldName}_file;
-                               tabindex tabindex/next;
-                               disabled python:test(accessor(), 'disabled', None)"/>
+                               tabindex tabindex/next;" />
+        <script type="text/javascript" tal:content="string:       document.getElementById('${fieldName}_file').disabled=true; alert('disabling'); ">
+        </script>
     </metal:define>
 
     <metal:define define-macro="view">
