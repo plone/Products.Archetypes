@@ -1,6 +1,12 @@
 1.3.4-devel
 ========================
 
+  * Fixed failed test in ISchema: removed 'self' in interface method.
+    [yenzenz]
+
+  * Expose field creators of ExtensibleMetadata. 
+    [yenzenz, optilude, alecm]
+
   * Make it easy to rename fields and keep its content. Introduced a property 
     old_field_name. Patch from Kai Hoppert. Thx!
     [yenzenz]
