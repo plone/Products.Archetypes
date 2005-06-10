@@ -41,14 +41,15 @@
       </td>
 	  <td>
 	    <select multiple="multiple"
-	            tal:define="currentselection python:at.lookupTemplates(fti.getId());"
+	            tal:define="currentselection python:at.lookupTemplates(fti.getId());
+	                        getValue nocall:vocab/getValue"
 		        tal:attributes="name string:template_names_${fti/getId}:list;
 		                        size python: len(vocab)">
 	      <option selected=""
 		          tal:repeat="item vocab"
 		          tal:attributes="value item;
 		                           selected python:item in currentselection and 'selected' or None;"
-		          tal:content="item"/>
+		          tal:content="python:'%s - (%s)' % (item, getValue(item))"/>
 	    </select>
         
       </td>
