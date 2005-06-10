@@ -37,15 +37,16 @@ default.
           <div style="text-align: right; margin-right: 0.75em;"
                tal:condition="widget/allow_file_upload | python:1">
               <span class="discreet" i18n:translate="label_or">or</span>
-
               <span class="discreet" 
-                    i18n:translate="upload_a_file">upload a file</span>
+                    i18n:translate="upload_a_file">upload a file (existing content will be replaced)</span>
               <input type="file"
                      size="30"
-                     tabindex=""
+                     tabindex="" 
+                     onclick="#"
                      tal:attributes="name string:${fieldName}_file;
                                      id string:${fieldName}_file;
-                                     tabindex tabindex/next;"/>
+                                     tabindex tabindex/next;
+                                     "/>
           </div>
         </metal:fill>
       </metal:use>
