@@ -141,6 +141,23 @@ class ISchema(ISchemata):
 
     def replaceField(name, field):
         """Replace field under ``name`` with ``field``"""
+        
+    def moveField(self, name, direction=None, pos=None, after=None, before=None):
+        """Move a field
+        
+        name:
+            name of the field
+        direction:
+            Move a field inside its schemata to the left (-1) or to the right (+1)
+        pos:
+            Moves a field to a position in the whole schema. pos is either a number
+            or 'top' or 'bottom'
+        after:
+            Moves the field 'name' after the field 'after'
+        before:
+            Moves the field 'name' before the field 'before'
+         
+        """
 
 class ICompositeSchema(ISchema):
     """A composite schema that delegates to underlying ones"""
@@ -173,7 +190,3 @@ class IManagedSchema(ISchema):
         (direction=1)
         """
 
-    def moveField(name, direction):
-        """Move a field inside a schema to left
-        (direction=-1) or to right (direction=1)
-        """

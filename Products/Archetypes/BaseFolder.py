@@ -194,6 +194,7 @@ class BaseFolderMixin(CatalogMultiplex,
         self.manage_afterMKCOL(id, result, REQUEST, RESPONSE)
         return result
         
+    security.declarePrivate('manage_afterMKCOL')
     def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
         """After MKCOL handler
         """

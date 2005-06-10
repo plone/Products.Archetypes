@@ -676,6 +676,163 @@ class Schema(BasicSchema, SchemaLayerContainer):
     def wrapped(self, parent):
         schema = self.copy(factory=WrappedSchema)
         return schema.__of__(parent)
+        
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'moveField')
+    def moveField(self, name, direction=None, pos=None, after=None, before=None):
+        """Move a field
+        
+        >>> from Products.Archetypes.public import StringField as SF
+        >>> schema = Schema((SF('a'), SF('b'), SF('c'),))
+        
+        >>> schema.keys()
+        ['a', 'b', 'c']
+        
+        >>> sbefore = schema.copy()
+        >>> sbefore.moveField('c', before='a')
+        >>> sbefore.keys()
+        ['c', 'a', 'b']
+        
+        >>> safter = schema.copy()
+        >>> safter.moveField('a', before='b')
+        >>> safter.keys()
+        ['b', 'a', 'c']
+        
+        >>> spos = schema.copy()
+        >>> spos.moveField('b', pos='top')
+        >>> spos.keys()
+        ['b', 'a', 'c']
+        
+        >>> spos = schema.copy()
+        >>> spos.moveField('b', pos='bottom')
+        >>> spos.keys()
+        ['a', 'c', 'b']
+        
+        >>> spos = schema.copy()
+        >>> spos.moveField('c', pos=0)
+        >>> spos.keys()
+        ['c', 'a', 'b']
+        
+        maxint can be used to move the field to the last position possible
+        >>> from sys import maxint
+        >>> spos = schema.copy()
+        >>> spos.moveField('a', pos=maxint)
+        >>> spos.keys()
+        ['b', 'c', 'a']
+        
+        Errors
+        ======
+        
+        >>> schema.moveField('d', pos=0)
+        Traceback (most recent call last):
+        ...
+        KeyError: 'd'
+        
+        >>> schema.moveField('a', pos=0, before='b')
+        Traceback (most recent call last):
+        ...
+        ValueError: You must apply exactly one argument.
+        
+        >>> schema.moveField('a')
+        Traceback (most recent call last):
+        ...
+        ValueError: You must apply exactly one argument.
+        
+        >>> schema.moveField('a', before='a')
+        Traceback (most recent call last):
+        ...
+        ValueError: name and before can't be the same
+        
+        >>> schema.moveField('a', after='a')
+        Traceback (most recent call last):
+        ...
+        ValueError: name and after can't be the same
+        
+        >>> schema.moveField('a', pos='foo')
+        Traceback (most recent call last):
+        ...
+        ValueError: pos must be a number or top/bottom
+        
+        """
+        if bool(direction) + bool(after) + bool(before) + bool(pos is not None) != 1:
+            raise ValueError, "You must apply exactly one argument."
+        keys = self.keys()
+        
+        if name not in keys:
+            raise KeyError, name
+        
+        if direction is not None:
+            return self._moveFieldInSchemata(name, direction)
+        
+        if pos is not None:
+            if not (isinstance(pos, int) or pos in ('top', 'bottom',)):
+                raise ValueError, "pos must be a number or top/bottom"
+            if pos == 'top':
+                return self._moveFieldToPosition(name, 0)
+            elif pos == 'bottom':
+                return self._moveFieldToPosition(name, len(keys))
+            else:
+                return self._moveFieldToPosition(name, pos)
+        
+        if after is not None:
+            if after == name:
+                raise ValueError, "name and after can't be the same"
+            idx = keys.index(after)
+            return self._moveFieldToPosition(name, idx+1)
+            
+        if before is not None:
+            if before == name:
+                raise ValueError, "name and before can't be the same"
+            idx = keys.index(before)
+            return self._moveFieldToPosition(name, idx)
+            
+    def _moveFieldToPosition(self, name, pos):
+        """Moves a field with the name 'name' to the position 'pos'
+        
+        This method doesn't obey the assignement of fields to a schemata
+        """
+        keys = self._names
+        keys.remove(name)
+        keys.insert(pos, name)
+        self._names = keys
+        
+    def _moveFieldInSchemata(self, name, direction):
+        """Moves a field with the name 'name' inside its schemata
+        """
+        if not direction in (-1, 1):
+            raise ValueError, "Direction must be either -1 or 1"
+
+        fields = self.fields()
+        fieldnames = [f.getName() for f in fields]
+        schemata_names = self.getSchemataNames()
+
+        field = self[name]
+        field_schemata_name = self[name].schemata
+
+        d = {}
+        for s_name in self.getSchemataNames():
+            d[s_name] = self.getSchemataFields(s_name)
+
+        lst = d[field_schemata_name]  # list of fields of schemata
+        pos = [f.getName() for f in lst].index(field.getName())
+
+        if direction == -1:
+            if pos > 0:
+                del lst[pos]
+                lst.insert(pos-1, field)
+        if direction == 1:
+            if pos < len(lst):
+                del lst[pos]
+                lst.insert(pos+1, field)
+
+        d[field_schemata_name] = lst
+
+        # remove and re-add
+        self.__init__()
+        for s_name in schemata_names:
+            for f in d[s_name]:
+                self.addField(f)
+
 
 InitializeClass(Schema)
 
@@ -753,46 +910,6 @@ class ManagedSchema(Schema):
             for f in fields:
                 if f.schemata == s_name:
                     self.addField(f)
-
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              'moveField')
-    def moveField(self, name, direction):
-        """Move a field inside a schema to left
-        (direction=-1) or to right (direction=1)
-        """
-        if not direction in (-1, 1):
-            raise ValueError, "Direction must be either -1 or 1"
-
-        fields = self.fields()
-        fieldnames = [f.getName() for f in fields]
-        schemata_names = self.getSchemataNames()
-
-        field = self[name]
-        field_schemata_name = self[name].schemata
-
-        d = {}
-        for s_name in self.getSchemataNames():
-            d[s_name] = self.getSchemataFields(s_name)
-
-        lst = d[field_schemata_name]  # list of fields of schemata
-        pos = [f.getName() for f in lst].index(field.getName())
-
-        if direction == -1:
-            if pos > 0:
-                del lst[pos]
-                lst.insert(pos-1, field)
-        if direction == 1:
-            if pos < len(lst):
-                del lst[pos]
-                lst.insert(pos+1, field)
-
-        d[field_schemata_name] = lst
-
-        # remove and re-add
-        self.__init__()
-        for s_name in schemata_names:
-            for f in d[s_name]:
-                self.addField(f)
 
 InitializeClass(ManagedSchema)
 
