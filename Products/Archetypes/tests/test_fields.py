@@ -71,7 +71,7 @@ for type, name in test_fields:
 
 txt_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
-img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'))
+img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'), 'rb')
 img_content = img_file.read()
 
 field_values = {'objectfield':'objectfield',
