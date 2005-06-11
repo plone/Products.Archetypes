@@ -14,7 +14,7 @@
         Document actions (print, sendto etc)
     </div>
 
-    <h1 i18n:translate="heading_edit_item">
+    <h1 i18n:translate="heading_edit_item_fieldset">
      Edit
         <span i18n:name="itemtype">
             <span i18n:translate=""

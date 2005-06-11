@@ -36,9 +36,8 @@ default.
           </metal:use>
           <div style="text-align: right; margin-right: 0.75em;"
                tal:condition="widget/allow_file_upload | python:1">
-              <span class="discreet" i18n:translate="label_or">or</span>
               <span class="discreet" 
-                    i18n:translate="upload_a_file">upload a file (existing content will be replaced)</span>
+                    i18n:translate="or_upload_a_file">or upload a file (existing content will be replaced)</span>
               <input type="file"
                      size="30"
                      tabindex="" 
