@@ -512,6 +512,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     def __init__(self):
         self._schemas = PersistentMapping()
+        self._default_template = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
@@ -587,6 +588,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
+    security.declareProtected(CMFCorePermissions.View, 'getDefaultTemplate')
+    def getDefaultTemplate(self, instance_or_portaltype=None):
+        """Returns the default template when set and None otherwise.
+        """
+        if not type(instance_or_portaltype) in StringTypes:
+            portal_type = instance_or_portaltype.getTypeInfo().getId()
+        else:
+            portal_type = instance_or_portaltype
+        return self._default_template.get(portal_type, None)
+
     security.declareProtected(CMFCorePermissions.View, 'isTemplateEnabled')
     def isTemplateEnabled(self, type):
         """Checks if an type uses ITemplateMixin.
@@ -601,11 +612,26 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         self._templates[portal_type] = templateList
 
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'bindDefaultTemplate')
+    def bindDefaultTemplate(self, portal_type, template):
+        """Creates binding between a type and a custom default view.
+        """
+        if template == '':
+            template = None
+        self._default_template[portal_type] = template
+
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_templates')
     def manage_templates(self, REQUEST=None):
         """Sets all the template/type mappings.
         """
+        prefix = 'default_template_'
+        for key in REQUEST.form.keys():
+            if key.startswith(prefix):
+                k = key[len(prefix):]
+                v = REQUEST.form.get(key)
+                self.bindDefaultTemplate(k, v)
+
         prefix = 'template_names_'
         for key in REQUEST.form.keys():
             if key.startswith(prefix):

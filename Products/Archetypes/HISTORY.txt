@@ -1,6 +1,10 @@
 1.3.4-devel
 ========================
 
+  * Added a selectable default view to ArchetypesTool and let TemplateMixin
+    use it appropiatly.
+    [fschulze]
+
   * Fixed failed test in ISchema: removed 'self' in interface method.
     [yenzenz]
 

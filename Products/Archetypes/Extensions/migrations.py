@@ -47,6 +47,9 @@ def fixArchetypesTool(portal, out):
         at._templates = PersistentMapping()
         at._registeredTemplates = PersistentMapping()
 
+    if not hasattr(at, '_default_template'):
+        at._default_template = PersistentMapping()
+
     if not hasattr(at, 'catalog_map'):
         at.catalog_map = PersistentMapping()
 
