@@ -1,6 +1,11 @@
 1.3.4-devel
 ========================
 
+  * generalised the interface detetection for types and listings of it
+    in archetypes_tool and adapted TemplateMixin lists and detection to
+    use this code.
+    [yenzenz]
+
   * calendar_slot has been renamed to calendar_macros in Plone
     [hannosch]
 
