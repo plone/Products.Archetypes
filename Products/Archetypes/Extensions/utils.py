@@ -379,11 +379,15 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
+        # CMF 1.4 name
         typeinfo_name="%s: %s" % (package_name, t.meta_type)
+        # CMF 1.5 name
+        typeinfo_name2="%s: %s (%s)" % (package_name, t.meta_type, t.__name__)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:
-            if name == typeinfo_name:
+            #if name.startswith(typeinfo_name):
+            if name in (typeinfo_name, typeinfo_name2):
                 found = 1
                 break
 

@@ -1,6 +1,9 @@
 1.3.4-devel
 ========================
 
+  * Made utils.filterTypes compatible with CMF 1.5
+    [tiran]
+
   * generalised the interface detetection for types and listings of it
     in archetypes_tool and adapted TemplateMixin lists and detection to
     use this code.
