@@ -2117,7 +2117,7 @@ class ImageField(FileField):
                     w,h = self.original_size
                 if w and h:
                     __traceback_info__ = (self, value, w, h)
-                    fvalue, format = self.scale(data,w,h)
+                    fvalue, format = self.scale(data, w, h)
                     value = fvalue.read()
         return value
 
@@ -2177,7 +2177,7 @@ class ImageField(FileField):
                     log_exc()
                     # scaling failed, don't create a scaled version
                     continue
-            mimetype = 'image/%s' % format
+            mimetype = 'image/%s' % format.lower()
             image = self.content_class(id, self.getName(),
                                      imgdata,
                                      mimetype
@@ -2192,7 +2192,7 @@ class ImageField(FileField):
                                           mimetype=mimetype, filename=filename)
 
     security.declarePrivate('scale')
-    def scale(self, data, w, h):
+    def scale(self, data, w, h, default_format = 'PNG'):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
         size = int(w), int(h)
@@ -2218,7 +2218,7 @@ class ImageField(FileField):
         image.thumbnail(size, pilfilter)
         # XXX: tweak to make the unit test
         #      test_fields.ProcessingTest.test_processing_fieldset run
-        format = image.format and image.format or 'PNG'
+        format = image.format and image.format or default_format
         # decided to only preserve palletted mode
         # for GIF, could also use image.format in ('GIF','PNG')
         if original_mode == 'P' and format == 'GIF':
