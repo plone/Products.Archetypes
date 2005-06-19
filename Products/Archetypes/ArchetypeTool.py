@@ -92,6 +92,8 @@ base_factory_type_information = (
       , 'global_allow': True
       , 'filter_content_types': False
       , 'allow_discussion': False
+      , 'aliases' : {'(Default)':'base_view',
+                     'view':'base_view'}
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -179,15 +181,16 @@ def fixActionsForType(portal_type, typesTool):
                     else:
                         new.append(action)
 
-            # Update Aliases
-            if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-                if (hasattr(portal_type, 'aliases') and
-                    hasattr(typeInfo, 'setMethodAliases')):
-                    typeInfo.setMethodAliases(portal_type.aliases)
-                else:
-                    # Custom views might need to reguess the aliases
-                    if hasattr(typeInfo, '_guessMethodAliases'):
-                        typeInfo._guessMethodAliases()
+            # the code was moved to modify_fti()
+            ## Update Aliases
+            #if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
+            #    if (hasattr(portal_type, 'aliases') and
+            #        hasattr(typeInfo, 'setMethodAliases')):
+            #        typeInfo.setMethodAliases(portal_type.aliases)
+            #    else:
+            #        # Custom views might need to reguess the aliases
+            #        if hasattr(typeInfo, '_guessMethodAliases'):
+            #            typeInfo._guessMethodAliases()
 
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
@@ -250,6 +253,33 @@ def modify_fti(fti, klass, pkg_name):
             if action['id'] != 'folderlisting':
                 actions.append(action)
         fti[0]['actions'] = tuple(actions)
+        
+    # CMF 1.5 method aliases
+    if getattr(klass, 'aliases', None):
+        aliases = klass.aliases
+        if not isinstance(aliases, dict):
+            raise TypeError, "Invalid type for method aliases in class %s" % klass
+        for required in ('(Default)', 'view',):
+            if required not in aliases:
+                raise ValueError, "Alias %s is required but not provied by %s" % (
+                                  required, klass)
+        fti[0]['aliases'] = aliases 
+        
+    # Dynamic View FTI support
+    if getattr(klass, 'default_view', None):
+        default_view = klass.default_view
+        if not isinstance(default_view, basestring):
+            raise TypeError, "Invalid type for default view in class %s" % klass
+        fti[0]['default_view'] = default_view
+        fti[0]['view_templates'] = (default_view, )
+        
+        if getattr(klass, 'suppl_views', None):
+            suppl_views = klass.suppl_views
+            if not isinstance(suppl_views, tuple):
+                raise TypeError, "Invalid type for suppl views in class %s" % klass
+            if not default_view in suppl_views:
+                suppl_views = suppl_views + (default_view, )
+            fti[0]['view_templates'] = suppl_views
 
 def process_types(types, pkg_name):
     content_types = ()
@@ -756,17 +786,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # have been called
         typeDesc = getType(typeName, package)
         process_types([typeDesc], package)
+        klass = typeDesc['klass']
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
+        fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
+        if not fti_meta_type:
+            fti_meta_type = FactoryTypeInformation.meta_type
 
-        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
+        typesTool.manage_addTypeInformation(fti_meta_type,
                                             id=typeName,
                                             typeinfo_name=typeinfo_name)
         t = getattr(typesTool, typeName, None)
         if t:
-            t.title = getattr(typeDesc['klass'], 'archetype_name',
+            t.title = getattr(klass, 'archetype_name',
                               typeDesc['portal_type'])
 
         # and update the actions as needed
-        fixActionsForType(typeDesc['klass'], typesTool)
+        fixActionsForType(klass, typesTool)
 
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url() +

@@ -222,28 +222,33 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     folderish = []
-    for type in types:
+    for klass in types:
         try:
-            typesTool._delObject(type.portal_type)
+            typesTool._delObject(klass.portal_type)
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
+        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
+        fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
+        if not fti_meta_type:
+            fti_meta_type = FactoryTypeInformation.meta_type
 
-        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id=type.portal_type,
-                                                typeinfo_name=typeinfo_name)
+        typesTool.manage_addTypeInformation(fti_meta_type,
+                                            id=klass.portal_type,
+                                            typeinfo_name=typeinfo_name)
         # Set the human readable title explicitly
-        t = getattr(typesTool, type.portal_type, None)
+        t = getattr(typesTool, klass.portal_type, None)
         if t:
-            t.title = type.archetype_name
+            t.title = klass.archetype_name
 
         # If the class appears folderish and the 'use_folder_tabs' is
         # not set to a false value, then we add the portal_type to
         # Plone's 'use_folder_tabs' property
-        use_folder_tabs = type.isPrincipiaFolderish and getattr(type, 'use_folder_tabs', 1)
+        use_folder_tabs = klass.isPrincipiaFolderish and getattr(klass, 'use_folder_tabs', 1)
         if use_folder_tabs:
-            folderish.append(type.portal_type)
+            folderish.append(klass.portal_type)
     if folderish:
         pt = getToolByName(self, 'portal_properties', None)
         if pt is None:
@@ -379,10 +384,10 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
-        # CMF 1.4 name
+        # CMF 1.4 name: (product_id, metatype)
         typeinfo_name="%s: %s" % (package_name, t.meta_type)
-        # CMF 1.5 name
-        typeinfo_name2="%s: %s (%s)" % (package_name, t.meta_type, t.__name__)
+        # CMF 1.5 name: (product_id, id, metatype)
+        typeinfo_name2="%s: %s (%s)" % (package_name, t.__name__, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:
