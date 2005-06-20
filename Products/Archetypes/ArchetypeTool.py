@@ -92,8 +92,13 @@ base_factory_type_information = (
       , 'global_allow': True
       , 'filter_content_types': False
       , 'allow_discussion': False
-      , 'aliases' : {'(Default)':'base_view',
-                     'view':'base_view'}
+      #, 'aliases' : {'(Default)' : 'base_view',
+      #               'view' : 'base_view',
+      #               'index.html' : 'base_view',
+      #               'edit' : 'base_edit',
+      #               'gethtml' : '',
+      #               'mkdir' : '',
+      #               }
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -271,15 +276,15 @@ def modify_fti(fti, klass, pkg_name):
         if not isinstance(default_view, basestring):
             raise TypeError, "Invalid type for default view in class %s" % klass
         fti[0]['default_view'] = default_view
-        fti[0]['view_templates'] = (default_view, )
+        fti[0]['view_methods'] = (default_view, )
         
         if getattr(klass, 'suppl_views', None):
             suppl_views = klass.suppl_views
-            if not isinstance(suppl_views, tuple):
+            if not isinstance(suppl_views, (list, tuple)):
                 raise TypeError, "Invalid type for suppl views in class %s" % klass
             if not default_view in suppl_views:
                 suppl_views = suppl_views + (default_view, )
-            fti[0]['view_templates'] = suppl_views
+            fti[0]['view_methods'] = suppl_views
 
 def process_types(types, pkg_name):
     content_types = ()
