@@ -16,7 +16,6 @@ from Products.CMFCore.PortalContent  import PortalContent
 #from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 try:
     from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
-    print PortalFolder
 except:
     from Products.CMFCore.PortalFolder import PortalFolder
 from Products.CMFCore.utils import getToolByName
