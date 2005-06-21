@@ -2024,7 +2024,6 @@ class ImageField(FileField):
         value, mimetype, filename = self._process_input(value,
                                                       default=self.getDefault(instance),
                                                       **kwargs)
-        #print type(value), mimetype, filename
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
@@ -2042,7 +2041,7 @@ class ImageField(FileField):
                 log_exc()
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
-        self.createScales(instance)
+        self.createScales(instance, value=imgdata)
 
     def _updateKwargs(self, instance, value, **kwargs):
         # get filename from kwargs, then from the value
@@ -2105,6 +2104,8 @@ class ImageField(FileField):
                 image = self.content_class(self.getName(), self.getName(),
                                          value, mimetype)
                 data = str(image.data)
+                if not data:
+                    return self.default
                 w=h=0
                 if self.max_size:
                     if image.width > self.max_size[0] or \
@@ -2125,7 +2126,10 @@ class ImageField(FileField):
     def createOriginal(self, instance, value, **kwargs):
         """create the original image (save it)
         """
-        image = self._wrapValue(instance, value, **kwargs)
+        if value:
+            image = self._wrapValue(instance, value, **kwargs)
+        else:
+            image = self.default
 
         ObjectField.set(self, instance, image, **kwargs)
 
@@ -2149,19 +2153,27 @@ class ImageField(FileField):
                     pass
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'createScales')
-    def createScales(self, instance):
+    def createScales(self, instance, value=_marker):
         """creates the scales and save them
         """
         sizes = self.getAvailableSizes(instance)
         if not HAS_PIL or not sizes:
             return
-        img = self.getRaw(instance)
-        if not img:
+        # get data from the original size if value is None
+        if value is _marker:
+            img = self.getRaw(instance)
+            if not img:
+                return
+            data = str(img.data)
+        else:
+            data = value
+        
+        # empty string - stop rescaling because PIL fails on an empty string
+        if not data:
             return
+        
         filename = self.getFilename(instance)
-        #dot = filename.rfind('.')
-        #filename, ext = filename[:dot], filename[dot:]
-        data = str(img.data)
+        
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
@@ -2177,6 +2189,7 @@ class ImageField(FileField):
                     log_exc()
                     # scaling failed, don't create a scaled version
                     continue
+            
             mimetype = 'image/%s' % format.lower()
             image = self.content_class(id, self.getName(),
                                      imgdata,
