@@ -1,6 +1,6 @@
 from Products.Archetypes.public import BaseFolder
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFDefault.SkinnedFolder import SkinnedFolder
+#from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 
 from AccessControl import ClassSecurityInfo
@@ -87,10 +87,10 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents
 
-    __call__ = SkinnedFolder.__call__
+    __call__ = BaseFolder.__call__
 
     security.declareProtected(CMFCorePermissions.View, 'view')
-    view = SkinnedFolder.view
+    view = BaseFolder.view
 
     def index_html(self):
         """ Allow creation of .
