@@ -1,6 +1,10 @@
 1.3.4-devel
 ========================
 
+  * Reworked ArchetypeTool.listPortalTypesWithInterfaces.  Note that
+    the former version only returned AT types as well.
+    [dpunktnpunkt]
+
   * Moved mark creation flag code from ATContentTypes 1.0 to AT. This is the
     right place for the code. It requires Plone 2.1 but doesn't barf if no or
     and older version is installed.

@@ -682,7 +682,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(CMFCorePermissions.View, 'listPortalTypesWithInterfaces')
     def listPortalTypesWithInterfaces(self, ifaces):
         """Returns a list of ftis of which the types implement one of
-        the given interfaces.
+        the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
         >>> tool = getToolByName(self.portal, TOOL_NAME)
@@ -695,21 +695,16 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids
         ['ComplexType', 'Document', ...]
         """
-        tt = getToolByName(self, 'portal_types')
-        if tt is None:
-            return []
-        
-        ftis = tt.listTypeInfo()
-        registered_archetypes_by_meta_type = self.getRegisteredArchetypesByMetaType()
-        
-        interface_enabled_ftis = []
-        for fti in ftis:
-            fti_meta_type = fti.content_meta_type
-            if fti_meta_type in registered_archetypes_by_meta_type.keys()  and \
-               self.typeImplementsInterfaces(registered_archetypes_by_meta_type[fti_meta_type], ifaces):
-                interface_enabled_ftis.append(fti)
-                
-        return interface_enabled_ftis
+        pt = getToolByName(self, 'portal_types')
+        value = []
+        for data in listTypes():
+            klass = data['klass']
+            for iface in ifaces:
+                if iface.isImplementedByInstancesOf(klass):
+                    ti = pt.getTypeInfo(data['portal_type'])
+                    if ti is not None:
+                        value.append(ti)
+        return value
                   
 
     # Type/Schema Management
