@@ -665,14 +665,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         return self.typeImplementsInterfaces(type, [ITemplateMixin])
         
-    security.declareProtected(CMFCorePermissions.View, 'getRegisteredArchetypesByMetaType')
-    def getRegisteredArchetypesByMetaType(self):
-        """ Returns a dictionary with meta_type as key, TypeInfo as value """
-        registered_archetypes_by_meta_type = {}
-        for t in listTypes():
-            registered_archetypes_by_meta_type[t['meta_type']]=t    
-        return registered_archetypes_by_meta_type
-    
     security.declareProtected(CMFCorePermissions.View, 'listTemplateEnabledPortalTypes')
     def listTemplateEnabledPortalTypes(self):
         """Return a list of portal_types with ITemplateMixin
@@ -705,7 +697,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if ti is not None:
                         value.append(ti)
         return value
-                  
 
     # Type/Schema Management
     security.declareProtected(CMFCorePermissions.View, 'listRegisteredTypes')
