@@ -685,7 +685,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids = [fti.getId() for fti in ftis]
         >>> type_ids.sort()
         >>> type_ids
-        ['ComplexType', 'Document', ...]
+        ['ATBIFolder', 'ComplexType', ...]
         """
         pt = getToolByName(self, 'portal_types')
         value = []

@@ -1,6 +1,11 @@
 1.3.4-devel
 ========================
 
+  * Added AllowedTypesByIface, a mix-in that allows you to restrict
+    allowed_content_types by interface.  We want a better way to do
+    this for 1.4.  ArchGenXML support is under way.
+    [dpunktnpunkt]
+
   * Reworked ArchetypeTool.listPortalTypesWithInterfaces.  Note that
     the former version only returned AT types as well.
     [dpunktnpunkt]

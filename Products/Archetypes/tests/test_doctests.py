@@ -41,7 +41,8 @@ import unittest
 DOCTEST_MODULES = (
     'Products.Archetypes.utils', 
     'Products.Archetypes.Schema',
-    'Products.Archetypes.ArchetypeTool'
+    'Products.Archetypes.ArchetypeTool',
+    'Products.Archetypes.AllowedTypesByIface',
     )
 
 DOCTEST_FILES = ()
