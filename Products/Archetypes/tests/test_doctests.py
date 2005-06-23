@@ -41,6 +41,7 @@ import unittest
 DOCTEST_MODULES = (
     'Products.Archetypes.utils', 
     'Products.Archetypes.Schema',
+    'Products.Archetypes.ArchetypeTool'
     )
 
 DOCTEST_FILES = ()

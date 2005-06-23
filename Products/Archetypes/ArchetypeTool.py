@@ -681,8 +681,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         
     security.declareProtected(CMFCorePermissions.View, 'listPortalTypesWithInterfaces')
     def listPortalTypesWithInterfaces(self, ifaces):
-        """Returns a list of portal_types implementing one of the given 
-           interfaces
+        """Returns a list of ftis of which the types implement one of
+        the given interfaces.
+
+        Get a list of FTIs of types implementing IReferenceable:
+        >>> tool = getToolByName(self.portal, TOOL_NAME)
+        >>> meth = tool.listPortalTypesWithInterfaces
+        >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
+        
+        Sort the type ids and print them:
+        >>> type_ids = [fti.getId() for fti in ftis]
+        >>> type_ids.sort()
+        >>> type_ids
+        ['ComplexType', 'Document', ...]
         """
         tt = getToolByName(self, 'portal_types')
         if tt is None:
