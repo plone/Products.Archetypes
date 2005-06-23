@@ -1,6 +1,24 @@
 1.3.4-devel
 ========================
 
+  * Moved mark creation flag code from ATContentTypes 1.0 to AT. This is the
+    right place for the code. It requires Plone 2.1 but doesn't barf if no or
+    and older version is installed.
+    [tiran, alecm]
+    
+  * As a part of the mark creation flag code the _renameAfterCreation() 
+    method is added. It can be turned on by setting _at_rename_after_creation
+    to True. Thx to Alec Mitchell for his code!
+    [tiran, alecm]
+
+  * Fixed issue with ImageField where an empty string was passed down to
+    PIL resulting in an exception.
+    [tiran]
+
+  * Updated the type registration code to be compatible with CMF 1.5 and to
+    support method aliases and CMFDynamicViewFTI.
+    [tiran]
+
   * Made utils.filterTypes compatible with CMF 1.5
     [tiran]
 
