@@ -62,6 +62,7 @@
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
+            class="enableUnloadProtection"
             action=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
