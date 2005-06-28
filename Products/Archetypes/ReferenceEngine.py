@@ -32,6 +32,7 @@ from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 import zLOG
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
@@ -357,7 +358,7 @@ class ReferenceResolver(Base):
 
         try:
             return portal_object.unrestrictedTraverse(path)
-        except (KeyError, AttributeError):
+        except (KeyError, AttributeError, NotFound):
             # ObjectManager may raise a KeyError when the object isn't there
             return None
 
