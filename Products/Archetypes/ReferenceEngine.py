@@ -382,6 +382,7 @@ class ReferenceResolver(Base):
 
         relpath = obj.getPhysicalPath()[portal_path_len:]
         uid = '/'.join(relpath)
+        __traceback_info__ = (repr(obj), uid)
         ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
         ZCatalog.catalog_object(self, obj, uid, **kwargs)
 
@@ -682,7 +683,10 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             pass
         else:
             annotation = sobj._getReferenceAnnotations()
-            annotation._delObject(referenceObject.UID())
+            try:
+                annotation._delObject(referenceObject.UID())
+            except (AttributeError, KeyError):
+                pass
 
     def _resolveBrains(self, brains):
         objects = []
