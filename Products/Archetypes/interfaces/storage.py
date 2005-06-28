@@ -22,3 +22,9 @@ class IStorage(Interface):
 class ISQLStorage(IStorage):
     """ Marker interface for distinguishing ISQLStorages """
     pass
+
+class ISizeableStorage(Interface):
+    """This Interface is for noticing if
+       he is competent to calculates the size of stored data.
+    """
+    pass

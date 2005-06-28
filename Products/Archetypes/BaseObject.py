@@ -559,7 +559,10 @@ class BaseObject(Referenceable):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
         for field in self.Schema().fields():
-            size+=field.get_size(self)
+            if getattr(field,'size_significant',False):
+                print field
+                print field.get_size(self)
+                size+=field.get_size(self)
         return size
 
     security.declarePrivate('_processForm')

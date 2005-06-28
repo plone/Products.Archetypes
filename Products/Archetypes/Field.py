@@ -34,7 +34,7 @@ from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.interfaces.storage import IStorage
+from Products.Archetypes.interfaces.storage import IStorage,ISizeableStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.field import IObjectField
@@ -237,6 +237,7 @@ class Field(DefaultLayerContainer):
                                          # are the accessor and edit accessor
         'schemata' : 'default',
         'languageIndependent' : False,
+        'size_significant' : False,
         }
 
     def __init__(self, name=None, **kwargs):
@@ -666,6 +667,16 @@ class Field(DefaultLayerContainer):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance """
 
+    security.declarePublic('get_size')
+    def get_size(self, instance):
+        """Only returnes the cached size from annotations storage
+        """
+        size=0
+        storage=self.getStorage(instance)
+        if ISizeableStorage.isImplementedBy(storage):
+            size=storage.get_size(self.getName(), instance)
+        return size  
+
 #InitializeClass(Field)
 setSecurity(Field)
 
@@ -682,6 +693,7 @@ class ObjectField(Field):
     _properties.update({
         'type' : 'object',
         'default_content_type' : 'application/octet',
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -791,21 +803,6 @@ class ObjectField(Field):
                                'application/octet-stream')
         return mimetype
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-
-        Should be overwritte by special fields like FileField. It's safe for
-        fields which are storing strings, ints and BaseUnits but it won't return
-        the right results for fields containing OFS.Image.File instances or
-        lists/tuples/dicts.
-        """
-        data = self.getRaw(instance)
-        try:
-            return len(data)
-        except (TypeError, AttributeError):
-            return len(str(data))
-
 #InitializeClass(ObjectField)
 setSecurity(ObjectField)
 
@@ -816,6 +813,7 @@ class StringField(ObjectField):
         'type' : 'string',
         'default': '',
         'default_content_type' : 'text/plain',
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -847,6 +845,7 @@ class FileField(ObjectField):
         'widget' : FileWidget,
         'content_class' : File,
         'default_content_type' : 'application/octet',
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -1122,16 +1121,6 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         return file.index_html(REQUEST, RESPONSE)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        file = self.get(instance)
-        if isinstance(file, self.content_class):
-            return file.get_size()
-        # Backwards compatibility
-        return len(str(file))
-
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -1148,6 +1137,7 @@ class TextField(FileField):
         'allowable_content_types' : ('text/plain',),
         'primary' : False,
         'content_class': BaseUnit,
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -1308,12 +1298,6 @@ class TextField(FileField):
         """
         return self.get(instance, raw=True)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return len(self.getBaseUnit(instance))
-
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
     __implements__ = ObjectField.__implements__
@@ -1322,6 +1306,7 @@ class DateTimeField(ObjectField):
     _properties.update({
         'type' : 'datetime',
         'widget' : CalendarWidget,
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -1352,6 +1337,7 @@ class LinesField(ObjectField):
         'type' : 'lines',
         'default' : (),
         'widget' : LinesWidget,
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -1384,16 +1370,6 @@ class LinesField(ObjectField):
     security.declarePrivate('getRaw')
     def getRaw(self, instance, **kwargs):
         return self.get(instance, **kwargs)
-
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        size=0
-        for line in self.get(instance):
-            size+=len(str(line))
-        return size
-
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
@@ -1749,13 +1725,6 @@ class ReferenceField(ObjectField):
         __traceback_info__ = (content_instance, self.getName(), pairs)
         return DisplayList(pairs)
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return 0
-
-
 class ComputedField(Field):
     """A field that stores a read-only computation."""
     __implements__ = Field.__implements__
@@ -1780,14 +1749,6 @@ class ComputedField(Field):
         """Return the computed value."""
         return eval(self.expression, {'context': instance, 'here' : instance})
 
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data.
-
-        Used for get_size in BaseObject.
-        """
-        return 0
-
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
     __implements__ = ObjectField.__implements__
@@ -1810,12 +1771,6 @@ class BooleanField(ObjectField):
             value = True
 
         ObjectField.set(self, instance, value, **kwargs)
-
-    security.declarePublic('get_size')
-    def get_size(self, instance):
-        """Get size of the stored data used for get_size in BaseObject
-        """
-        return True
 
 class CMFObjectField(ObjectField):
     """
@@ -1998,6 +1953,7 @@ class ImageField(FileField):
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'content_class': Image,
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
@@ -2285,18 +2241,19 @@ class ImageField(FileField):
         """Get size of the stored data used for get_size in BaseObject
         """
         sizes = self.getAvailableSizes(instance)
-        original = self.get(instance)
-        size = original and original.get_size() or 0
-
+        size=0
+        storage=self.getStorage(instance)
+        if ISizeableStorage.isImplementedBy(storage):
+            size=storage.get_size(self.getName(), instance)
         if sizes:
             for name in sizes.keys():
                 id = self.getScaleName(scale=name)
                 try:
-                    data = self.getStorage(instance).get(id, instance)
+                    img_size = storage.get_size(id, instance)
                 except AttributeError:
                     pass
                 else:
-                    size+=data and data.get_size() or 0
+                    size+=img_size
         return size
 
     security.declareProtected(CMFCorePermissions.View, 'tag')
@@ -2600,6 +2557,7 @@ class PhotoField(ObjectField):
             },
         'widget': ImageWidget,
         'storage': AttributeStorage(),
+        'size_significant' : True,
         })
 
     security  = ClassSecurityInfo()
