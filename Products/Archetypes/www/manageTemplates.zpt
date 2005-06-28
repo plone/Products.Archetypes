@@ -40,23 +40,6 @@
             
       </td>
 	  <td>
-	    <div>Default view:</div>
-	    <select size="1"
-	            tal:define="currentselection python:at.getDefaultTemplate(fti.getId());
-	                        getValue nocall:vocab/getValue"
-		        tal:attributes="name string:default_template_${fti/getId};">
-	      <option selected=""
-		          value=""
-		          tal:attributes="selected python:currentselection is None and 'selected' or None;">
-		    **Use default from code**
-		  </option>
-	      <option selected=""
-		          tal:repeat="item vocab"
-		          tal:attributes="value item;
-		                           selected python:item == currentselection and 'selected' or None;"
-		          tal:content="python:'%s - (%s)' % (item, getValue(item))"/>
-	    </select>
-	    <div>Selectable templates:</div>
 	    <select multiple="multiple"
 	            tal:define="currentselection python:at.lookupTemplates(fti.getId());
 	                        getValue nocall:vocab/getValue"

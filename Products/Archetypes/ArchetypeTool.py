@@ -92,13 +92,13 @@ base_factory_type_information = (
       , 'global_allow': True
       , 'filter_content_types': False
       , 'allow_discussion': False
-      , 'aliases' : {'(Default)' : '',
-                     'view' : '',
-                     'index.html' : '',
-                     'edit' : 'base_edit',
-                     'gethtml' : '',
-                     'mkdir' : '',
-                     }
+      #, 'aliases' : {'(Default)' : 'base_view',
+      #               'view' : 'base_view',
+      #               'index.html' : 'base_view',
+      #               'edit' : 'base_edit',
+      #               'gethtml' : '',
+      #               'mkdir' : '',
+      #               }
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -196,6 +196,7 @@ def fixActionsForType(portal_type, typesTool):
             #        # Custom views might need to reguess the aliases
             #        if hasattr(typeInfo, '_guessMethodAliases'):
             #            typeInfo._guessMethodAliases()
+
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
 
