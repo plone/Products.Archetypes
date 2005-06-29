@@ -34,6 +34,7 @@ from Products import CMFCore
 from ZODB.POSException import ConflictError
 from zExceptions import NotFound
 import zLOG
+from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -389,6 +390,26 @@ class ReferenceResolver(Base):
 
 InitializeClass(ReferenceResolver)
 
+class IndexableObjectWrapper(object):
+    """Wwrapper for object indexing
+    """    
+    def __init__(self, obj):
+        self._obj = obj
+                
+    def __getattr__(self, name):
+        return getattr(self._obj, name)
+        
+    def Title(self):
+        # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
+        # converted to an ascii string
+        # Title is used for sorting only, maybe we could replace it by a better
+        # version
+        title = self._obj.Title()
+        try:
+            return str(title)
+        except UnicodeDecodeError:
+            return self._obj.getId()
+
 class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     """Unique id catalog
     """
@@ -408,6 +429,22 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = UIDBaseCatalog()
+        
+    security.declareProtected(ManageZCatalogEntries, 'catalog_object')
+    def catalog_object(self, object, uid, idxs=[],
+                       update_metadata=1, pghandler=None):
+        w = IndexableObjectWrapper(object)
+        try:
+            # pghandler argument got added in Zope 2.8
+            ZCatalog.catalog_object(self, w, uid, idxs,
+                                    update_metadata, pghandler=pghandler)
+        except TypeError:
+            try:
+                # update_metadata argument got added somewhere into
+                # the Zope 2.6 line (?)
+                ZCatalog.catalog_object(self, w, uid, idxs, update_metadata)
+            except TypeError:
+                ZCatalog.catalog_object(self, w, uid, idxs)
 
     security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):

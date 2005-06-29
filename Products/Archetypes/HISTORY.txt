@@ -1,7 +1,8 @@
 1.3.4-devel
 ========================
 
-  * Don't add a Title index in the uid catalog any more.
+  * Added a wrapper for indexing object in the uid catalog to fix unicode
+    issues.
     [tiran]
 
   * Added AllowedTypesByIface, a mix-in that allows you to restrict

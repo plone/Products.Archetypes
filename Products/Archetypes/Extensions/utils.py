@@ -77,7 +77,7 @@ def install_uidcatalog(self, out, rebuild=False):
     index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
-                 #('Title', 'FieldIndex'),
+                 ('Title', 'FieldIndex'), # used for sorting
                  ('portal_type', 'FieldIndex'),
                )
     metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
