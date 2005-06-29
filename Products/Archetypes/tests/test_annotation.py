@@ -31,7 +31,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
-
+import pdb; pdb.set_trace()
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME

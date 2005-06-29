@@ -1,6 +1,9 @@
 1.3.4-devel
 ========================
 
+  * Don't add a Title index in the uid catalog any more.
+    [tiran]
+
   * Added AllowedTypesByIface, a mix-in that allows you to restrict
     allowed_content_types by interface.  We want a better way to do
     this for 1.4.  ArchGenXML support is under way.

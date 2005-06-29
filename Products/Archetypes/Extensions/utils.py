@@ -80,14 +80,16 @@ def install_uidcatalog(self, out, rebuild=False):
                  #('Title', 'FieldIndex'),
                  ('portal_type', 'FieldIndex'),
                )
-
+    metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
+    reindex = False
     catalog = getToolByName(self, UID_CATALOG, None)
-    if catalog and not IUIDCatalog.isImplementedBy(catalog):
+    
+    if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
         parent = getToolByName(self, "portal_url").getPortalObject()
         parent.manage_delObjects([UID_CATALOG,])
         catalog = None
-        rebuild = 1
+        rebuild = True
 
     if catalog is None:
         #Add a zcatalog for uids
@@ -96,18 +98,21 @@ def install_uidcatalog(self, out, rebuild=False):
         catalog = getToolByName(self, UID_CATALOG)
         print >>out, 'Installing uid catalog'
 
-    #catalog = getToolByName(self, UID_CATALOG)
     for indexName, indexType in index_defs:
         try: #ugly try catch XXX FIXME
             if indexName not in catalog.indexes():
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in catalog.schema():
-                catalog.addColumn(indexName)
+                reindex = True
         except:
             pass
 
-    catalog.manage_reindexIndex()
-    if rebuild:
+    for metadata in metadata_defs:
+        if not indexName in catalog.schema():
+            catalog.addColumn(metadata)
+            reindex = True
+    if reindex:
+        catalog.manage_reindexIndex()
+    elif rebuild:
         catalog.manage_rebuildCatalog()
 
 def install_referenceCatalog(self, out, rebuild=False):
