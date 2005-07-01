@@ -39,7 +39,7 @@ from test_classgen import Dummy
 from Products.Archetypes.atapi import *
 from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
 from Products.PortalTransforms.data import datastream
-instance = Dummy()
+
 
 class FakeTransformer:
     def __init__(self, expected):
@@ -53,9 +53,10 @@ class FakeTransformer:
         return data
 
 
-class UnicodeStringFieldTest( ATTestCase ):
+class UnicodeStringFieldTest(ATTestCase):
 
     def test_set(self):
+        instance = Dummy()
         f = StringField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
@@ -68,9 +69,10 @@ class UnicodeStringFieldTest( ATTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeLinesFieldTest( ATTestCase ):
+class UnicodeLinesFieldTest(ATTestCase):
 
     def test_set1(self):
+        instance = Dummy()
         f = LinesField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
         out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
@@ -85,12 +87,13 @@ class UnicodeLinesFieldTest( ATTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
     def test_set2(self):
+        instance = Dummy()
         f = LinesField('test')
         f.set(instance, ['h\xc3\xa9h\xc3\xa9h\xc3\xa9'])
         out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
         iso = ('héhéhé',)
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso )
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, ['héhéhé'], encoding='ISO-8859-1')
         self.failUnlessEqual(f.get(instance), out)
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
@@ -99,10 +102,10 @@ class UnicodeLinesFieldTest( ATTestCase ):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
-
-class UnicodeTextFieldTest( ATTestCase ):
+class UnicodeTextFieldTest(ATTestCase):
 
     def test_set(self):
+        instance = Dummy()
         f = TextField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9', mimetype='text/plain')
         self.failUnlessEqual(f.getRaw(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
@@ -118,7 +121,9 @@ class UnicodeTextFieldTest( ATTestCase ):
 class UnicodeBaseUnitTest(ATTestCase):
 
     def afterSetUp(self):
-        self.bu = BaseUnit('test', 'héhéhé', instance, mimetype='text/plain', encoding='ISO-8859-1')
+        self.instance = Dummy()
+        self.bu = BaseUnit('test', 'héhéhé', self.instance,
+                           mimetype='text/plain', encoding='ISO-8859-1')
 
     def test_store(self):
         """check non binary string are stored as unicode"""
@@ -135,10 +140,9 @@ class UnicodeBaseUnitTest(ATTestCase):
         """check the string given to the transformer is encoded using its
         original encoding, and finally returned using the default charset
         """
-        instance = Dummy()
-        instance.aq_parent = None
-        instance.portal_transforms = FakeTransformer('héhéhé')
-        transformed = self.bu.transform(instance, 'text/plain')
+        self.instance.aq_parent = None
+        self.instance.portal_transforms = FakeTransformer('héhéhé')
+        transformed = self.bu.transform(self.instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
 
 
