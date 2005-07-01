@@ -13,7 +13,7 @@ from Acquisition import aq_base
 from Globals import InitializeClass
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
-#from Products.CMFDefault.SkinnedFolder import SkinnedFolder
+
 try:
     from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 except:
@@ -30,13 +30,13 @@ class BaseFolderMixin(CatalogMultiplex,
 
     __implements__ = (IBaseFolder, IReferenceable, BaseObject.__implements__,
                       PortalFolder.__implements__)
-                      
+
     security = ClassSecurityInfo()
 
     manage_options = PortalFolder.manage_options
     content_icon = "folder_icon.gif"
     use_folder_tabs = 1
-    
+
     def __call__(self):
         """Invokes the default view.
         """
@@ -46,7 +46,7 @@ class BaseFolderMixin(CatalogMultiplex,
             method_id = ti and ti.queryMethodID('(Default)', context=self)
         else:
             method_id = None
-        
+
         if method_id:
             method = getattr(self, method_id)
         else:
@@ -58,13 +58,12 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(CMFCorePermissions.View, 'view')
     def view(self):
-        """View method for CMF 1.4
+        """View method for CMF 1.4.
         """
         return self()
 
-    index_html = None  # This special value informs ZPublisher to use __call__
-
-    security = ClassSecurityInfo()
+    # This special value informs ZPublisher to use __call__
+    index_html = None
 
     def __init__(self, oid, **kwargs):
         # Call skinned first cause baseobject will set new defaults on
@@ -99,13 +98,11 @@ class BaseFolderMixin(CatalogMultiplex,
         PortalFolder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
-
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
         PortalFolder.manage_afterClone(self, item)
-
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
@@ -116,12 +113,11 @@ class BaseFolderMixin(CatalogMultiplex,
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
-
     security.declareProtected(CMFCorePermissions.DeleteObjects,
                               'manage_delObjects')
     def manage_delObjects(self, ids=[], REQUEST=None):
-        """ We need to enforce security. """
-        mt=getToolByName(self, 'portal_membership')
+        """We need to enforce security."""
+        mt = getToolByName(self, 'portal_membership')
         if type(ids) is str:
             ids = [ids]
         for id in ids:
@@ -135,8 +131,8 @@ class BaseFolderMixin(CatalogMultiplex,
                               'listFolderContents')
     def listFolderContents(self, spec=None, contentFilter=None,
                            suppressHiddenFiles=0):
-        """
-        Optionally you can suppress "hidden" files, or files that begin with .
+        """Optionally you can suppress "hidden" files, or files that begin
+        with a dot.
         """
         contents=PortalFolder.listFolderContents(self,
                                                   spec=spec,
@@ -149,17 +145,17 @@ class BaseFolderMixin(CatalogMultiplex,
     security.declareProtected(CMFCorePermissions.AccessContentsInformation,
                               'folderlistingFolderContents')
     def folderlistingFolderContents(self, spec=None, contentFilter=None,
-                                    suppressHiddenFiles=0 ):
-        """
-        Calls listFolderContents in protected only by ACI so that folder_listing
-        can work without the List folder contents permission, as in CMFDefault
+                                    suppressHiddenFiles=0):
+        """Calls listFolderContents in protected only by ACI so that
+        folder_listing can work without the List folder contents permission,
+        as in CMFDefault.
         """
         return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
 
     security.declareProtected(CMFCorePermissions.View, 'Title')
     def Title(self, **kwargs):
-        """We have to override Title here to handle arbitrary
-        arguments since PortalFolder defines it."""
+        """We have to override Title here to handle arbitrary arguments since
+        PortalFolder defines it."""
         return self.getField('title').get(self, **kwargs)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
@@ -170,7 +166,7 @@ class BaseFolderMixin(CatalogMultiplex,
         self.getField('title').set(self, value, **kwargs)
 
     def __getitem__(self, key):
-        """Overwrite __getitem__
+        """Overwrite __getitem__.
 
         At first it's using the BaseObject version. If the element can't be
         retrieved from the schema it's using PortalFolder as fallback which
@@ -184,7 +180,7 @@ class BaseFolderMixin(CatalogMultiplex,
     # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
     # as it insists on creating folders of type "Folder".
     # use instead "_at_type_subfolder" or our own type.
-    security.declareProtected(CMFCorePermissions.AddPortalFolders, 
+    security.declareProtected(CMFCorePermissions.AddPortalFolders,
                               'manage_addFolder')
     def manage_addFolder( self
                         , id
@@ -192,13 +188,13 @@ class BaseFolderMixin(CatalogMultiplex,
                         , REQUEST=None
                         , type_name = None
                         ):
-        """ Add a new folder-like object with id *id*.
+        """Add a new folder-like object with id *id*.
 
         IF present, use the parent object's 'mkdir' alias; otherwise, just add
         a PortalFolder.
         """
         ti = self.getTypeInfo()
-        # XXX getMethodURL is part of CMF 1.5 but AT 1.3 should be compatible
+        # BBB getMethodURL is part of CMF 1.5 but AT 1.3 should be compatible
         # with CMF 1.4
         try:
             method = ti and ti.getMethodURL('mkdir') or None
@@ -212,28 +208,29 @@ class BaseFolderMixin(CatalogMultiplex,
                 type_name = getattr(self, '_at_type_subfolder', None)
             if type_name is None:
                 type_name = ti and ti.getId() or 'Folder'
-            self.invokeFactory( type_name, id=id )
+            self.invokeFactory(type_name, id=id)
 
-        ob = self._getOb( id )
+        ob = self._getOb(id)
         try:
-            ob.setTitle( title )
+            ob.setTitle(title)
         except AttributeError:
             pass
         try:
             ob.reindexObject()
         except AttributeError:
             pass
-            
+
     def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
-        """Hook into the MKCOL (make collection) process to call manage_afterMKCOL
+        """Hook into the MKCOL (make collection) process to call
+        manage_afterMKCOL.
         """
         result = PortalFolder.MKCOL_handler(self, id, REQUEST, RESPONSE)
         self.manage_afterMKCOL(id, result, REQUEST, RESPONSE)
         return result
-        
+
     security.declarePrivate('manage_afterMKCOL')
     def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
-        """After MKCOL handler
+        """After MKCOL handler.
         """
         pass
 
@@ -275,4 +272,4 @@ InitializeClass(BaseFolder)
 
 BaseFolderSchema = BaseFolder.schema
 
-__all__ = ('BaseFolder', 'BaseFolderMixin', 'BaseFolderSchema', )
+__all__ = ('BaseFolder', 'BaseFolderMixin', 'BaseFolderSchema')
