@@ -39,6 +39,8 @@ class AllowedTypesByIfaceMixin:
     ATBIFolder is an example type that uses AllowedTypesByIfaceMixin:
 
     >>> self.folder.invokeFactory('ATBIFolder', 'f')
+    'f'
+
     >>> f = self.folder.f
 
     f has an empty list of allowed_interfaces, so it doesn't allow anything
