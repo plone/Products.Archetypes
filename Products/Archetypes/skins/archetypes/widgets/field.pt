@@ -80,7 +80,9 @@
           </label>
           <span class="fieldRequired"
                 tal:condition="field/required"
-                title="Required">
+                title="Required"
+                i18n:translate="label_required"
+                i18n:attributes="title title_required;">
             (Required)
           </span>
           <div class="formHelp"
