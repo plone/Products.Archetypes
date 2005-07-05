@@ -97,6 +97,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label='Contributors',
                 label_msgid="label_contributors",
+                description="Persons responsible for making contributions to the content of  "
+                            "this item. Please enter a list of user names, one "
+                            "per line.",
                 description_msgid="help_contributors",
                 i18n_domain="plone"),
         ),
@@ -106,8 +109,11 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label='Creators',
                 label_msgid="label_creators",
+                rows = 3,
+                description="Persons responsible for creating the content of  "
+                            "this item. Please enter a list of user names, one "
+                            "per line. The principal creator should come first.",
                 description_msgid="help_creators",
-                visible={'view':'hidden', 'edit':'hidden'},
                 i18n_domain="plone"),
         ),
         DateTimeField(
@@ -140,7 +146,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            # Apecial default here, cite limi: "If you don't add any language to
+            # Special default here, cite limi: "If you don't add any language to
             # an item, the template that renders the Plone page will fall back
             # to the declared portal-wide language setting. This is the
             # behaviour we want, and thus setting language explicitly is not
@@ -583,6 +589,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         hdrlist.append( ( 'Description', self.Description() ) )
         hdrlist.append( ( 'Contributors', string.join(
             self.Contributors(), '; ' ) ) )
+        hdrlist.append( ( 'Creators', string.join(
+            self.Creators(), '; ' ) ) )
         hdrlist.append( ( 'Effective_date', self.EffectiveDate() ) )
         hdrlist.append( ( 'Expiration_date', self.ExpirationDate() ) )
         hdrlist.append( ( 'Type', self.Type() ) )

@@ -34,7 +34,7 @@ from Testing.ZopeTestCase.functional import Functional
 try:
     import Products.CMFPlone
 except ImportError:
-    HAS_PLONE = False
+    HAS_PLONE = HAS_PLONE21 = False
 else:
     HAS_PLONE = True
     try:
@@ -95,14 +95,14 @@ class ATTestCase(ZopeTestCase.ZopeTestCase):
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests
     """
-    __implements__ = Functional.__implements__ + ATTestCase.__implements__ 
+    __implements__ = Functional.__implements__ + ATTestCase.__implements__
 
 from Testing.ZopeTestCase import user_name
 from Testing.ZopeTestCase import user_password
 default_user = user_name
 default_role = 'Member'
 
-    
+
 __all__ = ('USE_PLONETESTCASE', 'HAS_PLONE',
            'default_user', 'default_role', 'user_name', 'user_password',
            'ATTestCase', 'ATFunctionalTestCase', )

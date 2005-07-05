@@ -296,7 +296,7 @@ class DisplayList:
 
     Install warning hook for the next tests since they will raise a warning
     and I don't want to spoil the logs.
-    >>> from Testing.ZopeTestCase.warnhook import WarningsHook
+    >>> from Testing.ZopeTestCase import WarningsHook
     >>> w = WarningsHook(); w.install()
 
     Using ints as DisplayList keys works but will raise an deprecation warning

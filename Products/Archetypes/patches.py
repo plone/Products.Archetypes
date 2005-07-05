@@ -24,6 +24,10 @@ from Products.CMFCore.PortalContent import PortalContent
 PortalContent._at_orig_notifyOfCopyTo = PortalContent._notifyOfCopyTo
 PortalContent._notifyOfCopyTo = _notifyOfCopyTo
 
-from Products.CMFCore.PortalFolder import PortalFolder
+try:
+    from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
+except:
+    from Products.CMFCore.PortalFolder import PortalFolder
+
 PortalFolder._at_orig_notifyOfCopyTo = PortalFolder._notifyOfCopyTo
 PortalFolder._notifyOfCopyTo = _notifyOfCopyTo

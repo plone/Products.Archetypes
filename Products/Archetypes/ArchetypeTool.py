@@ -92,6 +92,13 @@ base_factory_type_information = (
       , 'global_allow': True
       , 'filter_content_types': False
       , 'allow_discussion': False
+      , 'aliases' : {'(Default)' : '',
+                     'view' : '',
+                     'index.html' : '',
+                     'edit' : 'base_edit',
+                     'gethtml' : '',
+                     'mkdir' : '',
+                     }
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -179,16 +186,16 @@ def fixActionsForType(portal_type, typesTool):
                     else:
                         new.append(action)
 
-            # Update Aliases
-            if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-                if (hasattr(portal_type, 'aliases') and
-                    hasattr(typeInfo, 'setMethodAliases')):
-                    typeInfo.setMethodAliases(portal_type.aliases)
-                else:
-                    # Custom views might need to reguess the aliases
-                    if hasattr(typeInfo, '_guessMethodAliases'):
-                        typeInfo._guessMethodAliases()
-
+            # the code was moved to modify_fti()
+            ## Update Aliases
+            #if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
+            #    if (hasattr(portal_type, 'aliases') and
+            #        hasattr(typeInfo, 'setMethodAliases')):
+            #        typeInfo.setMethodAliases(portal_type.aliases)
+            #    else:
+            #        # Custom views might need to reguess the aliases
+            #        if hasattr(typeInfo, '_guessMethodAliases'):
+            #            typeInfo._guessMethodAliases()
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
 
@@ -250,6 +257,33 @@ def modify_fti(fti, klass, pkg_name):
             if action['id'] != 'folderlisting':
                 actions.append(action)
         fti[0]['actions'] = tuple(actions)
+        
+    # CMF 1.5 method aliases
+    if getattr(klass, 'aliases', None):
+        aliases = klass.aliases
+        if not isinstance(aliases, dict):
+            raise TypeError, "Invalid type for method aliases in class %s" % klass
+        for required in ('(Default)', 'view',):
+            if required not in aliases:
+                raise ValueError, "Alias %s is required but not provied by %s" % (
+                                  required, klass)
+        fti[0]['aliases'] = aliases 
+        
+    # Dynamic View FTI support
+    if getattr(klass, 'default_view', None):
+        default_view = klass.default_view
+        if not isinstance(default_view, basestring):
+            raise TypeError, "Invalid type for default view in class %s" % klass
+        fti[0]['default_view'] = default_view
+        fti[0]['view_methods'] = (default_view, )
+        
+        if getattr(klass, 'suppl_views', None):
+            suppl_views = klass.suppl_views
+            if not isinstance(suppl_views, (list, tuple)):
+                raise TypeError, "Invalid type for suppl views in class %s" % klass
+            if not default_view in suppl_views:
+                suppl_views = suppl_views + (default_view, )
+            fti[0]['view_methods'] = suppl_views
 
 def process_types(types, pkg_name):
     content_types = ()
@@ -587,14 +621,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
-    security.declareProtected(CMFCorePermissions.View, 'isTemplateEnabled')
-    def isTemplateEnabled(self, type):
-        """Checks if an type uses ITemplateMixin.
-        """
-        if isinstance(type, dict) and type.has_key('klass'):
-            type = type['klass']
-        return ITemplateMixin.isImplementedByInstancesOf(type)
-
     security.declareProtected(CMFCorePermissions.ManagePortal, 'bindTemplate')
     def bindTemplate(self, portal_type, templateList):
         """Creates binding between a type and its associated views.
@@ -620,34 +646,56 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
     
-    security.declareProtected(CMFCorePermissions.View, 'getRegisteredArchetypesByMetaType')
-    def getRegisteredArchetypesByMetaType(self):
-        """ Returns a dictionary with meta_type as key, TypeInfo as value """
-        registered_archetypes_by_meta_type = {}
-        for t in listTypes():
-            registered_archetypes_by_meta_type[t['meta_type']]=t    
-        return registered_archetypes_by_meta_type
+    security.declareProtected(CMFCorePermissions.View, 'typeImplementsInterfaces')
+    def typeImplementsInterfaces(self, type, interfaces):
+        """Checks if an type uses one of the given interfaces.
+        """
+        if isinstance(type, dict) and type.has_key('klass'):
+            type = type['klass']
+        for iface in interfaces:
+            res = iface.isImplementedByInstancesOf(type)
+            if res:
+                return True
+        return False
     
+    security.declareProtected(CMFCorePermissions.View, 'isTemplateEnabled')
+    def isTemplateEnabled(self, type):
+        """Checks if an type uses ITemplateMixin.
+        """
+        return self.typeImplementsInterfaces(type, [ITemplateMixin])
+        
     security.declareProtected(CMFCorePermissions.View, 'listTemplateEnabledPortalTypes')
     def listTemplateEnabledPortalTypes(self):
         """Return a list of portal_types with ITemplateMixin
-        """    
-        tt = getToolByName(self, 'portal_types')
-        if tt is None:
-            return []
+        """
+        return self.listPortalTypesWithInterfaces([ITemplateMixin])
         
-        ftis = tt.listTypeInfo()
-        registered_archetypes_by_meta_type = self.getRegisteredArchetypesByMetaType()
+    security.declareProtected(CMFCorePermissions.View, 'listPortalTypesWithInterfaces')
+    def listPortalTypesWithInterfaces(self, ifaces):
+        """Returns a list of ftis of which the types implement one of
+        the given interfaces.  Only returns AT types.
+
+        Get a list of FTIs of types implementing IReferenceable:
+        >>> tool = getToolByName(self.portal, TOOL_NAME)
+        >>> meth = tool.listPortalTypesWithInterfaces
+        >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
         
-        template_mixin_enabled_ftis = []
-        for fti in ftis:
-            fti_meta_type = fti.content_meta_type
-            if fti_meta_type in registered_archetypes_by_meta_type.keys()  and \
-               self.isTemplateEnabled(registered_archetypes_by_meta_type[fti_meta_type]):
-                template_mixin_enabled_ftis.append(fti)
-                
-        return template_mixin_enabled_ftis
-                  
+        Sort the type ids and print them:
+        >>> type_ids = [fti.getId() for fti in ftis]
+        >>> type_ids.sort()
+        >>> type_ids
+        ['ATBIFolder', 'ComplexType', ...]
+        """
+        pt = getToolByName(self, 'portal_types')
+        value = []
+        for data in listTypes():
+            klass = data['klass']
+            for iface in ifaces:
+                if iface.isImplementedByInstancesOf(klass):
+                    ti = pt.getTypeInfo(data['portal_type'])
+                    if ti is not None:
+                        value.append(ti)
+        return value
 
     # Type/Schema Management
     security.declareProtected(CMFCorePermissions.View, 'listRegisteredTypes')
@@ -739,17 +787,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # have been called
         typeDesc = getType(typeName, package)
         process_types([typeDesc], package)
+        klass = typeDesc['klass']
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
+        fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
+        if not fti_meta_type:
+            fti_meta_type = FactoryTypeInformation.meta_type
 
-        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
+        typesTool.manage_addTypeInformation(fti_meta_type,
                                             id=typeName,
                                             typeinfo_name=typeinfo_name)
         t = getattr(typesTool, typeName, None)
         if t:
-            t.title = getattr(typeDesc['klass'], 'archetype_name',
+            t.title = getattr(klass, 'archetype_name',
                               typeDesc['portal_type'])
 
         # and update the actions as needed
-        fixActionsForType(typeDesc['klass'], typesTool)
+        fixActionsForType(klass, typesTool)
 
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url() +

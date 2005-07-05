@@ -77,17 +77,19 @@ def install_uidcatalog(self, out, rebuild=False):
     index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
-                 ('Title', 'FieldIndex'),
+                 ('Title', 'FieldIndex'), # used for sorting
                  ('portal_type', 'FieldIndex'),
                )
-
+    metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
+    reindex = False
     catalog = getToolByName(self, UID_CATALOG, None)
-    if catalog and not IUIDCatalog.isImplementedBy(catalog):
+    
+    if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
         parent = getToolByName(self, "portal_url").getPortalObject()
         parent.manage_delObjects([UID_CATALOG,])
         catalog = None
-        rebuild = 1
+        rebuild = True
 
     if catalog is None:
         #Add a zcatalog for uids
@@ -96,18 +98,21 @@ def install_uidcatalog(self, out, rebuild=False):
         catalog = getToolByName(self, UID_CATALOG)
         print >>out, 'Installing uid catalog'
 
-    #catalog = getToolByName(self, UID_CATALOG)
     for indexName, indexType in index_defs:
         try: #ugly try catch XXX FIXME
             if indexName not in catalog.indexes():
                 catalog.addIndex(indexName, indexType, extra=None)
-            if not indexName in catalog.schema():
-                catalog.addColumn(indexName)
+                reindex = True
         except:
             pass
 
-    catalog.manage_reindexIndex()
-    if rebuild:
+    for metadata in metadata_defs:
+        if not indexName in catalog.schema():
+            catalog.addColumn(metadata)
+            reindex = True
+    if reindex:
+        catalog.manage_reindexIndex()
+    elif rebuild:
         catalog.manage_rebuildCatalog()
 
 def install_referenceCatalog(self, out, rebuild=False):
@@ -222,28 +227,33 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
     folderish = []
-    for type in types:
+    for klass in types:
         try:
-            typesTool._delObject(type.portal_type)
+            typesTool._delObject(klass.portal_type)
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, type.meta_type)
+        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
+        fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
+        if not fti_meta_type:
+            fti_meta_type = FactoryTypeInformation.meta_type
 
-        typesTool.manage_addTypeInformation(FactoryTypeInformation.meta_type,
-                                                id=type.portal_type,
-                                                typeinfo_name=typeinfo_name)
+        typesTool.manage_addTypeInformation(fti_meta_type,
+                                            id=klass.portal_type,
+                                            typeinfo_name=typeinfo_name)
         # Set the human readable title explicitly
-        t = getattr(typesTool, type.portal_type, None)
+        t = getattr(typesTool, klass.portal_type, None)
         if t:
-            t.title = type.archetype_name
+            t.title = klass.archetype_name
 
         # If the class appears folderish and the 'use_folder_tabs' is
         # not set to a false value, then we add the portal_type to
         # Plone's 'use_folder_tabs' property
-        use_folder_tabs = type.isPrincipiaFolderish and getattr(type, 'use_folder_tabs', 1)
+        use_folder_tabs = klass.isPrincipiaFolderish and getattr(klass, 'use_folder_tabs', 1)
         if use_folder_tabs:
-            folderish.append(type.portal_type)
+            folderish.append(klass.portal_type)
     if folderish:
         pt = getToolByName(self, 'portal_properties', None)
         if pt is None:
@@ -379,11 +389,15 @@ def filterTypes(self, out, types, package_name):
     for rti in types:
         t = rti['klass']
 
+        # CMF 1.4 name: (product_id, metatype)
         typeinfo_name="%s: %s" % (package_name, t.meta_type)
+        # CMF 1.5 name: (product_id, id, metatype)
+        typeinfo_name2="%s: %s (%s)" % (package_name, t.__name__, t.meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:
-            if name == typeinfo_name:
+            #if name.startswith(typeinfo_name):
+            if name in (typeinfo_name, typeinfo_name2):
                 found = 1
                 break
 

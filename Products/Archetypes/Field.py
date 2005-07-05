@@ -206,6 +206,7 @@ class Field(DefaultLayerContainer):
     security = ClassSecurityInfo()
 
     _properties = {
+        'old_field_name':None,
         'required' : False,
         'default' : None,
         'default_method' : None,
@@ -1034,15 +1035,11 @@ class FileField(ObjectField):
         """
         if isinstance(value, self.content_class):
             return value
-
         mimetype = kwargs.get('mimetype', self.default_content_type)
         filename = kwargs.get('filename', '')
-        if type(value) not in StringTypes:
-            value=str(value)            
-
         obj = self._make_file(self.getName(), title='',
                               file=value, instance=instance)
-        setattr(obj, 'filename', filename) # filename or self.getName())
+        setattr(obj, 'filename', filename)
         setattr(obj, 'content_type', mimetype)
         try:
             delattr(obj, 'title')
@@ -1662,7 +1659,7 @@ class ReferenceField(ObjectField):
             return ObjectField.Vocabulary(self, content_instance)
         else:
             return self._Vocabulary(content_instance).sortedByValue()
-        
+
     def _brains_title_or_id(self, brain, instance):
         """ ensure the brain has a title or an id and return it as unicode"""
         brain =  aq_base(brain)
@@ -1670,7 +1667,7 @@ class ReferenceField(ObjectField):
         if ret is not None and type(ret) in StringTypes:
             return decode(ret, instance)
         assert("problem with catalog, brain has not Title nor id")
-            
+
 
     def _Vocabulary(self, content_instance):
         pairs = []
@@ -1693,7 +1690,7 @@ class ReferenceField(ObjectField):
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = i18n.translate(domain='archetypes', msgid='label_at',
                                 context=content_instance, default='at')
-            label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance), 
+            label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance),
                                              at, b.getPath())
         else:
             label = lambda b:self._brains_title_or_id(b, content_instance)
@@ -1968,7 +1965,7 @@ class ImageField(FileField):
         object/image_normal
         object/image_big
         object/image_maxi
-        
+
         the official API to get tag (in a pagetemplate) is
         obj.getField('image').tag(obj, scale='mini')
         ...
@@ -2023,7 +2020,6 @@ class ImageField(FileField):
         value, mimetype, filename = self._process_input(value,
                                                       default=self.getDefault(instance),
                                                       **kwargs)
-        #print type(value), mimetype, filename
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
@@ -2041,7 +2037,7 @@ class ImageField(FileField):
                 log_exc()
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, imgdata, **kwargs)
-        self.createScales(instance)
+        self.createScales(instance, value=imgdata)
 
     def _updateKwargs(self, instance, value, **kwargs):
         # get filename from kwargs, then from the value
@@ -2104,6 +2100,8 @@ class ImageField(FileField):
                 image = self.content_class(self.getName(), self.getName(),
                                          value, mimetype)
                 data = str(image.data)
+                if not data:
+                    return self.default
                 w=h=0
                 if self.max_size:
                     if image.width > self.max_size[0] or \
@@ -2116,7 +2114,7 @@ class ImageField(FileField):
                     w,h = self.original_size
                 if w and h:
                     __traceback_info__ = (self, value, w, h)
-                    fvalue, format = self.scale(data,w,h)
+                    fvalue, format = self.scale(data, w, h)
                     value = fvalue.read()
         return value
 
@@ -2124,7 +2122,10 @@ class ImageField(FileField):
     def createOriginal(self, instance, value, **kwargs):
         """create the original image (save it)
         """
-        image = self._wrapValue(instance, value, **kwargs)
+        if value:
+            image = self._wrapValue(instance, value, **kwargs)
+        else:
+            image = self.default
 
         ObjectField.set(self, instance, image, **kwargs)
 
@@ -2148,19 +2149,27 @@ class ImageField(FileField):
                     pass
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'createScales')
-    def createScales(self, instance):
+    def createScales(self, instance, value=_marker):
         """creates the scales and save them
         """
         sizes = self.getAvailableSizes(instance)
         if not HAS_PIL or not sizes:
             return
-        img = self.getRaw(instance)
-        if not img:
+        # get data from the original size if value is None
+        if value is _marker:
+            img = self.getRaw(instance)
+            if not img:
+                return
+            data = str(img.data)
+        else:
+            data = value
+
+        # empty string - stop rescaling because PIL fails on an empty string
+        if not data:
             return
+
         filename = self.getFilename(instance)
-        #dot = filename.rfind('.')
-        #filename, ext = filename[:dot], filename[dot:]
-        data = str(img.data)
+
         for n, size in sizes.items():
             w, h = size
             id = self.getName() + "_" + n
@@ -2176,7 +2185,8 @@ class ImageField(FileField):
                     log_exc()
                     # scaling failed, don't create a scaled version
                     continue
-            mimetype = 'image/%s' % format
+
+            mimetype = 'image/%s' % format.lower()
             image = self.content_class(id, self.getName(),
                                      imgdata,
                                      mimetype
@@ -2191,7 +2201,7 @@ class ImageField(FileField):
                                           mimetype=mimetype, filename=filename)
 
     security.declarePrivate('scale')
-    def scale(self, data, w, h):
+    def scale(self, data, w, h, default_format = 'PNG'):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
         size = int(w), int(h)
@@ -2217,7 +2227,7 @@ class ImageField(FileField):
         image.thumbnail(size, pilfilter)
         # XXX: tweak to make the unit test
         #      test_fields.ProcessingTest.test_processing_fieldset run
-        format = image.format and image.format or 'PNG'
+        format = image.format and image.format or default_format
         # decided to only preserve palletted mode
         # for GIF, could also use image.format in ('GIF','PNG')
         if original_mode == 'P' and format == 'GIF':
@@ -2700,3 +2710,4 @@ registerPropertyType('widget', 'widget')
 registerPropertyType('validators', 'validators')
 registerPropertyType('storage', 'storage')
 registerPropertyType('index', 'string')
+registerPropertyType('old_field_name', 'string')

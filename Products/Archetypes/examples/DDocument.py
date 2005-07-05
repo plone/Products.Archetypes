@@ -46,6 +46,12 @@ class DDocument(TemplateMixin, BaseContent):
     schema = schema
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
+    
+    def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
+                        filename, REQUEST, RESPONSE):
+        """For unit tests
+        """
+        self.called_afterPUT_hook = True
 
 
 registerType(DDocument, PKG_NAME)

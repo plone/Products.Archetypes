@@ -80,7 +80,9 @@
           </label>
           <span class="fieldRequired"
                 tal:condition="field/required"
-                title="Required">
+                title="Required"
+                i18n:translate="label_required"
+                i18n:attributes="title title_required;">
             (Required)
           </span>
           <div class="formHelp"
@@ -105,7 +107,8 @@
           </span>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:content="error_id" i18n:translate="">Validation Error</div>
+            <div tal:condition="error_id"
+                 tal:content="error_id" i18n:translate="">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
         </div>

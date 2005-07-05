@@ -20,13 +20,13 @@
 	    <strong>Cites</strong>
 	    <br />
 	    <div class="odd" tal:repeat="ref refs">
-	      <a href="#" tal:attributes="href python:ref.getTargetObject().absolute_url()"><img tal:attributes="src python: ref.getTargetObject().getIcon()"/> <span tal:content="python: ref.getTargetObject().Title()"/></a>
+	      <a href="#" tal:attributes="href python:ref.getTargetObject().absolute_url()"><img alt="" src="#" tal:attributes="src python: ref.getTargetObject().getIcon()"/> <span tal:content="python: ref.getTargetObject().Title()"/></a>
 	    </div>
 	  </div>
 	  <div tal:condition="brefs">
 	    <strong>Cited By</strong>
 	    <div class="even" tal:repeat="ref brefs">
-	      <a href="#" tal:attributes="href python:ref.getSourceObject().absolute_url()"><img tal:attributes="src python: ref.getSourceObject().getIcon()"/> <span tal:content="python: ref.getSourceObject().Title()"/></a>
+	      <a href="#" tal:attributes="href python:ref.getSourceObject().absolute_url()"><img alt="" src="#" tal:attributes="src python: ref.getSourceObject().getIcon()"/> <span tal:content="python: ref.getSourceObject().Title()"/></a>
 	    </div>
 	  </div>
 	</div>

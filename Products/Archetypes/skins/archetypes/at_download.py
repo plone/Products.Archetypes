@@ -1,4 +1,4 @@
-## Script (Python) "download"
+## Script (Python) "at_download"
 ##title=Download a file keeping the original uploaded filename
 ##bind container=container
 ##bind context=context

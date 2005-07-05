@@ -18,10 +18,12 @@ class CatalogMultiplex(CMFCatalogAware):
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
         at = getToolByName(self, TOOL_NAME, None)
-        if not at: return
+        if at is None:
+            return
         catalogs = at.getCatalogsByType(self.meta_type)
+        url = self.__url()
         for c in catalogs:
-            c.catalog_object(self, self.__url())
+            c.catalog_object(self, url)
 
         self._catalogUID(self)
         self._catalogRefs(self)
@@ -30,8 +32,9 @@ class CatalogMultiplex(CMFCatalogAware):
     def unindexObject(self):
         at = getToolByName(self, TOOL_NAME)
         catalogs = at.getCatalogsByType(self.meta_type)
+        url = self.__url()
         for c in catalogs:
-            c.uncatalog_object(self.__url())
+            c.uncatalog_object(url)
         
         # Specially control reindexing to UID catalog
         # the pathing makes this needed
@@ -45,10 +48,12 @@ class CatalogMultiplex(CMFCatalogAware):
                 self.notifyModified()
 
         at = getToolByName(self, TOOL_NAME, None)
-        if at is None: return
+        if at is None:
+            return
 
         catalogs = at.getCatalogsByType(self.meta_type)
-
+        url = self.__url()
+        
         for c in catalogs:
             if c is not None:
                 #We want the intersection of the catalogs idxs
@@ -57,7 +62,7 @@ class CatalogMultiplex(CMFCatalogAware):
                 indexes = c.indexes()
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
-                c.catalog_object(self, self.__url(), idxs=lst)
+                c.catalog_object(self, url, idxs=lst)
 
         self._catalogUID(self)
         self._catalogRefs(self)

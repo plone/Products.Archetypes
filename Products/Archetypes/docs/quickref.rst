@@ -319,7 +319,7 @@ regular-expression based, and not that rigorous. The validators and the
 conditions they test are:
 
 BaseValidators
-``````````````
+**************
 
 inNumericRange
   The argument must be numeric. The validator should be called with the
@@ -365,7 +365,7 @@ isUnixLikeName
 
 
 EmptyValidator
-``````````````
+**************
 
 isEmpty
   The argument must be empty (where *empty* may be defined by a marker
@@ -379,7 +379,7 @@ isEmptyNoError
 
 
 SupplValidators
-```````````````
+***************
 
 isMaxSize
   Tests if an upload, file or something supporting len() is smaller than
@@ -506,8 +506,8 @@ generated View, like the header or footer, you can:
 
 1. Create a template named ``${your_portal_type_lowercase}_view`` [#]_
 
-.. [#] Currently, this is only implemented for the auto-generated
-   ``view`` template.
+   .. [#] Currently, this is only implemented for the auto-generated
+       ``view`` template.
 
 2. On this template, you may provide the following macros::
 
