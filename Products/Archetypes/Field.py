@@ -97,70 +97,6 @@ CHUNK = 1 << 14
 
 __docformat__ = 'reStructuredText'
 
-def _old_process_input(self, value, default=None,
-                       mimetype=None, **kwargs):
-    # We also need to handle the case where there is a baseUnit
-    # for this field containing a valid set of data that would
-    # not be reuploaded in a subsequent edit, this is basically
-    # migrated from the old BaseObject.set method
-    if not (isinstance(value, FileUpload) or type(value) is FileType) \
-      and shasattr(value, 'read') and shasattr(value, 'seek'):
-        # support StringIO and other file like things that aren't either
-        # files or FileUploads
-        value.seek(0) # rewind
-        kwargs['filename'] = getattr(value, 'filename', '')
-        mimetype = getattr(value, 'mimetype', None)
-        value = value.read()
-    if isinstance(value, Pdata):
-        # Pdata is a chain of Pdata objects but we can easily use str()
-        # to get the whole string from a chain of Pdata objects
-        value = str(value)
-    if type(value) in STRING_TYPES:
-        filename = kwargs.get('filename', '')
-        if mimetype is None:
-            mimetype, enc = guess_content_type(filename, value, mimetype)
-        if not value:
-            return default, mimetype, filename
-        return value, mimetype, filename
-    elif IBaseUnit.isImplementedBy(value):
-        return value.getRaw(), value.getContentType(), value.getFilename()
-
-    value = aq_base(value)
-
-    if ((isinstance(value, FileUpload) and value.filename != '') or
-          (type(value) is FileType and value.name != '')):
-        filename = ''
-        if isinstance(value, FileUpload) or shasattr(value, 'filename'):
-            filename = value.filename
-        if isinstance(value, FileType) or shasattr(value, 'name'):
-            filename = value.name
-        # Get only last part from a 'c:\\folder\\file.ext'
-        filename = filename.split('\\')[-1]
-        value.seek(0) # rewind
-        value = value.read()
-        if mimetype is None:
-            mimetype, enc = guess_content_type(filename, value, mimetype)
-        size = len(value)
-        if size == 0:
-            # This new file has no length, so we keep the orig
-            return default, mimetype, filename
-        else:
-            return value, mimetype, filename
-
-    if isinstance(value, File):
-        # OFS.Image.File based
-        filename = value.filename
-        mimetype = value.content_type
-        data = value.data
-        if len(data) == 0:
-            return default, mimetype, filename
-        else:
-            return data, mimetype, filename
-
-    klass = getattr(value, '__class__', None)
-    raise FileFieldException('Value is not File or String (%s - %s)' %
-                             (type(value), klass))
-
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
@@ -864,12 +800,11 @@ class FileField(ObjectField):
         file = self.get(instance)
         return file.content_type
 
-    def _process_input(self, value, file=None, default=None,
-                       mimetype=None, instance=None, **kwargs):
+    def _process_input(self, value, file=None, default=None, mimetype=None,
+                       instance=None, filename='', **kwargs):
         if file is None:
             file = self._make_file(self.getName(), title='',
                                    file='', instance=instance)
-        filename = kwargs.get('filename') or ''
         if IBaseUnit.isImplementedBy(value):
             mimetype = value.getContentType() or mimetype
             filename = value.getFilename() or filename
@@ -921,9 +856,11 @@ class FileField(ObjectField):
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
-                d, f, mimetype = mtr(body, **kw)
+                d, f, mimetype = mtr(body[:8096], **kw)
             else:
-                mimetype, enc = guess_content_type(filename, body, mimetype)
+                mimetype = getattr(file, 'content_type', None)
+                if mimetype is None:
+                    mimetype, enc = guess_content_type(filename, body, mimetype)
         # mimetype, if coming from request can be like:
         # text/plain; charset='utf-8'
         mimetype = str(mimetype).split(';')[0].strip()
@@ -963,7 +900,7 @@ class FileField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
-        if not isinstance(value, self.content_class):
+        if value and not isinstance(value, self.content_class):
             value = self._wrapValue(instance, value)
         if (shasattr(value, '__of__', acquire=True)
             and not kwargs.get('unwrapped', False)):
@@ -1683,7 +1620,7 @@ class ReferenceField(ObjectField):
 
         skw = allowed_types and {'portal_type':allowed_types} or {}
         brains = uc.searchResults(**skw)
-        #import pdb;pdb.set_trace()
+
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
         #elif len(brains) > self.vocabulary_display_path_bound:
@@ -2000,13 +1937,13 @@ class ImageField(FileField):
 
     default_view = "view"
 
-    _process_input = _old_process_input
+    #_process_input = _old_process_input
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         if not value:
             return
-
+        
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
             self.removeScales(instance, **kwargs)
@@ -2014,54 +1951,58 @@ class ImageField(FileField):
             ObjectField.unset(self, instance, **kwargs)
             return
 
-        if not kwargs.has_key('mimetype'):
-            kwargs['mimetype'] = None
-
-        value, mimetype, filename = self._process_input(value,
-                                                      default=self.getDefault(instance),
-                                                      **kwargs)
-
+        kwargs.setdefault('mimetype', None)
+        default = self.getDefault(instance)
+        value, mimetype, filename = self._process_input(value, default=default,
+                                                        instance=instance, **kwargs)
+        # value is an OFS.Image.File based instance
+        # don't store empty images
+        size = getattr(value, 'size', None)
+        if size == 0:
+            return
+        
+        import pdb; pdb.set_trace()
+        
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 
-        kwargs = self._updateKwargs(instance, value, **kwargs)
         try:
-            imgdata = self.rescaleOriginal(value, **kwargs)
+            data = self.rescaleOriginal(value, **kwargs)
         except ConflictError:
             raise
         except:
             if not self.swallowResizeExceptions:
                 raise
             else:
-                imgdata = value
                 log_exc()
+                data = str(value.data)
         # XXX add self.ZCacheable_invalidate() later
-        self.createOriginal(instance, imgdata, **kwargs)
-        self.createScales(instance, value=imgdata)
+        self.createOriginal(instance, data, **kwargs)
+        self.createScales(instance, value=data)
 
-    def _updateKwargs(self, instance, value, **kwargs):
-        # get filename from kwargs, then from the value
-        # if no filename is available set it to ''
-        vfilename = getattr(value, 'filename', '')
-        kfilename = kwargs.get('filename', '')
-        if kfilename:
-            filename = kfilename
-        else:
-            filename = vfilename
-        kwargs['filename'] = filename
-
-        # set mimetype from kwargs, then from the field itself
-        # if no mimetype is available set it to 'image/png'
-        kmimetype = kwargs.get('mimetype', None)
-        if kmimetype:
-            mimetype = kmimetype
-        else:
-            try:
-                mimetype = self.getContentType(instance)
-            except RuntimeError:
-                mimetype = None
-        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
-        return kwargs
+#    def _updateKwargs(self, instance, value, **kwargs):
+#        # get filename from kwargs, then from the value
+#        # if no filename is available set it to ''
+#        vfilename = getattr(value, 'filename', '')
+#        kfilename = kwargs.get('filename', '')
+#        if kfilename:
+#            filename = kfilename
+#        else:
+#            filename = vfilename
+#        kwargs['filename'] = filename
+#
+#        # set mimetype from kwargs, then from the field itself
+#        # if no mimetype is available set it to 'image/png'
+#        kmimetype = kwargs.get('mimetype', None)
+#        if kmimetype:
+#            mimetype = kmimetype
+#        else:
+#            try:
+#                mimetype = self.getContentType(instance)
+#            except RuntimeError:
+#                mimetype = None
+#        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
+#        return kwargs
 
     security.declareProtected(CMFCorePermissions.View, 'getAvailableSizes')
     def getAvailableSizes(self, instance):
@@ -2093,30 +2034,33 @@ class ImageField(FileField):
         """rescales the original image and sets the data
 
         for self.original_size or self.max_size
+        
+        value must be an OFS.Image.Image instance
         """
         mimetype = kwargs.get('mimetype', 'image/png')
         if HAS_PIL:
             if self.original_size or self.max_size:
-                image = self.content_class(self.getName(), self.getName(),
-                                         value, mimetype)
-                data = str(image.data)
-                if not data:
+                if not value:
                     return self.default
                 w=h=0
                 if self.max_size:
-                    if image.width > self.max_size[0] or \
-                           image.height > self.max_size[1]:
-                        factor = min(float(self.max_size[0])/float(image.width),
-                                     float(self.max_size[1])/float(image.height))
-                        w = int(factor*image.width)
-                        h = int(factor*image.height)
+                    if value.width > self.max_size[0] or \
+                           value.height > self.max_size[1]:
+                        factor = min(float(self.max_size[0])/float(value.width),
+                                     float(self.max_size[1])/float(value.height))
+                        w = int(factor*value.width)
+                        h = int(factor*value.height)
                 elif self.original_size:
                     w,h = self.original_size
                 if w and h:
                     __traceback_info__ = (self, value, w, h)
-                    fvalue, format = self.scale(data, w, h)
-                    value = fvalue.read()
-        return value
+                    fvalue, format = self.scale(value, w, h)
+                    data = fvalue.read()
+            else:
+                data = str(value.data)
+        else:
+            data = str(value.data)
+        return data
 
     security.declarePrivate('createOriginal')
     def createOriginal(self, instance, value, **kwargs):

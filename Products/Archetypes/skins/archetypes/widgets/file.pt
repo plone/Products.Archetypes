@@ -111,7 +111,7 @@
                                id string:${fieldName}_file;
                                tabindex tabindex/next;" />
         <script type="text/javascript" 
-                    tal:content="string: document.getElementById('${fieldName}_file').disabled=true;">
+                    tal:content="string: document.getElementById('${fieldName}_file').disabled=false;">
         </script>
     </metal:define>
 

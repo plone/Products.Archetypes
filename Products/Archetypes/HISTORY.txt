@@ -1,6 +1,11 @@
 1.3.4-beta2 - 2005-07-06
 ========================
 
+  * Fixed outstanding errors with ImageField. ImageField is now using the same api
+    and processing methods as FileField. Empty images are neither created nor
+    returned by the accessor/mutator.
+    [tiran]
+
   * Added a wrapper for indexing object in the uid catalog to fix unicode
     issues.
     [tiran]
