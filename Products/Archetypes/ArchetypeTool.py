@@ -92,13 +92,14 @@ base_factory_type_information = (
       , 'global_allow': True
       , 'filter_content_types': False
       , 'allow_discussion': False
-      #, 'aliases' : {'(Default)' : 'base_view',
-      #               'view' : 'base_view',
-      #               'index.html' : 'base_view',
-      #               'edit' : 'base_edit',
-      #               'gethtml' : '',
-      #               'mkdir' : '',
-      #               }
+      , 'fti_meta_type' : FactoryTypeInformation.meta_type
+      , 'aliases' : {'(Default)' : '',
+                     'view' : '',
+                     'index.html' : '',
+                     'edit' : 'base_edit',
+                     'gethtml' : '',
+                     'mkdir' : '',
+                     }
       , 'actions': (
                      { 'id': 'view',
                        'name': 'View',
@@ -196,7 +197,6 @@ def fixActionsForType(portal_type, typesTool):
             #        # Custom views might need to reguess the aliases
             #        if hasattr(typeInfo, '_guessMethodAliases'):
             #            typeInfo._guessMethodAliases()
-
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
 
@@ -271,20 +271,28 @@ def modify_fti(fti, klass, pkg_name):
         fti[0]['aliases'] = aliases 
         
     # Dynamic View FTI support
-    if getattr(klass, 'default_view', None):
+    if getattr(klass, 'default_view', False):
         default_view = klass.default_view
         if not isinstance(default_view, basestring):
             raise TypeError, "Invalid type for default view in class %s" % klass
         fti[0]['default_view'] = default_view
         fti[0]['view_methods'] = (default_view, )
         
-        if getattr(klass, 'suppl_views', None):
+        if getattr(klass, 'suppl_views', False):
             suppl_views = klass.suppl_views
             if not isinstance(suppl_views, (list, tuple)):
                 raise TypeError, "Invalid type for suppl views in class %s" % klass
             if not default_view in suppl_views:
                 suppl_views = suppl_views + (default_view, )
             fti[0]['view_methods'] = suppl_views
+    if getattr(klass, '_at_fti_meta_type', False):
+        fti[0]['fti_meta_type'] = klass._at_fti_meta_type
+    else:
+        if fti[0].get('fti_meta_type', False):
+            klass._at_fti_meta_type = fti[0]['fti_meta_type']
+        else:
+            fti[0]['fti_meta_type'] = FactoryTypeInformation.meta_type
+
 
 def process_types(types, pkg_name):
     content_types = ()
