@@ -43,6 +43,7 @@ DOCTEST_MODULES = (
     'Products.Archetypes.Schema',
     'Products.Archetypes.ArchetypeTool',
     'Products.Archetypes.AllowedTypesByIface',
+    'Products.Archetypes.Field',
     )
 
 DOCTEST_FILES = ()

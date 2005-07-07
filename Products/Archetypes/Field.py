@@ -1526,32 +1526,77 @@ class ReferenceField(ObjectField):
     def set(self, instance, value, **kwargs):
         """Mutator.
 
-        ``value`` is a list of UIDs or one UID string to which I will add a
-        reference to. None and [] are equal.
+        ``value`` is a either a list of UIDs or one UID string, or a
+        list of objects or one object to which I will add a reference
+        to. None and [] are equal.
 
-        Keyword arguments may be passed directly to addReference(), thereby
-        creating properties on the reference objects.
+        >>> for node in range(3):
+        ...     _ = self.folder.invokeFactory('Refnode', 'n%s' % node)
+
+        Use set with a list of objects:
+
+        >>> nodes = self.folder.n0, self.folder.n1, self.folder.n2
+        >>> nodes[0].setLinks(nodes)
+        >>> nodes[0].getLinks()
+        [<Refnode...>, <Refnode...>, <Refnode...>]
+
+        Use it with None or () to delete references:
+
+        >>> nodes[0].setLinks(None)
+        >>> nodes[0].getLinks()
+        []
+
+        Use a list of UIDs to set:
+        
+        >>> nodes[0].setLinks([n.UID() for n in nodes[1:]])
+        >>> nodes[0].getLinks()
+        [<Refnode...>, <Refnode...>]
+        >>> nodes[0].setLinks(())
+        >>> nodes[0].getLinks()
+        []
+
+        Setting multiple values for a non multivalued field will fail:
+        
+        >>> nodes[1].setLink(nodes)
+        ValueError...
+
+        Keyword arguments may be passed directly to addReference(),
+        thereby creating properties on the reference objects:
+        
+        >>> nodes[1].setLink(nodes[0].UID(), foo='bar', spam=1)
+        >>> ref = nodes[1].getReferenceImpl()[0]
+        >>> ref.foo, ref.spam
+        ('bar', 1)
+
+        Empty BTreeFolders work as values (#1212048):
+
+        >>> self.folder.invokeFactory('SimpleBTreeFolder', 'btf')
+        >>> nodes[2].setLink(self.folder.btf)
+        >>> nodes[2].getLink()
+        <SimpleBTreeFolder at /plone/Members/test_user_1_/btf>
         """
         tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
-        if (not self.multiValued and value and
-            type(value) not in (ListType, TupleType)):
-            value = (value,)
-
-        if not value:
+        if value is None:
             value = ()
 
-        #convertobjects to uids if necessary
-        uids=[]
+        if not isinstance(value, (ListType, TupleType)):
+            value = value,
+        elif not self.multiValued and len(value) > 1:
+            raise ValueError, \
+                  "Multiple values given for single valued field %r" % self
+
+        #convert objects to uids if necessary
+        uids = []
         for v in value:
             if type(v) in STRING_TYPES:
                 uids.append(v)
             else:
                 uids.append(v.UID())
 
-        add = [v for v in uids if v and v not in targetUIDs]
+        add = [v for v in uids if v not in targetUIDs]
         sub = [t for t in targetUIDs if t not in uids]
 
         # tweak keyword arguments for addReference
