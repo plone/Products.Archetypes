@@ -1961,8 +1961,6 @@ class ImageField(FileField):
         if size == 0:
             return
         
-        import pdb; pdb.set_trace()
-        
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 
