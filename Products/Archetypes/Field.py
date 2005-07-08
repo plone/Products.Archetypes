@@ -1596,7 +1596,7 @@ class ReferenceField(ObjectField):
             else:
                 uids.append(v.UID())
 
-        add = [v for v in uids if v not in targetUIDs]
+        add = [v for v in uids if v and v not in targetUIDs]
         sub = [t for t in targetUIDs if t not in uids]
 
         # tweak keyword arguments for addReference
