@@ -82,12 +82,15 @@ from Products.generator import i18n
 
 try:
     import PIL.Image
-    HAS_PIL=True
 except ImportError:
     # no PIL, no scaled versions!
     log("Warning: no Python Imaging Libraries (PIL) found."+\
         "Archetypes based ImageField's don't scale if neccessary.")
     HAS_PIL=False
+    PIL_ALGO = None
+else:
+    HAS_PIL=True
+    PIL_ALGO = PIL.Image.ANTIALIAS
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
@@ -792,13 +795,18 @@ class FileField(ObjectField):
         """Set mimetype in the base unit.
         """
         file = self.get(instance)
-        setattr(file, 'content_type', value)
-        self.set(instance, file)
+        try: 
+            # file might be None or an empty string
+            setattr(file, 'content_type', value)
+        except AttributeError:
+            pass
+        else:
+            self.set(instance, file)
 
     security.declarePublic('getContentType')
     def getContentType(self, instance, fromBaseUnit=True):
         file = self.get(instance)
-        return file.content_type
+        return getattr(file, 'content_type', self.default_content_type)
 
     def _process_input(self, value, file=None, default=None, mimetype=None,
                        instance=None, filename='', **kwargs):
@@ -1971,6 +1979,8 @@ class ImageField(FileField):
         'max_size': None,
         'sizes' : {'thumb':(80,80)},
         'swallowResizeExceptions' : False,
+        'pil_quality' : 88,
+        'pil_resize_algo' : PIL_ALGO, 
         'default_content_type' : 'image/png',
         'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
@@ -2080,29 +2090,31 @@ class ImageField(FileField):
         
         value must be an OFS.Image.Image instance
         """
-        mimetype = kwargs.get('mimetype', 'image/png')
-        if HAS_PIL:
-            if self.original_size or self.max_size:
-                if not value:
-                    return self.default
-                w=h=0
-                if self.max_size:
-                    if value.width > self.max_size[0] or \
-                           value.height > self.max_size[1]:
-                        factor = min(float(self.max_size[0])/float(value.width),
-                                     float(self.max_size[1])/float(value.height))
-                        w = int(factor*value.width)
-                        h = int(factor*value.height)
-                elif self.original_size:
-                    w,h = self.original_size
-                if w and h:
-                    __traceback_info__ = (self, value, w, h)
-                    fvalue, format = self.scale(value, w, h)
-                    data = fvalue.read()
-            else:
-                data = str(value.data)
+        if not HAS_PIL:
+            return str(value.data)
+        
+        mimetype = kwargs.get('mimetype', self.default_content_type)
+        
+        if self.original_size or self.max_size:
+            if not value:
+                return self.default
+            w=h=0
+            if self.max_size:
+                if value.width > self.max_size[0] or \
+                       value.height > self.max_size[1]:
+                    factor = min(float(self.max_size[0])/float(value.width),
+                                 float(self.max_size[1])/float(value.height))
+                    w = int(factor*value.width)
+                    h = int(factor*value.height)
+            elif self.original_size:
+                w,h = self.original_size
+            if w and h:
+                __traceback_info__ = (self, value, w, h)
+                fvalue, format = self.scale(value, w, h)
+                data = fvalue.read()
         else:
             data = str(value.data)
+            
         return data
 
     security.declarePrivate('createOriginal')
@@ -2112,7 +2124,7 @@ class ImageField(FileField):
         if value:
             image = self._wrapValue(instance, value, **kwargs)
         else:
-            image = self.default
+            image = self.getDefault(instance)
 
         ObjectField.set(self, instance, image, **kwargs)
 
@@ -2193,11 +2205,6 @@ class ImageField(FileField):
         #make sure we have valid int's
         size = int(w), int(h)
 
-        pilfilter = PIL.Image.NEAREST
-        #check for the pil version and enable antialias if > 1.1.3
-        if PIL.Image.VERSION >= "1.1.3":
-            pilfilter = PIL.Image.ANTIALIAS
-
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
         # consider image mode when scaling
@@ -2211,7 +2218,7 @@ class ImageField(FileField):
             image = image.convert('L')
         elif original_mode == 'P':
             image = image.convert('RGBA')
-        image.thumbnail(size, pilfilter)
+        image.thumbnail(size, self.pil_resize_algo)
         # XXX: tweak to make the unit test
         #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or default_format
@@ -2221,7 +2228,7 @@ class ImageField(FileField):
             image = image.convert('P')
         thumbnail_file = StringIO()
         # quality parameter doesn't affect lossless formats
-        image.save(thumbnail_file, format, quality=88)
+        image.save(thumbnail_file, format, quality=self.pil_quality)
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
 

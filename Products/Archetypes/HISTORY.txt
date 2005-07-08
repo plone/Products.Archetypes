@@ -1,6 +1,9 @@
 1.3.4-beta3
 ===========
 
+  * Added options for PIL quality and resize algo to ImageField.
+    [tiran] 
+
   * Fixed #1212048: ReferenceField "set" broken for
     BaseBTreeFolder-based objs.
     [dpunktnpunkt]
