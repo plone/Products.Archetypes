@@ -61,7 +61,7 @@
     <fieldset>
 
       <legend i18n:translate=""
-        tal:content="type_name|here/archetype_name" />
+        tal:content="here/archetype_name|type_name" />
 
       <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>

@@ -14,15 +14,16 @@
         Document actions (print, sendto etc)
     </div>
 
-    <h1 i18n:translate="heading_edit_item_fieldset">
-     Edit
-        <span i18n:name="itemtype">
-            <span i18n:translate=""
-                  tal:content="type_name|here/archetype_name"
-                  tal:omit-tag="">Item type</span>
+    <h1>
+        <span i18n:translate="heading_edit_item">Edit
+            <span i18n:name="itemtype">
+                <span i18n:translate=""
+                      tal:content="here/archetype_name|type_name"
+                      tal:omit-tag="">Item type</span>
+            </span>
         </span>
 
-        <span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'metadata'">
+        <span tal:condition="python:fieldset and fieldset != 'metadata'">
           [<span i18n:translate=""
                 tal:content="fieldset"
                 tal:omit-tag="">fieldset</span>]
