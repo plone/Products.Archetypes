@@ -55,6 +55,7 @@
   <form name="edit_form"
         method="post"
         enctype="multipart/form-data"
+        class="enableUnloadProtection"
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
     <fieldset>
@@ -97,7 +98,7 @@
          tabindex=""
          type="submit"
          name="Change"
-         i18n:attributes="value"
+         i18n:attributes="value label_save;"
          value="Save"
          tal:attributes="tabindex tabindex/next;" />
       </div>

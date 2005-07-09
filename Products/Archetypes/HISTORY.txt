@@ -1,6 +1,9 @@
 1.3.4-beta3
 ===========
 
+  * some minor i18n tweaks
+    [hannosch]
+
   * Added options for PIL quality and resize algo to ImageField.
     [tiran] 
 

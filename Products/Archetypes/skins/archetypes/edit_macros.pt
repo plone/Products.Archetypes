@@ -164,7 +164,7 @@
                        type="submit"
                        name="form_previous"
                        value="Previous"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_previous;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -174,7 +174,7 @@
                        type="submit"
                        name="form_next"
                        value="Next"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_next;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -183,7 +183,7 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_save;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -192,7 +192,7 @@
                        type="submit"
                        name="form.button.cancel"
                        value="Cancel"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_cancel;"
                        tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>
