@@ -14,11 +14,13 @@
         Document actions (print, sendto etc)
     </div>
 
-    <h1>
+    <h1 tal:define="fti here/getTypeInfo;
+                    type_title fti/Title|type_name;">
+
         <span i18n:translate="heading_edit_item">Edit
             <span i18n:name="itemtype">
                 <span i18n:translate=""
-                      tal:content="here/archetype_name|type_name"
+                      tal:content="type_title"
                       tal:omit-tag="">Item type</span>
             </span>
         </span>

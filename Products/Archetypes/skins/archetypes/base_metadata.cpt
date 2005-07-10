@@ -4,6 +4,8 @@
                    rejection here/rejectAnonymous;
                    tabindex tabindex|python:Iterator();
                    type_name here/getPortalTypeName|here/archetype_name;
+                   fti here/getTypeInfo;
+                   type_title fti/Title|type_name;
                    fieldset request/fieldset|options/fieldset|string:metadata;
                    schematas here/Schemata;
                    fields python:schematas[fieldset].fields();
@@ -61,7 +63,7 @@
     <fieldset>
 
       <legend i18n:translate=""
-        tal:content="here/archetype_name|type_name" />
+        tal:content="type_title" />
 
       <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
