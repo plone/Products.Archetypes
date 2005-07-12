@@ -23,6 +23,7 @@
                       tal:content="type_title"
                       tal:omit-tag="">Item type</span>
             </span>
+            Properties
         </span>
 
         <span tal:condition="python:fieldset and fieldset != 'metadata'">
@@ -32,7 +33,8 @@
         </span>
     </h1>
 
-      <p i18n:translate="description_edit_properties">
+      <p class="discreet"
+         i18n:translate="description_edit_properties">
     This information, also referred to as <em>metadata</em> is the
     collection of information that is used to categorize an object, assign
     effective dates and expiration dates, language, and keywords.

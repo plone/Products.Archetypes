@@ -60,11 +60,6 @@
         class="enableUnloadProtection"
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
-    <fieldset>
-
-      <legend i18n:translate=""
-        tal:content="type_title" />
-
       <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
@@ -104,7 +99,6 @@
          value="Save"
          tal:attributes="tabindex tabindex/next;" />
       </div>
-    </fieldset>
   </form>
       </div>
     </div>
