@@ -112,7 +112,6 @@ class AllowedTypesByIfaceMixin:
                 fti = t
                 break
         
-        #import pdb;pdb.set_trace()
         if not at.typeImplementsInterfaces(fti, self.allowed_interfaces):
             raise ValueError, "Type %s does not implement any of %s." % \
                   (type_name, self.allowed_interfaces)
