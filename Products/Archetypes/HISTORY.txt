@@ -1,6 +1,9 @@
 1.3.4-beta3
 ===========
 
+  * Added Five/Zope3 interface bridges
+    [tiran]
+
   * Fix http://plone.org/collector/4268 Type descriptions were not
     translated and fixed the usage of archetype_name in templates.
     [hannosch]
