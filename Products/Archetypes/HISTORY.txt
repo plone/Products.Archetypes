@@ -1,6 +1,9 @@
 1.3.4-beta3
 ===========
 
+  * Fixed at_download to return values from field.download
+    [panjunyong]
+
   * Don't set value to FileField when initializing. This make file edit
     widget works right when create a new ATCT file.
     [panjunyong]
