@@ -33,7 +33,7 @@
 
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
-        Current image
+              <a tal:attributes="href unit/absolute_url">Current image</a>
         
         <span class="discreet">
           <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
