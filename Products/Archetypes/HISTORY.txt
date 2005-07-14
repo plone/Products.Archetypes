@@ -1,6 +1,9 @@
 1.3.4-beta3
 ===========
 
+  * Fixed file edit widget to disable upload by default when javascript enabled
+    [panjunyong]
+
   * Fixed at_download to return values from field.download
     [panjunyong]
 
