@@ -932,7 +932,9 @@ class FileField(ObjectField):
         if not initializing:
             file = self.get(instance, raw=True, unwrapped=True)
         else:
-            file = None
+	    # don't set value when initializing
+	    return
+
         factory = self.content_class
         if not initializing and not isinstance(file, factory):
             # Convert to same type as factory
