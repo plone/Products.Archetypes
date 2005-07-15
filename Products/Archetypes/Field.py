@@ -1546,9 +1546,9 @@ class ReferenceField(ObjectField):
         Use set with a list of objects:
 
         >>> nodes = self.folder.n0, self.folder.n1, self.folder.n2
-        >>> nodes[0].setLinks(nodes)
+        >>> nodes[0].setLinks(nodes[1:])
         >>> nodes[0].getLinks()
-        [<Refnode...>, <Refnode...>, <Refnode...>]
+        [<Refnode...>, <Refnode...>]
 
         Use it with None or () to delete references:
 
@@ -1568,7 +1568,9 @@ class ReferenceField(ObjectField):
         Setting multiple values for a non multivalued field will fail:
         
         >>> nodes[1].setLink(nodes)
-        ValueError...
+        Traceback (most recent call last):
+        ...
+        ValueError: Multiple values ...
 
         Keyword arguments may be passed directly to addReference(),
         thereby creating properties on the reference objects:
@@ -1580,10 +1582,10 @@ class ReferenceField(ObjectField):
 
         Empty BTreeFolders work as values (#1212048):
 
-        >>> self.folder.invokeFactory('SimpleBTreeFolder', 'btf')
+        >>> _ = self.folder.invokeFactory('SimpleBTreeFolder', 'btf')
         >>> nodes[2].setLink(self.folder.btf)
         >>> nodes[2].getLink()
-        <SimpleBTreeFolder at /plone/Members/test_user_1_/btf>
+        <SimpleBTreeFolder...>
         """
         tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in
