@@ -7,10 +7,6 @@
   * Fixed at_download to return values from field.download
     [panjunyong]
 
-  * Don't set value to FileField when initializing. This make file edit
-    widget works right when create a new ATCT file.
-    [panjunyong]
-
   * Tiny change to image.pt widget template to render a link directly
     to the image object
     [rafrombrc]
