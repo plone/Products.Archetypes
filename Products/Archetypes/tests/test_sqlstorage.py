@@ -56,6 +56,7 @@ from Products.Archetypes import SQLMethod
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.utils import Dummy
 
 from DateTime import DateTime
 
@@ -112,11 +113,6 @@ else:
                         storage.query_drop)
             query, result = method(test__=1, **args)
         cleanup['MySQL'] = cleanupMySQL
-
-
-class Dummy(BaseContent):
-    """ A dummy content object for testing """
-    pass
 
 
 def gen_dummy(storage_class):
