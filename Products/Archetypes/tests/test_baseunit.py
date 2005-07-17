@@ -61,17 +61,19 @@ class BaseUnitTest( ATSiteTestCase ):
                       instance=dummy)
         input.close()
         got = normalize_html(bu.transform(dummy, 'text/html'))
-	try:
+        
+        try:
             output = open(self.output)
-	except IOError:
-	    print "Creating %s" % self.output
-	    output = open(self.output, 'w')
-	    output.write(got)
-	    output.close()
-	    output = open(self.output)
+        except IOError:
+            print "Creating %s" % self.output
+            output = open(self.output, 'w')
+            output.write(got)
+            output.close()
+            
+        output = open(self.output)
         expected = normalize_html(output.read())
         output.close()
-
+    
         self.assertEquals(got, expected)
 
 tests = []
