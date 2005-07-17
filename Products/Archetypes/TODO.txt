@@ -1,6 +1,5 @@
-at the moment unit tests are only running on Zope 2.7.x, Plone 2.0.5
-
-theres one failing trst at Zope 2.7.6, Plone 2.1 bundle (with CMF 1.5)
+at the moment unit tests are running on Zope 2.7.6 with Plone 2.0.5 and 
+Zope 2.7.6 with Plone 2.1 bundle.
 
 running unit tests o Zope 2.8, Plone 2.1 bundle is like watching the hell,
 loads of errors produced from zope, and some failing tests, mostly together

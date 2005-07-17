@@ -14,22 +14,27 @@
         Document actions (print, sendto etc)
     </div>
 
-    <h1 i18n:translate="heading_edit_item_fieldset">
-     Edit
-        <span i18n:name="itemtype">
-            <span i18n:translate=""
-                  tal:content="type_name|here/archetype_name"
-                  tal:omit-tag="">Item type</span>
+    <h1 tal:define="fti here/getTypeInfo;
+                    type_title fti/Title|type_name;">
+
+        <span i18n:translate="heading_edit_item">Edit
+            <span i18n:name="itemtype">
+                <span i18n:translate=""
+                      tal:content="type_title"
+                      tal:omit-tag="">Item type</span>
+            </span>
+            Properties
         </span>
 
-        <span i18n:name="fieldset" tal:condition="python:fieldset and fieldset != 'metadata'">
+        <span tal:condition="python:fieldset and fieldset != 'metadata'">
           [<span i18n:translate=""
                 tal:content="fieldset"
                 tal:omit-tag="">fieldset</span>]
         </span>
     </h1>
 
-      <p i18n:translate="description_edit_properties">
+      <p class="discreet"
+         i18n:translate="description_edit_properties">
     This information, also referred to as <em>metadata</em> is the
     collection of information that is used to categorize an object, assign
     effective dates and expiration dates, language, and keywords.

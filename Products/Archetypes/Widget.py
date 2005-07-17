@@ -72,6 +72,10 @@ class TypesWidget(macrowidget, Base):
             True/1:  'visible'
             False/0: 'invisible'
             -1:      'hidden'
+            
+        visible: The field is shown in the view/edit screen
+        invisible: The field is skipped when rendering the view/edit screen
+        hidden: The field is added as <input type="hidden" />
 
         The default state is 'visible'.
         """

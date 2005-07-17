@@ -63,10 +63,9 @@ class CatalogMultiplex(CMFCatalogAware):
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, url, idxs=lst)
-
         self._catalogUID(self)
         self._catalogRefs(self)
-
+        self.http__refreshEtag()
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):

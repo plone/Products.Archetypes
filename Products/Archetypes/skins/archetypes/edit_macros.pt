@@ -48,10 +48,11 @@
 
     <div metal:define-macro="typedescription">
         <tal:description tal:define="msgid here/typeDescMsgId | nothing;
-                                     default here/typeDescription| nothing;"
+                                     default here/typeDescription| nothing;
+                                     default_translated python:here.translate(default);"
                          tal:condition="default">
 
-          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default)">
+          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default_translated)">
             type description
           </p>
 
@@ -164,7 +165,7 @@
                        type="submit"
                        name="form_previous"
                        value="Previous"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_previous;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -174,7 +175,7 @@
                        type="submit"
                        name="form_next"
                        value="Next"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_next;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -183,7 +184,7 @@
                        type="submit"
                        name="form_submit"
                        value="Save"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_save;"
                        tal:attributes="tabindex tabindex/next;
                                        disabled python:test(isLocked, 'disabled', None);"
                        />
@@ -192,7 +193,7 @@
                        type="submit"
                        name="form.button.cancel"
                        value="Cancel"
-                       i18n:attributes="value"
+                       i18n:attributes="value label_cancel;"
                        tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>

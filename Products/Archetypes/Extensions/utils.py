@@ -388,11 +388,13 @@ def filterTypes(self, out, types, package_name):
 
     for rti in types:
         t = rti['klass']
+        name = rti['name']
+        meta_type = rti['meta_type']
 
         # CMF 1.4 name: (product_id, metatype)
-        typeinfo_name="%s: %s" % (package_name, t.meta_type)
+        typeinfo_name="%s: %s" % (package_name, meta_type)
         # CMF 1.5 name: (product_id, id, metatype)
-        typeinfo_name2="%s: %s (%s)" % (package_name, t.__name__, t.meta_type)
+        typeinfo_name2="%s: %s (%s)" % (package_name, name, meta_type)
         info = typesTool.listDefaultTypeInformation()
         found = 0
         for (name, ft) in info:

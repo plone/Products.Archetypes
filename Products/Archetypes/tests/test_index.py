@@ -26,7 +26,7 @@
 """
 """
 
-import os, sys
+import os, sys, time
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
@@ -46,33 +46,32 @@ class ETagTest(ATSiteTestCase):
                                 portal_type='SimpleType',
                                 id='simple_type')
 
+    #! time.sleep(1) is needed to get tests running on fast machines
 
     def test_etag_does_update_reindex_all(self):
         before = self.inst.http__etag(readonly=True)
+        time.sleep(1)
         self.inst.reindexObject()
         after = self.inst.http__etag(readonly=True)
         self.failIf(before == after)
 
-    def test_etag_doesnt_update_reindex_metadata(self):
-        before = self.inst.http__etag(readonly=True)
-        self.inst.reindexObject(idxs=['Title'])
-        after = self.inst.http__etag(readonly=True)
-        self.assertEquals(before, after)
-
     def test_etag_update_on_edit(self):
         before = self.inst.http__etag(readonly=True)
+        time.sleep(1)
         self.inst.edit(title='Bla')
         after = self.inst.http__etag(readonly=True)
         self.failIf(before == after)
 
     def test_etag_update_on_update(self):
         before = self.inst.http__etag(readonly=True)
+        time.sleep(1)
         self.inst.update(title='Bla')
         after = self.inst.http__etag(readonly=True)
         self.failIf(before == after)
 
     def test_etag_update_on_processform(self):
         before = self.inst.http__etag(readonly=True)
+        time.sleep(1)
         self.inst.processForm(data=1, values={'title':'Bla'})
         after = self.inst.http__etag(readonly=True)
         self.failIf(before == after)

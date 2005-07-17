@@ -33,6 +33,7 @@ from Globals import package_home
 from Products.Archetypes.atapi import registerType
 from Products.Archetypes.atapi import process_types
 from Products.Archetypes.atapi import listTypes
+from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import PKG_NAME
 
 PACKAGE_HOME = package_home(globals())
@@ -55,6 +56,10 @@ def mkDummyInContext(klass, oid, context, schema=None):
 def makeContent( container, portal_type, id='document', **kw ):
     container.invokeFactory( type_name=portal_type, id=id )
     return getattr( container, id )
+
+class Dummy(BaseContent):
+    def Title(self):
+        return 'title'
 
 def normalize_html(s):
     s = re.sub(r"\s+", " ", s)

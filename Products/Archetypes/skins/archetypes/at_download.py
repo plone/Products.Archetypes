@@ -5,8 +5,9 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
+
 if traverse_subpath:
     field = context.getWrappedField(traverse_subpath[0])
 else:
     field = context.getPrimaryField()
-field.download(context)
+return field.download(context)

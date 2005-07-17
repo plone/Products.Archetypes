@@ -55,7 +55,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         arguments = str(arguments)
         self.arguments_src = arguments
         self._arg = Aqueduct.parse(arguments)
-        template = str(template)
+        if not isinstance(template, (str, unicode)):
+            template = str(template)
         self.src = template
         self.template = t = context.template_class(template)
         t.cook()

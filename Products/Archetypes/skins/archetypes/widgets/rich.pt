@@ -41,7 +41,6 @@ default.
               <input type="file"
                      size="30"
                      tabindex="" 
-                     onclick="#"
                      tal:attributes="name string:${fieldName}_file;
                                      id string:${fieldName}_file;
                                      tabindex tabindex/next;

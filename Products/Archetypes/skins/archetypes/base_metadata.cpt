@@ -4,6 +4,8 @@
                    rejection here/rejectAnonymous;
                    tabindex tabindex|python:Iterator();
                    type_name here/getPortalTypeName|here/archetype_name;
+                   fti here/getTypeInfo;
+                   type_title fti/Title|type_name;
                    fieldset request/fieldset|options/fieldset|string:metadata;
                    schematas here/Schemata;
                    fields python:schematas[fieldset].fields();
@@ -58,11 +60,6 @@
         class="enableUnloadProtection"
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
-    <fieldset>
-
-      <legend i18n:translate=""
-        tal:content="type_name|here/archetype_name" />
-
       <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
@@ -98,11 +95,10 @@
          tabindex=""
          type="submit"
          name="Change"
-         i18n:attributes="value"
+         i18n:attributes="value label_save;"
          value="Save"
          tal:attributes="tabindex tabindex/next;" />
       </div>
-    </fieldset>
   </form>
       </div>
     </div>
