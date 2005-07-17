@@ -29,13 +29,16 @@ Features
 
 Requires
 
-  * Plone 2.0.4+
+  * CMF 1.4.7+ or CMF 1.5
 
-  * CMF 1.4.7+
-
-  * Zope 2.7.5+ (may work with Zope 2.7.2+)
+  * Zope 2.7.5+ (may work with Zope 2.7.2+, see TODO.txt for Zope 2.8)
 
   * CMFFormController 1.0.3-beta+
+
+Recommended
+
+  * Plone 2.0.4+ or Plone 2.1 bundle 
+
 
   Archetypes do not work without the following closely related products. You get 
   them with the Archetypes release Bundle-tarball. You can also fetch them also
@@ -43,11 +46,11 @@ Requires
   
   * PortalTransforms
 
+  * MimetypesRegistry
+
   * generator
 
   * validation
-
-  * MimetypesRegistry
 
   * docutils > 0.3.3 (shipped with Zope)
   
@@ -81,7 +84,7 @@ Unit testing
  * Go into the root of your instance and run 
    ZOPE_HOME/bin/test.py -v -C etc/zope.conf --libdir Products/Archetypes/
 
- You can find ZopeTestCase and PloneTestCase at http://sf.net/projects/collective/
+ You can find ZopeTestCase and PloneTestCase at http://svn.plone.org/collective/
  For now you have to get the cvs versions!
 
 Documentation
