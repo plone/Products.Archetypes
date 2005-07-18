@@ -5,6 +5,9 @@
     must update etag on metadata modification (like Title).
     [yenzenz]
 
+  * Fixed bug when get full BaseUnit object from FileField
+    [panjunyong]
+
   * Fixed file edit widget to disable upload by default when javascript enabled
     [panjunyong]
 

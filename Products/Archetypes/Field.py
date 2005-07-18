@@ -1008,7 +1008,7 @@ class FileField(ObjectField):
                 # This will read the whole file in memory, which is
                 # very expensive specially with big files over
                 # ZEO. With small files is not that much of an issue.
-                value = str(data)
+                value = str(value)
             elif not isinstance(value, basestring):
                 # It's a Pdata object, get only the first chunk, which
                 # should be good enough for detecting the mimetype
