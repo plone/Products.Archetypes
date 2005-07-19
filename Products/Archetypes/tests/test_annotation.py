@@ -73,9 +73,11 @@ class AnnotationTest(ATSiteTestCase):
         self.ann = getAnnotation(self.dummy)
         
     def test_empty(self):
-        ann = self.ann
-        self.failUnlessEqual(bool(ann), False)
-        self.failUnlessEqual(getattr(self.dummy, '__annotations__', None), None)
+        #its no longer empty after initialisation because of get_size annotation storage
+        # the first storing of data will fill it
+        temp_dummy=Dummy(oid='dummy')
+        self.failUnlessEqual(bool(tuple(getAnnotation(temp_dummy).keys())), False)
+        self.failUnlessEqual(getattr(temp_dummy, '__annotations__', None), None)
         
     def test_create(self):
         ann = self.ann
