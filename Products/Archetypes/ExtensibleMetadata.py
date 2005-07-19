@@ -52,6 +52,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         (
         StringField(
             'allowDiscussion',
+            size_significant = False,
             accessor="isDiscussable",
             mutator="allowDiscussion",
             edit_accessor="editIsDiscussable",
@@ -86,7 +87,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Description",
             widget=TextAreaWidget(
                 label='Description',
-                description="A short summary of the content",
+                description="An administrative summary of the content",
                 label_msgid="label_description",
                 description_msgid="help_description",
                 i18n_domain="plone"),
@@ -145,6 +146,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
         StringField(
             'language',
+            size_significant = False,
             accessor="Language",
             # Special default here, cite limi: "If you don't add any language to
             # an item, the template that renders the Plone page will fall back
