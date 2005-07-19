@@ -34,21 +34,33 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
+from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+import unittest
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
-    'Products.Archetypes.registry.base',
-    'Products.Archetypes.field.reference',
+    'Products.Archetypes.utils', 
+    'Products.Archetypes.Schema',
+    'Products.Archetypes.ArchetypeTool',
+    'Products.Archetypes.AllowedTypesByIface',
+    'Products.Archetypes.Field',
+    'Products.Archetypes.Marshall',
     )
 
-from Products.Archetypes.tests.attestcase import ATTestCase
+DOCTEST_FILES = ()
+
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
 def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATTestCase,
+    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
                              extraglobs={},
                              *DOCTEST_MODULES
                              )
+    for file in DOCTEST_FILES:
+        suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
+                                test_class=ATSiteTestCase)
+                     )
     return suite
 
 if __name__ == '__main__':

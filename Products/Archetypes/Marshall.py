@@ -1,4 +1,6 @@
 from types import ListType, TupleType
+from cStringIO import StringIO
+from rfc822 import Message
 
 from OFS.Image import File
 from Products.Archetypes.Field import TextField, FileField
@@ -10,9 +12,73 @@ from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
+from Products.CMFDefault.utils import formatRFC822Headers
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+
+sample_data = r"""title: a title
+content-type: text/plain
+keywords: foo
+mixedCase: a MiXeD case keyword
+
+This is the body.
+"""
+
+class NonLoweringMessage(Message):
+    """A RFC 822 Message class that doesn't lower header names
+    
+    IMPORTANT: Only a small subset of the available methods aren't lowering the
+               header names!
+    """
+
+    def isheader(self, line):
+        """Determine whether a given line is a legal header.
+        """
+        i = line.find(':')
+        if i > 0:
+            return line[:i]
+            #return line[:i].lower()
+        else:
+            return None        
+
+    def getheader(self, name, default=None):
+        """Get the header value for a name.
+        """
+        try:
+            return self.dict[name]
+            # return self.dict[name.lower()]
+        except KeyError:
+            return default
+    get = getheader  
+
+def parseRFC822(body):
+    """Parse a RFC 822 (email) style string
+    
+    The code is mostly based on CMFDefault.utils.parseHeadersBody. It doesn't
+    capitalize the headers as the CMF function.
+    
+    >>> headers, body = parseRFC822(sample_data)
+    >>> keys = headers.keys(); keys.sort()
+    >>> for key in keys:
+    ...     key, headers[key]
+    ('content-type', 'text/plain')
+    ('keywords', 'foo')
+    ('mixedCase', 'a MiXeD case keyword')
+    ('title', 'a title')
+    
+    >>> print body
+    This is the body.
+    <BLANKLINE>
+    """
+    buffer = StringIO(body)
+    message = NonLoweringMessage(buffer)
+    headers = {}
+
+    for key in message.keys():
+        headers[key] = '\n'.join(message.getheaders(key))
+
+    return headers, buffer.read()
 
 class Marshaller:
     __implements__ = IMarshall, ILayer
@@ -123,7 +189,6 @@ class RFC822Marshaller(Marshaller):
     security.setDefaultAccess('deny')
 
     def demarshall(self, instance, data, **kwargs):
-        from Products.CMFDefault.utils import parseHeadersBody
         # We don't want to pass file forward.
         if kwargs.has_key('file'):
             if not data:
@@ -133,7 +198,7 @@ class RFC822Marshaller(Marshaller):
                 # similar.
                 data = kwargs['file'].read()
             del kwargs['file']
-        headers, body = parseHeadersBody(data)
+        headers, body = parseRFC822(data)
         for k, v in headers.items():
             if v.strip() == 'None':
                 v = None
@@ -152,7 +217,6 @@ class RFC822Marshaller(Marshaller):
                 mutator(body, **kwargs)
 
     def marshall(self, instance, **kwargs):
-        from Products.CMFDefault.utils import formatRFC822Headers
         p = instance.getPrimaryField()
         body = p and instance[p.getName()] or ''
         pname = p and p.getName() or None

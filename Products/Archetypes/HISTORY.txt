@@ -1,8 +1,17 @@
-1.3.4-rc1 - 2005-07-17
+1.3.4-rc2
 ======================
+
+  * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The 
+    CMFDefault.utils.parseHeadersBody function capitalizes the header names
+    and breaks demarshalling. Marshall contains a light weight 
+    reimplementation.
+    [tiran] 
 
   * Added ftests for id autogeneration.
     [alecm]
+
+1.3.4-rc1 - 2005-07-17
+======================
 
   * Fixed http-etag test. It now 1) refreshs etag on reindexObject and 2) also
     must update etag on metadata modification (like Title).
