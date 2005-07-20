@@ -2073,7 +2073,7 @@ class ImageField(FileField):
             return sizes
         elif type(sizes) is StringType:
             assert(shasattr(instance, sizes))
-            method = getattr(instances, sizes)
+            method = getattr(instance, sizes)
             data = method()
             assert(type(data) is DictType)
             return data

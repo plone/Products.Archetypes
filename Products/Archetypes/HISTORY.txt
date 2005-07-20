@@ -1,6 +1,13 @@
 1.3.4-rc2
 ======================
 
+  * Fixed [ 1209047 ] edit method broken on BaseBTreeFolder. Also added some
+    im_func fu to BaseBTreeFolder.
+    [tiran]
+
+  * Fixed [ 1236601 ] bug in method getAvailableSizes()
+    [tiran]
+
   * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The 
     CMFDefault.utils.parseHeadersBody function capitalizes the header names
     and breaks demarshalling. Marshall contains a light weight 
