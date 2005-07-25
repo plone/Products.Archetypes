@@ -636,7 +636,7 @@ class BaseObject(Referenceable):
         fully created.
         """
         req = getattr(self, 'REQUEST', None)
-        if req is not None:
+        if shasattr(req, 'get'):
             if req.get('SCHEMA_UPDATE', None) is not None:
                 return
             meth = req.get('REQUEST_METHOD', None)
