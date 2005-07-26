@@ -36,12 +36,9 @@ from Testing import ZopeTestCase
 from OFS.Image import File
 from Globals import package_home
 
+ZopeTestCase.installProduct('Archetypes')
 from Products.Archetypes.public import MetadataStorage, BaseContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-
-from Products.Archetypes.examples.SimpleFile import SimpleFile 
-
 
 class FileLike:
 
@@ -69,10 +66,12 @@ class FileLike:
         return self.pos
 
 
-class FileFieldTest(ATSiteTestCase):
+class FileFieldTest(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
         from Products.Archetypes import Field
+        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
+        self.folder.mimetypes_registry = MimeTypesRegistry()
         self.folder._setOb('test_object_', BaseContent('test_object_'))
         self.instance = self.folder._getOb('test_object_')
         self.field = Field.FileField('file')
@@ -153,16 +152,11 @@ class FileFieldTest(ATSiteTestCase):
         fd = TemporaryFile('w+b')
         fd.write('x' * (1 << 19))
         fd.seek(0)
-        v, m, f = self.field._process_input(fd, instance=self.instance,mimetype='text/plain')
+        v, m, f = self.field._process_input(fd, instance=self.instance)
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'text/plain')
-        filename=fd.name
-        filename = filename[max(filename.rfind('/'),
-                                filename.rfind('\\'),
-                                filename.rfind(':'),
-                                )+1:]
-        self.failUnless(filename,f)
-        
+        self.failIf(f, f)
+
     def test_real_file_binary(self):
         from tempfile import TemporaryFile
         fd = TemporaryFile('w+b')
@@ -171,12 +165,7 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(fd, instance=self.instance)
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'application/octet-stream')
-        filename=fd.name
-        filename = filename[max(filename.rfind('/'),
-                                filename.rfind('\\'),
-                                filename.rfind(':'),
-                                )+1:]
-        self.failUnless(filename,f)
+        self.failIf(f, f)
 
     def test_real_file_force_filename_detect_mime_pdf(self):
         from tempfile import TemporaryFile
@@ -200,6 +189,17 @@ class FileFieldTest(ATSiteTestCase):
         self.assertEquals(m, 'text/xml')
         self.assertEquals(f, 'file.xml')
 
+    def test_real_file_force_filename_detect_faq(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd, instance=self.instance,
+                                            filename='file.faq')
+        self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
+        self.assertEquals(m, 'application/octet-stream')
+        self.assertEquals(f, 'file.faq')
+
     def test_real_file_force_mimetype(self):
         from tempfile import TemporaryFile
         fd = TemporaryFile('w+b')
@@ -209,13 +209,8 @@ class FileFieldTest(ATSiteTestCase):
                                             mimetype='text/xml')
         self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
         self.assertEquals(m, 'text/xml')
-        filename = fd.name
-        filename = filename[max(filename.rfind('/'),
-                                filename.rfind('\\'),
-                                filename.rfind(':'),
-                                )+1:]
-        self.failUnless(filename,f)
-        
+        self.failIf(f, f)
+
     def test_ofs_file_text(self):
         from tempfile import TemporaryFile
         fd = TemporaryFile('w+b')
@@ -312,34 +307,33 @@ class FileFieldTest(ATSiteTestCase):
         self.failIf(f)
 
     def test_get(self):
-        from Products.Archetypes.examples.SimpleFile import SimpleFile 
-        self.folder._setOb('sf', SimpleFile('sf'))
-        file_object = getattr(self.folder,'sf')
         text = 'x' * (1 << 19)
-        file_object.setBody(text)
-        result = file_object.getBody()
+        self.field.set(instance=self.instance, value=text)
+        result = self.field.get(instance=self.instance)
         # For FileField, we should return a File for backwards
         # compatibility.
         self.failUnless(isinstance(result, self.factory),
                         (type(result), self.factory))
 
     def test_get_metadata_storage(self):
-        from Products.Archetypes.examples.SimpleFile import SimpleFile 
-        SimpleFile.schema['description'].storage=MetadataStorage()
-        self.folder._setOb('sf', SimpleFile('sf'))
-        file_object = getattr(self.folder,'sf')
         text = 'x' * (1 << 19)
-        file_object.getField('description').set(file_object, text)
-        result = file_object.Description()
-        # For TextField, we should really return a string for
-        # backwards compatibility.
-        self.failUnless(isinstance(result, str), type(result))
+        self.field.storage = MetadataStorage()
+        self.field.set(instance=self.instance, value=text)
+        result = self.field.get(instance=self.instance)
+        # For FileField, we should return a File for backwards
+        # compatibility.
+        self.failUnless(isinstance(result, self.factory),
+                        (type(result), self.factory))
 
 
 class TextFieldTest(FileFieldTest):
 
     def afterSetUp(self):
         from Products.Archetypes import Field
+        from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
+        from Products.PortalTransforms.TransformTool import TransformTool
+        self.folder.mimetypes_registry = MimeTypesRegistry()
+        self.folder.portal_transforms = TransformTool()
         self.folder._setOb('test_object_', BaseContent('test_object_'))
         self.instance = self.folder._getOb('test_object_')
         self.field = Field.TextField('file')
@@ -354,25 +348,18 @@ class TextFieldTest(FileFieldTest):
         self.failUnless(isinstance(self.field, Field.TextField))
 
     def test_get(self):
-        from Products.Archetypes.examples.SimpleFile import SimpleFile 
-        self.folder._setOb('sf', SimpleFile('sf'))
-        file_object = getattr(self.folder,'sf')
         text = 'x' * (1 << 19)
-        file_object.setBody(text)
-        result = file_object.getField('body').getBaseUnit(file_object)
-        # For FileField, we should return a File for backwards
-        # compatibility.
-        self.failUnless(isinstance(result, self.factory),
-                        (type(result), self.factory))
+        self.field.set(instance=self.instance, value=text)
+        result = self.field.get(instance=self.instance)
+        # For TextField, we should really return a string for
+        # backwards compatibility.
+        self.failUnless(isinstance(result, str), type(result))
 
     def test_get_metadata_storage(self):
-        from Products.Archetypes.examples.SimpleType import SimpleType 
-        SimpleType.schema['description'].storage=MetadataStorage()
-        self.folder._setOb('st', SimpleType('st'))
-        simple_object = getattr(self.folder,'st')
         text = 'x' * (1 << 19)
-        simple_object.getField('description').set(simple_object, text)
-        result = simple_object.Description()
+        self.field.storage = MetadataStorage()
+        self.field.set(instance=self.instance, value=text)
+        result = self.field.get(instance=self.instance)
         # For TextField, we should really return a string for
         # backwards compatibility.
         self.failUnless(isinstance(result, str), type(result))
