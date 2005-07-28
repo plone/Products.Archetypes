@@ -9,6 +9,7 @@ from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import mapply
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
@@ -134,7 +135,8 @@ class PrimaryFieldMarshaller(Marshaller):
         if isinstance(p, (FileField, TextField)) and file:
             data = file
             del kwargs['file']
-        p.set(instance, data, **kwargs)
+        mutator = p.getMutator(instance)
+        mutator(data, **kwargs)
 
     def marshall(self, instance, **kwargs):
         p = instance.getPrimaryField()
@@ -235,7 +237,13 @@ class RFC822Marshaller(Marshaller):
         fields = [f for f in instance.Schema().fields()
                   if f.getName() != pname]
         for field in fields:
-            value = instance[field.getName()]
+            if field.type in ('file', 'image', 'object'):
+                continue
+            accessor = field.getEditAccessor(instance)
+            if not accessor:
+                continue
+            kw = {'raw':1, 'field': field.__name__}
+            value = mapply(accessor, **kw)
             if type(value) in [ListType, TupleType]:
                 value = '\n'.join([str(v) for v in value])
             headers.append((field.getName(), str(value)))
