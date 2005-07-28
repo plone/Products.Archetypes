@@ -333,6 +333,22 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.failUnlessEqual(dummy.get_content_type(), 'image/jpeg')
         self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
 
+    def testDiscussionEditAccessorDoesConversions(self):
+        # CMF 1.5 uses bools as internal storage for allow_discussion
+        # Need to make sure we convert properly
+        #Use a DDocument because the dummy is too dumb for this
+        self.folder.invokeFactory('DDocument','bogus_item')
+        dummy = self.folder.bogus_item
+        # Set Allow discussion
+        dummy.allowDiscussion('1')
+        self.failUnless(dummy.isDiscussable())
+        self.assertEqual(dummy.editIsDiscussable(), '1')
+        dummy.allowDiscussion('None')
+        self.assertEqual(dummy.editIsDiscussable(), 'None')
+        dummy.allowDiscussion('0')
+        self.failIf(dummy.isDiscussable())
+        self.assertEqual(dummy.editIsDiscussable(), '0')
+        
 
 def test_suite():
     from unittest import TestSuite, makeSuite

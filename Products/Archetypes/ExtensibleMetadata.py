@@ -52,7 +52,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         (
         StringField(
             'allowDiscussion',
-            size_significant = False,
             accessor="isDiscussable",
             mutator="allowDiscussion",
             edit_accessor="editIsDiscussable",
@@ -87,7 +86,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Description",
             widget=TextAreaWidget(
                 label='Description',
-                description="An administrative summary of the content",
+                description="A short summary of the content",
                 label_msgid="label_description",
                 description_msgid="help_description",
                 i18n_domain="plone"),
@@ -146,7 +145,6 @@ class ExtensibleMetadata(Persistence.Persistent):
 
         StringField(
             'language',
-            size_significant = False,
             accessor="Language",
             # Special default here, cite limi: "If you don't add any language to
             # an item, the template that renders the Plone page will fall back
@@ -235,6 +233,12 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX this method highly depends on the current implementation
         # it's a quick hacky fix
         result = getattr(aq_base(self), 'allow_discussion', None)
+        if result is not None:
+            try:
+                # deal with booleans
+                result = int(result)
+            except (TypeError, ValueError):
+                pass
         return str(result)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
