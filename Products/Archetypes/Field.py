@@ -2092,8 +2092,9 @@ class ImageField(FileField):
         
         value must be an OFS.Image.Image instance
         """
+        data = str(value.data)
         if not HAS_PIL:
-            return str(value.data)
+            return data
         
         mimetype = kwargs.get('mimetype', self.default_content_type)
         
@@ -2112,7 +2113,7 @@ class ImageField(FileField):
                 w,h = self.original_size
             if w and h:
                 __traceback_info__ = (self, value, w, h)
-                fvalue, format = self.scale(value, w, h)
+                fvalue, format = self.scale(data, w, h)
                 data = fvalue.read()
         else:
             data = str(value.data)
