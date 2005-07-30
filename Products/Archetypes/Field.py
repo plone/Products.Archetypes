@@ -1521,12 +1521,17 @@ class ReferenceField(ObjectField):
 
         # singlevalued ref fields return only the object, not a list,
         # unless explicitely specified by the aslist option
-        if not self.multiValued and not aslist:
-            if res:
-                assert len(res) == 1
-                res = res[0]
-            else:
-                res = None
+   
+        if not self.multiValued:
+            if len(res) > 1:
+                log("%s references for non multivalued field %s of %s" % (len(res),
+                                                                          self.getName(),
+                                                                          instance))
+            if not aslist:
+                if res:
+                    res = res[0]
+                else:
+                    res = None
 
         return res
 
