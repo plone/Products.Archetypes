@@ -1969,6 +1969,11 @@ class ImageField(FileField):
 
         sizes may be the name of a method in the instance or a callable which
         returns a dict.
+        
+        Don't remove scales once they exist! Instead of removing a scale
+        from the list of sizes you should set the size to (0,0). Thus
+        removeScales method is able to find the scales to delete the
+        data.
 
         Scaling will only be available if PIL is installed!
 
@@ -2178,6 +2183,8 @@ class ImageField(FileField):
         filename = self.getFilename(instance)
 
         for n, size in sizes.items():
+            if size == (0,0):
+                continue
             w, h = size
             id = self.getName() + "_" + n
             __traceback_info__ = (self, instance, id, w, h)
