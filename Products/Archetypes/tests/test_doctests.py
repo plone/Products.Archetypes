@@ -44,6 +44,7 @@ DOCTEST_MODULES = (
     'Products.Archetypes.ArchetypeTool',
     'Products.Archetypes.AllowedTypesByIface',
     'Products.Archetypes.Field',
+    'Products.Archetypes.Marshall',
     )
 
 DOCTEST_FILES = ()

@@ -189,6 +189,17 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         self.assertEquals(m, 'text/xml')
         self.assertEquals(f, 'file.xml')
 
+    def test_real_file_force_filename_detect_faq(self):
+        from tempfile import TemporaryFile
+        fd = TemporaryFile('w+b')
+        fd.write('x' * (1 << 19))
+        fd.seek(0)
+        v, m, f = self.field._process_input(fd, instance=self.instance,
+                                            filename='file.faq')
+        self.failUnless(isinstance(v, self.factory), (type(v), self.factory))
+        self.assertEquals(m, 'application/octet-stream')
+        self.assertEquals(f, 'file.faq')
+
     def test_real_file_force_mimetype(self):
         from tempfile import TemporaryFile
         fd = TemporaryFile('w+b')

@@ -233,6 +233,12 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX this method highly depends on the current implementation
         # it's a quick hacky fix
         result = getattr(aq_base(self), 'allow_discussion', None)
+        if result is not None:
+            try:
+                # deal with booleans
+                result = int(result)
+            except (TypeError, ValueError):
+                pass
         return str(result)
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,

@@ -635,8 +635,16 @@ class BaseObject(Referenceable):
         is present to ensure that objects created programmatically are considered 
         fully created.
         """
-        if shasattr(self, 'REQUEST'):
-            self._at_creation_flag = True
+        req = getattr(self, 'REQUEST', None)
+        if shasattr(req, 'get'):
+            if req.get('SCHEMA_UPDATE', None) is not None:
+                return
+            meth = req.get('REQUEST_METHOD', None)
+            # Ensure that we have an HTTP request, if you're creating an
+            # object with something other than a GET or POST, then we assume
+            # you are making a complete object.
+            if meth in ('GET', 'POST'):
+                self._at_creation_flag = True
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'unmarkCreationFlag')
@@ -778,6 +786,10 @@ class BaseObject(Referenceable):
 
         # replace the schema
         self.schema = new_schema.copy()
+        # Set a request variable to avoid resetting the newly created flag
+        req = getattr(self, 'REQUEST', None)
+        if req is not None:
+            req.set('SCHEMA_UPDATE','1')
         self.initializeArchetype()
 
         for f in new_schema.fields():

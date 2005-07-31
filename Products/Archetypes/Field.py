@@ -1008,7 +1008,7 @@ class FileField(ObjectField):
                 # This will read the whole file in memory, which is
                 # very expensive specially with big files over
                 # ZEO. With small files is not that much of an issue.
-                value = str(data)
+                value = str(value)
             elif not isinstance(value, basestring):
                 # It's a Pdata object, get only the first chunk, which
                 # should be good enough for detecting the mimetype
@@ -1521,12 +1521,17 @@ class ReferenceField(ObjectField):
 
         # singlevalued ref fields return only the object, not a list,
         # unless explicitely specified by the aslist option
-        if not self.multiValued and not aslist:
-            if res:
-                assert len(res) == 1
-                res = res[0]
-            else:
-                res = None
+   
+        if not self.multiValued:
+            if len(res) > 1:
+                log("%s references for non multivalued field %s of %s" % (len(res),
+                                                                          self.getName(),
+                                                                          instance))
+            if not aslist:
+                if res:
+                    res = res[0]
+                else:
+                    res = None
 
         return res
 
@@ -1964,6 +1969,11 @@ class ImageField(FileField):
 
         sizes may be the name of a method in the instance or a callable which
         returns a dict.
+        
+        Don't remove scales once they exist! Instead of removing a scale
+        from the list of sizes you should set the size to (0,0). Thus
+        removeScales method is able to find the scales to delete the
+        data.
 
         Scaling will only be available if PIL is installed!
 
@@ -2073,7 +2083,7 @@ class ImageField(FileField):
             return sizes
         elif type(sizes) is StringType:
             assert(shasattr(instance, sizes))
-            method = getattr(instances, sizes)
+            method = getattr(instance, sizes)
             data = method()
             assert(type(data) is DictType)
             return data
@@ -2092,8 +2102,9 @@ class ImageField(FileField):
         
         value must be an OFS.Image.Image instance
         """
+        data = str(value.data)
         if not HAS_PIL:
-            return str(value.data)
+            return data
         
         mimetype = kwargs.get('mimetype', self.default_content_type)
         
@@ -2112,7 +2123,7 @@ class ImageField(FileField):
                 w,h = self.original_size
             if w and h:
                 __traceback_info__ = (self, value, w, h)
-                fvalue, format = self.scale(value, w, h)
+                fvalue, format = self.scale(data, w, h)
                 data = fvalue.read()
         else:
             data = str(value.data)
@@ -2172,6 +2183,8 @@ class ImageField(FileField):
         filename = self.getFilename(instance)
 
         for n, size in sizes.items():
+            if size == (0,0):
+                continue
             w, h = size
             id = self.getName() + "_" + n
             __traceback_info__ = (self, instance, id, w, h)
@@ -2275,6 +2288,8 @@ class ImageField(FileField):
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
+        
+        XXX: We should only return the size of the original image
         """
         sizes = self.getAvailableSizes(instance)
         original = self.get(instance)
