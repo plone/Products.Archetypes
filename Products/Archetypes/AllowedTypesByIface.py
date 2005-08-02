@@ -112,8 +112,11 @@ class AllowedTypesByIfaceMixin:
                 fti = t
                 break
         
+        if fti is None:
+            raise ValueError, "Type %r not available." % type_name
+
         if not at.typeImplementsInterfaces(fti, self.allowed_interfaces):
-            raise ValueError, "Type %s does not implement any of %s." % \
+            raise ValueError, "Type %r does not implement any of %s." % \
                   (type_name, self.allowed_interfaces)
 
         args = (type_name, self, id, RESPONSE) + args
