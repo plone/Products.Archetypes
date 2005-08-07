@@ -1,3 +1,10 @@
+1.3.0-final21 - 2005-08-07
+==========================
+
+  * nothing - the odd version checking needs a version change to stick to 
+    Archetypes version again.
+    [yenzenz]
+
 1.3.0-final20 - 2005-08-01
 ==========================
 
