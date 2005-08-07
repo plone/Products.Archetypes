@@ -93,7 +93,7 @@ class BaseUnit(File):
         #being used with APE
         # Also don't break if transform was applied with a stale instance
         # from the catalog while rebuilding the catalog
-        if not instance or not hasattr(instance, 'aq_parent'):
+        if not hasattr(instance, 'aq_parent'):
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')

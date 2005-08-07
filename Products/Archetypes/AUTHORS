@@ -1,3 +1,7 @@
+THIS DOCUMENT IS OUTDATED!
+
+AUTHORS, PLEASE ADD YOURSELF HERE IF YOURE MISSING!
+
 Benjamin Saller <bcsaller@yahoo.com> -- Primary Initial Author
 
 Jonah Bossewitch -- Ideas, Widgets, Requirements, UseCases and a ton
@@ -9,21 +13,24 @@ Also, thanks to:
 MSWord Document -- ideas, COM binding
 NuxDocument     -- ideas, the base model for the content driver
 
---PEOPLE--
-Alan Runyan                     -- Plone development, support,
-                                   promotion  and encouragement
-Geoff Davis                     -- PloneOMatic, consultation, patches
+--PEOPLE alphabetical (surname) --
 Philipp Auersperg               -- Some of the action handling code
-Sidnei da Silva & Lalo Martins  -- SQLStorage, code cleanup and testing
-Bill Schindler                  -- Testing and lots of patches
-Vladimir Iliev                  -- Lots of i18n work
-Sylvain Thénault                -- Lots of i18n and patches
-Dwight Lowry                    -- SQLServerStorage
-Riccardo Lemmi                  -- GadflyStorage rewrite
+Geoff Davis                     -- PloneOMatic, consultation, patches
 Christian Heimes                -- Bug fixing and improvements, new unit
                                    test suit based on ZopeTestCase
+Vladimir Iliev                  -- Lots of i18n work
+Lalo Martins                    -- SQLStorage, code cleanup and testing
+Jens Klein			-- Enhancements, bug fixes, release 
+                                   management, QA
+Riccardo Lemmi                  -- GadflyStorage rewrite
+Dwight Lowry                    -- SQLServerStorage
+Alan Runyan                     -- Plone development, support,
+                                   promotion  and encouragement
+Bill Schindler                  -- Testing and lots of patches
+Sidnei da Silva                 -- SQLStorage, code cleanup and testing 
+Sylvain Thénault                -- Lots of i18n and patches
 
-And especially Abstract Edge <www.abstractedge.com> for allowing for
+An especially Abstract Edge <www.abstractedge.com> for allowing for
 and supporting the development of a platform on top of Open Source
 Software. This kind of support benefits the entire Open Source
 community.
@@ -32,4 +39,3 @@ Many others for testing, ideas for improvement, patches and bug
 fixes. If I've left your name off this list please feel free to email
 me about it. :)
 
-THIS DOCUMENT IS OUTDATED!

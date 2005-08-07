@@ -620,7 +620,7 @@ class ObjectField(Field):
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'object',
-        'default_content_type' : 'application/octet',
+        'default_content_type' : 'application/octet-stream',
         })
 
     security  = ClassSecurityInfo()
@@ -655,7 +655,7 @@ class ObjectField(Field):
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
-        kwargs['mimetype'] = kwargs.get('mimetype', getattr(self, 'default_content_type', 'application/octet'))
+        kwargs['mimetype'] = kwargs.get('mimetype', getattr(self, 'default_content_type', 'application/octet-stream'))
         # Remove acquisition wrappers
         value = aq_base(value)
         __traceback_info__ = (self.getName(), instance, value, kwargs)
@@ -785,7 +785,7 @@ class FileField(ObjectField):
         'primary' : False,
         'widget' : FileWidget,
         'content_class' : File,
-        'default_content_type' : 'application/octet',
+        'default_content_type' : 'application/octet-stream',
         })
 
     security  = ClassSecurityInfo()
@@ -1061,6 +1061,9 @@ class FileField(ObjectField):
             REQUEST = instance.REQUEST
         if not RESPONSE:
             RESPONSE = REQUEST.RESPONSE
+        filename = self.getFilename(instance)
+        if filename is not None:
+            RESPONSE.setHeader("Content-disposition", "attachment; filename=%s" % filename)
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')

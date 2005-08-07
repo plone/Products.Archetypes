@@ -29,7 +29,7 @@ Features
 
 Requires
 
-  * CMF 1.4.7+ or CMF 1.5
+  * CMF 1.4.7+ or CMF 1.5.3
 
   * Zope 2.7.5+ (may work with Zope 2.7.2+) or Zope 2.8 (see TODO.txt)
 
@@ -40,7 +40,7 @@ Recommended
   * Plone 2.0.4+ or Plone 2.1
 
   Archetypes do not work without the following closely related products. You get 
-  them with the Archetypes release Bundle-tarball. You can also fetch them also
+  them with the Archetypes release bundle tarball. You can also fetch them also
   from the plone.org subversion repository .
   
   * PortalTransforms

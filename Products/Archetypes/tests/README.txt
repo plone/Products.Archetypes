@@ -5,21 +5,25 @@ Archetypes Unit Testing Suite
     ZopeTestCase
     
       download and install latest from 
-      "collective CVS":http://cvs.sourceforge.net/viewcvs.py/collective/ZopeTestCase
+      "collective SVN":https://svn.plone.org/svn/collective/ZopeTestCase/trunk/
 
 
     PloneTestCase
 
       download and install latest from 
-      "collective CVS":http://cvs.sourceforge.net/viewcvs.py/collective/PloneTestCase
+      "collective SVN":https://svn.plone.org/svn/collective/PloneTestCase/trunk/
 
       
     ArchetypesTestUpdateSchema 
     
-      "Archetypes CVS":http://cvs.sourceforge.net/viewcvs.py/archetypes/ArchetypesTestUpdateSchema
+      "Archetypes CVS":https://svn.plone.org/svn/archetypes/ArchetypesTestUpdateSchema/
       This package is required for some tests.
       
   How to run the unit tests
+
+    Very simple (unix-like OS only)::
+
+      INSTANCE_HOME/bin/zopectl test Archetypes
 
     Simple::
   
