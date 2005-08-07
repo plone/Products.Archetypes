@@ -1061,6 +1061,9 @@ class FileField(ObjectField):
             REQUEST = instance.REQUEST
         if not RESPONSE:
             RESPONSE = REQUEST.RESPONSE
+        filename = self.getFilename(instance)
+        if filename is not None:
+            RESPONSE.setHeader("Content-disposition", "attachment; filename=%s" % filename)
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')

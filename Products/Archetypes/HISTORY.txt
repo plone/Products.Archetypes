@@ -1,6 +1,11 @@
 post 1.3.4-rc2
 ==============
 
+  * FileField: On download provide a filename. Patch form Tim Hicks
+    applied. Needs optional UI to change filename, atm it uses the
+    name of the uploaded file. thx tim2p.
+    [yenzenz]
+
   * theres no application/octet.  http://www.iana.org/assignments/
     thanks to lalo for this pick.
     [yenzenz] 
