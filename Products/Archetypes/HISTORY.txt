@@ -1,6 +1,10 @@
 post 1.3.4-rc2
 ==============
 
+  * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward 
+    compatible. thx to TresEquis.
+    [yenzenz]
+
   * FileField: On download provide a filename. Patch form Tim Hicks
     applied. Needs optional UI to change filename, atm it uses the
     name of the uploaded file. thx tim2p.

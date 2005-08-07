@@ -1,8 +1,11 @@
 from Products.Archetypes.public import BaseFolder
 from Products.CMFCore import CMFCorePermissions
-#from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
-
+try:
+    # import CMF >=1.5.3 style
+    from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
+except ImportError:
+    # backward compatible import CMF <1.5.3
+    from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
