@@ -994,7 +994,7 @@ class BaseObject(Referenceable):
 
         mtr = self.mimetypes_registry
         mt = mtr.classify(data, filename=name)
-        return Wrapper(data, name, str(mt) or 'application/octet').__of__(self)
+        return Wrapper(data, name, str(mt) or 'application/octet-stream').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
         """ transparent access to session subobjects
