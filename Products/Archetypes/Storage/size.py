@@ -46,7 +46,7 @@ class PlugableSizeStorage:
         elif isinstance(data, BaseImage) or isinstance(data, BaseFile):
             size = data.get_size()
         elif IBaseUnit.isImplementedBy(data):
-            size = len(data)
+            size = data.get_size()
         elif type(data) in (ListType,TupleType):
             size = len(''.join(data))
         elif type(data) in (BooleanType,FloatType,IntType,NoneType,LongType):

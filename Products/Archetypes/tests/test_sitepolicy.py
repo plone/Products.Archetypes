@@ -71,23 +71,17 @@ class SitePolicyTests(ATSiteTestCase):
         base_size=12 #because of Creator "test_user_1_"
         content = makeContent(self.folder, portal_type='ComplexType', id='ct')
         self.assertEqual(base_size, content.get_size())
+        #test string size calculation
         text = 'Bla bla bla'
         content.setTextfield(text)
         base_size+=len(text)
         self.assertEqual(base_size, content.get_size())
+        #test lines size calculation
         text = ['Bla','bla','bla bla']
         content.setSelectionlinesfield3(text)
         base_size+=len(''.join(text))
         self.assertEqual(base_size, content.get_size())
-
-    def test_SimpleFolderGetSize(self):
-        base_size=12 #because of Creator "test_user_1_"
-        content = makeContent(self.folder, portal_type='SimpleFolder', id='sf')
-        text = 'Bla bla bla bla bla bla bla bla'
-        content.setTitle(text)
-        base_size += len(text)
-        self.assertEqual(base_size, content.get_size())
-
+        
     def test_addComplexTypeCtor(self):
         addComplexType = generateCtor('ComplexType', complextype)
         id = addComplexType(self.folder, id='complex_type',
