@@ -210,20 +210,20 @@ class ProcessingTest(ATSiteTestCase):
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
-##   def test_get_size(self):
-##        dummy = self.makeDummy()
-##      request = FakeRequest()
-##      request.form.update(field_values)
-##      request.form['fieldset'] = 'default'
-##      dummy.REQUEST = request
-##      dummy.processForm()
-##      size = 0
-##      for k, v in expected_values.items():
-##          field = dummy.getField(k)
-##          s = field.get_size(dummy)
-##          size+=s
-##          self.failUnless(s, 'got: %s, field: %s' % (s, k))
-##      self.failUnlessEqual(size, dummy.get_size())
+    def test_get_size(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        dummy.processForm()
+        size = 0
+        for k, v in expected_values.items():
+            field = dummy.getField(k)
+            s = field.get_size(dummy)
+            size+=s
+            self.failUnless(s, 'got: %s, field: %s' % (s, k))
+        self.failUnlessEqual(size, dummy.get_size())
 
     def test_validation(self):
         dummy = self.makeDummy()

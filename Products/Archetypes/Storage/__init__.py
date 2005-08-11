@@ -1,4 +1,4 @@
-from Products.Archetypes.interfaces.storage import IStorage,ISizeableStorage
+from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
@@ -11,8 +11,6 @@ from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
 
-from size import PlugableSizeStorage
-
 type_map = {'text':'string',
             'datetime':'date',
             'lines':'lines',
@@ -22,7 +20,7 @@ type_map = {'text':'string',
 _marker = []
 
 #XXX subclass from Base?
-class Storage(PlugableSizeStorage):
+class Storage:
     """Basic, abstract class for Storages. You need to implement
     at least those methods"""
 
@@ -91,7 +89,7 @@ class AttributeStorage(Storage):
     """Stores data as an attribute of the instance. This is the most
     commonly used storage"""
 
-    __implements__ = IStorage,ISizeableStorage
+    __implements__ = IStorage
 
     security = ClassSecurityInfo()
 
@@ -106,7 +104,6 @@ class AttributeStorage(Storage):
         # Remove acquisition wrappers
         value = aq_base(value)
         setattr(aq_base(instance), name, value)
-        self.set_size(name, instance, **kwargs)
         instance._p_changed = 1
 
     security.declarePrivate('unset')
@@ -121,7 +118,7 @@ class ObjectManagedStorage(Storage):
     """Stores data using the Objectmanager interface. It's usually
     used for BaseFolder-based content"""
 
-    __implements__ = IStorage,ISizeableStorage
+    __implements__ = IStorage
 
     security = ClassSecurityInfo()
 
@@ -152,7 +149,7 @@ class MetadataStorage(StorageLayer):
     """Storage used for ExtensibleMetadata. Attributes are stored on
     a persistent mapping named ``_md`` on the instance."""
 
-    __implements__ = IStorage, ILayer,ISizeableStorage
+    __implements__ = IStorage, ILayer
 
     security = ClassSecurityInfo()
 
@@ -190,7 +187,6 @@ class MetadataStorage(StorageLayer):
 	            base._md=PersistentMapping()
 
         base._md[name] = aq_base(value)
-        self.set_size(name, instance, **kwargs)
         base._p_changed = 1
 
     security.declarePrivate('unset')

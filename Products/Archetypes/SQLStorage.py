@@ -223,8 +223,7 @@ class BaseSQLStorage(StorageLayer):
             # omiting it causes dtml-sqlvar to insert NULL
             args['value'] = value
         self._query(instance, self.query_update % sql_type, args)
-        self.set_size(name, instance, **kwargs)
-        
+
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
             getattr(instance, '_at_is_fake_instance', None)):
