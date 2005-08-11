@@ -203,7 +203,16 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
-        pass  # directory view has already been added
+        # XXX: find a better way to do this, but that seems not feasible
+        #      until Zope stops using string exceptions
+        if str(e).endswith(' is reserved.'):
+            # trying to use a reserved identifier, let the user know
+            #
+            # remember the cmf reserve ids of objects in the root of the
+            # portal !
+            raise
+        # directory view has already been added
+        pass
 
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
@@ -291,7 +300,8 @@ def install_indexes(self, out, types):
                 elif isinstance(field.index, (TupleType, ListType) ):
                     index = field.index
                 else:
-                    raise SyntaxError("Invalid Index Specification %r"%field.index)
+                    raise SyntaxError("Invalid Index Specification %r"
+                                      % field.index)
 
                 for alternative in index:
                     installed = None
@@ -307,9 +317,11 @@ def install_indexes(self, out, types):
                     elif index_accessor == '_at_accessor':
                         accessor = field.accessor
                     elif index_accessor:
-                        if type(index_accessor) is not UnboundMethodType:
-                            raise ValueError('The index accessor is not a valid method')
-                        accessor = index_accessor
+                        if isinstance(index_accessor, (unicode, str)):
+                            accessor = str(index_accessor)
+                        else:
+                            raise ValueError('Bad index accessor value : %r'
+                                             % index_accessor)
                     else:
                         accessor = field.accessor
 
