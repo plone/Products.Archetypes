@@ -1662,12 +1662,16 @@ class ReferenceField(ObjectField):
 
     def _brains_title_or_id(self, brain, instance):
         """ ensure the brain has a title or an id and return it as unicode"""
-        brain =  aq_base(brain)
-        ret = getattr(brain,'Title',None) or getattr(brain,'id',None)
-        if ret is not None and type(ret) in StringTypes:
-            return decode(ret, instance)
-        assert("problem with catalog, brain has not Title nor id")
+        title = None
+        if shasattr(brain, 'Title'):
+            title = brain.Title
+        elif shasattr(brain, 'id'):
+            title = brain.id
 
+        if title is not None and type(title) in StringTypes:
+            return decode(title, instance)
+        
+        raise AttributeError, "%s has no Title or id" % brain.absolute_url()
 
     def _Vocabulary(self, content_instance):
         pairs = []
