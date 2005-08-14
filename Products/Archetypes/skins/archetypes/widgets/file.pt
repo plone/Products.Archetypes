@@ -57,8 +57,8 @@
          <label for=""
                 tal:attributes="for string:${fieldName}_nochange;
                                 "
-                i18n:translate="nochange_image">
-                Don't change
+                i18n:translate="nochange_file">
+                Keep existing file
          </label>
          <br/>
          <tal:delete tal:condition="python: not field.required">
