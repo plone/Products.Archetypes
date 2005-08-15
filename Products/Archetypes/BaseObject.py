@@ -1,6 +1,9 @@
-from Products.Archetypes.debug import log_exc, log, _default_logger
-from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.base import IBaseUnit
+import sys
+from Globals import InitializeClass
+
+from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import _default_logger
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import fixSchema
@@ -12,12 +15,17 @@ from Products.Archetypes.Field import TextField
 from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
+from Products.Archetypes.Schema import getSchemata
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
+from Products.Archetypes.ArchetypeTool import getType
+from Products.Archetypes.ArchetypeTool import _guessPackage
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -28,23 +36,25 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ExplicitAcquisitionWrapper
 from Acquisition import Explicit
-from Globals import InitializeClass
+
+from ComputedAttribute import ComputedAttribute
 from OFS.ObjectManager import ObjectManager
+from ZODB.POSException import ConflictError
+
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _checkPermission as checkPerm
-from ZODB.POSException import ConflictError
-from ComputedAttribute import ComputedAttribute
 
 from Referenceable import Referenceable
 from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
+from webdav.NullResource import NullResource
 
 _marker = []
 
 class AttributeValidator(Implicit):
-    """ (Ab)Use the security policy implementation
+    """(Ab)Use the security policy implementation.
 
     This class will be used to protect attributes managed by
     AttributeStorage with the same permission as the accessor method.
@@ -140,7 +150,7 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """called by the generated addXXX factory in types tool
+        """Called by the generated addXXX factory in types tool.
         """
         try:
             self.initializeLayers()
@@ -183,7 +193,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     def title_or_id(self):
-        """Utility that returns the title if it is not blank and the id otherwise.
+        """Returns the title if it is not blank and the id otherwise.
         """
         if shasattr(self, 'Title'):
             if callable(self.Title):
@@ -193,32 +203,30 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getId')
     def getId(self):
-        """get the object id
+        """Gets the object id.
         """
         return self.id
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setId')
     def setId(self, value):
-        """set the object id
+        """Sets the object id.
         """
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
                 self._v_cp_refs = 1 # See Referenceable, keep refs on
                                     # what is a move/rename
-                parent.manage_renameObject(
-                    self.id, value,
-                    )
+                parent.manage_renameObject(self.id, value)
             self._setId(value)
 
     security.declareProtected(CMFCorePermissions.View, 'Type')
     def Type(self):
-        """Dublin Core element - Object type
+        """Dublin Core element - Object type.
 
         this method is redefined in ExtensibleMetadata but we need this
         at the object level (i.e. with or without metadata) to interact
-        with the uid catalog
+        with the uid catalog.
         """
         if shasattr(self, 'getTypeInfo'):
             ti = self.getTypeInfo()
@@ -228,13 +236,13 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getField')
     def getField(self, key, wrapped=False):
-        """Return a field object
+        """Returns a field object.
         """
         return self.Schema().get(key)
 
     security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
-        """Get a field by id which is explicitly wrapped
+        """Gets a field by id which is explicitly wrapped.
 
         XXX Maybe we should subclass field from Acquisition.Explicit?
         """
@@ -242,14 +250,14 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
-        """Return the default value of a field
+        """Return the default value of a field.
         """
         field = self.getField(field)
         return field.getDefault(self)
 
     security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
-        """Return wether a field contains binary data
+        """Return wether a field contains binary data.
         """
         element = getattr(self, key, None)
         if element and shasattr(element, 'isBinary'):
@@ -263,14 +271,14 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'isTransformable')
     def isTransformable(self, name):
-        """Returns wether a field is transformable
+        """Returns wether a field is transformable.
         """
         field = self.getField(name)
         return isinstance(field, TextField) or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
-        """Returns the rendered widget
+        """Returns the rendered widget.
         """
         if field is None:
             field = self.Schema()[field_name]
@@ -357,7 +365,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
-        """Returns the portal_metadata for a field
+        """Returns the portal_metadata for a field.
         """
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
@@ -378,7 +386,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'Vocabulary')
     def Vocabulary(self, key):
-        """Returns the vocabulary for a specified field
+        """Returns the vocabulary for a specified field.
         """
         vocab, enforce = None, 0
         field = self.getField(key)
@@ -389,16 +397,14 @@ class BaseObject(Referenceable):
             if vocab is None:
                 vocab, enforce = field.Vocabulary(self), \
                                  field.enforceVocabulary
-
         if vocab is None:
             vocab = DisplayList()
-
         return vocab, enforce
 
     def __getitem__(self, key):
-        """Play nice with externaleditor again
+        """Overloads the object's item access.
         """
-        # don't allow key access to hidden attributes
+        # Don't allow key access to hidden attributes
         if key.startswith('_'):
             raise Unauthorized, key
 
@@ -406,7 +412,7 @@ class BaseObject(Referenceable):
         keys = schema.keys()
 
         if key not in keys and not key.startswith('_'):
-            # XXX fix this in AT 1.4
+            # XXX Fix this in AT 1.4
             value= getattr(aq_inner(self).aq_explicit, key, _marker) or \
                    getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
             if value is _marker:
@@ -423,45 +429,39 @@ class BaseObject(Referenceable):
         # handling provided by BaseUnit when its available
         kw = {'raw':1, 'field': field.__name__}
         value = mapply(accessor, **kw)
-
         return value
-
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
-        """Set field values to the default values
+        """Sets the field values to the default values.
         """
         self.Schema().setDefaults(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
-    def edit(self, **kwargs):
-        """Alias for update()
-        """
-        self.update(**kwargs)
-
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):
-        """Change the values of the field and reindex the object
+        """Changes the values of the field and reindex the object.
         """
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
         self.reindexObject()
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
+    edit = update
+
     security.declareProtected(CMFCorePermissions.View,
                               'validate_field')
     def validate_field(self, name, value, errors):
-        """
-        write a method: validate_foo(new_value) -> "error" or None
+        """Field's validate hook.
+
+        Write a method: validate_foo(new_value) -> "error" or None
         If there is a validate method defined for a given field invoke
         it by name
         name -- the name to register errors under
         value -- the proposed new value
         errors -- dict to record errors in
         """
-
         methodName = "validate_%s" % name
         result = None
-
         if shasattr(self, methodName):
             method = getattr(self, methodName)
             result = method(value)
@@ -481,26 +481,23 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
-        """Validates the form data from the request
+        """Validates the form data from the request.
         """
         if errors is None:
             errors = {}
-
         self.pre_validate(REQUEST, errors)
         if errors:
             return errors
-
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
-
         self.post_validate(REQUEST, errors)
-
         return errors
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
-        here for indexing purpose"""
+        here for indexing purpose.
+        """
         data = []
         charset = self.getCharset()
         for field in self.Schema().fields():
@@ -510,7 +507,7 @@ class BaseObject(Referenceable):
             try:
                 datum =  method(mimetype="text/plain")
             except TypeError:
-                # retry in case typeerror was raised because accessor doesn't
+                # Retry in case typeerror was raised because accessor doesn't
                 # handle the mimetype argument
                 try:
                     datum =  method()
@@ -518,7 +515,6 @@ class BaseObject(Referenceable):
                     raise
                 except:
                     continue
-
             if datum:
                 type_datum = type(datum)
                 vocab = field.Vocabulary(self)
@@ -533,7 +529,7 @@ class BaseObject(Referenceable):
                         datum = datum.encode(charset)
                     datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
 
-                # FIXME: we really need an unicode policy !
+                # XXX: We really need an unicode policy !
                 type_datum = type(datum)
                 if type_datum is UnicodeType:
                     datum = datum.encode(charset)
@@ -544,19 +540,19 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
-        """ Return site default charset, or utf-8
+        """Returns the site default charset, or utf-8.
         """
         properties = getToolByName(self, 'portal_properties', None)
         if properties is not None:
             site_properties = getattr(properties, 'site_properties', None)
             if site_properties is not None:
                 return site_properties.getProperty('default_charset')
-
         return 'utf-8'
 
     security.declareProtected(CMFCorePermissions.View, 'get_size')
     def get_size( self ):
-        """ Used for FTP and apparently the ZMI now too """
+        """Used for FTP and apparently the ZMI now too.
+        """
         size = 0
         for field in self.Schema().fields():
             size+=field.get_size(self)
@@ -617,12 +613,11 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
-        """Process the schema looking for data in the form"""
+        """Processes the schema looking for data in the form.
+        """
         is_new_object = self.checkCreationFlag()
-
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
-
         self.unmarkCreationFlag()
         if self._at_rename_after_creation and is_new_object:
             self._renameAfterCreation(check_auto_id=True)
@@ -631,9 +626,10 @@ class BaseObject(Referenceable):
                               'markCreationFlag')
     def markCreationFlag(self):
         """Sets flag on the instance to indicate that the object hasn't been
-        saved properly (unset in content_edit); this will only be done if a REQUEST
-        is present to ensure that objects created programmatically are considered 
-        fully created.
+        saved properly (unset in content_edit).
+
+        This will only be done if a REQUEST is present to ensure that objects
+        created programmatically are considered fully created.
         """
         req = getattr(self, 'REQUEST', None)
         if shasattr(req, 'get'):
@@ -649,7 +645,7 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'unmarkCreationFlag')
     def unmarkCreationFlag(self):
-        """Remove creation flag
+        """Removes the creation flag.
         """
         if shasattr(aq_inner(self), '_at_creation_flag'):
             self._at_creation_flag = False
@@ -664,29 +660,29 @@ class BaseObject(Referenceable):
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'checkCreationFlag')
     def checkCreationFlag(self):
-        """returns True if the object has been fully saved, False otherwise
+        """Returns True if the object has been fully saved, False otherwise.
         """
         return getattr(aq_base(self), '_at_creation_flag', False)
-  
+
     def _renameAfterCreation(self, check_auto_id=False):
-        """Renames an object like its normalized title
+        """Renames an object like its normalized title.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
         if plone_tool is None or not shasattr(plone_tool, 'normalizeString'):
             # plone tool is not available or too old
             # XXX log?
             return None
-        
+
         title = self.Title()
         if not title:
             # Can't work w/o a title
             return False
-        
+
         old_id = self.getId()
         if check_auto_id and not self._isIDAutoGenerated(old_id):
             # no auto generated id
             return False
-        
+
         new_id = plone_tool.normalizeString(title)
         invalid_id = False
         check_id = getattr(self, 'check_id', None)
@@ -703,15 +699,16 @@ class BaseObject(Referenceable):
             get_transaction().commit(1)
             self.setId(new_id)
             return new_id
-        
+
         return False
- 
+
     def _isIDAutoGenerated(self, id):
-        """Avoid busting setDefaults if we don't have a proper acquisition context
+        """Avoid busting setDefaults if we don't have a proper acquisition
+        context.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
-        if plone_tool is not None and shasattr(plone_tool,
-                                                        'isIDAutoGenerated'):
+        if plone_tool is not None and \
+           shasattr(plone_tool, 'isIDAutoGenerated'):
             return plone_tool.isIDAutoGenerated(id)
         # Plone 2.0 compatibility
         script = getattr(self, 'isIDAutoGenerated', None)
@@ -719,25 +716,21 @@ class BaseObject(Referenceable):
             return script(id)
         return False
 
-
     security.declareProtected(CMFCorePermissions.View, 'Schemata')
     def Schemata(self):
-        """Returns the Schemata for the Object
+        """Returns the Schemata for the Object.
         """
-        from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
-        """Determine whether the current object's schema is up to date."""
-        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
+        """Determines whether the current object's schema is up to date."""
         package = _guessPackage(self.__module__)
         return getType(self.meta_type, package)['signature'] == self._signature
 
-
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
-        """Update an object's schema when the class schema changes.
+        """Updates an object's schema when the class schema changes.
 
         For each field we use the existing accessor to get its value,
         then we re-initialize the class, then use the new schema
@@ -749,16 +742,13 @@ class BaseObject(Referenceable):
         at the same time -- you really should restart zope after doing
         a schema update).
         """
-        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
-        import sys
-
         if out:
             print >> out, 'Updating %s' % (self.getId())
 
         package = _guessPackage(self.__module__)
         new_schema = getType(self.meta_type, package)['schema']
 
-        # read all the old values into a dict
+        # Read all the old values into a dict
         values = {}
         for f in new_schema.fields():
             name = f.getName()
@@ -783,8 +773,7 @@ class BaseObject(Referenceable):
             for k in current_class.__dict__.keys():
                 obj_class.__dict__[k] = current_class.__dict__[k]
 
-
-        # replace the schema
+        # Replace the schema
         self.schema = new_schema.copy()
         # Set a request variable to avoid resetting the newly created flag
         req = getattr(self, 'REQUEST', None)
@@ -796,7 +785,7 @@ class BaseObject(Referenceable):
             name = f.getName()
             kw = {}
             if name not in excluded_fields and values.has_key(name):
-                # XXX commented out because we are trying to directly use
+                # XXX Commented out because we are trying to directly use
                 # the new base unit
                 # kw['mimetype'] = f.getContentType(self)
                 try:
@@ -806,21 +795,17 @@ class BaseObject(Referenceable):
                         print >> out, ('Unable to set %s.%s to '
                                        '%s' % (str(self.getId()),
                                                name, str(values[name])))
-
-        self._p_changed = 1 # make sure the changes are persisted
-
+        # Make sure the changes are persisted
+        self._p_changed = 1
         if out:
             return out
-
 
     security.declarePrivate('_migrateGetValue')
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
-
         # Migrate pre-AT 1.3 schemas.
         schema = fixSchema(schema)
-
         # First see if the new field name is managed by the current schema
         field = schema.get(getattr(new_schema.get(name,None),'old_field_name',name), None)
         if field:
@@ -850,10 +835,10 @@ class BaseObject(Referenceable):
                 raise
             except:
                 pass
-            #no luck use standard method to get the value 
+            # No luck use standard method to get the value
             return field.get(self)
 
-            # still no luck -- try to get the value directly
+            # Still no luck -- try to get the value directly
             # this part should be remove because for some fields this will fail
             # if you get the value directly for example for FixPointField
             # stored value is (0,0) but the input value is a string.
@@ -870,7 +855,7 @@ class BaseObject(Referenceable):
         # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
-            # try the new edit accessor
+            # Try the new edit accessor
             try:
                 editAccessor = new_field.getEditAccessor(self)
                 if editAccessor:
@@ -880,7 +865,7 @@ class BaseObject(Referenceable):
             except:
                 pass
 
-            # nope -- now try the accessor
+            # Nope -- now try the accessor
             try:
                 accessor = new_field.getAccessor(self)
                 if accessor:
@@ -889,7 +874,7 @@ class BaseObject(Referenceable):
                 raise
             except:
                 pass
-            # still no luck -- try to get the value directly using the new name
+            # Still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
             except ConflictError:
@@ -905,17 +890,14 @@ class BaseObject(Referenceable):
 
         raise ValueError, 'name = %s' % (name)
 
-
     security.declarePrivate('_migrateSetValue')
     def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
-
         # Migrate pre-AT 1.3 schemas.
         schema = fixSchema(schema)
-
         field = schema.get(name, None)
-        # try using the field's mutator
+        # Try using the field's mutator
         if field:
             mutator = field.getMutator(self)
             if mutator is not None:
@@ -928,7 +910,7 @@ class BaseObject(Referenceable):
                 except:
                     log_exc()
         else:
-            # try setting an existing attribute
+            # Try setting an existing attribute
             if shasattr(self, name):
                 setattr(self, name, value)
                 return
@@ -936,22 +918,25 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'isTemporary')
     def isTemporary(self):
-        """Check to see if we are created as temporary object by portal factory"""
+        """Checks to see if we are created as temporary object by
+        portal factory.
+        """
         parent = aq_parent(aq_inner(self))
-        return shasattr(parent, 'meta_type') and parent.meta_type == 'TempFolder'
+        return shasattr(parent, 'meta_type') and \
+               parent.meta_type == 'TempFolder'
 
     def getFolderWhenPortalFactory(self):
-        """Return the folder where this object was created temporarily
+        """Returns the folder where this object was created temporarily.
         """
         ctx = aq_inner(self)
         if not ctx.isTemporary():
-            # not a temporary object!
+            # Not a temporary object!
             return aq_parent(ctx)
         utool = getToolByName(self, 'portal_url')
         portal_object = utool.getPortalObject()
 
         while ctx.getId() != 'portal_factory':
-            # find the portal factory object
+            # Find the portal factory object
             if ctx == portal_object:
                 # uups, shouldn't happen!
                 return ctx
@@ -959,18 +944,20 @@ class BaseObject(Referenceable):
         # ctx is now the portal_factory in our parent folder
         return aq_parent(ctx)
 
-
-    # subobject access ########################################################
     #
-    # some temporary objects could be set by fields (for instance additional
-    # images that may result from the transformation of a pdf field to html)
+    # Subobject Access
     #
-    # those objects are specific to a session
+    # Some temporary objects could be set by fields (for instance
+    # additional images that may result from the transformation of
+    # a PDF field to html).
+    #
+    # Those objects are specific to a session.
+    #
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """add a dictionary of objects to a volatile attribute
+        """Adds a dictionary of objects to a volatile attribute.
         """
         if objects:
             storage = getattr(aq_base(self), '_v_at_subobjects', None)
@@ -982,7 +969,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """Get a dictionary of objects from a volatile attribute
+        """Gets a dictionary of objects from a volatile attribute.
         """
         storage = getattr(aq_base(self), '_v_at_subobjects', None)
         if storage is None:
@@ -997,16 +984,16 @@ class BaseObject(Referenceable):
         return Wrapper(data, name, str(mt) or 'application/octet-stream').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
-        """ transparent access to session subobjects
+        """Allows transparent access to session subobjects.
         """
-        # is it a registered sub object
+        # Is it a registered sub object
         data = self.getSubObject(name, REQUEST, RESPONSE)
         if data is not None:
             return data
-        # or a standard attribute (maybe acquired...)
+        # Or a standard attribute (maybe acquired...)
         target = None
         method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
-        # logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
+        # Logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
         # to check whether this is a browser request
         if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
             not (method in ('GET', 'POST') and not
@@ -1014,13 +1001,12 @@ class BaseObject(Referenceable):
             if shasattr(self, name):
                 target = getattr(self, name)
         else:
-            # we are allowed to acquire
+            # We are allowed to acquire
             target = getattr(self, name, None)
         if target is not None:
             return target
         if (method in ('PUT', 'MKCOL') and not
             isinstance(RESPONSE, xmlrpc.Response)):
-            from webdav.NullResource import NullResource
             return NullResource(self, name, REQUEST).__of__(self)
 
         # Nothing has been found. Raise an AttributeError and be done with it.
@@ -1029,7 +1015,7 @@ class BaseObject(Referenceable):
 InitializeClass(BaseObject)
 
 class Wrapper(Explicit):
-    """wrapper object for access to sub objects """
+    """Wrapper object for access to sub objects."""
     __allow_access_to_unprotected_subobjects__ = 1
 
     def __init__(self, data, filename, mimetype):
@@ -1051,4 +1037,4 @@ class Wrapper(Explicit):
 
 MinimalSchema = BaseObject.schema
 
-__all__ = ('BaseObject', 'MinimalSchema', )
+__all__ = ('BaseObject', 'MinimalSchema')
