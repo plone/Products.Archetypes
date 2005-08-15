@@ -1663,10 +1663,10 @@ class ReferenceField(ObjectField):
     def _brains_title_or_id(self, brain, instance):
         """ ensure the brain has a title or an id and return it as unicode"""
         title = None
-        if shasattr(brain, 'Title'):
-            title = brain.Title
-        elif shasattr(brain, 'id'):
+        if shasattr(brain, 'id'):
             title = brain.id
+        if shasattr(brain, 'Title') and brain.Title != '':
+            title = brain.Title
 
         if title is not None and type(title) in StringTypes:
             return decode(title, instance)

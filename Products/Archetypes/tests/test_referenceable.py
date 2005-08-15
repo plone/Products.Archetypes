@@ -510,7 +510,9 @@ class BaseReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-        self.assertEquals(field.Vocabulary(dummy), expected)
+            
+        got = field.Vocabulary(dummy) 
+        self.assertEquals(got, expected)
 
         # We should have the option of nothing
         field = field.copy()
