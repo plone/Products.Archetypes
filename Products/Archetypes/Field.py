@@ -62,6 +62,7 @@ from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import contentDispositionHeader
 from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
@@ -1063,7 +1064,8 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
         if filename is not None:
-            RESPONSE.setHeader("Content-disposition", "attachment; filename=%s" % filename)
+            header_value = contentDispositionHeader('attachment', instance.getCharset(), filename=filename)
+            RESPONSE.setHeader("Content-disposition", header_value)
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
