@@ -155,6 +155,9 @@ class BaseReferenceableTests(ATSiteTestCase):
                                         new_id='cont4iner')
         c, d = self.verifyBrains()
 
+        obj1 = self.folder.cont4iner.obj1
+        obj2 = self.folder.cont4iner.obj2
+
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
@@ -190,6 +193,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.folder.manage_renameObject(id='folderB',
                                         new_id='folderC')
         c, d = self.verifyBrains()
+
+        objB = self.folder.folderC.objB
 
         # check references
         self.assertEquals(objB.getBRefs(), [objA])
@@ -622,6 +627,86 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.failUnlessEqual(copy_a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [copy_a])
+
+    def test_folderCopyPasteSupport(self):
+        # copy/paste behaviour test
+        # sub-objects of copy/pasted folders should lose all references,
+        # and duplicate refs should not be created on the original object.
+        org_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Destination folder',
+                                 id='dst_folder')
+        my_folder = makeContent(org_folder, portal_type=self.FOLDER_TYPE,
+                                                             id='my_folder')
+        a = makeContent(my_folder, portal_type='DDocument', id='a')
+        b = makeContent(my_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+
+        cb = org_folder.manage_copyObjects(ids=['my_folder'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_folder = getattr(dst_folder, 'my_folder')
+        copy_a = getattr(copy_folder, 'a')
+
+        # The copy should get a new UID
+        a_uid = a.UID()
+        ca_uid = copy_a.UID()
+        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+
+        # The copy shouldn't have references
+        self.failUnlessEqual(copy_a.getRefs(), [])
+        self.failIf(copy_a in b.getBRefs())
+
+        #The copy's uid should have changed
+        self.failIf(ca_uid == a_uid)
+
+        # Original object should keep references
+        self.failUnlessEqual(a.getRefs(), [b])
+        self.failUnlessEqual(b.getBRefs(), [a])
+
+    def test_folderCutPasteSupport(self):
+        # copy/paste behaviour test
+        # sub-objects of copy/pasted folders should lose all references,
+        # and duplicate refs should not be created on the original object.
+        org_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Destination folder',
+                                 id='dst_folder')
+        my_folder = makeContent(org_folder, portal_type=self.FOLDER_TYPE,
+                                                             id='my_folder')
+        a = makeContent(my_folder, portal_type='DDocument', id='a')
+        b = makeContent(my_folder, portal_type='DDocument', id='b')
+        a.addReference(b)
+
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+        a_uid = a.UID()
+
+        get_transaction().commit(1)
+        cb = org_folder.manage_cutObjects(ids=['my_folder'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_folder = getattr(dst_folder, 'my_folder')
+        copy_a = getattr(copy_folder, 'a')
+        copy_b = getattr(copy_folder, 'b')
+        ca_uid = copy_a.UID()
+
+        # The copy shouldn't have references
+        self.failUnlessEqual(copy_a.getRefs(), [copy_b])
+        self.failUnlessEqual(copy_b.getBRefs(), [copy_a])
+
+        #The copy's uid should have changed
+        self.failUnless(ca_uid == a_uid, (a_uid, ca_uid))
+
 
 class SimpleFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleFolder'

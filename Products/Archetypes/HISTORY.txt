@@ -1,6 +1,24 @@
 post 1.3.4-rc3
 ==============
 
+  * Fixed a number of issues related to the oversimplicity of
+    CatalogMultiplex.manage_after*.  Workflow state was not being reset on
+    object copy, which is a minor security issue.  Discussions were not being
+    removed from the catalog when the parent was deleted.  Copied discussions
+    were not being added to the catalog.  The owner local role was not being
+    set on copy.  CMFUid objects were not being removed on copy (critical for
+    CMFEditions).  CatalogMultiplex now delegates manage_after* methods to
+    CMFCatalogAware (except manage_afterClone which it overrides to do a full
+    reindex before delegating).  Removed calls in BaseFolder to
+    PortalFolder manage_after*, as those are just inherited directly from
+    CMFCatalogAware whose methods are now used in CatalogMultiplex.
+    [alecm]
+
+  * Fixed an issue where copying a BaseBTreeFolder resulted in references on
+    subobjects of that folder being duplicated due to bad inheritance of
+    _getCopy.
+    [alecm]
+
   * download of files from FileField: filenames where cutted at 
     first space character in filename. report, fix/patch by 
     LaurenceRowe, thx!

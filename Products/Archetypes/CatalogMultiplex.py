@@ -35,7 +35,7 @@ class CatalogMultiplex(CMFCatalogAware):
         url = self.__url()
         for c in catalogs:
             c.uncatalog_object(url)
-        
+
         # Specially control reindexing to UID catalog
         # the pathing makes this needed
         self._uncatalogUID(self)
@@ -53,7 +53,7 @@ class CatalogMultiplex(CMFCatalogAware):
 
         catalogs = at.getCatalogsByType(self.meta_type)
         url = self.__url()
-        
+
         for c in catalogs:
             if c is not None:
                 #We want the intersection of the catalogs idxs
@@ -67,16 +67,14 @@ class CatalogMultiplex(CMFCatalogAware):
         self._catalogRefs(self)
         self.http__refreshEtag()
 
-    security.declarePrivate('manage_afterAdd')
-    def manage_afterAdd(self, item, container):
-        self.indexObject()
-
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
+        # For some reason CMFCatalogAware doesn't fully reindex on copy,
+        # though it does do a workflow update which reindexes state and
+        # security, as a result we have to be a little redundant here.  The
+        # super-class method also recurses through sub-objects which is
+        # essential.
         self.reindexObject()
-
-    security.declarePrivate('manage_beforeDelete')
-    def manage_beforeDelete(self, item, container):
-        self.unindexObject()
+        CMFCatalogAware.manage_afterClone(self, item)
 
 InitializeClass(CatalogMultiplex)
