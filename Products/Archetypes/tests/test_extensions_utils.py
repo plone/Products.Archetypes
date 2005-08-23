@@ -17,7 +17,7 @@ class InstallIndexesTests(ATSiteTestCase):
         del ComplexType.schema['richtextfield'].index
         try:
             del ComplexType.schema['richtextfield'].index_method
-        except KeyError: # one would expect to have to catch AttributeError here...
+        except (AttributeError, KeyError):
             pass
         
     def test_base_usage(self):
