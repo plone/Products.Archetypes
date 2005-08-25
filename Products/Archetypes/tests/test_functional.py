@@ -207,6 +207,27 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             self.failUnlessEqual(new_obj.Title(),obj_title) # title is set
             self.failUnlessEqual(new_obj.getId(), auto_id) # id should not have changed
 
+    def test_update_schema_does_not_reset_creation_flag(self):
+        # This is functional so that we get a full request and set the flag
+
+        # create an object with flag set
+        response = self.publish(self.folder_path +
+                              '/invokeFactory?type_name=DDocument&id=new_doc',
+                              self.basic_auth)
+        self.failUnless('new_doc' in self.folder.objectIds())
+        new_obj = self.folder.new_doc
+        self.failUnless(new_obj.checkCreationFlag()) # object is not yet edited
+        obj_title = "New Title for Object"
+        new_obj_path = '/%s' % new_obj.absolute_url(1)
+        response = self.publish('%s/base_edit?form.submitted=1&title=%s&body=Blank' % (new_obj_path, obj_title,), self.basic_auth) # Edit object
+        self.failIf(new_obj.checkCreationFlag()) # object is fully created
+        # Now run the schema update
+        req = self.app.REQUEST
+        req.form['update_all']=True
+        req.form['Archetypes.DDocument']=True
+        self.portal.archetype_tool.manage_updateSchema(REQUEST=req)
+        self.failIf(new_obj.checkCreationFlag())
+
     def test_createObjectViaWebDAV(self):
         # WebDAV upload should create new document without creation flag set
         response = self.publish(self.folder_path+'/new_html',
