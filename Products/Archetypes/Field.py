@@ -924,6 +924,12 @@ class FileField(ObjectField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+        if value == "DELETE_FILE":
+            if shasattr(instance, '_FileField_types'):
+                delattr(aq_base(instance), '_FileField_types')
+            ObjectField.unset(self, instance, **kwargs)
+            return
+
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -956,12 +962,6 @@ class FileField(ObjectField):
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
-
-        if value == "DELETE_FILE":
-            if shasattr(instance, '_FileField_types'):
-                delattr(aq_base(instance), '_FileField_types')
-            ObjectField.unset(self, instance, **kwargs)
-            return
 
         # remove ugly hack
         if shasattr(instance, '_FileField_types'):

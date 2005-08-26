@@ -1,6 +1,10 @@
 post 1.3.4-rc3
 ==============
 
+  * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget 
+    breaks
+    [yenzenz]
+
   * Fixed a number of issues related to the oversimplicity of
     CatalogMultiplex.manage_after*.  Workflow state was not being reset on
     object copy, which is a minor security issue.  Discussions were not being
