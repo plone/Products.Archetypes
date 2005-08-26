@@ -202,19 +202,22 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     security.declarePrivate('copy')
-    def copy(self):
+    def copy(self, name=None):
         """
         Return a copy of field instance, consisting of field name and
-        properties dictionary.
+        properties dictionary. field name can be changed to given name.
         """
         cdict = dict(vars(self))
+        cdict.pop('__name__')
         # Widget must be copied separatedly
         widget = cdict['widget']
         del cdict['widget']
         properties = deepcopy(cdict)
         properties['widget'] = widget.copy()
-        return self.__class__(self.getName(), **properties)
+        name = name is not None and name or self.getName()
+        return self.__class__(name, **properties)
 
+    
     def __repr__(self):
         """
         Return a string representation consisting of name, type and permissions.

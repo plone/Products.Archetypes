@@ -1,6 +1,9 @@
 post 1.3.4-rc3
 ==============
 
+  * enabled renaming of fields while copy them. it eases field recycling.
+    [yenzenz]
+
   * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget 
     breaks
     [yenzenz]
