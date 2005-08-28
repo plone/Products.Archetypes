@@ -1,6 +1,14 @@
 post 1.3.4-rc3
 ==============
 
+  * added tests if the test engine i working fine, this shows the effect
+    of http://plone.org/collector/4487 verbose.
+    [yenzenz]
+
+  * applied patch to BaseObject.unmarkCreationFlag() with unwanted
+    acquisition of at_post_create_script. thx Aparajita Fishman
+    [yenzenz]
+
   * enabled renaming of fields while copy them. it eases field recycling.
     [yenzenz]
 

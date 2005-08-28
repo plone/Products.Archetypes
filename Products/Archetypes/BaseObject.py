@@ -652,13 +652,15 @@ class BaseObject(Referenceable):
         """
         if shasattr(aq_inner(self), '_at_creation_flag'):
             self._at_creation_flag = False
-        post_create = getattr(self, 'at_post_create_script', None)
-        if post_create is not None:
-            try:
-                post_create()
-            except TypeError:
-                log("unmarkCreationFlag: at_post_create_script not callable")
-                pass
+        if shasattr(self, 'at_post_create_script'):
+            post_create = getattr(self, 'at_post_create_script', None)
+            if post_create is not None:
+                try:
+                    post_create()
+                except TypeError:
+                    log("unmarkCreationFlag: at_post_create_script not "
+                        "callable")
+                    pass
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'checkCreationFlag')
