@@ -228,6 +228,8 @@ class Schemata(Base):
     def has_key(self, name):
         return self._fields.has_key(name)
 
+    __contains__ = has_key
+
     security.declareProtected(CMFCorePermissions.View, 'keys')
     def keys(self):
         return self._names

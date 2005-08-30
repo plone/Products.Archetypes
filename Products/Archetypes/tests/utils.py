@@ -44,6 +44,14 @@ from Products.Archetypes.config import PKG_NAME
 
 PACKAGE_HOME = package_home(globals())
 
+try:
+    import Zope2
+except ImportError:
+    ZOPE28 = False
+else:
+    ZOPE28 = True
+
+
 def gen_class(klass, schema=None):
     """generats and registers the klass
     """

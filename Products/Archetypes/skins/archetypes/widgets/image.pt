@@ -70,7 +70,7 @@
              <label for="" 
                     tal:attributes="for string:${fieldName}_nochange;" 
                     i18n:translate="nochange_image">
-                    Don't change
+                    Keep existing image
              </label>
              <br/>
             <input class="noborder"

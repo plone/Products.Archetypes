@@ -29,7 +29,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
@@ -37,7 +37,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
@@ -45,11 +45,17 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which os the same
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
         BaseFolder.manage_beforeDelete(self, item, container)
+
+    def _getCopy(self, container):
+        # We need to take _getCopy from BaseFolder (implicitly from
+        # Referencable) instead of straight from PortalFolder, otherwise there
+        # are strange side effects with references on copy.
+        return BaseFolder._getCopy(self, container)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """

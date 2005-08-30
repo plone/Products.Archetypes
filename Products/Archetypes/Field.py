@@ -62,6 +62,7 @@ from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import contentDispositionHeader
 from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
@@ -201,19 +202,22 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     security.declarePrivate('copy')
-    def copy(self):
+    def copy(self, name=None):
         """
         Return a copy of field instance, consisting of field name and
-        properties dictionary.
+        properties dictionary. field name can be changed to given name.
         """
         cdict = dict(vars(self))
+        cdict.pop('__name__')
         # Widget must be copied separatedly
         widget = cdict['widget']
         del cdict['widget']
         properties = deepcopy(cdict)
         properties['widget'] = widget.copy()
-        return self.__class__(self.getName(), **properties)
+        name = name is not None and name or self.getName()
+        return self.__class__(name, **properties)
 
+    
     def __repr__(self):
         """
         Return a string representation consisting of name, type and permissions.
@@ -923,6 +927,12 @@ class FileField(ObjectField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+        if value == "DELETE_FILE":
+            if shasattr(instance, '_FileField_types'):
+                delattr(aq_base(instance), '_FileField_types')
+            ObjectField.unset(self, instance, **kwargs)
+            return
+
         if not kwargs.has_key('mimetype'):
             kwargs['mimetype'] = None
 
@@ -955,12 +965,6 @@ class FileField(ObjectField):
 
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
-
-        if value == "DELETE_FILE":
-            if shasattr(instance, '_FileField_types'):
-                delattr(aq_base(instance), '_FileField_types')
-            ObjectField.unset(self, instance, **kwargs)
-            return
 
         # remove ugly hack
         if shasattr(instance, '_FileField_types'):
@@ -1063,7 +1067,8 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
         if filename is not None:
-            RESPONSE.setHeader("Content-disposition", "attachment; filename=%s" % filename)
+            header_value = contentDispositionHeader('attachment', instance.getCharset(), filename=filename)
+            RESPONSE.setHeader("Content-disposition", header_value)
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
@@ -1662,12 +1667,16 @@ class ReferenceField(ObjectField):
 
     def _brains_title_or_id(self, brain, instance):
         """ ensure the brain has a title or an id and return it as unicode"""
-        brain =  aq_base(brain)
-        ret = getattr(brain,'Title',None) or getattr(brain,'id',None)
-        if ret is not None and type(ret) in StringTypes:
-            return decode(ret, instance)
-        assert("problem with catalog, brain has not Title nor id")
+        title = None
+        if shasattr(brain, 'getId'):
+            title = brain.getId
+        if shasattr(brain, 'Title') and brain.Title != '':
+            title = brain.Title
 
+        if title is not None and type(title) in StringTypes:
+            return decode(title, instance)
+        
+        raise AttributeError, "Brain has no title or id"
 
     def _Vocabulary(self, content_instance):
         pairs = []

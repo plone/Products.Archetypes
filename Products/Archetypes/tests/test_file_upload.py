@@ -324,6 +324,16 @@ class FileFieldTest(ZopeTestCase.ZopeTestCase):
         # compatibility.
         self.failUnless(isinstance(result, self.factory),
                         (type(result), self.factory))
+                        
+    def test_delete_file_via_set(self):
+        sample = 'a sample text file to be deleted ............................'
+        self.field.set(self.instance, sample)
+        samplesize = self.field.get_size(self.instance)
+        self.failUnless(samplesize > 0)
+        deletefile = 'DELETE_FILE'
+        self.field.set(self.instance, deletefile)
+        samplesize = self.field.get_size(self.instance)
+        self.failUnless(samplesize == 0)
 
 
 class TextFieldTest(FileFieldTest):

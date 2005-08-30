@@ -910,3 +910,33 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
                 print '%s.%s has no security' % (klass.__name__, name)
             elif security.names.get(name) is ACCESS_PUBLIC:
                 print '%s.%s is public' % (klass.__name__, name)
+
+def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
+    """Return a properly quoted disposition header
+
+    Originally from CMFManagedFile/content.py.
+    charset default changed to utf-8 for consistency with the rest of Archetypes.
+    """
+
+    from email.Message import Message
+    from email import Utils
+
+    for key, value in kw.items():
+        # stringify the value
+        if isinstance(value, unicode):
+            value = value.encode(charset)
+        else:
+            value = str(value)
+            # raise an error if the charset doesn't match
+            unicode(value, charset, 'strict')
+        # if any value contains 8-bit chars, make it an
+        # encoding 3-tuple for special treatment by
+        # Message.add_header() (actually _formatparam())
+        try:
+            unicode(value, 'us-ascii', 'strict')
+        except UnicodeDecodeError:
+            value = (charset, language, value)
+
+    m = Message()
+    m.add_header('content-disposition', disposition, **kw)
+    return m['content-disposition']
