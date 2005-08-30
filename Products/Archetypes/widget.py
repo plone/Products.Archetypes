@@ -3,33 +3,31 @@ from AccessControl.unauthorized import Unauthorized
 from Acquisition import aq_base, aq_inner
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
-##XXX remove dep, report errors properly
 import i18n
 
 class iwidget:
     def __call__(instance, context=None):
-        """return a rendered fragment that can be included in a larger
+        """Returns a rendered fragment that can be included in a larger
         context when called by a renderer.
 
         instance - the instance this widget is called for
         context  - should implement dict behavior
         """
 
-    def getContext(self, mode, instance):
-        """returns any prepaired context or and empty {}"""
+    def getContext(mode, instance):
+        """Returns a prepared context or an empty {}."""
 
-    def Label(self, instance):
-        """Returns the label, possibly translated"""
+    def Label(instance):
+        """Returns the label, possibly translated."""
 
-    def Description(self, instance):
-        """Returns the description, possibly translated"""
+    def Description(instance):
+        """Returns the description, possibly translated."""
 
 class widget:
-    """
-    Base class for widgets
+    """Base class for widgets.
 
     A dynamic widget with a reference to a macro that can be used to
-    render it
+    render it.
 
     description -- tooltip
     label       -- textual label
@@ -41,14 +39,14 @@ class widget:
 
     security  = ClassSecurityInfo()
     security.declareObjectPublic()
-    security.setDefaultAccess("allow")
+    security.setDefaultAccess('allow')
 
     _properties = {
         'description' : '',
         'label' : '',
         'visible' : {'edit':'visible', 'view':'visible'},
         'condition': '',
-        }
+    }
 
     def __init__(self, **kwargs):
         self._process_args(**kwargs)
@@ -58,13 +56,14 @@ class widget:
         self.__dict__.update(kwargs)
 
     def __call__(self, mode, instance, context=None):
-        """Not implemented"""
+        """Not implemented."""
         return ''
 
     def getContext(self, instance):
+        """Returns a prepared context or an empty {}."""
         return {}
 
-    def _translate_attribute(self, instance, name):
+    def _translate_attribute(self, instance, name, target_language=None):
         value = getattr(self, name, '')
         msgid = getattr(self, name+'_msgid', None) or value
 
@@ -78,60 +77,61 @@ class widget:
             return value
 
         return i18n.translate(domain, msgid, mapping=instance.REQUEST,
-                              context=instance, default=value)
+                              context=instance, default=value,
+                              target_language=target_language)
 
     def Label(self, instance, **kwargs):
-        """Returns the label, possibly translated"""
+        """Returns the label, possibly translated."""
         value = getattr(self, 'label_method', None)
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
-            ## Label methods can be called with kwargs and should
-            ## return the i18n version of the description
+            # Label methods can be called with kwargs and should
+            # return the i18n version of the description
             value = method(**kwargs)
             return value
-
-        return self._translate_attribute(instance, 'label')
+        target_language = kwargs.get('target_language', None)
+        return self._translate_attribute(instance, 'label', target_language)
 
     def Description(self, instance, **kwargs):
-        """Returns the description, possibly translated"""
+        """Returns the description, possibly translated."""
         value = self.description
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
-            ## Description methods can be called with kwargs and should
-            ## return the i18n version of the description
+            # Description methods can be called with kwargs and should
+            # return the i18n version of the description
             value = method(**kwargs)
             return value
-
-        return self._translate_attribute(instance, 'description')
+        target_language = kwargs.get('target_language', None)
+        return self._translate_attribute(instance, 'description',
+                                         target_language)
 
 
 class macrowidget(widget):
-    """macro is the file containing the macros, the mode/view is the
-    name of the macro in that file
+    """Macro is the file containing the macros, the mode/view is the
+    name of the macro in that file.
     """
 
     _properties = widget._properties.copy()
     _properties.update({
         'macro' : None,
-        })
+    })
 
     def bootstrap(self, instance):
-        # do initialization-like thingies that need the instance
+        # Do initialization-like thingies that need the instance
         pass
 
     def __call__(self, mode, instance, context=None):
         self.bootstrap(instance)
-        #If an attribute called macro_<mode> exists resolve that
-        #before the generic macro, this lets other projects
-        #create more partial widgets
-        macro = getattr(self, "macro_%s" % mode, self.macro)
+        # If an attribute called macro_<mode> exists resolve that
+        # before the generic macro, this lets other projects
+        # create more partial widgets
+        macro = getattr(self, 'macro_%s' % mode, self.macro)
         # Now split the macro into optional parts using '|'
         # if the first part doesn't exist, the search continues
         paths = macro.split('|')
         if len(paths) == 1 and macro == self.macro:
-            # prepend the default (optional) customization element
+            # Prepend the default (optional) customization element
             paths.insert(0, 'at_widget_%s' % self.macro.split('/')[-1])
-
         for path in paths:
             try:
                 template = instance.restrictedTraverse(path = path)
