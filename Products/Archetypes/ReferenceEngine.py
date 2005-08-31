@@ -266,7 +266,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             except: #NotFound # XXX bare exception
                 pass
 
-            if not obj:
+            if obj is None:
                 if REQUEST is None:
                     REQUEST = self.REQUEST
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
