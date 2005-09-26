@@ -54,23 +54,6 @@ import Products.PortalTransforms
 import Products.generator
 import Products.validation
 
-# odd dependency checking :-/
-mtr_info = getPkgInfo(Products.MimetypesRegistry)
-pt_info = getPkgInfo(Products.PortalTransforms)
-gen_info = getPkgInfo(Products.generator)
-val_info = getPkgInfo(Products.validation)
-
-at_version = __version__
-for info in (mtr_info, pt_info, gen_info, val_info, ):
-    if not hasattr(info, 'at_versions'):
-        raise RuntimeError('The product %s has no at_versions assigend. ' \
-                           'Please update to a newer version.' % info.modname)
-    if at_version not in info.at_versions:
-        raise RuntimeError('The current Archetypes version %s is not in list ' \
-                           'of compatible versions for %s!\nList: %s' % \
-                           (at_version, info.modname, info.at_versions)
-                          )
-
 ###
 # Tools
 ###
