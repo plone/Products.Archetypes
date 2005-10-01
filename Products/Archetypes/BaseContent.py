@@ -13,7 +13,12 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore import CMFCorePermissions
+
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportErro:
+    from Products.CMFCore import CMFCorePermissions
+    
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError

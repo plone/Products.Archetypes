@@ -9,7 +9,12 @@ import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Products.CMFCore import CMFCorePermissions
+
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
+
 from Products.CMFCore.DirectoryView import registerDirectory
 
 from zLOG import LOG, PROBLEM
@@ -69,12 +74,11 @@ def initialize(context):
     from Products.CMFCore import utils
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
-                   product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
 
-    from Products.Archetypes.customizationpolicy import registerPolicy
-    registerPolicy(context)
+    ##from Products.Archetypes.customizationpolicy import registerPolicy
+    ##registerPolicy(context)
 
     if REGISTER_DEMO_TYPES:
         import Products.Archetypes.examples

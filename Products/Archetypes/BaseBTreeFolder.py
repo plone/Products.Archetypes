@@ -1,5 +1,9 @@
 from Products.Archetypes.public import BaseFolder
-from Products.CMFCore import CMFCorePermissions
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
+    
 try:
     # import CMF >=1.5.3 style
     from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
@@ -98,8 +102,8 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     __call__ = BaseFolder.__call__.im_func
 
-    security.declareProtected(CMFCorePermissions.View, 'view')
-    view = BaseFolder.view.im_func
+    #security.declareProtected(CMFCorePermissions.View, 'view')
+    #view = BaseFolder.view.im_func
 
     def index_html(self):
         """ Allow creation of .

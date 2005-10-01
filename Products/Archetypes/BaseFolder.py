@@ -11,15 +11,20 @@ from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.PortalContent  import PortalContent
 
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
+    
 try:
     from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 except:
     from Products.CMFCore.PortalFolder import PortalFolder
+    
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import _getViewFor
+#from Products.CMFCore.utils import _getViewFor
 
 class BaseFolderMixin(CatalogMultiplex,
                     BaseObject,
@@ -40,27 +45,30 @@ class BaseFolderMixin(CatalogMultiplex,
     def __call__(self):
         """Invokes the default view.
         """
-        ti = self.getTypeInfo()
-        # BBB check required for CMF 1.4
-        if shasattr(ti, 'queryMethodID'):
-            method_id = ti and ti.queryMethodID('(Default)', context=self)
-        else:
-            method_id = None
 
-        if method_id:
-            method = getattr(self, method_id)
-        else:
-            method = _getViewFor(self)
-        if getattr(aq_base(method), 'isDocTemp', 0):
-            return method(self, self.REQUEST)
-        else:
-            return method()
+        return PortalFolder.__call__( self )
+    
+##         ti = self.getTypeInfo()
+##         # BBB check required for CMF 1.4
+##         if shasattr(ti, 'queryMethodID'):
+##             method_id = ti and ti.queryMethodID('(Default)', context=self)
+##         else:
+##             method_id = None
 
-    security.declareProtected(CMFCorePermissions.View, 'view')
-    def view(self):
-        """View method for CMF 1.4.
-        """
-        return self()
+##         if method_id:
+##             method = getattr(self, method_id)
+##         else:
+##             method = _getViewFor(self)
+##         if getattr(aq_base(method), 'isDocTemp', 0):
+##             return method(self, self.REQUEST)
+##         else:
+##             return method()
+
+    #security.declareProtected(CMFCorePermissions.View, 'view')
+    #def view(self):
+    #    """View method for CMF 1.4.
+    #    """
+    #    return self()
 
     # This special value informs ZPublisher to use __call__
     index_html = None

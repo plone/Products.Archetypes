@@ -17,7 +17,11 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base, Explicit
 from ExtensionClass import Base
 from Globals import InitializeClass
-from Products.CMFCore import CMFCorePermissions
+
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
 
 __docformat__ = 'reStructuredText'
 

@@ -36,7 +36,11 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.CMFCore.utils import _checkPermission as checkPerm
-from Products.CMFCore import CMFCorePermissions
+
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
 
 
 class TestPermissions(ATSiteTestCase):

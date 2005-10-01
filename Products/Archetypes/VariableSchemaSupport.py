@@ -11,7 +11,11 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
-from Products.CMFCore import CMFCorePermissions
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
+
 from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
@@ -94,7 +98,7 @@ class VariableSchemaSupport(Base):
         hash=sha.new(str([f.__dict__ for f in s.values()]) +
                      str(self.__class__)).hexdigest()
 
-        if schemadict.has_key(hash): #ok we had that shema already, so take it
+        if schemadict.has_key(hash): #ok we had that schema already, so take it
             schema=schemadict[hash]
         else: #make a new one and store it using the hash key
             schemadict[hash]=s

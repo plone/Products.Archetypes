@@ -10,7 +10,12 @@ from Acquisition import aq_base
 from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
 
-from Products.CMFCore.CMFCorePermissions import ManagePortal
+
+try:
+    from Products.CMFCore.permissions import ManagePortal
+except ImportError:
+    from Products.CMFCore.CMFCorePermissions import ManagePortal
+
 from Products.CMFCore.utils import getToolByName
 
 class SQLStorageConfig (SimpleItem):

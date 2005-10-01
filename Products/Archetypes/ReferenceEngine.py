@@ -24,7 +24,6 @@ from OFS.ObjectManager import ObjectManager
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
@@ -35,6 +34,11 @@ from ZODB.POSException import ConflictError
 from zExceptions import NotFound
 import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
+
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
