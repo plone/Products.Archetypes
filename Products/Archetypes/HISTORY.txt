@@ -5,6 +5,11 @@
     declarePrivate security declarations. Patch by Jens Vagelpohl.
     [dreamcatcher]
 
+  * Fixed some places where a session was being created nedlessly. Now
+    sessions will only be created when they are really used. I hope
+    this is the last occurrence.
+    [dreamcatcher]
+
 1.3.4-final - 2005-08-30
 ========================
 
