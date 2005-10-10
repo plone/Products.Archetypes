@@ -2354,8 +2354,8 @@ class ImageField(FileField):
             url+= '/' + self.getName()
 
         values = {'src' : url,
-                  'alt' : escape(alt and alt or instance.Title()),
-                  'title' : escape(title and title or instance.Title()),
+                  'alt' : escape(alt and alt or instance.Title(), 1),
+                  'title' : escape(title and title or instance.Title(), 1),
                   'height' : height,
                   'width' : width,
                  }
