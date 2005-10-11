@@ -20,28 +20,6 @@ if 'final' in release:
 
 numversion = (int(major), int(minor), int(bugfix), relinfo)
 
-at_versions = (
-    '1.3.0-final',
-    '1.3.1-rc1',
-    '1.3.1-rc2',
-    '1.3.1-rc3',
-    '1.3.1-rc4',
-    '1.3.1-final',
-    '1.3.2-rc1',
-    '1.3.2-final',
-    '1.3.3-rc1',
-    '1.3.3-rc2',
-    '1.3.3-rc3',
-    '1.3.3-final',
-    '1.3.4-beta1',
-    '1.3.4-beta2',
-    '1.3.4-rc1',
-    '1.3.4-rc2',
-    '1.3.4-rc3',
-    '1.3.4-final',
-    '1.3.5-final',
-    ###MARKERFORATRELEASESCRIPT###
-    )
 license = 'GPL'
 copyright = '''Benjamin Saller (c) 2003'''
 
