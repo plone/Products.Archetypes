@@ -72,13 +72,18 @@ cleanup = {}
 
 # Gadfly
 
-try:
-    from Products.ZGadflyDA.DA import Connection
-except ImportError:
-    print >>sys.stderr, 'Failed to import ZGadflyDA'
-else:
-    ZopeTestCase.installProduct('ZGadflyDA', 0)
-    connectors['Gadfly'] = 'demo'
+# XXX: Gadfly no longer works in Zope 2.7.8/2.8.2
+# See http://www.zope.org/Collectors/Zope/556
+# We may get around this by avoiding NULL in SQLStorage,
+# but for now I am disabling the tests. [shh]
+#
+#try:
+#    from Products.ZGadflyDA.DA import Connection
+#except ImportError:
+#    print >>sys.stderr, 'Failed to import ZGadflyDA'
+#else:
+#    ZopeTestCase.installProduct('ZGadflyDA', 0)
+#    connectors['Gadfly'] = 'demo'
 
 # Postgresql
 

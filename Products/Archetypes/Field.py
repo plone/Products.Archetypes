@@ -766,13 +766,16 @@ class StringField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
+        if getattr(self, 'raw', False):
+            return value
         return encode(value, instance, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         # Remove acquisition wrappers
-        value = decode(aq_base(value), instance, **kwargs)
+        if not getattr(self, 'raw', False):
+            value = decode(aq_base(value), instance, **kwargs)
         self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
 class FileField(ObjectField):
@@ -835,10 +838,14 @@ class FileField(ObjectField):
         elif isinstance(value, FileType) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
-            filename = filename or value.name
-            # Should we really special case here?
-            if filename == '<fdopen>':
-                filename = ''
+            if not filename:
+                filename = value.name
+                # Should we really special case here?
+                for v in (filename, repr(value)):
+                    # Windows unnamed temporary file has '<fdopen>' in
+                    # repr() and full path in 'file.name'
+                    if '<fdopen>' in v:
+                        filename = ''
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
             # if mimetype is None:
@@ -1150,10 +1157,14 @@ class TextField(FileField):
         elif isinstance(value, FileType) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
-            filename = filename or value.name
-            # Should we really special case here?
-            if filename == '<fdopen>':
-                filename = ''
+            if not filename:
+                filename = value.name
+                # Should we really special case here?
+                for v in (filename, repr(value)):
+                    # Windows unnamed temporary file has '<fdopen>' in
+                    # repr() and full path in 'file.name'
+                    if '<fdopen>' in v:
+                        filename = ''
             # XXX Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
@@ -2343,8 +2354,8 @@ class ImageField(FileField):
             url+= '/' + self.getName()
 
         values = {'src' : url,
-                  'alt' : alt and alt or instance.Title(),
-                  'title' : title and title or instance.Title(),
+                  'alt' : escape(alt and alt or instance.Title(), 1),
+                  'title' : escape(title and title or instance.Title(), 1),
                   'height' : height,
                   'width' : width,
                  }

@@ -266,7 +266,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             except: #NotFound # XXX bare exception
                 pass
 
-            if not obj:
+            if obj is None:
                 if REQUEST is None:
                     REQUEST = self.REQUEST
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
@@ -571,17 +571,27 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         for b in self.getBackReferences(object, relationship):
             self._deleteReference(b)
 
-    def getReferences(self, object, relationship=None):
+    def getReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
         sID, sobj = self._uidFor(object)
-        brains = self._queryFor(sid=sID, relationship=relationship)
+        if targetObject:
+            tID, tobj = self._uidFor(targetObject)
+        else:
+            tID, tobj = None,None
+            
+        brains = self._queryFor(sid=sID, relationship=relationship, tid=tID)
         return self._resolveBrains(brains)
 
-    def getBackReferences(self, object, relationship=None):
+    def getBackReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
         # Back refs would be anything that target this object
         sID, sobj = self._uidFor(object)
-        brains = self._queryFor(tid=sID, relationship=relationship)
+        if targetObject:
+            tID, tobj = self._uidFor(targetObject)
+        else:
+            tID, tobj = None,None
+
+        brains = self._queryFor(tid=sID, relationship=relationship, sid=tID)
         return self._resolveBrains(brains)
 
     def hasRelationshipTo(self, source, target, relationship):

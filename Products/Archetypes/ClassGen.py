@@ -103,6 +103,8 @@ class ClassGenerator:
 
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
+        method__roles__ = getattr(klass, '%s__roles__' % methodName, 0)
+
         # Check copied from SecurityInfo to avoid stomping over
         # existing permissions.
         if security.names.get(methodName, perm) != perm:
@@ -112,6 +114,10 @@ class ClassGenerator:
                  'permission declared is the correct one and '
                  'has preference over the permission declared '
                  'on the field.' % methodName)
+        elif method__roles__ is None:
+            security.declarePublic(methodName)
+        elif method__roles__ == ():
+            security.declarePrivate(methodName)
         else:
             security.declareProtected(perm, methodName)
 

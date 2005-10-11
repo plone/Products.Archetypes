@@ -624,6 +624,22 @@ class BaseObject(Referenceable):
         self.unmarkCreationFlag()
         if self._at_rename_after_creation and is_new_object:
             self._renameAfterCreation(check_auto_id=True)
+        
+        # Post create/edit hooks
+        if is_new_object:
+            self.at_post_create_script()
+        else:
+            self.at_post_edit_script()
+
+    # This method is only called once after object creation.
+    security.declareProtected(CMFCorePermissions.View, 'at_post_create_script')
+    def at_post_create_script(self):
+        pass
+
+    # This method is called after every subsequent edit
+    security.declareProtected(CMFCorePermissions.View, 'at_post_edit_script')
+    def at_post_edit_script(self):
+        pass
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'markCreationFlag')
@@ -652,15 +668,6 @@ class BaseObject(Referenceable):
         """
         if shasattr(aq_inner(self), '_at_creation_flag'):
             self._at_creation_flag = False
-        if shasattr(self, 'at_post_create_script'):
-            post_create = getattr(self, 'at_post_create_script', None)
-            if post_create is not None:
-                try:
-                    post_create()
-                except TypeError:
-                    log("unmarkCreationFlag: at_post_create_script not "
-                        "callable")
-                    pass
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'checkCreationFlag')
@@ -995,9 +1002,14 @@ class BaseObject(Referenceable):
         mt = mtr.classify(data, filename=name)
         return Wrapper(data, name, str(mt) or 'application/octet-stream').__of__(self)
 
-    def __bobo_traverse__(self, REQUEST, name, RESPONSE=None):
+    def __bobo_traverse__(self, REQUEST, name):
         """Allows transparent access to session subobjects.
         """
+        # sometimes, the request doesn't have a response, e.g. when
+        # PageTemplates traverse through the object path, they pass in
+        # a phony request (a dict).
+        RESPONSE = getattr(REQUEST, 'RESPONSE', None)
+
         # Is it a registered sub object
         data = self.getSubObject(name, REQUEST, RESPONSE)
         if data is not None:

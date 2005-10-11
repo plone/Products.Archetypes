@@ -20,7 +20,7 @@ Christian Heimes                -- Bug fixing and improvements, new unit
                                    test suit based on ZopeTestCase
 Vladimir Iliev                  -- Lots of i18n work
 Lalo Martins                    -- SQLStorage, code cleanup and testing
-Jens Klein			-- Enhancements, bug fixes, release 
+Jens Klein                      -- Enhancements, bug fixes, release 
                                    management, QA
 Riccardo Lemmi                  -- GadflyStorage rewrite
 Dwight Lowry                    -- SQLServerStorage
@@ -29,6 +29,7 @@ Alan Runyan                     -- Plone development, support,
 Bill Schindler                  -- Testing and lots of patches
 Sidnei da Silva                 -- SQLStorage, code cleanup and testing 
 Sylvain Thénault                -- Lots of i18n and patches
+Hanno Schlichting               -- Some more i18n work
 
 An especially Abstract Edge <www.abstractedge.com> for allowing for
 and supporting the development of a platform on top of Open Source

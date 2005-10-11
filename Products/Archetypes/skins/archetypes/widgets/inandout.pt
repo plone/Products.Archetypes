@@ -89,11 +89,11 @@
                              tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')"
                              />
                     </td>
-                 </tr>
-                 </table>
-             </div>
-             <div style="float:left">
-                <select
+                  </tr>
+                </table>
+            </div>
+            <div style="float:left">
+              <select
                   multiple="multiple"
                   tal:attributes="name string:${fieldName}:list;
                                   id string:${fieldName};
@@ -106,7 +106,7 @@
                       tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
                       tal:attributes="value single_value;"
                       tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
-              selected="selected">
+                       selected="selected">
                       option
                     </option>
                   </tal:block>

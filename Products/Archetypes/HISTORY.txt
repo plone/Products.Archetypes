@@ -1,3 +1,31 @@
+1.3.5-final - 2005-10-11
+========================
+
+  * Fixed http://members.plone.org/collector/4709 __bobo_traverse__ calls
+    will not be passing a RESPONSE argument.
+    [alecm]
+
+  * Fixed filename detection for temporary files on Windows.
+    [dreamcatcher]
+
+  * Fixed [ 1289596 ]. Field.ImageField.tag did not escape alt and title
+    attributes.
+    [elro] [stefan]
+
+  * Repaired ClassGen as to not stomp over declarePublic and
+    declarePrivate security declarations. Patch by Jens Vagelpohl.
+    [dreamcatcher]
+
+  * Fixed some places where a session was being created nedlessly. Now
+    sessions will only be created when they are really used. I hope
+    this is the last occurrence.
+    [dreamcatcher]
+
+  * Fixed at_post_create_script hook to only be called once (was previously
+    called after every edit) and added an at_post_edit_script hook to be
+    called on every subsequent edit (but not the first create/edit).
+    [elro]
+
 1.3.4-final - 2005-08-30
 ========================
 
