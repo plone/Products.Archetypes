@@ -1,5 +1,5 @@
-1.3.5-alpha1 - ??????????
-=========================
+1.3.5-final - 2005-10-11
+========================
 
   * Fixed http://members.plone.org/collector/4709 __bobo_traverse__ calls
     will not be passing a RESPONSE argument.
