@@ -1,0 +1,14 @@
+Source: generator
+Section: python
+Priority: optional
+Maintainer: Sylvain Thenault <sylvain.thenault@logilab.fr> 
+Build-Depends-Indep: debhelper (>= 3.0.0)
+Standards-Version: 3.6.0
+
+Package: zope-generator
+Architecture: all
+Depends: zope (>= 2.6)
+Description: Widget generator for Archetypes
+ Widget generator for Archetypes
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
