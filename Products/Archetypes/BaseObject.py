@@ -632,12 +632,12 @@ class BaseObject(Referenceable):
             self.at_post_edit_script()
 
     # This method is only called once after object creation.
-    security.declareProtected(CMFCorePermissions.View, 'at_post_create_script')
+    security.declarePrivate('at_post_create_script')
     def at_post_create_script(self):
         pass
 
     # This method is called after every subsequent edit
-    security.declareProtected(CMFCorePermissions.View, 'at_post_edit_script')
+    security.declarePrivate('at_post_edit_script')
     def at_post_edit_script(self):
         pass
 
