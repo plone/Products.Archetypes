@@ -1,6 +1,11 @@
 post 1.3.5-final
 ================
 
+  * DisplayLists should be a little less strict on their values. Now not only
+    unicode itself but also types inherited from unicode are allowed. This is
+    needed to handle zope.i18nmessageid.MessageID objects correctly.
+    [hannosch]
+
   * Permission for setting creation date and modification date: Portal
     Manager should it be allowed to set it manually!
     [yenzenz]
