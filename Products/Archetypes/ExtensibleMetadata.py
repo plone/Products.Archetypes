@@ -467,8 +467,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         if shasattr(self, 'http__refreshEtag'):
             self.http__refreshEtag()
 
-    # XXX Could this be simply protected by ModifyPortalContent ?
-    security.declarePrivate('setModificationDate')
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'setModificationDate')
     def setModificationDate(self, modification_date=None):
         """Set the date when the resource was last modified.
         When called without an argument, sets the date to now.
@@ -479,7 +479,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             modified = self._datify(modification_date)
         self.getField('modification_date').set(self, modified)
 
-    security.declarePrivate('setCreationDate')
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'setCreationDate')
     def setCreationDate(self, creation_date=None):
         """Set the date when the resource was created.
         When called without an argument, sets the date to now.

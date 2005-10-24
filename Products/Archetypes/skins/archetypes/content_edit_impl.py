@@ -7,9 +7,10 @@
 ##bind subpath=traverse_subpath
 ##parameters=state, id=''
 ##
-REQUEST = context.REQUEST
-SESSION = REQUEST.SESSION
 
+from Products.CMFCore.utils import getToolByName
+
+REQUEST = context.REQUEST
 old_id = context.getId()
 
 try:
@@ -23,14 +24,14 @@ new_context.processForm()
 form = REQUEST.form
 if form.has_key('current_lang'):
     form['language'] = form.get('current_lang')
-    
 
 portal_status_message = context.translate(
     msgid='message_content_changes_saved',
     domain='archetypes',
     default='Content changes saved.')
 
-portal_status_message = REQUEST.get('portal_status_message', portal_status_message)
+portal_status_message = REQUEST.get('portal_status_message',
+                                    portal_status_message)
 
 # handle navigation for multi-page edit forms
 next = not REQUEST.get('form_next', None) is None
@@ -84,25 +85,32 @@ if reference_source_url is not None:
         domain='archetypes',
         default='Reference Edited.')
 
-    # update session saved data
+    # Avoid implicitly creating a session if one doesn't exists
+    session = None
+    sdm = getToolByName(context, 'session_data_manager', None)
+    if sdm is not None:
+        session = sdm.getSessionData(create=0)
+
+    # update session saved data, if session exists.
     uid = new_context.UID()
-    saved_dic = SESSION.get(reference_obj.getId(), None)
-    if saved_dic:
-        saved_value = saved_dic.get(reference_source_field, None)
-        if same_type(saved_value, []):
-            # reference_source_field is a multiValued field, right!?
-            if uid in saved_value:
-                portal_status_message = edited_reference_message
+    if session is not None:
+        saved_dic = session.get(reference_obj.getId(), None)
+        if saved_dic:
+            saved_value = saved_dic.get(reference_source_field, None)
+            if same_type(saved_value, []):
+                # reference_source_field is a multiValued field, right!?
+                if uid in saved_value:
+                    portal_status_message = edited_reference_message
+                else:
+                    saved_value.append(uid)
             else:
-                saved_value.append(uid)
-        else:
-            if uid == saved_value:
-                portal_status_message = edited_reference_message
-            else:
-                saved_value = uid
-        saved_dic[reference_source_field] = saved_value
-        SESSION.set(reference_obj.getId(), saved_dic)
-    
+                if uid == saved_value:
+                    portal_status_message = edited_reference_message
+                else:
+                    saved_value = uid
+            saved_dic[reference_source_field] = saved_value
+            session.set(reference_obj.getId(), saved_dic)
+
     # XXX disabled mark creation flag
     ## context.remove_creation_mark(old_id)
 
@@ -136,7 +144,9 @@ if state.errors:
 
 if not state.errors:
     from Products.Archetypes import transaction_note
-    transaction_note('Edited %s %s at %s' % (new_context.meta_type, new_context.title_or_id(), new_context.absolute_url()))
+    transaction_note('Edited %s %s at %s' % (new_context.meta_type,
+                                             new_context.title_or_id(),
+                                             new_context.absolute_url()))
 
 return state.set(status='success',
                  context=new_context,

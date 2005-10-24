@@ -79,10 +79,10 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getBackRelationships(self)
 
-    def getRefs(self, relationship=None):
+    def getRefs(self, relationship=None, targetObject=None):
         """get all the referenced objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship)
+        refs = tool.getReferences(self, relationship, targetObject=targetObject)
         if refs:
             return [ref.getTargetObject() for ref in refs]
         return []
@@ -91,10 +91,10 @@ class Referenceable(CopySource):
         """the url used as the relative path based uid in the catalogs"""
         return getRelURL(self, self.getPhysicalPath())
 
-    def getBRefs(self, relationship=None):
+    def getBRefs(self, relationship=None, targetObject=None):
         """get all the back referenced objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship)
+        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
             return [ref.getSourceObject() for ref in refs]
         return []
@@ -103,18 +103,18 @@ class Referenceable(CopySource):
     getReferences=getRefs
     getBackReferences=getBRefs
 
-    def getReferenceImpl(self, relationship=None):
+    def getReferenceImpl(self, relationship=None, targetObject=None):
         """get all the reference objects for this object    """
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship)
+        refs = tool.getReferences(self, relationship, targetObject=targetObject)
         if refs:
             return refs
         return []
 
-    def getBackReferenceImpl(self, relationship=None):
+    def getBackReferenceImpl(self, relationship=None, targetObject=None):
         """get all the back reference objects for this object"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship)
+        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
             return refs
         return []

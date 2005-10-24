@@ -305,6 +305,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj_id   = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
+        other_id = 'other_doc'
 
         a = makeContent( self.folder, portal_type='DDocument',
                          title='Foo', id=obj_id)
@@ -329,6 +330,17 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.deleteReference(c, "Owns")
         self.assertEquals(a.getRefs(), [b])
         self.assertEquals(c.getBRefs(), [])
+
+        #test querying references using the targetObject parameter
+        d = makeContent( self.folder, portal_type='DDocument',
+                         title='Foo', id=other_id)
+                         
+        a.addReference(d,'Owns')
+        a.addReference(d,'KnowsAbout')
+        
+        self.assertEqual(len(a.getReferenceImpl()),3)
+        #get only refs to d
+        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2) 
 
     def test_back_relationships(self):
 

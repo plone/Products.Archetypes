@@ -145,6 +145,17 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.check('from Products.Archetypes import DisplayList;'
                    'print DisplayList((("foo", "bar"),)).keys()')
 
+    def test_at_post_scripts_unauthorized(self):
+        # at_post_create_script and at_post_edit_script should not
+        # be accessible to TTW code at all.
+        self.setRoles(['Manager'])
+        test = """\
+        content = getattr(context, '%(object_id)s')
+        content.at_post_create_script()
+        content.at_post_edit_script()
+        """ % {'object_id': self.object_id}
+        self.checkUnauthorized(test)
+
 def test_suite():
     import unittest
     suite = unittest.TestSuite()
