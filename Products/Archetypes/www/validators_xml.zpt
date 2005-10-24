@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag="" 
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        tal:define="validators options/validators"
+        metal:define-macro="body">
+
+<validatorelements>
+
+  <tal:block repeat="validator validators">
+  <validatorelement id="validation.regexvalidators.isurl"
+                    tal:attributes="id validator/id">
+      <title tal:content="validator/title">Well-formed URL</title>
+      <description tal:content="validator/description">
+          Check to see if a string has a valid protocol 
+          and syntactically valid
+          format for URLs
+      </description>
+  </validatorelement>
+  </tal:block>
+
+</validatorelements>
+</tal:block>

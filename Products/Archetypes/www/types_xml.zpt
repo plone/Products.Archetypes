@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag=""
+	   xmlns:tal="http://xml.zope.org/namespaces/tal"
+	   xmlns:metal="http://xml.zope.org/namespaces/metal"
+	   tal:define="types options/types"
+	   metal:define-macro="body">
+
+  <types>
+
+    <tal:block repeat="type types">
+      <type id="Products.Archetypes.Widgets.IntegerWidget"
+	    tal:attributes="id type/id">
+	<basetypes tal:condition="type/basetypes">
+	  <tal:block repeat="base type/basetypes">
+	    <basetype tal:content="base">base</basetype>
+	  </tal:block>
+	</basetypes>
+	<package tal:content="type/package">ArchExample</package>
+	<portaltype tal:content="type/portal_type">SimpleType</portaltype>
+	<readonly tal:content="type/read_only"></readonly>
+	<url tal:content="string:${container/absolute_url}/type_xml?type=${type/id}">http://archetypes/archetype_ttw_tool/type_xml?type=Article</url>
+      </type>
+    </tal:block>
+
+  </types>
+
+</tal:block>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="archebuilder.css" type="text/css"?>
+<window title="Twingle"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    id= "archebuilder-main"
+    width="640"
+    height="480"
+    screenX="20"
+    screenY= "20"
+    onload="init();"
+    persist="screenX screenY width height"
+    orient="vertical">
+
+<script src="sarissa.js" type="text/javascript"/>
+<script src="archebuilder.js" type="text/javascript"/>
+<vbox id="ab-main">
+<label value="foobar"/>
+</vbox>
+<vbox>
+  <label value="Debug Log"/>
+  <vbox id="debuglog"><label/></vbox>
+</vbox>
+</window>
