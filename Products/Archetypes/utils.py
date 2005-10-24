@@ -369,7 +369,7 @@ class DisplayList:
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
+        if type(value) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
         if type(msgid) not in (StringType, NoneType):
