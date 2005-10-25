@@ -40,6 +40,7 @@ from Acquisition import Explicit
 from ComputedAttribute import ComputedAttribute
 from OFS.ObjectManager import ObjectManager
 from ZODB.POSException import ConflictError
+import transaction
 
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
@@ -709,7 +710,7 @@ class BaseObject(Referenceable):
         if not invalid_id:
             # Can't rename without a subtransaction commit when using
             # portal_factory!
-            get_transaction().commit(1)
+            transaction.commit(1)
             self.setId(new_id)
             return new_id
 

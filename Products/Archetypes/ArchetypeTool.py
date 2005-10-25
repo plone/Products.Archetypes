@@ -43,7 +43,7 @@ from OFS.Folder import Folder
 from Products.ZCatalog.IZCatalog import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.POSException import ConflictError
-
+import transaction
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -1070,7 +1070,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.subtransactioncounter += 1
         # Only every 250 objects a sub-commit, otherwise it eats up all diskspace
         if not self.subtransactioncounter % 250:
-            get_transaction().commit(1)
+            transaction.commit(1)
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
