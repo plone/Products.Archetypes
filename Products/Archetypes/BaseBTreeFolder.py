@@ -1,14 +1,10 @@
 from Products.Archetypes.public import BaseFolder
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
-    
+from Products.CMFCore import permissions
 try:
     # import CMF >=1.5.3 style
     from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 except ImportError:
-    # backward compatible import CMF <1.5.3
+    # BBB backward compatible import CMF <1.5.3
     from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -69,40 +65,40 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
                 return accessor()
         return CMFBTreeFolder.__getitem__(self, key)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unindexObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'unindexObject')
     unindexObject = BaseFolder.unindexObject.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'reindexObject')
     reindexObject = BaseFolder.reindexObject.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObjectSecurity')
+    security.declareProtected(permissions.ModifyPortalContent, 'reindexObjectSecurity')
     reindexObjectSecurity = BaseFolder.reindexObjectSecurity.im_func
 
     security.declarePrivate('notifyWorkflowCreated')
     notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated.im_func
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueItems')
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems.im_func
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueIds')
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueIds')
     opaqueIds = BaseFolder.opaqueIds.im_func
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueValues')
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues.im_func
 
-    security.declareProtected(CMFCorePermissions.ListFolderContents, 'listFolderContents')
+    security.declareProtected(permissions.ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents.im_func
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
+    security.declareProtected(permissions.AccessContentsInformation,
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents.im_func
 
     __call__ = BaseFolder.__call__.im_func
 
-    #security.declareProtected(CMFCorePermissions.View, 'view')
+    #security.declareProtected(permissions.View, 'view')
     #view = BaseFolder.view.im_func
 
     def index_html(self):
@@ -122,19 +118,19 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     index_html = ComputedAttribute(index_html, 1)
 
-    security.declareProtected(CMFCorePermissions.View, 'Title')
+    security.declareProtected(permissions.View, 'Title')
     Title = BaseFolder.Title.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
+    security.declareProtected(permissions.ModifyPortalContent, 'setTitle')
     setTitle = BaseFolder.setTitle.im_func
 
-    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
+    security.declareProtected(permissions.View, 'title_or_id')
     title_or_id = BaseFolder.title_or_id.im_func
 
-    security.declareProtected(CMFCorePermissions.View, 'Description')
+    security.declareProtected(permissions.View, 'Description')
     Description = BaseFolder.Description.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
+    security.declareProtected(permissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription.im_func
 
     manage_addFolder = BaseFolder.manage_addFolder.im_func
@@ -142,7 +138,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     MKCOL = BaseFolder.MKCOL.im_func
     MKCOL_handler = BaseFolder.MKCOL_handler.im_func
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
+    security.declareProtected(permissions.ModifyPortalContent, 'edit')
     edit = BaseFolder.edit.im_func
     
 InitializeClass(BaseBTreeFolder)

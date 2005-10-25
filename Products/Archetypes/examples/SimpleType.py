@@ -1,11 +1,6 @@
 from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-
-try:
-    from Products.CMFCore.permissions import setDefaultRoles
-except ImportError:
-    from Products.CMFCore.CMFCorePermissions import setDefaultRoles
-
+from Products.CMFCore.permissions import setDefaultRoles
 from AccessControl import ClassSecurityInfo
 
 schema = BaseSchema + Schema((

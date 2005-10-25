@@ -1,6 +1,13 @@
 1.4.0-alpha
 ========================
 
+  * Changed transactions use to new API and removed some Plone 2.0 backwards
+    compatibility code
+    [hannosch]
+
+  * Changed imports of CMFCore.CMFCorePermissions to CMFCore.permissions
+    [k_vertigo, hannosch]
+
   * DisplayLists should be a little less strict on their values. Now not only
     unicode itself but also types inherited from unicode are allowed. This is
     needed to handle zope.i18nmessageid.MessageID objects correctly.

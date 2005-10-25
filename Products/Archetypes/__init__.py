@@ -9,12 +9,7 @@ import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
-
+from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
 from zLOG import LOG, PROBLEM
@@ -89,7 +84,7 @@ def initialize(context):
         utils.ContentInit(
             '%s Content' % PKG_NAME,
             content_types = content_types,
-            permission = CMFCorePermissions.AddPortalContent,
+            permission = permissions.AddPortalContent,
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)

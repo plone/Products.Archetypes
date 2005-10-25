@@ -13,12 +13,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore.utils import getToolByName
-
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportErro:
-    from Products.CMFCore import CMFCorePermissions
-    
+from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 from ZODB.POSException import ConflictError
@@ -65,7 +60,7 @@ class BaseContentMixin(CatalogMultiplex,
         BaseObject._notifyOfCopyTo(self, container, op=op)
         PortalContent._notifyOfCopyTo(self, container, op=op)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
+    security.declareProtected(permissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST=None, RESPONSE=None):
         """ HTTP PUT handler with marshalling support
         """
@@ -132,7 +127,7 @@ class BaseContentMixin(CatalogMultiplex,
         RESPONSE.setStatus(204)
         return RESPONSE
 
-    security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
+    security.declareProtected(permissions.View, 'manage_FTPget')
     def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         "Get the raw content for this object (also used for the WebDAV SRC)"
 

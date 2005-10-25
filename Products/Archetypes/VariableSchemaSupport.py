@@ -11,11 +11,7 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
-
+from Products.CMFCore import permissions
 from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
@@ -67,7 +63,7 @@ class VariableSchemaSupport(Base):
 
     security = ClassSecurityInfo()
 
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(permissions.View,
                               'Schemata')
     def Schemata(self):
         """Returns an ordered dictionary, which maps all Schemata names to
@@ -80,7 +76,7 @@ class VariableSchemaSupport(Base):
             schemata[f.schemata] = sub.__of__(self)
         return schemata
 
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(permissions.View,
                               'Schema')
     def Schema(self):
         schema = self.getAndPrepareSchema()
@@ -89,7 +85,7 @@ class VariableSchemaSupport(Base):
         #    return schema.wrapped(self)
         return ImplicitAcquisitionWrapper(schema, self)
 
-    security.declareProtected(CMFCorePermissions.ManagePortal,
+    security.declareProtected(permissions.ManagePortal,
                               'getAndPrepareSchema')
     def getAndPrepareSchema(self):
         s = self.getSchema()
@@ -109,12 +105,12 @@ class VariableSchemaSupport(Base):
         return schema
 
     # supposed to be overloaded. here the object can return its own schema
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(permissions.View,
                               'getSchema')
     def getSchema(self):
         return self.schema
 
-    security.declareProtected(CMFCorePermissions.ManagePortal,
+    security.declareProtected(permissions.ManagePortal,
                               'setSchema')
     def setSchema(self, schema):
         self.schema=schema
