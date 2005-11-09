@@ -62,7 +62,7 @@
         define-macro="edit"
         tal:define="visState python:widget.isVisible(here, mode);
                     edit_accessor python:field.getEditAccessor(here);
-                    getMethod python:(widget.populate and edit_accessor or accessor) or None;
+                    getMethod python:(widget.populate and (edit_accessor or accessor)) or None;
                     value python:getMethod and getMethod();
                     value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
                     visCondition python:field.widget.testCondition(here, portal, template);
@@ -70,7 +70,7 @@
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
-             tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here)) 
+             tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
              tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
                              id python: 'archetypes-fieldname-' + field.getName()">
