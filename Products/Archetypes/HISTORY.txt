@@ -1,17 +1,10 @@
-1.4.0-alpha
-========================
+post 1.3.5-final
+================
 
-  * Changed transactions use to new API and removed some Plone 2.0 backwards
-    compatibility code
-    [hannosch]
-
-  * Changed imports of CMFCore.CMFCorePermissions to CMFCore.permissions
-    [k_vertigo, hannosch]
-
-  * DisplayLists should be a little less strict on their values. Now not only
-    unicode itself but also types inherited from unicode are allowed. This is
-    needed to handle zope.i18nmessageid.MessageID objects correctly.
-    [hannosch]
+  * Lower the bar for making folderish content implement WebDAV/FTP
+    'PUT' and 'GET' by adding a new flag ``__dav_marshall__``  that
+    just needs to be flipped to 'True' for folderish content.
+    [dreamcatcher]
 
   * Finally changing the last toPortalTime call to toLocalizedTime
     [hannosch]

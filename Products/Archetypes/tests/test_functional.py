@@ -288,7 +288,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(TestFunctionalObjectCreation))
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
     #basepath = os.path.dirname(os.path.abspath(__file__))
-    files = ['traversal.txt']
+    files = ['traversal.txt', 'folder_marshall.txt']
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
