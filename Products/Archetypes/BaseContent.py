@@ -17,9 +17,9 @@ from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 
 class BaseContentMixin(CatalogMultiplex,
-                    BaseObject,
-                    PortalContent,
-                    Historical):
+                       BaseObject,
+                       PortalContent,
+                       Historical):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
