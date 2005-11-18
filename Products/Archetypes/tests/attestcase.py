@@ -52,8 +52,6 @@ else:
 #USE_PLONETESTCASE = False
 USE_PLONETESTCASE = HAS_PLONE
 
-print "Using Plone TestCase", USE_PLONETESTCASE, HAS_PLONE, HAS_PLONE21
-
 if not USE_PLONETESTCASE:
     # setup is installing some required products
     import Products.CMFTestCase.setup

@@ -33,7 +33,6 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Acquisition import aq_base
-import transaction
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
@@ -86,7 +85,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         # that are wrong with things like ATCT
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         # ensure object has a _p_jar
-        transaction.commit(1)
+        get_transaction().commit(1)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
@@ -111,17 +110,17 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1.addReference(obj2)
 
         self.verifyBrains()
-        transaction.commit(1)
+        get_transaction().commit(1)
         obj1.setId('foo')
-        transaction.commit(1)
+        get_transaction().commit(1)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
         self.verifyBrains()
-        transaction.commit(1)
+        get_transaction().commit(1)
         obj2.setId('bar')
-        transaction.commit(1)
+        get_transaction().commit(1)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
@@ -147,7 +146,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1.addReference(obj2)
 
         a,b = self.verifyBrains()
-        transaction.commit(1)
+        get_transaction().commit(1)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
@@ -185,7 +184,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         objA.addReference(objB)
 
         a, b = self.verifyBrains()
-        transaction.commit(1)
+        get_transaction().commit(1)
 
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
@@ -213,7 +212,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         UID = doc.UID()
         # ensure object has a _p_jar
-        transaction.commit(1)
+        get_transaction().commit(1)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
 
         #now, make a new one with the same ID and check it gets a different UID
@@ -633,7 +632,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         a = makeContent(org_folder, portal_type='DDocument', id='a')
         b = makeContent(org_folder, portal_type='DDocument', id='b')
         a.addReference(b)
-        transaction.commit(1)
+        get_transaction().commit(1)
         cb = org_folder.manage_cutObjects(ids=['a'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
@@ -705,7 +704,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnlessEqual(a.getRefs(), [b])
         a_uid = a.UID()
 
-        transaction.commit(1)
+        get_transaction().commit(1)
         cb = org_folder.manage_cutObjects(ids=['my_folder'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_folder = getattr(dst_folder, 'my_folder')

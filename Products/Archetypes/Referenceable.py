@@ -10,14 +10,13 @@ from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
+from Products.CMFCore import CMFCorePermissions
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
-
 ####
 ## In the case of:
 ## - a copy:
@@ -353,13 +352,13 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""

@@ -2,7 +2,6 @@ import sys
 from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
-import transaction
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog
 from Products.Archetypes.utils import make_uuid
@@ -93,15 +92,15 @@ def migrateReferences(portal, out):
                 # avoid eating up all RAM
                 if not count % 250:
                     print >>out, '*',
-                    transaction.commit(1) 
+                    get_transaction().commit(1) 
             print >>out, "\n%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
         print >>out, 'Done\n'
         if USE_FULL_TRANSACTIONS:
-            transaction.commit()
+            get_transaction().commit()
         else:
-            transaction.commit(1)
+            get_transaction().commit(1)
     
     else:
         # SECOND
@@ -134,14 +133,14 @@ def migrateReferences(portal, out):
             # avoid eating up all RAM
             if not count % 250:
                 print >>out, '*',
-                transaction.commit(1) 
+                get_transaction().commit(1) 
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
         print >>out, '\nDone\n'
         if USE_FULL_TRANSACTIONS:
-            transaction.commit()
+            get_transaction().commit()
         else:
-            transaction.commit(1)
+            get_transaction().commit(1)
 
     print >>out, "Migrated References"
 
@@ -187,12 +186,12 @@ def migrateUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            transaction.commit(1) 
+            get_transaction().commit(1) 
     print >>out, '\nDone\n'
     if USE_FULL_TRANSACTIONS:
-        transaction.commit()
+        get_transaction().commit()
     else:
-        transaction.commit(1)
+        get_transaction().commit(1)
 
     print >>out, count, "UID's migrated."
 
@@ -219,12 +218,12 @@ def removeOldUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            transaction.commit(1) 
+            get_transaction().commit(1) 
 
     if USE_FULL_TRANSACTIONS:
-        transaction.commit()
+        get_transaction().commit()
     else:
-        transaction.commit(1)
+        get_transaction().commit(1)
 
     print >>out, "\n%s old UID attributes removed." % count
     print >>out, 'Done\n'
@@ -233,9 +232,9 @@ def migrateSchemas(portal, out):
     at = getToolByName(portal, TOOL_NAME)
     msg = at.manage_updateSchema(update_all=1)
     if USE_FULL_TRANSACTIONS:
-        transaction.commit()
+        get_transaction().commit()
     else:
-        transaction.commit(1)
+        get_transaction().commit(1)
     print >>out, msg
 
 def migrateCatalogIndexes(portal, out):
@@ -264,9 +263,9 @@ def refreshCatalogs(portal, out):
     rc.refreshCatalog(clear=1)
 
     if USE_FULL_TRANSACTIONS:
-        transaction.commit()
+        get_transaction().commit()
     else:
-        transaction.commit(1)
+        get_transaction().commit(1)
 
 
 def migrate(self):

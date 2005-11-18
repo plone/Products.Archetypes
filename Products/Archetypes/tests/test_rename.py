@@ -47,8 +47,6 @@ from Products.Archetypes.utils import shasattr
 from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
-import transaction
-
 class Counter:
 
     def __init__(self):
@@ -137,7 +135,7 @@ class RenameTests(ATSiteTestCase):
         doc.setQuote(content, mimetype="text/plain")
         self.failUnless(str(doc.getQuote()) == str(content))
         # make sure we have _p_jar
-        transaction.commit(1)
+        get_transaction().commit(1)
         self.folder.manage_renameObject(obj_id, new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(str(doc.getQuote()) == str(content))
@@ -169,7 +167,7 @@ class RenameTests(ATSiteTestCase):
         self.assertEquals(CLONE_COUNTER.get(uid), 0)
 
         # make sure we have _p_jar
-        transaction.commit(1)
+        get_transaction().commit(1)
 
         d_count = self.getCounts(d)
 
