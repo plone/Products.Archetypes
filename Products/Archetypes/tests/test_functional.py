@@ -284,11 +284,11 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 def test_suite():
     import unittest
     suite = unittest.TestSuite()
-    # suite.addTest(unittest.makeSuite(TestFunctionalObjectCreation))
+    suite.addTest(unittest.makeSuite(TestFunctionalObjectCreation))
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
     files = (
-        # 'traversal.txt',
-        # 'folder_marshall.txt',
+        'traversal.txt',
+        'folder_marshall.txt',
         'reindex_sanity.txt',
         )
     for file in files:
