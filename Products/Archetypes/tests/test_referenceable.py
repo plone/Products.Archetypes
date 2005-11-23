@@ -34,6 +34,7 @@ from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 
+from Products.Archetypes import transaction
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
@@ -85,7 +86,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         # that are wrong with things like ATCT
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
         # ensure object has a _p_jar
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(UID in catalog.uniqueValuesFor('UID'))
@@ -110,17 +111,17 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1.addReference(obj2)
 
         self.verifyBrains()
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         obj1.setId('foo')
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
         self.verifyBrains()
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         obj2.setId('bar')
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
@@ -146,7 +147,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1.addReference(obj2)
 
         a,b = self.verifyBrains()
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
@@ -184,7 +185,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         objA.addReference(objB)
 
         a, b = self.verifyBrains()
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
@@ -212,7 +213,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         UID = doc.UID()
         # ensure object has a _p_jar
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
 
         #now, make a new one with the same ID and check it gets a different UID
@@ -334,13 +335,13 @@ class BaseReferenceableTests(ATSiteTestCase):
         #test querying references using the targetObject parameter
         d = makeContent( self.folder, portal_type='DDocument',
                          title='Foo', id=other_id)
-
+                         
         a.addReference(d,'Owns')
         a.addReference(d,'KnowsAbout')
-
+        
         self.assertEqual(len(a.getReferenceImpl()),3)
         #get only refs to d
-        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2)
+        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2) 
 
     def test_back_relationships(self):
 
@@ -527,8 +528,8 @@ class BaseReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-
-        got = field.Vocabulary(dummy)
+            
+        got = field.Vocabulary(dummy) 
         self.assertEquals(got, expected)
 
         # We should have the option of nothing
@@ -544,7 +545,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             (dummy.UID(), dummy.getId()),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
-
+        
         field = field.copy()
         field.vocabulary_display_path_bound = 1
         expected = DisplayList([
@@ -558,7 +559,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
 
-
+        
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference
@@ -632,7 +633,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         a = makeContent(org_folder, portal_type='DDocument', id='a')
         b = makeContent(org_folder, portal_type='DDocument', id='b')
         a.addReference(b)
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         cb = org_folder.manage_cutObjects(ids=['a'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
@@ -704,7 +705,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnlessEqual(a.getRefs(), [b])
         a_uid = a.UID()
 
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         cb = org_folder.manage_cutObjects(ids=['my_folder'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_folder = getattr(dst_folder, 'my_folder')
