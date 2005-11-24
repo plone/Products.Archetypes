@@ -784,14 +784,11 @@ ORIG_NAME = '__at_original_method_name__'
 def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
-def call_original(self, __name__, __pattern__, *args, **kw):
-    return getattr(self, __pattern__ % __name__)(*args, **kw)
-
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
     if isWrapperMethod(old_method):
-        log('Already wrapped method %s.%s. Skipping.' % (klass.__name__, name))
-        return
+        log('Wrapping already wrapped method at %s.%s' %
+            (klass.__name__, name))
     new_name = pattern % name
     setattr(klass, new_name, old_method)
     setattr(method, ORIG_NAME, new_name)
@@ -801,7 +798,8 @@ def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
     if not isWrapperMethod(old_method):
-        raise ValueError, ('Non-wrapped method %s.%s' % (klass.__name__, name))
+        raise ValueError, ('Trying to unwrap non-wrapped '
+                           'method at %s.%s' % (klass.__name__, name))
     orig_name = getattr(old_method, ORIG_NAME)
     new_method = getattr(klass, orig_name)
     delattr(klass, orig_name)
