@@ -61,7 +61,7 @@ WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
 about what the 'WebDAVSrcHandler' does:
 
   >>> print http(r"""
-  ... PUT /%s/simple_folder/manage_DAVget HTTP/1.1
+  ... GET /%s/simple_folder/manage_DAVget HTTP/1.1
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 405 Method Not Allowed
@@ -91,7 +91,7 @@ like a normal resource:
   True
 
   >>> print http(r"""
-  ... PUT /%s/simple_folder/manage_DAVget HTTP/1.1
+  ... GET /%s/simple_folder/manage_DAVget HTTP/1.1
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 200 OK
@@ -138,7 +138,7 @@ WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
 about what the 'WebDAVSrcHandler' does:
 
   >>> print http(r"""
-  ... PUT /%s/simple_btree_folder/manage_DAVget HTTP/1.1
+  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1.1
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 405 Method Not Allowed
@@ -168,7 +168,7 @@ like a normal resource:
   True
 
   >>> print http(r"""
-  ... PUT /%s/simple_btree_folder/manage_DAVget HTTP/1.1
+  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1.1
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1.1 200 OK
