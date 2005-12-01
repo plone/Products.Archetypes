@@ -8,6 +8,7 @@ from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
 from Referenceable import Referenceable
 from Globals import InitializeClass
+from Products.Eventually import events as events
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -43,6 +44,7 @@ class CatalogMultiplex(CMFCatalogAware):
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
+        print "REINDEX", self, idxs
         if idxs == []:
             if hasattr(aq_base(self), 'notifyModified'):
                 self.notifyModified()
@@ -59,8 +61,8 @@ class CatalogMultiplex(CMFCatalogAware):
                 #We want the intersection of the catalogs idxs
                 #and the incoming list
                 lst = idxs
-                indexes = c.indexes()
                 if idxs:
+                    indexes = c.indexes()
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, url, idxs=lst)
         self._catalogUID(self)

@@ -19,6 +19,7 @@ from Products.PortalTransforms.interfaces import idatastream
 #from Products.MimetypesRegistry.mime_types import text_plain, \
 #     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
+from Products.Eventually import events as events
 
 _marker = []
 
@@ -107,7 +108,7 @@ class BaseUnit(File):
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+                              self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding \
                        or portal_encoding
             if portal_encoding != encoding:
@@ -119,7 +120,7 @@ class BaseUnit(File):
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
             portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+                              self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
@@ -264,7 +265,8 @@ class BaseUnit(File):
 
         self.update(data, self.aq_parent, mimetype=mimetype)
 
-        self.aq_parent.reindexObject()
+        #self.aq_parent.reindexObject()
+        self.aq_parent.fireEvent(events.ObjectChanged())
         RESPONSE.setStatus(204)
         return RESPONSE
 
