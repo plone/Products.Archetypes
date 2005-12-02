@@ -52,8 +52,6 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from Products.Eventually import events as events
-
 _marker = []
 
 class AttributeValidator(Implicit):
@@ -449,8 +447,7 @@ class BaseObject(Referenceable):
         """
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
-        #self.reindexObject()
-        self.fireEvent(events.ObjectChanged())
+        self.reindexObject()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     edit = update
@@ -615,8 +612,7 @@ class BaseObject(Referenceable):
             result[1]['field'] = field.__name__
             mapply(mutator, result[0], **result[1])
 
-        self.fireEvent(events.ObjectChanged())
-        #self.reindexObject()
+        self.reindexObject()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
@@ -629,7 +625,7 @@ class BaseObject(Referenceable):
         self.unmarkCreationFlag()
         if self._at_rename_after_creation and is_new_object:
             self._renameAfterCreation(check_auto_id=True)
-
+        
         # Post create/edit hooks
         if is_new_object:
             self.at_post_create_script()
@@ -968,10 +964,6 @@ class BaseObject(Referenceable):
         # ctx is now the portal_factory in our parent folder
         return aq_parent(ctx)
 
-    def fireEvent(self, payload):
-       et = getToolByName(self, 'eventually')
-       if et: et.fireEvent(self, payload)
-
     #
     # Subobject Access
     #
@@ -1029,7 +1021,7 @@ class BaseObject(Referenceable):
         # Logic from "ZPublisher.BaseRequest.BaseRequest.traverse"
         # to check whether this is a browser request
         if (len(REQUEST.get('TraversalRequestNameStack', ())) == 0 and
-            not (method in ('GET', 'POST') and not
+            not (method in ('GET', 'HEAD', 'POST') and not
                  isinstance(RESPONSE, xmlrpc.Response))):
             if shasattr(self, name):
                 target = getattr(self, name)

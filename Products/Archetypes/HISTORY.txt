@@ -1,6 +1,10 @@
 post 1.3.5-final
 ================
 
+  * Fixed http://plone.org/collector/4981. BaseObject.__bobo_traverse__ now
+    also handles HEAD requests.
+    [stefan]
+
   * Made basically compatible with Zope 2.9 by using a wrapper around the
     transaction module.
     [hannosch]
