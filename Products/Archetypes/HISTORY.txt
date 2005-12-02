@@ -1,8 +1,7 @@
 post 1.3.5-final
 ================
 
-  * Fixed part of http://plone.org/collector/4840. Change standard status
-    message to 'Changes saved.' which is used in a lot more places.
+  * Fixed http://plone.org/collector/4840. Resync some texts with Plone.
     [hannosch]
 
   * Fixed http://plone.org/collector/4981. BaseObject.__bobo_traverse__ now
