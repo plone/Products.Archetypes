@@ -23,7 +23,6 @@
                       tal:content="type_title"
                       tal:omit-tag="">Item type</span>
             </span>
-            Properties
         </span>
 
         <span tal:condition="python:fieldset and fieldset != 'metadata'">
