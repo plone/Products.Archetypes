@@ -162,6 +162,7 @@ class BaseObject(Referenceable):
             self.markCreationFlag()
             self.setDefaults()
             if kwargs:
+                kwargs['_initializing_'] = True
                 self.edit(**kwargs)
             self._signature = self.Schema().signature()
         except ConflictError:
@@ -445,9 +446,14 @@ class BaseObject(Referenceable):
     def update(self, **kwargs):
         """Changes the values of the field and reindex the object.
         """
+        initializing = kwargs.get('_initializing_', False)
+        if initializing:
+            del kwargs['_initializing_']
         self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
-        self.reindexObject()
+        if not initializing:
+            # Avoid double indexing during initialization.
+            self.reindexObject()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     edit = update
@@ -625,7 +631,7 @@ class BaseObject(Referenceable):
         self.unmarkCreationFlag()
         if self._at_rename_after_creation and is_new_object:
             self._renameAfterCreation(check_auto_id=True)
-        
+
         # Post create/edit hooks
         if is_new_object:
             self.at_post_create_script()

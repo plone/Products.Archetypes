@@ -335,13 +335,13 @@ class BaseReferenceableTests(ATSiteTestCase):
         #test querying references using the targetObject parameter
         d = makeContent( self.folder, portal_type='DDocument',
                          title='Foo', id=other_id)
-                         
+
         a.addReference(d,'Owns')
         a.addReference(d,'KnowsAbout')
-        
+
         self.assertEqual(len(a.getReferenceImpl()),3)
         #get only refs to d
-        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2) 
+        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2)
 
     def test_back_relationships(self):
 
@@ -528,8 +528,8 @@ class BaseReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ])
-            
-        got = field.Vocabulary(dummy) 
+
+        got = field.Vocabulary(dummy)
         self.assertEquals(got, expected)
 
         # We should have the option of nothing
@@ -545,7 +545,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             (dummy.UID(), dummy.getId()),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
-        
+
         field = field.copy()
         field.vocabulary_display_path_bound = 1
         expected = DisplayList([
@@ -559,7 +559,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
 
-        
+
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference

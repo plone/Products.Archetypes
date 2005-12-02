@@ -129,7 +129,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             # Perform the redirect
             edit_form_path = self.folder_path+'/%s/base_edit'%auto_id
             response = self.publish(edit_form_path, self.basic_auth)
-        
+
             # XXX now lets test if http://plone.org/collector/4487 is present
             if  "base_edit.cpt" in self.portal.portal_skins.archetypes.objectIds():
                 raise AttributeError, ("test_id_change_on_initial_edit "
@@ -167,7 +167,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             response = self.publish(self.folder_path +
                                     '/invokeFactory?type_name=DDocument&id=%s'%auto_id,
                                     self.basic_auth)
-                                    
+
             # XXX now lets test if http://plone.org/collector/4487 is present
             if  "base_edit.cpt" in self.portal.portal_skins.archetypes.objectIds():
                 raise AttributeError, ("test_id_change_with_non_auto_id "
@@ -205,12 +205,12 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             response = self.publish(self.folder_path +
                                     '/invokeFactory?type_name=DDocument&id=%s'%auto_id,
                                     self.basic_auth)
-                                    
+
             # XXX now lets test if http://plone.org/collector/4487 is present
             if  "base_edit.cpt" in self.portal.portal_skins.archetypes.objectIds():
                 raise AttributeError, ("test_id_change_with_without_marker "
                       "is expected to fail unless  http://plone.org/collector/4487 is fixed")
-                                    
+
             self.failUnless(auto_id in self.folder.objectIds())
             new_obj = getattr(self.folder, auto_id)
 
@@ -226,7 +226,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             self.failUnlessEqual(new_obj.getId(), auto_id) # id should not have changed
 
     def test_update_schema_does_not_reset_creation_flag(self):
-        
         # This is functional so that we get a full request and set the flag
 
         # create an object with flag set
@@ -239,12 +238,12 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         obj_title = "New Title for Object"
         new_obj_path = '/%s' % new_obj.absolute_url(1)
         response = self.publish('%s/base_edit?form.submitted=1&title=%s&body=Blank' % (new_obj_path, obj_title,), self.basic_auth) # Edit object
-        
+
         # now lets test if http://plone.org/collector/4487 is present
         if  "base_edit.cpt" in self.portal.portal_skins.archetypes.objectIds():
             raise AttributeError, ("test_update_schema_does_not_reset_creation_flag "
                   "is expected to fail unless  http://plone.org/collector/4487 is fixed")
-                  
+
         self.failIf(new_obj.checkCreationFlag()) # object is fully created
         # Now run the schema update
         req = self.app.REQUEST
@@ -287,8 +286,12 @@ def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestFunctionalObjectCreation))
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-    #basepath = os.path.dirname(os.path.abspath(__file__))
-    files = ['traversal.txt', 'traversal-4981.txt', 'folder_marshall.txt']
+    files = (
+        'traversal.txt',
+        'traversal-4981.txt',
+        'folder_marshall.txt',
+        'reindex_sanity.txt',
+        )
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
