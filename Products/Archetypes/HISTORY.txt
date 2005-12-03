@@ -1,6 +1,9 @@
 post 1.3.5-final
 ================
 
+  * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
+    [stefan]
+
   * Fixed http://plone.org/collector/4840. Resync some texts with Plone.
     [hannosch]
 

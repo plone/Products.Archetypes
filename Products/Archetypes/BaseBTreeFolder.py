@@ -25,7 +25,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
 
     def __init__(self, oid, **kwargs):
-        CMFBTreeFolder.__init__(self, id)
+        CMFBTreeFolder.__init__(self, oid)
         BaseFolder.__init__(self, oid, **kwargs)
 
     security.declarePrivate('manage_afterAdd')
