@@ -38,7 +38,7 @@ else:
     portal_status_message=context.translate(
         msgid='message_edit_item_cancelled',
         domain='archetypes',
-        default='Item edition was cancelled.')
+        default='Edit cancelled.')
 
 kwargs = {
     'next_action':'redirect_to:string:%s' % redirect_to,
