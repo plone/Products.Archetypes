@@ -1,6 +1,16 @@
 post 1.3.5-final
 ================
 
+  * Only ever set 'Content-Length' header when returning a string
+    data. If we set 'Content-Length' and do streaming (using
+    RESPONSE.write() on Pdata chains) Zope won't do 'chunked'
+    Transfer-Encoding.
+    [dreamcatcher]
+
+  * PrimaryFieldMarshaller was overriding already computed 'length'
+    with len(data). Yuck.
+    [dreamcatcher]
+
   * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
     [hannosch]
 
@@ -72,7 +82,7 @@ post 1.3.5-final
   * enabled renaming of fields while copy them. it eases field recycling.
     [yenzenz]
 
-  * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget 
+  * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget
     breaks
     [yenzenz]
 
@@ -94,15 +104,15 @@ post 1.3.5-final
     _getCopy.
     [alecm]
 
-  * download of files from FileField: filenames where cutted at 
-    first space character in filename. report, fix/patch by 
+  * download of files from FileField: filenames where cutted at
+    first space character in filename. report, fix/patch by
     LaurenceRowe, thx!
     [yenzenz]
 
 1.3.4-rc3 - 2005-08-07
 ======================
 
-  * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward 
+  * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward
     compatible. thx to TresEquis.
     [yenzenz]
 
@@ -113,7 +123,7 @@ post 1.3.5-final
 
   * theres no application/octet.  http://www.iana.org/assignments/
     thanks to lalo for this pick.
-    [yenzenz] 
+    [yenzenz]
 
 1.3.4-rc2 - 2005-08-01
 ======================
@@ -138,11 +148,11 @@ post 1.3.5-final
   * Fixed [ 1236601 ] bug in method getAvailableSizes()
     [tiran]
 
-  * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The 
+  * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The
     CMFDefault.utils.parseHeadersBody function capitalizes the header names
-    and breaks demarshalling. Marshall contains a light weight 
+    and breaks demarshalling. Marshall contains a light weight
     reimplementation.
-    [tiran] 
+    [tiran]
 
   * Added ftests for id autogeneration.
     [alecm]
@@ -181,7 +191,7 @@ post 1.3.5-final
     [hannosch]
 
   * Added options for PIL quality and resize algo to ImageField.
-    [tiran] 
+    [tiran]
 
   * Fixed #1212048: ReferenceField "set" broken for
     BaseBTreeFolder-based objs.
@@ -215,8 +225,8 @@ post 1.3.5-final
     right place for the code. It requires Plone 2.1 but doesn't barf if no or
     and older version is installed.
     [tiran, alecm]
-    
-  * As a part of the mark creation flag code the _renameAfterCreation() 
+
+  * As a part of the mark creation flag code the _renameAfterCreation()
     method is added. It can be turned on by setting _at_rename_after_creation
     to True. Thx to Alec Mitchell for his code!
     [tiran, alecm]
@@ -243,10 +253,10 @@ post 1.3.5-final
   * Fixed failed test in ISchema: removed 'self' in interface method.
     [yenzenz]
 
-  * Expose field creators of ExtensibleMetadata. 
+  * Expose field creators of ExtensibleMetadata.
     [yenzenz, optilude, alecm]
 
-  * Make it easy to rename fields and keep its content. Introduced a property 
+  * Make it easy to rename fields and keep its content. Introduced a property
     old_field_name. Patch from Kai Hoppert. Thx!
     [yenzenz]
 

@@ -109,14 +109,23 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     content_type, length, data = ddata
 
     RESPONSE.setHeader('Content-Type', content_type)
-    RESPONSE.setHeader('Content-Length', length)
 
     if type(data) is type(''):
+        # Only set Content-Length header if we are not streaming,
+        # otherwise Zope won't do 'chunked' transfer and even worse, a
+        # wrong length can be sent confusing completely the client.
+        if length is not None:
+            RESPONSE.setHeader('Content-Length', length)
         return data
 
+    # We assume 'data' is a 'Pdata chain' as used by OFS.File and do
+    # proper streaming.
     while data is not None:
+        # Don't ever set a Content-Length header in this case. Let
+        # Zope do the streaming and take care of it doing a proper
+        # 'chunked' transfer encoding if the client supports it.
         RESPONSE.write(data.data)
-        data=data.next
+        data = data.next
 
 def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
                     filename, REQUEST, RESPONSE):
