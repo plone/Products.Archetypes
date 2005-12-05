@@ -70,6 +70,12 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         file.seek(0)
 
     mimetype = REQUEST.get_header('content-type', None)
+    # mimetype, if coming from request can be like:
+    # text/plain; charset='utf-8'
+    #
+    # XXX we should really parse the extra params and pass them on as
+    # keyword arguments.
+    mimetype = str(mimetype).split(';')[0].strip()
 
     try:
         filename = REQUEST._steps[-2] #XXX fixme, use a real name
