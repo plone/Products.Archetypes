@@ -4,6 +4,34 @@ from zExceptions import MethodNotAllowed
 from ZODB.POSException import ConflictError
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr, mapply
+# Recent enough Zopes will have this. Do we care about older ones?
+from ZPublisher.Iterators import IStreamIterator
+
+class PdataStreamIterator(object):
+
+    __implements__ = (IStreamIterator,)
+
+    def __init__(self, first, size):
+        self.data = first
+        self.size = size
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.data is None:
+            raise StopIteration
+        data = self.data
+        if isinstance(data, str): # unicode anyone?
+            self.data = None
+            return data
+        self.data = data.data
+        # Using str() here should be safe. 'data' should be a very
+        # small object with possibly binary content.
+        return str(data)
+
+    def __len__(self):
+        return self.size
 
 _marker = []
 
@@ -109,23 +137,20 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     content_type, length, data = ddata
 
     RESPONSE.setHeader('Content-Type', content_type)
+    # Only set Content-Length header length is not None. If we want to
+    # support 'chunked' Transfer-Encoding we shouldn't set
+    # this. However ExternalEditor *expects* it to be set if we return
+    # a StreamIterator, so until that gets fixed we must set it.
+    if length is not None:
+        RESPONSE.setHeader('Content-Length', length)
 
     if type(data) is type(''):
-        # Only set Content-Length header if we are not streaming,
-        # otherwise Zope won't do 'chunked' transfer and even worse, a
-        # wrong length can be sent confusing completely the client.
-        if length is not None:
-            RESPONSE.setHeader('Content-Length', length)
         return data
 
-    # We assume 'data' is a 'Pdata chain' as used by OFS.File and do
-    # proper streaming.
-    while data is not None:
-        # Don't ever set a Content-Length header in this case. Let
-        # Zope do the streaming and take care of it doing a proper
-        # 'chunked' transfer encoding if the client supports it.
-        RESPONSE.write(data.data)
-        data = data.next
+    # We assume 'data' is a 'Pdata chain' as used by OFS.File and
+    # return a StreamIterator.
+    assert length is not None, 'Could not figure out length of Pdata chain'
+    return PdataStreamIterator(data, length)
 
 def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
                     filename, REQUEST, RESPONSE):

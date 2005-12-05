@@ -1,10 +1,9 @@
 post 1.3.5-final
 ================
 
-  * Only ever set 'Content-Length' header when returning a string
-    data. If we set 'Content-Length' and do streaming (using
-    RESPONSE.write() on Pdata chains) Zope won't do 'chunked'
-    Transfer-Encoding.
+  * Return the new PdataStreamIterator when a Pdata-like chain is
+    found (we always assume this if the marshaller didn't return a
+    string). This way it works better with ExternalEditor.
     [dreamcatcher]
 
   * PrimaryFieldMarshaller was overriding already computed 'length'
