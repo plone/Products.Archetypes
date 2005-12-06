@@ -75,7 +75,8 @@ def PUT(self, REQUEST=None, RESPONSE=None):
     #
     # XXX we should really parse the extra params and pass them on as
     # keyword arguments.
-    mimetype = str(mimetype).split(';')[0].strip()
+    if mimetype is not None:
+        mimetype = str(mimetype).split(';')[0].strip()
 
     try:
         filename = REQUEST._steps[-2] #XXX fixme, use a real name
