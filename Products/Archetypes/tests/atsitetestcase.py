@@ -34,8 +34,7 @@ from Products.Archetypes.tests import attestcase
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
-
-from Products.Archetypes import transaction
+import transaction
 
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
@@ -51,6 +50,7 @@ else:
     # setup a Plone site 
     PloneTestCase.setupPloneSite()
     PortalTestClass = PloneTestCase.PloneTestCase
+
 
 class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     """AT test case inside a CMF site
@@ -154,7 +154,8 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         noSecurityManager()
         transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-    elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
+
+    if not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
         _start = time.time()
         if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
         # Login as portal owner
