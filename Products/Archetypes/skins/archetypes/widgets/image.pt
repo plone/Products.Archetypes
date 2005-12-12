@@ -73,7 +73,7 @@
                     i18n:translate="nochange_image">
                     Keep existing image
              </label>
-             <br/>
+             <br />
             <input class="noborder"
                    type="radio"
                    value="delete"

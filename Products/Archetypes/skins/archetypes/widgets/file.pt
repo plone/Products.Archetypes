@@ -60,7 +60,7 @@
                 i18n:translate="nochange_file">
                 Keep existing file
          </label>
-         <br/>
+         <br />
          <tal:delete tal:condition="python: not field.required">
             <input class="noborder"
                    type="radio"

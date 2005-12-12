@@ -9,11 +9,11 @@
 </div>
 
 <div>
-  Relationship:         <span tal:content="here/relationship"/><br/>
-  Source UID:		<span tal:content="here/sourceUID"/><br/>
-  Target UID:		<span tal:content="here/targetUID"/><br/>
-  Target id:		<span tal:content="here/targetId"/><br/>
-  Target Title:		<span tal:content="here/targetTitle"/><br/>
+  Relationship:         <span tal:content="here/relationship"/><br />
+  Source UID:		<span tal:content="here/sourceUID"/><br />
+  Target UID:		<span tal:content="here/targetUID"/><br />
+  Target id:		<span tal:content="here/targetId"/><br />
+  Target Title:		<span tal:content="here/targetTitle"/><br />
 </div>
 
 <tal:footer tal:replace="structure here/manage_page_footer|nothing">footer</tal:footer>
