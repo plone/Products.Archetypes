@@ -7,6 +7,7 @@ Those tests make sure that the catalog is only called as necessary.
   >>> from os.path import sep
   >>> from Products.ZCatalog.ZCatalog import ZCatalog
   >>> from Products.CMFCore.utils import getToolByName
+  >>> from Products.Archetypes import transaction
   >>> from Products.Archetypes.utils import wrap_method
   >>> from Products.Archetypes.utils import unwrap_method
   >>> from Products.Archetypes.utils import call_original as call
@@ -146,7 +147,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> sp = transaction.savepoint(optimistic=True)
 
 Rename:
 
@@ -276,7 +277,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> sp = transaction.savepoint(optimistic=True)
 
 Rename:
 
@@ -408,7 +409,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> sp = transaction.savepoint(optimistic=True)
 
 Rename:
 
