@@ -11,6 +11,10 @@ INSTALL_DEMO_TYPES = False ##Install the demo types
 DEBUG =  False ## Hide debug messages
 #DEBUG = True  ## See debug messages
 
+RENAME_AFTER_CREATION_ATTEMPTS = 100 
+## Try up to -100 at the end of the id when doing title-to-id renaming
+
+
 ##Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
