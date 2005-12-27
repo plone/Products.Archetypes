@@ -367,7 +367,7 @@ def test_suite():
     suite.addTest(makeSuite(TestFunctionalObjectCreation))
     files = (
         'traversal.txt',
-        'traversal-4981.txt',
+        'traversal_4981.txt',
         'folder_marshall.txt',
         )
     if HAS_PLONE21:
