@@ -47,7 +47,6 @@
       <div tal:condition="accessor" style="padding-top:1em;"
            tal:define="unit accessor;
                        size unit/get_size | python:unit and len(unit) or 0;">
-                       <h1 tal:content="python:repr(size)">FROP</h1>
         <input class="noborder"
                type="radio"
                value="nochange"
