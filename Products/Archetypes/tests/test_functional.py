@@ -37,7 +37,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.attestcase import default_user
-from Products.Archetypes.tests.attestcase import HAS_PLONE21
+from Products.Archetypes.tests.attestcase import HAS_PLONE, HAS_PLONE21
 from Products.Archetypes.tests.atsitetestcase import portal_owner
 from Products.Archetypes.tests.utils import DummySessionDataManager
 
@@ -361,16 +361,19 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
 
 def test_suite():
-    import unittest
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestFunctionalObjectCreation))
+    from unittest import TestSuite, makeSuite
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(TestFunctionalObjectCreation))
     files = (
         'traversal.txt',
         'traversal-4981.txt',
         'folder_marshall.txt',
-        'reindex_sanity.txt',
         )
+    if HAS_PLONE21:
+        files += ('reindex_sanity_plone21.txt',)
+    elif HAS_PLONE:
+        files += ('reindex_sanity_plone20.txt',)
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
@@ -378,4 +381,4 @@ def test_suite():
     return suite
 
 if __name__ == '__main__':
-    framework(descriptions=1, verbosity=1)
+    framework()
