@@ -643,10 +643,15 @@ class OrderedDict(BaseDict):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    def __init__(self, dict=None):
+    def __init__(self, data=None):
         self._keys = []
-        BaseDict.__init__(self, dict)
-        if dict is not None:
+        
+        if isinstance(data, tuple):
+            [self._keys.append(item[0]) for item in data]
+            data = dict(data)
+
+        BaseDict.__init__(self, data)
+        if not self._keys and data:
             self._keys = self.data.keys()
 
     def __setitem__(self, key, item):
