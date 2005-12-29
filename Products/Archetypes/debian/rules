@@ -1,0 +1,114 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=4
+
+
+
+build: DH_OPTIONS=
+build: build-stamp
+build-stamp: 
+	dh_testdir
+	
+	touch build-stamp
+
+clean: 
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -rf build
+	rm -rf debian/zope-cmfarchetypes/
+	find . -name "*.pyc" | xargs rm -f
+	rm -f changelog.gz
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	
+	find . -type f -not \( \
+			-path '*/debian/*' -or \
+			-path '*/build/*' -or \
+			-name 'build-stamp' -or \
+			-iname 'license*' -or \
+			-iname 'changelog*' -or \
+			-iname 'authors*' -or \
+			-name 'README*' -or \
+			-name 'INSTALL**' -or \
+			-name 'TODO*' -or \
+			-name 'COPYING*' -or \
+			-name 'MANIFEST*' -or \
+			-name 'DEPENDS' -or \
+			-name 'RECOMMENDS' -or \
+			-name 'SUGGESTS' -or \
+			-name '.cvsignore' \
+			-or -path '*/docs/*' \
+        		\) -exec install -D --mode=644 {} debian/zope-cmfarchetypes/usr/lib/zope/lib/python/Products/Archetypes/{} \;
+	
+	
+	
+
+
+# Build architecture-independent files here.
+binary-indep: DH_OPTIONS=-i
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_install
+	
+	
+	
+	dh_installexamples --package=zope-cmfarchetypes examples/* 
+	
+	# install documentation
+	cp -r docs/* debian/zope-cmfarchetypes/usr/share/doc/zope-cmfarchetypes/html/
+	gzip -9 -c ChangeLog > changelog.gz
+	dh_installdocs -A README.txt TODO.txt changelog.gz 
+	dh_installchangelogs
+	
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol 
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir 
+	dh_testroot 
+	dh_install
+	
+	
+	
+	dh_installexamples --package=zope-cmfarchetypes examples/* 
+	
+	# install documentation
+	cp -r docs/* debian/zope-cmfarchetypes/usr/share/doc/zope-cmfarchetypes/html/
+	gzip -9 -c ChangeLog > changelog.gz
+	dh_installdocs -A README.txt TODO.txt changelog.gz 
+	dh_installchangelogs
+	
+	dh_strip
+	dh_link
+	dh_compress 
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep 
+.PHONY: build clean binary-arch binary-indep binary
+
