@@ -1,5 +1,5 @@
-1.3.2-final02 - SVN
-===================
+1.3.2-final02 - 2005-12-29
+==========================
 
   * nothing - the odd version checking needs a version change to
     stick to Archetypes version again.
