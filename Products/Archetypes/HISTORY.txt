@@ -1,4 +1,4 @@
-1.3.2-final01 - 2005-10-11
+1.3.2-final02 - 2005-12-29
 ==========================
 
   * Fixed a long stand issue which prevented you from override
