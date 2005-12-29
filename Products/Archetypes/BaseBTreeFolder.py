@@ -1,3 +1,4 @@
+from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.public import BaseFolder
 from Products.CMFCore import CMFCorePermissions
 try:
@@ -24,7 +25,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
 
     def __init__(self, oid, **kwargs):
-        CMFBTreeFolder.__init__(self, id)
+        CMFBTreeFolder.__init__(self, oid)
         BaseFolder.__init__(self, oid, **kwargs)
 
     security.declarePrivate('manage_afterAdd')
@@ -134,13 +135,22 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     setDescription = BaseFolder.setDescription.im_func
 
     manage_addFolder = BaseFolder.manage_addFolder.im_func
-    
+
     MKCOL = BaseFolder.MKCOL.im_func
     MKCOL_handler = BaseFolder.MKCOL_handler.im_func
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
+    PUT = WebDAVSupport.PUT
+
+    security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
+    manage_FTPget = WebDAVSupport.manage_FTPget
+
+    security.declarePrivate('manage_afterPUT')
+    manage_afterPUT = WebDAVSupport.manage_afterPUT
+
     security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     edit = BaseFolder.edit.im_func
-    
+
 InitializeClass(BaseBTreeFolder)
 
 BaseBTreeFolderSchema = BaseBTreeFolder.schema

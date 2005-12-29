@@ -94,7 +94,7 @@
                        tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))" />
 
 
-                <br/>
+                <br />
               </tal:block>
             </tal:item>
           </div>

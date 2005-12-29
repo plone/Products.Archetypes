@@ -1,3 +1,4 @@
+from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
@@ -11,8 +12,8 @@ from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
-from Products.CMFCore.PortalContent  import PortalContent
+from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.PortalContent import PortalContent
 
 try:
     from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
@@ -22,9 +23,9 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getViewFor
 
 class BaseFolderMixin(CatalogMultiplex,
-                    BaseObject,
-                    PortalFolder,
-                    ):
+                      BaseObject,
+                      PortalFolder,
+                      ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
@@ -36,6 +37,9 @@ class BaseFolderMixin(CatalogMultiplex,
     manage_options = PortalFolder.manage_options
     content_icon = "folder_icon.gif"
     use_folder_tabs = 1
+    isPrincipiaFolderish = 1
+    isAnObjectManager = 1
+    __dav_marshall__ = False
 
     def __call__(self):
         """Invokes the default view.
@@ -191,12 +195,11 @@ class BaseFolderMixin(CatalogMultiplex,
     # use instead "_at_type_subfolder" or our own type.
     security.declareProtected(CMFCorePermissions.AddPortalFolders,
                               'manage_addFolder')
-    def manage_addFolder( self
-                        , id
-                        , title=''
-                        , REQUEST=None
-                        , type_name = None
-                        ):
+    def manage_addFolder(self,
+                         id,
+                         title='',
+                         REQUEST=None,
+                         type_name=None):
         """Add a new folder-like object with id *id*.
 
         IF present, use the parent object's 'mkdir' alias; otherwise, just add
@@ -242,6 +245,15 @@ class BaseFolderMixin(CatalogMultiplex,
         """After MKCOL handler.
         """
         pass
+
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
+    PUT = WebDAVSupport.PUT
+
+    security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
+    manage_FTPget = WebDAVSupport.manage_FTPget
+
+    security.declarePrivate('manage_afterPUT')
+    manage_afterPUT = WebDAVSupport.manage_afterPUT
 
 InitializeClass(BaseFolderMixin)
 

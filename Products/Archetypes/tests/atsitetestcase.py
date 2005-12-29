@@ -35,6 +35,8 @@ from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 
+from Products.Archetypes import transaction
+
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
     from Products.CMFTestCase.setup import portal_name
@@ -124,7 +126,7 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         newSecurityManager(None, user)
         factory.manage_addTool('CMF QuickInstaller Tool')
         noSecurityManager()
-        get_transaction().commit()
+        transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
 
     qi = getToolByName(portal, 'portal_quickinstaller')
@@ -138,7 +140,7 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         qi.installProduct('CMFFormController')
         # Log out
         noSecurityManager()
-        get_transaction().commit()
+        transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
 
     if 'Archetypes' not in installed:
@@ -150,7 +152,7 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         installArchetypes(portal, include_demo=1)
         # Log out
         noSecurityManager()
-        get_transaction().commit()
+        transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
     elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
         _start = time.time()
@@ -162,7 +164,7 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         installTypes(portal, out, listTypes(PKG_NAME), PKG_NAME)
         # Log out
         noSecurityManager()
-        get_transaction().commit()
+        transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
 
 # Install Archetypes

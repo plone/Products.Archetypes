@@ -15,7 +15,7 @@
                    d python:test(d and d=='None','',d);
                    format widget/format;
                    formatted python:format and d and d.strftime(format);
-                   result python:(format and formatted) or (d and here.toPortalTime(d, long_format=1));"
+                   result python:(format and formatted) or (d and here.toLocalizedTime(d, long_format=1));"
        tal:replace="structure python:result" />
 
     <metal:define define-macro="edit"

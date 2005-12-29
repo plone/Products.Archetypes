@@ -1,3 +1,48 @@
+1.3.6-RC1 - 2005-12-29
+======================
+
+  * Make rename-after-creation resolve duplicates by appending -n, where n is
+    a number, to the id when an existing object exists in the parent folder.
+    This closes http://trac.plone.org/plone/ticket/4510.
+
+  * Return the new PdataStreamIterator when a Pdata-like chain is
+    found (we always assume this if the marshaller didn't return a
+    string). This way it works better with ExternalEditor.
+    [dreamcatcher]
+
+  * PrimaryFieldMarshaller was overriding already computed 'length'
+    with len(data). Yuck.
+    [dreamcatcher]
+
+  * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
+    [hannosch]
+
+  * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
+    [stefan]
+
+  * Fixed http://plone.org/collector/4840. Resync some texts with Plone.
+    [hannosch]
+
+  * Fixed http://plone.org/collector/4981. BaseObject.__bobo_traverse__ now
+    also handles HEAD requests.
+    [stefan]
+
+  * Made basically compatible with Zope 2.9 by using a wrapper around the
+    transaction module.
+    [hannosch]
+
+  * Lower the bar for making folderish content implement WebDAV/FTP
+    'PUT' and 'GET' by adding a new flag ``__dav_marshall__``  that
+    just needs to be flipped to 'True' for folderish content.
+    [dreamcatcher]
+
+  * Finally changing the last toPortalTime call to toLocalizedTime
+    [hannosch]
+
+  * Permission for setting creation date and modification date: Portal
+    Manager should it be allowed to set it manually!
+    [yenzenz]
+
 1.3.5-final - 2005-10-11
 ========================
 
@@ -40,7 +85,7 @@
   * enabled renaming of fields while copy them. it eases field recycling.
     [yenzenz]
 
-  * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget 
+  * fixed [ 1265581 ] Deleting a file withn optional FileField/FielWidget
     breaks
     [yenzenz]
 
@@ -62,15 +107,15 @@
     _getCopy.
     [alecm]
 
-  * download of files from FileField: filenames where cutted at 
-    first space character in filename. report, fix/patch by 
+  * download of files from FileField: filenames where cutted at
+    first space character in filename. report, fix/patch by
     LaurenceRowe, thx!
     [yenzenz]
 
 1.3.4-rc3 - 2005-08-07
 ======================
 
-  * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward 
+  * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward
     compatible. thx to TresEquis.
     [yenzenz]
 
@@ -81,7 +126,7 @@
 
   * theres no application/octet.  http://www.iana.org/assignments/
     thanks to lalo for this pick.
-    [yenzenz] 
+    [yenzenz]
 
 1.3.4-rc2 - 2005-08-01
 ======================
@@ -106,11 +151,11 @@
   * Fixed [ 1236601 ] bug in method getAvailableSizes()
     [tiran]
 
-  * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The 
+  * Fixed critical bug in RFC822 Marshaller w/ CMF 1.5 The
     CMFDefault.utils.parseHeadersBody function capitalizes the header names
-    and breaks demarshalling. Marshall contains a light weight 
+    and breaks demarshalling. Marshall contains a light weight
     reimplementation.
-    [tiran] 
+    [tiran]
 
   * Added ftests for id autogeneration.
     [alecm]
@@ -149,7 +194,7 @@
     [hannosch]
 
   * Added options for PIL quality and resize algo to ImageField.
-    [tiran] 
+    [tiran]
 
   * Fixed #1212048: ReferenceField "set" broken for
     BaseBTreeFolder-based objs.
@@ -183,8 +228,8 @@
     right place for the code. It requires Plone 2.1 but doesn't barf if no or
     and older version is installed.
     [tiran, alecm]
-    
-  * As a part of the mark creation flag code the _renameAfterCreation() 
+
+  * As a part of the mark creation flag code the _renameAfterCreation()
     method is added. It can be turned on by setting _at_rename_after_creation
     to True. Thx to Alec Mitchell for his code!
     [tiran, alecm]
@@ -211,10 +256,10 @@
   * Fixed failed test in ISchema: removed 'self' in interface method.
     [yenzenz]
 
-  * Expose field creators of ExtensibleMetadata. 
+  * Expose field creators of ExtensibleMetadata.
     [yenzenz, optilude, alecm]
 
-  * Make it easy to rename fields and keep its content. Introduced a property 
+  * Make it easy to rename fields and keep its content. Introduced a property
     old_field_name. Patch from Kai Hoppert. Thx!
     [yenzenz]
 
@@ -513,7 +558,7 @@
    BaseObject's subobject works now.
    [panjunyong]
 
- * Applied ApeSupport changes needed for APE 1.0. Thanks to Roché Compaan.
+ * Applied ApeSupport changes needed for APE 1.0. Thanks to Roch?ompaan.
    Changed comment to doc-string.
    [yenzenz, zwork]
 

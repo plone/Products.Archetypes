@@ -38,7 +38,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-from Products.Archetypes import config
+from Products.Archetypes import config, transaction
 from Products.Archetypes.references import HoldingReference, CascadeReference
 from Products.Archetypes.exceptions import ReferenceException
 from OFS.ObjectManager import BeforeDeleteException
@@ -103,7 +103,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.failUnless(obj.reference_url().endswith(uid1))
 
         # Make sure all objects have _p_oids and _p_jars
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
 
         #Rename can't invalidate UID or references
         self.verifyBrains()
@@ -239,7 +239,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.failUnless(ref.attribute1=='some_value')
 
 
-        get_transaction().commit(1)
+        transaction.savepoint(optimistic=True)
         # update schema
         self.app.REQUEST.form['Archetypes.Refnode']=1
         self.app.REQUEST.form['update_all']=1

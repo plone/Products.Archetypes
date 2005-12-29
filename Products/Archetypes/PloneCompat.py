@@ -1,6 +1,8 @@
 """make some plone utilities available to raw CMF sites
 """
 
+from Products.Archetypes import transaction
+
 try:
     # Plone 2.1
     from Products.CMFPlone.utils import IndexIterator
@@ -32,7 +34,7 @@ except ImportError:
     except ImportError:
         def transaction_note(note):
             """ Write human legible note """
-            T=get_transaction()
+            T=transaction.get()
             if (len(T.description)+len(note))>=65535:
                 log('Transaction note too large omitting %s' % str(note))
             else:

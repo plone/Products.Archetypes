@@ -10,7 +10,7 @@
 
     <metal:view_macro define-macro="view"
 		      tal:repeat="item accessor">
-      <span tal:content="item"/><br/>
+      <span tal:content="item"/><br />
     </metal:view_macro>
 
     <metal:define define-macro="edit">

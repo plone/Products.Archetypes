@@ -44,13 +44,15 @@
 
     <metal:define define-macro="file_edit" tal:define="showLink python:0">
       <metal:block use-macro="here/widgets/file/macros/file_view" />
-      <div tal:condition="accessor" style="padding-top:1em;">
+      <div tal:condition="accessor" style="padding-top:1em;"
+           tal:define="unit accessor;
+                       size unit/get_size | python:unit and len(unit) or 0;">
         <input class="noborder"
                type="radio"
                value="nochange"
                tabindex=""
-               checked="checked"
                tal:attributes="tabindex tabindex/next;
+                   checked python:test(size!=0, 'checked', None);
                    name string:${fieldName}_delete;
                    id string:${fieldName}_nochange;
                    onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
@@ -60,13 +62,14 @@
                 i18n:translate="nochange_file">
                 Keep existing file
          </label>
-         <br/>
+         <br />
          <tal:delete tal:condition="python: not field.required">
             <input class="noborder"
                    type="radio"
                    value="delete"
                    tabindex=""
                    tal:attributes="tabindex tabindex/next;
+                       checked python:test(size!=0, 'checked', None);
                        name string:${fieldName}_delete;
                        id string:${fieldName}_delete;
                        onclick string:document.getElementById('${fieldName}_file').disabled=true;"
@@ -84,6 +87,7 @@
                  tabindex=""
                  onclick=""
                  tal:attributes="tabindex tabindex/next;
+                     checked python:test(size==0, 'checked', None);
                      name string:${fieldName}_delete;
                      id string:${fieldName}_upload;
                      onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
@@ -103,7 +107,9 @@
     </metal:define>
 
 
-    <metal:define define-macro="file_upload">
+    <metal:define define-macro="file_upload"
+           tal:define="unit accessor;
+                       size unit/get_size | python:unit and len(unit) or 0;">
         <input type="file"
                size="30"
                tabindex=""
@@ -111,7 +117,7 @@
                                id string:${fieldName}_file;
                                tabindex tabindex/next;" />
         <script type="text/javascript" 
-	        tal:define="isDisabled python:test(accessor(), 'true', 'false')"
+	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
                 tal:content="string: document.getElementById('${fieldName}_file').disabled=$isDisabled;">
         </script>
     </metal:define>

@@ -8,6 +8,7 @@ from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
+from Products.Archetypes import transaction
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -1070,7 +1071,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.subtransactioncounter += 1
         # Only every 250 objects a sub-commit, otherwise it eats up all diskspace
         if not self.subtransactioncounter % 250:
-            get_transaction().commit(1)
+            transaction.savepoint(optimistic=True)
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():

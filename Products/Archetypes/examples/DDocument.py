@@ -10,7 +10,7 @@ schema = BaseSchema + Schema((
               article so that we might get people to read the body""",
                                     label="Teaser",
                                     rows=3)),
-    
+
     # Using a bare ObjetField doesn't make sense ...
     #ObjectField('author'),
     StringField('author'),
@@ -46,7 +46,7 @@ class DDocument(TemplateMixin, BaseContent):
     schema = schema
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
-    
+
     def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
                         filename, REQUEST, RESPONSE):
         """For unit tests

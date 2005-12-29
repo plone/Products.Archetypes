@@ -230,8 +230,6 @@ class RemainingState(RemainingBase):
                 if os.environ.get('APE_TRACE_UNPICKLEABLE'):
                     # Provide an opportunity to examine
                     # the "attrvalue" attribute.
-                    import pdb
-                    pdb.set_trace()
                 raise RuntimeError(
                     'Unable to pickle the %s attribute, %s, '
                     'of %s at %s.  %s.' % (

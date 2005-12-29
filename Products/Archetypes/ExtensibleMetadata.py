@@ -63,7 +63,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         ('0',    'Disabled', 'label_discussion_disabled'),
         )),
             widget=SelectionWidget(
-                label="Allow Discussion?",
+                label="Allow Discussion on this item",
                 label_msgid="label_allow_discussion",
                 description_msgid="help_allow_discussion",
                 i18n_domain="plone"),
@@ -97,9 +97,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label='Contributors',
                 label_msgid="label_contributors",
-                description="Persons responsible for making contributions to the content of  "
-                            "this item. Please enter a list of user names, one "
-                            "per line.",
+                description="The names of people that have contributed to this "
+                            "item. Each contributor should be on a separate "
+                            "line.",
                 description_msgid="help_contributors",
                 i18n_domain="plone"),
         ),
@@ -166,8 +166,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
-                label='Copyright',
-                description="A list of copyright info for this content",
+                label='Copyrights',
+                description="The copyrights on this item.",
                 label_msgid="label_copyrights",
                 description_msgid="help_copyrights",
                 i18n_domain="plone")),
@@ -463,8 +463,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         if shasattr(self, 'http__refreshEtag'):
             self.http__refreshEtag()
 
-    # XXX Could this be simply protected by ModifyPortalContent ?
-    security.declarePrivate('setModificationDate')
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'setModificationDate')
     def setModificationDate(self, modification_date=None):
         """Set the date when the resource was last modified.
         When called without an argument, sets the date to now.
@@ -475,7 +475,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             modified = self._datify(modification_date)
         self.getField('modification_date').set(self, modified)
 
-    security.declarePrivate('setCreationDate')
+    security.declareProtected(CMFCorePermissions.ManagePortal,
+                              'setCreationDate')
     def setCreationDate(self, creation_date=None):
         """Set the date when the resource was created.
         When called without an argument, sets the date to now.
