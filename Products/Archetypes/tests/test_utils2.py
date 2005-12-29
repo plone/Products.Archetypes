@@ -92,11 +92,6 @@ class OrderedDictTest( ATTestCase ):
         (k,v) = self.d.popitem()
         self.failUnless(k == 'c')
         self.failUnless(v == '3')
-
-    def test_tupleinit(self):
-        data = tuple(zip('abcdefg', range(7)))
-        od = OrderedDict(data)
-        self.assertEqual(data, tuple(od.items()))
         
 
 def test_suite():
