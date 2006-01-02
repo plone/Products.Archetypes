@@ -1,3 +1,9 @@
+1.3.6 - (Unreleased)
+==================
+
+  * Moved the byline to the header to be consistent with Plone 2.1.
+    [limi]
+
 1.3.6-RC1 - 2005-12-29
 ======================
 
