@@ -53,18 +53,6 @@ def install_dependencies(self, out, required=1):
     if not qi.isProductInstalled('PortalTransforms'):
         qi.installProduct('PortalTransforms')
         print >>out, 'Installing PortalTransforms'
-    if not qi.isProductInstalled('Eventually'):
-        qi.installProduct('Eventually')
-        print >>out, 'Installing Eventually'
-
-# Register some default event subscribers
-def registerEvents(portal, out):
-    # create a persistent binding from ObjectChanged to
-    # a series of processors
-    catalog = getToolByName(portal, 'portal_catalog')
-    portal.eventually.subscribeToEventChannel("ObjectChanged",
-                                              catalog,
-                                              "objectChangeHandler")
 
 def install_archetypetool(self, out):
     at = getToolByName(self, 'archetype_tool', None)
@@ -95,7 +83,7 @@ def install_uidcatalog(self, out, rebuild=False):
     metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
     reindex = False
     catalog = getToolByName(self, UID_CATALOG, None)
-
+    
     if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
         parent = getToolByName(self, "portal_url").getPortalObject()
@@ -168,7 +156,7 @@ def install_referenceCatalog(self, out, rebuild=False):
 def install_templates(self, out):
     at = getToolByName(self, 'archetype_tool')
     at.registerTemplate('base_view', 'Base View')
-
+    
     # fix name of base_view
     #rt = at._registeredTemplates
     #if 'base_view' not in rt.keys() or rt['base_view'] == 'base_view':
@@ -178,7 +166,7 @@ def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
     at = getToolByName(self, 'archetype_tool')
-
+    
     for t in types:
         klass = t['klass']
         if ITemplateMixin.isImplementedByInstancesOf(klass):
@@ -254,9 +242,11 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
+        typeinfo_name = "%s: %s (%s)" % (package_name, klass.__name__,
+                                         klass.meta_type)
 
-        # get the meta type of the FTI from the class, use the default FTI as default
+        # get the meta type of the FTI from the class, use the
+        # default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if not fti_meta_type:
             fti_meta_type = FactoryTypeInformation.meta_type
@@ -461,7 +451,6 @@ def setupArchetypes(self, out, require_dependencies=True):
     install_uidcatalog(self, out, rebuild=False)
     install_referenceCatalog(self, out, rebuild=False)
 
-    registerEvents(self, out)
     # install skins and register templates
     install_subskin(self, out, types_globals)
     install_templates(self, out)
@@ -511,7 +500,7 @@ def installTypes(self, out, types, package_name,
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
     AT based product.
-
+    
     This may take a very long time but it seems to be required under some
     circumstances.
     """
@@ -526,7 +515,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
 
     rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
-
+    
     # because manage_catalogFoundItems sucks we have to do it on our own ...
     func    = rc.catalog_object
     obj     = self
