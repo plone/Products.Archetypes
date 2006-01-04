@@ -110,7 +110,11 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        try: return inspect.stack()[start:end]
+        try: 
+            return inspect.stack()[start:end]
+        except IndexError:
+            # NOTE: this is required for OS-X Tiger somehow
+            return []
         except TypeError:
             # NOTE: this is required for psyco compatibility
             #       since inspect.stack is broken after psyco is imported

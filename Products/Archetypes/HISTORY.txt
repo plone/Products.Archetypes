@@ -1,6 +1,11 @@
 1.3.6 - (Unreleased)
 ==================
 
+  * debug.ClassLog -> generateFrames calls pythons 'inspect' function. This
+    breaks on at least one OS-X Tiger system with an IndexError (normal setup).
+    Now IndexError is catched and ignored.
+    [jensens]
+
   * cleanup of install_indexes magic to add index and metadata-columns to 
     a catalog. also added an alternative method than 'schema()' to use, for
     example if a CatalogTool itself is archetypes based. The alternative i
