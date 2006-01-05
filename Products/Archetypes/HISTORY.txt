@@ -1,6 +1,11 @@
 1.3.6 - (Unreleased)
 ==================
 
+  * 'Renderer' is used to set locals to context of rendered widgets. added 
+    prefix support for fieldnames in widgets to enable archetypes for multi-
+    object edit forms.
+    [jensens]
+
   * debug.ClassLog -> generateFrames calls pythons 'inspect' function. This
     breaks on at least one OS-X Tiger system with an IndexError (normal setup).
     Now IndexError is catched and ignored.
