@@ -606,8 +606,8 @@ class Field(DefaultLayerContainer):
 
     security.declarePublic('getI18nDomain')
     def getI18nDomain(self):
-        """ Checks if the user may edit this field and if
-        external editor is enabled on this instance """
+        """ returns the internationalization domain for translation """
+        pass
 
 #InitializeClass(Field)
 setSecurity(Field)
