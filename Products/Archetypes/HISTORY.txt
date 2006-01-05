@@ -1,6 +1,12 @@
 1.3.6 - (Unreleased)
 ==================
 
+  * enable IDWidget to ignore global visible_ids setting and enable ids by
+    adding a property ignore_visible_ids=False (default). If it is True
+    the id (short name) is shown and the global or by-member setting is 
+    ignored. This is useful for types where control over the id is needed.
+    [jensens] 
+
   * 'Renderer' is used to set locals to context of rendered widgets. added 
     prefix support for fieldnames in widgets to enable archetypes for multi-
     object edit forms.
