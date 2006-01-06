@@ -57,7 +57,7 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         self.failIf('tourist' not in ffrom.contentIds())
 
         #make sure we have _p_jar
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
         cb = ffrom.manage_copyObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
         self.failIf('tourist' not in ffrom.contentIds())
@@ -70,7 +70,7 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         self.failIf('tourist' not in ffrom.contentIds())
 
         #make sure we have _p_jar
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
         cb = ffrom.manage_cutObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
         self.failIf('tourist' in ffrom.contentIds())
@@ -117,7 +117,7 @@ class PortalCopyTests(ATSiteTestCase):
         newSecurityManager(None, user)
         app.manage_clone(self.portal, 'newportal')
         noSecurityManager()
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.failUnless(hasattr(aq_base(app), 'newportal'))
         self.newportal = app.newportal
@@ -137,7 +137,7 @@ class PortalCopyTests(ATSiteTestCase):
         app.manage_pasteObjects(cb_copy_data=cp)
 
         noSecurityManager()
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.failUnless(hasattr(aq_base(self.app), 'copy_of_%s' % portal_name))
         self.newportal = getattr(self.app, 'copy_of_%s' % portal_name)
@@ -157,7 +157,7 @@ class PortalCopyTests(ATSiteTestCase):
         app.manage_pasteObjects(cb_copy_data=cp)
 
         noSecurityManager()
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
         self.failUnless(hasattr(aq_base(self.app), portal_name))
         self.newportal = getattr(self.app, portal_name)
@@ -258,7 +258,7 @@ class PortalCopyTests(ATSiteTestCase):
         self.assertEqual(wf_tool.getInfoFor(file, 'review_state'),
                                                                  'published')
 
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
         cb = self.folder.manage_cutObjects(['test_file'])
         self.folder.sub.manage_pasteObjects(cb)
 

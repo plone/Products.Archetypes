@@ -38,6 +38,7 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import populateFolder
 
@@ -137,7 +138,7 @@ class RenameTests(ATSiteTestCase):
         doc.setQuote(content, mimetype="text/plain")
         self.failUnless(str(doc.getQuote()) == str(content))
         # make sure we have _p_jar
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(obj_id, new_id)
         doc = getattr(self.folder, new_id)
         self.failUnless(str(doc.getQuote()) == str(content))
@@ -169,7 +170,7 @@ class RenameTests(ATSiteTestCase):
         self.assertEquals(CLONE_COUNTER.get(uid), 0)
 
         # make sure we have _p_jar
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
         d_count = self.getCounts(d)
 

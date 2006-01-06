@@ -466,7 +466,7 @@ class SQLStorageTest(SQLStorageTestBase):
         obj_id = 'dummy'
         new_id = 'new_dummy'
         # make sure we have _p_jar
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
         portal.manage_renameObject(obj_id, new_id)
         dummy = getattr(portal, new_id)
         got = dummy.getAtextfield()
@@ -482,7 +482,7 @@ class SQLStorageTest(SQLStorageTestBase):
 ##             folder2 = getattr(portal, 'folder2')
 ##             obj_id = 'dummy'
 ##             # make sure we have _p_jar
-##             transaction.commit(1)
+##             transaction.savepoint(optimistic=True)
 ##             cb = portal.manage_cutObjects([obj_id])
 ##             folder1.manage_pasteObjects(cb)
 ##             # shit, why this does not work anymore?
@@ -493,7 +493,7 @@ class SQLStorageTest(SQLStorageTestBase):
 ##             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
 ##             self.failUnless(PUID == PUID1)
 ##             # make sure we have _p_jar
-##             transaction.commit(1)
+##             transaction.savepoint(optimistic=True)
 ##             cb = folder1.manage_cutObjects([obj_id])
 ##             folder2.manage_pasteObjects(cb)
 ##             PUID2 = folder2.UID()
@@ -529,7 +529,7 @@ class SQLStorageTest(SQLStorageTestBase):
 ##             __traceback_info__ = (self.db_name, str(PUID), str(PUID1))
 ##             self.failUnless(str(PUID) == str(PUID1))
 ##             # make sure we have _p_jar
-##             transaction.commit(1)
+##             transaction.savepoint(optimistic=True)
 ##             cb = folder1.manage_cutObjects(ids=(obj_id,))
 ##             portal.manage_pasteObjects(cb)
 ##             doc = getattr(portal, obj_id)

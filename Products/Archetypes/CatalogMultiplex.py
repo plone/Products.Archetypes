@@ -25,8 +25,10 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.catalog_object(self, url)
 
-        self._catalogUID(self)
-        self._catalogRefs(self)
+        # XXX This used to be called from here, but manage_afterAdd
+        # should take care of it.
+        # self._catalogUID(self)
+        # self._catalogRefs(self)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
@@ -36,10 +38,10 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.uncatalog_object(url)
 
-        # Specially control reindexing to UID catalog
-        # the pathing makes this needed
-        self._uncatalogUID(self)
-        self._uncatalogRefs(self)
+        # XXX This used to be called from here, but manage_beforeDelete
+        # should take care of it.
+        # self._uncatalogUID(self)
+        # self._uncatalogRefs(self)
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
@@ -63,18 +65,28 @@ class CatalogMultiplex(CMFCatalogAware):
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, url, idxs=lst)
-        self._catalogUID(self)
-        self._catalogRefs(self)
+
+        # We only make this call if idxs is not passed.
+        #
+        # manage_afterAdd/manage_beforeDelete from Referenceable take
+        # care of most of the issues, but some places still expect to
+        # call reindexObject and have the uid_catalog updated.
+        if not idxs:
+            if isinstance(self, Referenceable):
+                self._catalogUID(self)
+                # _catalogRefs used to be called here, but all possible
+                # occurrences should be handled by
+                # manage_afterAdd/manage_beforeDelete from Referenceable
+                # now.
+                # self._catalogRefs(self)
         self.http__refreshEtag()
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        # For some reason CMFCatalogAware doesn't fully reindex on copy,
-        # though it does do a workflow update which reindexes state and
-        # security, as a result we have to be a little redundant here.  The
-        # super-class method also recurses through sub-objects which is
-        # essential.
-        self.reindexObject()
+        # XXX Seems like we don't need this anymore because
+        # indexObject is called on manage_afterAdd.
+        # self.reindexObject()
+
         CMFCatalogAware.manage_afterClone(self, item)
 
 InitializeClass(CatalogMultiplex)

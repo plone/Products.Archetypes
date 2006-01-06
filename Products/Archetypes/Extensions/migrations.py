@@ -93,7 +93,7 @@ def migrateReferences(portal, out):
                 # avoid eating up all RAM
                 if not count % 250:
                     print >>out, '*',
-                    transaction.commit(1) 
+                    transaction.savepoint(optimistic=True)
             print >>out, "\n%s old references migrated." % count
         # after all remove the old-style reference attribute
         delattr(at, 'refs')
@@ -101,7 +101,7 @@ def migrateReferences(portal, out):
         if USE_FULL_TRANSACTIONS:
             transaction.commit()
         else:
-            transaction.commit(1)
+            transaction.savepoint(optimistic=True)
     
     else:
         # SECOND
@@ -134,14 +134,14 @@ def migrateReferences(portal, out):
             # avoid eating up all RAM
             if not count % 250:
                 print >>out, '*',
-                transaction.commit(1) 
+                transaction.savepoint(optimistic=True)
 
         print >>out, "%s old references migrated (reference metadata not restored)." % count
         print >>out, '\nDone\n'
         if USE_FULL_TRANSACTIONS:
             transaction.commit()
         else:
-            transaction.commit(1)
+            transaction.savepoint(optimistic=True)
 
     print >>out, "Migrated References"
 
@@ -187,12 +187,12 @@ def migrateUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            transaction.commit(1) 
+            transaction.savepoint(optimistic=True)
     print >>out, '\nDone\n'
     if USE_FULL_TRANSACTIONS:
         transaction.commit()
     else:
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
     print >>out, count, "UID's migrated."
 
@@ -219,12 +219,12 @@ def removeOldUIDs(portal, out):
         # avoid eating up all RAM
         if not count % 250:
             print >>out, '*',
-            transaction.commit(1) 
+            transaction.savepoint(optimistic=True)
 
     if USE_FULL_TRANSACTIONS:
         transaction.commit()
     else:
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
     print >>out, "\n%s old UID attributes removed." % count
     print >>out, 'Done\n'
@@ -235,7 +235,7 @@ def migrateSchemas(portal, out):
     if USE_FULL_TRANSACTIONS:
         transaction.commit()
     else:
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
     print >>out, msg
 
 def migrateCatalogIndexes(portal, out):
@@ -266,7 +266,7 @@ def refreshCatalogs(portal, out):
     if USE_FULL_TRANSACTIONS:
         transaction.commit()
     else:
-        transaction.commit(1)
+        transaction.savepoint(optimistic=True)
 
 
 def migrate(self):

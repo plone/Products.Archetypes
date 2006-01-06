@@ -1070,7 +1070,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.subtransactioncounter += 1
         # Only every 250 objects a sub-commit, otherwise it eats up all diskspace
         if not self.subtransactioncounter % 250:
-            transaction.commit(1)
+            transaction.savepoint(optimistic=True)
 
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():

@@ -216,7 +216,7 @@ def add%(name)s(self, id, **kwargs):
     self._setObject(id, obj)
     obj = self._getOb(id)
     obj.initializeArchetype(**kwargs)
-    return id
+    return obj.getId()
 """ % {'name' : name}
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)

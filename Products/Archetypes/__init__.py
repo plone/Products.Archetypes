@@ -21,6 +21,8 @@ from zLOG import LOG, PROBLEM
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
+import transaction
+
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
 from PloneCompat import IndexIterator
