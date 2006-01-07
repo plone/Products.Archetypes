@@ -1,3 +1,32 @@
+1.3.6-final - 2006-01-07
+========================
+
+  * enable IDWidget to ignore global visible_ids setting and enable ids by
+    adding a property ignore_visible_ids=False (default). If it is True
+    the id (short name) is shown and the global or by-member setting is 
+    ignored. This is useful for types where control over the id is needed.
+    [jensens] 
+
+  * 'Renderer' is used to set locals to context of rendered widgets. added 
+    prefix support for fieldnames in widgets to enable archetypes for multi-
+    object edit forms.
+    [jensens]
+
+  * debug.ClassLog -> generateFrames calls pythons 'inspect' function. This
+    breaks on at least one OS-X Tiger system with an IndexError (normal setup).
+    Now IndexError is catched and ignored.
+    [jensens]
+
+  * cleanup of install_indexes magic to add index and metadata-columns to 
+    a catalog. also added an alternative method than 'schema()' to use, for
+    example if a CatalogTool itself is archetypes based. The alternative i
+    method is 'zcschema' and does not conflict with Archetypes schema 
+    attribute.
+    [jensens]
+
+  * Moved the byline to the header to be consistent with Plone 2.1.
+    [limi]
+
 1.3.6-RC1 - 2005-12-29
 ======================
 

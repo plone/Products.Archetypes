@@ -11,6 +11,17 @@ Archetypes
   created and bound or you can choose among the rich existing set
   of features.
 
+IMPORTANT: Notes for version 1.3.6 or later
+
+  Archetypes 1.3.6 fixes the important problem of multiple reindexObject calls 
+  on object creation and save (thx Sidnei et al).
+
+  Due to a bug in portal_factory which was fixed in Plone 2.1.2-rc1 and later
+  Archetypes had a problem with kind of ghost-references in Reference-Catalog 
+  right after the fix of Archetypes-bug above. If you upgrade your Archetypes to
+  1.3.6 or later be aware to upgrade your Plone 2.0.x to at least 2.0.6 or 
+  2.1.x to 2.1.2; or backport portal_factory to the Plone version you use.
+
 Features
 
   * Simple schemas with working default policy.
@@ -31,13 +42,13 @@ Requires
 
   * CMF 1.4.7+ or CMF 1.5.3
 
-  * Zope 2.7.5+ (may work with Zope 2.7.2+) or Zope 2.8 (see TODO.txt)
+  * Zope 2.7.5+ or Zope 2.8.5+, may work with Zope 2.9
 
   * CMFFormController 1.0.3-beta+
 
 Recommended
 
-  * Plone 2.0.4+ or Plone 2.1
+  * Plone 2.0.6+ or Plone 2.1.2+
 
   Archetypes do not work without the following closely related products. You get 
   them with the Archetypes release bundle tarball. You can also fetch them also
@@ -88,4 +99,5 @@ Unit testing
 
 Documentation
 
-  See the docs directory and "plone.org":http://plone.org/documentation/archetypes/
+  Major resource for documentation is located at 
+  "plone.org":http://plone.org/products/archetypes/documentation

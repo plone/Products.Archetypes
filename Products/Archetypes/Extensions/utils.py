@@ -293,89 +293,104 @@ def install_indexes(self, out, types):
             continue
 
         for field in cls.schema.fields():
-            if field.index:
+            if not field.index:
+                continue
 
-                if type(field.index) is StringType:
-                    index = (field.index,)
-                elif isinstance(field.index, (TupleType, ListType) ):
-                    index = field.index
+            if type(field.index) is StringType:
+                index = (field.index,)
+            elif isinstance(field.index, (TupleType, ListType) ):
+                index = field.index
+            else:
+                raise SyntaxError("Invalid Index Specification %r"
+                                  % field.index)
+
+            for alternative in index:
+                installed = None
+                index_spec = alternative.split(':', 1)
+                use_column  = 0
+                if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
+                    use_column = 1
+                index_spec = index_spec[0]
+
+                index_accessor = getattr(field, 'index_method', None)
+                if index_accessor == '_at_edit_accessor':
+                    accessor = field.edit_accessor or field.accessor
+                elif index_accessor == '_at_accessor':
+                    accessor = field.accessor
+                elif index_accessor:
+                    if isinstance(index_accessor, (unicode, str)):
+                        accessor = str(index_accessor)
+                    else:
+                        raise ValueError('Bad index accessor value : %r'
+                                         % index_accessor)
                 else:
-                    raise SyntaxError("Invalid Index Specification %r"
-                                      % field.index)
+                    accessor = field.accessor
 
-                for alternative in index:
-                    installed = None
-                    index_spec = alternative.split(':', 1)
-                    use_column  = 0
-                    if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
-                        use_column = 1
-                    index_spec = index_spec[0]
 
-                    index_accessor = getattr(field, 'index_method', None)
-                    if index_accessor == '_at_edit_accessor':
-                        accessor = field.edit_accessor or field.accessor
-                    elif index_accessor == '_at_accessor':
-                        accessor = field.accessor
-                    elif index_accessor:
-                        if isinstance(index_accessor, (unicode, str)):
-                            accessor = str(index_accessor)
-                        else:
-                            raise ValueError('Bad index accessor value : %r'
-                                             % index_accessor)
+                parts = index_spec.split('|')
+                # we want to be able to specify which catalog we want to use
+                # for each index. syntax is
+                # index=('member_catalog/:schema',)
+                # portal catalog is used by default if not specified
+                if parts[0].find('/') > 0:
+                    str_idx = parts[0].find('/')
+                    catalog_name = parts[0][:str_idx]
+                    parts[0] = parts[0][str_idx+1:]
+                    catalog = getToolByName(self, catalog_name)
+                else:
+                    catalog = portal_catalog
+                
+                #####################
+                # add metadata column 
+                
+                # lets see if the catalog is itself an Archetype:
+                isArchetype = IBaseObject.isImplementedBy(catalog)
+                # archetypes based zcatalogs need to provide a different method 
+                # to list its schema-columns to not conflict with archetypes 
+                # schema                
+                hasNewWayMethod = hasattr(catalog, 'zcschema')
+                hasOldWayMethod = not isArchetype and hasattr(catalog, 'schema')
+                notInNewWayResults = hasNewWayMethod and accessor not in catalog.zcschema()
+                notInOldWayResults = hasOldWayMethod and accessor not in catalog.schema()
+                if use_column and (notInNewWayResults or notInOldWayResults):
+                    try:
+                        catalog.addColumn(accessor)
+                    except:
+                        import traceback
+                        traceback.print_exc(file=out)
+
+                ###########
+                # add index
+                
+                # if you want to add a schema field without an index
+                #if not parts[0]:
+                #    continue
+
+                for itype in parts:
+                    extras = itype.split(',')
+                    if len(extras) > 1:
+                        itype = extras[0]
+                        props = Extra()
+                        for extra in extras[1:]:
+                            name, value = extra.split('=')
+                            setattr(props, name.strip(), value.strip())
                     else:
-                        accessor = field.accessor
-
-
-                    parts = index_spec.split('|')
-                    # we want to be able to specify which catalog we want to use
-                    # for each index. syntax is
-                    # index=('member_catalog/:schema',)
-                    # portal catalog is used by default if not specified
-                    if parts[0].find('/') > 0:
-                        str_idx = parts[0].find('/')
-                        catalog_name = parts[0][:str_idx]
-                        parts[0] = parts[0][str_idx+1:]
-                        catalog = getToolByName(self, catalog_name)
+                        props = None
+                    try:
+                        #Check for the index and add it if missing
+                        catalog.addIndex(accessor, itype,
+                                         extra=props)
+                        catalog.manage_reindexIndex(ids=(accessor,))
+                    except:
+                        # FIXME: should only catch "Index Exists"
+                        # damned string exception !
+                        pass
                     else:
-                        catalog = portal_catalog
-
-                    if use_column:
-                        try:
-                            if accessor not in catalog.schema():
-                                catalog.addColumn(accessor)
-                        except:
-                            import traceback
-                            traceback.print_exc(file=out)
-
-                    # if you want to add a schema field without an index
-                    #if not parts[0]:
-                    #    continue
-
-                    for itype in parts:
-                        extras = itype.split(',')
-                        if len(extras) > 1:
-                            itype = extras[0]
-                            props = Extra()
-                            for extra in extras[1:]:
-                                name, value = extra.split('=')
-                                setattr(props, name.strip(), value.strip())
-                        else:
-                            props = None
-                        try:
-                            #Check for the index and add it if missing
-                            catalog.addIndex(accessor, itype,
-                                             extra=props)
-                            catalog.manage_reindexIndex(ids=(accessor,))
-                        except:
-                            # FIXME: should only catch "Index Exists"
-                            # damned string exception !
-                            pass
-                        else:
-                            installed = 1
-                            break
-
-                    if installed:
+                        installed = 1
                         break
+
+                if installed:
+                    break
 
 
 def isPloneSite(self):

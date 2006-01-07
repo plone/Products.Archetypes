@@ -1,6 +1,5 @@
 import sys
-
-from Products.Archetypes.interfaces.layer import ILayer
+#from Products.Archetypes.interfaces.layer import ILayer
 from Products.generator.renderer import renderer as BaseRenderer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -15,7 +14,7 @@ class ArchetypesRenderer(BaseRenderer):
     
     security = ClassSecurityInfo()
     # XXX FIXME more security
-
+    
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):
 
@@ -27,6 +26,11 @@ class ArchetypesRenderer(BaseRenderer):
             frame = frame.f_back
         if context is _marker:
             raise RuntimeError, 'Context not found'
+        
+        # for editing of multiple AT-based content at once we might want to 
+        # prefix the field-name.
+        if 'fieldprefix' in kwargs:
+            field_name = '%s%s' % (kwargs['fieldprefix'], field_name)
 
         widget = ImplicitAcquisitionWrapper(widget, instance)
         field = ImplicitAcquisitionWrapper(field, instance)
