@@ -1,3 +1,6 @@
+DONT USE ChangeLog, USE HISTORY.txt instead.
+
+
 2004-08-20  Dorneles Tremea  <dorneles@x3ng.com.br>
 
 	* widget.py (Label): Fixed support for dynamic labels.
