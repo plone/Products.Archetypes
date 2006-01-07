@@ -1,4 +1,4 @@
-1.3.2 development
+1.3.2-final03 - 2006-01-07
 ==========================
 
   * nothing - the odd version checking needs a version change to
