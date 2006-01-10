@@ -21,7 +21,7 @@
       <tal:block tal:define="member python:here.portal_membership.getAuthenticatedMember();
                              member_visible_ids python:member.getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
                              widget_visible_ids widget/ignore_visible_ids|nothing;
-		             visible_ids python:visible_ids or widget__visible_ids or member_visible_ids;">
+		             visible_ids python:visible_ids or widget_visible_ids or member_visible_ids;">
         <tal:block tal:condition="python: visible_ids">
     	  <metal:use use-macro="field_macro | here/widgets/field/macros/edit">        
 	    <input metal:fill-slot="widget_body"
