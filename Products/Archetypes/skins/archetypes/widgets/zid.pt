@@ -12,18 +12,18 @@
 		      tal:define="member python:here.portal_membership.getAuthenticatedMember();
                                   member_visible_ids python:member.getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
                                   widget_visible_ids widget/ignore_visible_ids|nothing;
-		                  visible_ids python:visible_ids or widget_visible_ids or member_visible_ids;"
+		                  visible_ids visible_ids|widget_visible_ids|member_visible_ids;"
 		      tal:condition="python:visible_ids"
-		      tal:replace="structure accessor" 
+		      tal:replace="structure accessor"
     />
 
     <metal:define define-macro="edit">
       <tal:block tal:define="member python:here.portal_membership.getAuthenticatedMember();
                              member_visible_ids python:member.getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
                              widget_visible_ids widget/ignore_visible_ids|nothing;
-		             visible_ids python:visible_ids or widget_visible_ids or member_visible_ids;">
+		             visible_ids visible_ids|widget_visible_ids|member_visible_ids;">
         <tal:block tal:condition="python: visible_ids">
-    	  <metal:use use-macro="field_macro | here/widgets/field/macros/edit">        
+    	  <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	    <input metal:fill-slot="widget_body"
 		   type="text"
 		   name=""
@@ -38,7 +38,7 @@
         <tal:block tal:condition="python: not visible_ids">
 	  <input type="hidden"
 	         name="id"
-	         tal:attributes="name fieldName; 
+	         tal:attributes="name fieldName;
                                  value python:field.getEditAccessor(here)()"
 	         />
         </tal:block>
