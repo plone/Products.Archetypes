@@ -17,7 +17,10 @@ from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
-from Products.CMFCore  import CMFCorePermissions
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute

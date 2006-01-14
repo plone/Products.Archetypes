@@ -21,7 +21,10 @@ from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 #from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore import CMFCorePermissions
+try:
+    from Products.CMFCore import permissions as CMFCorePermissions
+except ImportError:
+    from Products.CMFCore import CMFCorePermissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
     

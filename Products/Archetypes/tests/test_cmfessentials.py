@@ -36,7 +36,8 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.CMFCore.utils import _checkPermission as checkPerm
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.permissions import AccessContentsInformation, \
+                                            ModifyPortalContent, View
 
 
 class TestPermissions(ATSiteTestCase):
@@ -62,9 +63,9 @@ class TestPermissions(ATSiteTestCase):
         content = self.demo_instances[0]
         # XXX: Strangely enough we have correct permissions here, but not so
         #      in initializeArchetype
-        self.failUnless(checkPerm(CMFCorePermissions.View, content))
-        self.failUnless(checkPerm(CMFCorePermissions.AccessContentsInformation, content))
-        self.failUnless(checkPerm(CMFCorePermissions.ModifyPortalContent, content))
+        self.failUnless(checkPerm(View, content))
+        self.failUnless(checkPerm(AccessContentsInformation, content))
+        self.failUnless(checkPerm(ModifyPortalContent, content))
 
 
 def test_suite():
