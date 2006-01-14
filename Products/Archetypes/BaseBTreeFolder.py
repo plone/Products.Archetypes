@@ -1,9 +1,6 @@
 from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.public import BaseFolder
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 try:
     # import CMF >=1.5.3 style
     from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder

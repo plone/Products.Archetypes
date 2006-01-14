@@ -12,10 +12,7 @@ from Acquisition import aq_get
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 

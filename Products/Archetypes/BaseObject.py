@@ -43,10 +43,7 @@ from ComputedAttribute import ComputedAttribute
 from OFS.ObjectManager import ObjectManager
 from ZODB.POSException import ConflictError
 
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _checkPermission as checkPerm
 

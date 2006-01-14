@@ -10,10 +10,7 @@ from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL

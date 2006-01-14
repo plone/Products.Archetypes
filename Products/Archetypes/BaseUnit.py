@@ -12,10 +12,7 @@ from Acquisition import aq_base
 from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream

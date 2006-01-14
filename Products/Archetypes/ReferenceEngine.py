@@ -24,10 +24,7 @@ from OFS.ObjectManager import ObjectManager
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog

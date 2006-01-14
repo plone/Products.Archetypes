@@ -4,10 +4,7 @@ from Products.Archetypes.Widget import SelectionWidget
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass

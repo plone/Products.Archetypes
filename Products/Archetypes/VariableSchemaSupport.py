@@ -11,10 +11,7 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):

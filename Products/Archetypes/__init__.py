@@ -9,10 +9,7 @@ import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-try:
-    from Products.CMFCore import permissions as CMFCorePermissions
-except ImportError:
-    from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
 from zLOG import LOG, PROBLEM
