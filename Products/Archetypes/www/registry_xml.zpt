@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<tal:block omit-tag="" 
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        metal:define-macro="body">
+
+  <registry>
+   <metal:block use-macro="here/fields_template/macros/body" />
+   <metal:block use-macro="here/widgets_template/macros/body" />
+   <metal:block use-macro="here/storages_template/macros/body" />
+   <metal:block use-macro="here/validators_template/macros/body" />
+   <metal:block use-macro="here/types_template/macros/body" />
+  </registry>
+
+</tal:block>
