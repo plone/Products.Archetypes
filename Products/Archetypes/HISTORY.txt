@@ -1,4 +1,4 @@
-1.3.6-final - 2006-01-07
+1.3.7-final - 2006-01-15
 ========================
 
   * enable IDWidget to ignore global visible_ids setting and enable ids by
