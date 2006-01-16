@@ -1113,6 +1113,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(permissions.ManagePortal,
                               'setCatalogsByType')
     def setCatalogsByType(self, meta_type, catalogList):
+        """ associate catalogList with meta_type. (unfortunally not portal_type).
+        
+            catalogList is a list of strings with the ids of the catalogs.
+            Each catalog is has to be a tool, means unique in site root.
+        """
         self.catalog_map[meta_type] = catalogList
 
 
@@ -1122,7 +1127,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         catalogs = []
         catalog_map = getattr(self, 'catalog_map', None)
-        if catalog_map:
+        if catalog_map is not None:
             names = self.catalog_map.get(meta_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
