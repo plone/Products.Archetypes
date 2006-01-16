@@ -1,5 +1,5 @@
 from Products.Archetypes import WebDAVSupport
-from Products.Archetypes.public import BaseFolder
+from Products.Archetypes.atapi import BaseFolder
 from Products.CMFCore import permissions
 try:
     # import CMF >=1.5.3 style

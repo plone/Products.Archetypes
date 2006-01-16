@@ -684,7 +684,7 @@ class Schema(BasicSchema, SchemaLayerContainer):
     def moveField(self, name, direction=None, pos=None, after=None, before=None):
         """Move a field
         
-        >>> from Products.Archetypes.public import StringField as SF
+        >>> from Products.Archetypes.atapi import StringField as SF
         >>> schema = Schema((SF('a'), SF('b'), SF('c'),))
         
         >>> schema.keys()

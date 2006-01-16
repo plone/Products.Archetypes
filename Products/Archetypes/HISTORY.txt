@@ -1,6 +1,10 @@
 1.4.0-alpha
 ==================
 
+  * make import from 'Products.Archetypes.atapi import *' default and deprecate
+    'public'.
+    [jensens]
+
   * Integrated 'generator' into Archetypes. 
     [jensens]
 
