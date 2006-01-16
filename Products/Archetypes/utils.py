@@ -19,7 +19,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-import Products.generator.i18n as i18n
+from Products.Archetypes.generator import i18n
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))

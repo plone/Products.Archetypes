@@ -53,7 +53,6 @@ from Products.Archetypes.ArchTTWTool import ArchTTWTool
 this_module = sys.modules[__name__]
 import Products.MimetypesRegistry
 import Products.PortalTransforms
-import Products.generator
 import Products.validation
 
 ###

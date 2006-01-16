@@ -45,6 +45,7 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
 from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.generator import i18n
 from Products.Archetypes.Widget import BooleanWidget
 from Products.Archetypes.Widget import CalendarWidget
 from Products.Archetypes.Widget import ComputedWidget
@@ -78,8 +79,6 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
-
-from Products.generator import i18n
 
 try:
     import PIL.Image
