@@ -1,0 +1,84 @@
+<html>
+  <div tal:replace="structure here/manage_page_header"/>
+    <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
+      <div tal:replace="structure here/manage_tabs"/>
+	<style type="text/css">
+	  div.row {
+	  padding-top: 2px;
+	  }
+	  
+	  .cell {
+	  margin-right:1em;
+	  width: 33%;
+	  }	    
+	  
+	  .content_type {
+	  border: 1px solid black;
+	  margin: 4px;
+	  }
+	    
+	  .main td {
+	    text-align: left;
+	    }
+
+	  th.title {
+	    background-color: #ccf;
+	    }
+
+	  .detail {
+	  background-color: #cdcdcd;
+	  width:100%;
+	  }
+
+	</style>
+	
+	<form action="manage_templates" method="POST" 
+	      tal:define="gen here/archetype_tool;
+	    templates gen/listTemplates;
+	    ">
+	 	 
+	    <p> This doesn't really work because I don&quote;t show
+	    the types that each of these is mapped to, I need a
+	    different data structure</p>
+
+	    <table class="main" width="80%">
+	      <tr tal:repeat="template templates">
+		<td>
+		  <input type="checkbox" name="template:list"
+			 tal:attributes="value template">
+		</td>
+		<td tal:content="template"/>
+		<td tal:content="python:templates.getValue(template)"/>
+	      </tr>
+	    </table>
+	    <input type="submit" name="submit" value="Unregister"/>
+
+	    
+	    <table>
+		<tr>
+		  <th>template name</th>
+		  <th>visible name</th>
+		  <th>for types? (blank for all)</th>
+		</tr>
+	      <tr>
+		<td><input name="name" tal:attributes="value python:request.get('name', '')"/></td>
+		<td><input name="vis" tal:attributes="value python:request.get('vis', '')"/></td>
+		<td>
+		  <select multiple="multiple" name="types:list" size="4">
+		    <option 
+			    tal:repeat="item gen/listRegisteredTypes"
+		      tal:attributes="value item/name;"
+		      tal:content="item/name"
+		      /> 
+		  </select>	  
+		</td>
+	      </tr>
+	    </table>
+	    
+	    <br/>
+	      <input type="submit" name="submit" value="Add Template"/>
+		
+	  </form>
+	  
+      </body>
+  </html>

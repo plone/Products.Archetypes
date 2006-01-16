@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone">
+
+<body>
+
+<!-- Calendar Widgets -->
+
+    <div metal:define-macro="view">
+     <metal:block define-slot="widget_label">
+     </metal:block>
+     <metal:block use-macro="here/widgets/field/macros/view">
+	<metal:block fill-slot="widget_view">
+	  <span tal:define="d accessor"
+	        tal:replace="structure python:d and here.toPortalTime(d, long_format=1) or 'not set'"/>
+	</metal:block>
+      </metal:block>
+    </div>
+
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="here/widgets/field/macros/edit">
+	<div metal:fill-slot="widget_body">
+	    <div tal:define="id fieldName;
+	      inputname  fieldName;
+	      formname   string:edit_form;
+	      inputvalue python: test(value, value, '');
+	      tabindex tabindex/next;"
+	      tal:omit-tag="">
+	      <div metal:use-macro="here/calendar_slot/macros/calendarDatePickerBox">
+		a calendar, hopefully
+	      </div>
+	    </div>
+	</div>
+      </div>
+    </div>
+
+    <metal:define define-macro="search">
+      <metal:field use-macro="here/widgets/field/macros/edit">
+	<metal:slot fill-slot="widget_body">
+	    <tal:from define="id fieldName;
+	      inputname  fieldName;
+	      formname   string:search_form;
+	      inputvalue python: min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();
+	      tabindex tabindex/next;"
+	      tal:omit-tag="">
+	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
+		a calendar, hopefully
+	      </metal:box>
+	    </tal:from>
+	    -
+	    <tal:to define="id fieldName;
+	      inputname  fieldName;
+	      formname   string:search_form;
+	      inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();
+	      tabindex tabindex/next;"
+	      tal:omit-tag="">
+	      <metal:box use-macro="here/calendar_slot/macros/calendarDatePickerBox">
+		a calendar, hopefully
+	      </metal:box>
+	    </tal:to>
+	   <input type="hidden" name="field_usage" value="range:min:max"
+                  tal:attributes="name string:${fieldName}_usage" />
+	</metal:slot>
+      </metal:field>
+    </metal:define>
+
+  </body>
+
+</html>
+
