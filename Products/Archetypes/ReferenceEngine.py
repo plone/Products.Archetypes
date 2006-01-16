@@ -1,5 +1,5 @@
 import ZODB
-from ZODB.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from debug import log, log_exc
 from ExtensionClass import Base
@@ -7,7 +7,7 @@ from ExtensionClass import Base
 from interfaces.referenceable import IReferenceable
 from utils import unique
 from types import StringType
-
+from config import UID_CATALOG
 
 class ReferenceEngine(Base):
     def __init__(self):
@@ -76,7 +76,7 @@ class ReferenceEngine(Base):
             self._addBref(oid, tid, relationship=relationship)
 
     def assertId(self, uid):
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getToolByName(self, UID_CATALOG)
         result  = catalog({'UID' : uid})
         if result:
             return 1
@@ -200,4 +200,3 @@ class ReferenceEngine(Base):
 
         refs = [grp for r,grp in refs]
         return unique(refs)
-

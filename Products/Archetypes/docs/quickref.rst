@@ -3,8 +3,8 @@ Archetypes Basic Reference
 
 :Author: Sidnei da Silva
 :Contact: sidnei@plone.org
-:Date: $Date: 2003/08/09 19:12:59 $
-:Version: $Revision: 1.6.4.4 $
+:Date: $Date: 2004/03/08 14:46:58 $
+:Version: $Revision: 1.10.2.1 $
 :Web site: http://sourceforge.net/projects/archetypes
 
 .. contents::
@@ -41,6 +41,14 @@ using the following combination:
 - CMFPlone 1.0.4
 
 - CMF 1.3.1
+
+It is also known to work smoothly with Zope 2.5.
+
+You should install the *validation* and *generator* packages available 
+on the archetypes'sourceforge page before installing Archetypes itself. 
+WARNING: those packages was used to be installed as Zope products, this 
+not the case anymore. They should be installed as regular python package 
+(look at the packages'README file for more info).
 
 Using the tarball
 *****************
@@ -455,7 +463,7 @@ Additional notes about Factory Type Information
       class Foo(BaseContent):
           actions = ({'id': 'view',
 	              'name': 'View',
-                      'action': 'custom_view',
+                      'action': 'string:${object_url}/custom_view',
                       'permissions': (CMFCorePermissions.View,)
                      },)
 

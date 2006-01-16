@@ -1,31 +1,40 @@
 from Schema import Schema
-from Field import ObjectField
+from Field import StringField
 from Widget import SelectionWidget
 from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from config import TOOL_NAME
 
-type_mixin = Schema((
-    ObjectField('layout',
+schema = Schema((
+    StringField('layout',
                 accessor="getLayout",
                 mutator="setLayout",
                 default="base_view",
                 vocabulary="templates",
-                widget=SelectionWidget(modes=('edit',),)
+                widget=SelectionWidget(
+                                       visible={'view' : 'invisible'},
+                                       )
                 ),
         ))
 
 
 class TemplateMixin:
-    schema = type = type_mixin
+    schema = schema
     actions = (
         { 'id': 'view',
           'name': 'View',
           'action': 'view',
           'permissions': (CMFCorePermissions.View,),
-          },
-        )
+        }, )
 
+    aliases = {
+        '(Default)':'',
+        'index_html': '',
+        'view':'',
+        'gethtml':'source_html'}
+
+
+    index_html = None
     def __call__(self):
         """return a view based on layout"""
         v = getTemplateFor(self, self.getLayout())
@@ -35,8 +44,8 @@ class TemplateMixin:
         at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
-def getTemplateFor(self, pt):
+def getTemplateFor(self, pt, default="base_view"):
     ## Let the SkinManager handle this
-    pt = getattr(self, pt)
+    ## But always try to show something
+    pt = getattr(self, pt, getattr(self, default))
     return pt
-

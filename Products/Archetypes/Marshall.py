@@ -30,6 +30,18 @@ class Marshaller:
         if hasattr(aq_base(instance), 'marshall_hook'):
             delattr(instance, 'marshall_hook')
 
+    def demarshall(self, instance, data, **kwargs):
+        raise NotImplemented
+
+    def marshall(self, instance, **kwargs):
+        raise NotImplemented
+
+    def initializeField(self, instance, field):
+        pass
+
+    def cleanupField(self, instance, field):
+        pass
+
 class PrimaryFieldMarshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
@@ -52,7 +64,11 @@ class PrimaryFieldMarshaller(Marshaller):
             else:
                 content_type = data and guess_content_type(data) or 'text/plain'
             length = len(data)
-            data = str(data)
+            # ObjectField without IBaseUnit?
+            if hasattr(data, 'data'):
+                data = data.data
+            else:
+                data = str(data)
 
         return (content_type, length, data)
 
@@ -70,7 +86,8 @@ class RFC822Marshaller(Marshaller):
                 if mutator is not None:
                     mutator(v)
         content_type = headers.get('Content-Type', 'text/plain')
-        kwargs.update({'mimetype': content_type})
+        if not kwargs.get('mimetype', None):
+            kwargs.update({'mimetype': content_type})
         p = instance.getPrimaryField()
         if p is not None:
             mutator = p.getMutator(instance)

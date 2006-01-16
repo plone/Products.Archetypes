@@ -1,4 +1,5 @@
 import sys
+from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from Acquisition import Implicit
 from Acquisition import aq_base, aq_acquire, aq_inner, aq_parent
@@ -7,7 +8,8 @@ from OFS.ObjectManager import ObjectManager
 from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.HTTPRequest import FileUpload
-from ZODB.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
+from ZODB.POSException import ConflictError
 from debug import log, log_exc
 from types import FileType
 from DateTime import DateTime
@@ -16,23 +18,29 @@ import operator
 from Schema import Schema, Schemata
 from Field import StringField, TextField
 from Widget import IdWidget, StringWidget
-from utils import DisplayList
-from interfaces.base import IBaseObject
+from utils import DisplayList, mapply
+from interfaces.base import IBaseObject, IBaseUnit
 from interfaces.referenceable import IReferenceable
 
 from Renderer import renderer
 
 from Products.Archetypes.Marshall import RFC822Marshaller
+from ZPublisher import xmlrpc
+
+_marker = []
 
 content_type = Schema((
     StringField('id',
-                required=1,
+                required=0, ## Still actually required, but
+                            ## the widget will supply the missing value
+                            ## on non-submits
                 mode="rw",
                 accessor="getId",
                 mutator="setId",
                 default=None,
                 widget=IdWidget(label_msgid="label_name",
                                 description_msgid="help_name",
+                                visible={'view' : 'invisible'},
                                 i18n_domain="plone"),
                 ),
 
@@ -49,19 +57,21 @@ content_type = Schema((
                       )
 
 class BaseObject(Implicit):
+
     security = ClassSecurityInfo()
 
     schema = type = content_type
     _signature = None
-    installMode = ['type', 'actions', 'navigation', 'validation', 'indexes']
+
+    installMode = ['type', 'actions', 'indexes']
 
     __implements__ = IBaseObject
 
     def __init__(self, oid, **kwargs):
         self.id = oid
-        self._master_language = None
-        self._translations_states = PersistentMapping()
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'initializeArchetype')
     def initializeArchetype(self, **kwargs):
         """called by the generated addXXX factory in types tool"""
         try:
@@ -71,26 +81,30 @@ class BaseObject(Implicit):
                 self.update(**kwargs)
             self._signature = self.Schema().signature()
         except:
-            import traceback
-            import sys
-            sys.stdout.write('\n'.join(traceback.format_exception(*sys.exc_info())))
+            log_exc()
 
+    security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         self.initializeLayers(item, container)
 
+    security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         pass
 
+    security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         self.cleanupLayers(item, container)
 
+    security.declarePrivate('initializeLayers')
     def initializeLayers(self, item=None, container=None):
         self.Schema().initializeLayers(self, item, container)
 
+    security.declarePrivate('cleanupLayers')
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)
 
-    security.declarePublic("title_or_id")
+    security.declareProtected(CMFCorePermissions.View,
+                              'title_or_id')
     def title_or_id(self):
         """
         Utility that returns the title if it is not blank and the id
@@ -102,21 +116,37 @@ class BaseObject(Implicit):
 
         return self.getId()
 
-    security.declarePublic("getId")
+    security.declareProtected(CMFCorePermissions.View,
+                              'getId')
     def getId(self):
         """get the objects id"""
         return self.id
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'setId')
     def setId(self, value):
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
                 parent.manage_renameObject(
                     self.id, value,
-                    getattr(self, 'REQUEST', None)
                     )
             self._setId(value)
+
+    security.declareProtected(CMFCorePermissions.View,
+                              'Type')
+    def Type( self ):
+        """Dublin Core element - Object type
+
+        this method is redefined in ExtensibleMetadata but we need this
+        at the object level (i.e. with or without metadata) to interact
+        with the uid catalog
+        """
+        if hasattr(aq_base(self), 'getTypeInfo'):
+            ti = self.getTypeInfo()
+            if ti is not None:
+                return ti.Title()
+        return self.meta_type
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'getField')
@@ -147,9 +177,11 @@ class BaseObject(Implicit):
         return isinstance(field, TextField)  or not self.isBinary(name)
 
     security.declareProtected(CMFCorePermissions.View, 'widget')
-    def widget(self, field_name, mode="view", **kwargs):
-        widget = self.Schema()[field_name].widget
-        return renderer.render(field_name, mode, widget, self,
+    def widget(self, field_name, mode="view", field=None, **kwargs):
+        if field is None:
+            field =self.Schema()[field_name]
+        widget = field.widget
+        return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
     security.declareProtected(CMFCorePermissions.View, 'getContentType')
@@ -208,41 +240,42 @@ class BaseObject(Implicit):
 
     def __getitem__(self, key):
         """play nice with externaleditor again"""
-        if key not in self.Schema().keys() and key[:1] != "_": #XXX 2.2
-            return getattr(self, key, None) or getattr(aq_parent(aq_inner(self)), key, None)
-        accessor = self.Schema()[key].getEditAccessor(self)
+        schema = self.Schema()
+        keys = schema.keys()
+        if key not in keys and key[:1] != "_": #XXX 2.2
+            return getattr(self, key, None) or \
+                   getattr(aq_parent(aq_inner(self)), key, None)
+
+        accessor = schema[key].getEditAccessor(self)
         if not accessor:
-            accessor = self.Schema()[key].getAccessor(self)
-        try:
-            value = accessor(maybe_baseunit=1)
-        except TypeError:
-            # Fallback to no params call
-            value = accessor()
+            accessor = schema[key].getAccessor(self)
+
+        #This is the access mode used by external editor. We need the
+        #handling provided by BaseUnit when its available
+        kw = {'raw':1}
+        value = mapply(accessor, **kw)
+
         return value
 
-##     security.declareProtected(CMFCorePermissions.View, 'get')
-##     def get(self, key, **kwargs):
-##         """return editable version of content"""
-##         accessor = self.Schema()[key]
-##         return accessor()
-
-##     def set(self, key, value, **kw):
-##         mutator = getattr(self, self.Schema()[key].mutator)
-##         mutator(value, **kw)
-
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'edit')
     def edit(self, **kwargs):
         self.update(**kwargs)
 
+    security.declarePrivate('setDefaults')
     def setDefaults(self):
         self.Schema().setDefaults(self)
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'update')
     def update(self, **kwargs):
-        self.Schema().updateAll(self, **kwargs)
         self._p_changed = 1
+        self.Schema().updateAll(self, **kwargs)
         self.reindexObject()
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'validate_field')
     def validate_field(self, name, value, errors):
-
         """
         write a method: validate_foo(new_value) -> "error" or None
         If there is a validate method defined for a given field invoke
@@ -261,8 +294,8 @@ class BaseObject(Implicit):
                 errors[name] = result
 
 
-    ##Pre/post validate hooks that will need to write errors
-    ##into the errors dict directly using errors[fieldname] = ""
+    ## Pre/post validate hooks that will need to write errors
+    ## into the errors dict directly using errors[fieldname] = ""
     security.declareProtected(CMFCorePermissions.View, 'pre_validate')
     def pre_validate(self, REQUEST, errors):
         pass
@@ -289,10 +322,12 @@ class BaseObject(Implicit):
 
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
-        """full indexable text"""
+        """All fields marked as 'searchable' are concatenated together
+        here for indexing purpose"""
         data = []
+        charset = self.getCharset()
         for field in self.Schema().fields():
-            if field.searchable != 1:
+            if not field.searchable:
                 continue
             method = getattr(self, field.accessor)
             try:
@@ -303,38 +338,60 @@ class BaseObject(Implicit):
                 try:
                     datum =  method()
                 except:
-                    datum =  ''
+                    continue
             if datum:
-                if type(datum) is type([]) or type(datum) is type(()):
+                type_datum = type(datum)
+                if type_datum is type([]) or type_datum is type(()):
                     datum = ' '.join(datum)
-                data.append(datum)
+                # FIXME: we really need an unicode policy !
+                if type_datum is type(u''):
+                    datum = datum.encode(charset)
+                data.append(str(datum))
 
-        data = [str(d) for d in data if d is not None]
         data = ' '.join(data)
         return data
 
+    security.declareProtected(CMFCorePermissions.View, 'getCharset')
+    def getCharset(self):
+        """ Return site default charset, or utf-8 """
+        purl = getToolByName(self, 'portal_url')
+        container = purl.getPortalObject()
+        if getattr(container, 'getCharset', None):
+            return container.getCharset()
+
+        encoding = 'utf-8'
+        p_props = getToolByName(self, 'portal_properties', None)
+        if p_props is not None:
+            site_props = getattr(p_props, 'site_properties', None)
+            if site_props is not None:
+                encoding = site_props.getProperty('default_charset')
+
+        return encoding
 
     security.declareProtected(CMFCorePermissions.View, 'get_size' )
     def get_size( self ):
         """ Used for FTP and apparently the ZMI now too """
         size = 0
         for name in self.Schema().keys():
-            field = getattr(self, name, None)
-            if hasattr(field, "isUnit"):
-                size += field.get_size()
+            value = self[name]
+            if IBaseUnit.isImplementedBy(value):
+                size += value.get_size()
             else:
-                try:
-                    size += len(field)
-                except:
-                    pass
+                if value is not None:
+                    try:
+                        size += len(value)
+                    except (TypeError, AttributeError):
+                        size += len(str(value))
 
         return size
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
-                              '_processForm')
-    def _processForm(self, data=1, metadata=None, REQUEST=None):
+    security.declarePrivate('_processForm')
+    def _processForm(self, data=1, metadata=None, REQUEST=None, values=None):
         request = REQUEST or self.REQUEST
-        form = request.form
+        if values:
+            form = values
+        else:
+            form = request.form
         fieldset = form.get('fieldset', None)
         schema = self.Schema()
         schemata = self.Schemata()
@@ -349,125 +406,77 @@ class BaseObject(Implicit):
         form_keys = form.keys()
 
         for field in fields:
-            if field.getName() in form_keys or "%s_file" % field.getName() in form_keys:
-                text_format = None
-                isFile = 0
-                value = None
+            ## Delegate to the widget for processing of the form
+            ## element.  This means that if the widget needs _n_
+            ## fields under a naming convention it can handle this
+            ## internally.  The calling API is process_form(instance,
+            ## field, form) where instance should rarely be needed,
+            ## field is the field object and form is the dict. of
+            ## kv_pairs from the REQUEST
+            ##
+            ## The product of the widgets processing should be:
+            ##   (value, **kwargs) which will be passed to the mutator
+            ##   or None which will simply pass
+            widget = field.widget
+            result = widget.process_form(self, field, form,
+                                         empty_marker=_marker)
+            if result is _marker or result is None: continue
 
-                # text field with formatting
-                if hasattr(field, 'allowable_content_types') and \
-                   field.allowable_content_types:
-                    #was a mimetype specified
-                    text_format = form.get("%s_text_format" % field.getName())
-                # or a file?
-                fileobj = form.get('%s_file' % field.getName())
-                if fileobj:
-                    filename = getattr(fileobj, 'filename', '')
-                    if filename != '':
-                        value  =  fileobj
-                        isFile = 1
-
-                if not value:
-                    value = form.get(field.getName())
-
-                #Set things by calling the mutator
-                if value is None: continue
-                mutator = getattr(self, field.mutator)
-                __traceback_info__ = (self, field, mutator)
-                kwargs = {}
-
-                if text_format and not isFile:
-                    mutator(value, mimetype=text_format, **kwargs)
-                else:
-                    mutator(value, **kwargs)
+            # Set things by calling the mutator
+            mutator = field.getMutator(self)
+            __traceback_info__ = (self, field, mutator)
+            result[1]['field'] = field.getName()
+            mapply(mutator, result[0], **result[1])
 
         self.reindexObject()
 
     security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
-    def processForm(self, data=1, metadata=0, REQUEST=None):
+    def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Process the schema looking for data in the form"""
-        self._processForm(data=data, metadata=metadata, REQUEST=REQUEST)
+        self._processForm(data=data, metadata=metadata,
+                          REQUEST=REQUEST, values=values)
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'Schemata')
     def Schemata(self):
         from Products.Archetypes.Schema import getSchemata
         return getSchemata(self)
 
-    security.declarePrivate( '_datify' )
-    def _datify( self, attrib ):
-        """FIXME: overriden from DublinCore to deal with blank value..."""
-        if attrib == 'None' or not attrib:
-            attrib = None
-        elif not isinstance( attrib, DateTime ):
-            attrib = DateTime( attrib )
-        return attrib
-
-    security.declarePublic( 'Date' )
-    def Date( self ):
-        """FIXME: overriden from DublinCore to deal with blank value...
-        Dublin Core element - default date
-        """
-        # Return effective_date if set, modification date otherwise
-        date = getattr(self, 'effective_date', None )
-        if not date:
-            date = self.modified()
-        return date.ISO()
-
-
-    # Handle schema updates ####################################################
-
-#    def _compareDicts(self, d1, d2):
-#        values = {}
-#        for k,v in d1.items():
-#            values[k] = (v,'N/A')
-#        for k,v in d2.items():
-#            if values.has_key(k):
-#                values[k] = (values[k][0],v)
-#            else:
-#                values[k] = ('N/A', v)
-#        keys = values.keys()
-#        keys.sort()
-#        import sys
-#        for k in keys:
-#            sys.stdout.write('%s: %s, %s\n' % (k, str(values[k][0]), str(values[k][1])))
-
+    security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determine whether the current object's schema is up to date."""
-        from Products.Archetypes.ArchetypeTool import getType
-        return getType(self.meta_type)['signature'] == self._signature
+        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
+        package = _guessPackage(self.__module__)
+        return getType(self.meta_type, package)['signature'] == self._signature
 
 
+    security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
         """Update an object's schema when the class schema changes.
-        For each field we use the existing accessor to get its value, then we
-        re-initialize the class, then use the new schema mutator for each field
-        to set the values again.  We also copy over any class methods to handle
-        product refreshes gracefully (when a product refreshes, you end up with
-        both the old version of the class and the new in memory at the same
-        time -- you really should restart zope after doing a schema update)."""
-        from Products.Archetypes.ArchetypeTool import getType
 
-        print >> out, 'Updating %s' % (self.getId())
+        For each field we use the existing accessor to get its value,
+        then we re-initialize the class, then use the new schema
+        mutator for each field to set the values again.
+
+        We also copy over any class methods to handle product
+        refreshes gracefully (when a product refreshes, you end up
+        with both the old version of the class and the new in memory
+        at the same time -- you really should restart zope after doing
+        a schema update).
+        """
+        from Products.Archetypes.ArchetypeTool import getType, _guessPackage
+
+        if out:
+            print >> out, 'Updating %s' % (self.getId())
 
         old_schema = self.Schema()
-        new_schema = getType(self.meta_type)['schema']
-
-        obj_class = self.__class__
-        current_class = getattr(sys.modules[self.__module__], self.__class__.__name__)
-        if obj_class.schema != current_class.schema:
-            # XXX This is kind of brutish.  We do this to make sure that old
-            # class instances have the proper methods after a refresh.  The
-            # best thing to do is to restart Zope after doing an update, and
-            # the old versions of the class will disappear.
-            # print >> out, 'Copying schema from %s to %s' % (current_class, obj_class)
-            for k in current_class.__dict__.keys():
-                obj_class.__dict__[k] = current_class.__dict__[k]
-#            from Products.Archetypes.ArchetypeTool import generateClass
-#            generateClass(obj_class)
-
+        package = _guessPackage(self.__module__)
+        new_schema = getType(self.meta_type, package)['schema']
 
         # read all the old values into a dict
         values = {}
+        mimes = {}
         for f in new_schema.fields():
             name = f.getName()
             if name not in excluded_fields:
@@ -475,28 +484,51 @@ class BaseObject(Implicit):
                     values[name] = self._migrateGetValue(name, new_schema)
                 except ValueError:
                     if out != None:
-                        print >> out, 'Unable to get %s.%s' % (str(self.getId()), name)
+                        print >> out, ('Unable to get %s.%s'
+                                       % (str(self.getId()), name))
+                else:
+                    if hasattr(f, 'getContentType'):
+                        mimes[name] = f.getContentType(self)
+
+        obj_class = self.__class__
+        current_class = getattr(sys.modules[self.__module__],
+                                self.__class__.__name__)
+        if obj_class.schema != current_class.schema:
+            # XXX This is kind of brutish.  We do this to make sure that old
+            # class instances have the proper methods after a refresh.  The
+            # best thing to do is to restart Zope after doing an update, and
+            # the old versions of the class will disappear.
+
+            for k in current_class.__dict__.keys():
+                obj_class.__dict__[k] = current_class.__dict__[k]
+
 
         # replace the schema
-        # print >> out, 'Updating schema'
         from copy import deepcopy
         self.schema = deepcopy(new_schema)
-        # print >> out, 'Reinitializing'
         self.initializeArchetype()
 
-        # print >> out, 'Writing field values'
         for f in new_schema.fields():
             name = f.getName()
+            kw = {}
             if name not in excluded_fields and values.has_key(name):
+                if mimes.has_key(name):
+                    kw['mimetype'] = mimes[name]
                 try:
-                    self._migrateSetValue(name, values[name])
+                    self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
                     if out != None:
-                        print >> out, 'Unable to set %s.%s to %s' % (str(self.getId()), name, str(values[name]))
+                        print >> out, ('Unable to set %s.%s to '
+                                       '%s' % (str(self.getId()),
+                                               name, str(values[name])))
+
+        self._p_changed = 1 # make sure the changes are persisted
+
         if out:
             return out
 
 
+    security.declarePrivate('_migrateGetValue')
     def _migrateGetValue(self, name, new_schema=None):
         """Try to get a value from an object using a variety of methods."""
         schema = self.Schema()
@@ -504,22 +536,65 @@ class BaseObject(Implicit):
         # First see if the new field name is managed by the current schema
         field = schema.get(name, None)
         if field:
-            accessor = field.getAccessor(self)
-            if accessor is not None:
-                # yes -- return the value
-                return accessor()
+            # first try the edit accessor
+            try:
+                editAccessor = field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # no luck -- now try the accessor
+            try:
+                accessor = field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # still no luck -- try to get the value directly
+            try:
+                return self[field.getName()]
+            except ConflictError:
+                raise
+            except:
+                pass
 
-        # Nope -- see if the new accessor method is present in the current object.
+        # Nope -- see if the new accessor method is present
+        # in the current object.
         if new_schema:
             new_field = new_schema.get(name)
-            accessor = new_field.getAccessor(self)
-            if callable(accessor):
-                try:
-                    return accessor()
-                except:
-                    pass
+            # try the new edit accessor
+            try:
+                editAccessor = new_field.getEditAccessor(self)
+                if editAccessor:
+                    return editAccessor()
+            except ConflictError:
+                raise
+            except:
+                pass
 
-        # Nope -- now see if the current object has an attribute with the same name
+            # nope -- now try the accessor
+            try:
+                accessor = new_field.getAccessor(self)
+                if accessor:
+                    return accessor()
+            except ConflictError:
+                raise
+            except:
+                pass
+            # still no luck -- try to get the value directly using the new name
+            try:
+                return self[new_field.getName()]
+            except ConflictError:
+                raise
+            except:
+                pass
+
+        # Nope -- now see if the current object has an attribute
+        # with the same name
         # as the new field
         if hasattr(self, name):
             return getattr(self, name)
@@ -527,33 +602,29 @@ class BaseObject(Implicit):
         raise ValueError, 'name = %s' % (name)
 
 
-    def _migrateSetValue(self, name, value, old_schema=None):
+    security.declarePrivate('_migrateSetValue')
+    def _migrateSetValue(self, name, value, old_schema=None, **kw):
         """Try to set an object value using a variety of methods."""
         schema = self.Schema()
         field = schema.get(name, None)
         # try using the field's mutator
         if field:
             mutator = field.getMutator(self)
-            if mutator:
-                mutator(value)
+            if mutator is not None:
+                try:
+                    args = [value,]
+                    mapply(mutator, *args, **kw)
+                    return
+                except ConflictError:
+                    raise
+                except:
+                    log_exc()
+        else:
+            # try setting an existing attribute
+            if hasattr(self, name):
+                setattr(self, name, value)
                 return
-        # try setting an existing attribute
-        if hasattr(self, name):
-            setattr(self, name, value)
-            return
         raise ValueError, 'name = %s, value = %s' % (name, value)
-
-
-    # I18N content management #################################################
-
-    security.declarePublic("hasI18NContent")
-    def hasI18NContent(self):
-        """return true it the schema contains at least one I18N field
-
-        not implemented in this release but we should keep the hasI18NContent
-        methods !
-        """
-        return self.Schema().hasI18NContent()
 
 
     # subobject access ########################################################
@@ -563,17 +634,22 @@ class BaseObject(Implicit):
     #
     # those objects are specific to a session
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+                              'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
         """add a dictionnary of objects to session variable
         """
-        if REQUEST is None:
-            REQUEST = self.REQUEST
-        key = self.absolute_url()
-        session = REQUEST.SESSION
-        defined = session.get(key, {})
-        defined.update(objects)
-        session[key] = defined
+        if objects:
+            if REQUEST is None:
+                REQUEST = self.REQUEST
+            key = '/'.join(self.getPhysicalPath())
+            session = REQUEST.SESSION
+            defined = session.get(key, {})
+            defined.update(objects)
+            session[key] = defined
 
+    security.declareProtected(CMFCorePermissions.View,
+                              'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """add a dictionnary of objects to session variable
         """
@@ -598,6 +674,11 @@ class BaseObject(Implicit):
         target = getattr(self, name, None)
         if target is not None:
             return target
+        method = REQUEST.get('REQUEST_METHOD', 'GET').upper()
+        if not method in ('GET', 'POST', 'HEAD') and not isinstance(RESPONSE,
+                                                                    xmlrpc.Response):
+            from webdav.NullResource import NullResource
+            return NullResource(self, name, REQUEST).__of__(self)
         if RESPONSE is not None:
             RESPONSE.notFoundError("%s\n%s" % (name, ''))
 

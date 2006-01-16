@@ -9,7 +9,7 @@ schema = BaseSchema + Schema((
                                        'text/restructured',
                                        'text/html',
                                        'application/msword'),
-              widget  = RichWidget,
+              widget  = RichWidget(description="""Enter or upload text for the Body of the document"""),
               ),
     ))
 
@@ -18,6 +18,4 @@ class SimpleType(BaseContent):
     """A simple archetype"""
     schema = schema
 
-
 registerType(SimpleType)
-

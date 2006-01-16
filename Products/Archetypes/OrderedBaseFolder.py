@@ -1,7 +1,7 @@
 """
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 
-$Id: OrderedBaseFolder.py,v 1.2 2003/05/13 10:07:25 vladoi Exp $
+$Id: OrderedBaseFolder.py,v 1.3.2.1 2003/12/06 15:09:05 dreamcatcher Exp $
 """
 
 from AccessControl import ClassSecurityInfo
@@ -12,6 +12,7 @@ from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Referenceable import Referenceable
 from ExtensibleMetadata import ExtensibleMetadata
 from BaseObject import BaseObject
+from CatalogMultiplex  import CatalogMultiplex
 from debug import log, log_exc
 from interfaces.base import IBaseFolder
 from interfaces.referenceable import IReferenceable
@@ -84,10 +85,15 @@ class OrderedFolder( SkinnedFolder ):
 
 InitializeClass(OrderedFolder)
 
-class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMetadata):
+class OrderedBaseFolder(BaseObject,
+                        Referenceable,
+                        CatalogMultiplex,
+                        OrderedFolder,
+                        ExtensibleMetadata):
     """ An ordered base Folder implementation """
-    
-    __implements__ = (IBaseFolder, IReferenceable, IExtensibleMetadata,
+
+    __implements__ = (IBaseFolder, IReferenceable,
+                      IExtensibleMetadata,
                       IOrderedFolder)
 
     manage_options = SkinnedFolder.manage_options
@@ -109,17 +115,20 @@ class OrderedBaseFolder(BaseObject, Referenceable, OrderedFolder, ExtensibleMeta
         Referenceable.manage_afterAdd(self, item, container)
         BaseObject.manage_afterAdd(self, item, container)
         OrderedFolder.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         Referenceable.manage_afterClone(self, item)
         BaseObject.manage_afterClone(self, item)
         OrderedFolder.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         BaseObject.manage_beforeDelete(self, item, container)
         OrderedFolder.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
 
 InitializeClass(OrderedBaseFolder)

@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master">
+  <head><title></title></head>
+  <body>
+    <div metal:fill-slot="main">
+      <metal:main_macro define-macro="main">
+
+	<metal:header_macro define-macro="header">
+	  <h1 tal:content="title_string|here/title_or_id" />
+	  <div metal:use-macro="here/document_actions/macros/document_actions">
+	    Document actions (print, sendto etc)
+	  </div>
+	</metal:header_macro>
+
+	<metal:body_macro metal:define-macro="body"
+			  tal:define="field_macro field_macro|here/widgets/field/macros/view;"
+			  tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
+	  <tal:if_visible define="mode string:view;
+			  visState python: field.widget.isVisible(here, mode);"
+			  condition="python: visState == 'visible'">
+	    <metal:use_field use-macro="field_macro" />
+	  </tal:if_visible>
+	</metal:body_macro>
+
+	<metal:footer_macro define-macro="footer" />
+
+      </metal:main_macro>
+    </div>
+  </body>
+</html>

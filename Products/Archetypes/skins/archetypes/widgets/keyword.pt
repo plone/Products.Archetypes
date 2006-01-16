@@ -1,123 +1,69 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
+  <head><title></title></head>
+  <body>
 
-<body>
+    <!-- Keyword Widgets -->
 
-<!-- Keyword Widgets -->
+    <metal:view_macro define-macro="view"
+		      tal:repeat="item accessor">
+      <span tal:content="item"/><br/>
+    </metal:view_macro>
 
-    <div metal:define-macro="view">
-     <metal:block define-slot="widget_label">
-     </metal:block>
-     <metal:block use-macro="here/widgets/field/macros/view">
-	<metal:block fill-slot="widget_view">
-	  <tal:block repeat="item accessor">
-	    <span tal:content="item"/><br/>
-	  </tal:block>
-	</metal:block>
-      </metal:block>
-    </div>
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+	<tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
+		    allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
+		    site_props here/portal_properties/site_properties;
+		    allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
 
-    <div metal:define-macro="edit">
-      <div tal:attributes="class python:test(field.required, 'required label', 'label')">
-	<span i18n:translate="" tal:content="python:widget.Label(here)"/>
-	<div class="field"
-            tal:define="error errors/fieldName | nothing;
-	    accessor_name field/accessor;
-            value python:request.get(fieldName, None);
-	    value python:value and [value] or accessor()"
-	    tal:attributes="class python:test(error, 'field error', 'field')" >
-	    <span tal:condition="error" tal:replace="error" />
+	  <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
+	    <div style="width: 45%; float: right;">
+	      <span i18n:translate="" tal:content="string: New ${fieldName}">New keywords</span>
+	      <br />
+	      <textarea id="entered_subjects"
+			name="subject:lines"
+			rows="11"
+			cols="15"
+			wrap="off"
+			tabindex=""
+			tal:attributes="id string:${fieldName}_keywords;
+			name string:${fieldName}_keywords:lines;
+			tabindex tabindex/next;"
+			tal:define="subject python:request.get(fieldName,[])"
+			tal:content="python:'\n'.join(subject)">
+		selected keywords
+	      </textarea>
 
-	      <script language="JavaScript">
-		function addSelectedKeywords(fieldName) {
-		predefKeywords=document.getElementById(fieldName + '_predefined_keywords');
-		for (var x=0; x<predefKeywords.length; x++) {
-		  if (predefKeywords[x].selected) {
-		      addNewKeyword(fieldName, predefKeywords[x].value);
-		      }
-		    }
-		  }
+	    </div>
+	  </tal:condition>
 
-		  function addNewKeyword(fieldName, newWord) {
-		      selKeywords=document.getElementById(fieldName + '_entered_keywords');
-		      if (selKeywords) {
-		        selKeywords.value+= newWord + '\n';
-		      } else {
-		        selKeywords.value = newWord + '\n';
-		      }
-		  }
-	      </script>
+	  <div style="width: 45%">
+	    <span i18n:translate="" tal:content="string: Existing ${fieldName}">Existing keywords</span>
+	    <br />
+	    <select id="predefined_subjects"
+		    name="predefined_subjects:list"
+		    size="14"
+		    multiple="multiple"
+		    tabindex=""
+		    tal:attributes="id string:${fieldName}_existing_keywords;
+		    name string:${fieldName}_existing_keywords:list;
+		    tabindex tabindex/next;">
+	      <option value="#" tal:repeat="keyword allowedKeywords"
+		      tal:content="keyword" tal:attributes="value keyword;
+		      selected python:test(here.unicodeTestIn(keyword, contentKeywords), 'selected', None)">
+		an existing keyword
+	      </option>
+	    </select>
 
-	    <table>
-	      <tr><td>
-		  Existing <span tal:content="fieldName"/>
-		  <br />
-		      <select size="7"
-			      multiple="multiple"
-			      tal:attributes="
-			      id string:${fieldName}_predefined_keywords;
-			      name string:${fieldName}_predefined_keywords;
-			      tabindex tabindex/next;">
-                        <option value="#" tal:define="keywords python: here.collectKeywords(fieldName, accessor_name)"
-			tal:repeat="keyword keywords"
-			tal:content="keyword" tal:attributes="value python: keywords.getValue(keyword)"> # </option>
-                        </select>
+	  </div>
 
-                        <br />
-
-                        <input class="context"
-                               type="submit"
-                               name="add"
-                               tabindex=""
-                               value="Add Selected &gt;"
-                               tal:attributes="
-			onclick string: javascript: addSelectedKeywords('${fieldName}');;return false;
-			tabindex tabindex/next;">
-
-                    <br />
-		    <div tal:define="fixed python: test(field.enforceVocabulary == 1, 1, 0);"
-                         tal:condition="python: test(fixed, 0, 1)">
-                    New keyword <br />
-                    <input type="text"
-                           value=""
-                           size="20"
-                           tabindex=""
-                           tal:attributes="
-			    name string:${fieldName}_entered_keyword;
-			    tabindex tabindex/next;"
-                           />
-                    <br />
-                    <input class="context"
-                           type="submit"
-                           name="add"
-                           tabindex=""
-                           value="Add New &gt;"
-                           tal:attributes="
-			  onclick string: javascript:addNewKeyword('$fieldName', document.edit_form.${fieldName}_entered_keyword.value);;return false;
-			  tabindex tabindex/next;"
-                           />
-                    </div>
-                    </td>
-
-                    <td>
-                    Selected <span tal:content="fieldName"/><br />
-                    <textarea
-			      rows="15"
-			      cols="15"
-			      wrap="off"
-			      tabindex=""
-			      tal:attributes="name fieldName;
-		  id string:${fieldName}_entered_keywords;
-		  tabindex tabindex/next;"
-	      ><span tal:omit-tag="" tal:repeat="item value" tal:replace="python: item +'\n'"/></textarea>&nbsp;
-	</td></tr>
-      </table>
-      </div>
-    </div>
-  </div>
+	</tal:define>
+      </metal:use>
+    </metal:define>
 
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/keyword/macros/edit">

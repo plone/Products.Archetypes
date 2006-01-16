@@ -1,10 +1,11 @@
+from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from debug import log
 from utils import pathFor, unique, capitalize
 import os, os.path
 import re
-
+from new import function
 
 _modes = {
     'r' : { 'prefix'   : 'get',
@@ -52,7 +53,21 @@ class Generator:
                                 methodName,
                                 mode))
 
+        # Zope security requires all security protected methods to have a
+        # function name. It uses this name to determine which roles are allowed
+        # to access the method.
+        # This code is renaming the internal name from e.g. generatedAccessor to
+        # methodName.
+        method = function(method.func_code,
+                          method.func_globals,
+                          methodName,
+                          method.func_defaults,
+                          method.func_closure,
+                         )
         setattr(klass, methodName, method)
+
+        # Allow the method to be published (for XML-RPC)
+        method.__doc__ = "%s %s" % (mode, field.getName())
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
@@ -79,7 +94,8 @@ class ClassGenerator:
                           stacklevel = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
-            klass.Schema = lambda self: self.schema
+            klass.Schema = lambda self: \
+                ImplicitAcquisitionWrapper(self.schema, self)
 
     def generateClass(self, klass):
         #We are going to assert a few things about the class here
@@ -132,6 +148,20 @@ class ClassGenerator:
         #Note on the class what we did (even if the method existed)
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
+
+def generateCtor(type, module):
+    name = capitalize(type)
+    ctor = """
+def add%s(self, id, **kwargs):
+    o = %s(id)
+    self._setObject(id, o)
+    o = getattr(self, id)
+    o.initializeArchetype(**kwargs)
+    return id
+""" % (name, type)
+
+    exec ctor in module.__dict__
+    return getattr(module, "add%s" % name)
 
 
 _cg = ClassGenerator()

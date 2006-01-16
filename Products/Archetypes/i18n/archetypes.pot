@@ -35,3 +35,14 @@ msgstr "Reference"
 # <p i18n:translate="label_copy">Copy objects from folders and then click the reference button. This will create references.</p>
 msgid "label_copy"
 msgstr "Copy objects from folders and then click the reference button. This will create references."
+
+# -----------------------------------------------------------------------------
+# Python code translations
+
+#: Schema.py
+msgid "error_required"
+msgstr "${name} is required, please correct."
+
+#: Schema.py
+msgid "error_vocabulary"
+msgstr "Value ${val} is not allowed for vocabulary of element ${name}."

@@ -1,5 +1,5 @@
 from Acquisition import aq_base, aq_chain
-from AccessControl import getSecurityManager
+from AccessControl import getSecurityManager,Unauthorized
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
 
@@ -30,7 +30,7 @@ class Referenceable(Base):
     def hasRelationshipTo(self, target, relationship=None):
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.hasRelationshipTo(self, target, relationship)
-    
+
     def addReference(self, object, relationship=None):
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.addReference(self, object, relationship)
@@ -47,7 +47,7 @@ class Referenceable(Base):
         """What kinds of relationships do this object have"""
         tool = getToolByName(self, config.TOOL_NAME)
         return tool.getRelationships(self)
-    
+
     def getRefs(self, relationship=None):
         """get all the referenced objects for this object"""
         tool = getToolByName(self, config.TOOL_NAME)
@@ -62,7 +62,7 @@ class Referenceable(Base):
         """register with the archetype tool for a unique id"""
         if hasattr(aq_base(self), '_uid') and self._uid is not None:
             return
-        
+
         try:
             if not archetype_tool:
                 archetype_tool = getToolByName(self, config.TOOL_NAME)
@@ -79,11 +79,11 @@ class Referenceable(Base):
             #log("unreg", cid)
         except:
             log_exc()
-        
+
     def UID(self):
         uid = self._getUID()
         return uid
-    
+
     def _getUID(self):
         return getattr(aq_base(self), '_uid', None)
 
@@ -101,7 +101,7 @@ class Referenceable(Base):
         ct = getToolByName(container, config.TOOL_NAME, None)
         if ct:
             self._register(archetype_tool=ct)
-        
+
     def manage_afterClone(self, item):
         """
         Get a new UID
@@ -109,7 +109,7 @@ class Referenceable(Base):
         """
         self._uid = None
         self._register()
-        
+
     def manage_beforeDelete(self, item, container):
         """
             Remove self from the catalog.
@@ -117,7 +117,7 @@ class Referenceable(Base):
         """
         #log("deleting %s:%s" % (self.getId(), self.UID()))
         #log("self, item, container", self, item, container)
-        
+
         storeRefs = getattr(self, '_cp_refs', None)
 
         if not storeRefs: self._unregister()
@@ -135,7 +135,7 @@ class Referenceable(Base):
             cp=REQUEST['__cp']
         if cp is None:
             raise "No cp data"
-        
+
         try:
             cp=_cb_decode(cp)
         except:
@@ -152,12 +152,12 @@ class Referenceable(Base):
             oblist.append(ob)
 
         ct = getToolByName(self, config.TOOL_NAME)
-        
+
         for ob in oblist:
             if getattr(ob, 'isReferenceable', None):
                 ct.addReference(self, ob)
-                
-                
+
+
         if REQUEST is not None:
             REQUEST['RESPONSE'].setCookie('__cp', 'deleted',
                                           path='%s' % cookie_path(REQUEST),
@@ -166,16 +166,16 @@ class Referenceable(Base):
             return REQUEST.RESPONSE.redirect(self.absolute_url() + "/reference_edit")
         return ''
 
-    
+
     def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
         because in those cases we need to keep refs"""
         ## This isn't really safe for concurrent usage, but the
         ## worse case is not that bad and could be fixed with a reindex
         ## on the archetype tool
-        if op==1: self._cp_refs =  1 
+        if op==1: self._cp_refs =  1
 
-        
+
     def _verifyPasteRef(self, object):
         # Verify whether the current user is allowed to paste the
         # passed object into self. This is determined by checking
@@ -186,7 +186,7 @@ class Referenceable(Base):
         #
         # Passing a false value for the validate_src argument will skip
         # checking the passed in object in its existing context. This is
-        # mainly useful for situations where the passed in object has no 
+        # mainly useful for situations where the passed in object has no
         # existing context, such as checking an object during an import
         # (the object will not yet have been connected to the acquisition
         # heirarchy).
@@ -203,13 +203,12 @@ class Referenceable(Base):
             # clipboard.
             try:    parent=aq_parent(aq_inner(object))
             except: parent=None
-            if getSecurityManager().validate(None, parent, None, object):
-                return
-            raise Unauthorized, absattr(object.id)
+            #if getSecurityManager().validate(None, parent, None, object):
+            #    return
+            #raise Unauthorized, absattr(object.id)
         else:
             raise Unauthorized(permission=mt_permission)
 
 
     def _verifyObjectPaste(self, object, validate_src=1):
         self._verifyPasteRef(object)
-        

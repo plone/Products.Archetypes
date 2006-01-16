@@ -1,5 +1,5 @@
 import ZODB
-from ZODB.PersistentMapping import PersistentMapping
+from Globals import PersistentMapping
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from interfaces.storage import IStorage
@@ -7,6 +7,7 @@ from interfaces.field import IObjectField
 from interfaces.layer import ILayer
 from debug import log
 from config import TOOL_NAME
+from utils import className
 
 type_map = {'text':'string',
             'datetime':'date',
@@ -17,6 +18,9 @@ type_map = {'text':'string',
 _marker = []
 
 class Storage:
+    """Basic, abstract class for Storages. You need to implement
+    at least those methods"""
+
     __implements__ = IStorage
 
     def getName(self):
@@ -38,9 +42,14 @@ class Storage:
         raise NotImplementedError('%s: unset' % self.getName())
 
 class ReadOnlyStorage(Storage):
+    """A marker storage class for used for read-only fields."""
     __implements__ = IStorage
 
 class StorageLayer(Storage):
+    """Base, abstract StorageLayer. Storages that need to manipulate
+    how they are initialized per instance and/or per field must
+    subclass and implement those methods"""
+
     __implements__ = (IStorage, ILayer)
 
     def initializeInstance(self, instance, item=None, container=None):
@@ -56,6 +65,9 @@ class StorageLayer(Storage):
         raise NotImplementedError('%s: cleanupField' % self.getName())
 
 class AttributeStorage(Storage):
+    """Stores data as an attribute of the instance. This is the most
+    commonly used storage"""
+
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
@@ -64,6 +76,8 @@ class AttributeStorage(Storage):
         return getattr(instance, name)
 
     def set(self, name, instance, value, **kwargs):
+        # Remove acquisition wrappers
+        value = aq_base(value)
         setattr(aq_base(instance), name, value)
         instance._p_changed = 1
 
@@ -75,6 +89,9 @@ class AttributeStorage(Storage):
         instance._p_changed = 1
 
 class ObjectManagedStorage(Storage):
+    """Stores data using the Objectmanager interface. It's usually
+    used for BaseFolder-based content"""
+
     __implements__ = IStorage
 
     def get(self, name, instance, **kwargs):
@@ -84,6 +101,8 @@ class ObjectManagedStorage(Storage):
             raise AttributeError(msg)
 
     def set(self, name, instance, value, **kwargs):
+        # Remove acquisition wrappers
+        value = aq_base(value)
         try:
             instance._delObject(name)
         except (AttributeError, KeyError):
@@ -96,6 +115,9 @@ class ObjectManagedStorage(Storage):
         instance._p_changed = 1
 
 class MetadataStorage(StorageLayer):
+    """Storage used for ExtensibleMetadata. Attributes are stored on
+    a persistent mapping named ``_md`` on the instance."""
+
     __implements__ = (IStorage, ILayer)
 
     def initializeInstance(self, instance, item=None, container=None):
@@ -105,7 +127,12 @@ class MetadataStorage(StorageLayer):
             instance._p_changed = 1
 
     def initializeField(self, instance, field):
-        self.set(field.getName(), instance, field.default)
+        # Check for already existing field to avoid  the reinitialization
+        # (which means overwriting) of an already existing field after a
+        # copy or rename operation
+        base = aq_base (instance)
+        if not base._md.has_key(field.getName()):
+            self.set(field.getName(), instance, field.default)
 
     def get(self, name, instance, **kwargs):
         base = aq_base(instance)
@@ -119,7 +146,8 @@ class MetadataStorage(StorageLayer):
 
     def set(self, name, instance, value, **kwargs):
         base = aq_base(instance)
-        base._md[name] = value
+        # Remove acquisition wrappers
+        base._md[name] = aq_base(value)
         base._p_changed = 1
 
     def unset(self, name, instance, **kwargs):
@@ -131,11 +159,20 @@ class MetadataStorage(StorageLayer):
             base._p_changed = 1
 
     def cleanupField(self, instance, field, **kwargs):
-        self.unset(field.getName(), instance)
+        # Don't clean up the field self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
 
     def cleanupInstance(self, instance, item=None, container=None):
-        if hasattr(aq_base(instance), '_md'):
-            del instance._md
+        # Don't clean up the instance self to avoid problems with copy/rename. The
+        # python garbarage system will clean up if needed.
+        pass
 
 __all__ = ('ReadOnlyStorage', 'ObjectManagedStorage',
            'MetadataStorage', 'AttributeStorage',)
+
+from Registry import registerStorage
+
+for name in __all__:
+    storage = locals()[name]
+    registerStorage(storage)
