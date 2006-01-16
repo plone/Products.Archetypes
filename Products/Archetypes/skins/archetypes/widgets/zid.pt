@@ -13,7 +13,7 @@
                           member_visible_ids python:member.getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));
                           widget_visible_ids widget/ignore_visible_ids|nothing;
                           visible_ids visible_ids|nothing;
-                          local_visible_ids python: visible_ids or widget_visible_ids or member_visible_ids;
+                          local_visible_ids python: visible_ids or widget_visible_ids or member_visible_ids;"
 		      tal:condition="python: local_visible_ids"
 		      tal:replace="structure accessor"
     />
