@@ -2,7 +2,7 @@ from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.interfaces.base import IBaseContent
+from Products.Archetypes.interfaces.base import IBaseContent as z2IBaseContent
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
@@ -16,6 +16,9 @@ from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 
+from Products.Archetypes.interfaces import IBaseContent
+from zope.interface import implements
+
 class BaseContentMixin(CatalogMultiplex,
                        BaseObject,
                        PortalContent,
@@ -23,9 +26,9 @@ class BaseContentMixin(CatalogMultiplex,
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 
-    __implements__ = IBaseContent, IReferenceable, PortalContent.__implements__
+    __implements__ = z2IBaseContent, IReferenceable, PortalContent.__implements__
+    implements(IBaseContent)
 
-    security = ClassSecurityInfo()
     manage_options = PortalContent.manage_options + Historical.manage_options
 
     isPrincipiaFolderish = 0

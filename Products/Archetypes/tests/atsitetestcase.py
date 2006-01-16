@@ -153,7 +153,8 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         noSecurityManager()
         transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-    elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
+
+    if not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
         _start = time.time()
         if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
         # Login as portal owner

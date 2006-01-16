@@ -3,7 +3,7 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.interfaces.base import IBaseFolder
+from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import shasattr
@@ -22,6 +22,9 @@ except:
     
 from Products.CMFCore.utils import getToolByName
 
+from Products.Archetypes.interfaces import IBaseFolder
+from zope.interface import implements
+
 class BaseFolderMixin(CatalogMultiplex,
                       BaseObject,
                       PortalFolder,
@@ -29,8 +32,10 @@ class BaseFolderMixin(CatalogMultiplex,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable, BaseObject.__implements__,
+    __implements__ = (z2IBaseFolder, IReferenceable, BaseObject.__implements__,
                       PortalFolder.__implements__)
+
+    implements(IBaseFolder)
 
     security = ClassSecurityInfo()
 
