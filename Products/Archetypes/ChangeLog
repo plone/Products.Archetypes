@@ -1,0 +1,18 @@
+2003-08-04 Sylvain Thénault <syt@logilab.fr>
+
+    * added minimal README file
+
+2003-07-30  Sylvain Thénault  <syt@logilab.fr>
+
+	* add distutils setup script and debian packaging files
+	
+2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
+
+	* i18n.py (initialize): Removing dependency on Zope2.6 GlobalTranslationService.
+
+2003-05-12  Benjamin Saller  <bcsaller@yahoo.com>
+
+	* widget.py (macrowidget.__call__): Allow for widget.macro_view
+	and _edit, etc. These take precedence over the top level 'macro'
+	allowing projects to override smaller parts of the widgets
+
