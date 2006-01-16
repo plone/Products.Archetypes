@@ -29,6 +29,7 @@ class BaseContentMixin(CatalogMultiplex,
     __implements__ = z2IBaseContent, IReferenceable, PortalContent.__implements__
     implements(IBaseContent)
 
+    security = ClassSecurityInfo()
     manage_options = PortalContent.manage_options + Historical.manage_options
 
     isPrincipiaFolderish = 0
