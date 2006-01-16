@@ -1,3 +1,11 @@
+post 1.3.7-final
+================
+
+  * fixed problems introduced by last 'fix' of IdWidget zid.pt: Member
+    and widget settings was ignored :-(
+    [jensens]
+
+
 1.3.7-final - 2006-01-16
 ========================
 
