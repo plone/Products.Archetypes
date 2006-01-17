@@ -1,6 +1,9 @@
 1.4.0-alpha
 ==================
 
+  * Remove BBB code for CMFBTreeFolder import location.
+    [hannosch]
+
   * make import from 'Products.Archetypes.atapi import *' default and deprecate
     'public'.
     [jensens]

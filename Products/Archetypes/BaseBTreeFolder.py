@@ -1,12 +1,7 @@
 from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.atapi import BaseFolder
 from Products.CMFCore import permissions
-try:
-    # import CMF >=1.5.3 style
-    from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
-except ImportError:
-    # BBB backward compatible import CMF <1.5.3
-    from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
+from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
