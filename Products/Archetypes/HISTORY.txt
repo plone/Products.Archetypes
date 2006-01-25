@@ -26,6 +26,10 @@
 post 1.3.7-final
 ================
 
+  * fixed bug in AllowedTypesByIface, prevented to copy, paste, rename
+    objects using the mixin.
+    [jensens]
+
   * fixed problems introduced by last 'fix' of IdWidget zid.pt: Member
     and widget settings was ignored :-(
     [jensens]

@@ -394,7 +394,6 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
-        # the following five vars aren't supported by the plone templates yet
         'show_hm' : True, 
         'show_ymd' : True, # False not supported by the plone templates yet
         'starting_year' : 1999, # not supported by the plone templates yet
