@@ -504,6 +504,78 @@ class BaseObject(Referenceable):
         self.post_validate(REQUEST, errors)
         return errors
 
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'ajax_set')
+    def ajax_set(self, name, value, REQUEST=None):
+        """Set a field value through the schema. Returns the display
+        value, such as a transform from REST to HTML.
+        """
+        response = 200
+        errors = {}
+        msg = ''
+
+        #XXX: hack the name, this will change when we pass div and
+        # field name seperate to the ajax tal
+        if "-" in name: name = name.split("-")[-1]
+        field = self.Schema()[name]
+        if field.writeable(self):
+            # XXX: do this via the view
+            ##widget = field.widget
+            ##result = widget.process_form(self, field, REQUEST.form,
+            ##                              empty_marker=_marker)
+
+            mutator = field.getMutator(self)
+            __traceback_info__ = (self, field, mutator)
+            mutator(value)
+            msg = field.get(self)
+        else:
+            response = 403 # Forbidden
+            msg = "Unable to set field. Permission Denied"
+
+        REQUEST.RESPONSE.setHeader("status", response)
+        return msg
+
+
+    security.declareProtected(CMFCorePermissions.View, 'ajax_validate')
+    def ajax_validate(self, name, value, REQUEST=None):
+        """Validates the form data from the request. This is intended
+        for use with AJAX. It will set the HTTP header response code
+        to indicate an error in a way that a normal response
+        shouldn't.
+        Also because a widget be be the value of n fields we submit
+        the form to indicate change. The widget code will be used to
+        extract the values from the REQUEST as in a normal request.
+
+        Like a normal validate method the reply message should be
+        empty if things are successful.
+
+        XXX: we will need to support returning a script which can
+        indicate which element to focus in an n-field widget.
+        """
+        response = 200
+        errors = {}
+        msg = ''
+
+        field = self.Schema()[name]
+        if field.writeable(self):
+            # XXX: do this via the view
+            ##widget = field.widget
+            ##result = widget.process_form(self, field, REQUEST.form,
+            ##                             empty_marker=_marker)
+            ##field.validate(instance=self, value=result[0],
+            ##               errors=errors,
+            ##               REQUEST=REQUEST, **result[1])
+            field.validate(instance=self, value=value, errors=errors, REQUEST=REQUEST)
+            if errors:
+                msg = errors[field.getName()]
+                response = 412 # Precondition failed, maybe #406?
+        else:
+            response = 403 # Forbidden
+            msg = "Unable to validate field. Permission Denied."
+
+        REQUEST.RESPONSE.setHeader("status", response)
+        return msg
+
+
     security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
@@ -626,6 +698,9 @@ class BaseObject(Referenceable):
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Processes the schema looking for data in the form.
         """
+        import time
+        start = time.time()
+        print "Processing form", self.getId()
         is_new_object = self.checkCreationFlag()
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
@@ -638,6 +713,7 @@ class BaseObject(Referenceable):
             self.at_post_create_script()
         else:
             self.at_post_edit_script()
+        print "Done", self.getId(), time.time() - start
 
     # This method is only called once after object creation.
     security.declarePrivate('at_post_create_script')

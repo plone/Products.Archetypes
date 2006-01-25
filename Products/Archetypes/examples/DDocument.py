@@ -13,7 +13,7 @@ schema = BaseSchema + Schema((
 
     # Using a bare ObjetField doesn't make sense ...
     #ObjectField('author'),
-    StringField('author'),
+    StringField('author', required=1),
 
     TextField('body',
               required=1,
