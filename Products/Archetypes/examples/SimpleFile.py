@@ -1,4 +1,4 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 from Products.Archetypes.config import PKG_NAME
 

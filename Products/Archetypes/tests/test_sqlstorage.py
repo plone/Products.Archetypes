@@ -36,8 +36,9 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 
+import transaction
 from zExceptions.ExceptionFormatter import format_exception
-# print __traceback_info__
+
 def pretty_exc(self, exc, *args, **kw):
     t, e, tb = exc
     try:
@@ -48,7 +49,6 @@ def pretty_exc(self, exc, *args, **kw):
 import unittest
 unittest.TestResult._exc_info_to_string = pretty_exc
 
-from Products.Archetypes import transaction
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.config import TOOL_NAME
@@ -323,7 +323,7 @@ class SQLStorageTest(SQLStorageTestBase):
         self.failUnless(value == 'Bla')
 
     def test_stringfield_bug1003868(self):
-        s = unicode('ação!', 'latin1')
+        s = unicode('a?!', 'latin1')
         sp = self.portal.portal_properties.site_properties
         dummy = self._dummy
 

@@ -1,3 +1,4 @@
+# -*-  coding: utf-8 -*-
 ###############################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,7 +26,7 @@
 
 from Interface import Implements
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.PortalFolder import PortalFolder
+from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes.ArchetypeTool import listTypes
 
 class AllowedTypesByIfaceMixin:
@@ -134,6 +135,6 @@ class AllowedTypesByIfaceMixin:
         tmp_name = '%s_TMP' % self.portal_type
         ti = pt.getTypeInfo(self.portal_type)
         pt.manage_delObjects([self.portal_type])
-        value = PortalFolder._verifyObjectPaste(self, object, validate_src)
+        value = BaseFolder._verifyObjectPaste(self, object, validate_src)
         pt._setObject(self.portal_type, ti)
         return value

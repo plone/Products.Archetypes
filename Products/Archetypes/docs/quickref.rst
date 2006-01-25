@@ -203,12 +203,12 @@ mode
 
 read_permission
   Permission needed to view the field. Defaults to
-  ``CMFCorePermissions.View``. Is checked when the view is being
+  ``permissions.View``. Is checked when the view is being
   auto-generated.
 
 write_permission
   Permission needed to edit the field. Defaults to
-  ``CMFCorePermissions.ModifyPortalContent``. Is checked when the
+  ``permissions.ModifyPortalContent``. Is checked when the
   submitted form is being processed..
 
 storage
@@ -599,7 +599,7 @@ Additional notes about Factory Type Information
           actions = ({'id': 'view',
 	                  'name': 'View',
                       'action': 'string:${object_url}/custom_view',
-                      'permissions': (CMFCorePermissions.View,)
+                      'permissions': (permissions.View,)
                      },)
 
 

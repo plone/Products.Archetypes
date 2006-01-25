@@ -242,9 +242,11 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
-        
-        # get the meta type of the FTI from the class, use the default FTI as default
+        typeinfo_name = "%s: %s (%s)" % (package_name, klass.__name__,
+                                         klass.meta_type)
+
+        # get the meta type of the FTI from the class, use the
+        # default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if not fti_meta_type:
             fti_meta_type = FactoryTypeInformation.meta_type

@@ -31,9 +31,9 @@ author_email = "archetypes-devel@lists.sourceforge.net"
 
 short_desc = "A developers framework for rapidly developing and deploying rich, full featured content types within the context of Zope/CMF and Plone"
 long_desc = """Archetypes
-     Formerly known as CMFTypes, Archetypes is a developers framework
-     for rapidly developing and deploying rich, full featured content
-     types within the context of Zope/CMF and Plone.
+     Archetypes is a developers framework for rapidly developing and 
+     deploying rich, full featured content types within the context of 
+     Zope/CMF and Plone.
 .
      Archetypes is based around the idea of an _Active Schema_. Rather
      than provide a simple description of a new data type Archetype
@@ -50,7 +50,7 @@ Features
     * Full automatic form generation
 """
 
-web = "http://www.sourceforge.net/projects/archetypes"
+web = "http://plone.org/products/archetypes"
 ftp = ""
 mailing_list = "archetypes-devel@lists.sourceforge.net"
 

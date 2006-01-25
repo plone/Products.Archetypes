@@ -19,7 +19,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-import Products.generator.i18n as i18n
+from Products.Archetypes.generator import i18n
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))
@@ -369,7 +369,7 @@ class DisplayList:
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, UnicodeType, IntType):
+        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
         if type(msgid) not in (StringType, NoneType):

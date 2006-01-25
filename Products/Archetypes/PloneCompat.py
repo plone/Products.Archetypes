@@ -1,7 +1,7 @@
 """make some plone utilities available to raw CMF sites
 """
 
-from Products.Archetypes import transaction
+import transaction
 
 try:
     # Plone 2.1

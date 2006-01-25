@@ -1,3 +1,39 @@
+1.4.0-alpha01 - 2006-01-26
+==========================
+
+  * Remove BBB code for CMFBTreeFolder import location.
+    [hannosch]
+
+  * make import from 'Products.Archetypes.atapi import *' default and deprecate
+    'public'.
+    [jensens]
+
+  * Integrated 'generator' into Archetypes. 
+    [jensens]
+
+  * Changed transactions use to new API and removed some Plone 2.0 backwards
+    compatibility code
+    [hannosch]
+
+  * Changed imports of CMFCore.CMFCorePermissions to CMFCore.permissions
+    [k_vertigo, hannosch]
+
+  * DisplayLists should be a little less strict on their values. Now not only
+    unicode itself but also types inherited from unicode are allowed. This is
+    needed to handle zope.i18nmessageid.MessageID objects correctly.
+    [hannosch]
+
+post 1.3.7-final
+================
+
+  * fixed bug in AllowedTypesByIface, prevented to copy, paste, rename
+    objects using the mixin.
+    [jensens]
+
+  * fixed problems introduced by last 'fix' of IdWidget zid.pt: Member
+    and widget settings was ignored :-(
+    [jensens]
+
 1.3.7-final - 2006-01-16
 ========================
 

@@ -24,7 +24,7 @@ from OFS.ObjectManager import ObjectManager
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import permissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
@@ -67,7 +67,7 @@ class Reference(Referenceable, SimpleItem):
         SimpleItem.manage_options
         )
 
-    security.declareProtected(CMFCorePermissions.ManagePortal,
+    security.declareProtected(permissions.ManagePortal,
                               'manage_view')
     manage_view = PageTemplateFile('view_reference', _www)
 
@@ -446,7 +446,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             except TypeError:
                 ZCatalog.catalog_object(self, w, uid, idxs)
 
-    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
+    security.declareProtected(permissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
         """
@@ -649,11 +649,11 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
 
     #####
     ## UID register/unregister
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'registerObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'registerObject')
     def registerObject(self, object):
         self._uidFor(object)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unregisterObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
@@ -806,7 +806,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
-    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
+    security.declareProtected(permissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
         """

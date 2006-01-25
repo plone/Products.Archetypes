@@ -8,7 +8,7 @@ from Products.CMFCore.Expression import createExprContext
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
-from Products.generator.widget import macrowidget
+from Products.Archetypes.generator import macrowidget
 from Products.Archetypes.debug import log
 from Products.Archetypes.Registry import registerPropertyType
 from Products.Archetypes.Registry import registerWidget
@@ -394,7 +394,6 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
-        # the following five vars aren't supported by the plone templates yet
         'show_hm' : True, 
         'show_ymd' : True, # False not supported by the plone templates yet
         'starting_year' : 1999, # not supported by the plone templates yet
