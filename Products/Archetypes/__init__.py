@@ -50,6 +50,7 @@ from Products.Archetypes.ArchTTWTool import ArchTTWTool
 ###
 # Test dependencies
 ###
+# XXX: Check if we need these imports here, after version checks are removed
 this_module = sys.modules[__name__]
 import Products.MimetypesRegistry
 import Products.PortalTransforms
@@ -72,9 +73,6 @@ def initialize(context):
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    icon="tool.gif",
                    ).initialize(context)
-
-    ##from Products.Archetypes.customizationpolicy import registerPolicy
-    ##registerPolicy(context)
 
     if REGISTER_DEMO_TYPES:
         import Products.Archetypes.examples
