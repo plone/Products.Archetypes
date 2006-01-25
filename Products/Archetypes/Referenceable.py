@@ -49,11 +49,9 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, referenceClass=None,
-                     updateReferences=True, **kwargs):
+    def addReference(self, object, relationship=None, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, referenceClass,
-                                 updateReferences, **kwargs)
+        return tool.addReference(self, object, relationship, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)

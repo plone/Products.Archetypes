@@ -31,15 +31,8 @@ class IReferenceable(Interface):
     def hasRelationshipTo(target, relationship=None):
         """test is a relationship exists between objects"""
 
-    def addReference(target, relationship=None, referenceClass=None,
-        updateReferences=True, **kwargs):
-        """add a reference to target.
-
-        if updateReferences is True I will replace existing
-        references, if it's False, I will add another reference with
-        the same (source, target, relationship) triple.
-
-        kwargs are metadata"""
+    def addReference(target, relationship=None, **kwargs):
+        """add a reference to target. kwargs are metadata"""
 
     def deleteReference(target, relationship=None):
         """delete a ref to target"""
