@@ -1,5 +1,5 @@
-1.4.0-alpha
-==================
+1.4.0-alpha01 - 2006-01-26
+==========================
 
   * Remove BBB code for CMFBTreeFolder import location.
     [hannosch]
