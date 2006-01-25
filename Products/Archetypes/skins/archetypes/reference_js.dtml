@@ -1,0 +1,39 @@
+<!--
+function <dtml-with field><dtml-var getName></dtml-with>_show() {
+    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+        value = 'Hide Add Form';
+        onclick = <dtml-with field><dtml-var getName></dtml-with>_hide;
+    }
+    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='block';
+}
+
+function <dtml-with field><dtml-var getName></dtml-with>_hide() {
+    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+        value = 'Add New <dtml-var "widget.label">';
+        onclick = <dtml-with field><dtml-var getName></dtml-with>_show;
+    }
+    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='none';
+}
+
+function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
+    selected = elm.options[elm.selectedIndex].value;
+    detail = document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_destinations');
+    for (var i=detail.childNodes.length-1; i >= 0; i--)
+        detail.removeChild(detail.childNodes[i]);
+
+<dtml-in types mapping>
+    if (selected == "<dtml-var id>") {
+<dtml-in destinations>
+        var option = document.createElement('option');
+        var path = '<dtml-var sequence-item>';
+        option.setAttribute('value', path);
+        option.appendChild(document.createTextNode(path));
+        detail.appendChild(option);
+</dtml-in>
+    }
+</dtml-in>
+}
+
+<dtml-with field><dtml-var getName></dtml-with>_update(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_types'));
+-->
+<dtml-var reference_focus_js>
