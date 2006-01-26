@@ -47,58 +47,62 @@
       <div tal:condition="accessor" style="padding-top:1em;"
            tal:define="unit accessor;
                        size unit/get_size | python:unit and len(unit) or 0;">
-        <input class="noborder"
-               type="radio"
-               value="nochange"
-               tabindex=""
-               tal:attributes="tabindex tabindex/next;
-                   checked python:test(size!=0, 'checked', None);
-                   name string:${fieldName}_delete;
-                   id string:${fieldName}_nochange;
-                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
-         <label for=""
-                tal:attributes="for string:${fieldName}_nochange;
-                                "
-                i18n:translate="nochange_file">
-                Keep existing file
-         </label>
-         <br />
-         <tal:delete tal:condition="python: not field.required">
+        <tal:hide_if_no_file condition="size">
+            <!-- these complex buttons have no reson to be here if there is not a file already uploaded -->
             <input class="noborder"
                    type="radio"
-                   value="delete"
+                   value="nochange"
                    tabindex=""
                    tal:attributes="tabindex tabindex/next;
                        checked python:test(size!=0, 'checked', None);
                        name string:${fieldName}_delete;
-                       id string:${fieldName}_delete;
-                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
-             />
+                       id string:${fieldName}_nochange;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
              <label for=""
-                    tal:attributes="for string:${fieldName}_delete;
+                    tal:attributes="for string:${fieldName}_nochange;
                                     "
-                    i18n:translate="delete_file">
-                    Delete current file
-             </label><br />
-         </tal:delete>
-          <input class="noborder"
-                 type="radio"
-                 value=""
-                 tabindex=""
-                 onclick=""
-                 tal:attributes="tabindex tabindex/next;
-                     checked python:test(size==0, 'checked', None);
-                     name string:${fieldName}_delete;
-                     id string:${fieldName}_upload;
-                     onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+                    i18n:translate="nochange_file">
+                    Keep existing file
+             </label>
+             <br />
+             <tal:delete tal:condition="python: not field.required">
+                <input class="noborder"
+                       type="radio"
+                       value="delete"
+                       tabindex=""
+                       tal:attributes="tabindex tabindex/next;
+                           checked python:test(size!=0, 'checked', None);
+                           name string:${fieldName}_delete;
+                           id string:${fieldName}_delete;
+                           onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+                 />
+                 <label for=""
+                        tal:attributes="for string:${fieldName}_delete;
+                                        "
+                        i18n:translate="delete_file">
+                        Delete current file
+                 </label><br />
+             </tal:delete>
+              <input class="noborder"
+                     type="radio"
+                     value=""
+                     tabindex=""
+                     onclick=""
+                     tal:attributes="tabindex tabindex/next;
+                         checked python:test(size==0, 'checked', None);
+                         name string:${fieldName}_delete;
+                         id string:${fieldName}_upload;
+                         onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+
            <label for=""
                   tal:attributes="for string:${fieldName}_upload;"
                   i18n:translate="upload_file">
                   Replace with new file:
            </label>
-           <div style="padding-left:1.5em;padding-top:0.5em;">
-              <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
-           </div>
+       </tal:hide_if_no_file>
+       <div style="padding-left:1.5em;padding-top:0.5em;">
+           <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+       </div>
       </div>
       <div tal:condition="not: accessor">
         <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
