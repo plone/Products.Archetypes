@@ -24,8 +24,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 
-from Products.Archetypes.ReferenceEngine import \
-     manage_addReferenceCatalog, manage_addUIDCatalog
+from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
+from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 
