@@ -21,7 +21,7 @@ from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import CMFCorePermissions
@@ -392,13 +392,13 @@ InitializeClass(ReferenceResolver)
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
-    """
+    """    
     def __init__(self, obj):
         self._obj = obj
-
+                
     def __getattr__(self, name):
         return getattr(self._obj, name)
-
+        
     def Title(self):
         # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
         # converted to an ascii string
@@ -429,7 +429,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = UIDBaseCatalog()
-
+        
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
     def catalog_object(self, object, uid, idxs=[],
                        update_metadata=1, pghandler=None):
@@ -578,7 +578,7 @@ class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             tID, tobj = self._uidFor(targetObject)
         else:
             tID, tobj = None,None
-
+            
         brains = self._queryFor(sid=sID, relationship=relationship, tid=tID)
         return self._resolveBrains(brains)
 

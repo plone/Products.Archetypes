@@ -1,6 +1,10 @@
 post 1.3.7-final
 ================
 
+  * Fixed missing import of PersistentMapping.
+    Closes https://trac.plone.org/plone/ticket/5182
+    [hannosch]
+
   * Usability fix for file widget ( widgets/file.pt ) so that the 
     radiobuttons with 'Keep existing file' and similar are no longer shown
     if there is no file uploaded. 
