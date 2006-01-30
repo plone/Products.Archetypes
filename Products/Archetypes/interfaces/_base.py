@@ -118,6 +118,11 @@ class IBaseObject(Interface):
         """Returns the Schemata for the Object
         """
 
+    def Schema():
+        """Returns the full schema for the object.  NOTE: This method is
+        usually added dynamically by ClassGen.
+        """
+
     def addSubObjects(objects, REQUEST=None):
         """Add a dictionary of objects to the session
         """
