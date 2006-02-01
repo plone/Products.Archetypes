@@ -1,4 +1,4 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 from Products.Archetypes.config import PKG_NAME
@@ -13,7 +13,7 @@ schema = BaseSchema + Schema((
 
     # Using a bare ObjetField doesn't make sense ...
     #ObjectField('author'),
-    StringField('author', required=1),
+    StringField('author'),
 
     TextField('body',
               required=1,

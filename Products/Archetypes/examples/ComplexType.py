@@ -1,4 +1,4 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes import Field
 from SimpleType import SimpleType
 from Products.Archetypes.config import PKG_NAME

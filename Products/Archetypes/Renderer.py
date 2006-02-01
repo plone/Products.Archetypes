@@ -1,19 +1,30 @@
 import sys
-#from Products.Archetypes.interfaces.layer import ILayer
-from Products.generator.renderer import renderer as BaseRenderer
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 
 _marker = []
 
-class ArchetypesRenderer(BaseRenderer):
-    # XXX it says it's implementing layer but it doesn't implement the required
-    # methods!
-    #__implements__ = ILayer
+class ArchetypesRenderer:
     
     security = ClassSecurityInfo()
-    # XXX FIXME more security
+    # TODO: more security
+    
+    def render(self, field_name, mode, widget, instance=None,
+               field=None, accessor=None, **kwargs):
+        if field is None:
+            field = instance.Schema()[field_name]
+
+        if accessor is None:
+            accessor = field.getAccessor(instance)
+
+        context = self.setupContext(field_name, mode, widget,
+                                    instance, field, accessor, **kwargs)
+
+        result = widget(mode, instance, context)
+
+        del context
+        return result    
     
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):

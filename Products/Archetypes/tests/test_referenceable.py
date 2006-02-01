@@ -33,8 +33,8 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Acquisition import aq_base
+import transaction
 
-from Products.Archetypes import transaction
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
