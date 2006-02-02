@@ -19,6 +19,7 @@ RENAME_AFTER_CREATION_ATTEMPTS = 100
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
 REFERENCE_ANNOTATION = "at_references"
+REFERENCE_METADATA_ATTR = "_metadata_ids"
 
 ## In zope 2.6.3+ and 2.7.0b4+ a lines field returns a tuple not a list. Per
 ## default archetypes returns a tuple, too. If this breaks your software you
