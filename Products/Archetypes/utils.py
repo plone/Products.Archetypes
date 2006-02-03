@@ -25,14 +25,11 @@ from zope.deprecation import deprecated
 
 
 def make_uuid(*args):
-    from archetypes.uid.at.factory import ArchetypesUIDFactory
     from zope.app.zapi import getUtility
     from archetypes.uid.interfaces import IUIDFactory
 
-    # unfortunately utility can't be looked up
-    #return getUtility(IUIDFactory)()
-    # in the meantime use the implementation directly
-    return ArchetypesUIDFactory()()
+    return getUtility(IUIDFactory)()
+
 
 
 deprecated('make_uuid',
