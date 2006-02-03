@@ -6,18 +6,6 @@
 
   <include file="implements.zcml"/>
 
-  
-  <adapter for=".interfaces.IBaseObject"
-           provides="archetypes.uid.interfaces.IUID"
-           factory="archetypes.uid.at.uid.UID"
-           />
-
-  <adapter for=".interfaces.IBaseObject"
-           provides="archetypes.uid.interfaces.IUIDSet"
-           factory="archetypes.uid.at.uid.UIDSet"
-           />
-
-
   <adapter for=".interfaces.IBaseObject"
            provides="archetypes.reference.interfaces.IReferenceSource"
            factory="archetypes.reference.base.ReferenceSource"
@@ -44,20 +32,12 @@
            factory="archetypes.reference.at.storage.ATReferenceMetadataSetter"
            />
 
-
-
-  <utility for="archetypes.uid.interfaces.IUIDQuery"
-           factory="archetypes.uid.at.query.UIDQuery"
-           />
-
-  <utility for="archetypes.uid.interfaces.IUIDFactory"
-           factory="archetypes.uid.at.factory.ArchetypesUIDFactory"
-           />
-
   <utility for="archetypes.reference.interfaces.IReferenceQuery"
            factory="archetypes.reference.at.utilities.ATReferenceQuery"
            />
 
+
+  <include file="uid.zcml"/>
 
 </configure>
 

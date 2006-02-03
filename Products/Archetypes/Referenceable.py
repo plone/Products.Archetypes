@@ -20,8 +20,6 @@ from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 
 from zope import interface
-from zope.deprecation import deprecated
-from archetypes.uid.interfaces import IUID, IUIDSet
 
 ####
 ## In the case of:
@@ -153,22 +151,10 @@ class Referenceable(CopySource):
             delattr(self, config.REFERENCE_ANNOTATION)
 
     def UID(self):
-        #return getattr(self, config.UUID_ATTR, None)
-        #import pdb; pdb.set_trace()
-        try:
-            return IUID(self).uid
-        except TypeError:
-            return None
-
-    deprecated(UID,
-           'UIDs have to be obtained using IUID '
-           'This method will be removed after Archetypes 1.6.')
+        return getattr(self, config.UUID_ATTR, None)
 
     def _setUID(self, uid):
-        # XXX fire a uidset/changed event (old and new value provided) in UIDSet
-
-        old_uid = IUID(self).uid
-
+        old_uid = self.UID()
         if old_uid is None:
             # Nothing to be done.
             return
@@ -192,7 +178,7 @@ class Referenceable(CopySource):
             # We call manage_afterAdd to inform the
             # reference catalog about changes.
             ref.manage_afterAdd(item, container)
-        IUIDSet(self).register(uid)
+        setattr(self, config.UUID_ATTR, uid)
         item = self
         container = aq_parent(aq_inner(item))
         # We call manage_afterAdd to inform the
