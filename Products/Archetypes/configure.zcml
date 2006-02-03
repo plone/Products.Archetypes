@@ -3,6 +3,12 @@
 
   <five:localsite class="Products.CMFPlone.Portal.PloneSite" />
 
+  <five:traversable class="OFS.SimpleItem.SimpleItem" />  
+  <five:traversable class="OFS.ObjectManager.ObjectManager" />  
+  <five:traversable class="Products.ZCatalog.ZCatalog" />
+  <five:traversable class="Products.CMFPlone.Portal.PloneSite" />
+  <five:traversable class="Products.Archetypes.BaseObject.BaseObject" />
+
   <include file="bridge.zcml" />
 
   <include file="implements.zcml" />

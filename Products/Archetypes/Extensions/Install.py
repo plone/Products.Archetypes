@@ -5,6 +5,8 @@ from Products.Archetypes.Extensions.utils import setupEnvironment
 from Products.Archetypes.Extensions.utils import setupArchetypes
 from StringIO import StringIO
 
+from zope.interface import directlyProvides
+from zope.app.site.interfaces import IPossibleSite
 from zope.app.component.hooks import setSite, setHooks
 from zope.app import zapi
 from archetypes.uid.interfaces import IUIDQuery
@@ -29,7 +31,10 @@ def install(self, include_demo=None, require_dependencies=1):
                      install_deps=0)
         print >> out, 'Successfully installed the demo types.'
 
-    installUtilities(self, out)
+    try:
+        installUtilities(self, out)
+    except Exception, e: #%/$"!
+        print ("* %s *" % e) * 3
 
     print >> out, 'Successfully installed %s' % PKG_NAME
 
@@ -41,18 +46,19 @@ def uninstall(portal):
                           if po[-8:] != '_catalog']
 
 def installUtilities(portal, out):
+    # XXX  this is getting called twice when we test
+##     directlyProvides(portal, IPossibleSite)
     enableLocalSiteHook(portal)
     setSite(portal)
     setHooks()
 
     from archetypes.uid.interfaces import IUIDQuery
     from archetypes.uid.at.query import UIDQuery
-    
-    from archetypes.reference.interfaces import IReferenceQuery
-    from archetypes.reference.at.utilities import ATReferenceQuery
-    
-    portal.getSiteManager().registerUtility(IUIDQuery, UIDQuery())
-    portal.getSiteManager().registerUtility(IReferenceQuery,
-                                            ATReferenceQuery())
+
+    try:
+        portal.getSiteManager().registerUtility(
+            IUIDQuery, UIDQuery('uid_query'))
+    except ValueError: # Already registered
+        pass
 
     print >> out, "Successfully installed utilities of %s." % PKG_NAME

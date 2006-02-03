@@ -106,12 +106,11 @@ else:
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
-
     def afterSetUp(self):
-        import pdb;pdb,set_trace()
+        pass
 
     def beforeTearDown(self):
-##         placelesssetup.tearDown()
+        #placelesssetup.tearDown()
         pass
 
 class ATFunctionalTestCase(Functional, ATTestCase):

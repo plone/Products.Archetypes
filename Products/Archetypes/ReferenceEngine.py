@@ -382,7 +382,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         object = self._getObject(object)
         obj_source = IReferenceSource(object)
         obj_source.deleteReferences()
-        ref_query = getUtility(IReferenceQuery, context=self)
+        ref_query = getUtility(IReferenceQuery)
         
         # XXX: Why do we delete back references, this is crazy!
         ref_targets = ref_query(target=object, relationship=relationship)
@@ -404,7 +404,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def getReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
         object = self._getObject(object)
-        ref_query = getUtility(IReferenceQuery, context=self)
+        ref_query = getUtility(IReferenceQuery)
         refs = ref_query(source=object, target=targetObject,
                          relationship=relationship)
         return refs
@@ -418,7 +418,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """return a collection of reference objects"""
         object = self._getObject(object)
         targetObject = self._getObject(targetObject)
-        ref_query = getUtility(IReferenceQuery, context=self)
+        ref_query = getUtility(IReferenceQuery)
         # XXX: This is an incredibly dumb API, targetObject is 
         # passed as source???
         refs = ref_query(source=targetObject, target=object,
@@ -432,7 +432,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def hasRelationshipTo(self, source, target, relationship):
         source = self._getObject(object)
         target = self._getObject(target)
-        ref_query = getUtility(IReferenceQuery, context=self) 
+        ref_query = getUtility(IReferenceQuery) 
         refs = ref_query(source=source, target=target,
                          relationship=relationship)
         return not not refs
@@ -459,7 +459,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         Get all relationship types this object has FROM other objects
         """
         object = self._getObject(object)
-        ref_query = getUtility(IReferenceQuery, context=self) 
+        ref_query = getUtility(IReferenceQuery) 
         refs = ref_query(target=object)
         return [ref.relationship for ref in refs]
 
