@@ -174,7 +174,7 @@ class Reference(Referenceable, SimpleItem):
 
 
     def _query(self, uid):
-        return getUtility(IUIDQuery).getObject(uid)
+        return getUtility(IUIDQuery, context=self).getObject(uid)
 
     # Use the uid query utility:
     def _getSourceObject(self):
@@ -350,7 +350,9 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     ## Public API
     def addReference(self, source, target, relationship=None,
                      referenceClass=None, **kwargs):
-        ref_source = IReferenceSource(self)
+        source = self._getObject(source)
+        target = self._getTarget(target)
+        ref_source = IReferenceSource(source)
         new_ref = ref_source.addReference(source=source, target=target, 
                                  relationship=(relationship, referenceClass))
         meta_set = IReferenceMetadataSetter(new_ref)
@@ -366,6 +368,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                              " This method will be removed in AT 1.6.")
 
     def deleteReference(self, source, target, relationship=None):
+        source = self._getObject(source)
+        target = self._getObject(target)
         ref_source = IReferenceSource(source)
         ref_source.deleteReferences(source, target, relationship)
 
@@ -375,6 +379,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                                 " This method will be removed in AT 1.6.")
 
     def deleteReferences(self, object, relationship=None):
+        object = self._getObject(object)
         obj_source = IReferenceSource(object)
         obj_source.deleteReferences()
         ref_query = getUtility(IReferenceQuery, context=self)
@@ -398,6 +403,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     def getReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
+        object = self._getObject(object)
         ref_query = getUtility(IReferenceQuery, context=self)
         refs = ref_query(source=object, target=targetObject,
                          relationship=relationship)
@@ -410,6 +416,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     def getBackReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
+        object = self._getObject(object)
+        targetObject = self._getObject(targetObject)
         ref_query = getUtility(IReferenceQuery, context=self)
         # XXX: This is an incredibly dumb API, targetObject is 
         # passed as source???
@@ -422,6 +430,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                                   " This method will be removed in AT 1.6.")
 
     def hasRelationshipTo(self, source, target, relationship):
+        source = self._getObject(object)
+        target = self._getObject(target)
         ref_query = getUtility(IReferenceQuery, context=self) 
         refs = ref_query(source=source, target=target,
                          relationship=relationship)
@@ -435,6 +445,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """
         Get all relationship types this object has TO other objects
         """
+        object = self._getObject(object)
         source = IReferenceSource(object)
         return source.getRelationships()
 
@@ -447,6 +458,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """
         Get all relationship types this object has FROM other objects
         """
+        object = self._getObject(object)
         ref_query = getUtility(IReferenceQuery, context=self) 
         refs = ref_query(target=object)
         return [ref.relationship for ref in refs]
@@ -464,6 +476,13 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                                      " IReferenceSource interfaces in "
                                      " archetypes.reference"
                                     " This method will be removed in AT 1.6.")
+
+    def _getObject(self, object_or_uid):
+        """Returns the actual object.  Accepts either object or uid."""
+        if isinstance(object_or_uid, str):
+            return getUtility(IUIDQuery, context=self).getObject(object_or_uid)
+        else:
+            return object_or_uid
 
     def reference_url(self, object):
         """return a url to an object that will resolve by reference"""
