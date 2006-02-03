@@ -111,7 +111,8 @@ class ATTestCase(ZopeTestCase.ZopeTestCase):
     def afterSetUp(self):
         placelesssetup.setUp()
         zcml.load_config('meta.zcml', package=Products.Five)
-        zcml.load_config('configure.zcml', package=Products.Five)
+        zcml.load_config('permissions.zcml', package=Products.Five)
+        zcml.load_config('configure.zcml', package=Products.Five.site)
         zcml.load_config('configure.zcml', package=Products.Archetypes)
 
 
@@ -131,6 +132,8 @@ class ATFunctionalTestCase(Functional, ATTestCase):
     def afterSetUp(self):
         placelesssetup.setUp()
         zcml.load_config('meta.zcml', package=Products.Five)
+        zcml.load_config('permissions.zcml', package=Products.Five)
+        zcml.load_config('configure.zcml', package=Products.Five.site)
         zcml.load_config('configure.zcml', package=Products.Archetypes)
 
     def beforeTearDown(self):

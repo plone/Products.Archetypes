@@ -35,13 +35,13 @@ def install(self, include_demo=None, require_dependencies=1):
     # that we can register local utilities there
 
     # makes site provide zope.app.component.interfaces.ISite
-    enableLocalSiteHook(self)
+    #enableLocalSiteHook(self)
 
-    setSite(self)
-    setHooks()
-    sm = zapi.getSiteManager()
+    #setSite(self)
+    #setHooks()
+    #sm = zapi.getSiteManager()
 
-    uidQuery = UIDQuery()
+    #uidQuery = UIDQuery()
     #import pdb; pdb.set_trace()
 
     #sm.registerUtility(IUIDQuery, uidQuery)
