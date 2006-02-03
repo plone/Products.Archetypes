@@ -5,12 +5,16 @@ import time
 import urllib
 
 from zope.deprecation import deprecated
+from zope.interface import implements
 from zope.component import getUtility
 
-from archetypes.reference import IReferenceQuery
-from archetypes.reference import IReferenceSource
-from archetypes.reference import IReferenceMetadata
-from archetypes.reference import IReferenceMetadataSetter
+from archetypes.uid.interfaces import IUID
+from archetypes.uid.interfaces import IUIDQuery
+from archetypes.reference.interfaces import IReference as INewstyleReference
+from archetypes.reference.interfaces import IReferenceQuery
+from archetypes.reference.interfaces import IReferenceSource
+from archetypes.reference.interfaces import IReferenceMetadata
+from archetypes.reference.interfaces import IReferenceMetadataSetter
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -62,7 +66,7 @@ class Reference(Referenceable, SimpleItem):
     ## reference objects and expect them to work, but you can't
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
-
+    implements(INewstyleReference)
     __implements__ = Referenceable.__implements__ + (IReference,)
 
     security = ClassSecurityInfo()
@@ -83,12 +87,12 @@ class Reference(Referenceable, SimpleItem):
                               'manage_view')
     manage_view = PageTemplateFile('view_reference', _www)
 
-    def __init__(self, id, sid, tid, relationship, **kwargs):
+    def __init__(self, id, source, target, relationship, **kwargs):
         self.id = id
         setattr(self, UUID_ATTR,  id)
 
-        self.sourceUID = sid
-        self.targetUID = tid
+        self.sourceUID = IUID(source)()
+        self.targetUID = IUID(target)()
         self.relationship = relationship
 
         self.__dict__.update(kwargs)
@@ -483,7 +487,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        uc = getToolByName(self, UID_CATALOG)
+        uc = getToolByName(self,UID_CATALOG)
         uc.uncatalog_object(object._getURL())
 
 
