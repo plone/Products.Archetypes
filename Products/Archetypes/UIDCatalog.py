@@ -83,6 +83,10 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
+            except AttributeError:
+                import pdb
+                import sys
+                pdb.post_mortem(sys.exc_info()[2])
             except ConflictError:
                 raise
             except: #NotFound # XXX bare exception

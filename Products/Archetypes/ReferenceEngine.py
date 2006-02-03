@@ -443,7 +443,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                                   " This method will be removed in AT 1.6.")
 
     def hasRelationshipTo(self, source, target, relationship):
-        source = self._getObject(object)
+        source = self._getObject(source)
         target = self._getObject(target)
         ref_query = getUtility(IReferenceQuery) 
         refs = ref_query(source=source, target=target,
