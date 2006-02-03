@@ -111,6 +111,7 @@ class ATTestCase(ZopeTestCase.ZopeTestCase):
     def afterSetUp(self):
         placelesssetup.setUp()
         zcml.load_config('meta.zcml', package=Products.Five)
+        zcml.load_config('configure.zcml', package=Products.Five)
         zcml.load_config('configure.zcml', package=Products.Archetypes)
 
 

@@ -1,6 +1,11 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
     >
+
+
+<five:localsite
+    class="Products.CMFPlone.Portal.PloneSite"/>
 
 
 <utility
@@ -16,6 +21,8 @@
     factory="archetypes.uid.at.uid.UIDSet"
     for=".interfaces.IBaseObject"
     provides="archetypes.uid.interfaces.IUIDSet"/>
+
+
 
 
 </configure>

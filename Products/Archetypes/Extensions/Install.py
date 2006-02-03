@@ -5,6 +5,13 @@ from Products.Archetypes.Extensions.utils import setupEnvironment
 from Products.Archetypes.Extensions.utils import setupArchetypes
 from StringIO import StringIO
 
+from zope.app.component.hooks import setSite, setHooks
+from zope.app import zapi
+from archetypes.uid.interfaces import IUIDQuery
+from archetypes.uid.at.query import UIDQuery
+from Products.Five.site.localsite import enableLocalSiteHook
+
+
 def install(self, include_demo=None, require_dependencies=1):
     out=StringIO()
 
@@ -20,6 +27,27 @@ def install(self, include_demo=None, require_dependencies=1):
                      require_dependencies=require_dependencies,
                      install_deps=0)
         print >> out, 'Successfully installed the demo types.'
+
+
+
+
+    # make our plone site a zope 3 local site so
+    # that we can register local utilities there
+
+    # makes site provide zope.app.component.interfaces.ISite
+    enableLocalSiteHook(self)
+
+    setSite(self)
+    setHooks()
+    sm = zapi.getSiteManager()
+
+    uidQuery = UIDQuery()
+    #import pdb; pdb.set_trace()
+
+    #sm.registerUtility(IUIDQuery, uidQuery)
+
+
+
 
     print >> out, 'Successfully installed %s' % PKG_NAME
 
