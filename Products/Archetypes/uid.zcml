@@ -4,7 +4,7 @@
 
 
 <utility
-    component="archetypes.uid.at.factory.atUIDFactory"
+    factory="archetypes.uid.at.factory.ArchetypesUIDFactory"
     provides="archetypes.uid.interfaces.IUIDFactory"/>
 
 

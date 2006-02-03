@@ -12,10 +12,9 @@
 
   <adapter for=".interfaces.IBaseObject"
            provides="archetypes.reference.interfaces.IReferenceStorage"
-           factory="archetypes.reference.at.storage.ReferenceStorage"
+           factory="archetypes.reference.at.storage.ATReferenceStorage"
            />
 
-  
   <adapter for="archetypes.reference.interfaces.IReference"
            provides="archetypes.reference.interfaces.IReferenceMetadata"
            factory="archetypes.reference.at.storage.ATReferenceMetadata"
@@ -26,7 +25,8 @@
            factory="archetypes.reference.at.storage.ATReferenceMetadataSetter"
            />
 
-  <utility for="archetypes.reference.interfaces.IReferenceQuery"
+
+  <utility provides="archetypes.reference.interfaces.IReferenceQuery"
            factory="archetypes.reference.at.utilities.ATReferenceQuery"
            />
 
