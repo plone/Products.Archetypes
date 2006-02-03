@@ -6,5 +6,7 @@
 
   <include file="implements.zcml"/>
 
+  <include file="uid.zcml"/>
+
 </configure>
 

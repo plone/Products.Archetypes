@@ -1,0 +1,12 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    >
+
+
+<utility
+    component="archetypes.uid.at.factory.atUIDFactory"
+    provides="archetypes.uid.interfaces.IUIDFactory"/>
+
+
+
+</configure>

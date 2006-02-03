@@ -2,16 +2,23 @@
     xmlns="http://namespaces.zope.org/five"
     >
 
-  <implements
-      class=".Referenceable.Referenceable"
-      interface=".interfaces.IReferenceable"
-      /> 
+    <!--
+    Instead of defining interfaces for classes here,
+    we'll add them to the class definitions directly.
 
-  <implements
-      class=".BaseObject.BaseObject"
-      interface=".interfaces.IBaseObject"
-      /> 
-      
-  <!-- TODO: more -->
+    zope 2 interfaces are imported using "z2" as a prefix, eg::
+
+        from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
+        from Products.Archetypes.interfaces import IBaseObject
+
+        class BaseObject(Referenceable):
+            __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
+            implements(IBaseObject)
+
+
+    z3 interfaces are defined and bridget to z2 interfaces in interfaces/__init__.py
+    z2 interface definitions are replaced by emtpy modules (eg: interfaces/base.py)
+
+    -->
 
 </configure>
