@@ -49,6 +49,8 @@ stub_bin_content = ''
 class WidgetTests(ATSiteTestCase):
 
     def afterSetUp(self):
+
+        ATSiteTestCase.afterSetUp(self)
         # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content
@@ -125,16 +127,16 @@ class WidgetTests(ATSiteTestCase):
     def test_appendtextarea_widget(self):
         request = FakeRequest()
         mystring = str('<<<<this is a test string>>>>')
-        
+
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
-        
+
         form = {'textarea_appendonly':''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
-        
+
         form = {'textarea_appendonly': mystring}
         expected = mystring, {}
         result = widget.process_form(doc, field, form)

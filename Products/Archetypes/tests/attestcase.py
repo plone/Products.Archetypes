@@ -30,6 +30,13 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
+from zope.app.testing import placelesssetup
+from Products.Five import zcml
+import Products.Five
+import Products.Archetypes
+
+
+
 # the output of some tests may differ when CMFPlone is installed
 try:
     import Products.CMFPlone
@@ -52,7 +59,10 @@ else:
 #USE_PLONETESTCASE = False
 USE_PLONETESTCASE = HAS_PLONE
 
-print "Using Plone TestCase", USE_PLONETESTCASE, HAS_PLONE, HAS_PLONE21
+# just add this installation until whit will help
+#print "Using Plone TestCase", USE_PLONETESTCASE, HAS_PLONE, HAS_PLONE21
+
+
 
 if not USE_PLONETESTCASE:
     # setup is installing some required products
@@ -68,6 +78,7 @@ if not USE_PLONETESTCASE:
     ZopeTestCase.installProduct('PageTemplates', quiet=1)
     ZopeTestCase.installProduct('PythonScripts', quiet=1)
     ZopeTestCase.installProduct('ExternalMethod', quiet=1)
+
 else:
     # setup is installing all required products
     import Products.PloneTestCase.setup
@@ -94,10 +105,38 @@ class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
 
+    ### import placeless tranlation servicezope.testing setup teardown
+    ### register uid.zcml
+
+    def afterSetUp(self):
+        placelesssetup.setUp()
+        zcml.load_config('meta.zcml', package=Products.Five)
+        zcml.load_config('configure.zcml', package=Products.Archetypes)
+
+
+    def beforeTearDown(self):
+        placelesssetup.tearDown()
+
+
+
+
+
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests
     """
     __implements__ = Functional.__implements__ + ATTestCase.__implements__
+
+
+    def afterSetUp(self):
+        placelesssetup.setUp()
+        zcml.load_config('meta.zcml', package=Products.Five)
+        zcml.load_config('configure.zcml', package=Products.Archetypes)
+
+    def beforeTearDown(self):
+        placelesssetup.tearDown()
+
+
+
 
 from Testing.ZopeTestCase import user_name
 from Testing.ZopeTestCase import user_password

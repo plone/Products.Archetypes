@@ -7,6 +7,17 @@
     component="archetypes.uid.at.factory.atUIDFactory"
     provides="archetypes.uid.interfaces.IUIDFactory"/>
 
+<adapter
+    factory="archetypes.uid.at.uid.UID"
+    for=".interfaces.IBaseObject"
+    provides="archetypes.uid.interfaces.IUID"/>
+
+<adapter
+    factory="archetypes.uid.at.uid.UIDSet"
+    for=".interfaces.IBaseObject"
+    provides="archetypes.uid.interfaces.IUIDSet"/>
 
 
 </configure>
+
+

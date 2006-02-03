@@ -242,6 +242,8 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
+
+        ATSiteTestCase.afterSetUp(self)
         portal = self.portal
 
         # to enable overrideDiscussionFor
@@ -348,7 +350,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         dummy.allowDiscussion('0')
         self.failIf(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), '0')
-        
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

@@ -65,24 +65,26 @@ def gen_anndummy():
 class AnnotationTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
+
         gen_dummy()
         dummy = Dummy(oid='dummy')
         self.folder._setObject('dummy', dummy)
         self.folder.dummy.initializeArchetype()
         self.dummy = self.folder.dummy
         self.ann = getAnnotation(self.dummy)
-        
+
     def test_empty(self):
         ann = self.ann
         self.failUnlessEqual(bool(ann), False)
         self.failUnlessEqual(getattr(self.dummy, '__annotations__', None), None)
-        
+
     def test_create(self):
         ann = self.ann
         ann['test'] = 'test'
         self.failUnlessEqual(bool(ann), True)
         self.failIfEqual(getattr(self.dummy, '__annotations__', None), None)
-    
+
     def test_set(self):
         ann = self.ann
         ann['test'] = 'test1'
@@ -92,7 +94,7 @@ class AnnotationTest(ATSiteTestCase):
         ann.setSubkey('test', 'test3', subkey='testsub')
         self.failUnlessEqual(ann['test-testsub'], 'test3')
         self.failUnlessEqual(ann.getSubkey('test', subkey='testsub'), 'test3')
-        
+
     def test_get(self):
         ann = self.ann
         ann['test'] = 'test1'
@@ -100,7 +102,7 @@ class AnnotationTest(ATSiteTestCase):
         self.failUnlessEqual(ann.get('test'), 'test1')
         self.failUnless(ann.has_key('test'))
         self.failUnlessEqual(ann.get('none', default='default'), 'default')
-        
+
     def test_del(self):
         ann = self.ann
         ann['test'] = 'test1'
@@ -115,13 +117,14 @@ class AnnotationTest(ATSiteTestCase):
 class MetadataAnnotationStorageTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
         gen_anndummy()
         dummy = AnnDummy(oid='dummy')
         self.folder._setObject('dummy', dummy)
         self.dummy = self.folder.dummy
         self.dummy.initializeArchetype()
         self.ann = getAnnotation(self.dummy)
-        
+
     def test_setup(self):
         dummy = self.dummy
         field = dummy.getField('meta')
@@ -137,41 +140,42 @@ class MetadataAnnotationStorageTest(ATSiteTestCase):
         self.failUnlessEqual(ann.getSubkey(AT_MD_STORAGE, subkey='meta'), 'egg')
 
 class AnnotationStorageTest(ATSiteTestCase):
-    
+
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
         gen_anndummy()
         dummy = AnnDummy(oid='dummy')
         self.folder._setObject('dummy', dummy)
         self.dummy = self.folder.dummy
         self.dummy.initializeArchetype()
         self.ann = getAnnotation(self.dummy)
-        
+
     def test_setup(self):
         dummy = self.dummy
         field = dummy.getField('string')
         self.failUnless(isinstance(field.storage, AnnotationStorage))
         self.failUnless(self.ann.hasSubkey(AT_ANN_STORAGE, 'string'))
         self.failUnlessEqual(self.ann.getSubkey(AT_ANN_STORAGE, subkey='string'), 'stringdefault')
-        
+
     def test_gestset(self):
         dummy = self.dummy
         ann = self.ann
         dummy.setString('egg')
         self.failUnlessEqual(dummy.getString(), 'egg')
         self.failUnlessEqual(ann.getSubkey(AT_ANN_STORAGE, subkey='string'), 'egg')
-        
+
     def test_storageGetSetDel(self):
         dummy = self.dummy
         ann = self.ann
         field = dummy.getField('string')
         storage = field.storage
-        
+
         dummy.setString('egg')
         self.failUnlessEqual(storage.get('string', dummy), 'egg')
-        
+
         storage.set('string', dummy, 'spam')
         self.failUnlessEqual(storage.get('string', dummy), 'spam')
-        
+
         storage.unset('string', dummy)
         self.failIf(ann.hasSubkey(AT_ANN_STORAGE, 'string'))
 
@@ -179,41 +183,41 @@ class AnnotationStorageTest(ATSiteTestCase):
         dummy = self.dummy
         ann = self.ann
         storage = AnnotationStorage()
-        
+
         self.failUnlessRaises(AttributeError, storage.get, 'nonexisting', dummy)
-        
+
         # del shouldn't raise anything
         storage.unset('nonexisting', dummy)
-        
+
         # set should create an entry
         storage.set('nonexisting', dummy,  value='bar')
         self.failUnlessEqual(storage.get('nonexisting', dummy), 'bar')
-        
+
     def test_migration(self):
         dummy = self.dummy
         ann = self.ann
         field = dummy.getField('string')
         storage = field.storage
-        
+
         # migration mode on
         self.failUnlessEqual(storage._migrate, False)
         storage._migrate = True
-        
+
         # test clean up
         dummy.string = 'spam'
         self.failUnless(hasattr(aq_base(dummy), 'string'))
-        
+
         self.failIfEqual(storage.get('string', dummy), 'spam')
         storage.set('string', dummy, 'bar')
         self.failIf(hasattr(aq_base(dummy), 'string'))
         self.failUnlessEqual(storage.get('string', dummy), 'bar')
-        
+
         # test migration
         ann.delSubkey(AT_ANN_STORAGE, subkey='string')
         dummy.string = 'spam'
         self.failUnlessEqual(storage.get('string', dummy), 'spam')
         self.failIf(hasattr(aq_base(dummy), 'string'))
-               
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

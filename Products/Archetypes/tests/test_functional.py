@@ -54,6 +54,8 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     """Tests object renaming and creation"""
 
     def afterSetUp(self):
+        ATFunctionalSiteTestCase.afterSetUp(self)
+
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
         request = self.app.REQUEST
@@ -267,7 +269,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             response = self.publish('%s/base_edit?form.submitted=1&title=%s&body=Blank' % ('/%s' % new_obj.absolute_url(1), new_title,), self.basic_auth) # Edit object
             self.assertStatusEqual(response.getStatus(), 302) # OK
             self.failUnlessEqual(new_obj.getId(), new_id) # id shouldn't have changed
-            
+
             # Now do another document with the same title:
             auto_id='DDocument.2005-12-18.3847393'
 
