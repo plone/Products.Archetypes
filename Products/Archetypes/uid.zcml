@@ -2,11 +2,37 @@
     xmlns="http://namespaces.zope.org/zope"
     >
 
+  <adapter for=".interfaces.IBaseObject"
+           provides="archetypes.uid.interfaces.IUID"
+           factory="archetypes.uid.at.uid.UID"
+           />
 
-<utility
-    factory="archetypes.uid.at.factory.ArchetypesUIDFactory"
-    provides="archetypes.uid.interfaces.IUIDFactory"/>
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.uid.interfaces.IUID"
+           factory="archetypes.uid.at.uid.UID"
+           />
 
 
+  <adapter for=".interfaces.IBaseObject"
+           provides="archetypes.uid.interfaces.IUIDSet"
+           factory="archetypes.uid.at.uid.UIDSet"
+           />
+
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.uid.interfaces.IUIDSet"
+           factory="archetypes.uid.at.uid.UIDSet"
+           />
+
+<!--
+  <factory
+      id="Archetypes.UIDQuery"
+      component="archetypes.uid.at.query.UIDQueryFactory"
+      title="Create a new IUIDQuery utility"
+      />
+-->
+  <utility
+      factory="archetypes.uid.at.factory.ArchetypesUIDFactory"
+      provides="archetypes.uid.interfaces.IUIDFactory"
+      />
 
 </configure>

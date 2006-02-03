@@ -11,6 +11,7 @@ from archetypes.uid.interfaces import IUIDQuery
 from archetypes.uid.at.query import UIDQuery
 
 from Products.Five.site.localsite import enableLocalSiteHook
+from zope.app.component.hooks import setSite, setHooks
 
 def install(self, include_demo=None, require_dependencies=1):
     out=StringIO()
@@ -28,26 +29,7 @@ def install(self, include_demo=None, require_dependencies=1):
                      install_deps=0)
         print >> out, 'Successfully installed the demo types.'
 
-    
-
-
-    # make our plone site a zope 3 local site so
-    # that we can register local utilities there
-
-    # makes site provide zope.app.component.interfaces.ISite
-    #enableLocalSiteHook(self)
-
-    #setSite(self)
-    #setHooks()
-    #sm = zapi.getSiteManager()
-
-    #uidQuery = UIDQuery()
-    #import pdb; pdb.set_trace()
-
-    #sm.registerUtility(IUIDQuery, uidQuery)
-
-
-
+    installUtilities(self, out)
 
     print >> out, 'Successfully installed %s' % PKG_NAME
 
@@ -57,3 +39,20 @@ def uninstall(portal):
     prod = getattr(portal.portal_quickinstaller, PKG_NAME)
     prod.portalobjects = [po for po in prod.portalobjects
                           if po[-8:] != '_catalog']
+
+def installUtilities(portal, out):
+    enableLocalSiteHook(portal)
+    setSite(portal)
+    setHooks()
+
+    from archetypes.uid.interfaces import IUIDQuery
+    from archetypes.uid.at.query import UIDQuery
+    
+    from archetypes.reference.interfaces import IReferenceQuery
+    from archetypes.reference.at.utilities import ATReferenceQuery
+    
+    portal.getSiteManager().registerUtility(IUIDQuery, UIDQuery())
+    portal.getSiteManager().registerUtility(IReferenceQuery,
+                                            ATReferenceQuery())
+
+    print >> out, "Successfully installed utilities of %s." % PKG_NAME

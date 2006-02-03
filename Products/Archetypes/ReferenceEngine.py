@@ -4,6 +4,18 @@ from types import StringType, UnicodeType
 import time
 import urllib
 
+from zope.deprecation import deprecated
+from zope.interface import implements
+from zope.component import getUtility
+
+from archetypes.uid.interfaces import IUID
+from archetypes.uid.interfaces import IUIDQuery
+from archetypes.reference.interfaces import IReference as INewstyleReference
+from archetypes.reference.interfaces import IReferenceQuery
+from archetypes.reference.interfaces import IReferenceSource
+from archetypes.reference.interfaces import IReferenceMetadata
+from archetypes.reference.interfaces import IReferenceMetadataSetter
+
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.referenceengine import \
@@ -12,7 +24,8 @@ from Products.Archetypes.interfaces.referenceengine import \
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
 from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
+     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME, \
+     REFERENCE_METADATA_ATTR 
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent, aq_inner
@@ -36,9 +49,6 @@ from zExceptions import NotFound
 import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
-
-from archetypes.uid.interfaces import IUID, IUIDSet
-
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -56,7 +66,7 @@ class Reference(Referenceable, SimpleItem):
     ## reference objects and expect them to work, but you can't
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
-
+    implements(INewstyleReference)
     __implements__ = Referenceable.__implements__ + (IReference,)
 
     security = ClassSecurityInfo()
@@ -77,56 +87,43 @@ class Reference(Referenceable, SimpleItem):
                               'manage_view')
     manage_view = PageTemplateFile('view_reference', _www)
 
-    def __init__(self, id, sid, tid, relationship, **kwargs):
+    def __init__(self, id, source, target, relationship, **kwargs):
         self.id = id
         setattr(self, UUID_ATTR,  id)
 
-        self.sourceUID = sid
-        self.targetUID = tid
+        self.sourceUID = IUID(source)()
+        self.targetUID = IUID(target)()
         self.relationship = relationship
 
         self.__dict__.update(kwargs)
+        # Create a list of metadata ids for future reference
+        setattr(self, REFERENCE_METADATA_ATTR, kwargs.keys())
 
     def __repr__(self):
-        return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
+        return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, 
+                                                    self.targetUID, 
+                                                    self.relationship)
 
     def UID(self):
         """the uid method for compat"""
         return getattr(aq_base(self), UUID_ATTR)
 
     ###
-    # Convenience methods
-    def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG)
-        if not tool: return ''
-        brains = tool(UID=self.sourceUID)
-        for brain in brains:
-            obj = brain.getObject()
-            if obj is not None:
-                return obj
-
-    def getTargetObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if not tool: return ''
-        brains = tool(UID=self.targetUID)
-        for brain in brains:
-            obj = brain.getObject()
-            if obj is not None:
-                return obj
-
-    ###
     # Catalog support
     def targetId(self):
-        target = self.getTargetObject()
-        if target is not None:
-            return target.getId()
-        return ''
+        meta = IReferenceMetadata(self).getTargetMetadata()
+        return meta.get('getId', '')
 
     def targetTitle(self):
-        target = self.getTargetObject()
-        if target is not None:
-            return target.Title()
-        return ''
+        meta = IReferenceMetadata(self).getTargetMetadata()
+        return meta.get('Title', '')
+    
+    deprecated(targetId, "This method is deprecated, please access "
+                                " the target metadata using the "
+                                " IReferenceMetadata adapter.")
+    deprecated(targetTitle, "This method is deprecated, please access "
+                                " the target metadata using the "
+                                " IReferenceMetadata adapter.")
 
     def Type(self):
         return self.__class__.__name__
@@ -175,6 +172,31 @@ class Reference(Referenceable, SimpleItem):
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
+
+    def _query(self, uid):
+        return getUtility(IUIDQuery, context=self).getObject(uid)
+
+    # Use the uid query utility:
+    def _getSourceObject(self):
+        return self._query(self.sourceUID)
+
+    def _getTargetObject(self):
+        return self._query(self.targetUID)
+    
+    getSourceObject = _getSourceObject 
+    getTargetObject = _getTargetObject
+    
+    deprecated(getSourceObject, "This method is deprecated, please access "
+                                " the source object via the attribute"
+                                " 'source'.")
+    deprecated(getTargetObject, "This method is deprecated, please access "
+                                " the target object via the attribute"
+                                " 'target'.")
+
+    # Implement the archetypes.reference IReference interface
+    source = property(_getSourceObject)
+    target = property(_getTargetObject)
+
 InitializeClass(Reference)
 
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
@@ -186,7 +208,6 @@ class ContentReference(ObjectManager, Reference):
 
     def __init__(self, *args, **kw):
         Reference.__init__(self, *args, **kw)
-
 
     security = ClassSecurityInfo()
     # XXX FIXME more security
@@ -284,13 +305,13 @@ class ReferenceBaseCatalog(PluggableCatalog):
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
-    """
+    """    
     def __init__(self, obj):
         self._obj = obj
-
+                
     def __getattr__(self, name):
         return getattr(self._obj, name)
-
+        
     def Title(self):
         # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
         # converted to an ascii string
@@ -329,125 +350,139 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     ## Public API
     def addReference(self, source, target, relationship=None,
                      referenceClass=None, **kwargs):
-        sID, sobj = self._uidFor(source)
-        if not sID or sobj is None:
-            raise ReferenceException('Invalid source UID')
+        source = self._getObject(source)
+        target = self._getObject(target)
+        ref_source = IReferenceSource(source)
+        new_ref = ref_source.addReference(
+            target=target, relationship=(relationship, referenceClass))
+        meta_set = IReferenceMetadataSetter(new_ref)
+        meta_set.setMetadata(**kwargs)
 
-        tID, tobj = self._uidFor(target)
-        if not tID or tobj is None:
-            raise ReferenceException('Invalid target UID')
-
-        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
-        if objects:
-            #we want to update the existing reference
-            #XXX we might need to being a subtransaction here to
-            #    do this properly, and close it later
-            existing = objects[0]
-            if existing:
-                # We can't del off self, we now need to remove it
-                # from the source objects annotation, which we have
-                annotation = sobj._getReferenceAnnotations()
-                annotation._delObject(existing.id)
-
-
-        rID = self._makeName(sID, tID)
-        if not referenceClass:
-            referenceClass = Reference
-
-        annotation = sobj._getReferenceAnnotations()
-
-        referenceObject = referenceClass(rID, sID, tID, relationship,
-                                         **kwargs)
-        # Must be wrapped into annotation context, or else
-        # it will get indexed *twice*, one time with the wrong path.
-        referenceObject = referenceObject.__of__(annotation)
-        try:
-            referenceObject.addHook(self, sobj, tobj)
-        except ReferenceException:
-            pass
-        else:
-            # This should call manage_afterAdd
-            annotation._setObject(rID, referenceObject)
-            return referenceObject
+    deprecated(addReference, "To add references use the addReference()"
+                             " method of the IReferenceSource adapter.  "
+                             "To set the metadata on the reference, apply the"
+                             " IReferenceMetadataSetter adapter to the "
+                             " reference object returned by the above method,"
+                             " and pass keyword arguments to the setMetadata "
+                             "method of that adapter."
+                             " This method will be removed in AT 1.6.")
 
     def deleteReference(self, source, target, relationship=None):
-        sID, sobj = self._uidFor(source)
-        tID, tobj = self._uidFor(target)
+        source = self._getObject(source)
+        target = self._getObject(target)
+        ref_source = IReferenceSource(source)
+        ref_source.deleteReferences(source, target, relationship)
 
-        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
-        if objects:
-            self._deleteReference(objects[0])
+    deprecated(deleteReference, "To delete references use the "
+                                "deleteReferences() method of the "
+                                "IReferenceSource adapter."
+                                " This method will be removed in AT 1.6.")
 
     def deleteReferences(self, object, relationship=None):
-        """delete all the references held by an object"""
-        for b in self.getReferences(object, relationship):
-            self._deleteReference(b)
+        object = self._getObject(object)
+        obj_source = IReferenceSource(object)
+        obj_source.deleteReferences()
+        ref_query = getUtility(IReferenceQuery, context=self)
+        
+        # XXX: Why do we delete back references, this is crazy!
+        ref_targets = ref_query(target=object, relationship=relationship)
+        for ref in ref_targets:
+            ref_storage = IReferenceSource(ref.source)
+            ref_storage.deleteReferences(ref.source, ref.target,
+                                         ref.relationship)
 
-        for b in self.getBackReferences(object, relationship):
-            self._deleteReference(b)
+    deprecated(deleteReferences, "To delete references use the "
+                                "deleteReferences() method of the "
+                                "IReferenceSource adapter.  Additionally, "
+                                "If you want to also delete target references"
+                                ", as the catalog api did, you'll need to "
+                                "query for those with IReferenceQuery and "
+                                "delete them similarly."
+                                " This method will be removed in AT 1.6.")
+     
 
     def getReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
-        sID, sobj = self._uidFor(object)
-        if targetObject:
-            tID, tobj = self._uidFor(targetObject)
-        else:
-            tID, tobj = None,None
+        object = self._getObject(object)
+        ref_query = getUtility(IReferenceQuery, context=self)
+        refs = ref_query(source=object, target=targetObject,
+                         relationship=relationship)
+        return refs
 
-        brains = self._queryFor(sid=sID, relationship=relationship, tid=tID)
-        return self._resolveBrains(brains)
+    deprecated(getReferences, "To search for references use the "
+                              "IReferenceQuery utility."
+                              " This method will be removed in AT 1.6.")
+        
 
     def getBackReferences(self, object, relationship=None, targetObject=None):
         """return a collection of reference objects"""
-        # Back refs would be anything that target this object
-        sID, sobj = self._uidFor(object)
-        if targetObject:
-            tID, tobj = self._uidFor(targetObject)
-        else:
-            tID, tobj = None,None
+        object = self._getObject(object)
+        targetObject = self._getObject(targetObject)
+        ref_query = getUtility(IReferenceQuery, context=self)
+        # XXX: This is an incredibly dumb API, targetObject is 
+        # passed as source???
+        refs = ref_query(source=targetObject, target=object,
+                         relationship=relationship)
+        return refs
 
-        brains = self._queryFor(tid=sID, relationship=relationship, sid=tID)
-        return self._resolveBrains(brains)
+    deprecated(getBackReferences, "To search for references use the "
+                                  "IReferenceQuery utility."
+                                  " This method will be removed in AT 1.6.")
 
     def hasRelationshipTo(self, source, target, relationship):
-        sID, sobj = self._uidFor(source)
-        tID, tobj = self._uidFor(target)
+        source = self._getObject(object)
+        target = self._getObject(target)
+        ref_query = getUtility(IReferenceQuery, context=self) 
+        refs = ref_query(source=source, target=target,
+                         relationship=relationship)
+        return not not refs
 
-        brains = self._queryFor(sID, tID, relationship)
-        for brain in brains:
-            obj = brain.getObject()
-            if obj is not None:
-                return True
-        return False
+    deprecated(hasRelationshipTo, "To search for references use the "
+                                  "IReferenceQuery utility."
+                                  " This method will be removed in AT 1.6.")
 
     def getRelationships(self, object):
         """
         Get all relationship types this object has TO other objects
         """
-        sID, sobj = self._uidFor(object)
-        brains = self._queryFor(sid=sID)
-        res = {}
-        for brain in brains:
-            res[brain.relationship] = 1
+        object = self._getObject(object)
+        source = IReferenceSource(object)
+        return source.getRelationships()
 
-        return res.keys()
+    deprecated(getRelationships, "To find relationships from a source object,"
+                                 " Use the getRelationships() method of the "
+                                 "IReferenceSource adapter."
+                                 " This method will be removed in AT 1.6.")
 
     def getBackRelationships(self, object):
         """
         Get all relationship types this object has FROM other objects
         """
-        sID, sobj = self._uidFor(object)
-        brains = self._queryFor(tid=sID)
-        res = {}
-        for b in brains:
-            res[b.relationship]=1
+        object = self._getObject(object)
+        ref_query = getUtility(IReferenceQuery, context=self) 
+        refs = ref_query(target=object)
+        return [ref.relationship for ref in refs]
 
-        return res.keys()
-
+    deprecated(getBackRelationships, "To search for references use the "
+                                     "IReferenceQuery utility."
+                                    " This method will be removed in AT 1.6.")
 
     def isReferenceable(self, object):
         return (IReferenceable.isImplementedBy(object) or
                 shasattr(object, 'isReferenceable'))
+
+    deprecated(getBackRelationships, "The IReferencable API of Archetypes has"
+                                     " been replaced by the IReferencable and"
+                                     " IReferenceSource interfaces in "
+                                     " archetypes.reference"
+                                    " This method will be removed in AT 1.6.")
+
+    def _getObject(self, object_or_uid):
+        """Returns the actual object.  Accepts either object or uid."""
+        if isinstance(object_or_uid, str):
+            return getUtility(IUIDQuery, context=self).getObject(object_or_uid)
+        else:
+            return object_or_uid
 
     def reference_url(self, object):
         """return a url to an object that will resolve by reference"""
@@ -471,7 +506,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        uc = getToolByName(self, UID_CATALOG)
+        uc = getToolByName(self,UID_CATALOG)
         uc.uncatalog_object(object._getURL())
 
 
@@ -532,9 +567,10 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     def _getUUIDFor(self, object):
         """generate and attach a new uid to the object returning it"""
-        IUIDSet(object).register()
-        return IUID(object).uid
+        uuid = make_uuid(object.getId())
+        setattr(object, UUID_ATTR, uuid)
 
+        return uuid
 
     def _deleteReference(self, referenceObject):
         try:
@@ -558,7 +594,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return objects
 
     def _makeName(self, *args):
-        """make a name"""
+        """get a uuid"""
         name = make_uuid(*args)
         return name
 

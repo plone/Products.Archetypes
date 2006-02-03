@@ -32,8 +32,11 @@ from Testing.ZopeTestCase.functional import Functional
 
 from zope.app.testing import placelesssetup
 from Products.Five.zcml import load_config
+from zope.interface import directlyProvides
+
 import Products.Archetypes
 import Products.Five
+
 
 # the output of some tests may differ when CMFPlone is installed
 try:
@@ -80,6 +83,11 @@ else:
 DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
 
+placelesssetup.setUp()
+load_config('meta.zcml', package=Products.Five)
+load_config('configure.zcml', package=Products.Five)
+load_config('configure.zcml', package=Products.Archetypes)
+
 # install products
 for product in DEPS_AT:
     ZopeTestCase.installProduct(product)
@@ -100,14 +108,11 @@ class ATTestCase(ZopeTestCase.ZopeTestCase):
     """
 
     def afterSetUp(self):
-        placelesssetup.setUp()
-        load_config('meta.zcml', package=Products.Five)
-        load_config('configure.zcml', package=Products.Archetypes)
+        import pdb;pdb,set_trace()
 
     def beforeTearDown(self):
-        placelesssetup.tearDown()
-        
-
+##         placelesssetup.tearDown()
+        pass
 
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests

@@ -25,9 +25,12 @@
            factory="archetypes.reference.at.storage.ATReferenceMetadataSetter"
            />
 
-
-  <utility provides="archetypes.reference.interfaces.IReferenceQuery"
-           factory="archetypes.reference.at.utilities.ATReferenceQuery"
-           />
+<!--
+  <factory
+      id="Archetypes.ReferenceQuery"
+      component="archetypes.reference.base.ReferenceCatalogQueryFactory"
+      title="Create a new IReferenceQuery utility"
+      />
+-->
 
 </configure>

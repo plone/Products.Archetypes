@@ -1,14 +1,14 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:five="http://namespaces.zope.org/five">
 
+  <five:localsite class="Products.CMFPlone.Portal.PloneSite" />
+
   <include file="bridge.zcml" />
 
   <include file="implements.zcml" />
 
   <include file="uid.zcml" />
   <include file="reference.zcml" />
-
-  <five:localsite class="Products.CMFPlone.Portal.PloneSite" />
 
 </configure>
 
