@@ -9,7 +9,7 @@ import warnings
 
 from Products.Archetypes.config import PKG_NAME, DEBUG
 
-from zope.deprecation import z3deprecated
+from zope.deprecation import deprecated as z3deprecated
 
 
 if os.name == 'posix':
