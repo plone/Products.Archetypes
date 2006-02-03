@@ -1,0 +1,33 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <adapter for=".interfaces.IBaseObject"
+           provides="archetypes.reference.interfaces.IReferenceSource"
+           factory="archetypes.reference.base.ReferenceSource"
+           />
+
+  <adapter for=".interfaces.IBaseObject"
+           provides="archetypes.reference.interfaces.IReferenceTarget"
+           factory="archetypes.reference.base.ReferenceTarget"
+           />
+
+  <adapter for=".interfaces.IBaseObject"
+           provides="archetypes.reference.interfaces.IReferenceStorage"
+           factory="archetypes.reference.at.storage.ReferenceStorage"
+           />
+
+  
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.reference.interfaces.IReferenceMetadata"
+           factory="archetypes.reference.at.storage.ATReferenceMetadata"
+           />
+
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.reference.interfaces.IReferenceMetadataSetter"
+           factory="archetypes.reference.at.storage.ATReferenceMetadataSetter"
+           />
+
+  <utility for="archetypes.reference.interfaces.IReferenceQuery"
+           factory="archetypes.reference.at.utilities.ATReferenceQuery"
+           />
+
+</configure>
