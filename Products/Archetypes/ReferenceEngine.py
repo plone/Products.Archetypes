@@ -351,7 +351,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def addReference(self, source, target, relationship=None,
                      referenceClass=None, **kwargs):
         source = self._getObject(source)
-        target = self._getTarget(target)
+        target = self._getObject(target)
         ref_source = IReferenceSource(source)
         new_ref = ref_source.addReference(source=source, target=target, 
                                  relationship=(relationship, referenceClass))
