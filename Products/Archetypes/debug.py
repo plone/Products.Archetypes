@@ -9,6 +9,8 @@ import warnings
 
 from Products.Archetypes.config import PKG_NAME, DEBUG
 
+from zope.deprecation import z3deprecated
+
 
 if os.name == 'posix':
     COLOR = 1
@@ -110,7 +112,7 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        try: 
+        try:
             return inspect.stack()[start:end]
         except IndexError:
             # NOTE: this is required for OS-X Tiger somehow
@@ -186,6 +188,10 @@ def deprecated(msg, level=3):
     #      called this function
     if DEBUG:
         warnings.warn(msg, DeprecationWarning, level)
+
+z3deprecated('deprecated',
+             'using this notion for declaring methods as deprecated is deprecated itself ;-) - '
+             'please use zope.deprecation.deprecated in future!')
 
 _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()
