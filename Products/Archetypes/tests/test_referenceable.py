@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -731,7 +730,7 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(SimpleFolderReferenceableTests))
-    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
+    #suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
 
 if __name__ == '__main__':

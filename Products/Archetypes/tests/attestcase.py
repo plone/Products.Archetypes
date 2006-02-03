@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -82,11 +81,6 @@ else:
 
 DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
             'ArchetypesTestUpdateSchema',)
-
-placelesssetup.setUp()
-load_config('meta.zcml', package=Products.Five)
-load_config('configure.zcml', package=Products.Five)
-load_config('configure.zcml', package=Products.Archetypes)
 
 # install products
 for product in DEPS_AT:

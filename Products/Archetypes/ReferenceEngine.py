@@ -58,6 +58,7 @@ from Referenceable import Referenceable
 from UIDCatalog import UIDCatalog
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
+from ComputedAttribute import ComputedAttribute
 
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References
@@ -172,16 +173,30 @@ class Reference(Referenceable, SimpleItem):
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
-
     def _query(self, uid):
         return getUtility(IUIDQuery, context=self).getObject(uid)
 
-    # Use the uid query utility:
     def _getSourceObject(self):
         return self._query(self.sourceUID)
 
     def _getTargetObject(self):
         return self._query(self.targetUID)
+
+    source = ComputedAttribute(_getSourceObject, 2)
+    target = ComputedAttribute(_getTargetObject, 2)
+    
+##     # Use the uid query utility:
+##     @property
+##     def source(self):
+##         return self._query(self.sourceUID)
+
+##     @property
+##     def target(self):
+##         return self._query(self.targetUID)
+
+    # Implement the archetypes.reference IReference interface
+    #source = property(_getSourceObject)
+    #target = property(_getTargetObject)
     
     getSourceObject = _getSourceObject 
     getTargetObject = _getTargetObject
@@ -193,9 +208,7 @@ class Reference(Referenceable, SimpleItem):
                                 " the target object via the attribute"
                                 " 'target'.")
 
-    # Implement the archetypes.reference IReference interface
-    source = property(_getSourceObject)
-    target = property(_getTargetObject)
+
 
 InitializeClass(Reference)
 

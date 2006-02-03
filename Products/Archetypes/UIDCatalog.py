@@ -13,6 +13,9 @@ from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
+from ZODB.POSException import ConflictError
+import zLOG
+import sys
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -83,7 +86,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             except ConflictError:
                 raise
             except: #NotFound # XXX bare exception
-                pass
+                raise # pass
 
             if obj is None:
                 if REQUEST is None:
@@ -94,11 +97,11 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         except ConflictError:
             raise
         except:
-            #import traceback
-            #traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
                      error=sys.exc_info())
-            pass
+            raise #pass
 
 InitializeClass(UIDCatalogBrains)
 
