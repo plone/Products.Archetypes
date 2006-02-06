@@ -5,9 +5,15 @@
 
   <five:traversable class="OFS.SimpleItem.SimpleItem" />  
   <five:traversable class="OFS.ObjectManager.ObjectManager" />  
-  <five:traversable class="Products.ZCatalog.ZCatalog" />
+  <five:traversable class="Products.ZCatalog.ZCatalog.ZCatalog" />
   <five:traversable class="Products.CMFPlone.Portal.PloneSite" />
   <five:traversable class="Products.Archetypes.BaseObject.BaseObject" />
+
+  <five:deprecatedManageAddDelete class="OFS.SimpleItem.SimpleItem" />  
+  <five:deprecatedManageAddDelete class="OFS.ObjectManager.ObjectManager" />  
+  <five:deprecatedManageAddDelete class="Products.ZCatalog.ZCatalog.ZCatalog" />
+  <five:deprecatedManageAddDelete class="Products.CMFPlone.Portal.PloneSite" />
+  <five:deprecatedManageAddDelete class="Products.Archetypes.BaseObject.BaseObject" />
 
   <include file="bridge.zcml" />
 

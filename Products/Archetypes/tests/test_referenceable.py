@@ -60,7 +60,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failIf(None in robjects, """bad ref catalog resolution""")
         return uobjects, robjects
 
-    def _test_hasUID( self ):
+    def test_hasUID( self ):
         doc = makeContent( self.folder
                            , portal_type='DDocument'
                            , title='Foo' )
@@ -69,7 +69,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnless(getattr(aq_base(doc), UUID_ATTR, None))
 
 
-    def _test_renamedontchangeUID( self ):
+    def test_renamedontchangeUID( self ):
         catalog = self.portal.uid_catalog
 
         obj_id = 'demodoc'
@@ -127,7 +127,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.verifyBrains()
 
-    def _test_renamecontainerKeepsReferences( self ):
+    def test_renamecontainerKeepsReferences( self ):
         # test for #956677: renaming the container causes contained objects
         #                   to lose their refs
         container = makeContent(self.folder,
@@ -161,7 +161,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
-    def _test_renamecontainerKeepsReferences2( self ):
+    def test_renamecontainerKeepsReferences2( self ):
         # test for [ 1013363 ] References break on folder rename
         folderA = makeContent(self.folder,
                                 portal_type=self.FOLDER_TYPE,
@@ -200,7 +200,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
 
-    def _test_UIDclash( self ):
+    def test_UIDclash( self ):
         catalog = getattr(self.portal, UID_CATALOG)
 
         obj_id = 'demodoc'
@@ -227,7 +227,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnless(UID in uniq, (UID, uniq))
         self.failUnless(UID2 in uniq, (UID, uniq))
 
-    def _test_setUID_keeps_relationships(self):
+    def test_setUID_keeps_relationships(self):
         obj_id   = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
@@ -300,7 +300,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.verifyBrains()
 
-    def _test_relationships(self):
+    def test_relationships(self):
 
         obj_id   = 'demodoc'
         known_id = 'known_doc'
@@ -342,7 +342,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         #get only refs to d
         self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2)
 
-    def _test_back_relationships(self):
+    def test_back_relationships(self):
 
         account_id = 'caixa'
         invoice_id = 'fatura'
@@ -388,7 +388,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(invoice.getRefs(), [future_payment])
         self.assertEquals(payment.getBRefs(), [])
 
-    def _test_singleReference(self):
+    def test_singleReference(self):
         # If an object is referenced don't record its reference again
         at = self.portal.archetype_tool
 
@@ -406,7 +406,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
         self.assertEquals(len(a.getRefs()), 2)
 
-    def _test_UIDunderContainment(self):
+    def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
         at = self.portal.archetype_tool
 
@@ -422,7 +422,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         # XXX: but proxy index could
         # XXX: assert fuid != nuid
 
-    def _test_hasRelationship(self):
+    def test_hasRelationship(self):
         a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent(self.folder, portal_type='DDocument',title='Foo', id='b')
         c = makeContent(self.folder, portal_type='DDocument',title='Foo', id='c')
@@ -439,7 +439,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         # XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
-    def _test_graph(self):
+    def test_graph(self):
         if not HAS_GRAPHVIZ:
             return
 
@@ -457,7 +457,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnless(png, png)
 
 
-    def _test_folderishDeleteCleanup(self):
+    def test_folderishDeleteCleanup(self):
         self.folder.invokeFactory(type_name="Folder", id="reftest")
         folder = getattr(self.folder, "reftest")
 
@@ -486,7 +486,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         uids = uc.uniqueValuesFor('UID')
         self.assertEquals(len(rc()), 0)
 
-    def _test_reindexUIDCatalog(self):
+    def test_reindexUIDCatalog(self):
         catalog = self.portal.uid_catalog
 
         doc = makeContent(self.folder,
@@ -496,7 +496,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         brain = catalog(UID=doc.UID())[0]
         self.assertEquals(brain.Title, doc.Title())
 
-    def _test_referenceReference(self):
+    def test_referenceReference(self):
         # Reference a reference object for fun (no, its like RDFs
         # metamodel)
         rc = self.portal.reference_catalog
@@ -511,7 +511,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         ref.addReference(c)
         self.verifyBrains()
 
-    def _test_referenceFieldVocab(self):
+    def test_referenceFieldVocab(self):
         dummy = makeContent(self.folder, portal_type="Refnode", id="dummy")
         test123 = makeContent(self.folder, portal_type="Refnode",
                               id="Test123")
@@ -561,7 +561,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
 
 
-    def _test_noReferenceAfterDelete(self):
+    def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference
         # added by GL
         a = makeContent(self.folder, portal_type='DDocument', id='a')
@@ -571,7 +571,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.failUnlessEqual(a.getRefs(), [])
 
-    def _test_noBackReferenceAfterDelete(self):
+    def test_noBackReferenceAfterDelete(self):
         # Deleting source should delete back reference
         # added by GL
         a = makeContent(self.folder, portal_type='DDocument', id='a')
@@ -581,7 +581,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.failUnlessEqual(b.getBRefs(), [])
 
-    def _test_copyPasteSupport(self):
+    def test_copyPasteSupport(self):
         # copy/paste behaviour test
         # in another folder, pasted object should lose all references
         # added by GL (for bug #985393)
@@ -618,7 +618,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnlessEqual(a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [a])
 
-    def _test_cutPasteSupport(self):
+    def test_cutPasteSupport(self):
         # cut/paste behaviour test
         # in another folder, pasted object should keep the references
         # added by GL (for bug #985393)
@@ -641,7 +641,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnlessEqual(copy_a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [copy_a])
 
-    def _test_folderCopyPasteSupport(self):
+    def test_folderCopyPasteSupport(self):
         # copy/paste behaviour test
         # sub-objects of copy/pasted folders should lose all references,
         # and duplicate refs should not be created on the original object.
@@ -683,7 +683,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnlessEqual(a.getRefs(), [b])
         self.failUnlessEqual(b.getBRefs(), [a])
 
-    def _test_folderCutPasteSupport(self):
+    def test_folderCutPasteSupport(self):
         # copy/paste behaviour test
         # sub-objects of copy/pasted folders should lose all references,
         # and duplicate refs should not be created on the original object.
