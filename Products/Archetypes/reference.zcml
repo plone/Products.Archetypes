@@ -15,6 +15,23 @@
            factory="archetypes.reference.at.storage.ATReferenceStorage"
            />
 
+
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.reference.interfaces.IReferenceSource"
+           factory="archetypes.reference.base.ReferenceSource"
+           />
+
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.reference.interfaces.IReferenceTarget"
+           factory="archetypes.reference.base.ReferenceTarget"
+           />
+
+  <adapter for="archetypes.reference.interfaces.IReference"
+           provides="archetypes.reference.interfaces.IReferenceStorage"
+           factory="archetypes.reference.at.storage.ATReferenceStorage"
+           />
+
+
   <adapter for="archetypes.reference.interfaces.IReference"
            provides="archetypes.reference.interfaces.IReferenceMetadata"
            factory="archetypes.reference.at.storage.ATReferenceMetadata"
