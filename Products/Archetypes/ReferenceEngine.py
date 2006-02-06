@@ -182,22 +182,12 @@ class Reference(Referenceable, SimpleItem):
     def _getTargetObject(self):
         return self._query(self.targetUID)
 
-    source = ComputedAttribute(_getSourceObject, 2)
-    target = ComputedAttribute(_getTargetObject, 2)
+    source = ComputedAttribute(_getSourceObject, 1)
+    target = ComputedAttribute(_getTargetObject, 1)
     
-##     # Use the uid query utility:
-##     @property
-##     def source(self):
-##         return self._query(self.sourceUID)
+##     source = property(_getSourceObject)
+##     target = property(_getTargetObject)
 
-##     @property
-##     def target(self):
-##         return self._query(self.targetUID)
-
-    # Implement the archetypes.reference IReference interface
-    #source = property(_getSourceObject)
-    #target = property(_getTargetObject)
-    
     getSourceObject = _getSourceObject 
     getTargetObject = _getTargetObject
     

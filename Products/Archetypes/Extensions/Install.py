@@ -6,7 +6,6 @@ from Products.Archetypes.Extensions.utils import setupArchetypes
 from StringIO import StringIO
 
 from zope.interface import directlyProvides
-from zope.app.site.interfaces import IPossibleSite
 from zope.app.component.hooks import setSite, setHooks
 from zope.app import zapi
 from archetypes.uid.interfaces import IUIDQuery
@@ -47,7 +46,6 @@ def uninstall(portal):
 
 def installUtilities(portal, out):
     # XXX  this is getting called twice when we test
-##     directlyProvides(portal, IPossibleSite)
     enableLocalSiteHook(portal)
     setSite(portal)
     setHooks()
