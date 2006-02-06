@@ -14,6 +14,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 import zLOG
 import sys
 
