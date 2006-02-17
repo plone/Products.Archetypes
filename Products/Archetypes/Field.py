@@ -30,7 +30,7 @@ from ZODB.POSException import ConflictError
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
-from Products.CMFCore import permissions
+from Products.CMFCore import CMFCorePermissions
 
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
@@ -45,7 +45,6 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.generator import i18n
 from Products.Archetypes.Widget import BooleanWidget
 from Products.Archetypes.Widget import CalendarWidget
 from Products.Archetypes.Widget import ComputedWidget
@@ -79,6 +78,8 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
+from Products.generator import i18n
 
 try:
     import PIL.Image
@@ -160,8 +161,8 @@ class Field(DefaultLayerContainer):
         'mutator' : None,
         'mode' : 'rw',
 
-        'read_permission' : permissions.View,
-        'write_permission' : permissions.ModifyPortalContent,
+        'read_permission' : CMFCorePermissions.View,
+        'write_permission' : CMFCorePermissions.ModifyPortalContent,
 
         'storage' : AttributeStorage(),
 
@@ -1060,13 +1061,13 @@ class FileField(ObjectField):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
-    security.declareProtected(permissions.View, 'download')
+    security.declareProtected(CMFCorePermissions.View, 'download')
     def download(self, instance, REQUEST=None, RESPONSE=None):
         """Kicks download.
 
         Writes data including file name and content type to RESPONSE
         """
-        file = self.get(instance)
+        file = self.get(instance, raw=True)
         if not REQUEST:
             REQUEST = instance.REQUEST
         if not RESPONSE:
@@ -2091,7 +2092,7 @@ class ImageField(FileField):
 #        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
 #        return kwargs
 
-    security.declareProtected(permissions.View, 'getAvailableSizes')
+    security.declareProtected(CMFCorePermissions.View, 'getAvailableSizes')
     def getAvailableSizes(self, instance):
         """Get sizes
 
@@ -2116,7 +2117,7 @@ class ImageField(FileField):
         else:
             raise TypeError, 'Wrong self.sizes has wrong type: %s' % type(sizes)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'rescaleOriginal')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'rescaleOriginal')
     def rescaleOriginal(self, value, **kwargs):
         """rescales the original image and sets the data
 
@@ -2182,7 +2183,7 @@ class ImageField(FileField):
                 except KeyError:
                     pass
 
-    security.declareProtected(permissions.ModifyPortalContent, 'createScales')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'createScales')
     def createScales(self, instance, value=_marker):
         """creates the scales and save them
         """
@@ -2269,7 +2270,7 @@ class ImageField(FileField):
         thumbnail_file.seek(0)
         return thumbnail_file, format.lower()
 
-    security.declareProtected(permissions.View, 'getSize')
+    security.declareProtected(CMFCorePermissions.View, 'getSize')
     def getSize(self, instance, scale=None):
         """get size of scale or original
         """
@@ -2278,7 +2279,7 @@ class ImageField(FileField):
             return 0, 0
         return img.width, img.height
 
-    security.declareProtected(permissions.View, 'getScale')
+    security.declareProtected(CMFCorePermissions.View, 'getScale')
     def getScale(self, instance, scale=None, **kwargs):
         """Get scale by name or original
         """
@@ -2298,7 +2299,7 @@ class ImageField(FileField):
             else:
                 return image
 
-    security.declareProtected(permissions.View, 'getScaleName')
+    security.declareProtected(CMFCorePermissions.View, 'getScaleName')
     def getScaleName(self, scale=None):
         """Get the full name of the attribute for the scale
         """
@@ -2328,7 +2329,7 @@ class ImageField(FileField):
                     size+=data and data.get_size() or 0
         return size
 
-    security.declareProtected(permissions.View, 'tag')
+    security.declareProtected(CMFCorePermissions.View, 'tag')
     def tag(self, instance, scale=None, height=None, width=None, alt=None,
             css_class=None, title=None, **kwargs):
         """Create a tag including scale
@@ -2412,17 +2413,17 @@ class ScalableImage(BaseImage):
     # make image variants accesable via url
     variant=DynVariantWrapper()
 
-    security.declareProtected(permissions.View, 'Variants')
+    security.declareProtected(CMFCorePermissions.View, 'Variants')
     def Variants(self):
         # Returns a variants wrapper instance
         return DynVariant().__of__(self)
 
-    security.declareProtected(permissions.View, 'getPhoto')
+    security.declareProtected(CMFCorePermissions.View, 'getPhoto')
     def getPhoto(self,size):
         '''returns the Photo of the specified size'''
         return self._photos[size]
 
-    security.declareProtected(permissions.View, 'getDisplays')
+    security.declareProtected(CMFCorePermissions.View, 'getDisplays')
     def getDisplays(self):
         result = []
         for name, size in self.displays.items():
@@ -2456,14 +2457,14 @@ class ScalableImage(BaseImage):
         else:
             return False
 
-    security.declareProtected(permissions.View, 'index_html')
+    security.declareProtected(CMFCorePermissions.View, 'index_html')
     def index_html(self, REQUEST, RESPONSE, size=None):
         """Return the image data."""
         if self.checkForVariant(size):
             return self.getPhoto(size).index_html(REQUEST, RESPONSE)
         return BaseImage.index_html(self, REQUEST, RESPONSE)
 
-    security.declareProtected(permissions.View, 'tag')
+    security.declareProtected(CMFCorePermissions.View, 'tag')
     def tag(self, height=None, width=None, alt=None,
             scale=False, xscale=False, yscale=False, css_class=None,
             title=None, size='original', **args):
