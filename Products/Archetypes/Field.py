@@ -1062,7 +1062,7 @@ class FileField(ObjectField):
         return ObjectField.validate_required(self, instance, value, errors)
 
     security.declareProtected(CMFCorePermissions.View, 'download')
-    def download(self, instance, REQUEST=None, RESPONSE=None):
+    def download(self, instance, REQUEST=None, RESPONSE=None, no_output=False):
         """Kicks download.
 
         Writes data including file name and content type to RESPONSE
@@ -1076,6 +1076,8 @@ class FileField(ObjectField):
         if filename is not None:
             header_value = contentDispositionHeader('attachment', instance.getCharset(), filename=filename)
             RESPONSE.setHeader("Content-disposition", header_value)
+        if no_output:
+            return file
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
