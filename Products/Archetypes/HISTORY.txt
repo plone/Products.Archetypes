@@ -1,5 +1,5 @@
-post 1.4.0-alpha
-================
+1.4.0-alpha02 - 2006-02-23
+==========================
 
   * dont generate 'Schema' method any more. its now part of BaseObject.
     [jensens]
