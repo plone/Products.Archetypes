@@ -54,8 +54,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     """Tests object renaming and creation"""
 
     def afterSetUp(self):
-        ATFunctionalSiteTestCase.afterSetUp(self)
-
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
         request = self.app.REQUEST
@@ -192,8 +190,8 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             del DDocument._at_rename_after_creation
 
         def test_id_change_with_without_marker(self):
-            """Id should not be changed unless _at_rename_after_creation is set
-               on the class."""
+            # Id should not be changed unless _at_rename_after_creation is set
+            # on the class.
             # Make our content type use auto generated ids
             from Products.Archetypes.examples.DDocument import DDocument
             try:
@@ -228,8 +226,8 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             self.failUnlessEqual(new_obj.getId(), auto_id) # id should not have changed
 
         def test_id_change_with_appended_number(self):
-            """Make sure Id is taken from title on initial edit and not otherwise,
-            and that a number is appended to avoid duplicates"""
+            # Make sure Id is taken from title on initial edit and not otherwise,
+            # and that a number is appended to avoid duplicates
             # Make our content type use auto generated ids
             from Products.Archetypes.examples.DDocument import DDocument
             DDocument._at_rename_after_creation = True
@@ -269,7 +267,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
             response = self.publish('%s/base_edit?form.submitted=1&title=%s&body=Blank' % ('/%s' % new_obj.absolute_url(1), new_title,), self.basic_auth) # Edit object
             self.assertStatusEqual(response.getStatus(), 302) # OK
             self.failUnlessEqual(new_obj.getId(), new_id) # id shouldn't have changed
-
+            
             # Now do another document with the same title:
             auto_id='DDocument.2005-12-18.3847393'
 
@@ -353,7 +351,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         # Functional sets the method to GET, this isn't really a functional
         # test but is a special case for the previous tests, so we'll unset
         # the REQUEST_METHOD.
-        self.app.REQUEST.set('REQUEST_METHOD',None)
+        self.app.REQUEST.set('REQUEST_METHOD', 'nonsense')
 
         self.folder.invokeFactory('DDocument','bogus_item')
         self.failUnless('bogus_item' in self.folder.objectIds())
