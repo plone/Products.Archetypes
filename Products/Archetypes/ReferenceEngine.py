@@ -21,7 +21,7 @@ from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
