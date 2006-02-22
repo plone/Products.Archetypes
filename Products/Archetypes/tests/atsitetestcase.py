@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -34,8 +35,7 @@ from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 import transaction
-from zope.app.testing import placelesssetup as placeless
-from utils import setup_zcml
+import sys, code
 
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
@@ -48,17 +48,17 @@ else:
     from Products.PloneTestCase import PloneTestCase
     from Products.PloneTestCase.setup import portal_name
     from Products.PloneTestCase.setup import portal_owner
-    # setup a Plone site
-    placeless.setUp()
-    setup_zcml()
+    # setup a Plone site 
     PloneTestCase.setupPloneSite()
-    placeless.tearDown()
     PortalTestClass = PloneTestCase.PloneTestCase
 
 class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     """AT test case inside a CMF site
     """
-
+    
+    __implements__ = PortalTestClass.__implements__ + \
+                     attestcase.ATTestCase.__implements__
+    
     def login(self, name=ZopeTestCase.user_name):
         '''Logs in.'''
         uf = self.portal.acl_users
@@ -75,21 +75,21 @@ class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
 
     def _setup(self):
         '''Extends the portal setup.'''
-        placeless.setUp()
-        setup_zcml()
+        # BBB remove in AT 1.4
         PortalTestClass._setup(self)
         # Add a manager user
         uf = self.portal.acl_users
         uf._doAddUser('manager', 'secret', ['Manager'], [])
 
-    def beforeTearDown(self):
-        placeless.tearDown()
-
     def getManagerUser(self):
+        # BBB remove in AT 1.4
+        # b/w compat
         uf = self.portal.acl_users
         return uf.getUserById('manager').__of__(uf)
 
     def getMemberUser(self):
+        # BBB remove in AT 1.4
+        # b/w compat
         uf = self.portal.acl_users
         return uf.getUserById(default_user).__of__(uf)
 
@@ -97,6 +97,37 @@ class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
     """AT test case for functional tests inside a CMF site
     """
+    __implements__ = Functional.__implements__ + ATSiteTestCase.__implements__ 
+    
+    def interact(self, locals=None):
+        """Provides an interactive shell aka console inside your testcase.
+        
+        It looks exact like in a doctestcase and you can copy and paste
+        code from the shell into your doctest. The locals in the testcase are 
+        available, becasue you are in the testcase.
+    
+        In your testcase or doctest you can invoke the shell at any point by
+        calling::
+            
+            >>> interact( locals() )        
+            
+        locals -- passed to InteractiveInterpreter.__init__()
+        """
+        savestdout = sys.stdout
+        sys.stdout = sys.stderr
+        sys.stderr.write('\n'+'='*70)
+        console = code.InteractiveConsole(locals)
+        console.interact("""
+DocTest Interactive Console - (c) BlueDynamics Alliance, Austria, 2006
+Note: You have the same locals available as in your test-case. 
+Ctrl-D ends session and continues testing.
+""")
+        sys.stdout.write('\nend of DocTest Interactive Console session\n')
+        sys.stdout.write('='*70+'\n')
+        sys.stdout = savestdout
+        
+
+    
 
 ###
 # Setup an archetypes site
