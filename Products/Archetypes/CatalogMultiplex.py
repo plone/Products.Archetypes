@@ -1,4 +1,3 @@
-from Products.Archetypes.config import *
 
 from Globals import InitializeClass
 from Acquisition import aq_base
@@ -6,8 +5,8 @@ from AccessControl import ClassSecurityInfo
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
-from Referenceable import Referenceable
-from Globals import InitializeClass
+from Products.Archetypes.Referenceable import Referenceable
+from Products.Archetypes.config import TOOL_NAME
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -24,12 +23,7 @@ class CatalogMultiplex(CMFCatalogAware):
         url = self.__url()
         for c in catalogs:
             c.catalog_object(self, url)
-
-        # XXX This used to be called from here, but manage_afterAdd
-        # should take care of it.
-        # self._catalogUID(self)
-        # self._catalogRefs(self)
-
+            
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         at = getToolByName(self, TOOL_NAME)
@@ -38,16 +32,22 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.uncatalog_object(url)
 
-        # XXX This used to be called from here, but manage_beforeDelete
-        # should take care of it.
-        # self._uncatalogUID(self)
-        # self._uncatalogRefs(self)
-
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
-        if idxs == []:
-            if hasattr(aq_base(self), 'notifyModified'):
-                self.notifyModified()
+        """update indexes of this object in all registered catalogs.
+        
+        Catalogs are registered per 'meta_type' in archetypes tool.
+        
+        'idxs' are a list of index names. If this list is given only the given 
+        indexes are refreshed. If a index does not exist in catalog its 
+        silently ignored.
+        """
+        if idxs == [] and hasattr(aq_base(self), 'notifyModified'):
+            # Archetypes default setup has this defined in ExtensibleMetadata 
+            # mixin. note: this refreshes the 'etag ' too.
+            self.notifyModified()
+
+        self.http__refreshEtag()
 
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
@@ -58,8 +58,8 @@ class CatalogMultiplex(CMFCatalogAware):
 
         for c in catalogs:
             if c is not None:
-                #We want the intersection of the catalogs idxs
-                #and the incoming list
+                # We want the intersection of the catalogs idxs
+                # and the incoming list.
                 lst = idxs
                 indexes = c.indexes()
                 if idxs:
@@ -71,22 +71,12 @@ class CatalogMultiplex(CMFCatalogAware):
         # manage_afterAdd/manage_beforeDelete from Referenceable take
         # care of most of the issues, but some places still expect to
         # call reindexObject and have the uid_catalog updated.
+        # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
                 self._catalogUID(self)
                 # _catalogRefs used to be called here, but all possible
                 # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable
-                # now.
-                # self._catalogRefs(self)
-        self.http__refreshEtag()
-
-    security.declarePrivate('manage_afterClone')
-    def manage_afterClone(self, item):
-        # XXX Seems like we don't need this anymore because
-        # indexObject is called on manage_afterAdd.
-        # self.reindexObject()
-
-        CMFCatalogAware.manage_afterClone(self, item)
+                # manage_afterAdd/manage_beforeDelete from Referenceable now.
 
 InitializeClass(CatalogMultiplex)

@@ -44,6 +44,7 @@ from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
 from Products.Archetypes.Field import ScalableImage, Image
+from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime
 
@@ -305,6 +306,19 @@ class ProcessingTest(ATSiteTestCase):
         # Interface
         field.vocabulary = sampleInterfaceVocabulary()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+
+    def test_download_from_textfield(self):
+        # make sure field data doesn't get transformed when using the
+        # download method
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.getField('textfield')
+        ptpath = PortalTransforms.__path__[0]
+        wordfile = open('%s/tests/input/test.doc' % ptpath)
+        field.getMutator(dummy)(wordfile.read())
+        value = field.download(dummy, no_output=True)
+        type = __builtins__['type']
+        self.failIf(type(value) == type('str'))
 
 
 def test_suite():

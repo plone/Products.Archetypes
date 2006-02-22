@@ -35,6 +35,7 @@ from Acquisition import aq_base
 from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
+from Acquisition import ImplicitAcquisitionWrapper
 from Acquisition import ExplicitAcquisitionWrapper
 from Acquisition import Explicit
 
@@ -775,6 +776,13 @@ class BaseObject(Referenceable):
         """Returns the Schemata for the Object.
         """
         return getSchemata(self)
+
+    def Schema(self):
+        """Return a (wrapped) schema instance for
+        this object instance.
+        """
+        schema = self.schema
+        return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):

@@ -8,6 +8,7 @@ from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
+from OFS.ObjectManager import BeforeDeleteException
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """
@@ -128,6 +129,10 @@ class BaseSQLStorage(StorageLayer):
             getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
+        factory = getToolByName(instance,'portal_factory')
+        if factory.isTemporary(instance):
+          return
+              
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.isImplementedBy(f) \
                   and f.getStorage().__class__ is self.__class__]
@@ -255,7 +260,7 @@ class BaseSQLStorage(StorageLayer):
         except:
             # dunno what could happen here raise
             # SQLCleanupException(msg)
-            pass
+            raise BeforeDeleteException
         try:
             instance.__cleaned += (self.getName(),)
         except AttributeError:
