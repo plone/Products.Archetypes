@@ -1,6 +1,9 @@
 post 1.4.0-alpha
 ================
 
+  * dont generate 'Schema' method any more. its now part of BaseObject.
+    [jensens]
+
   * seperated UIDCatalog from ReferenceEngine.
     [jensens]
 
