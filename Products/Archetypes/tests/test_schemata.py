@@ -26,7 +26,7 @@
 """
 """
 
-import os, sys
+import os, sys, operator
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
@@ -38,6 +38,8 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
+from Products.Archetypes.Field import StringField
+from Products.Archetypes.exceptions import SchemaException
 
 from DateTime import DateTime
 import unittest
@@ -85,6 +87,93 @@ class SchemataTest( ATTestCase ):
                                       'rights', 'creation_date',
                                       'modification_date'])
 
+    def test_dupe_accessor_names_add(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                         ),))
+        b = Schemata(fields=(StringField('bar',
+                                         accessor='getSomething',
+                                         edit_accessor='editThat',
+                                         mutator='setThat',
+                                         ),))
+        self.assertRaises(SchemaException, operator.add, a, b)
+
+    def test_dupe_edit_accessor_names_add(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                         ),))
+        b = Schemata(fields=(StringField('bar',
+                                         accessor='getThat',
+                                         edit_accessor='editSomething',
+                                         mutator='setThat',
+                                         ),))
+        self.assertRaises(SchemaException, operator.add, a, b)
+
+    def test_dupe_mutator_names_add(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                         ),))
+        b = Schemata(fields=(StringField('bar',
+                                         accessor='getThat',
+                                         edit_accessor='editThat',
+                                         mutator='setSomething',
+                                         ),))
+        self.assertRaises(SchemaException, operator.add, a, b)
+
+    def test_dupe_primary_add(self):
+        a = Schemata(fields=(StringField('foo', primary=True),))
+        b = Schemata(fields=(StringField('bar', primary=True),))
+        self.assertRaises(SchemaException, operator.add, a, b)
+
+    def test_dupe_accessor_names_addField(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                  ),))
+        field = StringField('bar',
+                            accessor='getSomething',
+                            edit_accessor='editThat',
+                            mutator='setThat',
+                            )
+        self.assertRaises(SchemaException, a.addField, field)
+
+    def test_dupe_edit_accessor_names_addField(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                         ),))
+        field = StringField('bar',
+                            accessor='getThat',
+                            edit_accessor='editSomething',
+                            mutator='setThat',
+                            )
+        self.assertRaises(SchemaException, a.addField, field)
+
+    def test_dupe_mutator_names_addField(self):
+        a = Schemata(fields=(StringField('foo',
+                                         accessor='getSomething',
+                                         edit_accessor='editSomething',
+                                         mutator='setSomething',
+                                         ),))
+        field = StringField('bar',
+                            accessor='getThat',
+                            edit_accessor='editThat',
+                            mutator='setSomething',
+                            )
+        self.assertRaises(SchemaException, a.addField, field)
+
+    def test_dupe_primary_addField(self):
+        a = Schemata(fields=(StringField('foo', primary=True),))
+        field = StringField('bar', primary=True)
+        self.assertRaises(SchemaException, a.addField, field)
 
 def test_suite():
     from unittest import TestSuite, makeSuite
