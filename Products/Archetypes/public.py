@@ -25,7 +25,14 @@
 ################################################################################
 """ backward compatibility module
 """
+# all current from atapi
 from Products.Archetypes.atapi import *
+
+# some that no longer exist in atapi, because its in fact not part of the public 
+# interface.
+from Products.Archetypes.Schema import Schema
+
+# mark deprecated
 from Products.Archetypes.debug import deprecated
 deprecated("`from Products.Archetypes.public import *` is deprecated. Please "
            "use atapi instead of public!", level=4)
