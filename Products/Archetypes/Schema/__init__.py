@@ -20,6 +20,7 @@ from Globals import InitializeClass
 from Products.CMFCore import permissions
 
 __docformat__ = 'reStructuredText'
+_marker = []
 
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""
@@ -196,19 +197,30 @@ class Schemata(Base):
         if getattr(field, 'primary', False):
             res = self.hasPrimary()
             if res is not False and name != res.getName():
-                raise SchemaException("Tried to add '%s' as primary field "\
-                         "but %s already has the primary field '%s'." % \
-                         (name, repr(self), res.getName())
-                      )
+                raise SchemaException(
+                    "Tried to add '%s' as primary field "
+                    "but %s already has the primary field '%s'." %
+                    (name, repr(self), res.getName())
+                    )
+        for pname in ('accessor', 'edit_accessor', 'mutator'):
+            res = self._checkPropertyDupe(field, pname)
+            if res is not False:
+                res, value = res
+                raise SchemaException(
+                    "Tried to add '%s' with property '%s' set "
+                    "to %s but '%s' has the same value." %
+                    (name, pname, repr(value), res.getName())
+                    )
         # Do not allowed unqualified references
         if field.type in ('reference', ):
             relationship = getattr(field, 'relationship', '')
             if type(relationship) is not StringType or len(relationship) == 0:
-                raise ReferenceException("Unqualified relationship or "\
-                          "unsupported relationship var type in field '%s'. "\
-                          "The relationship qualifer must be a non empty "\
-                          "string." % name
-                      )
+                raise ReferenceException(
+                    "Unqualified relationship or "
+                    "unsupported relationship var type in field '%s'. "
+                    "The relationship qualifer must be a non empty "
+                    "string." % name
+                    )
 
 
     def __delitem__(self, name):
@@ -253,6 +265,18 @@ class Schemata(Base):
         for f in self.fields():
             if getattr(f, 'primary', False):
                 return f
+        return False
+
+    def _checkPropertyDupe(self, field, propname):
+        check_value = getattr(field, propname, _marker)
+        # None is fine too.
+        if check_value is _marker or check_value is None:
+            return False
+        check_name = field.getName()
+        for f in self.fields():
+            got = getattr(f, propname, _marker)
+            if got == check_value and f.getName() != check_name:
+                return f, got
         return False
 
 InitializeClass(Schemata)
@@ -535,7 +559,6 @@ class BasicSchema(Schemata):
             form = REQUEST.form
         else:
             form = None
-        _marker = []
         for name, field in fields:
             error = 0
             value = None
@@ -678,94 +701,94 @@ class Schema(BasicSchema, SchemaLayerContainer):
     def wrapped(self, parent):
         schema = self.copy(factory=WrappedSchema)
         return schema.__of__(parent)
-        
+
     security.declareProtected(permissions.ModifyPortalContent,
                               'moveField')
     def moveField(self, name, direction=None, pos=None, after=None, before=None):
         """Move a field
-        
+
         >>> from Products.Archetypes.atapi import StringField as SF
         >>> schema = Schema((SF('a'), SF('b'), SF('c'),))
-        
+
         >>> schema.keys()
         ['a', 'b', 'c']
-        
+
         >>> sbefore = schema.copy()
         >>> sbefore.moveField('c', before='a')
         >>> sbefore.keys()
         ['c', 'a', 'b']
-        
+
         >>> safter = schema.copy()
         >>> safter.moveField('a', before='b')
         >>> safter.keys()
         ['b', 'a', 'c']
-        
+
         >>> spos = schema.copy()
         >>> spos.moveField('b', pos='top')
         >>> spos.keys()
         ['b', 'a', 'c']
-        
+
         >>> spos = schema.copy()
         >>> spos.moveField('b', pos='bottom')
         >>> spos.keys()
         ['a', 'c', 'b']
-        
+
         >>> spos = schema.copy()
         >>> spos.moveField('c', pos=0)
         >>> spos.keys()
         ['c', 'a', 'b']
-        
+
         maxint can be used to move the field to the last position possible
         >>> from sys import maxint
         >>> spos = schema.copy()
         >>> spos.moveField('a', pos=maxint)
         >>> spos.keys()
         ['b', 'c', 'a']
-        
+
         Errors
         ======
-        
+
         >>> schema.moveField('d', pos=0)
         Traceback (most recent call last):
         ...
         KeyError: 'd'
-        
+
         >>> schema.moveField('a', pos=0, before='b')
         Traceback (most recent call last):
         ...
         ValueError: You must apply exactly one argument.
-        
+
         >>> schema.moveField('a')
         Traceback (most recent call last):
         ...
         ValueError: You must apply exactly one argument.
-        
+
         >>> schema.moveField('a', before='a')
         Traceback (most recent call last):
         ...
         ValueError: name and before can't be the same
-        
+
         >>> schema.moveField('a', after='a')
         Traceback (most recent call last):
         ...
         ValueError: name and after can't be the same
-        
+
         >>> schema.moveField('a', pos='foo')
         Traceback (most recent call last):
         ...
         ValueError: pos must be a number or top/bottom
-        
+
         """
         if bool(direction) + bool(after) + bool(before) + bool(pos is not None) != 1:
             raise ValueError, "You must apply exactly one argument."
         keys = self.keys()
-        
+
         if name not in keys:
             raise KeyError, name
-        
+
         if direction is not None:
             return self._moveFieldInSchemata(name, direction)
-        
+
         if pos is not None:
             if not (isinstance(pos, int) or pos in ('top', 'bottom',)):
                 raise ValueError, "pos must be a number or top/bottom"
@@ -775,29 +798,29 @@ class Schema(BasicSchema, SchemaLayerContainer):
                 return self._moveFieldToPosition(name, len(keys))
             else:
                 return self._moveFieldToPosition(name, pos)
-        
+
         if after is not None:
             if after == name:
                 raise ValueError, "name and after can't be the same"
             idx = keys.index(after)
             return self._moveFieldToPosition(name, idx+1)
-            
+
         if before is not None:
             if before == name:
                 raise ValueError, "name and before can't be the same"
             idx = keys.index(before)
             return self._moveFieldToPosition(name, idx)
-            
+
     def _moveFieldToPosition(self, name, pos):
         """Moves a field with the name 'name' to the position 'pos'
-        
+
         This method doesn't obey the assignement of fields to a schemata
         """
         keys = self._names
         keys.remove(name)
         keys.insert(pos, name)
         self._names = keys
-        
+
     def _moveFieldInSchemata(self, name, direction):
         """Moves a field with the name 'name' inside its schemata
         """

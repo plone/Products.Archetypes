@@ -500,9 +500,9 @@ class FileWidget(TypesWidget):
 
         if fileobj is empty_marker: return empty_marker
 
-        filename = getattr(fileobj, 'filename', '') or \
-                   (isinstance(fileobj, FileType) and \
-                    getattr(fileobj, 'name', ''))
+        filename = getattr(fileobj, 'filename', '')
+        if not filename:
+            filename = getattr(fileobj, 'name', '')
 
         if filename:
             value = fileobj
