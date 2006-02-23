@@ -1,6 +1,11 @@
 post 1.4.0-alpha
 ================
 
+  * Added check for duplicate 'accessor', 'edit_accessor' and
+    'mutator' method names on a schema's fields. Helps Joe Schmoe to
+    get unstuck, hopefully.
+    [sidnei]
+
   * seperated UIDCatalog from ReferenceEngine.
     [jensens]
 
