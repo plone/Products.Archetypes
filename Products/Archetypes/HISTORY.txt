@@ -1,6 +1,19 @@
 post 1.4.0-alpha
 ================
 
+  * Removed some nonsense on PUT that would look at REQUEST._steps and
+    try to catch a exception (which would never occur!). Made it use
+    'PATH_INFO' instead, with a fallback to 'self.getId()' which
+    should suffice (PATH_INFO is always available as long as the
+    request came in through ZPublisher.Publish).
+    [sidnei]
+
+  * PdataStreamIterator could potentially end up loading a persistent
+    object after the ZODB connection had been closed. Made it use a
+    temporary file to stream out the content so that large files don't
+    end up using all the available memory.
+    [sidnei]
+
   * Added check for duplicate 'accessor', 'edit_accessor' and
     'mutator' method names on a schema's fields. Helps Joe Schmoe to
     get unstuck, hopefully.

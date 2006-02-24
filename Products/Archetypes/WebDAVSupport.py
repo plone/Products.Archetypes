@@ -1,7 +1,6 @@
-import urllib
-
+import tempfile
+import posixpath
 from zExceptions import MethodNotAllowed
-from ZODB.POSException import ConflictError
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr, mapply
 # Recent enough Zopes will have this. Do we care about older ones?
@@ -11,24 +10,33 @@ class PdataStreamIterator(object):
 
     __implements__ = (IStreamIterator,)
 
-    def __init__(self, first, size):
-        self.data = first
+    def __init__(self, data, size, streamsize=1<<16):
+        # Consume the whole data into a TemporaryFile when
+        # constructing, otherwise we might end up loading the whole
+        # file in memory or worse, loading objects after the
+        # connection is closed.
+        f = tempfile.TemporaryFile(mode='w+b')
+
+        while data is not None:
+            f.write(data.data)
+            data = data.next
+
+        assert size == f.tell(), 'Informed length does not match real length'
+        f.seek(0)
+
+        self.file = f
         self.size = size
+        self.streamsize = streamsize
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.data is None:
+        data = self.file.read(self.streamsize)
+        if not data:
+            self.file.close()
             raise StopIteration
-        data = self.data
-        if isinstance(data, str): # unicode anyone?
-            self.data = None
-            return data
-        self.data = data.data
-        # Using str() here should be safe. 'data' should be a very
-        # small object with possibly binary content.
-        return str(data)
+        return data
 
     def __len__(self):
         return self.size
@@ -78,15 +86,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
     if mimetype is not None:
         mimetype = str(mimetype).split(';')[0].strip()
 
-    try:
-        filename = REQUEST._steps[-2] #XXX fixme, use a real name
-    except ConflictError:
-        raise
-    except:
-        filename = (getattr(file, 'filename', None) or
-                    getattr(file, 'name', None) or
-                    self.getId())
-    filename = urllib.unquote_plus(filename)
+    filename = posixpath.basename(REQUEST.get('PATH_INFO', self.getId()))
 
     # XXX remove after we are using global services
     # use the request to find an object in the traversal hierachy that is
