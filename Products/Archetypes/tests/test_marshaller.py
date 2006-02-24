@@ -36,12 +36,14 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 import urllib
-
+from unittest import TestCase
+from OFS.Image import Pdata
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.atapi import *
 from Products.Archetypes import config
+from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
@@ -165,11 +167,22 @@ class MarshallerTests(ATSiteTestCase):
         self.assertEqual(str(word.getBody(raw=1)), data)
         self.assertEqual(word.getContentType('body'), 'application/msword')
 
+class PdataStreamTests(TestCase):
+
+    def test_iterator(self):
+        start = pdata = Pdata('blob')
+        for i in range(0, 5):
+            pdata.next = Pdata('bla')
+            pdata = pdata.next
+        iterator = PdataStreamIterator(start, size=19, streamsize=6)
+        expected = ['blobbl', 'ablabl', 'ablabl', 'a']
+        self.assertEquals(list(iterator), expected)
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(MarshallerTests))
+    suite.addTest(makeSuite(PdataStreamTests))
     return suite
 
 if __name__ == '__main__':

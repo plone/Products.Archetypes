@@ -1,6 +1,19 @@
 1.3.8 (unreleased)
 ==================
 
+  * Removed some nonsense on PUT that would look at REQUEST._steps and
+    try to catch a exception (which would never occur!). Made it use
+    'PATH_INFO' instead, with a fallback to 'self.getId()' which
+    should suffice (PATH_INFO is always available as long as the
+    request came in through ZPublisher.Publish).
+    [sidnei]
+
+  * PdataStreamIterator could potentially end up loading a persistent
+    object after the ZODB connection had been closed. Made it use a
+    temporary file to stream out the content so that large files don't
+    end up using all the available memory.
+    [sidnei]
+
   * Changed sidneis last 'fix'. Dont raise an exception. This is changed
     behaviour and I cant accept this in a bugfix release. Prints out
     a deprecation message instead now, to not break Products relying on
