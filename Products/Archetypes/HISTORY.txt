@@ -1,5 +1,5 @@
-1.3.8 (unreleased)
-==================
+1.4.0-XXXXXX - XXXX-XX-XX
+=========================
 
   * Removed some nonsense on PUT that would look at REQUEST._steps and
     try to catch a exception (which would never occur!). Made it use
@@ -14,21 +14,47 @@
     end up using all the available memory.
     [sidnei]
 
-  * Changed sidneis last 'fix'. Dont raise an exception. This is changed
-    behaviour and I cant accept this in a bugfix release. Prints out
-    a deprecation message instead now, to not break Products relying on
-    the old - odd - behaviour.
-    [jensens]
+1.4.0-alpha02 - 2006-02-23
+==========================
 
   * Added check for duplicate 'accessor', 'edit_accessor' and
     'mutator' method names on a schema's fields. Helps Joe Schmoe to
     get unstuck, hopefully.
     [sidnei]
 
-  * Backported fix for failing Windows mime types:
-    Original fix: http://dev.plone.org/archetypes/changeset/6005
-    Bug details here: http://dev.plone.org/plone/ticket/5109
-    [limi]
+  * dont generate 'Schema' method any more. its now part of BaseObject.
+    [jensens]
+
+  * seperated UIDCatalog from ReferenceEngine.
+    [jensens]
+
+1.4.0-alpha01 - 2006-01-26
+==========================
+
+  * Remove BBB code for CMFBTreeFolder import location.
+    [hannosch]
+
+  * make import from 'Products.Archetypes.atapi import *' default and deprecate
+    'public'.
+    [jensens]
+
+  * Integrated 'generator' into Archetypes. 
+    [jensens]
+
+  * Changed transactions use to new API and removed some Plone 2.0 backwards
+    compatibility code
+    [hannosch]
+
+  * Changed imports of CMFCore.CMFCorePermissions to CMFCore.permissions
+    [k_vertigo, hannosch]
+
+  * DisplayLists should be a little less strict on their values. Now not only
+    unicode itself but also types inherited from unicode are allowed. This is
+    needed to handle zope.i18nmessageid.MessageID objects correctly.
+    [hannosch]
+
+post 1.3.7-final
+================
 
   * Cleanup of CatalogMultiplex: removed superfluos code, added docstring
     and comments.
@@ -53,7 +79,6 @@
   * fixed problems introduced by last 'fix' of IdWidget zid.pt: Member
     and widget settings was ignored :-(
     [jensens]
-
 
 1.3.7-final - 2006-01-16
 ========================
