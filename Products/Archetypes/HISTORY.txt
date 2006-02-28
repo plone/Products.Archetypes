@@ -1,6 +1,9 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * removed superfluos code from ClassGen.
+    [jensens]
+
   * Removed some nonsense on PUT that would look at REQUEST._steps and
     try to catch a exception (which would never occur!). Made it use
     'PATH_INFO' instead, with a fallback to 'self.getId()' which
