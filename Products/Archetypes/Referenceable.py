@@ -1,8 +1,7 @@
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferencable
-from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
@@ -19,8 +18,6 @@ from utils import getRelPath, getRelURL
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 
-from zope import interface
-
 ####
 ## In the case of:
 ## - a copy:
@@ -36,13 +33,10 @@ from zope import interface
 from ref_graph import get_cmapx, get_png
 
 class Referenceable(CopySource):
-
-    interface.implements(IReferenceable)
-
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
-    __implements__ = (z2IReferencable,)
+    __implements__ = (IReferenceable,)
 
     security = ClassSecurityInfo()
     # XXX FIXME more security
@@ -56,9 +50,11 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, **kwargs):
+    def addReference(self, object, relationship=None, referenceClass=None,
+                     updateReferences=True, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, **kwargs)
+        return tool.addReference(self, object, relationship, referenceClass,
+                                 updateReferences, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)

@@ -1,6 +1,11 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * merged in code of Daniel Nouri to support multiple references
+    with the same name between two objects, thsi is needed for example
+    with Relations product. Thx Daniel.
+    [jensens]
+
   * removed superfluos code from ClassGen.
     [jensens]
 

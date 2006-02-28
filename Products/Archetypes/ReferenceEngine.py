@@ -325,7 +325,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     ###
     ## Public API
     def addReference(self, source, target, relationship=None,
-                     referenceClass=None, **kwargs):
+                     referenceClass=None, updateReferences=True, **kwargs):
         sID, sobj = self._uidFor(source)
         if not sID or sobj is None:
             raise ReferenceException('Invalid source UID')
@@ -334,17 +334,19 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         if not tID or tobj is None:
             raise ReferenceException('Invalid target UID')
 
-        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
-        if objects:
-            #we want to update the existing reference
-            #XXX we might need to being a subtransaction here to
-            #    do this properly, and close it later
-            existing = objects[0]
-            if existing:
-                # We can't del off self, we now need to remove it
-                # from the source objects annotation, which we have
-                annotation = sobj._getReferenceAnnotations()
-                annotation._delObject(existing.id)
+        if updateReferences:
+            objects = self._resolveBrains(
+                self._queryFor(sID, tID, relationship))
+            if objects:
+                #we want to update the existing reference
+                #XXX we might need to being a subtransaction here to
+                #    do this properly, and close it later
+                existing = objects[0]
+                if existing:
+                    # We can't del off self, we now need to remove it
+                    # from the source objects annotation, which we have
+                    annotation = sobj._getReferenceAnnotations()
+                    annotation._delObject(existing.id)
 
 
         rID = self._makeName(sID, tID)

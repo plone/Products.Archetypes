@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -390,8 +391,6 @@ class BaseReferenceableTests(ATSiteTestCase):
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
-        at = self.portal.archetype_tool
-
         a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
 
@@ -405,6 +404,24 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, 'Flogs')
         self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
         self.assertEquals(len(a.getRefs()), 2)
+
+    def test_multipleReferences(self):
+        # If you provide updateReferences=False to addReference, it
+        # will add, not replace the reference
+        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+
+        #Add the same ref twice
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+
+        self.assertEquals(len(a.getRefs('KnowsAbout')),  2)
+
+        #In this case its a different relationship
+        a.addReference(b, 'Flogs')
+        self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
+        self.assertEquals(len(a.getRefs()), 3)
+        
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
@@ -429,8 +446,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
-        a.hasRelationshipTo(b)
-        
+
         self.assertEquals(a.hasRelationshipTo(b), 1)
         self.assertEquals(a.hasRelationshipTo(b, "KnowsAbout"), 1)
         self.assertEquals(a.hasRelationshipTo(b, "Foo"), 0)
@@ -731,7 +747,7 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(SimpleFolderReferenceableTests))
-    #suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
+    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
 
 if __name__ == '__main__':
