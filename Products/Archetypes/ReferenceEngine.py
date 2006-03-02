@@ -31,7 +31,6 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
-from ZODB.POSException import ConflictError
 from zExceptions import NotFound
 import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries

@@ -174,7 +174,7 @@ class BaseObject(Referenceable):
                 kwargs['_initializing_'] = True
                 self.edit(**kwargs)
             self._signature = self.Schema().signature()
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
@@ -386,7 +386,9 @@ class BaseObject(Referenceable):
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-        except ConflictError:
+        
+
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
@@ -530,7 +532,9 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
-                except ConflictError:
+                
+
+                except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
                     continue
@@ -877,7 +881,9 @@ class BaseObject(Referenceable):
             try:
                 if IFileField.isImplementedBy(field):
                     return field.getBaseUnit(self)
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -887,7 +893,9 @@ class BaseObject(Referenceable):
                 editAccessor = field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -897,7 +905,9 @@ class BaseObject(Referenceable):
                 accessor = field.getAccessor(self)
                 if accessor:
                     return accessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -912,7 +922,9 @@ class BaseObject(Referenceable):
             # Because of this line value = value.replace(',','.')
             try:
                 return self[field.getName()]
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -926,7 +938,9 @@ class BaseObject(Referenceable):
                 editAccessor = new_field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -936,7 +950,9 @@ class BaseObject(Referenceable):
                 accessor = new_field.getAccessor(self)
                 if accessor:
                     return accessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -944,7 +960,9 @@ class BaseObject(Referenceable):
             # Still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -972,7 +990,9 @@ class BaseObject(Referenceable):
                     args = [value,]
                     mapply(mutator, *args, **kw)
                     return
-                except ConflictError:
+                
+
+                except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
                     log_exc()

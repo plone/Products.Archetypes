@@ -2058,7 +2058,7 @@ class ImageField(FileField):
 
         try:
             data = self.rescaleOriginal(value, **kwargs)
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             if not self.swallowResizeExceptions:
@@ -2215,7 +2215,7 @@ class ImageField(FileField):
             __traceback_info__ = (self, instance, id, w, h)
             try:
                 imgdata, format = self.scale(data, w, h)
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 if not self.swallowResizeExceptions:
@@ -2611,7 +2611,7 @@ class ScalableImage(BaseImage):
 
                 image.seek(0)
 
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except Exception, e:
             log_exc('Error while resizing image')

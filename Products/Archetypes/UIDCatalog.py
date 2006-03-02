@@ -13,10 +13,6 @@ from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
-from ZODB.POSException import ConflictError
-from zExceptions import NotFound
-import zLOG
-import sys
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -84,14 +80,10 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
-            except AttributeError:
-                import pdb
-                import sys
-                pdb.post_mortem(sys.exc_info()[2])
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except: #NotFound # XXX bare exception
-                raise # pass
+                pass
 
             if obj is None:
                 if REQUEST is None:
@@ -99,14 +91,14 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
             return obj
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
                      error=sys.exc_info())
-            raise #pass
+            pass
 
 InitializeClass(UIDCatalogBrains)
 

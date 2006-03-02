@@ -1,6 +1,9 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * fixes #617: Do not catch KeyboardInterrupt.
+    [jensens]
+
   * marked PhotoField as deprecated. After work done on ATImage and 
     ImageField this one isnt needed anymore in Archetypes core.
     PhotoField and its supporting classes will be removed in AT 1.5
