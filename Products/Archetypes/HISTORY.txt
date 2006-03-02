@@ -1,6 +1,11 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * marked PhotoField as deprecated. After work done on ATImage and 
+    ImageField this one isnt needed anymore in Archetypes core.
+    PhotoField and its supporting classes will be removed in AT 1.5
+    [jensens]
+
   * fixed #600: Auto-generated attributes are not protected by 
     permissions. Attention: Enabling protection is a minor change in
     the config.py. Some products with code doing direct attribute 
