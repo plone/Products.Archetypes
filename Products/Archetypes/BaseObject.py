@@ -30,6 +30,7 @@ from Products.Archetypes.ArchetypeTool import _guessPackage
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
+from AccessControl.Permissions import copy_or_move as permission_copy_or_move
 from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
@@ -101,6 +102,7 @@ content_type = Schema((
         required=0, # Still actually required, but the widget will
                     # supply the missing value on non-submits
         mode='rw',
+        permission=permission_copy_or_move,
         accessor='getId',
         mutator='setId',
         default=None,

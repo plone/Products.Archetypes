@@ -1,6 +1,9 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * fixed #608: Protect id field by 'Copy or Move'
+    [jensens]
+
   * fixed #637: Schema.moveField( ... after ) does incorrect reordering.
     Needed fixing of a buggy doctest.
     [jensens]
