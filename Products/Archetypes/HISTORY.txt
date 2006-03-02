@@ -1,6 +1,13 @@
 1.4.0-XXXXXX - XXXX-XX-XX
 =========================
 
+  * fixed #600: Auto-generated attributes are not protected by 
+    permissions. Attention: Enabling protection is a minor change in
+    the config.py. Some products with code doing direct attribute 
+    access will break. People using and relying on those products
+    can disable attribute protection, but better fix those Products.
+    [jensens]
+
   * fixed #608: Protect id field by 'Copy or Move'
     [jensens]
 

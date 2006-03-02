@@ -19,7 +19,6 @@ RENAME_AFTER_CREATION_ATTEMPTS = 100
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
 REFERENCE_ANNOTATION = "at_references"
-REFERENCE_METADATA_ATTR = "_metadata_ids"
 
 ## In zope 2.6.3+ and 2.7.0b4+ a lines field returns a tuple not a list. Per
 ## default archetypes returns a tuple, too. If this breaks your software you
@@ -52,7 +51,7 @@ else:
 HAS_GRAPHVIZ = False
 
 ## protect attributes of AttributeStorage from unallowed access?
-ATTRIBUTE_SECURITY = False
+ATTRIBUTE_SECURITY = True
 
 ## set language default for metadata, it will be overwritten by portal-settings!
 ## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't
