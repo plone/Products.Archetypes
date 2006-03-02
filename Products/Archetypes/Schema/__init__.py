@@ -817,8 +817,12 @@ class Schema(BasicSchema, SchemaLayerContainer):
         This method doesn't obey the assignement of fields to a schemata
         """
         keys = self._names
+        oldpos = keys.index(name)
         keys.remove(name)
-        keys.insert(pos, name)
+        if oldpos >= pos:
+           keys.insert(pos, name)
+        else:
+           keys.insert(pos - 1, name)
         self._names = keys
 
     def _moveFieldInSchemata(self, name, direction):
