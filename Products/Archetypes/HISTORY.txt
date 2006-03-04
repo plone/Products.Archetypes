@@ -1,34 +1,8 @@
-1.4.0-XXXXXX - XXXX-XX-XX
-=========================
-
-  * fixes #617: Do not catch KeyboardInterrupt.
-    [jensens]
-
-  * marked PhotoField as deprecated. After work done on ATImage and 
-    ImageField this one isnt needed anymore in Archetypes core.
-    PhotoField and its supporting classes will be removed in AT 1.5
-    [jensens]
-
-  * fixed #600: Auto-generated attributes are not protected by 
-    permissions. Attention: Enabling protection is a minor change in
-    the config.py. Some products with code doing direct attribute 
-    access will break. People using and relying on those products
-    can disable attribute protection, but better fix those Products.
-    [jensens]
-
-  * fixed #608: Protect id field by 'Copy or Move'
-    [jensens]
+1.3.8 (unreleased)
+==================
 
   * fixed #637: Schema.moveField( ... after ) does incorrect reordering.
     Needed fixing of a buggy doctest.
-    [jensens]
-
-  * merged in code of Daniel Nouri to support multiple references
-    with the same name between two objects, thsi is needed for example
-    with Relations product. Thx Daniel.
-    [jensens]
-
-  * removed superfluos code from ClassGen.
     [jensens]
 
   * Removed some nonsense on PUT that would look at REQUEST._steps and
@@ -44,47 +18,21 @@
     end up using all the available memory.
     [sidnei]
 
-1.4.0-alpha02 - 2006-02-23
-==========================
+  * Changed sidneis last 'fix'. Dont raise an exception. This is changed
+    behaviour and I cant accept this in a bugfix release. Prints out
+    a deprecation message instead now, to not break Products relying on
+    the old - odd - behaviour.
+    [jensens]
 
   * Added check for duplicate 'accessor', 'edit_accessor' and
     'mutator' method names on a schema's fields. Helps Joe Schmoe to
     get unstuck, hopefully.
     [sidnei]
 
-  * dont generate 'Schema' method any more. its now part of BaseObject.
-    [jensens]
-
-  * seperated UIDCatalog from ReferenceEngine.
-    [jensens]
-
-1.4.0-alpha01 - 2006-01-26
-==========================
-
-  * Remove BBB code for CMFBTreeFolder import location.
-    [hannosch]
-
-  * make import from 'Products.Archetypes.atapi import *' default and deprecate
-    'public'.
-    [jensens]
-
-  * Integrated 'generator' into Archetypes. 
-    [jensens]
-
-  * Changed transactions use to new API and removed some Plone 2.0 backwards
-    compatibility code
-    [hannosch]
-
-  * Changed imports of CMFCore.CMFCorePermissions to CMFCore.permissions
-    [k_vertigo, hannosch]
-
-  * DisplayLists should be a little less strict on their values. Now not only
-    unicode itself but also types inherited from unicode are allowed. This is
-    needed to handle zope.i18nmessageid.MessageID objects correctly.
-    [hannosch]
-
-post 1.3.7-final
-================
+  * Backported fix for failing Windows mime types:
+    Original fix: http://dev.plone.org/archetypes/changeset/6005
+    Bug details here: http://dev.plone.org/plone/ticket/5109
+    [limi]
 
   * Cleanup of CatalogMultiplex: removed superfluos code, added docstring
     and comments.
@@ -109,6 +57,7 @@ post 1.3.7-final
   * fixed problems introduced by last 'fix' of IdWidget zid.pt: Member
     and widget settings was ignored :-(
     [jensens]
+
 
 1.3.7-final - 2006-01-16
 ========================
