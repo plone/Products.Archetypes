@@ -1,6 +1,9 @@
 1.3.8 (unreleased)
 ==================
 
+  * fixed http://dev.plone.org/plone/ticket/5072
+    [jensens]
+
   * fixed #637: Schema.moveField( ... after ) does incorrect reordering.
     Needed fixing of a buggy doctest.
     [jensens]
