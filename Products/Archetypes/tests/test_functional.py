@@ -369,6 +369,7 @@ def test_suite():
         'traversal.txt',
         'traversal_4981.txt',
         'folder_marshall.txt',
+        'webdav_operations.txt',
         )
     if HAS_PLONE21:
         files += ('reindex_sanity_plone21.txt',)

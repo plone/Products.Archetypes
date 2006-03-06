@@ -94,10 +94,9 @@ class BaseFolderMixin(CatalogMultiplex,
         # is not.
         BaseObject._notifyOfCopyTo(self, container, op=op)
         PortalFolder._notifyOfCopyTo(self, container, op=op)
-        if op==1: # For efficiency, remove if op==0 needs something
-            for child in self.contentValues():
-                if IReferenceable.isImplementedBy(child):
-                    child._notifyOfCopyTo(self, op)
+        for child in self.contentValues():
+            if IReferenceable.isImplementedBy(child):
+                child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):

@@ -54,9 +54,15 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     def _getCopy(self, container):
         # We need to take _getCopy from BaseFolder (implicitly from
-        # Referencable) instead of straight from PortalFolder, otherwise there
+        # Referenceable) instead of straight from PortalFolder, otherwise there
         # are strange side effects with references on copy.
         return BaseFolder._getCopy(self, container)
+
+    def _notifyOfCopyTo(self, container, op=0):
+        # We need to take _notifyOfCopyTo from BaseFolder (implicitly from
+        # Referenceable) instead of straight from PortalFolder, otherwise there
+        # are strange side effects with references on copy.
+        return BaseFolder._notifyOfCopyTo(self, container, op)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """

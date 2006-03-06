@@ -39,7 +39,7 @@ import unittest
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
-    'Products.Archetypes.utils', 
+    'Products.Archetypes.utils',
     'Products.Archetypes.Schema',
     'Products.Archetypes.ArchetypeTool',
     'Products.Archetypes.AllowedTypesByIface',

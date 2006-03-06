@@ -1,8 +1,13 @@
 1.3.8 (unreleased)
 ==================
 
+  * Fixed WebDAV MOVE breaking references and cleaned up flagging of
+    reference copying for good measure.
+    Fixes http://dev.plone.org/archetypes/ticket/642
+    [sidnei]
+
   * Fixed up some templates that were abusing tabindexes to get unique ids on
-    form elements. Tabindexes can no longer be used for this reliably 
+    form elements. Tabindexes can no longer be used for this reliably
     since Plone 2.1.3, and repeat/var/number is cleaner anyway.
     [optilude]
 
