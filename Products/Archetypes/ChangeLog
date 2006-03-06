@@ -1,11 +1,28 @@
-2003-08-04 Sylvain Thénault <syt@logilab.fr>
+DONT USE ChangeLog, USE HISTORY.txt instead.
 
-    * added minimal README file
+
+2004-08-20  Dorneles Tremea  <dorneles@x3ng.com.br>
+
+	* widget.py (Label): Fixed support for dynamic labels.
+	Whitespaces clean up.
+
+2004-07-24  Christian Heimes  <heimes@faho.rwth-aachen.de>
+
+	* Changed version to stick to Archetypes version.
+
+2004-03-14  Christian Heimes  <heimes@faho.rwth-aachen.de>
+
+	* Updated README to reflect the install location changes for newer releases
+	of Archetypes
+
+2003-08-04  Sylvain Thénault  <syt@logilab.fr>
+
+	* added minimal README file
 
 2003-07-30  Sylvain Thénault  <syt@logilab.fr>
 
 	* add distutils setup script and debian packaging files
-	
+
 2003-05-14  Sidnei da Silva  <sidnei@x3ng.com>
 
 	* i18n.py (initialize): Removing dependency on Zope2.6 GlobalTranslationService.
