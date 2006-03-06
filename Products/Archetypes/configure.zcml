@@ -1,26 +1,10 @@
-<configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:five="http://namespaces.zope.org/five">
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    >
 
-  <five:localsite class="Products.CMFPlone.Portal.PloneSite" />
+  <include file="bridge.zcml"/>
 
-  <five:traversable class="OFS.SimpleItem.SimpleItem" />  
-  <five:traversable class="OFS.ObjectManager.ObjectManager" />  
-  <five:traversable class="Products.ZCatalog.ZCatalog.ZCatalog" />
-  <five:traversable class="Products.CMFPlone.Portal.PloneSite" />
-  <five:traversable class="Products.Archetypes.BaseObject.BaseObject" />
-
-  <five:deprecatedManageAddDelete class="OFS.SimpleItem.SimpleItem" />  
-  <five:deprecatedManageAddDelete class="OFS.ObjectManager.ObjectManager" />  
-  <five:deprecatedManageAddDelete class="Products.ZCatalog.ZCatalog.ZCatalog" />
-  <five:deprecatedManageAddDelete class="Products.CMFPlone.Portal.PloneSite" />
-  <five:deprecatedManageAddDelete class="Products.Archetypes.BaseObject.BaseObject" />
-
-  <include file="bridge.zcml" />
-
-  <include file="implements.zcml" />
-
-  <include file="uid.zcml" />
-  <include file="reference.zcml" />
+  <include file="implements.zcml"/>
 
 </configure>
 

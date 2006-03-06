@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -43,26 +44,12 @@ from Products.Archetypes.config import PKG_NAME
 
 PACKAGE_HOME = package_home(globals())
 
-from Products.Five import zcml
-
 try:
     import Zope2
 except ImportError:
     ZOPE28 = False
 else:
     ZOPE28 = True
-
-from zope.app.testing import placelesssetup as placeless
-
-import Products.Archetypes
-import Products.Five
-
-def setup_zcml():
-    """ bootstrap for zcml setup """
-    placeless.setUp()
-    zcml.load_config('meta.zcml', package=Products.Five)
-    zcml.load_config('configure.zcml', package=Products.Five)
-    zcml.load_config('configure.zcml', package=Products.Archetypes)
 
 
 def gen_class(klass, schema=None):

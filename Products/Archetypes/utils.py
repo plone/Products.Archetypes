@@ -17,60 +17,40 @@ from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
-from Products.Archetypes.debug import deprecated as atdeprecated
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-from Products.Archetypes.generator import i18n
+import Products.generator.i18n as i18n
 
-from zope.deprecation import deprecated
-
+try:
+    _v_network = str(socket.gethostbyname(socket.gethostname()))
+except:
+    _v_network = str(random() * 100000000000000000L)
 
 def make_uuid(*args):
-    from zope.app.zapi import getUtility
-    from archetypes.uid.interfaces import IUIDFactory
+    t = str(time() * 1000L)
+    r = str(random()*100000000000000000L)
+    data = t +' '+ r +' '+ _v_network +' '+ str(args)
+    uid = md5(data).hexdigest()
+    return uid
 
-    return getUtility(IUIDFactory)()
+# linux kernel uid generator. It's a little bit slower but a little bit better
+KERNEL_UUID = '/proc/sys/kernel/random/uuid'
 
+if os.path.isfile(KERNEL_UUID):
+    HAS_KERNEL_UUID = True
+    def uuid_gen():
+        fp = open(KERNEL_UUID, 'r')
+        while 1:
+            uid = fp.read()[:-1]
+            fp.seek(0)
+            yield uid
+    uid_gen = uuid_gen()
 
-
-deprecated('make_uuid',
-           'UIDs have been componentized. Please use a UIDFactory to obtain UIDs '
-           'This method will be removed after Archetypes 1.6.')
-
-
-
-
-# try:
-#     _v_network = str(socket.gethostbyname(socket.gethostname()))
-# except:
-#     _v_network = str(random() * 100000000000000000L)
-#
-# def make_uuid(*args):
-#     t = str(time() * 1000L)
-#     r = str(random()*100000000000000000L)
-#     data = t +' '+ r +' '+ _v_network +' '+ str(args)
-#     uid = md5(data).hexdigest()
-#     return uid
-#
-# # linux kernel uid generator. It's a little bit slower but a little bit better
-# KERNEL_UUID = '/proc/sys/kernel/random/uuid'
-#
-# if os.path.isfile(KERNEL_UUID):
-#     HAS_KERNEL_UUID = True
-#     def uuid_gen():
-#         fp = open(KERNEL_UUID, 'r')
-#         while 1:
-#             uid = fp.read()[:-1]
-#             fp.seek(0)
-#             yield uid
-#     uid_gen = uuid_gen()
-#
-#     def kernel_make_uuid(*args):
-#         return uid_gen.next()
-# else:
-#     HAS_KERNEL_UUID = False
-#     kernel_make_uuid = make_uuid
-
-
+    def kernel_make_uuid(*args):
+        return uid_gen.next()
+else:
+    HAS_KERNEL_UUID = False
+    kernel_make_uuid = make_uuid
 
 
 def fixSchema(schema):
@@ -385,11 +365,11 @@ class DisplayList:
 
     def add(self, key, value, msgid=None):
         if type(key) is IntType:
-            atdeprecated('Using ints as DisplayList keys is deprecated (add)')
+            deprecated('Using ints as DisplayList keys is deprecated (add)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
+        if type(value) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
         if type(msgid) not in (StringType, NoneType):
@@ -417,7 +397,7 @@ class DisplayList:
     def getValue(self, key, default=None):
         "get value"
         if type(key) is IntType:
-            atdeprecated('Using ints as DisplayList keys is deprecated (getValue)')
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -431,7 +411,7 @@ class DisplayList:
     def getMsgId(self, key):
         "get i18n msgid"
         if type(key) is IntType:
-            atdeprecated('Using ints as DisplayList keys is deprecated (msgid)')
+            deprecated('Using ints as DisplayList keys is deprecated (msgid)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -632,7 +612,7 @@ class Vocabulary(DisplayList):
         Get i18n value
         """
         if type(key) is IntType:
-            atdeprecated('Using ints as DisplayList keys is deprecated (getValue)')
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
@@ -663,10 +643,10 @@ class OrderedDict(BaseDict):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    def __init__(self, dict=None):
-        self._keys = []
-        BaseDict.__init__(self, dict)
-        if dict is not None:
+    def __init__(self, dict=None):	
+        self._keys = []	
+        BaseDict.__init__(self, dict)	
+        if dict is not None:	
             self._keys = self.data.keys()
 
     def __setitem__(self, key, item):

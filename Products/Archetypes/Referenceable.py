@@ -10,14 +10,13 @@ from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
+from Products.CMFCore import CMFCorePermissions
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
-
 ####
 ## In the case of:
 ## - a copy:
@@ -50,11 +49,9 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, referenceClass=None,
-                     updateReferences=True, **kwargs):
+    def addReference(self, object, relationship=None, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, referenceClass,
-                                 updateReferences, **kwargs)
+        return tool.addReference(self, object, relationship, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -357,13 +354,13 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""

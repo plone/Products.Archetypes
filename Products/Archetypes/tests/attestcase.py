@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,14 +30,6 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
-from zope.app.testing import placelesssetup
-from Products.Five.zcml import load_config
-from zope.interface import directlyProvides
-
-import Products.Archetypes
-import Products.Five
-
-
 # the output of some tests may differ when CMFPlone is installed
 try:
     import Products.CMFPlone
@@ -58,8 +51,6 @@ else:
 #USE_PLONETESTCASE = True
 #USE_PLONETESTCASE = False
 USE_PLONETESTCASE = HAS_PLONE
-
-print "Using Plone TestCase", USE_PLONETESTCASE, HAS_PLONE, HAS_PLONE21
 
 if not USE_PLONETESTCASE:
     # setup is installing some required products
@@ -100,12 +91,6 @@ else:
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
-    def afterSetUp(self):
-        pass
-
-    def beforeTearDown(self):
-        #placelesssetup.tearDown()
-        pass
 
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests
