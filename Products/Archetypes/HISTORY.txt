@@ -1,6 +1,11 @@
 1.3.8 (unreleased)
 ==================
 
+  * Fixed up some templates that were abusing tabindexes to get unique ids on
+    form elements. Tabindexes can no longer be used for this reliably 
+    since Plone 2.1.3, and repeat/var/number is cleaner anyway.
+    [optilude]
+
   * fixed http://dev.plone.org/plone/ticket/5072
     [jensens]
 
