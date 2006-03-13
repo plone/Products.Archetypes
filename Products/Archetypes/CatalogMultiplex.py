@@ -1,4 +1,3 @@
-
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -7,6 +6,8 @@ from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.utils import shasattr
+
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -23,7 +24,7 @@ class CatalogMultiplex(CMFCatalogAware):
         url = self.__url()
         for c in catalogs:
             c.catalog_object(self, url)
-            
+
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         at = getToolByName(self, TOOL_NAME)
@@ -35,15 +36,15 @@ class CatalogMultiplex(CMFCatalogAware):
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
         """update indexes of this object in all registered catalogs.
-        
+
         Catalogs are registered per 'meta_type' in archetypes tool.
-        
-        'idxs' are a list of index names. If this list is given only the given 
-        indexes are refreshed. If a index does not exist in catalog its 
+
+        'idxs' are a list of index names. If this list is given only the given
+        indexes are refreshed. If a index does not exist in catalog its
         silently ignored.
         """
-        if idxs == [] and hasattr(aq_base(self), 'notifyModified'):
-            # Archetypes default setup has this defined in ExtensibleMetadata 
+        if idxs == [] and shasattr(self, 'notifyModified'):
+            # Archetypes default setup has this defined in ExtensibleMetadata
             # mixin. note: this refreshes the 'etag ' too.
             self.notifyModified()
 
