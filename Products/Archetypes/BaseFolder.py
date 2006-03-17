@@ -3,7 +3,7 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.interfaces.base import IBaseFolder
+from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import shasattr
@@ -12,15 +12,18 @@ from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Globals import InitializeClass
-from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.PortalContent import PortalContent
+from Products.CMFCore import permissions
+from Products.CMFCore.PortalContent  import PortalContent
 
 try:
     from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 except:
     from Products.CMFCore.PortalFolder import PortalFolder
+    
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import _getViewFor
+
+from Products.Archetypes.interfaces import IBaseFolder
+from zope.interface import implements
 
 class BaseFolderMixin(CatalogMultiplex,
                       BaseObject,
@@ -29,8 +32,10 @@ class BaseFolderMixin(CatalogMultiplex,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (IBaseFolder, IReferenceable, BaseObject.__implements__,
+    __implements__ = (z2IBaseFolder, IReferenceable, BaseObject.__implements__,
                       PortalFolder.__implements__)
+
+    implements(IBaseFolder)
 
     security = ClassSecurityInfo()
 
@@ -44,27 +49,9 @@ class BaseFolderMixin(CatalogMultiplex,
     def __call__(self):
         """Invokes the default view.
         """
-        ti = self.getTypeInfo()
-        # BBB check required for CMF 1.4
-        if shasattr(ti, 'queryMethodID'):
-            method_id = ti and ti.queryMethodID('(Default)', context=self)
-        else:
-            method_id = None
 
-        if method_id:
-            method = getattr(self, method_id)
-        else:
-            method = _getViewFor(self)
-        if getattr(aq_base(method), 'isDocTemp', 0):
-            return method(self, self.REQUEST)
-        else:
-            return method()
-
-    security.declareProtected(CMFCorePermissions.View, 'view')
-    def view(self):
-        """View method for CMF 1.4.
-        """
-        return self()
+        return PortalFolder.__call__( self )
+    
 
     # This special value informs ZPublisher to use __call__
     index_html = None
@@ -94,9 +81,10 @@ class BaseFolderMixin(CatalogMultiplex,
         # is not.
         BaseObject._notifyOfCopyTo(self, container, op=op)
         PortalFolder._notifyOfCopyTo(self, container, op=op)
-        for child in self.contentValues():
-            if IReferenceable.isImplementedBy(child):
-                child._notifyOfCopyTo(self, op)
+        if op==1: # For efficiency, remove if op==0 needs something
+            for child in self.contentValues():
+                if IReferenceable.isImplementedBy(child):
+                    child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -125,7 +113,7 @@ class BaseFolderMixin(CatalogMultiplex,
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
-    security.declareProtected(CMFCorePermissions.DeleteObjects,
+    security.declareProtected(permissions.DeleteObjects,
                               'manage_delObjects')
     def manage_delObjects(self, ids=[], REQUEST=None):
         """We need to enforce security."""
@@ -134,12 +122,12 @@ class BaseFolderMixin(CatalogMultiplex,
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
-            if not mt.checkPermission(CMFCorePermissions.DeleteObjects, item):
+            if not mt.checkPermission(permissions.DeleteObjects, item):
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
         return PortalFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
-    security.declareProtected(CMFCorePermissions.ListFolderContents,
+    security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
     def listFolderContents(self, spec=None, contentFilter=None,
                            suppressHiddenFiles=0):
@@ -154,7 +142,7 @@ class BaseFolderMixin(CatalogMultiplex,
 
         return contents
 
-    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
+    security.declareProtected(permissions.AccessContentsInformation,
                               'folderlistingFolderContents')
     def folderlistingFolderContents(self, spec=None, contentFilter=None,
                                     suppressHiddenFiles=0):
@@ -164,13 +152,13 @@ class BaseFolderMixin(CatalogMultiplex,
         """
         return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
 
-    security.declareProtected(CMFCorePermissions.View, 'Title')
+    security.declareProtected(permissions.View, 'Title')
     def Title(self, **kwargs):
         """We have to override Title here to handle arbitrary arguments since
         PortalFolder defines it."""
         return self.getField('title').get(self, **kwargs)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'setTitle')
     def setTitle(self, value, **kwargs):
         """We have to override setTitle here to handle arbitrary
@@ -192,7 +180,7 @@ class BaseFolderMixin(CatalogMultiplex,
     # override "CMFCore.PortalFolder.PortalFolder.manage_addFolder"
     # as it insists on creating folders of type "Folder".
     # use instead "_at_type_subfolder" or our own type.
-    security.declareProtected(CMFCorePermissions.AddPortalFolders,
+    security.declareProtected(permissions.AddPortalFolders,
                               'manage_addFolder')
     def manage_addFolder(self,
                          id,
@@ -245,10 +233,10 @@ class BaseFolderMixin(CatalogMultiplex,
         """
         pass
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
+    security.declareProtected(permissions.ModifyPortalContent, 'PUT')
     PUT = WebDAVSupport.PUT
 
-    security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
+    security.declareProtected(permissions.View, 'manage_FTPget')
     manage_FTPget = WebDAVSupport.manage_FTPget
 
     security.declarePrivate('manage_afterPUT')
@@ -273,14 +261,14 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         BaseFolderMixin.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(permissions.View,
                               'Description')
     def Description(self, **kwargs):
         """We have to override Description here to handle arbitrary
         arguments since PortalFolder defines it."""
         return self.getField('description').get(self, **kwargs)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'setDescription')
     def setDescription(self, value, **kwargs):
         """We have to override setDescription here to handle arbitrary

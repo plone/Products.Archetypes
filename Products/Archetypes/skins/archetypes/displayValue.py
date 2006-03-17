@@ -14,12 +14,12 @@ try:
 except AttributeError:
     try:
         # Maybe a list?
-        return ', '.join([vocab.getValue(context.unicodeEncode(v),
-                                         context.unicodeEncode(v)) \
+        return ', '.join([vocab.getValue(context.unicodeEncode(str(v)),
+                                         context.unicodeEncode(str(v))) \
                           for v in value if v])
     except TypeError:
         pass
 
 # Try to convert to a string and do the dirty job.
-return vocab.getValue(context.unicodeEncode(value),
-                      context.unicodeEncode(value))
+return vocab.getValue(context.unicodeEncode(str(value)),
+                                            context.unicodeEncode(str(value)))

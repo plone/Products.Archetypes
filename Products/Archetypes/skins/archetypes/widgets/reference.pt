@@ -77,7 +77,7 @@
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
               <tal:block tal:define="item_tabindex tabindex/next;
-                                   item_id string:${fieldName}_${repeat/item/number};
+                                   item_id string:${fieldName}_${item_tabindex};
                                    no_ref python: value is None and item == ''">
                 <input class="noborder"
                        tabindex=""

@@ -1,3 +1,4 @@
+import re
 from types import ListType, TupleType
 from cStringIO import StringIO
 from rfc822 import Message
@@ -13,7 +14,7 @@ from Products.Archetypes.utils import mapply
 
 from Acquisition import aq_base
 from OFS.content_types import guess_content_type
-from Products.CMFDefault.utils import formatRFC822Headers
+#from Products.CMFDefault.utils import formatRFC822Headers
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -52,6 +53,26 @@ class NonLoweringMessage(Message):
         except KeyError:
             return default
     get = getheader  
+
+
+
+def formatRFC822Headers( headers ):
+
+    """ Convert the key-value pairs in 'headers' to valid RFC822-style
+        headers, including adding leading whitespace to elements which
+        contain newlines in order to preserve continuation-line semantics.
+
+        code based on old cmf1.4 impl 
+    """
+    munged = []
+    linesplit = re.compile( r'[\n\r]+?' )
+
+    for key, value in headers:
+
+        vallines = linesplit.split( value )
+        munged.append( '%s: %s' % ( key, '\r\n  '.join( vallines ) ) )
+
+    return '\r\n'.join( munged )
 
 def parseRFC822(body):
     """Parse a RFC 822 (email) style string

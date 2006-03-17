@@ -34,8 +34,8 @@ from Products.Archetypes.tests import attestcase
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
-
-from Products.Archetypes import transaction
+import transaction
+import sys, code
 
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
@@ -98,6 +98,36 @@ class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
     """AT test case for functional tests inside a CMF site
     """
     __implements__ = Functional.__implements__ + ATSiteTestCase.__implements__ 
+    
+    def interact(self, locals=None):
+        """Provides an interactive shell aka console inside your testcase.
+        
+        It looks exact like in a doctestcase and you can copy and paste
+        code from the shell into your doctest. The locals in the testcase are 
+        available, becasue you are in the testcase.
+    
+        In your testcase or doctest you can invoke the shell at any point by
+        calling::
+            
+            >>> interact( locals() )        
+            
+        locals -- passed to InteractiveInterpreter.__init__()
+        """
+        savestdout = sys.stdout
+        sys.stdout = sys.stderr
+        sys.stderr.write('\n'+'='*70)
+        console = code.InteractiveConsole(locals)
+        console.interact("""
+DocTest Interactive Console - (c) BlueDynamics Alliance, Austria, 2006
+Note: You have the same locals available as in your test-case. 
+Ctrl-D ends session and continues testing.
+""")
+        sys.stdout.write('\nend of DocTest Interactive Console session\n')
+        sys.stdout.write('='*70+'\n')
+        sys.stdout = savestdout
+        
+
+    
 
 ###
 # Setup an archetypes site
@@ -154,7 +184,8 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         noSecurityManager()
         transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-    elif not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
+
+    if not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
         _start = time.time()
         if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
         # Login as portal owner

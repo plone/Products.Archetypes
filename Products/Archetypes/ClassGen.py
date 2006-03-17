@@ -131,18 +131,6 @@ class ClassGenerator:
             deprecated('Class %s has type attribute, should be schema' % \
                        klass.__name__, level = 4)
             klass.schema = klass.type
-        if not hasattr(klass, 'Schema'):
-            def Schema(self):
-                """Return a (wrapped) schema instance for
-                this object instance.
-                """
-                schema = self.schema
-                # XXX This code doesn't work at all and it's slowing down
-                # unit tests like hell.
-                #if hasattr(schema, 'wrapped'):
-                #    return schema.wrapped(self)
-                return ImplicitAcquisitionWrapper(schema, self)
-            klass.Schema = Schema
 
     def generateClass(self, klass):
         # We are going to assert a few things about the class here

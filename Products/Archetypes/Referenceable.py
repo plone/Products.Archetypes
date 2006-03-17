@@ -10,13 +10,14 @@ from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+
 ####
 ## In the case of:
 ## - a copy:
@@ -49,9 +50,11 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, **kwargs):
+    def addReference(self, object, relationship=None, referenceClass=None,
+                     updateReferences=True, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, **kwargs)
+        return tool.addReference(self, object, relationship, referenceClass,
+                                 updateReferences, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -318,20 +321,11 @@ class Referenceable(CopySource):
                 rc.uncatalog_object(url)
 
     def _getCopy(self, container):
-        # We only set the '_v_is_cp' flag here if it was already set.
-        #
-        # _getCopy gets called after _notifyOfCopyTo, which should set
-        # _v_cp_refs appropriatedly.
-        #
-        # _getCopy is also called from WebDAV MOVE (though not from
-        # 'manage_pasteObjects')
-        is_cp_flag = getattr(self, '_v_is_cp', None)
-        cp_refs_flag = getattr(self, '_v_cp_refs', None)
+        # We set the '_v_is_cp' flag here so that when the new object
+        # gets to manage_afterAdd, the UID is renewed and references
+        # are not moved over to the new object.
         ob = CopySource._getCopy(self, container)
-        if is_cp_flag:
-            setattr(ob, '_v_is_cp', is_cp_flag)
-        if cp_refs_flag:
-            setattr(ob, '_v_cp_refs', cp_refs_flag)
+        ob._v_is_cp = 1
         return ob
 
     def _notifyOfCopyTo(self, container, op=0):
@@ -340,12 +334,7 @@ class Referenceable(CopySource):
         # This isn't really safe for concurrent usage, but the
         # worse case is not that bad and could be fixed with a reindex
         # on the archetype tool
-        if op==1:
-            self._v_cp_refs = 1
-            self._v_is_cp = 0
-        if op==0:
-            self._v_cp_refs = 0
-            self._v_is_cp = 1
+        if op==1: self._v_cp_refs =  1
 
     # Recursion Mgmt
     def _referenceApply(self, methodName, *args, **kwargs):
@@ -368,13 +357,13 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(View,
                               'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(View,
                               'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""
