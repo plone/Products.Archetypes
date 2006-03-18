@@ -93,8 +93,8 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Convenience methods
     def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG)
-        if not tool: return ''
+        tool = getToolByName(self, UID_CATALOG, None)
+        if tool is None: return ''
         brains = tool(UID=self.sourceUID)
         for brain in brains:
             obj = brain.getObject()
@@ -103,7 +103,7 @@ class Reference(Referenceable, SimpleItem):
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG, None)
-        if not tool: return ''
+        if tool is None: return ''
         brains = tool(UID=self.targetUID)
         for brain in brains:
             obj = brain.getObject()
