@@ -71,7 +71,6 @@
                        value="delete"
                        tabindex=""
                        tal:attributes="tabindex tabindex/next;
-                           checked python:test(size!=0, 'checked', None);
                            name string:${fieldName}_delete;
                            id string:${fieldName}_delete;
                            onclick string:document.getElementById('${fieldName}_file').disabled=true;"
