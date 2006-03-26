@@ -780,7 +780,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except: # XXX bare exception
             pass
@@ -1134,7 +1134,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, E:
                 log('No tool', name, E)

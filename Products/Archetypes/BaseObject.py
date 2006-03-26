@@ -30,6 +30,7 @@ from Products.Archetypes.ArchetypeTool import _guessPackage
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
+from AccessControl.Permissions import copy_or_move as permission_copy_or_move
 from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
@@ -101,6 +102,7 @@ content_type = Schema((
         required=0, # Still actually required, but the widget will
                     # supply the missing value on non-submits
         mode='rw',
+        permission=permission_copy_or_move,
         accessor='getId',
         mutator='setId',
         default=None,
@@ -172,7 +174,7 @@ class BaseObject(Referenceable):
                 kwargs['_initializing_'] = True
                 self.edit(**kwargs)
             self._signature = self.Schema().signature()
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
@@ -384,7 +386,9 @@ class BaseObject(Referenceable):
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-        except ConflictError:
+        
+
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
@@ -528,7 +532,9 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
-                except ConflictError:
+                
+
+                except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
                     continue
@@ -875,7 +881,9 @@ class BaseObject(Referenceable):
             try:
                 if IFileField.isImplementedBy(field):
                     return field.getBaseUnit(self)
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -885,7 +893,9 @@ class BaseObject(Referenceable):
                 editAccessor = field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -895,7 +905,9 @@ class BaseObject(Referenceable):
                 accessor = field.getAccessor(self)
                 if accessor:
                     return accessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -910,7 +922,9 @@ class BaseObject(Referenceable):
             # Because of this line value = value.replace(',','.')
             try:
                 return self[field.getName()]
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -924,7 +938,9 @@ class BaseObject(Referenceable):
                 editAccessor = new_field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -934,7 +950,9 @@ class BaseObject(Referenceable):
                 accessor = new_field.getAccessor(self)
                 if accessor:
                     return accessor()
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -942,7 +960,9 @@ class BaseObject(Referenceable):
             # Still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
-            except ConflictError:
+            
+
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 pass
@@ -970,7 +990,9 @@ class BaseObject(Referenceable):
                     args = [value,]
                     mapply(mutator, *args, **kw)
                     return
-                except ConflictError:
+                
+
+                except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
                     log_exc()

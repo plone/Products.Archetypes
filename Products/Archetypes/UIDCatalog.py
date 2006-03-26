@@ -80,7 +80,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except: #NotFound # XXX bare exception
                 pass
@@ -91,7 +91,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
             return obj
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             #import traceback

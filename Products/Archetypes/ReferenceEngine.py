@@ -31,7 +31,6 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
-from ZODB.POSException import ConflictError
 from zExceptions import NotFound
 import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
@@ -94,8 +93,8 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Convenience methods
     def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG)
-        if not tool: return ''
+        tool = getToolByName(self, UID_CATALOG, None)
+        if tool is None: return ''
         brains = tool(UID=self.sourceUID)
         for brain in brains:
             obj = brain.getObject()
@@ -104,7 +103,7 @@ class Reference(Referenceable, SimpleItem):
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG, None)
-        if not tool: return ''
+        if tool is None: return ''
         brains = tool(UID=self.targetUID)
         for brain in brains:
             obj = brain.getObject()
@@ -325,7 +324,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     ###
     ## Public API
     def addReference(self, source, target, relationship=None,
-                     referenceClass=None, **kwargs):
+                     referenceClass=None, updateReferences=True, **kwargs):
         sID, sobj = self._uidFor(source)
         if not sID or sobj is None:
             raise ReferenceException('Invalid source UID')
@@ -334,17 +333,19 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         if not tID or tobj is None:
             raise ReferenceException('Invalid target UID')
 
-        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
-        if objects:
-            #we want to update the existing reference
-            #XXX we might need to being a subtransaction here to
-            #    do this properly, and close it later
-            existing = objects[0]
-            if existing:
-                # We can't del off self, we now need to remove it
-                # from the source objects annotation, which we have
-                annotation = sobj._getReferenceAnnotations()
-                annotation._delObject(existing.id)
+        if updateReferences:
+            objects = self._resolveBrains(
+                self._queryFor(sID, tID, relationship))
+            if objects:
+                #we want to update the existing reference
+                #XXX we might need to being a subtransaction here to
+                #    do this properly, and close it later
+                existing = objects[0]
+                if existing:
+                    # We can't del off self, we now need to remove it
+                    # from the source objects annotation, which we have
+                    annotation = sobj._getReferenceAnnotations()
+                    annotation._delObject(existing.id)
 
 
         rID = self._makeName(sID, tID)

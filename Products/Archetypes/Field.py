@@ -67,6 +67,7 @@ from Products.Archetypes.utils import contentDispositionHeader
 from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -2057,7 +2058,7 @@ class ImageField(FileField):
 
         try:
             data = self.rescaleOriginal(value, **kwargs)
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             if not self.swallowResizeExceptions:
@@ -2214,7 +2215,7 @@ class ImageField(FileField):
             __traceback_info__ = (self, instance, id, w, h)
             try:
                 imgdata, format = self.scale(data, w, h)
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 if not self.swallowResizeExceptions:
@@ -2374,12 +2375,20 @@ class ImageField(FileField):
         return '%s />' % result
 
 # photo field implementation, derived from CMFPhoto by Magnus Heino
+# DEPRECATED
 
 class DynVariantWrapper(Base):
     """Provide a transparent wrapper from image to dynvariant call it
     with url ${image_url}/variant/${variant}
     """
-
+    
+    def __init__(self):
+        deprecated('DynVariantWrapper (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )   
     def __of__(self, parent):
         return parent.Variants()
 
@@ -2387,7 +2396,12 @@ class DynVariant(Implicit, Traversable):
     """Provide access to the variants."""
 
     def __init__(self):
-        pass
+        deprecated('DynVariant (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )   
 
     def __getitem__(self, name):
         if self.checkForVariant(name):
@@ -2407,6 +2421,12 @@ class ScalableImage(BaseImage):
     security  = ClassSecurityInfo()
 
     def __init__(self, id, title='', file='', displays={}):
+        deprecated('ScalableImage (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )        
         BaseImage.__init__(self, id, title, file)
         self._photos = OOBTree()
         self.displays = displays
@@ -2591,7 +2611,7 @@ class ScalableImage(BaseImage):
 
                 image.seek(0)
 
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except Exception, e:
             log_exc('Error while resizing image')
@@ -2636,6 +2656,14 @@ class PhotoField(ObjectField):
     security  = ClassSecurityInfo()
 
     default_view = "view"
+    
+    def __init__(self, *args, **kwargs):
+        deprecated('PhotoField is deprecated after work done on ImageField and '
+                   'ATImage. It will be removed in Archetypes 1.5. If someone '
+                   'like to keep the code please move it over to an own '
+                   'Product in MoreFieldsAndWidgets repository.'
+        )
+        super(PhotoField, self).__init__(*args, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kw):
@@ -2649,6 +2677,8 @@ class PhotoField(ObjectField):
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
+    
+# end of DEPRECATED PhotoField code    
 
 __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',

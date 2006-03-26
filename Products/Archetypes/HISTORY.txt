@@ -1,5 +1,56 @@
+1.4.0-alpha03 - 2006-03-26
+==========================
+
+  * fixes #617: Do not catch KeyboardInterrupt.
+    [jensens]
+
+  * marked PhotoField as deprecated. After work done on ATImage and 
+    ImageField this one isnt needed anymore in Archetypes core.
+    PhotoField and its supporting classes will be removed in AT 1.5
+    [jensens]
+
+  * fixed #600: Auto-generated attributes are not protected by 
+    permissions. Attention: Enabling protection is a minor change in
+    the config.py. Some products with code doing direct attribute 
+    access will break. People using and relying on those products
+    can disable attribute protection, but better fix those Products.
+    [jensens]
+
+  * fixed #608: Protect id field by 'Copy or Move'
+    [jensens]
+
+  * fixed #637: Schema.moveField( ... after ) does incorrect reordering.
+    Needed fixing of a buggy doctest.
+    [jensens]
+
+  * merged in code of Daniel Nouri to support multiple references
+    with the same name between two objects, thsi is needed for example
+    with Relations product. Thx Daniel.
+    [jensens]
+
+  * removed superfluos code from ClassGen.
+    [jensens]
+
+  * Removed some nonsense on PUT that would look at REQUEST._steps and
+    try to catch a exception (which would never occur!). Made it use
+    'PATH_INFO' instead, with a fallback to 'self.getId()' which
+    should suffice (PATH_INFO is always available as long as the
+    request came in through ZPublisher.Publish).
+    [sidnei]
+
+  * PdataStreamIterator could potentially end up loading a persistent
+    object after the ZODB connection had been closed. Made it use a
+    temporary file to stream out the content so that large files don't
+    end up using all the available memory.
+    [sidnei]
+
 1.4.0-alpha02 - 2006-02-23
 ==========================
+
+  * Added check for duplicate 'accessor', 'edit_accessor' and
+    'mutator' method names on a schema's fields. Helps Joe Schmoe to
+    get unstuck, hopefully.
+    [sidnei]
 
   * dont generate 'Schema' method any more. its now part of BaseObject.
     [jensens]
@@ -43,9 +94,9 @@ post 1.3.7-final
     Closes https://trac.plone.org/plone/ticket/5182
     [hannosch]
 
-  * Usability fix for file widget ( widgets/file.pt ) so that the 
+  * Usability fix for file widget ( widgets/file.pt ) so that the
     radiobuttons with 'Keep existing file' and similar are no longer shown
-    if there is no file uploaded. 
+    if there is no file uploaded.
 
   * fixed bug in getBestIcon.py, use NotFound class but not 'NotFound'
     string in exception.
@@ -70,11 +121,11 @@ post 1.3.7-final
 
   * enable IDWidget to ignore global visible_ids setting and enable ids by
     adding a property ignore_visible_ids=False (default). If it is True
-    the id (short name) is shown and the global or by-member setting is 
+    the id (short name) is shown and the global or by-member setting is
     ignored. This is useful for types where control over the id is needed.
-    [jensens] 
+    [jensens]
 
-  * 'Renderer' is used to set locals to context of rendered widgets. added 
+  * 'Renderer' is used to set locals to context of rendered widgets. added
     prefix support for fieldnames in widgets to enable archetypes for multi-
     object edit forms.
     [jensens]
@@ -84,10 +135,10 @@ post 1.3.7-final
     Now IndexError is catched and ignored.
     [jensens]
 
-  * cleanup of install_indexes magic to add index and metadata-columns to 
+  * cleanup of install_indexes magic to add index and metadata-columns to
     a catalog. also added an alternative method than 'schema()' to use, for
     example if a CatalogTool itself is archetypes based. The alternative i
-    method is 'zcschema' and does not conflict with Archetypes schema 
+    method is 'zcschema' and does not conflict with Archetypes schema
     attribute.
     [jensens]
 
