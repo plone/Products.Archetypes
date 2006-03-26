@@ -1,5 +1,5 @@
-1.4.0-XXXXXX - XXXX-XX-XX
-=========================
+1.4.0-alpha03 - 2006-03-26
+==========================
 
   * fixes #617: Do not catch KeyboardInterrupt.
     [jensens]
