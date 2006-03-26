@@ -1,3 +1,9 @@
+1.4.0 Unreleased
+================
+
+  * Spring-cleaning of tests infrastructure.
+    [hannosch]
+
 1.4.0-alpha03 - 2006-03-26
 ==========================
 
