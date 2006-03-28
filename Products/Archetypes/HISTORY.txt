@@ -7,17 +7,22 @@
 1.4.0-alpha03 - 2006-03-26
 ==========================
 
+  * Fixed some bizarro bug where the __call__ method of BaseFolder (i.e.
+    render the default view) was instantiating a new CMFCore PortalFolderBase
+    object and returning it (unrendered even).
+    [alecm]
+
   * fixes #617: Do not catch KeyboardInterrupt.
     [jensens]
 
-  * marked PhotoField as deprecated. After work done on ATImage and 
+  * marked PhotoField as deprecated. After work done on ATImage and
     ImageField this one isnt needed anymore in Archetypes core.
     PhotoField and its supporting classes will be removed in AT 1.5
     [jensens]
 
-  * fixed #600: Auto-generated attributes are not protected by 
+  * fixed #600: Auto-generated attributes are not protected by
     permissions. Attention: Enabling protection is a minor change in
-    the config.py. Some products with code doing direct attribute 
+    the config.py. Some products with code doing direct attribute
     access will break. People using and relying on those products
     can disable attribute protection, but better fix those Products.
     [jensens]
@@ -74,7 +79,7 @@
     'public'.
     [jensens]
 
-  * Integrated 'generator' into Archetypes. 
+  * Integrated 'generator' into Archetypes.
     [jensens]
 
   * Changed transactions use to new API and removed some Plone 2.0 backwards
