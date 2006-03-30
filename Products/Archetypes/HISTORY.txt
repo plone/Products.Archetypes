@@ -17,6 +17,8 @@
     assist in bridging
     [whit]
 
+  * removed superfluous bridge statements from zcml
+
   * Spring-cleaning of tests infrastructure.
     [hannosch]
     
