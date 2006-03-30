@@ -3,6 +3,19 @@
 
   * Spring-cleaning of tests infrastructure.
     [hannosch]
+    
+  * converted add following modules to zope3 interfaces w/
+    backward bridges::
+    interfaces/_annotations.py
+    interfaces/_field.py
+    interfaces/_layer.py
+    interfaces/_marshall.py
+    interfaces/_metadata.py
+    interfaces/_referenceengine.py
+    interfaces/_schema.py
+    interfaces/_storage.py
+    [whit]
+
 
 1.4.0-alpha03 - 2006-03-26
 ==========================
