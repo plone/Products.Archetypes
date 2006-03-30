@@ -1,9 +1,6 @@
 1.4.0 Unreleased
 ================
 
-  * Spring-cleaning of tests infrastructure.
-    [hannosch]
-    
   * converted add following modules to zope3 interfaces w/
     backward bridges::
     interfaces/_annotations.py
@@ -15,6 +12,14 @@
     interfaces/_schema.py
     interfaces/_storage.py
     [whit]
+
+  * added makeBridgeMaker, makeZ3Bridges, and makeZ2Bridges to util to
+    assist in bridging
+    [whit]
+
+  * Spring-cleaning of tests infrastructure.
+    [hannosch]
+    
 
 
 1.4.0-alpha03 - 2006-03-26
