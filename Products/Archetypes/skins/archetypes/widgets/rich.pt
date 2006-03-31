@@ -27,14 +27,12 @@ default.
         <metal:fill fill-slot="widget_body"
                     tal:define="binary python: here.isBinary(fieldName)">
           <tal:area_format tal:condition="widget/allow_format_edit | python:1">
-            <div style="text-align: right; margin-right: 0.75em;">
               <metal:block use-macro="here/widgets/visual/macros/area_format" />
-            </div>
           </tal:area_format>
           <metal:use use-macro="here/widgets/epoz/macros/edit_area">
             <metal:fill fill-slot="text_format"/>
           </metal:use>
-          <div style="text-align: right; margin-right: 0.75em;"
+          <div class="fieldUploadFile"
                tal:condition="widget/allow_file_upload | python:1">
               <span class="discreet" 
                     i18n:translate="or_upload_a_file">or upload a file (existing content will be replaced)</span>
