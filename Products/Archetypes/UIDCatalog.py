@@ -5,6 +5,7 @@ from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
 from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 from Acquisition import aq_base, aq_parent, aq_inner
