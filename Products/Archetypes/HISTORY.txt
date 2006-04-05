@@ -1,5 +1,9 @@
-1.4.0 Unreleased
-================
+1.4.0 Unreleased 
+================ 
+
+  * converted remaining interfaces and unconverted metadata due to
+    issues with CMF1.5's bridges
+    [whit]
 
   * converted add following modules to zope3 interfaces w/
     backward bridges::
