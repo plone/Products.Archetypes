@@ -1,4 +1,5 @@
 import os
+import zLOG
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
