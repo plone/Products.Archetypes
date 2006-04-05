@@ -52,7 +52,6 @@ import unittest
 from Testing.ZopeTestCase import TestCase
 from Testing.ZopeTestCase import ZopeTestCase
 from Testing.ZopeTestCase import doctest
-from Testing.ZopeTestCase import interfaces as ztc_interfaces
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass
@@ -102,7 +101,7 @@ def ZopeDocTestSuite(*modules, **kw):
         test.globs['test'] = test
         test.globs['self'] = test_instance
         test.globs['app'] = test_instance.app
-        if ztc_interfaces.IPortalTestCase.isImplementedBy(test_instance):
+        if hasattr(test_instance, 'portal'):
             test.globs['portal'] = test_instance.portal
         if kwsetUp is not None:
             kwsetUp(test_instance)
