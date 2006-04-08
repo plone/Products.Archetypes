@@ -33,6 +33,7 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 import glob
+import os
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
