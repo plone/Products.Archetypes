@@ -1,6 +1,10 @@
 1.4.0 Unreleased 
 ================ 
 
+  * Removed reST-test-kludge. test_baseunit.py now fails one test in Zope 2.8
+    but the solution must be something other than fixing up tests.
+    [stefan]
+
   * converted remaining interfaces and unconverted metadata due to
     issues with CMF1.5's bridges
     [whit]
