@@ -20,7 +20,6 @@ from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from ExtensionClass import Base
 from Globals import InitializeClass
-from OFS.content_types import guess_content_type
 from OFS.Image import File
 from OFS.Image import Pdata
 from OFS.Image import Image as BaseImage
@@ -80,6 +79,14 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
+try:
+    from zope.app.contenttypes import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 try:
     import PIL.Image
@@ -848,8 +855,6 @@ class FileField(ObjectField):
                         filename = ''
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif (isinstance(value, Pdata) or (shasattr(value, 'read') and
                                            shasattr(value, 'seek'))):
@@ -1172,8 +1177,6 @@ class TextField(FileField):
             value.seek(0)
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif isinstance(value, Pdata):
             pass
