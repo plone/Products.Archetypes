@@ -2,7 +2,6 @@ import os.path
 __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
 
 import sys
-
 import bbb
 
 from Products.Archetypes.config import *
@@ -13,8 +12,6 @@ from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
-
-from zLOG import LOG, PROBLEM
 
 ###
 ## security
