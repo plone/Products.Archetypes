@@ -21,10 +21,10 @@ from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 #from Products.CMFDefault.SkinnedFolder import SkinnedFolder
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-
+    
 from zExceptions import NotFound
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
@@ -41,7 +41,7 @@ class OrderedContainer:
 
     security = ClassSecurityInfo()
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObject')
     def moveObject(self, id, position):
         obj_idx  = self.getObjectPosition(id)
         if obj_idx == position:
@@ -58,7 +58,7 @@ class OrderedContainer:
     # if plone sometime depends on zope 2.7 it should be replaced by mixing in
     # the 2.7 specific class OSF.OrderedContainer.OrderedContainer
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsByDelta')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsByDelta')
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
         """
@@ -118,7 +118,7 @@ class OrderedContainer:
         cmf_meta_types = ttool.listContentTypes(by_metatype=1)
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'getObjectPosition')
+    security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')
     def getObjectPosition(self, id):
 
         objs = list(self._objects)
@@ -129,42 +129,42 @@ class OrderedContainer:
 
         raise NotFound, 'Object %s was not found' % str(id)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsUp')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsUp')
     def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
         """ Move an object up """
         self.moveObjectsByDelta(ids, -delta)
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsDown')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsDown')
     def moveObjectsDown(self, ids, delta=1, RESPONSE=None):
         """ move an object down """
         self.moveObjectsByDelta(ids, delta)
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsToTop')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsToTop')
     def moveObjectsToTop(self, ids, RESPONSE=None):
         """ move an object to the top """
         self.moveObjectsByDelta( ids, -len(self._objects) )
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectsToBottom')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsToBottom')
     def moveObjectsToBottom(self, ids, RESPONSE=None):
         """ move an object to the bottom """
         self.moveObjectsByDelta( ids, len(self._objects) )
         if RESPONSE is not None:
             RESPONSE.redirect('manage_workspace')
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'moveObjectToPosition')
+    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectToPosition')
     def moveObjectToPosition(self, id, position):
         """ Move specified object to absolute position.
         """
         delta = position - self.getObjectPosition(id)
         return self.moveObjectsByDelta(id, delta)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'orderObjects')
+    security.declareProtected(permissions.ModifyPortalContent, 'orderObjects')
     def orderObjects(self, key, reverse=None):
         """ Order sub-objects by key and direction.
         """
@@ -202,7 +202,7 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
         BaseFolder.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'manage_renameObject')
+    security.declareProtected(permissions.ModifyPortalContent, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
         """ rename the object """
         objidx = self.getObjectPosition(id)

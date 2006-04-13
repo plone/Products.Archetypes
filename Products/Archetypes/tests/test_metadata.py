@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -241,7 +242,6 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
         portal = self.portal
 
         # to enable overrideDiscussionFor

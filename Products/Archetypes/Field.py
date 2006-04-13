@@ -5,6 +5,7 @@ import sys
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
+from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
 
@@ -19,7 +20,6 @@ from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from ExtensionClass import Base
 from Globals import InitializeClass
-from OFS.content_types import guess_content_type
 from OFS.Image import File
 from OFS.Image import Pdata
 from OFS.Image import Image as BaseImage
@@ -64,7 +64,6 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
-from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import deprecated
@@ -80,6 +79,14 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
+try:
+    from zope.app.contenttypes import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 try:
     import PIL.Image
@@ -848,8 +855,6 @@ class FileField(ObjectField):
                         filename = ''
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif (isinstance(value, Pdata) or (shasattr(value, 'read') and
                                            shasattr(value, 'seek'))):
@@ -1172,8 +1177,6 @@ class TextField(FileField):
             value.seek(0)
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif isinstance(value, Pdata):
             pass
@@ -2069,30 +2072,6 @@ class ImageField(FileField):
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, data, **kwargs)
         self.createScales(instance, value=data)
-
-#    def _updateKwargs(self, instance, value, **kwargs):
-#        # get filename from kwargs, then from the value
-#        # if no filename is available set it to ''
-#        vfilename = getattr(value, 'filename', '')
-#        kfilename = kwargs.get('filename', '')
-#        if kfilename:
-#            filename = kfilename
-#        else:
-#            filename = vfilename
-#        kwargs['filename'] = filename
-#
-#        # set mimetype from kwargs, then from the field itself
-#        # if no mimetype is available set it to 'image/png'
-#        kmimetype = kwargs.get('mimetype', None)
-#        if kmimetype:
-#            mimetype = kmimetype
-#        else:
-#            try:
-#                mimetype = self.getContentType(instance)
-#            except RuntimeError:
-#                mimetype = None
-#        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
-#        return kwargs
 
     security.declareProtected(permissions.View, 'getAvailableSizes')
     def getAvailableSizes(self, instance):

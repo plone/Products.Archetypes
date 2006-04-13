@@ -3,8 +3,6 @@ from ExtensionClass import Base
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 
-# XXX replace with zope3 CA
-
 class DefaultLayerContainer(Base):
     __implements__ = ILayerContainer
 

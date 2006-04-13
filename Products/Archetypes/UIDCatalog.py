@@ -1,7 +1,10 @@
 import os
+import sys
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
+from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 from Acquisition import aq_base, aq_parent, aq_inner
@@ -12,6 +15,7 @@ from Products import CMFCore
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -94,10 +98,8 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
-            #import traceback
-            #traceback.print_exc()
-            zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
-                     error=sys.exc_info())
+            log('UIDCatalogBrains getObject raised an error:\n %s' %
+                 sys.exc_info())
             pass
 
 InitializeClass(UIDCatalogBrains)
@@ -169,7 +171,6 @@ class UIDResolver(Base):
         relpath = obj.getPhysicalPath()[portal_path_len:]
         uid = '/'.join(relpath)
         __traceback_info__ = (repr(obj), uid)
-        ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
         ZCatalog.catalog_object(self, obj, uid, **kwargs)
 
 InitializeClass(UIDResolver)

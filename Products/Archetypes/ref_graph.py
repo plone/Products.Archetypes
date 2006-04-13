@@ -28,7 +28,7 @@ def str2id(str):
 
 
 
-class Node(object):
+class Node:
     """ simple node class """
 
     def __init__(self, inst):
@@ -43,7 +43,7 @@ class Node(object):
 
     __repr__ = __str__
 
-class Edge(object):
+class Edge:
     """ simple edge class """
 
     def __init__(self, src, dest, reference):

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -35,7 +36,6 @@ from AccessControl.SecurityManagement import noSecurityManager
 from Acquisition import aq_base
 import transaction
 import sys, code
-from attestcase import regschema
 
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
@@ -48,9 +48,8 @@ else:
     from Products.PloneTestCase import PloneTestCase
     from Products.PloneTestCase.setup import portal_name
     from Products.PloneTestCase.setup import portal_owner
-    # setup a Plone site
-    
-    PloneTestCase.setupPloneSite(required_zcml=[regschema])
+    # setup a Plone site 
+    PloneTestCase.setupPloneSite()
     PortalTestClass = PloneTestCase.PloneTestCase
 
 class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
@@ -104,7 +103,6 @@ from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.Extensions.utils import installTypes
 from Products.Archetypes.Extensions.Install import install as installArchetypes
-from ZopeTestCase.placeless import temporaryPlacelessSetUp
 
 
 def setupArchetypes(app, id=portal_name, quiet=0):
@@ -161,7 +159,6 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         noSecurityManager()
         transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
-
 
 # Install Archetypes
 app = ZopeTestCase.app()

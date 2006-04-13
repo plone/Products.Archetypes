@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -53,7 +54,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     """Tests object renaming and creation"""
 
     def afterSetUp(self):
-        ATFunctionalSiteTestCase.afterSetUp(self)
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
         request = self.app.REQUEST

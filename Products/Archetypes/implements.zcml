@@ -2,6 +2,16 @@
     xmlns="http://namespaces.zope.org/five"
     >
 
+  <implements
+      class=".Referenceable.Referenceable"
+      interface=".interfaces.IReferenceable"
+      /> 
+
+  <implements
+      class=".BaseObject.BaseObject"
+      interface=".interfaces.IBaseObject"
+      /> 
+      
   <!-- TODO: more -->
 
 </configure>

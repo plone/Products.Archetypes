@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -48,7 +49,6 @@ stub_bin_content = ''
 class WidgetTests(ATSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
         # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content

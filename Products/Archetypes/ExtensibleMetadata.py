@@ -1,4 +1,5 @@
 import string
+from logging import DEBUG
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
@@ -8,7 +9,6 @@ from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import BLATHER
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 import Persistence
@@ -262,7 +262,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 msg = "Unable to set discussion on %s to None. Already " \
                       "deleted allow_discussion attribute? Message: %s" % (
                        self.getPhysicalPath(), str(err))
-                log(msg, level=BLATHER)
+                log(msg, level=DEBUG)
             else:
                 raise
         except ("Unauthorized", Unauthorized):
@@ -279,7 +279,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             #      overrideDiscussionFor?
             log('Catched Unauthorized on discussiontool.' \
                 'overrideDiscussionFor(%s)' % self.absolute_url(1),
-                level=BLATHER)
+                level=DEBUG)
 
     # Vocabulary methods ######################################################
 

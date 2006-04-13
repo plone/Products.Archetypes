@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -72,7 +73,6 @@ def className(klass):
 
 # list of tests
 tests = []
-from attestcase import regschema
 
 class InterfaceTest(ZopeTestCase.ZopeTestCase):
     """general interface testing class
@@ -92,9 +92,6 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     klass = None    # test this class
     instance = None # test this instance
     forcedImpl = () # class must implement this tuple of interfaces
-
-    def afterSetUp(self):
-        regschema()
 
     def interfaceImplementedByInstanceOf(self, klass, interface):
         """ tests if the klass implements the interface in the right way """

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -24,7 +25,6 @@
 ################################################################################
 """
 """
-
 
 import os, sys, operator
 if __name__ == '__main__':
@@ -53,7 +53,6 @@ class Dummy(BaseContent):
 class SchemataTest( ATTestCase ):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self)
         registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
