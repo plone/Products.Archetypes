@@ -8,9 +8,22 @@
 
     <!-- Keyword Widgets -->
 
-    <metal:view_macro define-macro="view"
-		      tal:repeat="item accessor">
-      <span tal:content="item"/><br />
+    <metal:view_macro define-macro="view">
+      <div tal:attributes="id string:archetypes-inplace-${field/getName};"
+	   tal:repeat="item accessor">
+	<span  tal:content="item"/><br />
+      </div>
+      <tal:ajax condition="python: field.writeable(here)" 
+		define="ajax python:modules['Products.Bling.ajax'];
+			id string:archetypes-inplace-${field/getName};"
+		replace="structure python: ajax.BlingEditor(
+			 here.absolute_url(), id, dict(js=dict(
+			 autopopulate = False, 
+			 autosize = False,
+			 form = dict(field_name = field.getName(),
+			 mode = 'ajax_edit',
+			 ))))"
+  		/>
     </metal:view_macro>
 
     <metal:define define-macro="edit">
@@ -68,6 +81,27 @@
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/keyword/macros/edit">
       </div>
+    </div>
+    
+    <div metal:define-macro="ajax_edit" 
+	 tal:define="fieldName field/getName;
+		     allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
+		     ">
+	  <select name="value" multiple="multiple"
+		  tal:define="vocab allowedKeywords;
+			      value accessor;
+			      "
+		  tal:attributes=" id fieldName;
+				  size widget/size;
+				  tabindex tabindex/next;">
+	    <option selected=""
+		    tal:repeat="item vocab"
+		    tal:attributes="value nocall:item;
+				    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
+		    tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
+		    i18n:translate="" />
+	  </select>
+
     </div>
 
   </body>
