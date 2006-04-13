@@ -51,13 +51,6 @@ except ImportError:
 else:
     ZOPE28 = True
 
-try:
-    import OFS.subscribers
-except ImportError:
-    ZOPE29 = False
-else:
-    ZOPE29 = True
-
 
 def gen_class(klass, schema=None):
     """generats and registers the klass

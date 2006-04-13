@@ -4,10 +4,11 @@ import sys
 import traceback
 import pprint
 from types import StringType
+from zLOG import LOG, INFO, ERROR, BLATHER
 import warnings
-import logging
 
 from Products.Archetypes.config import PKG_NAME, DEBUG
+
 
 if os.name == 'posix':
     COLOR = 1
@@ -23,7 +24,6 @@ COLORS = {
         'norm'  : "\033[00m",
         }
 
-logger = logging.getLogger('Archetypes')
 norm  = "\033[00m"
 
 class SafeFileWrapper:
@@ -160,14 +160,14 @@ class ZPTLogger(ClassLog):
 
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
-        level = kwargs.get('level', logging.INFO)
+        level = kwargs.get('level', INFO)
         msg = "%s\n" % (self.munge_message(msg, **kwargs))
         for arg in args:
             msg += "%s\n" % pprint.pformat(arg)
-        logger.log(level, msg)
+        LOG(PKG_NAME, level, msg)
 
     def log_exc(self, msg=None, *args, **kwargs):
-        logger.log(logging.ERROR, '%s:\n%s' % (msg, sys.exc_info()))
+        LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
 
 def warn(msg, level=3):
     # level is the stack level
@@ -188,7 +188,11 @@ def deprecated(msg, level=3):
         warnings.warn(msg, DeprecationWarning, level)
 
 _default_logger = ClassLog()
+#_zpt_logger = ZPTLogger()
 _zlogger = ZLogger()
 
+#log = _default_logger.log
+#log_exc = _default_logger.log_exc
+#zptlog = _zpt_logger.log
 log = zlog = _zlogger.log
 log_exc    = _zlogger.log_exc

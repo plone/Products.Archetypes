@@ -5,8 +5,7 @@ from types import StringType
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log
-from logging import ERROR
+from Products.Archetypes.debug import log, ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base

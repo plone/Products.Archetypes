@@ -1,17 +1,5 @@
-1.4.0 Unreleased 
-================ 
-
-  * Avoid DeprecationWarnings for manageAddDelete methods and converted the
-    logging infrastructure to use Python's logging module in favor of zLOG.
-    [hannosch]
-
-  * Removed reST-test-kludge. reStructuredText of Zope < 2.8 is buggy,
-    don't bother with test failures.
-    [stefan]
-
-  * converted remaining interfaces and unconverted metadata due to
-    issues with CMF1.5's bridges
-    [whit]
+1.4.0 Unreleased
+================
 
   * converted add following modules to zope3 interfaces w/
     backward bridges::
