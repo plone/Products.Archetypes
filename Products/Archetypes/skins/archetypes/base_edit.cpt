@@ -76,6 +76,8 @@
 
     <metal:fill fill-slot="main">
       <metal:main define-macro="main">
+      <div style="display:none" class="error" id="error"></div>
+
         <metal:use_header use-macro="header_macro" />
         <metal:use_typedescription use-macro="typedescription_macro" />
         <metal:use_body use-macro="body_macro" />

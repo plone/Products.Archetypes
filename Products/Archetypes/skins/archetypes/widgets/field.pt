@@ -24,7 +24,7 @@
           <tal:if_use_label condition="use_label | nothing">
             <metal:use_label use-macro="label_macro" />
           </tal:if_use_label>
-          <metal:use_data use-macro="data_macro|default" />
+            <metal:use_data use-macro="data_macro|default" />
         </tal:if_perm>
       </tal:condition>
     </metal:base_view_macro>
@@ -108,7 +108,7 @@
           </span>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:condition="error_id"
+            <div tal:attributes="id string:error-${fieldName}"
                  tal:content="error_id" i18n:translate="">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
@@ -124,6 +124,10 @@
           <metal:use use-macro="hidden_macro" />
         </metal:hiddenmacro>
       </tal:condition>
+
+      <tal:bling tal:define="ajax python:modules['Products.Bling.ajax']"
+		 tal:replace="structure python:ajax.checkedField(here.absolute_url() + '/ajax_validate',
+			      field.getName(), withvalue=True, error='error-' + field.getName())"/>
 
     </metal:define>
 

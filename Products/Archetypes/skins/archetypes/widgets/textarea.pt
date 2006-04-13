@@ -9,8 +9,20 @@
   <body>
 
     <!-- TextArea Widgets -->
+    <metal:view_macro define-macro="view">
+        <span tal:attributes="id string:archetypes-inplace-${field/getName};" 
+               tal:content="structure accessor"/>
+     <tal:ajax condition="python: field.writeable(here)" 
+               define="ajax python:modules['Products.Bling.ajax'];
+		       id string:archetypes-inplace-${field/getName};"
+	       replace="structure python: ajax.BlingEditor(
+			here.absolute_url(), id, dict(js=dict(
+			form = dict(field_name = field.getName(),
+			mode = 'ajax_edit'
+			))))"
+  	/>
+    </metal:view_macro>
 
-    <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define define-macro="area_edit">
       <tal:define
@@ -109,6 +121,10 @@
         </metal:fill>
       </metal:use>
     </metal:define>
+
+    <div metal:define-macro="ajax_edit">
+      <textarea name="value" tal:attributes="id field/getName"/>
+    </div>
 
   </body>
 
