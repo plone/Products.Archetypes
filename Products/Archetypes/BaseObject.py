@@ -55,6 +55,7 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
+from Products.Archetypes.interfaces import ISchema
 from Products.Archetypes.interfaces import IBaseObject
 from zope.interface import implements
 
@@ -783,12 +784,7 @@ class BaseObject(Referenceable):
         """
         return getSchemata(self)
 
-    def Schema(self):
-        """Return a (wrapped) schema instance for
-        this object instance.
-        """
-        schema = self.schema
-        return ImplicitAcquisitionWrapper(schema, self)
+    Schema=lambda self:ISchema(self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):

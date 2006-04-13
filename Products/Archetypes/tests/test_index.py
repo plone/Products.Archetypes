@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -41,6 +40,7 @@ from Products.CMFCore.utils import getToolByName
 class ETagTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
         self.setRoles(['Manager'])
         self.inst = makeContent(self.portal,
                                 portal_type='SimpleType',
@@ -80,6 +80,7 @@ class ETagTest(ATSiteTestCase):
 class ReindexTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
         self.setRoles(['Manager'])
         self.inst = makeContent(self.portal,
                                 portal_type='SimpleType',

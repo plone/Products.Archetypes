@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -46,6 +45,7 @@ from DateTime import DateTime
 class ChangeStorageTest(ATTestCase):
 
     def afterSetUp(self):
+        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()

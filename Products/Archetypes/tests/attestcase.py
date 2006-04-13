@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -75,9 +74,18 @@ config._config.rest_output_encoding = 'ascii'
 config._config.rest_header_level = 3
 del config
 
+from Products.Archetypes.Schema.adapters import InstancePersistentSchema
+from zope.component import provideAdapter
+
+def regschema():
+    provideAdapter(InstancePersistentSchema)
+
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
+    def afterSetUp(self):
+        super(ATTestCase, self).afterSetUp()
+        regschema()
 
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests

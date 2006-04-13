@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -46,6 +45,7 @@ from Products.Archetypes.atapi import *
 class GetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
+        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -115,6 +115,7 @@ class SetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
+        ATTestCase.afterSetUp(self)
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         file1 = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.tgz'), 'r')

@@ -3,8 +3,8 @@
     >
 
   <include file="bridge.zcml"/>
-
   <include file="implements.zcml"/>
+  <include package="Schema"/>
 
 </configure>
 

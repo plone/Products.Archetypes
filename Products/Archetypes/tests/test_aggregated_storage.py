@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -69,6 +68,7 @@ class AggregatedStorageTestsNoCache(ATSiteTestCase):
     caching = 0
 
     def afterSetUp(self):
+        ATSiteTestCase.afterSetUp(self)
         self._storage = AggregatedStorage(caching=self.caching)
         self._storage.registerAggregator('whole_name', 'get_name')
         self._storage.registerDisaggregator('whole_name', 'set_name')

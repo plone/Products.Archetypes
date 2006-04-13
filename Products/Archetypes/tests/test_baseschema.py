@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -52,9 +51,12 @@ Dummy.schema = BaseSchema
 EmptyValidator = ValidationChain('isEmpty')
 EmptyValidator.appendSufficient('isEmpty')
 
+from attestcase import regschema
+
 class BaseSchemaTest(ATSiteTestCase):
 
     def afterSetUp(self):
+        regschema()
         ATSiteTestCase.afterSetUp(self)
         registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
