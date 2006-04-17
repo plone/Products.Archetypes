@@ -314,20 +314,7 @@ def install_indexes(self, out, types):
                     use_column = 1
                 index_spec = index_spec[0]
 
-                index_accessor = getattr(field, 'index_method', None)
-                if index_accessor == '_at_edit_accessor':
-                    accessor = field.edit_accessor or field.accessor
-                elif index_accessor == '_at_accessor':
-                    accessor = field.accessor
-                elif index_accessor:
-                    if isinstance(index_accessor, (unicode, str)):
-                        accessor = str(index_accessor)
-                    else:
-                        raise ValueError('Bad index accessor value : %r'
-                                         % index_accessor)
-                else:
-                    accessor = field.accessor
-
+                accessor = field.getIndexAccessorName()
 
                 parts = index_spec.split('|')
                 # we want to be able to specify which catalog we want to use

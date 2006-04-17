@@ -587,6 +587,31 @@ class Field(DefaultLayerContainer):
             return getattr(instance, self.mutator, None)
         return None
 
+    security.declarePublic('getIndexAccessor')
+    def getIndexAccessor(self, instance):
+        """Return the index accessor, i.e. the getter for an indexable
+        value."""
+        return getattr(instance, self.getIndexAccessorName())
+
+    security.declarePublic('getIndexAccessorName')
+    def getIndexAccessorName(self):
+        """Return the index accessor's name defined by the
+        'index_method' field property."""
+        if not hasattr(self, 'index_method'):
+            return self.accessor
+        elif self.index_method == '_at_accessor':
+            return self.accessor
+        elif self.index_method == '_at_edit_accessor':
+            return self.edit_accessor or self.accessor
+
+        # If index_method is not a string, we raise ValueError (this
+        # is actually tested for in test_extensions_utils):
+        elif not isinstance(self.index_method, (str, unicode)):
+            raise ValueError("Bad index accessor value : %r"
+                             % self.index_method)
+        else:
+            return self.index_method
+
     security.declarePrivate('toString')
     def toString(self):
         """Utility method for converting a Field to a string for the

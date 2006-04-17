@@ -13,7 +13,7 @@ from Products.Archetypes.utils import shasattr
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Field import TextField
 from Products.Archetypes.Field import STRING_TYPES
-from Products.Archetypes.Renderer import renderer, ajax_renderer
+from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import getSchemata
 from Products.Archetypes.Storage import AttributeStorage
@@ -514,96 +514,7 @@ class BaseObject(Referenceable):
         self.post_validate(REQUEST, errors)
         return errors
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'ajax_set')
-    def ajax_set(self, field_name, value, REQUEST=None):
-        """Set a field value through the schema. Returns the display
-        value, such as a transform from REST to HTML.
-        """
-        response = 200
-        errors = {}
-        msg = ''
-
-        field = self.Schema()[field_name]
-        if field.writeable(self):
-            # XXX: do this via the view
-            ##widget = field.widget
-            ##result = widget.process_form(self, field, REQUEST.form,
-            ##                              empty_marker=_marker)
-
-            mutator = field.getMutator(self)
-            __traceback_info__ = (self, field, mutator)
-
-            # This is a hack, we could technically support
-            # things like reST with more work
-            mutator(value, mimetype="text/html")
-            if field.type == "lines":
-                msg = field.get(self)
-                vocab = field.Vocabulary(self)
-                if vocab:
-                    msg = self.displayValue(vocab, msg)
-            else:
-                msg = field.get(self, mimetype="text/html")
-            ##msg = self.ajax_widget(field_name, mode="view")
-        else:
-            response = 403 # Forbidden
-            msg = "Unable to set field. Permission Denied"
-
-        REQUEST.RESPONSE.setHeader("status", response)
-        return msg
-
-
-    security.declareProtected(CMFCorePermissions.View, 'ajax_validate')
-    def ajax_validate(self, name, value, REQUEST=None):
-        """Validates the form data from the request. This is intended
-        for use with AJAX. It will set the HTTP header response code
-        to indicate an error in a way that a normal response
-        shouldn't.
-        Also because a widget be be the value of n fields we submit
-        the form to indicate change. The widget code will be used to
-        extract the values from the REQUEST as in a normal request.
-
-        Like a normal validate method the reply message should be
-        empty if things are successful.
-
-        XXX: we will need to support returning a script which can
-        indicate which element to focus in an n-field widget.
-        """
-        response = 200
-        errors = {}
-        msg = ''
-
-        field = self.Schema()[name]
-        if field.writeable(self):
-            # XXX: do this via the view
-            ##widget = field.widget
-            ##result = widget.process_form(self, field, REQUEST.form,
-            ##                             empty_marker=_marker)
-            ##field.validate(instance=self, value=result[0],
-            ##               errors=errors,
-            ##               REQUEST=REQUEST, **result[1])
-            field.validate(instance=self, value=value, errors=errors, REQUEST=REQUEST)
-            if errors:
-                msg = errors[field.getName()]
-                response = 412 # Precondition failed, maybe #406?
-        else:
-            response = 403 # Forbidden
-            msg = "Unable to validate field. Permission Denied."
-
-        REQUEST.RESPONSE.setHeader("status", response)
-        return msg
-
-    security.declareProtected(CMFCorePermissions.View, 'ajax_widget')
-    def ajax_widget(self, field_name, mode="view", field=None, **kwargs):
-        """Returns the rendered widget.
-        """
-        if field is None:
-            field = self.Schema()[field_name]
-        widget = field.widget
-        return ajax_renderer.render(field_name, mode, widget, self, field=field,
-                                    **kwargs)
-
-
-    security.declareProtected(CMFCorePermissions.View, 'SearchableText')
+    security.declareProtected(permissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
         here for indexing purpose.
@@ -613,7 +524,7 @@ class BaseObject(Referenceable):
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
-            method = field.getAccessor(self)
+            method = field.getIndexAccessor(self)
             try:
                 datum =  method(mimetype="text/plain")
             except TypeError:
@@ -727,9 +638,6 @@ class BaseObject(Referenceable):
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Processes the schema looking for data in the form.
         """
-        import time
-        start = time.time()
-        print "Processing form", self.getId()
         is_new_object = self.checkCreationFlag()
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
@@ -742,7 +650,6 @@ class BaseObject(Referenceable):
             self.at_post_create_script()
         else:
             self.at_post_edit_script()
-        print "Done", self.getId(), time.time() - start
 
     # This method is only called once after object creation.
     security.declarePrivate('at_post_create_script')
@@ -814,7 +721,7 @@ class BaseObject(Referenceable):
         check_id = getattr(self, 'check_id', None)
         if check_id is not None:
             invalid_id = check_id(new_id, required=1)
-
+        
         # If check_id told us no, or if it was not found, make sure we have an
         # id unique in the parent folder.
         if invalid_id:
@@ -835,26 +742,26 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_findUniqueId')
     def _findUniqueId(self, id):
-        """Find a unique id in the parent folder, based on the given id, by
+        """Find a unique id in the parent folder, based on the given id, by 
         appending -n, where n is a number between 1 and the constant
         RENAME_AFTER_CREATION_ATTEMPTS, set in config.py. If no id can be
         found, return None.
         """
         parent = aq_parent(aq_inner(self))
         parent_ids = parent.objectIds()
-
+        
         if id not in parent_ids:
             return id
-
+            
         idx = 1
         while idx <= RENAME_AFTER_CREATION_ATTEMPTS:
             new_id = "%s-%d" % (id, idx)
             if new_id not in parent_ids:
                 return new_id
             idx += 1
-
+        
         return None
-
+        
     security.declarePrivate('_isIDAutoGenerated')
     def _isIDAutoGenerated(self, id):
         """Avoid busting setDefaults if we don't have a proper acquisition

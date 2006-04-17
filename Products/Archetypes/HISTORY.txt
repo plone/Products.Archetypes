@@ -1,6 +1,12 @@
 1.4.0 Unreleased 
 ================ 
 
+  * Moved 'index_method' computation out from Extensions/utils.py into
+    Field.  Because we want SearchableText of BaseObject to use the
+    'index_method' too.  This fixes
+    https://dev.plone.org/archetypes/ticket/645
+    [nouri]
+
   * Avoid DeprecationWarnings for manageAddDelete methods and converted the
     logging infrastructure to use Python's logging module in favor of zLOG.
     [hannosch]
