@@ -39,6 +39,8 @@
 
   * Spring-cleaning of tests infrastructure.
     [hannosch]
+
+  * TTW Locking [rritz-jfroche]
     
 
 
