@@ -1,0 +1,24 @@
+zope-cmfarchetypes (1.2.4+1.2.5-rc4) unstable; urgency=low
+
+  * New upstream release 1.2.5 release candidate 4 
+
+ -- Christian Heimes <heimes@faho.rwth-aachen.de>  Sun, 21 Mar 2004 17:06:58 +0100
+
+zope-cmfarchetypes (1.1+20030819-1) unstable; urgency=low
+
+  * Snapshot update (fix metadata). 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 19 Aug 2003 11:33:13 +0200
+
+zope-cmfarchetypes (1.1+20030813-2) unstable; urgency=low
+
+  * Snapshot update. 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 5 Aug 2003 14:42:05 +0200
+  
+zope-cmfarchetypes (1.1+20030813-1) unstable; urgency=low
+
+  * Initial debian packaging. 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 5 Aug 2003 14:42:05 +0200
+

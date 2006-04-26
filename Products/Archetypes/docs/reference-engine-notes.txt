@@ -1,0 +1,20 @@
+Note about the Reference-Engine in Archetypes 
+
+References are a very powerful part of Archetypes, but it's code is komplex and 
+fragile in case of touching it. 
+
+There were discussions/trials to change/enhance the reference copy behaviour 
+in v1.3. Background: references are not copied if a object is copied. They are 
+only copied on cut-and-paste actions. This behaviour is a wanted one for several 
+use-cases, but also an unwanted glitch for some important other use-cases. 
+
+The statement is: In Archetypes 1.3.X this behaviour will NOT change.
+
+For Archetypes 1.4 we will prepare a fine-grained reference behaviour.
+The default behaviour willbe the same as in 1.3, but you can set a flag on each 
+reference telling the engine to copy the reference on object copy. This flag
+could be set programatically, by a ReferenceField or other Reference creating 
+logic.
+
+--Jens "jensens" Klein (Release Manager), 2004-11-16
+
