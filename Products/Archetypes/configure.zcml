@@ -11,6 +11,8 @@
 
   <include file="browser.zcml"/>
 
+  <include file="adapters.zcml"/>
+
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
 

@@ -4,9 +4,9 @@
 
   <!-- Using Zope3 adapters -->
   <adapter
-      for=".interfaces.ITTWLockable"
-      factory=".adapters.locking.TTWLock"
-      provides=".interfaces.ILock"
+      for="Products.Archetypes.interfaces.ITTWLockable"
+      factory="Products.Archetypes.adapters.locking.TTWLock"
+      provides="Products.Archetypes.interfaces.ILock"
       />
 
 

@@ -1,12 +1,35 @@
 from Products.Archetypes.interfaces import ILock
+from zope.interface import implements
+## Zope Security
+from AccessControl import getSecurityManager
+from webdav.LockItem import LockItem
+
 
 class TTWLock(object):
     """
     """
     implements(ILock)
 
+    def __init__(self, context):
+        """
+        """
+        self.context = context
+
     def lock(self):
-        pass
+        """
+        """
+        if self.context.wl_isLocked():
+            pass
+        else:
+            user = getSecurityManager().getUser()
+            lock = LockItem(user)
+            token = lock.getLockToken()
+            self.context.wl_setLock(token, lock)
 
     def unlock(self):
-        pass
+        """
+        """
+        if self.context.wl_isLocked():
+            self.context.wl_clearLocks()
+        else:
+            pass
