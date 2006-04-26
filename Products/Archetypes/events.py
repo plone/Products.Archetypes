@@ -21,7 +21,6 @@ def unlockAfterModification(obj, event):
     """
     release the DAV lock after save
     """
-    print "clearing the lock"
     if ITTWLockable.providedBy(obj):
         if obj.wl_isLocked():
             obj.wl_clearLocks()
@@ -32,12 +31,10 @@ def lockOnEditBegins(obj, event):
     """
     lock the object when a user start working on the object
     """
-    print "in lockOnEditBegins"
     if ITTWLockable.providedBy(obj):
         if obj.wl_isLocked():
             pass
         else:
-            print "trying to set lock"
             user = getSecurityManager().getUser()
             lock = LockItem(user)
             token = lock.getLockToken()

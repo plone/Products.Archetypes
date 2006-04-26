@@ -11,4 +11,12 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <browser:page
+        for=".interfaces.ITTWLockable"
+        name="isLocked"
+        class=".browser.locking.LockingView"
+        attribute="isLocked"
+        permission="zope2.View"
+        />
+
 </configure>

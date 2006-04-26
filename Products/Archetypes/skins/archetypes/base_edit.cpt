@@ -16,8 +16,7 @@
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
-                   lockable python:hasattr(here, 'wl_isLocked');
-                   isLocked python:lockable and here.wl_isLocked();
+                   isLocked here/isLocked;
                    dummyLock here/notifyEditBegins;
                    tabindex tabindex|python:Iterator(pos=7000);
                    css python:here.getUniqueWidgetAttr(fields, 'helper_css');
