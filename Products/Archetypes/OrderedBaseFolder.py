@@ -24,7 +24,7 @@ from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-
+    
 from zExceptions import NotFound
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes

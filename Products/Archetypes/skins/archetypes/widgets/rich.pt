@@ -10,20 +10,16 @@
 
     <metal:view_macro define-macro="view"
                       tal:define="transformable python: here.isTransformable(fieldName);">
-      <div tal:attributes="id string:archetypes-inplace-${field/getName};">
-        <span tal:condition="transformable"
-              tal:replace="structure accessor"/>
-      </div>
-     <tal:ajax condition="python: field.writeable(here)" 
-               define="ajax python:modules['Products.Bling.ajax'];
-		       id string:archetypes-inplace-${field/getName};"
-	       replace="structure python: ajax.BlingEditor(
-			here.absolute_url(), id, dict(js=dict(
-			form = dict(field_name = field.getName(),
-			            mode = 'ajax_edit',
-			))))"
-
-  	/>
+      <span tal:condition="transformable"
+            tal:replace="structure accessor"/>
+<tal:comment replace="nothing">
+Commented out the View/Edit links for ordinary display - feel free to
+enable these in your site, but they should definitely not be there by
+default.
+      <tal:download tal:condition="widget/allow_file_upload | python:1">
+        <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
+      </tal:download>
+</tal:comment>
     </metal:view_macro>
  
     <metal:define define-macro="edit">
@@ -58,11 +54,6 @@
       <div metal:use-macro="here/widgets/rich/macros/edit">
       </div>
     </div>
-
-    <div metal:define-macro="ajax_edit">
-      <textarea name="value" tal:attributes="id field/getName"/>
-    </div>
-
 
   </body>
 

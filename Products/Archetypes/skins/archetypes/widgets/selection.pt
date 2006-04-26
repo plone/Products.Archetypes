@@ -12,24 +12,11 @@
 
     <!-- Selection Widgets -->
 
-    <metal:view_macro define-macro="view">
-      <span tal:define="vocab python:field.Vocabulary(here);
-                       value python:accessor();
-                       display python:here.displayValue(vocab, value)"
-	    tal:attributes="id string:archetypes-inplace-${field/getName};"
-            tal:content="structure display"/>
-      <tal:ajax condition="python: field.writeable(here)" 
-		define="ajax python:modules['Products.Bling.ajax'];
-			id string:archetypes-inplace-${field/getName};"
-		replace="structure python: ajax.BlingEditor(
-			 here.absolute_url(), id, dict(js=dict(
-			 autopopulate = False, 
-			 autosize = False,
-			 form = dict(field_name = field.getName(),
-			 mode = 'ajax_edit',
-			 ))))"
-  		/>
-    </metal:view_macro>
+    <metal:view_macro define-macro="view"
+                      tal:define="vocab python:field.Vocabulary(here);
+                                  value python:accessor();
+                                  display python:here.displayValue(vocab, value)"
+                      tal:replace="structure display" />
 
     <metal:define define-macro="edit">
 
@@ -93,22 +80,6 @@
 
     <div metal:define-macro="search">
         <div metal:use-macro="here/widgets/selection/macros/edit" />
-    </div>
-
-    <div metal:define-macro="ajax_edit">
-      <select name="value" 
-	      tal:define="vocab python:field.Vocabulary(here);
-			  value accessor;
-			  "
-	      tal:attributes="id fieldName;">
-        <option tal:repeat="item vocab"
-                tal:attributes="value item;
-                                selected python:here.checkSelected(item, value) and 'selected' or None"
-                tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
-                i18n:translate=""
-                />
-      </select>
-
     </div>
 
 </body>
