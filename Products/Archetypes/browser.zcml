@@ -19,4 +19,20 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for=".interfaces.ITTWLockable"
+        name="getLockInformations"
+        class=".browser.locking.LockingView"
+        attribute="getLockInformations"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for=".interfaces.ITTWLockable"
+        name="forceUnlock"
+        class=".browser.locking.LockingView"
+        attribute="forceUnlock"
+        permission="cmf.ModifyPortalContent"
+        />
+
 </configure>

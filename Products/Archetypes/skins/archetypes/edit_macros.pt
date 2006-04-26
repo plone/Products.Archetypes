@@ -46,8 +46,9 @@
 
       <p class="portalMessage"
          tal:condition="isLocked"
+         tal:define="lockInfo here/getLockInformations"
          i18n:translate="description_webdav_locked">
-        This item is in use by someone else and cannot be modified
+        This item is in use by <span tal:replace="lockInfo/creator"/> since <span tal:replace="lockInfo/lockCreationTime"/> and cannot be modified
       </p>
 
     </div>
