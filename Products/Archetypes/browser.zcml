@@ -1,0 +1,14 @@
+<configure
+    xmlns:browser="http://namespaces.zope.org/browser">
+
+    <!-- Using Zope3 Browser View -->
+
+    <browser:page
+        for=".interfaces.ITTWLockable"
+        name="notifyEditBegins"
+        class=".browser.locking.LockingView"
+        attribute="notifyEditBegins"
+        permission="cmf.ModifyPortalContent"
+        />
+
+</configure>

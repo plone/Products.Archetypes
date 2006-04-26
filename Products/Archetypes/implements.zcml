@@ -11,7 +11,12 @@
       class=".BaseObject.BaseObject"
       interface=".interfaces.IBaseObject"
       /> 
-      
+
+   <implements
+      class=".BaseObject.BaseObject"
+      interface=".interfaces.ITTWLockable"
+      /> 
+     
   <!-- TODO: more -->
 
 </configure>

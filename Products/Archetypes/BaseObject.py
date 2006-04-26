@@ -57,7 +57,8 @@ from webdav.NullResource import NullResource
 
 from Products.Archetypes.interfaces import IBaseObject
 from zope.interface import implements
-
+from zope.event import notify
+from Products.Archetypes.events import EditEndsEvent
 _marker = []
 
 class AttributeValidator(Implicit):
@@ -659,7 +660,7 @@ class BaseObject(Referenceable):
     # This method is called after every subsequent edit
     security.declarePrivate('at_post_edit_script')
     def at_post_edit_script(self):
-        pass
+        notify(EditEndsEvent(self))
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'markCreationFlag')

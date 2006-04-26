@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    >
+
+  <!-- Using Zope3 adapters -->
+  <adapter
+      for=".interfaces.ITTWLockable"
+      factory=".adapters.locking.TTWLock"
+      provides=".interfaces.ILock"
+      />
+
+
+</configure>
