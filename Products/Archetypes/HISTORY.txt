@@ -1,6 +1,10 @@
 1.4.0 Unreleased 
 ================ 
 
+  * Added a archetypes historyaware mixin, providing access to archetypes 
+    persistent revisions (including annotations).
+    [mj]
+
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
@@ -39,8 +43,6 @@
 
   * Spring-cleaning of tests infrastructure.
     [hannosch]
-
-  * TTW Locking [rritz-jfroche]
     
 
 
