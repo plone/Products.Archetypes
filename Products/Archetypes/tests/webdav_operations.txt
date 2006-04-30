@@ -1,0 +1,66 @@
+Tests for WebDAV operations
+===========================
+
+First, setup some content with references:
+
+  >>> from Testing.ZopeTestCase import user_name, user_password, folder_name
+  >>> from Products.Archetypes.tests.utils import makeContent
+
+  >>> a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
+  >>> b = makeContent(self.folder, portal_type='DDocument', title='Bar', id='b')
+
+  >>> f = makeContent(self.folder, portal_type='Folder', title='Sub', id='f')
+
+  >>> _ = a.addReference(b, "KnowsAbout")
+  >>> _ = b.addReference(a, "KnowsAbout")
+
+  >>> a.getRefs()
+  [<DDocument at /plone/.../b>]
+
+  >>> b.getRefs()
+  [<DDocument at /plone/.../a>]
+
+Now do a WebDAV COPY and check that the references were removed from
+the copy:
+
+  >>> print http(r"""
+  ... COPY %s HTTP/1.1
+  ... Destination: %s
+  ... Authorization: Basic %s:%s
+  ... """ % ('/'.join(a.getPhysicalPath()),
+  ...        '/'.join(f.getPhysicalPath() + ('a',)),
+  ...        user_name, user_password),
+  ...        handle_errors=True)
+  HTTP/1.1 201 Created
+  ...
+
+  >>> a.getRefs()
+  [<DDocument at /plone/.../b>]
+
+  >>> b.getRefs()
+  [<DDocument at /plone/.../a>]
+
+  >>> f['a'].getRefs()
+  []
+
+Do a WebDAV move with 'b' and make sure it keeps the references:
+
+  >>> print http(r"""
+  ... MOVE %s HTTP/1.1
+  ... Destination: %s
+  ... Authorization: Basic %s:%s
+  ... """ % ('/'.join(b.getPhysicalPath()),
+  ...        '/'.join(f.getPhysicalPath() + ('b',)),
+  ...        user_name, user_password),
+  ...        handle_errors=True)
+  HTTP/1.1 201 Created
+  ...
+
+  >>> a.getRefs()
+  [<DDocument at /plone/.../b>]
+
+  >>> f['a'].getRefs()
+  []
+
+  >>> f['b'].getRefs()
+  [<DDocument at /plone/.../a>]

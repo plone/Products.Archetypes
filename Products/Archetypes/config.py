@@ -51,7 +51,7 @@ else:
 HAS_GRAPHVIZ = False
 
 ## protect attributes of AttributeStorage from unallowed access?
-ATTRIBUTE_SECURITY = True
+ATTRIBUTE_SECURITY = False
 
 ## set language default for metadata, it will be overwritten by portal-settings!
 ## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't

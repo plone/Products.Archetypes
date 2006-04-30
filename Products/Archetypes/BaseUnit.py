@@ -12,7 +12,7 @@ from Acquisition import aq_base
 from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
-from Products.CMFCore import permissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
@@ -232,7 +232,7 @@ class BaseUnit(File):
             delattr(self, '_v_transform_cache')
 
     ### index_html
-    security.declareProtected(permissions.View, "index_html")
+    security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
         filename = self.getFilename()
@@ -246,7 +246,7 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( permissions.ModifyPortalContent, 'PUT')
+    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)

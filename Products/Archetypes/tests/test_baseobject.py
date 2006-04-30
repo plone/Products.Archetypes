@@ -98,7 +98,31 @@ class BaseObjectTest(ATSiteTestCase):
         
         # Test searchable value
         self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+    def test_searchableTextUsesIndexMethod(self):
+        """See https://dev.plone.org/archetypes/ticket/645
 
+        We want SearchableText to use the ``index_method`` attribute
+        of fields to determine which is the accessor it should use
+        while gathering values.
+        """
+        ATSiteTestCase.afterSetUp(self)
+        dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
+                                 schema=schema.copy())
+        
+        # This is where we left off in the previous test
+        dummy.setMULTIPLEFIELD(['1','2'])
+        searchable = dummy.SearchableText()
+        self.failUnless(searchable.startswith('1 2 Option 1 : printemps'))
+
+        # Now we set another index_method and expect it to be used:
+        dummy.getField('MULTIPLEFIELD').index_method = 'myMethod'
+        def myMethod(self):
+            return "What do you expect of a Dummy?"
+        Dummy.myMethod = myMethod
+        searchable = dummy.SearchableText()
+        self.failUnless(searchable.startswith("What do you expect of a Dummy"))
+        del Dummy.myMethod
+        
 
 def test_suite():
     from unittest import TestSuite, makeSuite

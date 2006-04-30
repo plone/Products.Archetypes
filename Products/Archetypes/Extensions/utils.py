@@ -24,8 +24,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 
-from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
-from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
+from Products.Archetypes.ReferenceEngine import \
+     manage_addReferenceCatalog, manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 
@@ -242,11 +242,9 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s (%s)" % (package_name, klass.__name__,
-                                         klass.meta_type)
-
-        # get the meta type of the FTI from the class, use the
-        # default FTI as default
+        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if not fti_meta_type:
             fti_meta_type = FactoryTypeInformation.meta_type
@@ -314,20 +312,7 @@ def install_indexes(self, out, types):
                     use_column = 1
                 index_spec = index_spec[0]
 
-                index_accessor = getattr(field, 'index_method', None)
-                if index_accessor == '_at_edit_accessor':
-                    accessor = field.edit_accessor or field.accessor
-                elif index_accessor == '_at_accessor':
-                    accessor = field.accessor
-                elif index_accessor:
-                    if isinstance(index_accessor, (unicode, str)):
-                        accessor = str(index_accessor)
-                    else:
-                        raise ValueError('Bad index accessor value : %r'
-                                         % index_accessor)
-                else:
-                    accessor = field.accessor
-
+                accessor = field.getIndexAccessorName()
 
                 parts = index_spec.split('|')
                 # we want to be able to specify which catalog we want to use

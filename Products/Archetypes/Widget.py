@@ -8,7 +8,7 @@ from Products.CMFCore.Expression import createExprContext
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
-from Products.Archetypes.generator import macrowidget
+from Products.generator.widget import macrowidget
 from Products.Archetypes.debug import log
 from Products.Archetypes.Registry import registerPropertyType
 from Products.Archetypes.Registry import registerWidget

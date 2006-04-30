@@ -1,7 +1,12 @@
 from Products.Archetypes import WebDAVSupport
-from Products.Archetypes.atapi import BaseFolder
-from Products.CMFCore import permissions
-from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
+from Products.Archetypes.public import BaseFolder
+from Products.CMFCore import CMFCorePermissions
+try:
+    # import CMF >=1.5.3 style
+    from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
+except ImportError:
+    # backward compatible import CMF <1.5.3
+    from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
@@ -49,9 +54,15 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     def _getCopy(self, container):
         # We need to take _getCopy from BaseFolder (implicitly from
-        # Referencable) instead of straight from PortalFolder, otherwise there
+        # Referenceable) instead of straight from PortalFolder, otherwise there
         # are strange side effects with references on copy.
         return BaseFolder._getCopy(self, container)
+
+    def _notifyOfCopyTo(self, container, op=0):
+        # We need to take _notifyOfCopyTo from BaseFolder (implicitly from
+        # Referenceable) instead of straight from PortalFolder, otherwise there
+        # are strange side effects with references on copy.
+        return BaseFolder._notifyOfCopyTo(self, container, op)
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """
@@ -61,41 +72,41 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
                 return accessor()
         return CMFBTreeFolder.__getitem__(self, key)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'indexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'unindexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unindexObject')
     unindexObject = BaseFolder.unindexObject.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'reindexObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObject')
     reindexObject = BaseFolder.reindexObject.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'reindexObjectSecurity')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'reindexObjectSecurity')
     reindexObjectSecurity = BaseFolder.reindexObjectSecurity.im_func
 
     security.declarePrivate('notifyWorkflowCreated')
     notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueItems')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueIds')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueIds')
     opaqueIds = BaseFolder.opaqueIds.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueValues')
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues.im_func
 
-    security.declareProtected(permissions.ListFolderContents, 'listFolderContents')
+    security.declareProtected(CMFCorePermissions.ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation,
+    security.declareProtected(CMFCorePermissions.AccessContentsInformation,
                               'folderlistingFolderContents')
     folderlistingFolderContents = BaseFolder.folderlistingFolderContents.im_func
 
     __call__ = BaseFolder.__call__.im_func
 
-    #security.declareProtected(permissions.View, 'view')
-    #view = BaseFolder.view.im_func
+    security.declareProtected(CMFCorePermissions.View, 'view')
+    view = BaseFolder.view.im_func
 
     def index_html(self):
         """ Allow creation of .
@@ -114,19 +125,19 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     index_html = ComputedAttribute(index_html, 1)
 
-    security.declareProtected(permissions.View, 'Title')
+    security.declareProtected(CMFCorePermissions.View, 'Title')
     Title = BaseFolder.Title.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'setTitle')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setTitle')
     setTitle = BaseFolder.setTitle.im_func
 
-    security.declareProtected(permissions.View, 'title_or_id')
+    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     title_or_id = BaseFolder.title_or_id.im_func
 
-    security.declareProtected(permissions.View, 'Description')
+    security.declareProtected(CMFCorePermissions.View, 'Description')
     Description = BaseFolder.Description.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'setDescription')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription.im_func
 
     manage_addFolder = BaseFolder.manage_addFolder.im_func
@@ -134,16 +145,16 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     MKCOL = BaseFolder.MKCOL.im_func
     MKCOL_handler = BaseFolder.MKCOL_handler.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'PUT')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'PUT')
     PUT = WebDAVSupport.PUT
 
-    security.declareProtected(permissions.View, 'manage_FTPget')
+    security.declareProtected(CMFCorePermissions.View, 'manage_FTPget')
     manage_FTPget = WebDAVSupport.manage_FTPget
 
     security.declarePrivate('manage_afterPUT')
     manage_afterPUT = WebDAVSupport.manage_afterPUT
 
-    security.declareProtected(permissions.ModifyPortalContent, 'edit')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     edit = BaseFolder.edit.im_func
 
 InitializeClass(BaseBTreeFolder)
