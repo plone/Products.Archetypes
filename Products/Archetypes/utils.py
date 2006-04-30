@@ -958,3 +958,39 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     m = Message()
     m.add_header('content-disposition', disposition, **kw)
     return m['content-disposition']
+
+def getDefaultContentType(context):
+    default_contenttype = 'text/plain'
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    if portal_properties is None:
+        return default_contenttype
+    site_properties = getattr(portal_properties, 'site_properties', None)
+    if site_properties is None:
+        return default_contenttype
+    if site_properties.hasProperty('default_contenttype'):
+        return site_properties.getProperty('default_contenttype')
+    else:
+        return default_contenttype
+
+def setDefaultContentType(context, value):
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    if portal_properties is None:
+        pass
+    site_properties = getattr(portal_properties, 'site_properties', None)
+    if site_properties is None:
+        pass
+    if not site_properties.hasProperty('default_contenttype'):
+        site_properties.manage_addProperty('default_contenttype', value, 'string')
+    else:
+        site_properties.manage_changeProperties(default_contenttype=value)
+        
+def getAllowedContentTypes(context):
+    """ hardcoded for now. Will be made configurable!"""
+    return getAllowableContentTypes(context)
+
+def getAllowableContentTypes(context):
+    """ hardcoded for now. Will be made configurable!"""
+    portal_transforms = getToolByName(context, 'portal_transforms', None)
+    return portal_transforms.listAvailableTextInputs()
+
+    return ("text/x-web-markdown", "text/structured", "text/x-rst", "text/html", "text/plain",)
