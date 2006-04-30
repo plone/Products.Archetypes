@@ -21,9 +21,9 @@
 
     <browser:page
         for=".interfaces.ITTWLockable"
-        name="isLocked"
+        name="isLockedForMe"
         class=".browser.locking.LockingView"
-        attribute="isLocked"
+        attribute="isLockedForMe"
         permission="zope2.View"
         />
 
@@ -40,6 +40,14 @@
         name="forceUnlock"
         class=".browser.locking.LockingView"
         attribute="forceUnlock"
+        permission="cmf.ModifyPortalContent"
+        />
+
+    <browser:page
+        for=".interfaces.ITTWLockable"
+        name="safeUnlock"
+        class=".browser.locking.LockingView"
+        attribute="safeUnlock"
         permission="cmf.ModifyPortalContent"
         />
 

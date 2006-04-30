@@ -44,11 +44,16 @@
       </div>
       <metal:block define-slot="extra_info" />
 
-      <p class="portalMessage"
+      <div class="portalMessage"
          tal:condition="isLocked"
+         tal:define="lockInfo here/getLockInformations"
          i18n:translate="description_webdav_locked">
-        This item is in use by someone else and cannot be modified
-      </p>
+      <form action="forceUnlock" tal:attributes="action string:${here/absolute_url}/forceUnlock">
+        This item is locked by <a href="" tal:attributes="href lockInfo/authorPage"><span tal:replace="lockInfo/creator"/></a> since <span
+        tal:replace="lockInfo/timeDifference"/> and cannot be modified.
+            <input style="align:right;" type="submit" value="Unlock"/>
+        </form>
+      </div>
 
     </div>
 
@@ -71,22 +76,14 @@
             enctype="multipart/form-data"
             class="enableUnloadProtection"
             action=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
+            tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-	        <fieldset tal:repeat="fieldset fieldsets"
-	                  tal:attributes="id string:fieldset-${fieldset}">
-	          <legend id=""
-	                  tal:content="fieldset"
-	                  tal:attributes="id string:fieldsetlegend-${fieldset}"
-	                  i18n:translate="" />
-              <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-              </tal:fields>
-            </fieldset>
+            <tal:fields repeat="field fields">
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+            </tal:fields>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />
