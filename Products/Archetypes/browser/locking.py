@@ -2,6 +2,7 @@ from Products.Five import BrowserView
 from zope.event import notify
 from Acquisition import aq_inner
 from Products.Archetypes.events import EditBeginsEvent
+from Products.Archetypes.events import EditEndsEvent
 from AccessControl import getSecurityManager
 from Products.Archetypes.interfaces import ILock
 from Products.CMFCore.utils import getToolByName
@@ -17,6 +18,11 @@ class LockingView(BrowserView):
         """
         print "Fired EditBeginsEvent"
         notify(EditBeginsEvent(aq_inner(self.context)))
+
+    def notifyEditEnds(self):
+        """
+        """
+        notify(EditEndsEvent(aq_inner(self.context)))
 
     def isLocked(self):
         """
@@ -51,13 +57,13 @@ class LockingView(BrowserView):
                     creatorFullname = member.getProperty('fullname') or userid
             return {'userid': userid, 'creator':creatorFullname, 'lockCreationTime': lockCreationTime, 'authorPage': authorPage}
 
-    def forceUnlock(self):
+    def forceUnlock(self, redirect=True):
         """
         """
-        print "force Unlock fired"
         locker = ILock(self.context)
         locker.unlock()
-        #self.request.RESPONSE.redirect('%s' % self.context.absolute_url())
+        if redirect:
+            self.request.RESPONSE.redirect('%s' % self.context.absolute_url())
 
 
 

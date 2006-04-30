@@ -16,7 +16,7 @@ var UnloadHandler = function(){
       }
       unlockRequest = new XMLHttpRequest();
       unlockRequest.onreadystatechange= dummyProcessReqChange;
-      unlockRequest.open("GET", baseUrl + "/forceUnlock");
+      unlockRequest.open("GET", baseUrl + "/notifyEditEnds");
       unlockRequest.send(null);
 }
 window.onunload = UnloadHandler;

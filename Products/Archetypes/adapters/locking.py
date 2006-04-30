@@ -18,20 +18,26 @@ class TTWLock(object):
     def lock(self):
         """
         """
-        if self.context.wl_isLocked():
+        if self.isLock():
             pass
         else:
             user = getSecurityManager().getUser()
             lock = LockItem(user)
             token = lock.getLockToken()
             self.context.wl_setLock(token, lock)
-            #if(self.context )
+
+    def isLock(self):
+        return bool(self.context.wl_isLocked())
+
+    def getLockCreator(self):
+        if(self.isLock()):
+            pass
+            
 
     def unlock(self):
         """
         """
-        print "unlock %s" % '/'.join(self.context.getPhysicalPath())
-        if self.context.wl_isLocked():
+        if self.isLock():
             self.context.wl_clearLocks()
         else:
             pass
