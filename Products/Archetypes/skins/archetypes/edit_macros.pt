@@ -44,16 +44,11 @@
       </div>
       <metal:block define-slot="extra_info" />
 
-      <div class="portalMessage"
+      <p class="portalMessage"
          tal:condition="isLocked"
-         tal:define="lockInfo here/getLockInformations"
          i18n:translate="description_webdav_locked">
-      <form action="forceUnlock" tal:attributes="action string:${here/absolute_url}/forceUnlock">
-        This item is in use by <a href="" tal:attributes="href lockInfo/authorPage"><span tal:replace="lockInfo/creator"/></a> since <span
-        tal:replace="python:plone_view.toLocalizedTime(lockInfo.get('lockCreationTime'),1)"/> and cannot be modified.
-            <input style="align:right;" type="submit" value="Unlock"/>
-        </form>
-      </div>
+        This item is in use by someone else and cannot be modified
+      </p>
 
     </div>
 

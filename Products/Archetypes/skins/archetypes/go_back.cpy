@@ -9,19 +9,12 @@
 ##title=Go Back
 ##
 from Products.CMFCore.utils import getToolByName
-#from Products.Archetypes.interfaces import ILock
-
 ##SESSION = context.REQUEST.SESSION
 ##old_id = context.getId()
 ##cflag = SESSION.get('__creation_flag__', {})
 
 #utool = getToolByName(context, 'portal_url')
 #portal_object = utool.getPortalObject()
-#context.forceUnlock()
-context.restrictedTraverse('forceUnlock')()
-#locker = ILock(context)
-#locker.unlock()
-
 
 if context.isTemporary():
     # object was created using portal factory and it's just a temporary object
