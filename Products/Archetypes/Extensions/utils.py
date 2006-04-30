@@ -15,7 +15,6 @@ from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import setDefaultContentType, setForbiddenContentTypes
 
 from Products.CMFFormController.Extensions.Install \
      import install as install_formcontroller
@@ -382,12 +381,6 @@ def install_indexes(self, out, types):
                 if installed:
                     break
 
-def setup_textformats(self, out):
-    """ Setup the default and allowed contenttypes as site_properties.
-    """
-    setDefaultContentType(self, "text/html")
-    print >>out, ("Added 'default_contenttype' property to site_properties.")
-    setForbiddenContentTypes(self, [])
 
 def isPloneSite(self):
     # we should just define a single attr for this
@@ -463,7 +456,6 @@ def setupArchetypes(self, out, require_dependencies=True):
     # install skins and register templates
     install_subskin(self, out, types_globals)
     install_templates(self, out)
-    setup_textformats(self, out)
 
 def setupEnvironment(self, out, types,
                      package_name,
