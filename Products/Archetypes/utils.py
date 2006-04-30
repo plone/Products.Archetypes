@@ -986,11 +986,36 @@ def setDefaultContentType(context, value):
         
 def getAllowedContentTypes(context):
     """ hardcoded for now. Will be made configurable!"""
-    return getAllowableContentTypes(context)
-
+    allowable_types = getAllowableContentTypes(context)
+    forbidden_types = getForbiddenContentTypes(context)
+    allowed_types = [type for type in allowable_types if type not in forbidden_types]
+    return allowed_types
+    
 def getAllowableContentTypes(context):
     """ hardcoded for now. Will be made configurable!"""
     portal_transforms = getToolByName(context, 'portal_transforms', None)
     return portal_transforms.listAvailableTextInputs()
 
-    return ("text/x-web-markdown", "text/structured", "text/x-rst", "text/html", "text/plain",)
+def setForbiddenContentTypes(context, forbidden_contenttypes=[]):
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    if portal_properties is None:
+        pass
+    site_properties = getattr(portal_properties, 'site_properties', None)
+    if site_properties is None:
+        pass
+    if not site_properties.hasProperty('forbidden_contenttypes'):
+        site_properties.manage_addProperty('forbidden_contenttypes', tuple(forbidden_contenttypes), 'lines')
+    else:
+        site_properties.manage_changeProperties(forbidden_contenttypes=tuple(forbidden_contenttypes))
+
+def getForbiddenContentTypes(context):
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    if portal_properties is None:
+        return []
+    site_properties = getattr(portal_properties, 'site_properties', None)
+    if site_properties is None:
+        return []
+    if site_properties.hasProperty('forbidden_contenttypes'):
+        return list(site_properties.getProperty('forbidden_contenttypes'))
+    return []
+    
