@@ -30,6 +30,7 @@ class TTWLock(object):
     def unlock(self):
         """
         """
+        print "unlock %s" % '/'.join(self.context.getPhysicalPath())
         if self.context.wl_isLocked():
             self.context.wl_clearLocks()
         else:

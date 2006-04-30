@@ -54,9 +54,10 @@ class LockingView(BrowserView):
     def forceUnlock(self):
         """
         """
+        print "force Unlock fired"
         locker = ILock(self.context)
         locker.unlock()
-        self.request.RESPONSE.redirect('%s' % self.context.absolute_url())
+        #self.request.RESPONSE.redirect('%s' % self.context.absolute_url())
 
 
 
