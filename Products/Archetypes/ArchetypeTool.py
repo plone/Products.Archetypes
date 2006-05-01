@@ -187,16 +187,6 @@ def fixActionsForType(portal_type, typesTool):
                     else:
                         new.append(action)
 
-            # the code was moved to modify_fti()
-            ## Update Aliases
-            #if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-            #    if (hasattr(portal_type, 'aliases') and
-            #        hasattr(typeInfo, 'setMethodAliases')):
-            #        typeInfo.setMethodAliases(portal_type.aliases)
-            #    else:
-            #        # Custom views might need to reguess the aliases
-            #        if hasattr(typeInfo, '_guessMethodAliases'):
-            #            typeInfo._guessMethodAliases()
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
 

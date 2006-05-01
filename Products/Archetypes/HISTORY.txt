@@ -1,6 +1,13 @@
 1.4.0 Unreleased 
 ================ 
 
+  * Removed some old commented out code.
+    [hannosch]
+
+  * Added a archetypes historyaware mixin, providing access to archetypes 
+    persistent revisions (including annotations).
+    [mj]
+
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
