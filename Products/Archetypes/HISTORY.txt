@@ -1,10 +1,14 @@
-1.4.0 Unreleased 
-================ 
+1.4.0 Unreleased
+================
+
+  * Check mimetype before schema update and reapply type after.  This fixes
+    https://dev.plone.org/archetypes/ticket/618
+    [alecm]
 
   * Removed some old commented out code.
     [hannosch]
 
-  * Added a archetypes historyaware mixin, providing access to archetypes 
+  * Added a archetypes historyaware mixin, providing access to archetypes
     persistent revisions (including annotations).
     [mj]
 
@@ -46,7 +50,7 @@
 
   * Spring-cleaning of tests infrastructure.
     [hannosch]
-    
+
 
 
 1.4.0-alpha03 - 2006-03-26
