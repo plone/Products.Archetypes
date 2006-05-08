@@ -15,6 +15,7 @@ from _schema import ISchema, ISchemata, ICompositeSchema, IBindableSchema, IMana
 from _storage import IStorage, ISQLStorage
 from _templatemixin import ITemplateMixin
 from _vocabulary import IVocabulary
+from _athistoryaware import IATHistoryAware
 
 # BBB
 from Interface.bridge import createZope3Bridge
@@ -37,6 +38,7 @@ import schema
 import storage
 import vocabulary
 import templatemixin
+import athistoryaware
 
 # generate zope2 interfaces
 _m=utils.makeZ3Bridges
@@ -52,3 +54,4 @@ _m(storage, IStorage, ISQLStorage)
 _m(vocabulary, IVocabulary)
 _m(orderedfolder, IOrderedFolder, IOrderedContainer)
 _m(templatemixin, ITemplateMixin)
+_m(athistoryaware, IATHistoryAware)

@@ -24,6 +24,7 @@ Jens Klein                      -- Enhancements, bug fixes, release
                                    management, QA
 Riccardo Lemmi                  -- GadflyStorage rewrite
 Dwight Lowry                    -- SQLServerStorage
+Martijn Pieters                 -- ATHistoryAwareMixin
 Alan Runyan                     -- Plone development, support,
                                    promotion  and encouragement
 Bill Schindler                  -- Testing and lots of patches

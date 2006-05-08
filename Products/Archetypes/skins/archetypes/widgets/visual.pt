@@ -30,7 +30,8 @@
       <tal:define define="
           fieldCType python:here.getContentType(fieldName);
           contentType python:request.get('%s_text_format' % fieldName, fieldCType);
-		  mimetypes python:field.getAllowedContentTypes(here);"
+          allowableContentTypes python: list(getattr(field, 'allowable_content_types', ()));
+		  mimetypes python:  allowableContentTypes + (fieldCType not in allowableContentTypes and [fieldCType] or []);"
 		  condition="python: len(mimetypes) &gt; 1">
 
 	<label>Text Format</label>
