@@ -14,7 +14,7 @@
 
   <implements
       class=".ArchetypeTool.ArchetypeTool"
-      interface=".intefaces/iArchetypeTool"
+      interface=".interfaces.IArchetypeTool"
       />
       
   <!-- TODO: more -->
