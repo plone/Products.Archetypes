@@ -16,6 +16,7 @@ from _storage import IStorage, ISQLStorage
 from _templatemixin import ITemplateMixin
 from _vocabulary import IVocabulary
 from _athistoryaware import IATHistoryAware
+from _archetypetool import IArchetypeTool
 
 # BBB
 from Interface.bridge import createZope3Bridge
