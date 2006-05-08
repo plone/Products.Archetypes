@@ -5,6 +5,8 @@
 
   <include file="implements.zcml"/>
 
+  <include package=".exportimport" />
+
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
 

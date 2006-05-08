@@ -1,0 +1,13 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:five="http://namespaces.zope.org/five"
+   i18n_domain="cmf"
+   >
+
+  <adapter
+      factory=".archetypetool.ArchetypeToolXMLAdapater"
+      provides="Products.GenericSetup.interfaces.IBody"
+      for="Products.Archetypes.interfaces.IArchetypeTool
+           Products.GenericSetup.interfaces.ISetupEnviron"
+      />
+</configure>
