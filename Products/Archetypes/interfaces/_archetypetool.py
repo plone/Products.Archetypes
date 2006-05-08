@@ -6,7 +6,6 @@ class IArchetypeTool(Interface):
 
     id = Attribute('id', 'Must be set to "archetype_tool"')
 
-    def registerTemplate(template, name=None):
     def listRegisteredTypes(inProject=False):
         """Return the list of sorted types.
         """
