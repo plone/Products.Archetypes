@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<object name="uid_catalog" meta_type ="ZCatalog">
+  <property name="title">Archetypes UID Catalog</property>
+  <index name="UID" meta_type="FieldIndex"/>
+  <index name="Type" meta_type="FieldIndex"/>
+  <index name="id" meta_type="FieldIndex"/>
+  <index name="portal_type" meta_type="FieldIndex"/>
+
+  <column name="UID"/>
+  <column name="Type"/>
+  <column name="id"/>
+  <column name="Title"/>
+  <column name="portal_type"/>
+  <column name="meta_type"/>
+</object>
+
