@@ -14,8 +14,9 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
     def _exportNode(self):
         """Export the object as a DOM node.
         """
-        node=self._getObjectNode('object')
+        node=self._doc.createElement('archetypetool')
         node.appendChild(self._extractCatalogSettings())
+
         self._logger.info('ArchetypeTool settings exported.')
         return node
 
@@ -31,7 +32,7 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
 
 
     def _extractCatalogSettings(self):
-        fragment = self._doc.createDocumentFragment()
+        node=self._doc.createElement('catalogmap')
         for type in self.context.listRegisteredTypes(True):
             child=self._doc.createElement('type')
             child.setAttribute('meta_type', type['name'])
@@ -39,9 +40,9 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
                 sub=self._doc.createElement('catalog')
                 sub.setAttribute('value', cat.id)
                 child.appendChild(sub)
-            fragment.appendChild(child)
+            node.appendChild(child)
 
-        return fragment
+        return node
 
 
 def importArchetypeTool(context):
