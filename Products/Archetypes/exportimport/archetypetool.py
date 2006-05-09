@@ -3,6 +3,7 @@ from Products.GenericSetup.utils import XMLAdapterBase
 from Products.GenericSetup.utils import exportObjects
 from Products.GenericSetup.utils import importObjects
 from Products.CMFCore.utils import getToolByName
+from sets import Set
 
 
 class ArchetypeToolXMLAdapater(XMLAdapterBase):
@@ -22,13 +23,28 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
 
 
     def _importNode(self, node):
+        if self.environ.shouldPurge():
+            self._purgeCatalogSettings()
+
         self._initCatalogSettings(node)
         self._logger.info('ArchetypeTool settings imported.')
     
 
+
+    def _purgeCatalogSettings(self):
+        self.context.catalog_map.clear()
+
+
     def _initCatalogSettings(self, node):
-        import pdb
-        pdb.set_trace()
+        for child in node.childNodes:
+            if child.nodeName=='catalogmap':
+                for type in child.getElementsByTagName('type'):
+                    metatype=type.getAttribute('meta_type')
+                    catalogs=[e.getAttribute('value') \
+                                for e in type.getElementsByTagName('catalog')]
+                    catalogs=Set(catalogs +
+                                self.context.getCatalogsByType(metatype))
+                    self.context.setCatalogsByType(metatype, list(catalogs))
 
 
     def _extractCatalogSettings(self):
