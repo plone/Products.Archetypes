@@ -13,7 +13,7 @@ from AccessControl import allow_class
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
 try:
-    from Products.CMFCore import ISiteRoot
+    from Products.CMFPlone.interfaces import IPloneSiteRoot
     from Products.GenericSetup import EXTENSION, profile_registry
     HAS_GENERICSETUP = True
 except ImportError:
@@ -108,5 +108,5 @@ def initialize(context):
                 'profiles/default',
                 'Archetypes',
                 EXTENSION,
-                for_=ISiteRoot)
+                for_=IPloneSiteRoot)
 
