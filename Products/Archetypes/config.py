@@ -60,3 +60,8 @@ ATTRIBUTE_SECURITY = True
 ## it's save to use 'en'. Otherwise keep it empty for the future.
 LANGUAGE_DEFAULT=''
 #LANGUAGE_DEFAULT='en'
+
+## Archetypes before 1.4 managed the catalog map using meta types instead of
+## portal types. If you need this old behaviour change this setting to False.
+CATALOGMAP_USES_PORTALTYPE = True
+
