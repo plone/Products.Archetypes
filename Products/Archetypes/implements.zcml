@@ -11,7 +11,7 @@
       class=".BaseObject.BaseObject"
       interface=".interfaces.IBaseObject"
       /> 
-
+      
   <implements
       class=".ArchetypeTool.ArchetypeTool"
       interface=".interfaces.IArchetypeTool"
