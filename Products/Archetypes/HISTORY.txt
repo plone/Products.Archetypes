@@ -1,6 +1,19 @@
 1.4.0 Unreleased
 ================
 
+  * Add a new generateNewId method to BaseObject which is used to suggest
+    a new id when automatically renaming an object after creation. This makes
+    it easier to used custom naming in derived types.
+    [wichert]
+
+  * Add GenericSetup support for importing/exporting the catalog map from
+    ArchetypeTool
+    [wichert]
+
+  * Use portal type instead of meta type for the catalog map. Add an option
+    to config.py to switch back to the old behaviour.
+    [wichert]
+
   * Check mimetype before schema update and reapply type after.  This fixes
     https://dev.plone.org/archetypes/ticket/618
     [alecm]
