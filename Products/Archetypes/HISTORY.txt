@@ -143,8 +143,68 @@
     needed to handle zope.i18nmessageid.MessageID objects correctly.
     [hannosch]
 
-post 1.3.7-final
-================
+1.3.8-final - 2006-04-30
+========================
+
+  * Cleanup of CatalogMultiplex: removed superfluos code, added docstring
+    and comments.
+    [jensens]
+
+  * Moved 'index_method' computation out from Extensions/utils.py into
+    Field.  Because we want SearchableText of BaseObject to use the
+    'index_method' too.  This fixes
+    https://dev.plone.org/archetypes/ticket/645
+    [nouri]
+
+  * Removed reST-test-kludge. reStructuredText of Zope < 2.8 is buggy,
+    don't bother with test failures.
+    [stefan]
+
+  * Fixed WebDAV MOVE breaking references and cleaned up flagging of
+    reference copying for good measure.
+    Fixes http://dev.plone.org/archetypes/ticket/642
+    [sidnei]
+
+  * Fixed up some templates that were abusing tabindexes to get unique ids on
+    form elements. Tabindexes can no longer be used for this reliably
+    since Plone 2.1.3, and repeat/var/number is cleaner anyway.
+    [optilude]
+
+  * fixed http://dev.plone.org/plone/ticket/5072
+    [jensens]
+
+  * fixed #637: Schema.moveField( ... after ) does incorrect reordering.
+    Needed fixing of a buggy doctest.
+    [jensens]
+
+  * Removed some nonsense on PUT that would look at REQUEST._steps and
+    try to catch a exception (which would never occur!). Made it use
+    'PATH_INFO' instead, with a fallback to 'self.getId()' which
+    should suffice (PATH_INFO is always available as long as the
+    request came in through ZPublisher.Publish).
+    [sidnei]
+
+  * PdataStreamIterator could potentially end up loading a persistent
+    object after the ZODB connection had been closed. Made it use a
+    temporary file to stream out the content so that large files don't
+    end up using all the available memory.
+    [sidnei]
+
+  * Changed sidneis last 'fix'. Dont raise an exception. This is changed
+    behaviour and I cant accept this in a bugfix release. Prints out
+    a deprecation message instead now, to not break Products relying on
+    the old - odd - behaviour.
+    [jensens]
+
+  * Added check for duplicate 'accessor', 'edit_accessor' and
+    'mutator' method names on a schema's fields. Helps Joe Schmoe to
+    get unstuck, hopefully.
+    [sidnei]
+
+  * Backported fix for failing Windows mime types:
+    Original fix: http://dev.plone.org/archetypes/changeset/6005
+    Bug details here: http://dev.plone.org/plone/ticket/5109
+    [limi]
 
   * Cleanup of CatalogMultiplex: removed superfluos code, added docstring
     and comments.

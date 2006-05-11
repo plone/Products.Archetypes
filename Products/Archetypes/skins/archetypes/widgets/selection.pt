@@ -38,7 +38,7 @@
                                type="radio"
                                tal:define="tabindex tabindex/next"
                                tal:attributes="name fieldName;
-                                               id string:${fieldName}_${tabindex};
+                                               id string:${fieldName}_${repeat/item/number};
                                                checked python:here.checkSelected(item, value);
                                                value item;
                                                tabindex tabindex;"
@@ -46,7 +46,7 @@
 
                         <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
                                i18n:translate=""
-                               tal:attributes="for string:${fieldName}_${tabindex/pos}" />
+                               tal:attributes="for string:${fieldName}_${repeat/item/number}" />
 
                         <br />
 
