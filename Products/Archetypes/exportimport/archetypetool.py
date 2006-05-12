@@ -6,7 +6,7 @@ from Products.CMFCore.utils import getToolByName
 from sets import Set
 
 
-class ArchetypeToolXMLAdapater(XMLAdapterBase):
+class ArchetypeToolXMLAdapter(XMLAdapterBase):
     """Mode in- and exporter for ArchetypesTool.
     """
 

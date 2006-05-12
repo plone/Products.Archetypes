@@ -4,7 +4,7 @@
    >
 
   <adapter
-      factory=".archetypetool.ArchetypeToolXMLAdapater"
+      factory=".archetypetool.ArchetypeToolXMLAdapter"
       provides="Products.GenericSetup.interfaces.IBody"
       for="Products.Archetypes.interfaces.IArchetypeTool
            Products.GenericSetup.interfaces.ISetupEnviron"
