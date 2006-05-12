@@ -1,6 +1,11 @@
 1.4.0 Unreleased
 ================
 
+  * Fixed a problem in Field.py which could split mutibyte characters at a wrong
+    position, which could cause encoding problem in mimetypes_registry.
+    This closes http://dev.plone.org/plone/ticket/5214.
+    [hannosch]
+
   * Add a new generateNewId method to BaseObject which is used to suggest
     a new id when automatically renaming an object after creation. This makes
     it easier to used custom naming in derived types.

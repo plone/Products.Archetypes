@@ -905,7 +905,11 @@ class FileField(ObjectField):
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
-                d, f, mimetype = mtr(body[:8096], **kw)
+                # this may split the encoded file inside a multibyte character
+                try:
+                    d, f, mimetype = mtr(body[:8096], **kw)
+                except UnicodeDecodeError:
+                    d, f, mimetype = mtr(len(body) < 8096 and body or '', **kw)
             else:
                 mimetype = getattr(file, 'content_type', None)
                 if mimetype is None:
