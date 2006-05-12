@@ -39,19 +39,19 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
         for child in node.childNodes:
             if child.nodeName=='catalogmap':
                 for type in child.getElementsByTagName('type'):
-                    metatype=type.getAttribute('meta_type')
+                    portaltype=type.getAttribute('portal_type')
                     catalogs=[e.getAttribute('value') \
                                 for e in type.getElementsByTagName('catalog')]
                     catalogs=Set(catalogs +
-                                self.context.getCatalogsByType(metatype))
-                    self.context.setCatalogsByType(metatype, list(catalogs))
+                                self.context.getCatalogsByType(portaltype))
+                    self.context.setCatalogsByType(portaltype, list(catalogs))
 
 
     def _extractCatalogSettings(self):
         node=self._doc.createElement('catalogmap')
         for type in self.context.listRegisteredTypes(True):
             child=self._doc.createElement('type')
-            child.setAttribute('meta_type', type['name'])
+            child.setAttribute('portal_type', type['name'])
             for cat in self.context.getCatalogsByType(type['name']):
                 sub=self._doc.createElement('catalog')
                 sub.setAttribute('value', cat.id)
