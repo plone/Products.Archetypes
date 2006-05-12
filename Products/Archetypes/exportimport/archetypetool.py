@@ -3,7 +3,6 @@ from Products.GenericSetup.utils import XMLAdapterBase
 from Products.GenericSetup.utils import exportObjects
 from Products.GenericSetup.utils import importObjects
 from Products.CMFCore.utils import getToolByName
-from sets import Set
 
 
 class ArchetypeToolXMLAdapater(XMLAdapterBase):
@@ -41,10 +40,11 @@ class ArchetypeToolXMLAdapater(XMLAdapterBase):
                 for type in child.getElementsByTagName('type'):
                     portaltype=type.getAttribute('portal_type')
                     catalogs=[e.getAttribute('value') \
-                                for e in type.getElementsByTagName('catalog')]
-                    catalogs=Set(catalogs +
-                                self.context.getCatalogsByType(portaltype))
-                    self.context.setCatalogsByType(portaltype, list(catalogs))
+                              for e in type.getElementsByTagName('catalog')]
+                    already = [cat.getId() for cat in
+                               self.context.getCatalogsByType(portaltype)]
+                    catalogs=dict.fromkeys(catalogs + already)
+                    self.context.setCatalogsByType(portaltype, catalogs.keys())
 
 
     def _extractCatalogSettings(self):
@@ -81,5 +81,3 @@ def exportArchetypeTool(context):
         return
 
     exportObjects(tool, '', context)
-
-
