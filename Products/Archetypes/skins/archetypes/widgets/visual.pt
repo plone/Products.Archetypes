@@ -31,10 +31,9 @@
                   fieldCType python:here.getContentType(fieldName);
                   contentType python:request.get('%s_text_format' % fieldName, fieldCType);
                   allowableContentTypes python: list(getattr(field, 'allowable_content_types', ()));
-                  mimetypes python:  allowableContentTypes + (fieldCType not in allowableContentTypes and [fieldCType] or []);"
-                  condition="python: len(mimetypes) &gt; 1">
+                  mimetypes python:  allowableContentTypes + (fieldCType not in allowableContentTypes and [fieldCType] or []);">
 
-<div class="fieldTextFormat">
+<div class="fieldTextFormat" tal:condition="python: len(mimetypes) &gt; 1">
     <label>Text Format</label>
 
     <select tal:attributes="
@@ -47,6 +46,13 @@
           tal:content="python: here.lookupMime(item)" />
     </select>
 </div>
+
+<tal:hidden condition="python: len(mimetypes) == 1">
+        <input type="hidden" tal:attributes="id string:${fieldName}_text_format;
+                                             name string:${fieldName}_text_format;
+                                             value python:mimetypes[0]"/>
+</tal:hidden>
+
       </tal:define>
     </metal:define>
 

@@ -23,7 +23,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""BBB
+"""BBB will be removed in AT 1.5
 """
 
 from Testing import ZopeTestCase

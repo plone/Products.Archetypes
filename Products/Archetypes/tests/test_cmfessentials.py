@@ -36,7 +36,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.CMFCore.utils import _checkPermission as checkPerm
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import permissions
 
 
 class TestPermissions(ATSiteTestCase):
@@ -59,12 +59,20 @@ class TestPermissions(ATSiteTestCase):
             self.demo_instances.append(inst)
 
     def testPermissions(self):
-        content = self.demo_instances[0]
-        # XXX: Strangely enough we have correct permissions here, but not so
-        #      in initializeArchetype
-        self.failUnless(checkPerm(CMFCorePermissions.View, content))
-        self.failUnless(checkPerm(CMFCorePermissions.AccessContentsInformation, content))
-        self.failUnless(checkPerm(CMFCorePermissions.ModifyPortalContent, content))
+        for content in self.demo_instances:
+            # XXX: Strangely enough we have correct permissions here, but not so
+            #      in initializeArchetype
+            self.failUnless(checkPerm(permissions.View, content))
+            self.failUnless(checkPerm(permissions.AccessContentsInformation, content))
+            self.failUnless(checkPerm(permissions.ModifyPortalContent, content))
+
+    def testRendering(self):
+        # Attempt to call each object and make sure it presents a rendered
+        # html view
+        for content in self.demo_instances:
+            self.failUnless(isinstance(content(), basestring))
+            self.failUnless(content().strip().startswith('<!DOCTYPE'))
+
 
 
 def test_suite():

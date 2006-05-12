@@ -31,6 +31,7 @@ if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 
+from ZPublisher.HTTPRequest import HTTPRequest
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -99,11 +100,52 @@ class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.failUnless(t1._isSchemaCurrent())
 
 
+class TestBasicSchemaUpdate(ATSiteTestCase):
+    """Tests for update schema behavior which depend only on the basic
+       types, and examine baseline behavior when no real schema changes have
+       happened."""
+
+    def test_update_preserves_tyoe(self):
+        self.folder.invokeFactory('DDocument', 'mydoc', title="My Doc")
+        doc = self.folder.mydoc
+        doc.setBody("""
+An rst Document
+===============
+
+* Which
+
+  * has
+
+  * some
+
+* bullet::
+
+  points.
+
+* for testing""",  mimetype="text/restructured")
+        doc.reindexObject()
+        mimetype = doc.getField('body').getContentType(doc)
+        self.assertEqual(mimetype, 'text/x-rst')
+
+        # update schema for all DDocuments and check if our type is preserved
+        request = HTTPRequest(sys.stdin,
+                              {'SERVER_NAME':'test', 'SERVER_PORT': '8080'},
+                              {})
+        request.form['Archetypes.DDocument'] = True
+        request.form['update_all'] = True
+        self.portal.archetype_tool.manage_updateSchema(REQUEST=request)
+        doc = self.folder.mydoc
+        mimetype = doc.getField('body').getContentType(doc)
+        self.assertEqual(mimetype, 'text/x-rst')
+
+
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     if hasATTUS:
         suite.addTest(makeSuite(TestUpdateSchema1))
+    suite.addTest(makeSuite(TestBasicSchemaUpdate))
     return suite
 
 if __name__ == '__main__':

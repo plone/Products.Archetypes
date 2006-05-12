@@ -1,7 +1,11 @@
+import re
 from types import ListType, TupleType
 from cStringIO import StringIO
 from rfc822 import Message
 
+from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
+from Globals import InitializeClass
 from OFS.Image import File
 from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall
@@ -11,12 +15,13 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
 
-from Acquisition import aq_base
-from OFS.content_types import guess_content_type
-from Products.CMFDefault.utils import formatRFC822Headers
-
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
+try:
+    from zope.app.contenttypes import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 sample_data = r"""title: a title
 content-type: text/plain
@@ -52,6 +57,26 @@ class NonLoweringMessage(Message):
         except KeyError:
             return default
     get = getheader  
+
+
+
+def formatRFC822Headers( headers ):
+
+    """ Convert the key-value pairs in 'headers' to valid RFC822-style
+        headers, including adding leading whitespace to elements which
+        contain newlines in order to preserve continuation-line semantics.
+
+        code based on old cmf1.4 impl 
+    """
+    munged = []
+    linesplit = re.compile( r'[\n\r]+?' )
+
+    for key, value in headers:
+
+        vallines = linesplit.split( value )
+        munged.append( '%s: %s' % ( key, '\r\n  '.join( vallines ) ) )
+
+    return '\r\n'.join( munged )
 
 def parseRFC822(body):
     """Parse a RFC 822 (email) style string
