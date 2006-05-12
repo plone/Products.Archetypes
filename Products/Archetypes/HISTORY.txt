@@ -1,6 +1,11 @@
 1.4.0 Unreleased
 ================
 
+  * Added support for <catalog> entries to be added to the GenericSetup
+    profile description of portal types to enable registration w/ multiple
+    catalogs in the archetype_tool.
+    [rafrombrc]
+
   * Fixed a problem in Field.py which could split mutibyte characters at a wrong
     position, which could cause encoding problem in mimetypes_registry.
     This closes http://dev.plone.org/plone/ticket/5214.
