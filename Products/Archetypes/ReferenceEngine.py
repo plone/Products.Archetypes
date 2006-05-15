@@ -447,7 +447,7 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
             except TypeError:
                 ZCatalog.catalog_object(self, w, uid, idxs)
 
-    def _catalogObject(self, obj):
+    def _catalogObject(self, obj, path):
         """catalog the object. the object will be cataloged with the absolute path
         in case we don't pass the relative url.
         """
@@ -473,10 +473,12 @@ class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
         self.manage_catalogClear()
 
         # find and catalog objects
+        path = '/'.join(obj.getPhysicalPath())
         results = self.ZopeFindAndApply(obj,
                                         obj_metatypes=mt,
                                         search_sub=1,
                                         apply_func=self._catalogObject,
+                                        apply_path=path,
                                         REQUEST=REQUEST)
 
         elapse = time.time() - elapse
