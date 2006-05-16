@@ -9,7 +9,7 @@ from Products.Archetypes.interfaces.schema import ICompositeSchema, \
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import Implicit, aq_parent, aq_inner
-from Products.CMFCore.permissions import View, ModifyPortalContent
+from Products.CMFCore.CMFCorePermissions import View, ModifyPortalContent
 
 class CompositeSchema(Implicit):
     """Act on behalf of a set of Schemas, pretending it

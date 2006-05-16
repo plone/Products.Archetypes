@@ -51,13 +51,6 @@ except ImportError:
 else:
     ZOPE28 = True
 
-try:
-    import OFS.subscribers
-except ImportError:
-    ZOPE29 = False
-else:
-    ZOPE29 = True
-
 
 def gen_class(klass, schema=None):
     """generats and registers the klass
@@ -112,6 +105,10 @@ def start_http(address, port):
     import socket
 
     import Zope # Sigh, make product initialization happen
+    try:
+        Zope.startup()
+    except: # Zope > 2.6
+        pass
 
     from ZServer import setNumberOfThreads
     setNumberOfThreads(4)

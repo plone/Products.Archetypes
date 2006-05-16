@@ -44,6 +44,12 @@ else:
     else:
         HAS_PLONE21 = True
 
+# Use either plain CMF or Plone to run the portal tests
+# You have to install:
+#  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
+#  * Plone and PloneTestCase for Plone tests
+#USE_PLONETESTCASE = True
+#USE_PLONETESTCASE = False
 USE_PLONETESTCASE = HAS_PLONE
 
 if not USE_PLONETESTCASE:
@@ -60,20 +66,27 @@ if not USE_PLONETESTCASE:
     ZopeTestCase.installProduct('PageTemplates', quiet=1)
     ZopeTestCase.installProduct('PythonScripts', quiet=1)
     ZopeTestCase.installProduct('ExternalMethod', quiet=1)
-    ZopeTestCase.installProduct('MimetypesRegistry')
-    ZopeTestCase.installProduct('PortalTransforms')
-    ZopeTestCase.installProduct('Archetypes')
-    ZopeTestCase.installProduct('ArchetypesTestUpdateSchema')
 else:
     # setup is installing all required products
     import Products.PloneTestCase.setup
 
+DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
+            'ArchetypesTestUpdateSchema',)
+
+# install products
+for product in DEPS_AT:
+    ZopeTestCase.installProduct(product)
+
 # Fixup zope 2.7+ configuration
-from App import config
-config._config.rest_input_encoding = 'ascii'
-config._config.rest_output_encoding = 'ascii'
-config._config.rest_header_level = 3
-del config
+try:
+    from App import config
+except ImportError:
+    pass
+else:
+    config._config.rest_input_encoding = 'ascii'
+    config._config.rest_output_encoding = 'ascii'
+    config._config.rest_header_level = 3
+    del config
 
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case

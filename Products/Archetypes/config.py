@@ -51,7 +51,7 @@ else:
 HAS_GRAPHVIZ = False
 
 ## protect attributes of AttributeStorage from unallowed access?
-ATTRIBUTE_SECURITY = True
+ATTRIBUTE_SECURITY = False
 
 ## set language default for metadata, it will be overwritten by portal-settings!
 ## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't
@@ -60,7 +60,3 @@ ATTRIBUTE_SECURITY = True
 ## it's save to use 'en'. Otherwise keep it empty for the future.
 LANGUAGE_DEFAULT=''
 #LANGUAGE_DEFAULT='en'
-
-## Archetypes before 1.4 managed the catalog map using meta types instead of
-## portal types. If you need this old behaviour change this setting to False.
-CATALOGMAP_USES_PORTALTYPE = True
