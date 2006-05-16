@@ -122,14 +122,11 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
-    def listFolderContents(self, spec=None, contentFilter=None,
-                           suppressHiddenFiles=0):
+    def listFolderContents(self, contentFilter=None, suppressHiddenFiles=0):
         """Optionally you can suppress "hidden" files, or files that begin
         with a dot.
         """
-        contents=PortalFolder.listFolderContents(self,
-                                                  spec=spec,
-                                                  contentFilter=contentFilter)
+        contents=PortalFolder.listFolderContents(self, contentFilter=contentFilter)
         if suppressHiddenFiles:
             contents=[obj for obj in contents if obj.getId()[:1]!='.']
 
@@ -137,13 +134,13 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.AccessContentsInformation,
                               'folderlistingFolderContents')
-    def folderlistingFolderContents(self, spec=None, contentFilter=None,
+    def folderlistingFolderContents(self, contentFilter=None,
                                     suppressHiddenFiles=0):
         """Calls listFolderContents in protected only by ACI so that
         folder_listing can work without the List folder contents permission,
         as in CMFDefault.
         """
-        return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
+        return self.listFolderContents(contentFilter, suppressHiddenFiles)
 
     security.declareProtected(permissions.View, 'Title')
     def Title(self, **kwargs):
