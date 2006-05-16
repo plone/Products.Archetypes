@@ -1,4 +1,4 @@
-1.3.2-final06
+1.3.2-final06 - 2006-05-16
 ==========================
 
   * nothing - the odd version checking needs a version change to
