@@ -30,43 +30,11 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
-# the output of some tests may differ when CMFPlone is installed
-try:
-    import Products.CMFPlone
-except ImportError:
-    HAS_PLONE = HAS_PLONE21 = False
-else:
-    HAS_PLONE = True
-    try:
-        from Products.CMFPlone.migrations import v2_1
-    except ImportError:
-        HAS_PLONE21 = False
-    else:
-        HAS_PLONE21 = True
-
-USE_PLONETESTCASE = HAS_PLONE
-
-if not USE_PLONETESTCASE:
-    # setup is installing some required products
-    import Products.CMFTestCase.setup
-    # install the rest manually
-    ZopeTestCase.installProduct('CMFCalendar')
-    ZopeTestCase.installProduct('CMFTopic')
-    ZopeTestCase.installProduct('DCWorkflow')
-    ZopeTestCase.installProduct('CMFActionIcons')
-    ZopeTestCase.installProduct('CMFQuickInstallerTool')
-    ZopeTestCase.installProduct('CMFFormController')
-    ZopeTestCase.installProduct('ZCTextIndex')
-    ZopeTestCase.installProduct('PageTemplates', quiet=1)
-    ZopeTestCase.installProduct('PythonScripts', quiet=1)
-    ZopeTestCase.installProduct('ExternalMethod', quiet=1)
-    ZopeTestCase.installProduct('MimetypesRegistry')
-    ZopeTestCase.installProduct('PortalTransforms')
-    ZopeTestCase.installProduct('Archetypes')
-    ZopeTestCase.installProduct('ArchetypesTestUpdateSchema')
-else:
-    # setup is installing all required products
-    import Products.PloneTestCase.setup
+from Products.PloneTestCase import PloneTestCase
+from Products.PloneTestCase.ptc import setupPloneSite
+setupPloneSite(extension_profiles=['Archetypes:Archetypes',
+                                   'Archetypes:Archetypes_samplecontent'
+                                  ])
 
 # Fixup zope 2.7+ configuration
 from App import config
@@ -89,7 +57,5 @@ from Testing.ZopeTestCase import user_password
 default_user = user_name
 default_role = 'Member'
 
-
-__all__ = ('USE_PLONETESTCASE', 'HAS_PLONE',
-           'default_user', 'default_role', 'user_name', 'user_password',
+__all__ = ('default_user', 'default_role', 'user_name', 'user_password',
            'ATTestCase', 'ATFunctionalTestCase', )
