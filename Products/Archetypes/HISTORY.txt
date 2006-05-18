@@ -1,3 +1,8 @@
+  * Added a new GenericSetup profile 'sample_content' which installs all
+    available sample content types. This should mainly be used as a basis for
+    the test setup.
+    [hannosch]
+
 1.4.0-beta1 - 2006-05-12
 ========================
 

@@ -110,3 +110,11 @@ def initialize(context):
                 EXTENSION,
                 for_=IPloneSiteRoot)
 
+        profile_registry.registerProfile('Archetypes_samplecontent',
+                'Archetypes Sample Content Types',
+                'Extension profile including Archetypes sample content types',
+                'profiles/sample_content',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+
