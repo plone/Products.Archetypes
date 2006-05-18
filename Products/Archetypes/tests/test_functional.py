@@ -37,7 +37,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.attestcase import default_user
-from Products.Archetypes.tests.attestcase import HAS_PLONE, HAS_PLONE21
+from Products.Archetypes.tests.attestcase import HAS_PLONE
 from Products.Archetypes.tests.atsitetestcase import portal_owner
 from Products.Archetypes.tests.utils import DummySessionDataManager
 
@@ -368,10 +368,8 @@ def test_suite():
         'folder_marshall.txt',
         'webdav_operations.txt',
         )
-    if HAS_PLONE21:
+    if HAS_PLONE:
         files += ('reindex_sanity_plone21.txt',)
-    elif HAS_PLONE:
-        files += ('reindex_sanity_plone20.txt',)
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)

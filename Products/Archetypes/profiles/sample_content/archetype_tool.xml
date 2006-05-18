@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <archetypetool>
  <catalogmap>
+  <type portal_type="ComplexType">
+   <catalog value="portal_catalog"/>
+  </type>
   <type portal_type="DDocument">
    <catalog value="portal_catalog"/>
   </type>

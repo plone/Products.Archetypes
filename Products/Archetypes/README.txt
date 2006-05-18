@@ -31,13 +31,13 @@ Requires
 
   * CMF 1.5.5+ or CMF 1.6.0+
 
-  * Zope 2.8.5+, or Zope 2.9.0+
+  * Zope 2.8.7+, or Zope 2.9.3+
 
   * CMFFormController 1.0.7+
 
 Recommended
 
-  * Plone 2.5.0+ or Plone 2.1.2+ (only with Zope 2.8)
+  * Plone 2.5.0+ or Plone 2.1.3+ (only with Zope 2.8)
 
   Archetypes do not work without the following closely related products. You get 
   them with the Archetypes release bundle tarball. You can also fetch them also
