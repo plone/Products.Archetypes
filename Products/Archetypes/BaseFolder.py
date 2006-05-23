@@ -56,69 +56,10 @@ class BaseFolderMixin(CatalogMultiplex,
         PortalFolder.__init__(self, oid, self.Title())
         BaseObject.__init__(self, oid, **kwargs)
 
-    def _notifyOfCopyTo(self, container, op=0):
-        """In the case of a move (op=1) we need to make sure
-        references are mainained for all referencable objects within
-        the one being moved.
-
-        manage_renameObject calls _notifyOfCopyTo so that the
-        object being renamed doesn't lose its references. But
-        manage_renameObject calls _delObject which calls
-        manage_beforeDelete on all the children of the object
-        being renamed which deletes all references for children
-        of the object being renamed. Here is a patch that does
-        recursive calls for _notifyOfCopyTo to address that
-        problem.
-        """
-        # XXX this doesn't appear to be necessary anymore, if it is
-        # it needs to be used in BaseBTreeFolder as well, it currently
-        # is not.
-        BaseObject._notifyOfCopyTo(self, container, op=op)
-        PortalFolder._notifyOfCopyTo(self, container, op=op)
-        for child in self.contentValues():
-            if IReferenceable.isImplementedBy(child):
-                child._notifyOfCopyTo(self, op)
-
-    security.declarePrivate('manage_afterAdd')
-    def manage_afterAdd(self, item, container):
-        BaseObject.manage_afterAdd(self, item, container)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item, container)
-        CatalogMultiplex.manage_afterAdd(self, item, container)
-
-    security.declarePrivate('manage_afterClone')
-    def manage_afterClone(self, item):
-        BaseObject.manage_afterClone(self, item)
-        CatalogMultiplex.manage_afterClone(self, item)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item)
-
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        BaseObject.manage_beforeDelete(self, item, container)
-        CatalogMultiplex.manage_beforeDelete(self, item, container)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item, container)
-
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
-
-    security.declareProtected(permissions.DeleteObjects,
-                              'manage_delObjects')
-    def manage_delObjects(self, ids=[], REQUEST=None):
-        """We need to enforce security."""
-        mt = getToolByName(self, 'portal_membership')
-        if type(ids) is str:
-            ids = [ids]
-        for id in ids:
-            item = self._getOb(id)
-            if not mt.checkPermission(permissions.DeleteObjects, item):
-                raise Unauthorized, (
-                    "Do not have permissions to remove this object")
-        return PortalFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
     security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
