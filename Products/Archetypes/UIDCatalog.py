@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+import urllib
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -15,6 +17,7 @@ from Products import CMFCore
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 
@@ -106,13 +109,13 @@ InitializeClass(UIDCatalogBrains)
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
-    """    
+    """
     def __init__(self, obj):
         self._obj = obj
-                
+
     def __getattr__(self, name):
         return getattr(self._obj, name)
-        
+
     def Title(self):
         # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
         # converted to an ascii string
@@ -177,7 +180,7 @@ InitializeClass(UIDResolver)
 
 class UIDBaseCatalog(PluggableCatalog):
     BASE_CLASS = UIDCatalogBrains
-    
+
 
 class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     """Unique id catalog
@@ -198,7 +201,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = UIDBaseCatalog()
-        
+
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
     def catalog_object(self, object, uid, idxs=[],
                        update_metadata=1, pghandler=None):
@@ -256,4 +259,4 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
- 
+
