@@ -16,7 +16,7 @@ from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
 
 try:
-    from zope.app.contenttypes import guess_content_type
+    from zope.contenttype import guess_content_type
 except ImportError: # BBB: Zope < 2.10
     try:
         from zope.app.content_types import guess_content_type

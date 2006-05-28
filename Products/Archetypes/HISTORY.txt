@@ -1,3 +1,6 @@
+  * Use zope.contenttype in favor of zope.app.content_types if available.
+    [hannosch]
+
   * Added a new GenericSetup profile 'sample_content' which installs all
     available sample content types. This should mainly be used as a basis for
     the test setup.
@@ -78,8 +81,6 @@
 
   * Spring-cleaning of tests infrastructure.
     [hannosch]
-
-
 
 1.4.0-alpha03 - 2006-03-26
 ==========================
