@@ -1,9 +1,3 @@
-  * Added a small omit-tag, as starting with Zope2.10 the tags on which
-    i18n:name is definied aren't removed anymore. The good news is that you can
-    finally use i18n:name and i18n:translate on the same tag though. This fixes
-    two failing functional tests in CMFPlone with Zope2.10.
-    [hannosch]
-
   * Use zope.contenttype in favor of zope.app.content_types if available.
     [hannosch]
 
