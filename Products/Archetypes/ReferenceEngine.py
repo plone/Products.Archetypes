@@ -3,11 +3,14 @@ import sys
 from types import StringType, UnicodeType
 import time
 import urllib
+from zope.app.container.interfaces import IObjectAddedEvent
+from zope.interface import implements
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces.referenceengine import \
-    IReference, IContentReference, IReferenceCatalog
+    IContentReference, IReferenceCatalog, IReference as Z2IReference
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
@@ -18,6 +21,7 @@ from Products.Archetypes.exceptions import ReferenceException
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
+from OFS.interfaces import IObjectWillBeMovedEvent
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
@@ -53,7 +57,8 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (IReference,)
+    __implements__ = Referenceable.__implements__ + (Z2IReference,)
+    implements(IReference)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
@@ -150,28 +155,28 @@ class Reference(Referenceable, SimpleItem):
         about to be deleted"""
         pass
 
-    def manage_afterAdd(self, item, container):
-        Referenceable.manage_afterAdd(self, item, container)
-
-        # when copying a full site containe is the container of the plone site
-        # and item is the plone site (at least for objects in portal root)
-        base = container
-        try:
-            rc = getToolByName(base, REFERENCE_CATALOG)
-        except:
-            base = item
-            rc = getToolByName(base, REFERENCE_CATALOG)
-        url = getRelURL(base, self.getPhysicalPath())
-        rc.catalog_object(self, url)
-
-
-    def manage_beforeDelete(self, item, container):
-        Referenceable.manage_beforeDelete(self, item, container)
-        rc  = getToolByName(container, REFERENCE_CATALOG)
-        url = getRelURL(container, self.getPhysicalPath())
-        rc.uncatalog_object(url)
-
 InitializeClass(Reference)
+
+def handleReferenceEvents(ob, event):
+    """ Event subscriber for IReference events.
+    """
+    if IObjectAddedEvent.providedBy(event):
+        if event.newParent is not None:
+            # when copying a full site parent is the container of the plone site
+            # and ob is the plone site (at least for objects in portal root)
+            base = event.newParent
+        else:
+            base = ob
+        rc = getToolByName(base, REFERENCE_CATALOG)
+        url = getRelURL(base, ob.getPhysicalPath())
+        rc.catalog_object(ob, url)
+
+    elif IObjectWillBeMovedEvent.providedBy(event):
+        if event.oldParent is not None:
+            rc  = getToolByName(event.oldParent, REFERENCE_CATALOG)
+            url = getRelURL(event.oldParent, ob.getPhysicalPath())
+            rc.uncatalog_object(url)
+
 
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
@@ -211,14 +216,6 @@ class ContentReference(ObjectManager, Reference):
 
     def getContentObject(self):
         return getattr(self.aq_inner.aq_explicit, REFERENCE_CONTENT_INSTANCE_NAME)
-
-    def manage_afterAdd(self, item, container):
-        Reference.manage_afterAdd(self, item, container)
-        ObjectManager.manage_afterAdd(self, item, container)
-
-    def manage_beforeDelete(self, item, container):
-        ObjectManager.manage_beforeDelete(self, item, container)
-        Reference.manage_beforeDelete(self, item, container)
 
 InitializeClass(ContentReference)
 

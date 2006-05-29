@@ -73,17 +73,4 @@ class CatalogMultiplex(CMFCatalogAware):
                     lst = [i for i in idxs if i in indexes]
                 c.catalog_object(self, url, idxs=lst)
 
-        # We only make this call if idxs is not passed.
-        #
-        # manage_afterAdd/manage_beforeDelete from Referenceable take
-        # care of most of the issues, but some places still expect to
-        # call reindexObject and have the uid_catalog updated.
-        # TODO: fix this so we can remove the following lines.
-        if not idxs:
-            if isinstance(self, Referenceable):
-                self._catalogUID(self)
-                # _catalogRefs used to be called here, but all possible
-                # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable now.
-
 InitializeClass(CatalogMultiplex)

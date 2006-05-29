@@ -176,14 +176,14 @@ class OrderedContainer:
 
     # here the implementing of IOrderedContainer ends
 
-    def manage_renameObject(self, id, new_id, REQUEST=None):
-        " "
-        objidx = self.getObjectPosition(id)
-        method = OrderedContainer.inheritedAttribute('manage_renameObject')
-        result = method(self, id, new_id, REQUEST)
-        self.moveObject(new_id, objidx)
-
-        return result
+    # XXX needs to be replaced by an event handler
+    #def manage_renameObject(self, id, new_id, REQUEST=None):
+    #    " "
+    #    objidx = self.getObjectPosition(id)
+    #    result = method(self, id, new_id, REQUEST)
+    #    self.moveObject(new_id, objidx)
+    #
+    #     return result
 
 InitializeClass(OrderedContainer)
 
@@ -202,14 +202,14 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
         BaseFolder.__init__(self, oid, **kwargs)
         ExtensibleMetadata.__init__(self)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'manage_renameObject')
-    def manage_renameObject(self, id, new_id, REQUEST=None):
-        """ rename the object """
-        objidx = self.getObjectPosition(id)
-        result = BaseFolder.manage_renameObject(self, id, new_id, REQUEST)
-        self.moveObject(new_id, objidx)
-
-        return result
+    # XXX needs to be replaced by an event handler
+    #security.declareProtected(permissions.ModifyPortalContent, 'manage_renameObject')
+    #def manage_renameObject(self, id, new_id, REQUEST=None):
+    #    """ rename the object """
+    #    objidx = self.getObjectPosition(id)
+    #    self.moveObject(new_id, objidx)
+    #
+    #    return result
 
 InitializeClass(OrderedBaseFolder)
 

@@ -1,0 +1,22 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope">
+
+  <subscriber
+      for=".interfaces.IBaseObject
+           zope.app.event.interfaces.IObjectEvent"
+      handler=".BaseObject.handleEvents"
+      />
+
+  <subscriber
+      for=".interfaces.IReference
+           zope.app.event.interfaces.IObjectEvent"
+      handler=".ReferenceEngine.handleReferenceEvents"
+      />
+
+  <subscriber
+      for=".interfaces.IReferenceable
+           zope.app.event.interfaces.IObjectEvent"
+      handler=".Referenceable.handleEvents"
+      />
+
+</configure>

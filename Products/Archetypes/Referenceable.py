@@ -1,4 +1,6 @@
+from zope.app.container.interfaces import IObjectAddedEvent
 from zope.interface import implements
+
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
@@ -9,12 +11,14 @@ from Products.Archetypes.utils import shasattr
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
 from ExtensionClass import Base
-from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
+from OFS.ObjectManager import BeforeDeleteException
+from OFS.interfaces import IObjectClonedEvent
+from OFS.interfaces import IObjectWillBeMovedEvent
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
@@ -202,87 +206,6 @@ class Referenceable(CopySource):
         self._catalogUID(container, uc=uc)
         self._catalogRefs(container, uc=uc, rc=rc)
 
-    ## OFS Hooks
-    def manage_afterAdd(self, item, container):
-        """
-        Get a UID
-        (Called when the object is created or moved.)
-        """
-        isCopy = getattr(item, '_v_is_cp', None)
-        if isCopy:
-            # If the object is a copy of a existing object we
-            # want to renew the UID, and drop all existing references
-            # on the newly-created copy.
-            setattr(self, config.UUID_ATTR, None)
-            self._delReferenceAnnotations()
-
-        ct = getToolByName(container, config.REFERENCE_CATALOG, None)
-        self._register(reference_manager=ct)
-        self._updateCatalog(container)
-        self._referenceApply('manage_afterAdd', item, container)
-
-    def manage_afterClone(self, item):
-        """
-        Get a new UID (effectivly dropping reference)
-        (Called when the object is cloned.)
-        """
-        uc = getToolByName(self, config.UID_CATALOG)
-
-        isCopy = getattr(item, '_v_is_cp', None)
-        if isCopy:
-            # if isCopy is True, manage_afterAdd should have assigned a
-            # UID already.  Don't mess with UID anymore.
-            return
-
-        # XXX Should we ever get here after the isCopy flag addition??
-        # If the object has no UID or the UID already exists, then
-        # we should get a new one
-        if (not shasattr(self,config.UUID_ATTR) or
-            len(uc(UID=self.UID()))):
-            setattr(self, config.UUID_ATTR, None)
-
-        self._register()
-        self._updateCatalog(self)
-
-    def manage_beforeDelete(self, item, container):
-        """
-        Remove self from the catalog.
-        (Called when the object is deleted or moved.)
-        """
-
-        # Change this to be "item", this is the root of this recursive
-        # chain and it will be flagged in the correct mode
-        storeRefs = getattr(item, '_v_cp_refs', None)
-        if storeRefs is None:
-            # The object is really going away, we want to remove
-            # its references
-            rc = getToolByName(self, config.REFERENCE_CATALOG)
-            references = rc.getReferences(self)
-            back_references = rc.getBackReferences(self)
-            try:
-                #First check the 'delete cascade' case
-                if references:
-                    for ref in references:
-                        ref.beforeSourceDeleteInformTarget()
-                #Then check the 'holding/ref count' case
-                if back_references:
-                    for ref in back_references:
-                        ref.beforeTargetDeleteInformSource()
-                # If nothing prevented it, remove all the refs
-                self.deleteReferences()
-            except ReferenceException, E:
-                raise BeforeDeleteException(E)
-
-        self._referenceApply('manage_beforeDelete', item, container)
-
-        # Track the UUID
-        # The object has either gone away, moved or is being
-        # renamed, we still need to remove all UID/child refs
-        self._uncatalogUID(container)
-        self._uncatalogRefs(container)
-
-
-
     ## Catalog Helper methods
     def _catalogUID(self, aq, uc=None):
         if not uc:
@@ -389,4 +312,67 @@ class Referenceable(CopySource):
 
 InitializeClass(Referenceable)
 
+def handleEvents(ob, event):
+    """ Event subscriber for IReferenceable events.
+    """
+    if IObjectAddedEvent.providedBy(event):
+        if event.newParent is not None:
+            isCopy = getattr(ob, '_v_is_cp', None)
+            if isCopy:
+                # If the object is a copy of a existing object we
+                # want to renew the UID, and drop all existing references
+                # on the newly-created copy.
+                setattr(ob, config.UUID_ATTR, None)
+                ob._delReferenceAnnotations()
+
+            ct = getToolByName(event.newParent, config.REFERENCE_CATALOG, None)
+            ob._register(reference_manager=ct)
+            ob._updateCatalog(event.newParent)
+
+    elif IObjectClonedEvent.providedBy(event):
+        uc = getToolByName(ob, config.UID_CATALOG)
+
+        isCopy = getattr(ob, '_v_is_cp', None)
+        if isCopy:
+            # if isCopy is True, an UID should have been assigned already.
+            return
+
+        # XXX Should we ever get here after the isCopy flag addition??
+        # If the object has no UID or the UID already exists, then
+        # we should get a new one
+        if (not shasattr(ob, config.UUID_ATTR) or
+            len(uc(UID=ob.UID()))):
+            setattr(ob, config.UUID_ATTR, None)
+
+        ob._register()
+        ob._updateCatalog(ob)
+
+    elif IObjectWillBeMovedEvent.providedBy(event):
+        if event.oldParent is not None:
+            storeRefs = getattr(ob, '_v_cp_refs', None)
+            if storeRefs is None:
+                # The object is really going away, we want to remove
+                # its references
+                rc = getToolByName(ob, config.REFERENCE_CATALOG)
+                references = rc.getReferences(ob)
+                back_references = rc.getBackReferences(ob)
+                try:
+                    #First check the 'delete cascade' case
+                    if references:
+                        for ref in references:
+                            ref.beforeSourceDeleteInformTarget()
+                    #Then check the 'holding/ref count' case
+                    if back_references:
+                        for ref in back_references:
+                            ref.beforeTargetDeleteInformSource()
+                    # If nothing prevented it, remove all the refs
+                    ob.deleteReferences()
+                except ReferenceException, E:
+                    raise BeforeDeleteException(E)
+
+            # Track the UUID
+            # The object has either gone away, moved or is being
+            # renamed, we still need to remove all UID/child refs
+            ob._uncatalogUID(event.oldParent)
+            ob._uncatalogRefs(event.oldParent)
 
