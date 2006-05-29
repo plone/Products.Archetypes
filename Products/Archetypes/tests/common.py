@@ -1,38 +1,46 @@
 #
-# ArchetypesTestCase and ArcheSiteTestCase classes
+# PloneTestCase
 #
 
 # $Id$
 
-from Testing import ZopeTestCase
-
-from Products.Archetypes.tests.utils import *
-
-# Enable nice names for True and False from newer python versions
+# enable nice names for True and False from newer python versions
 try:
     dummy=True
-    del dummy
 except NameError: # python 2.1
     True  = 1
     False = 0
-
-
-# Fixup zope 2.7+ configuration
-try:
-    from App import config
-except ImportError:
-    pass
+    __all__Boolean = ('True', 'False',)
 else:
-    config._config.rest_input_encoding = 'ascii'
-    config._config.rest_output_encoding = 'ascii'
-    config._config.rest_header_level = 3
-    del config
+    __all__Boolean = ()
 
-# Import Interface for interface testing
+def Xprint(s):
+    """print helper
+
+    print data via print is not possible, you have to use
+    ZopeTestCase._print or this function
+    """
+    ZopeTestCase._print(str(s)+'\n')
+
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+
+from Testing import ZopeTestCase
+from ArchetypesTestCase import ArchetypesTestCase
+
+try:
+    from ArcheSiteTestCase import ArcheSiteTestCase
+    hasArcheSiteTestCase = True
+except ImportError, err:
+    Xprint(err)
+    class ArcheSiteTestCase(ArchetypesTestCase): pass
+    hasArcheSiteTestCase = False
+
+# import Interface for interface testing
 try:
     import Interface
 except ImportError:
-    # Set dummy functions and exceptions for older zope versions
+    # set dummy functions and exceptions for older zope versions
     def verifyClass(iface, candidate, tentative=0):
         return True
     def verifyObject(iface, candidate, tentative=0):
@@ -52,11 +60,9 @@ else:
     from Interface.Verify import verifyClass, verifyObject
     from Interface.Exceptions import BrokenImplementation, DoesNotImplement
     from Interface.Exceptions import BrokenMethodImplementation
-    del Interface
-
 
 class TestPreconditionFailed(Exception):
-    """ Some modules are missing or other preconditions have failed """
+    """ some modules are missing or other preconditions have failed """
     def __init__(self, test, precondition):
         self.test = test
         self.precondition = precondition
@@ -66,46 +72,10 @@ class TestPreconditionFailed(Exception):
                 "for the test %s have failed: '%s' "
                 % (self.test, self.precondition))
 
-
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-from AccessControl import getSecurityManager
-
-from Acquisition import aq_base
-from Acquisition import aq_inner
-from Acquisition import aq_parent
-
-from Products.Archetypes.tests.ArchetypesTestCase import ArchetypesTestCase
-from Products.Archetypes.tests.ArchetypesTestCase import default_user
-from Products.Archetypes.tests.ArchetypesTestCase import default_role
-
-try:
-    from Products.Archetypes.tests.ArchetypesTestCase import ArcheSiteTestCase
-except ImportError, err:
-    ZopeTestCase._print('%s\n' % err)
-    hasArcheSiteTestCase = False
-else:
-    from Products.Archetypes.tests.ArchetypesTestCase import portal_name
-    from Products.Archetypes.tests.ArchetypesTestCase import portal_owner
-    hasArcheSiteTestCase = True
-
-#from Products.Archetypes.tests import PACKAGE_HOME
-
-from Products.Archetypes.public import registerType, process_types, listTypes
-from Products.Archetypes.config import PKG_NAME
-
-def gen_class(klass, schema=None):
-    """generats and registers the klass
-    """
-    if schema is not None:
-        klass.schema = schema.copy()
-    registerType(klass, 'Archetypes')
-    content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
-
-def mkDummyInContext(klass, oid, context, schema=None):
-    gen_class(klass, schema)
-    dummy = klass(oid=oid).__of__(context)
-    setattr(context, oid, dummy)
-    dummy.initializeArchetype()
-    return dummy
-
+__all__ = ('ZopeTestCase', 'ArchetypesTestCase', 'ArcheSiteTestCase', 'Xprint',
+           'verifyClass', 'verifyObject', 'getImplements',
+           'BrokenImplementation', 'DoesNotImplement',
+           'BrokenMethodImplementation', 'getImplementsOfInstances',
+           'flattenInterfaces', 'newSecurityManager', 'noSecurityManager',
+           'TestPreconditionFailed', 'hasArcheSiteTestCase' ) \
+           + __all__Boolean

@@ -1,71 +1,22 @@
-# registering and type processing
-from Products.Archetypes.ArchetypeTool import registerType
-from Products.Archetypes.ArchetypeTool import process_types
-from Products.Archetypes.ArchetypeTool import listTypes
-from Products.Archetypes.ArchetypeTool import registerClasses
-# base classes
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.BaseContent import BaseContent
-from Products.Archetypes.BaseContent import BaseContentMixin
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.BaseFolder import BaseFolderMixin
-from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolder
-from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-# base class schemata instances
-from Products.Archetypes.BaseObject import MinimalSchema
-from Products.Archetypes.BaseContent import BaseSchema
-from Products.Archetypes.BaseFolder import BaseFolderSchema
-from Products.Archetypes.BaseBTreeFolder import BaseBTreeFolderSchema
-from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolderSchema
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadataSchema
-# schemata classes
-from Products.Archetypes.Schema import BasicSchema
-from Products.Archetypes.Schema import Schema
-from Products.Archetypes.Schema import MetadataSchema
-from Products.Archetypes.Schema import ManagedSchema
-from Products.Archetypes.TemplateMixin import TemplateMixinSchema
-from Products.Archetypes.Schema.Composite import CompositeSchema
-from Products.Archetypes.Schema.Facade import FacadeMetadataSchema
-from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
-# marshaller
-from Products.Archetypes.Marshall import PrimaryFieldMarshaller
-from Products.Archetypes.Marshall import RFC822Marshaller
-# fields
-from Products.Archetypes.Field import *
-# widgets
-from Products.Archetypes.Widget import *
-# storage
-from Products.Archetypes.Storage import *
-from Products.Archetypes.Storage.annotation import AnnotationStorage
-from Products.Archetypes.Storage.annotation import MetadataAnnotationStorage 
-from Products.Archetypes.AggregatedStorage import AggregatedStorage
-from Products.Archetypes.SQLStorage import BaseSQLStorage
-from Products.Archetypes.SQLStorage import GadflySQLStorage
-from Products.Archetypes.SQLStorage import MySQLSQLStorage
-from Products.Archetypes.SQLStorage import PostgreSQLStorage
-from Products.Archetypes.SQLStorage import SQLServerStorage
-# annotation
-from Products.Archetypes.annotations import getAnnotation
-from Products.Archetypes.annotations import AT_ANN_STORAGE
-from Products.Archetypes.annotations import AT_MD_STORAGE
-from Products.Archetypes.annotations import AT_FIELD_MD
-from Products.Archetypes.annotations import AT_REF
-# misc
-from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.utils import IntDisplayList
-from Products.Archetypes.utils import Vocabulary
-from Products.Archetypes.ClassGen import AT_GENERATE_METHOD
-from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.TemplateMixin import TemplateMixin
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
-from Products.Archetypes.BaseObject import AttributeValidator
+from AccessControl import ClassSecurityInfo
+from ArchetypeTool import registerType, process_types, listTypes
 
-# dynamicly calculate which modules should be exported
-import sys
-skipExports = ('skipExports', 'sys',)
-__all__ = tuple([ export
-                  for export in dir(sys.modules[__name__])
-                  if export not in skipExports and not export.startswith('_')
-                ])
+from BaseContent import BaseContent
+from BaseFolder import BaseFolder
+from BaseBTreeFolder import BaseBTreeFolder
+from OrderedBaseFolder import OrderedBaseFolder
+
+from ExtensibleMetadata import ExtensibleMetadata
+
+from Schema import Schema, MetadataSchema
+from Field  import *
+from Widget import *
+from Storage import *
+
+from utils import DisplayList
+
+BaseBTreeFolderSchema = BaseBTreeFolder.schema
+
+BaseFolderSchema = BaseFolder.schema
+
+BaseSchema = BaseContent.schema

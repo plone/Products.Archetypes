@@ -1,4 +1,4 @@
-from Interface import Interface, Attribute
+from interface import Interface, Attribute
 from Products.CMFCore.interfaces.DublinCore import DublinCore
 from Products.CMFCore.interfaces.DublinCore import CatalogableDublinCore
 from Products.CMFCore.interfaces.DublinCore import MutableDublinCore

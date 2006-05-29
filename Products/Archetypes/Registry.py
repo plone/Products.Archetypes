@@ -1,9 +1,7 @@
 import types
 
-from Products.Archetypes.utils import className
-from Products.Archetypes.utils import _getSecurity
-from Products.Archetypes.utils import mergeSecurity
-from Products.Archetypes.utils import setSecurity
+from utils import className
+
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
@@ -146,12 +144,10 @@ class TypeDescription:
 
     def schemata(self):
         from Products.Archetypes.Schema import getSchemata
-        # Build a temp instance.
-        return getSchemata(self.klass('test'))
+        return getSchemata(self.klass)
 
     def signature(self):
-        # Build a temp instance.
-        return self.klass('test').Schema().signature()
+        return self.klass.getSchema().signature()
 
     def portal_type(self):
         return self.klass.portal_type
@@ -165,32 +161,18 @@ class TypeDescription:
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
-    # XXX check me high > low security order.
-    #setSecurity(klass, defaultAccess=None, objectPermission=None)
-    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
-    setSecurity(klass, defaultAccess='allow', objectPermission=None)
-    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
-    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
-    # XXX check me high > low security order.
-    #setSecurity(klass, defaultAccess=None, objectPermission=None)
-    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
-
-    setSecurity(klass, defaultAccess='allow', objectPermission=None)
-    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
-    #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
 def registerStorage(klass, **kw):
-    setSecurity(klass, defaultAccess=None, objectPermission=None)
     storage = StorageDescription(klass, **kw)
     storageDescriptionRegistry.register(storage.id, storage)
 

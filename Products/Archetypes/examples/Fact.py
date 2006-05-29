@@ -1,6 +1,5 @@
 from Products.Archetypes.public import *
 from DateTime import DateTime
-from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('quote',
@@ -22,7 +21,7 @@ schema = BaseSchema + Schema((
                   widget=CalendarWidget(label="Date"),
                   ),
 
-    StringField('url',
+    ObjectField('url',
                 widget=StringWidget(description="A URL citing the fact",
                                   label="URL"),
                 validators=('isURL',),
@@ -34,4 +33,4 @@ class Fact(BaseContent):
     schema = schema
 
 
-registerType(Fact, PKG_NAME)
+registerType(Fact)

@@ -1,56 +1,35 @@
 import os, sys
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-"""
-"""
-
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from Testing import ZopeTestCase
-
 import glob
-import os
+from os import curdir
+from os.path import join, abspath, dirname, split
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import PACKAGE_HOME
-from Products.Archetypes.tests.utils import normalize_html
-from Products.Archetypes.tests.utils import gen_class
-from Products.Archetypes.tests.utils import ZOPE28
-from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.tests.test_classgen import Dummy
-from Products.Archetypes.tests.test_classgen import gen_dummy
+from common import *
+from utils import *
 
+from Products.Archetypes.public import *
+from Products.Archetypes.config import PKG_NAME, USE_NEW_BASEUNIT
+from Products.Archetypes.BaseUnit import BaseUnit
+from StringIO import StringIO
 
-class BaseUnitTest( ATSiteTestCase ):
+from test_classgen import Dummy, gen_dummy
+
+try:
+    __file__
+except NameError:
+    # Test was called directly, so no __file__ global exists.
+    _prefix = abspath(curdir)
+else:
+    # Test was called by another test.
+    _prefix = abspath(dirname(__file__))
+
+class BaseUnitTest( ArchetypesTestCase ):
 
     def testSame(self):
         gen_dummy()
-        # The BaseUnit expects 'instance' to be
+        # The new BaseUnit expects 'instance' to be
         # acquisition wrapped, or else it does return
         # the untransformed text -- this was introduced
         # for compatibility with APE.
@@ -61,33 +40,22 @@ class BaseUnitTest( ATSiteTestCase ):
                       mimetype='text/restructured',
                       instance=dummy)
         input.close()
-        got = normalize_html(bu.transform(dummy, 'text/html'))
-        
-        try:
-            output = open(self.output)
-        except IOError:
-            print "Creating %s" % self.output
-            output = open(self.output, 'w')
-            output.write(got)
-            output.close()
-            
+        if USE_NEW_BASEUNIT:
+            got = normalize_html(bu.transform(dummy, 'text/html'))
+        else:
+            got = normalize_html(bu())
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()
-    
-        try:
-            self.assertEqual(got, expected)
-        except self.failureException:
-            # Zope < 2.8 has a buggy reStructuredText package, don't bother
-            if ZOPE28:
-                raise
+
+        self.assertEquals(got, expected)
 
 tests = []
 
-input_files = glob.glob(os.path.join(PACKAGE_HOME, "input", "rest*.rst"))
+input_files = glob.glob(join(_prefix, "input", "rest*.rst"))
 for f in input_files:
-    fname = os.path.split(f)[1]
-    outname = os.path.join(PACKAGE_HOME, "output", '%s.out' % fname.split('.')[0])
+    fname = split(f)[1]
+    outname = join(_prefix, "output", '%s.out' % fname.split('.')[0])
 
     class BaseUnitTestSubclass(BaseUnitTest):
         input = f
@@ -95,13 +63,14 @@ for f in input_files:
 
     tests.append(BaseUnitTestSubclass)
 
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    for test in tests:
-        suite.addTest(makeSuite(test))
-    return suite
-
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        for test in tests:
+            suite.addTest(unittest.makeSuite(test))
+        return suite

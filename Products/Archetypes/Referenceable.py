@@ -1,387 +1,214 @@
-from Products.Archetypes import config
-from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.utils import shasattr
-
-from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
-from AccessControl import getSecurityManager, Unauthorized
-from ExtensionClass import Base
-from OFS.ObjectManager import BeforeDeleteException
-
+from Acquisition import aq_base, aq_chain
+from AccessControl import getSecurityManager,Unauthorized
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore import CMFCorePermissions
-from OFS.CopySupport import CopySource
-from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
 
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
+from ExtensionClass import Base
+import OFS.Moniker
+from OFS.CopySupport import _cb_decode, cookie_path, \
+     CopyContainer, CopySource, eNoData, eInvalid, \
+     eNotFound, eNotSupported
+
+import config
+from debug import log, log_exc
+
 ####
-## In the case of:
-## - a copy:
-##   * we want to lose refs on the new object
-##   * we want to keep refs on the orig object
-## - a cut/paste
-##   * we want to keep refs
-## - a delete:
-##   * to lose refs
+## In the case of a copy we want to lose refs
+##                a cut/paste we want to keep refs
+##                a delete to lose refs
 ####
 
-#include graph supporting methods
-from ref_graph import get_cmapx, get_png
-
-class Referenceable(CopySource):
+class Referenceable(Base):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
 
-    __implements__ = (IReferenceable,)
-
-    security = ClassSecurityInfo()
-    # XXX FIXME more security
-
     def reference_url(self):
         """like absoluteURL, but return a link to the object with this UID"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        tool = getToolByName(self, config.TOOL_NAME)
         return tool.reference_url(self)
 
     def hasRelationshipTo(self, target, relationship=None):
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        tool = getToolByName(self, config.TOOL_NAME)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, **kwargs):
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, **kwargs)
+    def addReference(self, object, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.addReference(self, object, relationship)
 
-    def deleteReference(self, target, relationship=None):
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.deleteReference(self, target, relationship)
+    def deleteReference(self, object, relationship=None):
+        tool = getToolByName(self, config.TOOL_NAME)
+        return tool.deleteReference(self, object, relationship)
 
     def deleteReferences(self, relationship=None):
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        tool = getToolByName(self, config.TOOL_NAME)
         return tool.deleteReferences(self, relationship)
 
     def getRelationships(self):
-        """What kinds of relationships does this object have"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        """What kinds of relationships do this object have"""
+        tool = getToolByName(self, config.TOOL_NAME)
         return tool.getRelationships(self)
 
-    def getBRelationships(self):
-        """
-        What kinds of relationships does this object have from others
-        """
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.getBackRelationships(self)
-
-    def getRefs(self, relationship=None, targetObject=None):
+    def getRefs(self, relationship=None):
         """get all the referenced objects for this object"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return [ref.getTargetObject() for ref in refs]
-        return []
+        tool = getToolByName(self, config.TOOL_NAME)
+        return [tool.getObject(ref) for ref in tool.getRefs(self, relationship)]
 
-    def _getURL(self):
-        """the url used as the relative path based uid in the catalogs"""
-        return getRelURL(self, self.getPhysicalPath())
-
-    def getBRefs(self, relationship=None, targetObject=None):
+    def getBRefs(self, relationship=None):
         """get all the back referenced objects for this object"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return [ref.getSourceObject() for ref in refs]
-        return []
+        tool = getToolByName(self, config.TOOL_NAME)
+        return [tool.getObject(ref) for ref in tool.getBRefs(self, relationship)]
 
-    #aliases
-    getReferences=getRefs
-    getBackReferences=getBRefs
-
-    def getReferenceImpl(self, relationship=None, targetObject=None):
-        """get all the reference objects for this object    """
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return refs
-        return []
-
-    def getBackReferenceImpl(self, relationship=None, targetObject=None):
-        """get all the back reference objects for this object"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return refs
-        return []
-
-    def _register(self, reference_manager=None):
+    def _register(self, archetype_tool=None):
         """register with the archetype tool for a unique id"""
-        if self.UID() is not None:
+        if hasattr(aq_base(self), '_uid') and self._uid is not None:
             return
 
-        if reference_manager is None:
-            reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
-        reference_manager.registerObject(self)
-
+        try:
+            if not archetype_tool:
+                archetype_tool = getToolByName(self, config.TOOL_NAME)
+            cid = archetype_tool.registerContent(self)
+            #log("Registered Content Object with cid: %s from ID %s" % (cid, self.getId()))
+        except:
+            log_exc()
 
     def _unregister(self):
         """unregister with the archetype tool, remove all references"""
-        reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
-        reference_manager.unregisterObject(self)
-
-    def _getReferenceAnnotations(self):
-        """given an object extract the bag of references for which it
-        is the source"""
-        if not getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
-            setattr(self, config.REFERENCE_ANNOTATION,
-                    Folder(config.REFERENCE_ANNOTATION))
-
-        return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
-
-    def _delReferenceAnnotations(self):
-        """Removes annotation from self
-        """
-        if getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
-            delattr(self, config.REFERENCE_ANNOTATION)
+        try:
+            archetype_tool = getToolByName(self, config.TOOL_NAME)
+            cid = archetype_tool.unregisterContent(self)
+            #log("unreg", cid)
+        except:
+            log_exc()
 
     def UID(self):
-        return getattr(self, config.UUID_ATTR, None)
+        uid = self._getUID()
+        return uid
 
-    def _setUID(self, uid):
-        old_uid = self.UID()
-        if old_uid is None:
-            # Nothing to be done.
-            return
-        # Update forward references
-        fw_refs = self.getReferenceImpl()
-        for ref in fw_refs:
-            assert ref.sourceUID == old_uid
-            ref.sourceUID = uid
-            item = ref
-            container = aq_parent(aq_inner(ref))
-            # We call manage_afterAdd to inform the
-            # reference catalog about changes.
-            ref.manage_afterAdd(item, container)
-        # Update back references
-        back_refs = self.getBackReferenceImpl()
-        for ref in back_refs:
-            assert ref.targetUID == old_uid
-            ref.targetUID = uid
-            item = ref
-            container = aq_parent(aq_inner(ref))
-            # We call manage_afterAdd to inform the
-            # reference catalog about changes.
-            ref.manage_afterAdd(item, container)
-        setattr(self, config.UUID_ATTR, uid)
-        item = self
-        container = aq_parent(aq_inner(item))
-        # We call manage_afterAdd to inform the
-        # reference catalog about changes.
-        self.manage_afterAdd(item, container)
+    def _getUID(self):
+        return getattr(aq_base(self), '_uid', None)
 
-    def _updateCatalog(self, container):
-        """Update catalog after copy, rename ...
-        """
-        # the UID index needs to be updated for any annotations we
-        # carry
-        try:
-            uc = getToolByName(container, config.UID_CATALOG)
-        except AttributeError:
-            # XXX when trying to rename or copy a whole site than
-            # container is the object "under" the portal so we can
-            # NEVER ever find the catalog which is bad ...
-            container = aq_parent(self)
-            uc = getToolByName(container, config.UID_CATALOG)
+    def _setUID(self, id):
+        tid =  self._getUID()
+        if not tid:
+            self._uid = id
 
-        rc = getToolByName(uc, config.REFERENCE_CATALOG)
-
-        self._catalogUID(container, uc=uc)
-        self._catalogRefs(container, uc=uc, rc=rc)
-
-    ## OFS Hooks
+    ## Hooks
     def manage_afterAdd(self, item, container):
         """
         Get a UID
         (Called when the object is created or moved.)
         """
-        isCopy = getattr(item, '_v_is_cp', None)
-        if isCopy:
-            # If the object is a copy of a existing object we
-            # want to renew the UID, and drop all existing references
-            # on the newly-created copy.
-            setattr(self, config.UUID_ATTR, None)
-            self._delReferenceAnnotations()
-
-        ct = getToolByName(container, config.REFERENCE_CATALOG, None)
-        self._register(reference_manager=ct)
-        self._updateCatalog(container)
-        self._referenceApply('manage_afterAdd', item, container)
+        ct = getToolByName(container, config.TOOL_NAME, None)
+        if ct:
+            self._register(archetype_tool=ct)
 
     def manage_afterClone(self, item):
         """
-        Get a new UID (effectivly dropping reference)
+        Get a new UID
         (Called when the object is cloned.)
         """
-        uc = getToolByName(self, config.UID_CATALOG)
-
-        isCopy = getattr(item, '_v_is_cp', None)
-        if isCopy:
-            # if isCopy is True, manage_afterAdd should have assigned a
-            # UID already.  Don't mess with UID anymore.
-            return
-
-        # XXX Should we ever get here after the isCopy flag addition??
-        # If the object has no UID or the UID already exists, then
-        # we should get a new one
-        if (not shasattr(self,config.UUID_ATTR) or
-            len(uc(UID=self.UID()))):
-            setattr(self, config.UUID_ATTR, None)
-
+        self._uid = None
         self._register()
-        self._updateCatalog(self)
 
     def manage_beforeDelete(self, item, container):
         """
-        Remove self from the catalog.
-        (Called when the object is deleted or moved.)
+            Remove self from the catalog.
+            (Called when the object is deleted or moved.)
         """
+        #log("deleting %s:%s" % (self.getId(), self.UID()))
+        #log("self, item, container", self, item, container)
 
-        # Change this to be "item", this is the root of this recursive
-        # chain and it will be flagged in the correct mode
-        storeRefs = getattr(item, '_v_cp_refs', None)
-        if storeRefs is None:
-            # The object is really going away, we want to remove
-            # its references
-            rc = getToolByName(self, config.REFERENCE_CATALOG)
-            references = rc.getReferences(self)
-            back_references = rc.getBackReferences(self)
-            try:
-                #First check the 'delete cascade' case
-                if references:
-                    for ref in references:
-                        ref.beforeSourceDeleteInformTarget()
-                #Then check the 'holding/ref count' case
-                if back_references:
-                    for ref in back_references:
-                        ref.beforeTargetDeleteInformSource()
-                # If nothing prevented it, remove all the refs
-                self.deleteReferences()
-            except ReferenceException, E:
-                raise BeforeDeleteException(E)
+        storeRefs = getattr(self, '_cp_refs', None)
 
-        self._referenceApply('manage_beforeDelete', item, container)
+        if not storeRefs: self._unregister()
 
-        # Track the UUID
-        # The object has either gone away, moved or is being
-        # renamed, we still need to remove all UID/child refs
-        self._uncatalogUID(container)
-        self._uncatalogRefs(container)
+        #and reset the flag
+        self._cp_refs = None
 
+    def pasteReference(self, REQUEST=None):
+        """
+        Use the copy support buffer to paste object references into this object.
+        I think I am being tricky.
+        """
+        cp=None
+        if REQUEST and REQUEST.has_key('__cp'):
+            cp=REQUEST['__cp']
+        if cp is None:
+            raise "No cp data"
 
+        try:
+            cp=_cb_decode(cp)
+        except:
+            raise "can't decode cp: %r" % cp
 
-    ## Catalog Helper methods
-    def _catalogUID(self, aq, uc=None):
-        if not uc:
-            uc = getToolByName(aq, config.UID_CATALOG)
-        url = self._getURL()
-        uc.catalog_object(self, url)
+        oblist=[]
+        app = self.getPhysicalRoot()
 
-    def _uncatalogUID(self, aq, uc=None):
-        if not uc:
-            uc = getToolByName(self, config.UID_CATALOG)
-        url = self._getURL()
-        uc.uncatalog_object(url)
+        for mdata in cp[1]:
+            m = OFS.Moniker.loadMoniker(mdata)
+            try: ob = m.bind(app)
+            except: raise "Objects not found in %s" % app
+            self._verifyPasteRef(ob) ##TODO fix this
+            oblist.append(ob)
+
+        ct = getToolByName(self, config.TOOL_NAME)
+
+        for ob in oblist:
+            if getattr(ob, 'isReferenceable', None):
+                ct.addReference(self, ob)
 
 
-    def _catalogRefs(self, aq, uc=None, rc=None):
-        annotations = self._getReferenceAnnotations()
-        if annotations:
-            if not uc:
-                uc = getToolByName(aq, config.UID_CATALOG)
-            if not rc:
-                rc = getToolByName(aq, config.REFERENCE_CATALOG)
-            for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
-                uc.catalog_object(ref, url)
-                rc.catalog_object(ref, url)
-                ref._catalogRefs(uc, uc, rc)
+        if REQUEST is not None:
+            REQUEST['RESPONSE'].setCookie('__cp', 'deleted',
+                                          path='%s' % cookie_path(REQUEST),
+                                          expires='Wed, 31-Dec-97 23:59:59 GMT')
+            REQUEST['__cp'] = None
+            return REQUEST.RESPONSE.redirect(self.absolute_url() + "/reference_edit")
+        return ''
 
-    def _uncatalogRefs(self, aq, uc=None, rc=None):
-        annotations = self._getReferenceAnnotations()
-        if annotations:
-            if not uc:
-                uc = getToolByName(self, config.UID_CATALOG)
-            if not rc:
-                rc = getToolByName(self, config.REFERENCE_CATALOG)
-            for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
-                uc.uncatalog_object(url)
-                rc.uncatalog_object(url)
-
-    def _getCopy(self, container):
-        # We only set the '_v_is_cp' flag here if it was already set.
-        #
-        # _getCopy gets called after _notifyOfCopyTo, which should set
-        # _v_cp_refs appropriatedly.
-        #
-        # _getCopy is also called from WebDAV MOVE (though not from
-        # 'manage_pasteObjects')
-        is_cp_flag = getattr(self, '_v_is_cp', None)
-        cp_refs_flag = getattr(self, '_v_cp_refs', None)
-        ob = CopySource._getCopy(self, container)
-        if is_cp_flag:
-            setattr(ob, '_v_is_cp', is_cp_flag)
-        if cp_refs_flag:
-            setattr(ob, '_v_cp_refs', cp_refs_flag)
-        return ob
 
     def _notifyOfCopyTo(self, container, op=0):
         """keep reference info internally when op == 1 (move)
         because in those cases we need to keep refs"""
-        # This isn't really safe for concurrent usage, but the
-        # worse case is not that bad and could be fixed with a reindex
-        # on the archetype tool
-        if op==1:
-            self._v_cp_refs = 1
-            self._v_is_cp = 0
-        if op==0:
-            self._v_cp_refs = 0
-            self._v_is_cp = 1
-
-    # Recursion Mgmt
-    def _referenceApply(self, methodName, *args, **kwargs):
-        # We always apply commands to our reference children
-        # and if we are folderish we need to get those too
-        # where as references are concerned
-        children = []
-        if shasattr(self, 'objectValues'):
-            # Only apply to objects that subclass
-            # from Referenceable, and only apply the
-            # method from Referenceable. Otherwise manage_* will get
-            # called multiple times.
-            nc = lambda obj: isinstance(obj, Referenceable)
-            children.extend(filter(nc, self.objectValues()))
-        children.extend(self._getReferenceAnnotations().objectValues())
-        if children:
-            for child in children:
-                if shasattr(Referenceable, methodName):
-                    method = getattr(Referenceable, methodName)
-                    method(*((child,) + args), **kwargs)
-
-    # graph hooks
-    security.declareProtected(CMFCorePermissions.View,
-                              'getReferenceMap')
-    def getReferenceMap(self):
-        """The client side map for this objects references"""
-        return get_cmapx(self)
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'getReferencePng')
-    def getReferencePng(self, REQUEST=None):
-        """A png of the references for this object"""
-        if REQUEST:
-            REQUEST.RESPONSE.setHeader('content-type', 'image/png')
-        return get_png(self)
-
-InitializeClass(Referenceable)
+        ## This isn't really safe for concurrent usage, but the
+        ## worse case is not that bad and could be fixed with a reindex
+        ## on the archetype tool
+        if op==1: self._cp_refs =  1
 
 
+    def _verifyPasteRef(self, object):
+        # Verify whether the current user is allowed to paste the
+        # passed object into self. This is determined by checking
+        # to see if the user could create a new object of the same
+        # meta_type of the object passed in and checking that the
+        # user actually is allowed to access the passed in object
+        # in its existing context.
+        #
+        # Passing a false value for the validate_src argument will skip
+        # checking the passed in object in its existing context. This is
+        # mainly useful for situations where the passed in object has no
+        # existing context, such as checking an object during an import
+        # (the object will not yet have been connected to the acquisition
+        # heirarchy).
+        if not hasattr(object, 'meta_type'):
+            raise 'The object <EM>%s</EM> does not support this ' \
+                  'operation' % absattr(object.id)
+        mt=object.meta_type
+        if not hasattr(self, 'all_meta_types'):
+            raise 'Cannot paste into this object.'
+
+        mt_permission=CMFCorePermissions.ModifyPortalContent
+        if getSecurityManager().checkPermission( mt_permission, self ):
+            # Ensure the user is allowed to access the object on the
+            # clipboard.
+            try:    parent=aq_parent(aq_inner(object))
+            except: parent=None
+            #if getSecurityManager().validate(None, parent, None, object):
+            #    return
+            #raise Unauthorized, absattr(object.id)
+        else:
+            raise Unauthorized(permission=mt_permission)
+
+
+    def _verifyObjectPaste(self, object, validate_src=1):
+        self._verifyPasteRef(object)

@@ -1,18 +1,21 @@
-import os.path
-__version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
-
-import sys
-
-from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.patches
-
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Products.CMFCore import CMFCorePermissions
+from Globals import InitializeClass
+from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.DirectoryView import registerDirectory
+from Products.CMFCore.TypesTool import TypesTool, typeClasses
+from config import *
+from debug import log, log_exc
 
-from zLOG import LOG, PROBLEM
+# Bootstrap Zope-dependent validators
+import Validators
+
+# look if BTreeFolder2 is installed, warn if not
+try:
+    import Products.BTreeFolder2
+except ImportError:
+    log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
+
 
 ###
 ## security
@@ -21,25 +24,17 @@ from zLOG import LOG, PROBLEM
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
-# Zope 2.8-style transaction module
-# BBB: Zope 2.7
-try:
-    import Zope2
-except ImportError:
-    import transaction_ as transaction
-else:
-    import transaction
-
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
-from PloneCompat import IndexIterator
+try:
+    from Products.CMFPlone.PloneUtilities import IndexIterator
+except:
+    from PloneCompat import IndexIterator
 allow_class(IndexIterator)
-
-from PloneCompat import transaction_note
-ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
+from utils import DisplayList
 allow_class(DisplayList)
 
 
@@ -48,62 +43,33 @@ allow_class(DisplayList)
 ###
 registerDirectory('skins', globals())
 
-from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     process_types, listTypes, fixAfterRenameType
-ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
-from Products.Archetypes.ArchTTWTool import ArchTTWTool
-
-
-###
-# Test dependencies
-###
-this_module = sys.modules[__name__]
-import Products.MimetypesRegistry
-import Products.PortalTransforms
-import Products.generator
-import Products.validation
-
-# odd dependency checking :-/
-mtr_info = getPkgInfo(Products.MimetypesRegistry)
-pt_info = getPkgInfo(Products.PortalTransforms)
-gen_info = getPkgInfo(Products.generator)
-val_info = getPkgInfo(Products.validation)
-
-at_version = __version__
-for info in (mtr_info, pt_info, gen_info, val_info, ):
-    if not hasattr(info, 'at_versions'):
-        raise RuntimeError('The product %s has no at_versions assigend. ' \
-                           'Please update to a newer version.' % info.modname)
-    if at_version not in info.at_versions:
-        raise RuntimeError('The current Archetypes version %s is not in list ' \
-                           'of compatible versions for %s!\nList: %s' % \
-                           (at_version, info.modname, info.at_versions)
-                          )
-
-###
-# Tools
-###
+from ArchetypeTool import ArchetypeTool, \
+                          registerType, \
+                          process_types, \
+                          listTypes
+from ArchTTWTool import ArchTTWTool
 
 tools = (
     ArchetypeTool,
     ArchTTWTool,
     )
 
+
 types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
+##    from Extensions import ArchetypeSite
+
+##    ArchetypeSite.register(context, globals())
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
                    product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
 
-    from Products.Archetypes.customizationpolicy import registerPolicy
-    registerPolicy(context)
-
     if REGISTER_DEMO_TYPES:
-        import Products.Archetypes.examples
+        import examples
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)
@@ -115,6 +81,7 @@ def initialize(context):
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
+
     try:
         from Products.CMFCore.FSFile import FSFile
         from Products.CMFCore.DirectoryView import registerFileExtension

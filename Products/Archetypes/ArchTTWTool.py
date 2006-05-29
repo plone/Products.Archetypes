@@ -1,10 +1,10 @@
 import os
 
-from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
 from OFS.Folder import Folder
-from Products.CMFCore.utils import UniqueObject
+from Products.CMFCore.utils import UniqueObject, getToolByName
+from AccessControl import ClassSecurityInfo
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Globals import InitializeClass
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 

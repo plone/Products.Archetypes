@@ -1,63 +1,58 @@
-import os.path
-
-from types import StringType
-
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.config import *
-from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log, ERROR
-
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
-from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
+from OFS.ObjectManager import ObjectManager, REPLACEABLE
 from Products.CMFCore import CMFCorePermissions
-from Products.CMFCore.utils import getToolByName
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
+from Products.PortalTransforms.utils import getToolByName
 from Products.PortalTransforms.interfaces import idatastream
-#from Products.MimetypesRegistry.mime_types import text_plain, \
-#     application_octet_stream
+from Products.PortalTransforms.mime_types import text_plain, \
+     application_octet_stream
+from StringIO import StringIO
+from content_driver import getDefaultPlugin, lookupContentType, getConverter
+from content_driver import selectPlugin, lookupContentType
+from debug import log, log_exc
+from interfaces.base import IBaseUnit
+from types import DictType
+from utils import basename
 from webdav.WriteLockInterface import WriteLockInterface
+import os.path
+import re
+import urllib
 
-_marker = []
+from config import *
 
-class BaseUnit(File):
-    __implements__ = WriteLockInterface, IBaseUnit
+try:
+    from Products.PortalTransforms.interfaces import idatastream
+except ImportError:
+    if USE_NEW_BASEUNIT:
+        raise ImportError('The PortalTransforms package is required with new base unit')
+    from interfaces.interface import Interface
+    class idatastream(Interface):
+        """ Dummy idatastream for when PortalTransforms isnt available """
+
+class newBaseUnit(File):
+    __implements__ = (WriteLockInterface, IBaseUnit)
     isUnit = 1
 
     security = ClassSecurityInfo()
 
-    def __init__(self, name, file='', instance=None, **kw):
-        self.id = self.__name__ = name
+    def __init__(self, name, file='', instance=None,
+                 **kw):
+        self.id = name
         self.update(file, instance, **kw)
-
-    def __setstate__(self, dict):
-        mimetype = dict.get('mimetype', None)
-        if IMimetype.isImplementedBy(mimetype):
-            dict['mimetype'] = str(mimetype)
-            dict['binary'] = not not mimetype.binary
-        assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
-        File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
         #Convert from str to unicode as needed
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
-        context  = kw.get('context', instance)
 
-        adapter = getToolByName(context, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError, \
-                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
-                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
+        adapter = getToolByName(instance, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
-        if not self.isBinary():
+        self.mimetype = mimetype
+        if not mimetype.binary:
             assert type(data) is type(u'')
             if encoding is None:
                 try:
@@ -71,11 +66,10 @@ class BaseUnit(File):
             self.original_encoding = None
         self.raw  = data
         self.size = len(data)
-        # taking care of stupid IE
-        self.setFilename(filename)
-        self._cacheExpire()
+        self.filename = filename
 
-    def transform(self, instance, mt, **kwargs):
+
+    def transform(self, instance, mt):
         """Takes a mimetype so object.foo.transform('text/plain') should return
         a plain text version of the raw content
 
@@ -83,7 +77,7 @@ class BaseUnit(File):
         mime type
         """
         encoding = self.original_encoding
-        orig = self.getRaw(encoding, instance)
+        orig = self.getRaw(encoding)
         if not orig:
             return None
 
@@ -91,14 +85,11 @@ class BaseUnit(File):
         #no acquisition context. If it is not present, take
         #the untransformed getRaw, this is necessary for
         #being used with APE
-        # Also don't break if transform was applied with a stale instance
-        # from the catalog while rebuilding the catalog
         if not hasattr(instance, 'aq_parent'):
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
-                                     context=instance,
                                      mimetype=self.mimetype,
                                      filename=self.filename)
 
@@ -106,8 +97,7 @@ class BaseUnit(File):
             assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
-            portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+            portal_encoding = self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding \
                        or portal_encoding
             if portal_encoding != encoding:
@@ -118,8 +108,7 @@ class BaseUnit(File):
         # return the raw data if it's not binary data
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
-            portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+            portal_encoding = self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
@@ -129,40 +118,24 @@ class BaseUnit(File):
     def __str__(self):
         return self.getRaw()
 
-    __call__ = __str__
-
     def __len__(self):
         return self.get_size()
 
     def isBinary(self):
-        """Return true if this contains a binary value, else false.
-        """
+        """return true if this contains a binary value, else false"""
         try:
-            return self.binary
+            return self.mimetype.binary
         except AttributeError:
-            # XXX workaround for "[ 1040514 ] AttributeError on some types after
-            # migration 1.2.4rc5->1.3.0"
-            # Somehow and sometimes the binary attribute gets lost magically
-            self.binary = not str(self.mimetype).startswith('text')
-            log("BaseUnit: Failed to access attribute binary for mimetype %s. "
-                "Setting binary to %s" % (self.mimetype, self.binary),
-                level=ERROR)
-            return self.binary
+            # FIXME: backward compat, self.mimetype should not be None anymore
+            return 1
+
 
     # File handling
     def get_size(self):
-        """Return the file size.
-        """
         return self.size
 
     def getRaw(self, encoding=None, instance=None):
-        """Return the file encoded raw value.
-        """
-        # fix AT 1.0 backward problems
-        if not hasattr(aq_base(self),'raw'):
-            self.raw = self.data
-            self.size = len(self.raw)
-
+        """return encoded raw value"""
         if self.isBinary():
             return self.raw
         # FIXME: backward compat, non binary data
@@ -178,9 +151,8 @@ class BaseUnit(File):
         return self.raw.encode(encoding)
 
     def portalEncoding(self, instance):
-        """Return the default portal encoding, using an external python script.
-
-        Look the archetypes skin directory for the default implementation.
+        """return the default portal encoding, using an external python script
+        (look the archetypes skin directory for the default implementation)
         """
         try:
             return instance.getCharset()
@@ -190,55 +162,19 @@ class BaseUnit(File):
             return 'UTF8'
 
     def getContentType(self):
-        """Return the file mimetype string.
-        """
+        """return the imimetype object for this BU"""
         return self.mimetype
 
-    # Backward compatibility
-    content_type = getContentType
-
-    def setContentType(self, instance, value):
-        """Set the file mimetype string.
-        """
-        mtr = getToolByName(instance, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(mtr):
-            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
-                               (repr(mtr), repr(mtr.__class__)))
-        result = mtr.lookup(value)
-        if not result:
-            raise ValueError('Unknown mime type %s' % value)
-        mimetype = result[0]
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
-        self._cacheExpire()
-
-    def getFilename(self):
-        """Return the file name.
-        """
-        return self.filename
-
-    def setFilename(self, filename):
-        """Set the file name.
-        """
-        if type(filename) is StringType:
-            filename = os.path.basename(filename)
-            self.filename = filename.split("\\")[-1]
-        else:
-            self.filename = filename
-        self._cacheExpire()
-
-    def _cacheExpire(self):
-        if shasattr(self, '_v_transform_cache'):
-            delattr(self, '_v_transform_cache')
+    def content_type(self):
+        return self.getContentType()
 
     ### index_html
     security.declareProtected(CMFCorePermissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
-        filename = self.getFilename()
-        if filename:
-            RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename=%s' % filename)
+        filename = self.filename
+        if self.filename:
+            RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % self.filename)
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
 
@@ -246,21 +182,15 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT')
+    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT' )
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
         mimetype=REQUEST.get_header('Content-Type', None)
 
-        file = REQUEST.get('BODYFILE', _marker)
-        if file is _marker:
-            data = REQUEST.get('BODY', _marker)
-            if data is _marker:
-                raise AttributeError, 'REQUEST neither has a BODY nor a BODYFILE'
-        else:
-            data = file.read()
-            file.seek(0)
+        file=REQUEST['BODYFILE']
+        data = file.read()
 
         self.update(data, self.aq_parent, mimetype=mimetype)
 
@@ -269,15 +199,199 @@ class BaseUnit(File):
         return RESPONSE
 
     def manage_FTPget(self, REQUEST, RESPONSE):
-        """Get the raw content for this unit.
-
-        Also used for the WebDAV SRC.
-        """
+        "Get the raw content for this unit(also used for the WebDAV SRC)"
         RESPONSE.setHeader('Content-Type', self.getContentType())
         RESPONSE.setHeader('Content-Length', self.get_size())
         return self.getRaw(encoding=self.original_encoding)
 
-InitializeClass(BaseUnit)
+from OFS.content_types import guess_content_type
 
-# XXX Should go away after 1.3-final
-newBaseUnit = BaseUnit
+class oldBaseUnit(File, ObjectManager):
+    """ """
+    security = ClassSecurityInfo()
+    __replaceable__ = REPLACEABLE
+    __implements__ = (WriteLockInterface, IBaseUnit)
+    isUnit = 1
+
+    def __init__(self, name, file='', instance=None,
+                 mimetype=None, encoding=None):
+        self.id = name
+        self.filename = ''
+        self.data = ''
+        self.size = 0
+        self.content_type = mimetype
+        self.mimetype = mimetype
+        self.update(file, mimetype)
+
+    def __str__(self):
+        #This should return the default transform for the type,
+        #usually HTML. Keep in mind that non-text fields don't
+        #get baseunits
+        return self.getHTML()
+
+    __call__ = __str__
+
+    def reConvert(self):
+        """reconvert an existing field"""
+        driver = self.content_type.getConverter()
+        self._update_data(self.data, self.content_type, driver)
+        self.aq_parent.reindexObject()
+        return self.getHTML()
+
+    def update(self, file, mimetype=None):
+        if file and (type(file) is not type('')):
+            if hasattr(file, 'filename') and file.filename != '':
+                self.fullfilename = getattr(file, 'filename')
+                self.filename = basename(self.fullfilename)
+        # need to introduce this since field doesn't care of mime type anymore
+        if mimetype is None:
+            if file and hasattr(file, 'read'):
+                data = file.read()
+                file.seek(0)
+            else:
+                data = file or ''
+            mimetype, enc = guess_content_type(self.filename, data, mimetype)
+            self.mimetype = mimetype
+        driver, mimetype = self._driverFromType(mimetype, file)
+
+        self.content_type = mimetype
+        self._update_data(file, mimetype, driver)
+
+    def _driverFromType(self, mimetype, file=None):
+        driver = None
+        try:
+            plugin = selectPlugin(file=file, mimetype=mimetype)
+            mimetype = str(plugin)
+            driver    = plugin.getConverter()
+        except:
+            log_exc()
+            plugin = lookupContentType('text/plain')
+            mimetype = str(plugin)
+            driver    = plugin.getConverter()
+
+        return driver, mimetype
+
+
+    def _update_data(self, file, content_type, driver):
+        # This will populate its first arg with
+        # .html .text and whatever else it needs to
+        # satisfy the interface
+        if file and (type(file) is not type('')):
+            if hasattr(file, 'read'):
+                contents = file.read()
+                if contents:
+                    self.data = contents
+                file.seek(0)
+                self.size = len(self.data)
+        else:
+            self.data = file
+            self.size = 0
+
+        driver.convertData(self, self.data)
+        if hasattr(driver, 'fixSubObjects'):
+            driver.fixSubObjects("%s/" % self.id, self)
+
+        self._p_changed = 1
+
+    security.declarePublic('getContentType')
+    def getContentType(self):
+        """The content type of the unit"""
+        if not self.content_type:
+            self.content_type = getDefaultPlugin().getMimeType()
+        elif type(self.content_type) != type(''): #Fix source of this
+            self.content_type = self.content_type.getMimeType()
+        return self.content_type
+
+    def getContentObject(self):
+        return lookupContentType(self.getContentType())
+
+    security.declareProtected(CMFCorePermissions.View, 'isBinary')
+    def isBinary(self):
+        """Is the content displable as text"""
+        return self.getContentObject().isBinary()
+
+    security.declareProtected(CMFCorePermissions.View, "index_html")
+    def index_html(self, REQUEST, RESPONSE):
+        """download method"""
+        RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % self.Filename())
+        RESPONSE.setHeader('Content-Type', self.getContentType())
+        RESPONSE.setHeader('Content-Length', self.get_size())
+        return File.index_html(self, REQUEST, RESPONSE)
+
+    security.declarePublic('Filename')
+    def Filename(self):
+        return getattr(self, 'filename', '')
+
+    security.declareProtected(CMFCorePermissions.View, 'getHTML')
+    def getHTML(self):
+        """The HTML version of the Unit"""
+        return self.html
+
+    security.declareProtected(CMFCorePermissions.View, 'getRaw')
+    def getRaw(self):
+        """Raw Unaltered Content"""
+        return self.data
+
+    security.declareProtected(CMFCorePermissions.View, 'getText')
+    def getText(self):
+        """Strip HTML"""
+        ##Strip entities too?
+        text = re.sub('<[^>]*>(?i)(?m)', '', self.getHTML())
+        return urllib.unquote(re.sub('\n+', '\n', text)).strip()
+
+    #security.declareProtected(CMFCorePermissions.View, 'get_size')
+    security.declarePublic("get_size")
+    def get_size(self):
+        """aprox size of element"""
+        return self.size
+
+    security.declarePublic("getIcon")
+    def getIcon(self):
+        """Icon for the content type"""
+        return self.getContentObject().getIcon()
+
+    security.declareProtected(CMFCorePermissions.View, 'SearchableText')
+    def SearchableText(self):
+        """Indexable text"""
+        return self.getText()
+
+
+    security.declareProtected( CMFCorePermissions.View, 'manage_FTPget' )
+    def manage_FTPget(self, REQUEST, RESPONSE):
+        "Get the raw content for this unit(also used for the WebDAV SRC)"
+
+        RESPONSE.setHeader('Content-Type', self.getContentType())
+        RESPONSE.setHeader('Content-Length', self.get_size())
+
+        data=self.data
+        if type(data) is type(''): return data
+
+        while data is not None:
+            RESPONSE.write(data.data)
+            data=data.next
+
+        return ''
+
+    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT' )
+    def PUT(self, REQUEST, RESPONSE):
+        """Handle HTTP PUT requests"""
+        self.dav__init(REQUEST, RESPONSE)
+        self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
+        type=REQUEST.get_header('Content-Type', None)
+
+        file=REQUEST['BODYFILE']
+        data = file.read()
+        driver, mimetype = self._driverFromType(type, file)
+        self._update_data(data, mimetype, driver)
+        self.size = len(data)
+
+        self.aq_parent.reindexObject()
+        RESPONSE.setStatus(204)
+        return RESPONSE
+
+if USE_NEW_BASEUNIT:
+    BaseUnit = newBaseUnit
+else:
+    BaseUnit = oldBaseUnit
+
+InitializeClass(BaseUnit)

@@ -352,12 +352,12 @@ About UIDs
 One of the smartest things about Archetypes is that it introduces the
 ideas of unique identifiers into CMF sites. Zope IDs must be unique
 within a folder, but need not be unique across a site. Therefore,
-keeping track of the fact that you have an object called `Milo` isn't
+keeping track of the fact that you have an object called `Eliot` isn't
 useful, since you may have several objects called that in different
 folders.
 
 A common workaround has been to refer to objects by their path (eg,
-`/animals/cats/Milo`), but this is fragile, since any change to the
+`/animals/cats/Eliot`), but this is fragile, since any change to the
 object ID, or the IDs of any of the parent objects will change the
 path and break these references.
 

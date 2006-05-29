@@ -1,13 +1,12 @@
+from types import StringType
 import inspect
-import os
+import os, os.path
 import sys
 import traceback
 import pprint
-from types import StringType
-from zLOG import LOG, INFO, ERROR, BLATHER
-import warnings
+from zLOG import LOG, INFO, DEBUG, ERROR
 
-from Products.Archetypes.config import PKG_NAME, DEBUG
+from config import DEBUG, PKG_NAME
 
 
 if os.name == 'posix':
@@ -92,7 +91,7 @@ class Log:
 class NullLog(Log):
     def __init__(self, target):
         pass
-    def log(self, msg, **kwargs): pass
+    def log(self, msg): pass
 
 class ClassLog(Log):
     last_frame_msg = None
@@ -110,15 +109,7 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        try: 
-            return inspect.stack()[start:end]
-        except IndexError:
-            # NOTE: this is required for OS-X Tiger somehow
-            return []
-        except TypeError:
-            # NOTE: this is required for psyco compatibility
-            #       since inspect.stack is broken after psyco is imported
-            return []
+        return inspect.stack()[start:end]
 
     def munge_message(self, msg, **kwargs):
         deep = kwargs.get("deep", 1)
@@ -169,23 +160,6 @@ class ZLogger(ClassLog):
     def log_exc(self, msg=None, *args, **kwargs):
         LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
 
-def warn(msg, level=3):
-    # level is the stack level
-    #   1: the line below
-    #   2: the line calling this function
-    #   3: the line calling the function that
-    #      called this function
-    if DEBUG:
-        warnings.warn(msg, UserWarning, level)
-
-def deprecated(msg, level=3):
-    # level is the stack level
-    #   1: the line below
-    #   2: the line calling this function
-    #   3: the line calling the function that
-    #      called this function
-    if DEBUG:
-        warnings.warn(msg, DeprecationWarning, level)
 
 _default_logger = ClassLog()
 #_zpt_logger = ZPTLogger()

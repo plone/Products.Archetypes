@@ -1,45 +1,14 @@
-# -*- coding: UTF-8 -*-
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-"""
-"""
-
-import os, sys, operator
+import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from common import *
+from utils import *
 
-from Testing import ZopeTestCase
-
-from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.Schema import Schemata
-from Products.Archetypes.Schema import getNames
-from Products.Archetypes.Field import StringField
-from Products.Archetypes.exceptions import SchemaException
+from Products.Archetypes.Schema import Schemata, getNames
+from Products.Archetypes import listTypes
 
 from DateTime import DateTime
 import unittest
@@ -49,11 +18,11 @@ schema = BaseSchema
 class Dummy(BaseContent):
     schema = schema
 
-
-class SchemataTest( ATTestCase ):
+class SchemataTest( ArchetypesTestCase ):
 
     def afterSetUp(self):
-        registerType(Dummy, 'Archetypes')
+        ArchetypesTestCase.afterSetUp(self)
+        registerType(Dummy)
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
 
@@ -82,16 +51,20 @@ class SchemataTest( ATTestCase ):
         meta_names = getNames(schemata['metadata'])
         self.assertEqual(meta_names, ['allowDiscussion', 'subject',
                                       'description', 'contributors',
-                                      'creators', 'effectiveDate',
-                                      'expirationDate', 'language',
-                                      'rights', 'creation_date',
-                                      'modification_date'])
+                                      'effectiveDate', 'expirationDate',
+                                      'language', 'rights'])
 
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(SchemataTest))
-    return suite
+    def beforeTearDown(self):
+        del self._dummy
+        ArchetypesTestCase.beforeTearDown(self)
 
 if __name__ == '__main__':
     framework()
+else:
+    # While framework.py provides its own test_suite()
+    # method the testrunner utility does not.
+    import unittest
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTest(unittest.makeSuite(SchemataTest))
+        return suite

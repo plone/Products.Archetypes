@@ -8,7 +8,7 @@
   <body>
 
     <metal:body_macro define-macro="body">
-      <table summary="">
+      <table>
 	<tbody>
 	  <metal:use_body use-macro="here/base/macros/body" />
 	</tbody>

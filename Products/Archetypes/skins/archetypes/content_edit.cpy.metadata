@@ -5,7 +5,6 @@ title = Edit content
 validators = validate_base
 
 [actions]
-action.success = traverse_to:string:validate_integrity
-action.success_add_reference = redirect_to:python:object.REQUEST['last_referer']
+action.success = redirect_to_action:string:view
 action.failure = traverse_to_action:string:edit
-action.next_schemata = traverse_to_action:string:edit
+action.next_schemata = redirect_to_action:string:edit

@@ -1,19 +1,11 @@
-from __future__ import nested_scopes
-import re
-from types import FunctionType as function
-
-from Products.Archetypes.utils import capitalize
-from Products.Archetypes.utils import _getSecurity
-from Products.Archetypes.debug import warn
-from Products.Archetypes.debug import deprecated
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-
-# marker that AT should generate a method -- used to discard unwanted
-#  inherited methods
-AT_GENERATE_METHOD = []
-
+from debug import log
+from utils import pathFor, unique, capitalize
+import os, os.path
+import re
+from new import function
 
 _modes = {
     'r' : { 'prefix'   : 'get',
@@ -45,42 +37,19 @@ class Generator:
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
-        name = field.getName()
-        method = None
         if mode == "r":
-            def generatedAccessor(self, **kw):
-                """Default Accessor."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].get(self, **kw)
-            method = generatedAccessor
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].get(self, **kw)
         elif mode == "m":
-            def generatedEditAccessor(self, **kw):
-                """Default Edit Accessor."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].getRaw(self, **kw)
-            method = generatedEditAccessor
+            method = lambda self, field=field.getName(), **kw: \
+                     self.Schema()[field].getRaw(self, **kw)
         elif mode == "w":
-            def generatedMutator(self, value, **kw):
-                """Default Mutator."""
-                if kw.has_key('schema'):
-                    schema = kw['schema']
-                else:
-                    schema = self.Schema()
-                    kw['schema'] = schema
-                return schema[name].set(self, value, **kw)
-            method = generatedMutator
+            method = lambda self, value, field=field.getName(), **kw: \
+                     self.Schema()[field].set(self, value, **kw)
         else:
             raise GeneratorError("""Unhandled mode for method creation:
             %s:%s -> %s:%s""" %(klass.__name__,
-                                name,
+                                field.getName(),
                                 methodName,
                                 mode))
 
@@ -97,76 +66,54 @@ class Generator:
                          )
         setattr(klass, methodName, method)
 
+        # Allow the method to be published (for XML-RPC)
+        method.__doc__ = "%s %s" % (mode, field.getName())
+
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
-        security = _getSecurity(klass)
+        if not hasattr(klass, "security"):
+            security = klass.security = ClassSecurityInfo()
+        else:
+            security = klass.security
 
         perm = _modes[mode]['security']
         perm = getattr(field, perm, None)
-        method__roles__ = getattr(klass, '%s__roles__' % methodName, 0)
-
-        # Check copied from SecurityInfo to avoid stomping over
-        # existing permissions.
-        if security.names.get(methodName, perm) != perm:
-            warn('The method \'%s\' was already protected by a '
-                 'different permission than the one declared '
-                 'on the field. Assuming that the explicit '
-                 'permission declared is the correct one and '
-                 'has preference over the permission declared '
-                 'on the field.' % methodName)
-        elif method__roles__ is None:
-            security.declarePublic(methodName)
-        elif method__roles__ == ():
-            security.declarePrivate(methodName)
-        else:
-            security.declareProtected(perm, methodName)
+        security.declareProtected(perm, methodName)
 
     def generateName(self, klass):
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
 
     def checkSchema(self, klass):
-        # backward compatibility, should be removed later on
+        #backward compatibility, should be removed later on
         if klass.__dict__.has_key('type') and \
            not klass.__dict__.has_key('schema'):
-            deprecated('Class %s has type attribute, should be schema' % \
-                       klass.__name__, level = 4)
+            import warnings
+            warnings.warn('Class %s has type attribute, should be schema' % \
+                          klass.__name__,
+                          DeprecationWarning,
+                          stacklevel = 4)
             klass.schema = klass.type
         if not hasattr(klass, 'Schema'):
-            def Schema(self):
-                """Return a (wrapped) schema instance for
-                this object instance.
-                """
-                schema = self.schema
-                # XXX This code doesn't work at all and it's slowing down
-                # unit tests like hell.
-                #if hasattr(schema, 'wrapped'):
-                #    return schema.wrapped(self)
-                return ImplicitAcquisitionWrapper(schema, self)
-            klass.Schema = Schema
+            klass.Schema = lambda self: \
+                ImplicitAcquisitionWrapper(self.schema, self)
 
     def generateClass(self, klass):
-        # We are going to assert a few things about the class here
-        # before we start, set meta_type, portal_type based on class
-        # name, but only if they are not set yet
-        if (not getattr(klass, 'meta_type', None) or
-            'meta_type' not in klass.__dict__.keys()):
-            klass.meta_type = klass.__name__
-        if (not getattr(klass, 'portal_type', None) or
-            'portal_type' not in klass.__dict__.keys()):
-            klass.portal_type = klass.__name__
+        #We are going to assert a few things about the class here
+        #before we start, set meta_type, portal_type based on class
+        #name
+        klass.meta_type = klass.__name__
+        klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))
 
         self.checkSchema(klass)
-        fields = klass.schema.fields()
-        self.generateMethods(klass, fields)
 
-    def generateMethods(self, klass, fields):
+        fields = klass.schema.fields()
         generator = Generator()
         for field in fields:
             assert not 'm' in field.mode, 'm is an implicit mode'
 
-            # Make sure we want to muck with the class for this field
+            #Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'type')
             for mode in field.mode: #(r, w)
@@ -184,8 +131,7 @@ class ClassGenerator:
             methodName = generator.computeMethodName(field, mode)
 
         # Avoid name space conflicts
-        if not hasattr(klass, methodName) \
-               or getattr(klass, methodName) is AT_GENERATE_METHOD:
+        if not hasattr(klass, methodName):
             if type.has_key(methodName):
                 raise GeneratorError("There is a conflict"
                                      "between the Field(%s) and the attempt"
@@ -195,52 +141,28 @@ class ClassGenerator:
                     klass.__name__))
 
 
-            # Make a method for this klass/field/mode
+            #Make a method for this klass/field/mode
             generator.makeMethod(klass, field, mode, methodName)
+            self.updateSecurity(klass, field, mode, methodName)
 
-        # Update security regardless of the method being generated or
-        # not. Not protecting the method by the permission defined on
-        # the field may leave security open and lead to misleading
-        # bugs.
-        self.updateSecurity(klass, field, mode, methodName)
-
-        # Note on the class what we did (even if the method existed)
+        #Note on the class what we did (even if the method existed)
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
 
-def generateCtor(name, module):
-    # self is a App.FactoryDispater, Destination() is the real folder
+def generateCtor(type, module):
+    name = capitalize(type)
     ctor = """
-def add%(name)s(self, id, **kwargs):
-    obj = %(name)s(id)
-    self._setObject(id, obj)
-    obj = self._getOb(id)
-    obj.initializeArchetype(**kwargs)
-    return obj.getId()
-""" % {'name' : name}
+def add%s(self, id, **kwargs):
+    o = %s(id)
+    self._setObject(id, o)
+    o = getattr(self, id)
+    o.initializeArchetype(**kwargs)
+    return id
+""" % (name, type)
+
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
-
-def generateZMICtor(name, module):
-    zmi_ctor = """
-def manage_add%(name)s(self, id, REQUEST=None):
-    ''' Constructor for %(name)s '''
-    kwargs = {}
-    if REQUEST is not None:
-        kwargs = REQUEST.form.copy()
-        del kwargs['id']
-    id = add%(name)s(self, id, **kwargs)
-    obj = self._getOb(id)
-    manage_tabs_message = 'Successfully added %(name)s'
-    if REQUEST is not None:
-        url = obj.absolute_url()
-        REQUEST.RESPONSE.redirect(url + '/manage_edit%(name)sForm?manage_tabs_message=' + manage_tabs_message)
-    return id
-""" % {'name':name}
-    exec zmi_ctor in module.__dict__
-    return getattr(module, "manage_add%s" % name)
 
 
 _cg = ClassGenerator()
 generateClass = _cg.generateClass
-generateMethods = _cg.generateMethods

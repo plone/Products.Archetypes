@@ -1,18 +1,26 @@
 import sha
 
-from Products.Archetypes.Field import *
-from Products.Archetypes.Widget import *
-from Products.Archetypes.Schema import Schemata, WrappedSchemata
+from AccessControl import ClassSecurityInfo, ModuleSecurityInfo, Owned
+from Acquisition import aq_inner, aq_parent, aq_base, aq_chain, aq_get
+from Products.CMFCore.utils import getToolByName, _limitGrantedRoles, \
+     _verifyActionPermissions
+from Products.CMFCore.Expression import createExprContext
+from Products.CMFCore import CMFCorePermissions
+from Products.Archetypes import registerType
+from Products.Archetypes.BaseContent import BaseContent
+from Products.Archetypes.interfaces.base import IBaseContent
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.Field       import *
+from Products.Archetypes.Widget      import *
+from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.ClassGen import ClassGenerator, Generator
-from Products.Archetypes.ClassGen import _modes
-from Products.Archetypes.utils import OrderedDict
 
-from AccessControl import ClassSecurityInfo
-from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
-from Products.CMFCore import CMFCorePermissions
-from ExtensionClass import Base
+from Products.Archetypes.debug import log
+from DateTime import DateTime
+
+from Products.Archetypes.ClassGen import _modes
 
 class VarClassGen(ClassGenerator):
 
@@ -23,12 +31,10 @@ class VarClassGen(ClassGenerator):
         #We are going to assert a few things about the class here
         #before we start, set meta_type, portal_type based on class
         #name
-        # Only get the values from the klass and not from it's parent classes
-        kdict = vars(klass)
-        klass.meta_type = kdict.get('meta_type', klass.__name__)
-        klass.portal_type = kdict.get('portal_type', klass.meta_type)
-        klass.archetype_name = kdict.get('archetype_name',
-                                         self.generateName(klass))
+        klass.meta_type = klass.__name__
+        klass.portal_type = klass.__name__
+        klass.archetype_name = getattr(klass, 'archetype_name',
+                                       self.generateName(klass))
 
         self.checkSchema(klass)
 
@@ -49,7 +55,7 @@ class VarClassGen(ClassGenerator):
 
 schemadict={}
 
-class VariableSchemaSupport(Base):
+class VariableSchemaSupport:
     """
     Mixin class to support instance-based schemas
     Attention: must be before BaseFolder or BaseContent in
@@ -66,24 +72,18 @@ class VariableSchemaSupport(Base):
     security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
     def Schemata(self):
-        """Returns an ordered dictionary, which maps all Schemata names to
-        fields that belong to the Schemata."""
         schema = self.getAndPrepareSchema()
-        schemata = OrderedDict()
+        schemata = {}
         for f in schema.fields():
-            sub = schemata.get(f.schemata, WrappedSchemata(name=f.schemata))
+            sub = schemata.get(f.schemata, Schemata(name=f.schemata))
             sub.addField(f)
-            schemata[f.schemata] = sub.__of__(self)
+            schemata[f.schemata] = sub
         return schemata
 
     security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
-        schema = self.getAndPrepareSchema()
-        # XXX see ClassGen about line 130 for a comment
-        #if hasattr(schema, 'wrapped'):
-        #    return schema.wrapped(self)
-        return ImplicitAcquisitionWrapper(schema, self)
+        return self.getAndPrepareSchema()
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')
@@ -91,8 +91,7 @@ class VariableSchemaSupport(Base):
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha.new(str([f.__dict__ for f in s.values()]) +
-                     str(self.__class__)).hexdigest()
+        hash=sha.new(str([f._properties for f in s.values()])+str(self.__class__)).hexdigest()
 
         if schemadict.has_key(hash): #ok we had that shema already, so take it
             schema=schemadict[hash]
@@ -111,7 +110,7 @@ class VariableSchemaSupport(Base):
         return self.schema
 
     security.declareProtected(CMFCorePermissions.ManagePortal,
-                              'setSchema')
+                              'getAndPrepareSchema')
     def setSchema(self, schema):
         self.schema=schema
 

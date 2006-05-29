@@ -1,4 +1,4 @@
-from Interface import Interface
+from interface import Interface
 
 class IStorage(Interface):
     """Abstraction around the storage of field level data"""

@@ -18,7 +18,6 @@
 	       size="30"
 	       tabindex="#"
 	       tal:attributes="name fieldName;
-	       id fieldName;
 	       value value;
 	       size widget/size;
 	       maxlength widget/maxlength|nothing;
