@@ -1,5 +1,5 @@
-1.4.0
-=====
+1.4.0-RC1 - 2006-06-02
+======================
 
   * Use zope.contenttype in favor of zope.app.content_types if available.
     [hannosch]
