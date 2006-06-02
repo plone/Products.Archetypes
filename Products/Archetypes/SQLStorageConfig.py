@@ -1,32 +1,17 @@
-##############################################################################
-#
-# Copyright (c) 2001 Zope Corporation and Contributors. All Rights Reserved.
-#
-# This software is subject to the provisions of the Zope Public License,
-# Version 2.0 (ZPL).  A copy of the ZPL should accompany this distribution.
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE
-#
-##############################################################################
 """ SQL Storage Configuration for Archetypes.
-
-$Id$
 """
 
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.interfaces.storage import ISQLStorage
+from Products.Archetypes.interfaces.field import IObjectField
+
+from AccessControl import ClassSecurityInfo
+from Acquisition import aq_base
+from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
 
-from Globals import InitializeClass, PersistentMapping, DTMLFile
-from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base, aq_inner, aq_parent
-
-from Products.CMFCore.CMFCorePermissions import ManagePortal
+from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
-
-from config import TOOL_NAME
-from interfaces.storage import ISQLStorage
-from interfaces.field import IObjectField
 
 class SQLStorageConfig (SimpleItem):
 
@@ -119,11 +104,11 @@ class SQLStorageConfig (SimpleItem):
     def getDefaultConnFor(self, ob):
         """ Return the default conn, if applicable, for ob.
         """
+    
         types_tool = getToolByName( self, 'portal_types', None )
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
             return self._default_conn
-
         return None
 
     security.declareProtected( ManagePortal, 'getConfigurableTypes')

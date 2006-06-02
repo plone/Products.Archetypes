@@ -1,13 +1,31 @@
-from interfaces.layer import ILayer
-from Products.generator.renderer import renderer as base
-from debug import log, log_exc
 import sys
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
+from Acquisition import ImplicitAcquisitionWrapper
 
 _marker = []
 
-class ArchetypesRenderer(base):
-    __implements__ = (ILayer,)
+class ArchetypesRenderer:
+    
+    security = ClassSecurityInfo()
+    # TODO: more security
+    
+    def render(self, field_name, mode, widget, instance=None,
+               field=None, accessor=None, **kwargs):
+        if field is None:
+            field = instance.Schema()[field_name]
 
+        if accessor is None:
+            accessor = field.getAccessor(instance)
+
+        context = self.setupContext(field_name, mode, widget,
+                                    instance, field, accessor, **kwargs)
+
+        result = widget(mode, instance, context)
+
+        del context
+        return result    
+    
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):
 
@@ -19,7 +37,14 @@ class ArchetypesRenderer(base):
             frame = frame.f_back
         if context is _marker:
             raise RuntimeError, 'Context not found'
+        
+        # for editing of multiple AT-based content at once we might want to 
+        # prefix the field-name.
+        if 'fieldprefix' in kwargs:
+            field_name = '%s%s' % (kwargs['fieldprefix'], field_name)
 
+        widget = ImplicitAcquisitionWrapper(widget, instance)
+        field = ImplicitAcquisitionWrapper(field, instance)
         context.setLocal('here', instance)
         context.setLocal('fieldName', field_name)
         context.setLocal('accessor', accessor)
@@ -33,5 +58,7 @@ class ArchetypesRenderer(base):
 
         del frame
         return context
+
+InitializeClass(ArchetypesRenderer)
 
 renderer = ArchetypesRenderer()

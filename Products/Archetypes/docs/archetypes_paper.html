@@ -35,7 +35,7 @@
     </style>
   </head>
   <body>
-    <span class="title"><b>Archetypes</b></span><br/>
+    <span class="title"><b>Archetypes</b></span><br />
     <span class="subtitle">    Next Generation Content Type
       Development for Zope 2</span>
     <p><br>
@@ -72,7 +72,7 @@
       (<a href="http://www.plone.org/">www.plone.org</a>).</p>
     <p><br>
     </p>
-    <span class="title">OVERVIEW</span><br/>
+    <span class="title">OVERVIEW</span><br />
 
     <p>Archetypes works by declaring data about the object using its
     custom schema definition format. A schema is simply a list of
@@ -160,7 +160,7 @@
     <p><br>
     </p>
     <span class="title">
-      Details</span><br/>
+      Details</span><br />
 
     <span class="subtitle">Generation</span>
     <p>Archetypes
@@ -282,7 +282,7 @@
       particular project or simply provide your own implementation.  
     </p>
     <p>
-      <br/>
+      <br />
     </p> <p>As an example if you require a Field that normalizes it's
     data you could define your own field implementation that mapped
     the value before calling the storage layer, or simply write your
@@ -290,13 +290,13 @@
     field named 'foo', that converts its argument to a lowercased
     string.</p>
     <p>
-      <br/>
+      <br />
     </p>
 
    <div class="code">
     def setFoo(self, value): self._foo = str(value).lower()
     </div>
-      <br/>
+      <br />
     </p>
     <p><Storage implementations exist for attributes, folderish (object
       managed), and special metadata storage, but could easily be extended
@@ -306,9 +306,9 @@
       <br>
     </p>
     <p>
-    <br/>
+    <br />
     </p>
-    <span class="subtitle">References</span><br/> 
+    <span class="subtitle">References</span><br /> 
      <p>Within a given/particular site, Archetypes based objects each
      register with the ArchetypeTool and are assigned a unique
      Id. This UID should remain consistent in the face of rename and
@@ -317,7 +317,7 @@
     </p>
     <p><br>
     </p>
-    <span class="subtitle">Validation</span><br/>
+    <span class="subtitle">Validation</span><br />
     <p>Archetypes
       has a built in notion of validation for the object. Two forms of
       validation exist, the first and simplest is to delegate to the
@@ -386,7 +386,7 @@
     <p><br>
     </p>
 <div class="code">
-    from Products.Archetypes.public import *
+    from Products.Archetypes.atapi import *
     
     schema = BaseSchema +  Schema((
 	  StringField('blurb',
@@ -410,7 +410,7 @@
     
     registerType(Article)
 </div>
-<br/>
+<br />
     <p>Article
       uses the public API file and requires very little code to get going.
       This will create a type with a blurb and a TextArea widget, and a
@@ -425,10 +425,10 @@
 <div class="code">
     from Globals import package_home
     from Products.CMFCore import utils
-    from Products.Archetypes.public import *
+    from Products.Archetypes.atapi import *
     from Products.Archetypes import listTypes
     
-    ADD_CONTENT_PERMISSION = 'Add example content'
+    ADD_CONTENTS_PERMISSION = 'Add example content'
     PROJECTNAME = &quot;ArchExample&quot;
     
     def initialize(context):
@@ -442,7 +442,7 @@
 	  utils.ContentInit(
         	  PROJECTNAME + ' Content',
 	          content_types      = content_types,
-	          permission         = ADD_CONTENT_PERMISSION,
+	          permission         = ADD_CONTENTS_PERMISSION,
 	          extra_constructors = constructors,
 	          fti                = ftis,
 	  ).initialize(context)
@@ -490,7 +490,7 @@
       updated.</p>
     <p><br>
     </p>
-    <span class="subtitle">Conclusion</span><br/>
+    <span class="subtitle">Conclusion</span><br />
     <p><br>
     </p>
     <p>Archetypes
@@ -513,7 +513,7 @@
     <p><br>
     </p>
     <span class="subtitle">
-      AVAILABILITY</span><br/>
+      AVAILABILITY</span><br />
     <p><br>
     </p>
     <p>Archetypes

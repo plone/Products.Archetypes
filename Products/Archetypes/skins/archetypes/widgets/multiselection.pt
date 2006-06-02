@@ -18,7 +18,7 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="vocab python:field.Vocabulary(here);
-		    format python:test(field.widget.format,field.widget.format,'select');
+		    format python:test(widget.format, widget.format, 'select');
 		    vlen  python: len(vocab)">
 
 	  <input type="hidden"
@@ -27,18 +27,18 @@
 		 tal:attributes="name string:$fieldName:default:list;" />
 	  <span tal:repeat="item vocab" tal:omit-tag=""
 		tal:condition="python:format=='checkbox'">
-	    <tal:block tal:define="mytabindex tabindex/next">
+	    <tal:block tal:define="tabindex tabindex/next">
 	      <input
 	       tal:attributes="type string:checkbox;
 	       name string:$fieldName:list;
-	       id string:${fieldName}_${mytabindex};
-	       tabindex mytabindex;
+	       id string:${fieldName}_${repeat/item/number};
+	       tabindex tabindex;
 	       checked python:test(here.unicodeTestIn(item, value), 'checked', None);
-	       value item;"
+	       value nocall:item;"
 	       />
-	      <label for="field"
-		     tal:attributes="for string:${fieldName}_${tabindex/pos}"
-		     tal:content="python:vocab.getValue(item)" />
+          <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
+                 i18n:translate=""
+                 tal:attributes="for string:${fieldName}_${repeat/item/number}" />
 	      <br />
 	    </tal:block>
 	  </span>
@@ -51,9 +51,10 @@
 		  tabindex tabindex/next;">
 	    <option selected=""
 		    tal:repeat="item vocab"
-		    tal:attributes="value item;
+		    tal:attributes="value nocall:item;
 		    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
-		    tal:content="python: vocab.getValue(item)"/>
+		    tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
+		    i18n:translate="" />
 	  </select>
 	</metal:fill>
       </metal:use>
@@ -63,6 +64,17 @@
       <div metal:use-macro="here/widgets/multiselection/macros/edit">
       </div>
     </div>
+
+    <metal:hidden_macro define-macro="hidden">
+      <input type="hidden"
+             tal:define="value python:accessor()"
+             name=""
+             value=""
+             tabindex="#"
+             tal:attributes="name fieldName;
+                             value python:'\n'.join(value);
+                             tabindex tabindex/next;" />
+    </metal:hidden_macro>
 
   </body>
 </html>

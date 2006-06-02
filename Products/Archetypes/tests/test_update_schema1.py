@@ -1,36 +1,66 @@
+# -*- coding: UTF-8 -*-
+################################################################################
+#
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""
+"""
+
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
 
-if not hasArcheSiteTestCase:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import ArcheSiteTestCase')
+from ZPublisher.HTTPRequest import HTTPRequest
+from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.test_sitepolicy import makeContent
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import makeContent
+
+import shutil
+
 from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.public import listTypes, registerType
+from Products.Archetypes.atapi import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
-    raise TestPreconditionFailed('test_update_schema1', 'Cannot import from ArchetypesTestUpdateSchema')
-import sys, os, shutil
+    hasATTUS = False
+else:
+    hasATTUS = True
+
+
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class test_update_schema1(ArcheSiteTestCase):
+class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
+
     def afterSetUp(self):
-        ArcheSiteTestCase.afterSetUp(self)
-        user = self.getManagerUser()
-        newSecurityManager( None, user )
-        portal = self.getPortal()
-        qi = getToolByName(portal, 'portal_quickinstaller')
+        qi = getToolByName(self.portal, 'portal_quickinstaller')
         qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
@@ -50,34 +80,73 @@ class test_update_schema1(ArcheSiteTestCase):
 
 
     def test_detect_schema_change(self):
-        site = self.getPortal()
         self._setClass(1)
 
-        t1 = makeContent(site, portal_type='TestClass', id='t1')
+        t1 = makeContent(self.folder, portal_type='TestClass', id='t1')
         self.failUnless(t1._isSchemaCurrent())
 
-        site.archetype_tool.manage_updateSchema()
+        self.portal.archetype_tool.manage_updateSchema()
         self.failUnless(t1._isSchemaCurrent())
 
         self._setClass(2)
 
-        t1 = site.t1
+        t1 = self.folder.t1
         self.failIf(t1._isSchemaCurrent())
 
-        t2 = makeContent(site, portal_type='TestClass', id='t2')
+        t2 = makeContent(self.folder, portal_type='TestClass', id='t2')
         self.failUnless(t2._isSchemaCurrent())
 
-        site.archetype_tool.manage_updateSchema()
+        self.portal.archetype_tool.manage_updateSchema()
         self.failUnless(t1._isSchemaCurrent())
 
 
+class TestBasicSchemaUpdate(ATSiteTestCase):
+    """Tests for update schema behavior which depend only on the basic
+       types, and examine baseline behavior when no real schema changes have
+       happened."""
+
+    def test_update_preserves_tyoe(self):
+        self.folder.invokeFactory('DDocument', 'mydoc', title="My Doc")
+        doc = self.folder.mydoc
+        doc.setBody("""
+An rst Document
+===============
+
+* Which
+
+  * has
+
+  * some
+
+* bullet::
+
+  points.
+
+* for testing""",  mimetype="text/restructured")
+        doc.reindexObject()
+        mimetype = doc.getField('body').getContentType(doc)
+        self.assertEqual(mimetype, 'text/x-rst')
+
+        # update schema for all DDocuments and check if our type is preserved
+        request = HTTPRequest(sys.stdin,
+                              {'SERVER_NAME':'test', 'SERVER_PORT': '8080'},
+                              {})
+        request.form['Archetypes.DDocument'] = True
+        request.form['update_all'] = True
+        self.portal.archetype_tool.manage_updateSchema(REQUEST=request)
+        doc = self.folder.mydoc
+        mimetype = doc.getField('body').getContentType(doc)
+        self.assertEqual(mimetype, 'text/x-rst')
+
+
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    if hasATTUS:
+        suite.addTest(makeSuite(TestUpdateSchema1))
+    suite.addTest(makeSuite(TestBasicSchemaUpdate))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(test_update_schema1))
-        return suite

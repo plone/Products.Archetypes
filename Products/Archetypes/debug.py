@@ -1,13 +1,13 @@
-from types import StringType
 import inspect
-import os, os.path
+import os
 import sys
 import traceback
 import pprint
-from zLOG import LOG, INFO, DEBUG, ERROR
+from types import StringType
+import warnings
+import logging
 
-from config import DEBUG, PKG_NAME
-
+from Products.Archetypes.config import PKG_NAME, DEBUG
 
 if os.name == 'posix':
     COLOR = 1
@@ -23,6 +23,7 @@ COLORS = {
         'norm'  : "\033[00m",
         }
 
+logger = logging.getLogger('Archetypes')
 norm  = "\033[00m"
 
 class SafeFileWrapper:
@@ -91,7 +92,7 @@ class Log:
 class NullLog(Log):
     def __init__(self, target):
         pass
-    def log(self, msg): pass
+    def log(self, msg, **kwargs): pass
 
 class ClassLog(Log):
     last_frame_msg = None
@@ -109,7 +110,15 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        return inspect.stack()[start:end]
+        try: 
+            return inspect.stack()[start:end]
+        except IndexError:
+            # NOTE: this is required for OS-X Tiger somehow
+            return []
+        except TypeError:
+            # NOTE: this is required for psyco compatibility
+            #       since inspect.stack is broken after psyco is imported
+            return []
 
     def munge_message(self, msg, **kwargs):
         deep = kwargs.get("deep", 1)
@@ -151,22 +160,35 @@ class ZPTLogger(ClassLog):
 
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
-        level = kwargs.get('level', INFO)
+        level = kwargs.get('level', logging.INFO)
         msg = "%s\n" % (self.munge_message(msg, **kwargs))
         for arg in args:
             msg += "%s\n" % pprint.pformat(arg)
-        LOG(PKG_NAME, level, msg)
+        logger.log(level, msg)
 
     def log_exc(self, msg=None, *args, **kwargs):
-        LOG(PKG_NAME, ERROR, msg, error = sys.exc_info(), reraise = kwargs.get('reraise', None))
+        logger.log(logging.ERROR, '%s:\n%s' % (msg, sys.exc_info()))
 
+def warn(msg, level=3):
+    # level is the stack level
+    #   1: the line below
+    #   2: the line calling this function
+    #   3: the line calling the function that
+    #      called this function
+    if DEBUG:
+        warnings.warn(msg, UserWarning, level)
+
+def deprecated(msg, level=3):
+    # level is the stack level
+    #   1: the line below
+    #   2: the line calling this function
+    #   3: the line calling the function that
+    #      called this function
+    if DEBUG:
+        warnings.warn(msg, DeprecationWarning, level)
 
 _default_logger = ClassLog()
-#_zpt_logger = ZPTLogger()
 _zlogger = ZLogger()
 
-#log = _default_logger.log
-#log_exc = _default_logger.log_exc
-#zptlog = _zpt_logger.log
 log = zlog = _zlogger.log
 log_exc    = _zlogger.log_exc

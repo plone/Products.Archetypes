@@ -1,23 +1,37 @@
+import string
+from logging import DEBUG
+
+from Products.Archetypes.Field import *
+from Products.Archetypes.Widget import *
+from Products.Archetypes.Schema import Schema
+from Products.Archetypes.Schema import MetadataSchema
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.utils import DisplayList, shasattr
+from Products.Archetypes.debug import log
+from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import deprecated
+from Products.Archetypes import config
+import Persistence
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Field import *
-from Widget import *
-from Schema import MetadataSchema
+from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
-from interfaces.metadata import IExtensibleMetadata
-from debug import log, log_exc
-import Persistence
-
-from utils import DisplayList
-
 from Products.CMFDefault.utils import _dtmldir
+from ComputedAttribute import ComputedAttribute
+
 _marker=[]
 
-FLOOR_DATE = DateTime( 1000, 0 ) # always effective
-CEILING_DATE = DateTime( 9999, 0 ) # never expires
+try:
+    True
+except NameError:
+    True=1
+    False=0
+
+FLOOR_DATE = DateTime(1000, 0) # always effective
+CEILING_DATE = DateTime(2500, 0) # never expires
 
 ## MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
@@ -40,12 +54,16 @@ class ExtensibleMetadata(Persistence.Persistent):
             'allowDiscussion',
             accessor="isDiscussable",
             mutator="allowDiscussion",
+            edit_accessor="editIsDiscussable",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList(((0,'Disabled'),(1,'Enabled'),
-                                   (None,'Default'))),
+            vocabulary=DisplayList((
+        ('None', 'Default', 'label_discussion_default'),
+        ('1',    'Enabled', 'label_discussion_enabled'),
+        ('0',    'Disabled', 'label_discussion_disabled'),
+        )),
             widget=SelectionWidget(
-                label="Allow Discussion?",
+                label="Allow Discussion on this item",
                 label_msgid="label_allow_discussion",
                 description_msgid="help_allow_discussion",
                 i18n_domain="plone"),
@@ -54,10 +72,11 @@ class ExtensibleMetadata(Persistence.Persistent):
             'subject',
             multiValued=1,
             accessor="Subject",
+            searchable=True,
             widget=KeywordWidget(
                 label="Keywords",
                 label_msgid="label_keywords",
-                description_msgid="help_keywords",
+                description_msgid="help_keyword",
                 i18n_domain="plone"),
         ),
         TextField(
@@ -67,7 +86,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Description",
             widget=TextAreaWidget(
                 label='Description',
-                description="An administrative summary of the content",
+                description="A short summary of the content",
                 label_msgid="label_description",
                 description_msgid="help_description",
                 i18n_domain="plone"),
@@ -78,12 +97,30 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label='Contributors',
                 label_msgid="label_contributors",
+                description="The names of people that have contributed to this "
+                            "item. Each contributor should be on a separate "
+                            "line.",
                 description_msgid="help_contributors",
+                i18n_domain="plone"),
+        ),
+        LinesField(
+            'creators',
+            accessor="Creators",
+            widget=LinesWidget(
+                label='Creators',
+                label_msgid="label_creators",
+                rows = 3,
+                description="Persons responsible for creating the content of  "
+                            "this item. Please enter a list of user names, one "
+                            "per line. The principal creator should come first.",
+                description_msgid="help_creators",
                 i18n_domain="plone"),
         ),
         DateTimeField(
             'effectiveDate',
-            mutator = 'setEffectiveDate',
+            mutator='setEffectiveDate',
+            languageIndependent = True,
+            #default=FLOOR_DATE,
             widget=CalendarWidget(
                 label="Effective Date",
                 description=("Date when the content should become available "
@@ -94,7 +131,9 @@ class ExtensibleMetadata(Persistence.Persistent):
         ),
         DateTimeField(
             'expirationDate',
-            mutator = 'setExpirationDate',
+            mutator='setExpirationDate',
+            languageIndependent = True,
+            #default=CEILING_DATE,
             widget=CalendarWidget(
                 label="Expiration Date",
                 description=("Date when the content should no longer be "
@@ -107,7 +146,15 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            default="en",
+            # Special default here, cite limi: "If you don't add any language to
+            # an item, the template that renders the Plone page will fall back
+            # to the declared portal-wide language setting. This is the
+            # behaviour we want, and thus setting language explicitly is not
+            # necessary. (I fixed this behaviour in Plone 2.0.5, IIRC)"
+            # So I keep it backward compatible if needed and adding a
+            # configureable behaviour for 1.3.x. (Jensens)
+            default = config.LANGUAGE_DEFAULT,
+            default_method ='defaultLanguage',
             vocabulary='languages',
             widget=SelectionWidget(
                 label='Language',
@@ -115,29 +162,86 @@ class ExtensibleMetadata(Persistence.Persistent):
                 description_msgid="help_language",
                 i18n_domain="plone"),
         ),
-        StringField(
+        TextField(
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
-                label='Copyright',
-                description="A list of copyright info for this content",
+                label='Copyrights',
+                description="The copyrights on this item.",
                 label_msgid="label_copyrights",
                 description_msgid="help_copyrights",
                 i18n_domain="plone")),
+        )) + Schema((
+        # XXX change this to MetadataSchema in AT 1.4
+        # Currently we want to stay backward compatible without migration
+        # between beta versions so creation and modification date are using the
+        # standard schema which leads to AttributeStorage
+        DateTimeField(
+            'creation_date',
+            accessor='created',
+            mutator='setCreationDate',
+            default_method=DateTime,
+            languageIndependent=True,
+            isMetadata=True,
+            schemata='metadata',
+            generateMode='mVc',
+            widget=CalendarWidget(
+                label="Creation Date",
+                description=("Date this object was created"),
+                label_msgid="label_creation_date",
+                description_msgid="help_creation_date",
+                i18n_domain="plone",
+                visible={'edit':'invisible', 'view':'invisible'}),
+        ),
+        DateTimeField(
+            'modification_date',
+            accessor='modified',
+            mutator = 'setModificationDate',
+            default_method=DateTime,
+            languageIndependent=True,
+            isMetadata=True,
+            schemata='metadata',
+            generateMode='mVc',
+            widget=CalendarWidget(
+                label="Modification Date",
+                description=("Date this content was modified last"),
+                label_msgid="label_modification_date",
+                description_msgid="help_modification_date",
+                i18n_domain="plone",
+                visible={'edit':'invisible', 'view':'invisible'}),
+        ),
         ))
 
     def __init__(self):
-        now = DateTime()
-        self.creation_date = now
-        self.modification_date = now
+        pass
+        #self.setCreationDate(None)
+        #self.setModificationDate(None)
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'isDiscussable')
+    security.declarePrivate('defaultLanguage')
+    def defaultLanguage(self):
+        """Retrieve the default language"""
+        # XXX This method is kept around for backward compatibility only
+        return config.LANGUAGE_DEFAULT
+
+    security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
         dtool = getToolByName(self, 'portal_discussion')
         return dtool.isDiscussionAllowedFor(self)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.View, 'editIsDiscussable')
+    def editIsDiscussable(self, encoding=None):
+        # XXX this method highly depends on the current implementation
+        # it's a quick hacky fix
+        result = getattr(aq_base(self), 'allow_discussion', None)
+        if result is not None:
+            try:
+                # deal with booleans
+                result = int(result)
+            except (TypeError, ValueError):
+                pass
+        return str(result)
+
+    security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
     def allowDiscussion(self, allowDiscussion=None, **kw):
         if allowDiscussion is not None:
@@ -145,16 +249,46 @@ class ExtensibleMetadata(Persistence.Persistent):
                 allowDiscussion = int(allowDiscussion)
             except (TypeError, ValueError):
                 allowDiscussion = allowDiscussion.lower().strip()
-                d = {'on' : 1, 'off': 0, 'none':None, '':None}
+                d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
                 allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
-        dtool.overrideDiscussionFor(self, allowDiscussion)
+        try:
+            dtool.overrideDiscussionFor(self, allowDiscussion)
+        except (KeyError, AttributeError), err:
+            if allowDiscussion is None:
+                # work around a bug in CMFDefault.DiscussionTool. It's using
+                # an unsafe hasattr() instead of a more secure getattr() on an
+                # unwrapped object
+                msg = "Unable to set discussion on %s to None. Already " \
+                      "deleted allow_discussion attribute? Message: %s" % (
+                       self.getPhysicalPath(), str(err))
+                log(msg, level=DEBUG)
+            else:
+                raise
+        except ("Unauthorized", Unauthorized):
+            # Catch Unauthorized exception that could be raised by the
+            # discussion tool when the authenticated users hasn't
+            # ModifyPortalContent permissions. IMO this behavior is safe because
+            # this method is protected, too.
+            # Explanation:
+            # A user might have CreatePortalContent but not ModifyPortalContent
+            # so allowDiscussion could raise a Unauthorized error although it's
+            # called from trusted code. That is VERY bad inside setDefault()!
+            #
+            # XXX: Should we have our own implementation of
+            #      overrideDiscussionFor?
+            log('Catched Unauthorized on discussiontool.' \
+                'overrideDiscussionFor(%s)' % self.absolute_url(1),
+                level=DEBUG)
 
     # Vocabulary methods ######################################################
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'languages')
+    security.declareProtected(permissions.View, 'languages')
     def languages(self):
+        """Vocabulary method for the language field
+        """
+        # XXX document me
+        # use a list of languages from PLT?
         available_langs = getattr(self, 'availableLanguages', None)
         if available_langs is None:
             return DisplayList(
@@ -167,126 +301,135 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     #  DublinCore interface query methods #####################################
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'CreationDate')
+    security.declareProtected(permissions.View, 'CreationDate')
     def CreationDate(self):
         """ Dublin Core element - date resource created.
         """
-        # return unknown if never set properly
-        return self.creation_date and self.creation_date.ISO() or 'Unknown'
+        creation = self.getField('creation_date').get(self)
+        # XXX return unknown if never set properly
+        return creation is None and 'Unknown' or creation.ISO()
 
-    security.declarePublic( CMFCorePermissions.View,
-                            'EffectiveDate')
+    security.declarePublic( permissions.View, 'EffectiveDate')
     def EffectiveDate(self):
         """ Dublin Core element - date resource becomes effective.
         """
-        ed = self.schema['effectiveDate'].get(self)
-        return ed and ed.ISO() or 'None'
+        effective = self.getField('effectiveDate').get(self)
+        # XXX None? FLOOR_DATE
+        return effective is None and 'None' or effective.ISO()
 
-    security.declarePublic( CMFCorePermissions.View,
-                            'ExpirationDate')
+    def _effective_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('effectiveDate').get(self)
+
+    security.declarePublic(permissions.View, 'effective_date')
+    effective_date = ComputedAttribute(_effective_date, 1)
+
+
+    security.declarePublic( permissions.View, 'ExpirationDate')
     def ExpirationDate(self):
+        """Dublin Core element - date resource expires.
         """
-            Dublin Core element - date resource expires.
-        """
-        ed = self.schema['expirationDate'].get(self)
-        return ed and ed.ISO() or 'None'
+        expires = self.getField('expirationDate').get(self)
+        # XXX None? CEILING_DATE
+        return expires is None and 'None' or expires.ISO()
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Date')
+    def _expiration_date(self):
+        """Computed attribute accessor
+        """
+        return self.getField('expirationDate').get(self)
+
+    security.declarePublic(permissions.View, 'expiration_date')
+    expiration_date = ComputedAttribute(_expiration_date, 1)
+
+    security.declareProtected(permissions.View, 'Date')
     def Date(self):
         """
         Dublin Core element - default date
         """
         # Return effective_date if specifically set, modification date
         # otherwise
-        date = self.schema['effectiveDate'].get(self)
-        if date is None:
-            date = self.modified()
-        return date.ISO()
+        effective = self.getField('effectiveDate').get(self)
+        if effective is None:
+            effective = self.modified()
+        return effective is None and DateTime() or effective.ISO()
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Format')
+    security.declareProtected(permissions.View, 'Format')
     def Format(self):
         """cmf/backward compat
         Dublin Core element - resource format
         """
         # FIXME: get content type from marshaller
-        return
+        return self.getContentType()
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'setFormat')
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
-        pass
+        self.setContentType(value)
+
+    def Identifer(self):
+        """ dublin core getId method"""
+        return self.getId()
 
     #  DublinCore utility methods #############################################
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'contentEffective')
+    security.declareProtected(permissions.View, 'contentEffective')
     def contentEffective(self, date):
-        """ Is the date within the resource's effective range? """
-        effectiveDate = self.schema['effectiveDate'].get(self)
-        expirationDate = self.schema['expirationDate'].get(self)
-        pastEffective = ( effectiveDate is None
-                       or effectiveDate <= date )
-        beforeExpiration = ( expirationDate is None
-                          or expirationDate >= date )
+        """Is the date within the resource's effective range?
+        """
+        effective = self.getField('effectiveDate').get(self)
+        expires = self.getField('expirationDate').get(self)
+        pastEffective = ( effective is None or effective <= date )
+        beforeExpiration = ( expires is None or expires >= date )
         return pastEffective and beforeExpiration
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'contentExpired')
+    security.declareProtected(permissions.View, 'contentExpired')
     def contentExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
             # XXX we need some unittesting for this
             date = DateTime()
-        expirationDate = self.schema['expirationDate'].get(self)
-        if not expirationDate:
-            expirationDate = CEILING_DATE
-        return expirationDate <= date
+        expires = self.getField('expirationDate').get(self)
+        if not expires:
+            expires = CEILING_DATE
+        return expires <= date
 
     #  CatalogableDublinCore methods ##########################################
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'created')
+    security.declareProtected(permissions.View, 'created')
     def created(self):
         """Dublin Core element - date resource created,
         returned as DateTime.
         """
         # allow for non-existent creation_date, existed always
-        date = getattr( self, 'creation_date', None )
-        return date is None and self.FLOOR_DATE or date
+        created = self.getField('creation_date').get(self)
+        return created is None and FLOOR_DATE or created
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'modified')
+    security.declareProtected(permissions.View, 'modified')
     def modified(self):
         """Dublin Core element - date resource last modified,
         returned as DateTime.
         """
-        return self.modification_date
+        modified = self.getField('modification_date').get(self)
+        # XXX may return None
+        return modified
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'effective')
+    security.declareProtected(permissions.View, 'effective')
     def effective(self):
         """Dublin Core element - date resource becomes effective,
         returned as DateTime.
         """
-        effective = self.schema['effectiveDate'].get(self)
-        if effective is None:
-            return FLOOR_DATE
-        return effective
+        effective = self.getField('effectiveDate').get(self)
+        return effective is None and FLOOR_DATE or effective
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'expires')
+    security.declareProtected(permissions.View, 'expires')
     def expires(self):
         """Dublin Core element - date resource expires,
         returned as DateTime.
         """
-        expires = self.schema['expirationDate'].get(self)
-        if expires is None:
-            return CEILING_DATE
-        return expires
+        expires = self.getField('expirationDate').get(self)
+        return expires is None and CEILING_DATE or expires
 
     ## code below come from CMFDefault.DublinCore.DefaultDublinCoreImpl #######
 
@@ -308,7 +451,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  In DefaultDublinCoreImpl for lack of a better place.
     #
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'notifyModified')
     def notifyModified(self):
         """
@@ -316,61 +459,64 @@ class ExtensibleMetadata(Persistence.Persistent):
         For now, change the modification_date.
         """
         # XXX This could also store the id of the user doing modifications.
-        self.setModificationDate()
+        self.setModificationDate(DateTime())
+        if shasattr(self, 'http__refreshEtag'):
+            self.http__refreshEtag()
 
-    # XXX Could this be simply protected by ModifyPortalContent ?
-    security.declarePrivate('setModificationDate')
+    security.declareProtected(permissions.ManagePortal,
+                              'setModificationDate')
     def setModificationDate(self, modification_date=None):
         """Set the date when the resource was last modified.
         When called without an argument, sets the date to now.
         """
-        if not modification_date:
-            self.modification_date = DateTime()
+        if modification_date is None:
+            modified = DateTime()
         else:
-            if not isinstance( modification_date, DateTime ):
-                modification_date = DateTime( modification_date )
-            self.modification_date = self._datify(modification_date)
+            modified = self._datify(modification_date)
+        self.getField('modification_date').set(self, modified)
+
+    security.declareProtected(permissions.ManagePortal,
+                              'setCreationDate')
+    def setCreationDate(self, creation_date=None):
+        """Set the date when the resource was created.
+        When called without an argument, sets the date to now.
+        """
+        if creation_date is None:
+            created = DateTime()
+        else:
+            created = self._datify(creation_date)
+        self.getField('creation_date').set(self, created)
 
     security.declarePrivate( '_datify' )
-    def _datify(self, attrib):
-        if attrib == 'None':
-            attrib = None
-        elif not isinstance(attrib, DateTime):
-            if attrib is not None:
-                attrib = DateTime(attrib)
-        return attrib
+    def _datify(self, date):
+        """Try to convert something into a DateTime instance or None
+        """
+        # stupid web
+        if date == 'None':
+            date = None
+        if not isinstance(date, DateTime):
+            if date is not None:
+                date = DateTime(date)
+        return date
 
     #
     #  DublinCore interface query methods
     #
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'Creator')
-    def Creator(self):
-        # XXX: fixme using 'portal_membership' -- should iterate over
-        #       *all* owners
-        "Dublin Core element - resource creator"
-        owner = self.getOwner()
-        if hasattr( owner, 'getUserName' ):
-            return owner.getUserName()
-        return 'No owner'
-
-    security.declareProtected(CMFCorePermissions.View,
-                              'Publisher')
+    security.declareProtected(permissions.View, 'Publisher')
     def Publisher(self):
-        """Dublin Core element - resource publisher"""
+        """Dublin Core element - resource publisher
+        """
         # XXX: fixme using 'portal_metadata'
         return 'No publisher'
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'ModificationDate')
+    security.declareProtected(permissions.View, 'ModificationDate')
     def ModificationDate(self):
         """ Dublin Core element - date resource last modified.
         """
-        return self.modified().ISO()
+        modified = self.modified()
+        return modified is None and DateTime() or modified.ISO()
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Type')
+    security.declareProtected(permissions.View, 'Type')
     def Type(self):
         """Dublin Core element - Object type"""
         if hasattr(aq_base(self), 'getTypeInfo'):
@@ -379,20 +525,58 @@ class ExtensibleMetadata(Persistence.Persistent):
                 return ti.Title()
         return self.meta_type
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'Identifier')
+    security.declareProtected(permissions.View, 'Identifier')
     def Identifier(self):
         """Dublin Core element - Object ID"""
         # XXX: fixme using 'portal_metadata' (we need to prepend the
         #      right prefix to self.getPhysicalPath().
         return self.absolute_url()
 
+    security.declareProtected(permissions.View, 'listContributors')
+    def listContributors(self):
+        """Dublin Core element - Contributors"""
+        return self.Contributors()
+
+    security.declareProtected(permissions.ModifyPortalContent,
+                              'addCreator')
+    def addCreator(self, creator=None):
+        """ Add creator to Dublin Core creators.
+        """
+        if creator is None:
+            mtool = getToolByName(self, 'portal_membership')
+            creator = mtool.getAuthenticatedMember().getId()
+
+        # call self.listCreators() to make sure self.creators exists
+        if creator and not creator in self.listCreators():
+            self.setCreators(self.creators + (creator, ))
+
+    security.declareProtected(permissions.View, 'listCreators')
+    def listCreators(self):
+        """ List Dublin Core Creator elements - resource authors.
+        """
+        creators = self.Schema()['creators']
+        if not creators.get(self):
+            # for content created with CMF versions before 1.5
+            owner_id = self.getOwnerTuple()[1]
+            if owner_id:
+                creators.set(self, (owner_id,))
+            else:
+                creators.set(self, ())
+
+        return creators.get(self)
+
+    security.declareProtected(permissions.View, 'Creator')
+    def Creator(self):
+        """ Dublin Core Creator element - resource author.
+        """
+        creators = self.listCreators()
+        return creators and creators[0] or ''
+
     #
     #  DublinCore utility methods
     #
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'content_type')
+    security.declareProtected(permissions.View, 'content_type')
     def content_type(self):
         """ WebDAV needs this to do the Right Thing (TM).
         """
@@ -401,8 +585,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  CatalogableDublinCore methods
     #
 
-    security.declareProtected(CMFCorePermissions.View,
-                              'getMetadataHeaders')
+    security.declareProtected(permissions.View, 'getMetadataHeaders')
     def getMetadataHeaders(self):
         """ Return RFC-822-style headers.
         """
@@ -413,6 +596,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         hdrlist.append( ( 'Description', self.Description() ) )
         hdrlist.append( ( 'Contributors', string.join(
             self.Contributors(), '; ' ) ) )
+        hdrlist.append( ( 'Creators', string.join(
+            self.Creators(), '; ' ) ) )
         hdrlist.append( ( 'Effective_date', self.EffectiveDate() ) )
         hdrlist.append( ( 'Expiration_date', self.ExpirationDate() ) )
         hdrlist.append( ( 'Type', self.Type() ) )
@@ -458,11 +643,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         if rights is not _marker:
             self.setRights( rights )
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'manage_metadata' )
     manage_metadata = DTMLFile('zmi_metadata', _dtmldir)
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                                'manage_editMetadata')
     def manage_editMetadata( self
                            , title
@@ -486,7 +671,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                                 + '/manage_metadata'
                                 + '?manage_tabs_message=Metadata+updated.' )
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
+    security.declareProtected(permissions.ModifyPortalContent,
                               'editMetadata')
     def editMetadata(self
                      , title=''
@@ -516,5 +701,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                            )
         self.reindexObject()
 
-
 InitializeClass(ExtensibleMetadata)
+
+ExtensibleMetadataSchema = ExtensibleMetadata.schema
+
+__all__ = ('ExtensibleMetadata', 'ExtensibleMetadataSchema', )

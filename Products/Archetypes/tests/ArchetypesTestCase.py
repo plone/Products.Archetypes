@@ -1,31 +1,37 @@
+# -*- coding: UTF-8 -*-
+################################################################################
 #
-# ArchetypesTestCase
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
 #
-
-# $Id$
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
+"""BBB will be removed in AT 1.5
+"""
 
 from Testing import ZopeTestCase
 
-ZopeTestCase.installProduct('CMFCore', 1)
-ZopeTestCase.installProduct('CMFDefault', 1)
-ZopeTestCase.installProduct('CMFCalendar', 1)
-ZopeTestCase.installProduct('CMFTopic', 1)
-ZopeTestCase.installProduct('DCWorkflow', 1)
-ZopeTestCase.installProduct('CMFActionIcons', 1)
-ZopeTestCase.installProduct('CMFQuickInstallerTool', 1)
-ZopeTestCase.installProduct('CMFFormController', 1)
-ZopeTestCase.installProduct('GroupUserFolder', 1)
-ZopeTestCase.installProduct('ZCTextIndex', 1)
-ZopeTestCase.installProduct('CMFPlone', 1)
-ZopeTestCase.installProduct('MailHost', quiet=1)
-ZopeTestCase.installProduct('PageTemplates', quiet=1)
-ZopeTestCase.installProduct('PythonScripts', quiet=1)
-ZopeTestCase.installProduct('ExternalMethod', quiet=1)
-ZopeTestCase.installProduct('ZCatalog', 1)
-ZopeTestCase.installProduct('Archetypes', 1)
-ZopeTestCase.installProduct('ArchExample', 1)
-ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 1)
-ZopeTestCase.installProduct('PortalTransforms', 1)
+from Products.Archetypes.tests.attestcase import ATTestCase as \
+    ArchetypesTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase as \
+    ArcheSiteTestCase
 
-class ArchetypesTestCase(ZopeTestCase.ZopeTestCase):
-    pass
+from Products.Archetypes.tests.attestcase import *
+from Products.Archetypes.tests.atsitetestcase import *

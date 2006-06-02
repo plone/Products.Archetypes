@@ -1,15 +1,44 @@
+# -*- coding: UTF-8 -*-
+################################################################################
 #
-# Skeleton Archetypes test
+# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
+#                              the respective authors. All rights reserved.
+# For a list of Archetypes contributors see docs/CREDITS.txt.
 #
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of the author nor the names of its contributors may be used
+#   to endorse or promote products derived from this software without specific
+#   prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+################################################################################
 
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from common import *
-from utils import *
+from Testing import ZopeTestCase
 
-from types import TupleType
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+
+from Interface.Implements import getImplementsOfInstances
+from Interface.Implements import getImplements
+from Interface.Implements import flattenInterfaces
+from Interface.Verify import verifyClass, verifyObject
+from Interface.Exceptions import BrokenImplementation
+from Interface.Exceptions import DoesNotImplement
+from Interface.Exceptions import BrokenMethodImplementation
 
 from Products.Archetypes.interfaces.base import *
 from Products.Archetypes.interfaces.field import *
@@ -23,8 +52,8 @@ from Products.Archetypes.interfaces.storage import *
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.BaseUnit import newBaseUnit, oldBaseUnit
-from Products.Archetypes import Field # use __all__ field
+from Products.Archetypes.BaseUnit import BaseUnit
+from Products.Archetypes import Field as at_field# use __all__ field
 from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
 from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
@@ -33,9 +62,8 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.Validators import DateValidator
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.public import registerType
+from Products.Archetypes.atapi import registerType
 
 def className(klass):
     """ get the short class name """
@@ -78,7 +106,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
             self.fail('The class %s does not implement %s correctly: \n%s'
                 % (className(klass), className(interface), errmsg))
 
-    def interfaceImplementedBy(self, instance, interface):
+    def interfaceImplementedBy(self, instance, interface):        
         """ tests if the instance implements the interface in the right way """
         # is the class really implemented by the given interface?
         self.failUnless(interface.isImplementedBy(instance),
@@ -94,7 +122,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def getImplementsOfInstanceOf(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
         impl = getImplementsOfInstances(klass)
-        if type(impl) is not TupleType:
+        if not isinstance(impl, tuple):
             impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
@@ -102,14 +130,14 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def getImplementsOf(self, instance):
         """ returns the interfaces implemented by the instance (flat)"""
         impl = getImplements(instance)
-        if type(impl) is not TupleType:
+        if not isinstance(impl, tuple):
             impl = (impl,)
         if impl:
             return flattenInterfaces(impl)
 
     def doesImplementByInstanceOf(self, klass, interfaces):
         """ make shure that the klass implements at least these interfaces"""
-        if type(interfaces) is not TupleType:
+        if not isinstance(interfaces, tuple):
             interfaces = (interfaces)
         impl = self.getImplementsOfInstanceOf(klass)
         for interface in interfaces:
@@ -117,7 +145,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 
     def doesImplementBy(self, instance, interfaces):
         """ make shure that the klass implements at least these interfaces"""
-        if type(interfaces) is not TupleType:
+        if not isinstance(interfaces, tuple):
             interfaces = (interfaces)
         impl = self.getImplementsOf(instance)
         for interface in interfaces:
@@ -143,22 +171,23 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
 
-    klass = Field.Field # not used but set to class Field
+    klass = at_field.Field # not used but set to class Field
     forcedImpl = ()
 
     def testFieldInterface(self):
-        for fieldname in Field.__all__:
-            klass = getattr(Field, fieldname)
+       for fieldname in at_field.__all__:
+            klass = getattr(at_field, fieldname)
+            instance = klass()
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
-            for iface in self.getImplementsOfInstanceOf(klass):
-                self.interfaceImplementedByInstanceOf(klass, iface)
+            for iface in self.getImplementsOf(instance):
+                self.interfaceImplementedBy(instance, iface)
 
 tests.append(FieldInterfaceTest)
 
 # format: (class object, (list interface objects))
 testClasses = [
     (BaseObject, ()),
-    (newBaseUnit, ()), (oldBaseUnit, ()),
+    (BaseUnit, ()),
     (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()),
     (Schema, ()),
     (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()),
@@ -169,8 +198,8 @@ testClasses = [
 ]
 
 PROJECTNAME = 'Archetypes.tests'
-class EM(ExtensibleMetadata): pass
-registerType(EM, PROJECTNAME)
+#class EM(ExtensibleMetadata): pass
+#registerType(EM, PROJECTNAME)
 class BC(BaseContent): pass
 registerType(BC, PROJECTNAME)
 class BF(BaseFolder): pass
@@ -185,7 +214,6 @@ testInstances = [
     (BC('test'), ()),
     (BF('test'), ()),
     (OBF('test'), ()),
-    (DateValidator('isValidDate'), ()),
 ]
 
 for testClass in testClasses:
@@ -216,14 +244,13 @@ for testInstance in testInstances:
     setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())
     tests.append(InstanceInterfaceTest)
 
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    for test in tests:
+        suite.addTest(makeSuite(test))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    # While framework.py provides its own test_suite()
-    # method the testrunner utility does not.
-    import unittest
-    def test_suite():
-        suite = unittest.TestSuite()
-        for test in tests:
-            suite.addTest(unittest.makeSuite(test))
-        return suite

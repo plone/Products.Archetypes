@@ -39,12 +39,12 @@
 
 	
       <table class="main" width="80%">
-	<tr tal:repeat="meta_type python: at.listRegisteredTypes(1)">
-	  <td tal:content="string: ${meta_type/package}:${meta_type/name}">TYPE</td>
+	<tr tal:repeat="portal_type python: at.listRegisteredTypes(1, 1)">
+	  <td tal:content="string: ${portal_type/package}:${portal_type/name}">TYPE</td>
 	  <td>
 	    <select multiple="multiple"
-	      tal:define="value python:[c.id for c in at.getCatalogsByType(meta_type['name'])];"
-		tal:attributes="name string:catalog_names_${meta_type/name}:list;
+	      tal:define="value python:[c.id for c in at.getCatalogsByType(portal_type['name'])];"
+		tal:attributes="name string:catalog_names_${portal_type/name}:list;
 		                size python: len(vocab)">
 	      <option selected=""
 		tal:repeat="item vocab"

@@ -35,7 +35,7 @@
 	</tr>
       </table>
       
-      <br/>
+      <br />
       <input type="submit" value="Add Schema"/>
   </form>
     

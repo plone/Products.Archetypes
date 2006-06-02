@@ -1,6 +1,7 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
+from Products.Archetypes.config import PKG_NAME
 
 schema = BaseSchema + Schema((
     TextField('teaser',
@@ -9,7 +10,10 @@ schema = BaseSchema + Schema((
               article so that we might get people to read the body""",
                                     label="Teaser",
                                     rows=3)),
-    ObjectField('author'),
+
+    # Using a bare ObjetField doesn't make sense ...
+    #ObjectField('author'),
+    StringField('author'),
 
     TextField('body',
               required=1,
@@ -43,5 +47,11 @@ class DDocument(TemplateMixin, BaseContent):
     archetype_name = "Demo Doc"
     actions = TemplateMixin.actions
 
+    def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
+                        filename, REQUEST, RESPONSE):
+        """For unit tests
+        """
+        self.called_afterPUT_hook = True
 
-registerType(DDocument)
+
+registerType(DDocument, PKG_NAME)

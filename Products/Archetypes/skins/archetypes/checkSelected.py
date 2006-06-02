@@ -5,7 +5,21 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=item, value
+##parameters=item, value, contenttypes=0
+
+site_charset = context.getCharset()
+item = context.unicodeEncode(item, site_charset=site_charset)
+value = context.unicodeEncode(value, site_charset=site_charset)
+
+# map from mimetypes used in allowable_content_types to mimetypes that are stored
+# in the base unit
+mapping = {
+    'text/x-python' : 'text/python-source',
+    'text/restructured': 'text/x-rst',
+}
+
+if contenttypes:
+    item = mapping.get(item, item)
 
 if value is not None and \
    value == item or \

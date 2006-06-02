@@ -1,20 +1,23 @@
+import os.path
+__version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
+
+import sys
+import bbb
+
+from Products.Archetypes.config import *
+from Products.Archetypes.utils import DisplayList, getPkgInfo
+import Products.Archetypes.patches
+
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
-from Globals import InitializeClass
-from Products.CMFCore  import CMFCorePermissions
+from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
-from Products.CMFCore.TypesTool import TypesTool, typeClasses
-from config import *
-from debug import log, log_exc
-
-# Bootstrap Zope-dependent validators
-import Validators
-
-# look if BTreeFolder2 is installed, warn if not
 try:
-    import Products.BTreeFolder2
+    from Products.CMFPlone.interfaces import IPloneSiteRoot
+    from Products.GenericSetup import EXTENSION, profile_registry
+    HAS_GENERICSETUP = True
 except ImportError:
-    log_exc("""BTreeFolder2 was not available. You will not be able to use BaseBTreeFolder.""")
+    HAS_GENERICSETUP = False
 
 
 ###
@@ -24,17 +27,18 @@ except ImportError:
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
+import transaction
+
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
-try:
-    from Products.CMFPlone.PloneUtilities import IndexIterator
-except:
-    from PloneCompat import IndexIterator
+from PloneCompat import IndexIterator
 allow_class(IndexIterator)
+
+from PloneCompat import transaction_note
+ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
-from utils import DisplayList
 allow_class(DisplayList)
 
 
@@ -43,33 +47,41 @@ allow_class(DisplayList)
 ###
 registerDirectory('skins', globals())
 
-from ArchetypeTool import ArchetypeTool, \
-                          registerType, \
-                          process_types, \
-                          listTypes
-from ArchTTWTool import ArchTTWTool
+from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
+     process_types, listTypes, fixAfterRenameType
+ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
+from Products.Archetypes.ArchTTWTool import ArchTTWTool
+
+
+###
+# Test dependencies
+###
+# XXX: Check if we need these imports here, after version checks are removed
+this_module = sys.modules[__name__]
+import Products.MimetypesRegistry
+import Products.PortalTransforms
+import Products.validation
+
+###
+# Tools
+###
 
 tools = (
     ArchetypeTool,
     ArchTTWTool,
     )
 
-
 types_globals=globals()
 
 def initialize(context):
     from Products.CMFCore import utils
-##    from Extensions import ArchetypeSite
-
-##    ArchetypeSite.register(context, globals())
 
     utils.ToolInit("%s Tool" % PKG_NAME, tools=tools,
-                   product_name=PKG_NAME,
                    icon="tool.gif",
                    ).initialize(context)
 
     if REGISTER_DEMO_TYPES:
-        import examples
+        import Products.Archetypes.examples
 
         content_types, constructors, ftis = process_types(
             listTypes(PKG_NAME), PKG_NAME)
@@ -77,11 +89,10 @@ def initialize(context):
         utils.ContentInit(
             '%s Content' % PKG_NAME,
             content_types = content_types,
-            permission = CMFCorePermissions.AddPortalContent,
+            permission = permissions.AddPortalContent,
             extra_constructors = constructors,
             fti = ftis,
             ).initialize(context)
-
     try:
         from Products.CMFCore.FSFile import FSFile
         from Products.CMFCore.DirectoryView import registerFileExtension
@@ -89,3 +100,21 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
+
+    if HAS_GENERICSETUP:
+        profile_registry.registerProfile('Archetypes',
+                'Archetypes',
+                'Extension profile for default Archetypes setup',
+                'profiles/default',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+
+        profile_registry.registerProfile('Archetypes_samplecontent',
+                'Archetypes Sample Content Types',
+                'Extension profile including Archetypes sample content types',
+                'profiles/sample_content',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+

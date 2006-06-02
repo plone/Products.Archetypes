@@ -10,7 +10,7 @@
 
     <metal:view_macro define-macro="view"
 		      tal:repeat="item accessor">
-      <span tal:content="item"/><br/>
+      <span tal:content="item"/><br />
     </metal:view_macro>
 
     <metal:define define-macro="edit">
@@ -22,7 +22,7 @@
 
 	  <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
 	    <div style="width: 45%; float: right;">
-	      <span i18n:translate="" tal:content="string: New ${fieldName}">New keywords</span>
+	      <span i18n:translate="label_new_keywords">New keywords</span>
 	      <br />
 	      <textarea id="entered_subjects"
 			name="subject:lines"
@@ -33,7 +33,7 @@
 			tal:attributes="id string:${fieldName}_keywords;
 			name string:${fieldName}_keywords:lines;
 			tabindex tabindex/next;"
-			tal:define="subject python:request.get(fieldName,[])"
+			tal:define="subject python:[item for item in value if item not in allowedKeywords]"
 			tal:content="python:'\n'.join(subject)">
 		selected keywords
 	      </textarea>
@@ -42,7 +42,7 @@
 	  </tal:condition>
 
 	  <div style="width: 45%">
-	    <span i18n:translate="" tal:content="string: Existing ${fieldName}">Existing keywords</span>
+	    <span i18n:translate="label_existing_keywords">Existing keywords</span>
 	    <br />
 	    <select id="predefined_subjects"
 		    name="predefined_subjects:list"
@@ -54,7 +54,7 @@
 		    tabindex tabindex/next;">
 	      <option value="#" tal:repeat="keyword allowedKeywords"
 		      tal:content="keyword" tal:attributes="value keyword;
-		      selected python:test(here.unicodeTestIn(keyword, contentKeywords), 'selected', None)">
+		      selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
 		an existing keyword
 	      </option>
 	    </select>

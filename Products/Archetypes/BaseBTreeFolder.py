@@ -1,96 +1,159 @@
-from Products.Archetypes.public import *
+from Products.Archetypes import WebDAVSupport
+from Products.Archetypes.atapi import BaseFolder
+from Products.CMFCore import permissions
+from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent, \
-     AccessContentsInformation, View
-from Products.CMFDefault.SkinnedFolder  import SkinnedFolder
-try:
-    from Products.BTreeFolder2.CMFBTreeFolder import CMFBTreeFolder
-    has_btree = 1
-except ImportError:
-    has_btree = 0
+from Globals import InitializeClass
 
-if has_btree:
-    class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
-        """ A BaseBTreeFolder with all the bells and whistles"""
+# to keep backward compatibility
+has_btree = 1
 
-        security = ClassSecurityInfo()
+from webdav.NullResource import NullResource
+from OFS.ObjectManager import REPLACEABLE
+from ComputedAttribute import ComputedAttribute
 
-        __implements__ = (CMFBTreeFolder.__implements__, ) + \
-                         (BaseFolder.__implements__, )
+class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
+    """ A BaseBTreeFolder with all the bells and whistles"""
 
-        def __init__(self, oid, **kwargs):
-            CMFBTreeFolder.__init__(self, id)
-            BaseFolder.__init__(self, oid, **kwargs)
+    security = ClassSecurityInfo()
 
-        security.declarePrivate('manage_afterAdd')
-        def manage_afterAdd(self, item, container):
-            BaseFolder.manage_afterAdd(self, item, container)
+    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
 
-        security.declarePrivate('manage_afterClone')
-        def manage_afterClone(self, item):
-            BaseFolder.manage_afterClone(self, item)
+    def __init__(self, oid, **kwargs):
+        CMFBTreeFolder.__init__(self, oid)
+        BaseFolder.__init__(self, oid, **kwargs)
 
-        security.declarePrivate('manage_beforeDelete')
-        def manage_beforeDelete(self, item, container):
-            BaseFolder.manage_beforeDelete(self, item, container)
+    security.declarePrivate('manage_afterAdd')
+    def manage_afterAdd(self, item, container):
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
+        BaseFolder.manage_afterAdd(self, item, container)
 
-        def __getitem__(self, key):
-            """ Override BTreeFolder __getitem__ """
-            if key in self.Schema().keys() and key[:1] != "_": #XXX 2.2
-                accessor = self.Schema()[key].getAccessor(self)
-                if accessor is not None:
-                    return accessor()
-            return CMFBTreeFolder.__getitem__(self, key)
+    security.declarePrivate('manage_afterClone')
+    def manage_afterClone(self, item):
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
+        BaseFolder.manage_afterClone(self, item)
 
-        security.declareProtected(ModifyPortalContent, 'indexObject')
-        indexObject = BaseFolder.indexObject
+    security.declarePrivate('manage_beforeDelete')
+    def manage_beforeDelete(self, item, container):
+        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # base class as SkinnedFolder, and SkinnedFolder doesn't
+        # override any of those methods, so just calling
+        # BaseFolder.manage* should do it.
+        BaseFolder.manage_beforeDelete(self, item, container)
 
-        security.declareProtected(ModifyPortalContent, 'unindexObject')
-        unindexObject = BaseFolder.unindexObject
+    def _getCopy(self, container):
+        # We need to take _getCopy from BaseFolder (implicitly from
+        # Referenceable) instead of straight from PortalFolder, otherwise there
+        # are strange side effects with references on copy.
+        return BaseFolder._getCopy(self, container)
 
-        security.declareProtected(ModifyPortalContent, 'reindexObject')
-        reindexObject = BaseFolder.reindexObject
+    def _notifyOfCopyTo(self, container, op=0):
+        # We need to take _notifyOfCopyTo from BaseFolder (implicitly from
+        # Referenceable) instead of straight from PortalFolder, otherwise there
+        # are strange side effects with references on copy.
+        return BaseFolder._notifyOfCopyTo(self, container, op)
 
-        security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
-        reindexObjectSecurity = BaseFolder.reindexObjectSecurity
+    def __getitem__(self, key):
+        """ Override BTreeFolder __getitem__ """
+        if key in self.Schema().keys() and key[:1] != "_": #XXX 2.2
+            accessor = self.Schema()[key].getAccessor(self)
+            if accessor is not None:
+                return accessor()
+        return CMFBTreeFolder.__getitem__(self, key)
 
-        security.declarePrivate('notifyWorkflowCreated')
-        notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated
+    security.declareProtected(permissions.ModifyPortalContent, 'indexObject')
+    indexObject = BaseFolder.indexObject.im_func
 
-        security.declareProtected(AccessContentsInformation, 'opaqueItems')
-        opaqueItems = BaseFolder.opaqueItems
+    security.declareProtected(permissions.ModifyPortalContent, 'unindexObject')
+    unindexObject = BaseFolder.unindexObject.im_func
 
-        security.declareProtected(AccessContentsInformation, 'opaqueIds')
-        opaqueIds = BaseFolder.opaqueIds
+    security.declareProtected(permissions.ModifyPortalContent, 'reindexObject')
+    reindexObject = BaseFolder.reindexObject.im_func
 
-        security.declareProtected(AccessContentsInformation, 'opaqueValues')
-        opaqueValues = BaseFolder.opaqueValues
+    security.declareProtected(permissions.ModifyPortalContent, 'reindexObjectSecurity')
+    reindexObjectSecurity = BaseFolder.reindexObjectSecurity.im_func
 
-        __call__ = SkinnedFolder.__call__
+    security.declarePrivate('notifyWorkflowCreated')
+    notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated.im_func
 
-        security.declareProtected(View, 'view')
-        view = SkinnedFolder.view
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueItems')
+    opaqueItems = BaseFolder.opaqueItems.im_func
 
-        security.declareProtected(View, 'index_html')
-        index_html = SkinnedFolder.index_html
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueIds')
+    opaqueIds = BaseFolder.opaqueIds.im_func
 
-        security.declareProtected(View, 'Title')
-        Title = BaseFolder.Title
+    security.declareProtected(permissions.AccessContentsInformation, 'opaqueValues')
+    opaqueValues = BaseFolder.opaqueValues.im_func
 
-        security.declareProtected(ModifyPortalContent, 'setTitle')
-        setTitle = BaseFolder.setTitle
+    security.declareProtected(permissions.ListFolderContents, 'listFolderContents')
+    listFolderContents = BaseFolder.listFolderContents.im_func
 
-        security.declareProtected(View, 'title_or_id')
-        title_or_id = BaseFolder.title_or_id
+    security.declareProtected(permissions.AccessContentsInformation,
+                              'folderlistingFolderContents')
+    folderlistingFolderContents = BaseFolder.folderlistingFolderContents.im_func
 
-        security.declareProtected(View, 'Description')
-        Description = BaseFolder.Description
+    __call__ = BaseFolder.__call__.im_func
 
-        security.declareProtected(ModifyPortalContent, 'setDescription')
-        setDescription = BaseFolder.setDescription
+    #security.declareProtected(permissions.View, 'view')
+    #view = BaseFolder.view.im_func
 
+    def index_html(self):
+        """ Allow creation of .
+        """
+        if self.has_key('index_html'):
+            return self._getOb('index_html')
+        request = getattr(self, 'REQUEST', None)
+        if request and request.has_key('REQUEST_METHOD'):
+            if (request.maybe_webdav_client and
+                request['REQUEST_METHOD'] in  ['PUT']):
+                # Very likely a WebDAV client trying to create something
+                nr = NullResource(self, 'index_html')
+                nr.__replaceable__ = REPLACEABLE
+                return nr
+        return None
 
-if not has_btree:
-    class BaseBTreeFolder(BaseFolder):
-        """ Just so it doenst break when BTreeFolder isnt available """
-        pass
+    index_html = ComputedAttribute(index_html, 1)
+
+    security.declareProtected(permissions.View, 'Title')
+    Title = BaseFolder.Title.im_func
+
+    security.declareProtected(permissions.ModifyPortalContent, 'setTitle')
+    setTitle = BaseFolder.setTitle.im_func
+
+    security.declareProtected(permissions.View, 'title_or_id')
+    title_or_id = BaseFolder.title_or_id.im_func
+
+    security.declareProtected(permissions.View, 'Description')
+    Description = BaseFolder.Description.im_func
+
+    security.declareProtected(permissions.ModifyPortalContent, 'setDescription')
+    setDescription = BaseFolder.setDescription.im_func
+
+    manage_addFolder = BaseFolder.manage_addFolder.im_func
+
+    MKCOL = BaseFolder.MKCOL.im_func
+    MKCOL_handler = BaseFolder.MKCOL_handler.im_func
+
+    security.declareProtected(permissions.ModifyPortalContent, 'PUT')
+    PUT = WebDAVSupport.PUT
+
+    security.declareProtected(permissions.View, 'manage_FTPget')
+    manage_FTPget = WebDAVSupport.manage_FTPget
+
+    security.declarePrivate('manage_afterPUT')
+    manage_afterPUT = WebDAVSupport.manage_afterPUT
+
+    security.declareProtected(permissions.ModifyPortalContent, 'edit')
+    edit = BaseFolder.edit.im_func
+
+InitializeClass(BaseBTreeFolder)
+
+BaseBTreeFolderSchema = BaseBTreeFolder.schema
+
+__all__ = ('BaseBTreeFolder', 'BaseBTreeFolderSchema', )

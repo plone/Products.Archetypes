@@ -3,6 +3,7 @@
 ##bind context=context
 ##bind namespace=
 ##bind script=script
+##bind state=state
 ##bind subpath=traverse_subpath
 ##parameters=
 ##
@@ -12,4 +13,4 @@ errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metada
 if errors:
     return state.set(status='failure', errors=errors, portal_status_message='Please correct the indicated errors.')
 else:
-    return state.set(portal_status_message='Your changes have been saved.')
+    return state.set(portal_status_message='Changes saved.')

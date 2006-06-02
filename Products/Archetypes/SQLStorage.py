@@ -1,27 +1,29 @@
+from Products.Archetypes.SQLMethod import SQLMethod
+from Products.Archetypes.interfaces.storage import ISQLStorage
+from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.interfaces.layer import ILayer
+from Products.Archetypes.debug import log
+from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
+from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
-from SQLMethod import SQLMethod
-from interfaces.storage import IStorage, ISQLStorage
-from interfaces.field import IObjectField
-from interfaces.layer import ILayer
-from debug import log
-from config import TOOL_NAME
-from Storage import StorageLayer, type_map
-from sys import exc_info
+from ZODB.POSException import ConflictError
+from OFS.ObjectManager import BeforeDeleteException
 
 class BaseSQLStorage(StorageLayer):
-    # SQLStorage that is more or less ISO SQL, should be
-    # usable as a base
-    __implements__ = (ISQLStorage, ILayer)
+    """ SQLStorage Base, more or less ISO SQL """
+
+    __implements__ = ISQLStorage, ILayer
 
     query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '
                     'PARENTUID char(50), <dtml-var columns>)')
+    query_drop   = ('drop table <dtml-var table>')
+    query_select = ('select <dtml-var field> from <dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
     query_insert = ('insert into <dtml-var table> '
                     'set UID=<dtml-sqlvar UID type="string">, '
                     'PARENTUID=<dtml-sqlvar PARENTUID type="string">')
-    query_select = ('select <dtml-var field> from <dtml-var table> '
-                    'where <dtml-sqltest UID op="eq" type="string">')
     query_update = ('update <dtml-var table> set '
                     '<dtml-var field>=<dtml-sqlvar value '
                     'type="%s" optional> where '
@@ -33,17 +35,17 @@ class BaseSQLStorage(StorageLayer):
 
     db_type_map = {'fixedpoint' : 'integer'}
 
-    def map_fixedpoint(self, field, value):
-        __traceback_info__ = repr(value)
-        template = '%%d%%0%dd' % field.precision
-        return template % value
+    def map_object(self, field, value):
+        if value is None:
+            return 'None'
+        else:
+            return value
 
-    def unmap_fixedpoint(self, field, value):
-        __traceback_info__ = repr(value)
-        if value is None: # maybe not initialized
-            return (0, 0)
-        split = 10 ** field.precision
-        return (value / split), (value % split)
+    def unmap_object(self, field, value):
+        if value == 'None':
+            return None
+        else:
+            return value
 
     def map_datetime(self, field, value):
         # we don't want to lose even 0.001 second
@@ -52,20 +54,19 @@ class BaseSQLStorage(StorageLayer):
         except:
             return None
 
-    def map_object(self, field, value):
+    def map_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
-        return repr(value)
+        template = '%%d%%0%dd' % field.precision
+        return template % value
 
-    def unmap_object(self, field, value):
+    def unmap_fixedpoint(self, field, value):
         __traceback_info__ = repr(value)
-        # XXX dangerous!
-        try:
-            return eval(value, {})
-        except:
-            return None
-
-    map_reference = map_object
-    unmap_reference = unmap_object
+        if value is None or value == '':
+            return (0, 0)
+        if type(value) == type(''):   # Gadfly return integers as strings
+            value = int(value)
+        split = 10 ** field.precision
+        return (value / split), (value % split)
 
     def map_lines(self, field, value):
         __traceback_info__ = repr(value)
@@ -75,6 +76,25 @@ class BaseSQLStorage(StorageLayer):
         __traceback_info__ = repr(value)
         return value.split('\n')
 
+    def map_boolean(self, field, value):
+        __traceback_info__ = repr(value)
+        if not value:
+            return 0
+        else:
+            return 1
+        
+    def map_reference(self, field, value):
+        __traceback_info__ = repr(value)
+
+        return ','.join(value)
+    
+    def unmap_boolean(self, field, value):
+        __traceback_info__ = repr(value)
+        if not value or value == '0':   # Gadfly return integers as strings
+            return 0
+        else:
+            return 1
+
     def table_exists(self, instance):
         raise NotImplemented
 
@@ -83,6 +103,9 @@ class BaseSQLStorage(StorageLayer):
             return self.getName() in instance.__initialized
         except AttributeError:
             return None
+
+    def initializeField(self, instance, field):
+        pass
 
     def is_cleaned(self, instance):
         try:
@@ -103,9 +126,13 @@ class BaseSQLStorage(StorageLayer):
 
     def initializeInstance(self, instance, item=None, container=None):
         if (self.is_initialized(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
+        factory = getToolByName(instance,'portal_factory')
+        if factory.isTemporary(instance):
+          return
+              
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.isImplementedBy(f) \
                   and f.getStorage().__class__ is self.__class__]
@@ -114,19 +141,24 @@ class BaseSQLStorage(StorageLayer):
         for field in fields:
             type = self.db_type_map.get(field.type, field.type)
             name = field.getName()
-            columns.append('%s %s' % (name, type))
+            # MySQL supports escape for columns names!
+            if self.__class__.__name__ == 'MySQLSQLStorage':
+                columns.append('`%s` %s' % (name, type))
+            else:
+                columns.append('%s %s' % (name, type))
         parent = container or aq_parent(aq_inner(instance))
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         args['columns'] = ', ' + ', '.join(columns)
-
         if not self.table_exists(instance):
             self._query(instance, self.query_create, args)
             log('created table %s\n' % args['table'])
-
         try:
             self._query(instance, self.query_insert, args)
+        except ConflictError:
+            raise
         except:
             # usually, duplicate key
             # raise SQLInitException(msg)
@@ -135,7 +167,6 @@ class BaseSQLStorage(StorageLayer):
             instance.__initialized += (self.getName(),)
         except AttributeError:
             instance.__initialized = (self.getName(),)
-
         # now, if we find an attribute called _v_$classname_temps, it
         # means the object was moved and we can initialize the fields
         # with those values
@@ -145,7 +176,6 @@ class BaseSQLStorage(StorageLayer):
             for key, value in temps.items():
                 instance.Schema()[key].set(instance, value)
             delattr(instance, temps_var)
-
         try:
             del instance.__cleaned
         except (AttributeError, KeyError):
@@ -161,13 +191,10 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        args['db_encoding']=kwargs.get('db_encoding',None)
         args['field'] = name
         result = self._query(instance, self.query_select, args)
-        # XXX Do not remove this. What we are doing here is:
-        # - Getting the first result
-        # - Getting the first column from the first result
-        result = result[0]
-        result = result[0]
+        result = result[0][0]
         mapper = getattr(self, 'unmap_' + field.type, None)
         if mapper is not None:
             result = mapper(field, result)
@@ -189,6 +216,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         field_name = '%s:%s' % (name, type)
         if default:
             if type == 'string':
@@ -203,7 +231,7 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
-            getattr(instance, '_is_fake_instance', None)):
+            getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be cleaned twice
             return
         # the object is being deleted. remove data from sql.  but
@@ -222,14 +250,17 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
+        #args['db_encoding']=kwargs.get('db_encoding',None)
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
             query, result = method(test__=1, **args)
+        except ConflictError:
+            raise
         except:
             # dunno what could happen here raise
             # SQLCleanupException(msg)
-            pass
+            raise BeforeDeleteException
         try:
             instance.__cleaned += (self.getName(),)
         except AttributeError:
@@ -239,85 +270,129 @@ class BaseSQLStorage(StorageLayer):
         except (AttributeError, KeyError):
             pass
 
-    def initializeField(self, instance, field):
-        pass
-
 class GadflySQLStorage(BaseSQLStorage):
+
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
                     '(UID varchar, PARENTUID varchar <dtml-var columns>)')
+    query_select = ('select <dtml-var field> from <dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
     query_insert = ('insert into <dtml-var table> '
                     'values (<dtml-sqlvar UID type="string">, '
                     '<dtml-sqlvar PARENTUID type="string">, '
                     '<dtml-in expr="_.string.split(columns,\',\')[1:]"> '
                     '<dtml-if sequence-end>\'\'<dtml-else>\'\', </dtml-if> '
                     '</dtml-in>) ')
-    query_select = ('select <dtml-var field> from <dtml-var table> '
-                    'where <dtml-sqltest UID op="eq" type="string">')
     query_update = ('update <dtml-var table> set '
                     '<dtml-var field>=<dtml-sqlvar value '
                     'type="%s" optional> where '
                     '<dtml-sqltest UID op="eq" type="string">')
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
-    query_drop   = ('drop table <dtml-var table>')
 
-    sqlm_type_map = {'integer':'int'}
-    db_type_map = {'text': 'varchar',
-                   'object': 'varchar',
-                   'string': 'varchar',
-                   'datetime': 'varchar',
-                   'fixedpoint': 'float',
-                   'reference': 'varchar'}
+    sqlm_type_map = {'integer':'string',
+                     'float':'string'}
+
+    db_type_map = {'object'     : 'varchar',
+                   'string'     : 'varchar',
+                   'text'       : 'varchar',
+                   'datetime'   : 'varchar',
+                   'integer'    : 'varchar',
+                   'float'      : 'varchar',
+                   'fixedpoint' : 'integer',
+                   'lines'      : 'varchar',
+                   'reference'  : 'varchar',
+                   'boolean'    : 'integer',
+                   }
+
+    def map_datetime(self, field, value):
+        try:
+            return value.ISO()[:-2] + str(value.second())
+        except:
+            return ''
 
     def unmap_datetime(self, field, value):
-        import DateTime
+        from DateTime import DateTime
         try:
-            return DateTime.DateTime(value)
+            return DateTime(value)
         except:
             return None
 
-    def unmap_fixedpoint(self, field, value):
-        split = 10 ** field.precision
-        return (float(value) / split), (float(value) % split)
+    def map_integer(self, field, value):
+        __traceback_info__ = repr(value)
+        if value is None:   # Gadfly represents None as an empty string
+            return ''
+        else:
+            return str(value)
+
+    def unmap_integer(self, field, value):
+        __traceback_info__ = repr(value)
+        if value == '':   # Gadfly represents None as an empty string
+            return None
+        else:
+            return int(value)
+
+    def map_float(self, field, value):
+        __traceback_info__ = repr(value)
+        if value is None:   # Gadfly represents None as an empty string
+            return ''
+        else:
+            return str(value)
+
+    def unmap_float(self, field, value):
+        __traceback_info__ = repr(value)
+        if value == '':   # Gadfly represents None as an empty string
+            return None
+        else:
+            return float(value)
+
+    def unmap_lines(self, field, value):
+        __traceback_info__ = repr(value)
+        if value == '':   # Gadfly represents None as an empty String
+            return None
+        else:
+            return value.split('\n')
 
     def table_exists(self, instance):
         try:
             self._query(instance,
                         'select * from <dtml-var table>',
                         {'table': instance.portal_type.lower()})
+        except ConflictError:
+            raise
         except:
             return 0
-        return 1
+        else:
+            return 1
 
 class MySQLSQLStorage(BaseSQLStorage):
+
     __implements__ = BaseSQLStorage.__implements__
 
-    query_create = ('create table <dtml-var table> '
+    query_create = ('create table `<dtml-var table>` '
                     '(UID char(50) primary key not null, '
-                    'PARENTUID char(50) <dtml-var columns>)')
-    query_insert = ('insert into <dtml-var table> '
+                    'PARENTUID char(50) <dtml-var columns>) TYPE = %s' % MYSQL_SQLSTORAGE_TABLE_TYPE)
+    query_select = ('select `<dtml-var field>` '
+                    'from `<dtml-var table>` where '
+                    '<dtml-sqltest UID op="eq" type="string">')
+    query_insert = ('insert into `<dtml-var table>` '
                     'set UID=<dtml-sqlvar UID type="string">, '
                     'PARENTUID=<dtml-sqlvar PARENTUID type="string">')
-    query_select = ('select <dtml-var field> '
-                    'from <dtml-var table> where '
-                    '<dtml-sqltest UID op="eq" type="string">')
-    query_update = ('update <dtml-var table> set '
-                    '<dtml-var field>=<dtml-sqlvar value '
+    query_update = ('update `<dtml-var table>` set '
+                    '`<dtml-var field>`=<dtml-sqlvar value '
                     'type="%s" optional> where '
                     '<dtml-sqltest UID op="eq" type="string">')
-    query_delete = ('delete from <dtml-var table> '
+    query_delete = ('delete from `<dtml-var table>` '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    sqlm_type_map = {'integer':'int'}
-
-    db_type_map = {'object' : 'blob',
-                   'string' : 'text',
-                   'reference' : 'text',
-                   'metadata' : 'text',
-                   'lines' : 'text',
-                   'fixedpoint' : 'integer'}
+    db_type_map = {'object'     : 'text',
+                   'string'     : 'text',
+                   'fixedpoint' : 'integer',
+                   'lines'      : 'text',
+                   'reference'  : 'text',
+                   'boolean'    : 'tinyint',
+                   }
 
     def table_exists(self, instance):
         result =  [r[0].lower() for r in
@@ -325,17 +400,18 @@ class MySQLSQLStorage(BaseSQLStorage):
         return instance.portal_type.lower() in result
 
 class PostgreSQLStorage(BaseSQLStorage):
+
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
                     '(UID text primary key not null, '
                     'PARENTUID text <dtml-var columns>)')
+    query_select = ('select <dtml-var field> from <dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
     query_insert = ('insert into <dtml-var table> '
                     '(UID, PARENTUID) values '
                     '(<dtml-sqlvar UID type="string">, '
                     '<dtml-sqlvar PARENTUID type="string">)')
-    query_select = ('select <dtml-var field> from <dtml-var table> '
-                    'where <dtml-sqltest UID op="eq" type="string">')
     query_update = ('update <dtml-var table> set '
                     '<dtml-var field>=<dtml-sqlvar value '
                     'type="%s" optional> where '
@@ -343,15 +419,13 @@ class PostgreSQLStorage(BaseSQLStorage):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    sqlm_type_map = {'integer': 'int'}
-
-    db_type_map = {'object' : 'bytea',
-                   'string' : 'text',
-                   'reference' : 'text',
-                   'metadata' : 'text',
-                   'lines' : 'text',
-                   'datetime' : 'timestamp',
-                   'fixedpoint' : 'integer'}
+    db_type_map = {'object'     : 'text',
+                   'string'     : 'text',
+                   'datetime'   : 'timestamp',
+                   'fixedpoint' : 'integer',
+                   'lines'      : 'text',
+                   'reference'  : 'text',
+                   }
 
     def table_exists(self, instance):
         return self._query(instance,
@@ -360,6 +434,7 @@ class PostgreSQLStorage(BaseSQLStorage):
                            {'relname': instance.portal_type.lower()})
 
 class SQLServerStorage(BaseSQLStorage):
+
     __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
@@ -367,13 +442,13 @@ class SQLServerStorage(BaseSQLStorage):
                     'PRIMARY KEY CLUSTERED, '
                     'PARENTUID varchar(50) '
                     '<dtml-var columns>)')
+    query_select = ('select <dtml-var field> from '
+                    '<dtml-var table> '
+                    'where <dtml-sqltest UID op="eq" type="string">')
     query_insert = ('insert into <dtml-var table> '
                     '(UID, PARENTUID) values '
                     '(<dtml-sqlvar UID type="string">, '
                     '<dtml-sqlvar PARENTUID type="string">)')
-    query_select = ('select <dtml-var field> from '
-                    '<dtml-var table> '
-                    'where <dtml-sqltest UID op="eq" type="string">')
     query_update = ('update <dtml-var table> set '
                     '<dtml-var field>=<dtml-sqlvar value '
                     'type="%s" optional> where '
@@ -381,15 +456,14 @@ class SQLServerStorage(BaseSQLStorage):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    sqlm_type_map = {'integer': 'int'}
-
-    db_type_map = {'object':'varchar',
-                   'string':'varchar',
-                   'reference':'varchar',
-                   'metadata':'varchar',
-                   'lines':'varchar',
-                   'datetime':'timestamp',
-                   'fixedpoint':'integer'
+    db_type_map = {'object'     : 'varchar',
+                   'string'     : 'varchar',
+                   'text'       : 'varchar',
+                   'datetime'   : 'timestamp',
+                   'fixedpoint' : 'integer',
+                   'lines'      : 'varchar',
+                   'reference'  : 'varchar',
+                   'boolean'    : 'integer',
                    }
 
     def table_exists(self, instance):

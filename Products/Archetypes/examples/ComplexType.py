@@ -1,12 +1,12 @@
-from Products.Archetypes.public import *
+from Products.Archetypes.atapi import *
 from Products.Archetypes import Field
 from SimpleType import SimpleType
+from Products.Archetypes.config import PKG_NAME
 
-fields = ['ObjectField', 'StringField',
+fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
-          'BooleanField',
-          # 'ReferenceField', 'ComputedField', 'CMFObjectField', 'ImageField'
+          'BooleanField', 'ImageField'
           ]
 
 field_instances = []
@@ -24,6 +24,14 @@ schema = Schema(tuple(field_instances) + (
                vocabulary='_get_selection_vocab',
                widget=SelectionWidget(label='Selection'),
                ),
+    LinesField('selectionlinesfield3',
+               vocabulary='_get_selection_vocab2',
+               widget=MultiSelectionWidget(label='MultiSelection'),
+               ),
+    TextField('textarea_appendonly',
+              widget=TextAreaWidget( label='TextArea',
+                                     append_only=1,),
+              ),
     TextField('richtextfield',
               allowable_content_types=('text/plain',
                                        'text/structured',
@@ -32,14 +40,25 @@ schema = Schema(tuple(field_instances) + (
                                        'application/msword'),
               widget=RichWidget(label='rich'),
               ),
+    ReferenceField('referencefield',
+                   relationship='complextype',
+                   widget=ReferenceWidget(addable=1),
+                   allowed_types=('ComplexType', ),
+                   multiValued=1,
+                  ),
     )) + ExtensibleMetadata.schema
 
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
-    archetypes_name = portal_type = meta_type = "Complex Type"
+    archetype_name = meta_type = "ComplexType"
+    portal_type = 'ComplexType'
 
     def _get_selection_vocab(self):
         return DisplayList((('Test','Test'), ))
 
-registerType(ComplexType)
+    def _get_selection_vocab2(self):
+        return DisplayList((('Test','Test'),('Test2','Test2'), ))
+
+
+registerType(ComplexType, PKG_NAME)

@@ -9,7 +9,7 @@
     <!-- Lines Widgets -->
 
     <metal:view_macro define-macro="view" tal:repeat="item accessor">
-      <span tal:content="item"/><br/>
+      <span tal:content="item"/><br />
     </metal:view_macro>
 
     <div metal:define-macro="edit">
@@ -18,9 +18,11 @@
 	  <textarea
 	   tabindex="#"
 	   tal:attributes="name string:$fieldName:lines;
-	   cols widget/cols;
-	   rows widget/rows;
-	  tabindex tabindex/next;"><span tal:replace="python:'\n'.join(value)"></span></textarea>
+           id fieldName;
+           cols widget/cols;
+           rows widget/rows;
+           tabindex tabindex/next;"
+       tal:content="python:value and '\n'.join(value) or ''"></textarea>
 	</div>
       </div>
     </div>
@@ -29,6 +31,18 @@
       <div metal:use-macro="here/widgets/lines/macros/edit">
       </div>
     </div>
+
+    <div metal:define-macro="hidden">
+      <input type="hidden"
+             name=""
+             value=""
+             tabindex="#"
+             tal:attributes="name string:${fieldName}:lines;
+                             value python:'\n'.join(value);
+                             tabindex tabindex/next;" />
+
+    </div>
+
 
   </body>
 
