@@ -1,0 +1,36 @@
+Source: zope-cmfarchetypes
+Section: web
+Priority: optional
+Maintainer: Sylvain Thenault <sylvain.thenault@logilab.fr> 
+Build-Depends-Indep: debhelper (>= 3.0.0)
+Standards-Version: 3.6.0
+
+Package: zope-cmfarchetypes
+Architecture: all
+Depends: zope (>= 2.6.2), zope-cmfplone (>= 2.0), zope-validation (>=1.0.2),
+ zope-generator (>= 1.0.2), zope-cmftransforms (>= 1.0.3)
+Description: A developers framework for rapidly developing and deploying rich, full featured content types within the context of Zope/CMF and Plone
+ Archetypes
+ Formerly known as CMFTypes, Archetypes is a developers framework
+ for rapidly developing and deploying rich, full featured content
+ types within the context of Zope/CMF and Plone.
+ .
+ Archetypes is based around the idea of an _Active Schema_. Rather
+ than provide a simple description of a new data type Archetype
+ schemas do the actual work and heavy lifting involved in using
+ the new type. Archetype Schemas serve as easy extension points
+ for other developers as project specific components can be
+ created and bound or you can choose among the rich existing set
+ of features.
+ .
+ Features
+ * Simple schemas with working default policy.
+ * Power and flexibility with lowered incidental complexity.
+ * Integration with rich content sources such as Office Product Suites.
+ * Full automatic form generation
+ * i18n content on a field basis
+ .
+ Homepage: http://www.sourceforge.net/projects/archetypes
+
+
+

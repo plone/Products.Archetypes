@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+  <head><title></title></head>
+  <body>
+
+    <metal:body_macro define-macro="body">
+      <table summary="">
+	<tbody>
+	  <metal:use_body use-macro="here/base/macros/body" />
+	</tbody>
+      </table>
+    </metal:body_macro>
+
+  </body>
+</html>
