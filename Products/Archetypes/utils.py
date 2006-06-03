@@ -28,10 +28,7 @@ def makeBridgeMaker(func):
         module=args[0]
         ifaces = args[1:]
         for iface in ifaces:
-            try:
-                func(iface, module, iface.__name__)
-            except ValueError:
-                import pdb; pdb.set_trace()
+            func(iface, module, iface.__name__)
     return makeBridge
 
 makeZ2Bridges=makeBridgeMaker(createZope2Bridge)

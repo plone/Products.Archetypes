@@ -1,6 +1,9 @@
 1.5.0 - unreleased
 ==================
 
+  * Cleaned up some comments, removed a pdb and an unused zLOG import.
+    [hannosch]
+
   * Removed some more BBB code.
     [hannosch]
 

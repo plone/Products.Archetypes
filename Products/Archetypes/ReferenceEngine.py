@@ -32,7 +32,6 @@ from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from zExceptions import NotFound
-import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
