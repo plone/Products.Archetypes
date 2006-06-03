@@ -75,7 +75,7 @@ class TemplateMixin(Base):
         at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
-    # XXX backward compatibility
+    # BBB backward compatibility
     templates = _voc_templates
 
     security.declareProtected(permissions.View, 'getLayout')
@@ -128,7 +128,7 @@ class TemplateMixin(Base):
 
 InitializeClass(TemplateMixin)
 
-# XXX backward compatibility
+# BBB backward compatibility
 schema = TemplateMixinSchema
 getTemplateFor = TemplateMixin.getTemplateFor
 

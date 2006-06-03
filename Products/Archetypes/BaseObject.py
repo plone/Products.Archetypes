@@ -164,7 +164,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """Called by the generated addXXX factory in types tool.
+        """Called by the generated add* factory in types tool.
         """
         try:
             self.initializeLayers()
@@ -701,11 +701,6 @@ class BaseObject(Referenceable):
         This id is used when automatically renaming an object after creation.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
-        if plone_tool is None or not shasattr(plone_tool, 'normalizeString'):
-            # Plone tool is not available or too old
-            # XXX log?
-            return None
-
         title = self.Title()
         if not title:
             # Can't work w/o a title

@@ -94,7 +94,6 @@ class TypesWidget(macrowidget, Base):
         #      )
         return state
 
-    # XXX
     security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
@@ -118,7 +117,6 @@ class TypesWidget(macrowidget, Base):
         except AttributeError:
             return True
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -301,7 +299,7 @@ class ReferenceWidget(TypesWidget):
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:
-                        #XXX Might as well check for type, doing it everywhere else
+                        #TODO Might as well check for type, doing it everywhere else
                         value['destinations'].append(place)
 
             if value['destinations']:
@@ -330,7 +328,6 @@ class TextAreaWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -453,7 +450,6 @@ class KeywordWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -484,7 +480,6 @@ class FileWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -524,7 +519,6 @@ class RichWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -587,7 +581,6 @@ class IdWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -604,7 +597,6 @@ class RequiredIdWidget(IdWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None):
         """Override IdWidget.process_form to require id."""
@@ -621,7 +613,6 @@ class ImageWidget(FileWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):

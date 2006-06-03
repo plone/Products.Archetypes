@@ -150,7 +150,7 @@ class PrimaryFieldMarshaller(Marshaller):
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         file = kwargs.get('file')
-        # XXX Hardcoding field types is bad. :(
+        # TODO Hardcoding field types is bad. :(
         if isinstance(p, (FileField, TextField)) and file:
             data = file
             del kwargs['file']
@@ -214,7 +214,7 @@ class RFC822Marshaller(Marshaller):
         # We don't want to pass file forward.
         if kwargs.has_key('file'):
             if not data:
-                # XXX Yuck! Shouldn't read the whole file, never.
+                # TODO Yuck! Shouldn't read the whole file, never.
                 # OTOH, if you care about large files, you should be
                 # using the PrimaryFieldMarshaller or something
                 # similar.

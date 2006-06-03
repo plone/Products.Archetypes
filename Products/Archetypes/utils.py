@@ -81,7 +81,7 @@ _marker = []
 def mapply(method, *args, **kw):
     """ Inspect function and apply positional and keyword arguments as possible.
 
-    XXX Add more examples.
+    Add more examples.
 
     >>> def f(a, b, c=2, d=3):
     ...     print a, b, c, d
@@ -110,7 +110,7 @@ def mapply(method, *args, **kw):
     >>> mapply(f, *(1,), **{'j':3})
     1 2
 
-    XXX Should raise an exception 'Multiple values for argument' here.
+    TODO Should raise an exception 'Multiple values for argument' here.
 
     >>> mapply(f, *(1,), **{'a':3})
     1 2
@@ -761,7 +761,7 @@ def shasattr(obj, attr, acquire=False):
       using hasattr it's comparing the output of getattr with a special marker
       object.
 
-    XXX the getattr() trick can be removed when Python's hasattr() is fixed to
+    TODO the getattr() trick can be removed when Python's hasattr() is fixed to
     catch only AttributeErrors.
 
     Quoting Shane Hathaway:

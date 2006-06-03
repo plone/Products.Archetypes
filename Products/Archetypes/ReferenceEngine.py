@@ -337,8 +337,6 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                 self._queryFor(sID, tID, relationship))
             if objects:
                 #we want to update the existing reference
-                #XXX we might need to being a subtransaction here to
-                #    do this properly, and close it later
                 existing = objects[0]
                 if existing:
                     # We can't del off self, we now need to remove it

@@ -279,6 +279,3 @@ class BaseUnit(File):
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
-
-# XXX Should go away after 1.3-final
-newBaseUnit = BaseUnit

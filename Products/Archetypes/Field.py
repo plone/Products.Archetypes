@@ -243,7 +243,7 @@ class Field(DefaultLayerContainer):
         We could replace strings with class refs and keep things impl
         the ivalidator in the list.
 
-        Note: XXX this is not compat with aq_ things like scripts with __call__
+        Note: this is not compat with aq_ things like scripts with __call__
         """
         chainname = 'Validator_%s' % self.getName()
 
@@ -538,7 +538,6 @@ class Field(DefaultLayerContainer):
         return className(self)
 
     security.declarePublic('getDefault')
-    #XXX
     def getDefault(self, instance):
         """Return the default value to be used for initializing this
         field"""
@@ -611,8 +610,8 @@ class Field(DefaultLayerContainer):
         """Utility method for converting a Field to a string for the
         purpose of comparing fields.  This comparison is used for
         determining whether a schema has changed in the auto update
-        function.  Right now it's pretty crude."""
-        # XXX fixme
+        function. Right now it's pretty crude."""
+        # TODO fixme
         s = '%s(%s): {' % ( self.__class__.__name__, self.__name__ )
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
@@ -645,7 +644,6 @@ class ObjectField(Field):
     layer.
     """
     __implements__ = IObjectField, ILayerContainer
-    #XXX __implements__ = IField.__implements__, IObjectField
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -809,7 +807,6 @@ class FileField(ObjectField):
     want text format conversion"""
 
     __implements__ = IFileField, ILayerContainer
-    #XXX __implements__ = IFileField, IObjectField.__implements__
 
     _properties = ObjectField._properties.copy()
     _properties.update({
@@ -1181,7 +1178,7 @@ class TextField(FileField):
             value = value.data
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
-            # XXX Should be fixed eventually
+            # TODO Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
         elif isinstance(value, FileType) or shasattr(value, 'name'):
@@ -1195,7 +1192,7 @@ class TextField(FileField):
                     # repr() and full path in 'file.name'
                     if '<fdopen>' in v:
                         filename = ''
-            # XXX Should be fixed eventually
+            # TODO Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
         elif isinstance(value, basestring):
@@ -1215,7 +1212,7 @@ class TextField(FileField):
             raise TextFieldException('Value is not File or String (%s - %s)' %
                                      (type(value), klass))
         if isinstance(value, Pdata):
-            # XXX Should be fixed eventually
+            # TODO Should be fixed eventually
             value = str(value)
         filename = filename[max(filename.rfind('/'),
                                 filename.rfind('\\'),
@@ -1464,18 +1461,6 @@ class FixedPointField(ObjectField):
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
-
-#    XXX TODO
-#    security.declarePrivate('validate_required')
-#    def validate_required(self, instance, value, errors):
-#        try:
-#            int(value)
-#        except ValueError:
-#            result = False
-#        else:
-#            result = True
-#        return ObjectField.validate_required(self, instance, result, errors)
-
 
     security  = ClassSecurityInfo()
 
@@ -1989,8 +1974,6 @@ class ImageField(FileField):
         max_size -- similar to max_size but if it's given then the image
                     is checked to be no bigger than any of the given values
                     of width or height.
-                    XXX: I think it is, because the one who added it did not
-                    document it ;-) (mrtopf - 2003/07/20)
 
         example:
 
@@ -2055,13 +2038,10 @@ class ImageField(FileField):
 
     default_view = "view"
 
-    #_process_input = _old_process_input
-
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         if not value:
             return
-        
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
             self.removeScales(instance, **kwargs)
@@ -2092,7 +2072,7 @@ class ImageField(FileField):
             else:
                 log_exc()
                 data = str(value.data)
-        # XXX add self.ZCacheable_invalidate() later
+        # TODO add self.ZCacheable_invalidate() later
         self.createOriginal(instance, data, **kwargs)
         self.createScales(instance, value=data)
 
@@ -2261,8 +2241,6 @@ class ImageField(FileField):
         elif original_mode == 'P':
             image = image.convert('RGBA')
         image.thumbnail(size, self.pil_resize_algo)
-        # XXX: tweak to make the unit test
-        #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or default_format
         # decided to only preserve palletted mode
         # for GIF, could also use image.format in ('GIF','PNG')
@@ -2316,7 +2294,7 @@ class ImageField(FileField):
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         
-        XXX: We should only return the size of the original image
+        TODO: We should only return the size of the original image
         """
         sizes = self.getAvailableSizes(instance)
         original = self.get(instance)

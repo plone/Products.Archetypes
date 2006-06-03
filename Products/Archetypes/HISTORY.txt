@@ -1,6 +1,9 @@
 1.5.0 - unreleased
 ==================
 
+  * Cleaned up XXX comments, converted non-critical ones to TODO.
+    [hannosch]
+
   * Removed five:traversable from configure.zcml as it is not needed anymore for
     Zope 2.10, which we require now.
     [hannosch]
@@ -1451,8 +1454,6 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
-   XXX: Add a comment to the documentation that users should take care when
-   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
