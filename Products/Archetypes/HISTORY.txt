@@ -1,6 +1,9 @@
 1.5.0 - unreleased
 ==================
 
+  * Adjusted rest tests to Zope2.10 output.
+    [hannosch]
+
   * Remove bbb code for calendar_macros.
     [hannosch]
 
