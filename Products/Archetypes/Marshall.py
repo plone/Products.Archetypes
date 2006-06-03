@@ -3,6 +3,8 @@ from types import ListType, TupleType
 from cStringIO import StringIO
 from rfc822 import Message
 
+from zope.contenttype import guess_content_type
+
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from Globals import InitializeClass
@@ -14,14 +16,6 @@ from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
-
-try:
-    from zope.contenttype import guess_content_type
-except ImportError: # BBB: Zope < 2.10
-    try:
-        from zope.app.content_types import guess_content_type
-    except ImportError: # BBB: Zope < 2.9
-        from OFS.content_types import guess_content_type
 
 sample_data = r"""title: a title
 content-type: text/plain

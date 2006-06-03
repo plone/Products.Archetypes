@@ -1,13 +1,16 @@
 1.5.0 - unreleased
 ==================
 
-  * Removed deprecated public.py.
+  * Removed some more BBB code.
+    [hannosch]
+
+  * Removed deprecated public.py and ArchetypesTestCase.py.
     [hannosch]
 
   * Adjusted rest tests to Zope2.10 output.
     [hannosch]
 
-  * Remove bbb code for calendar_macros.
+  * Remove BBB code for calendar_macros.
     [hannosch]
 
 1.4.0-RC1 - 2006-06-02

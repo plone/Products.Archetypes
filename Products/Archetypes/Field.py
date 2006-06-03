@@ -9,6 +9,8 @@ from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
 
+from zope.contenttype import guess_content_type
+
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
@@ -79,14 +81,6 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
-
-try:
-    from zope.contenttype import guess_content_type
-except ImportError: # BBB: Zope < 2.10
-    try:
-        from zope.app.content_types import guess_content_type
-    except ImportError: # BBB: Zope < 2.9
-        from OFS.content_types import guess_content_type
 
 try:
     import PIL.Image
