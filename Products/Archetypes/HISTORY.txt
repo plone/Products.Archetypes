@@ -1,6 +1,9 @@
 1.5.0 - unreleased
 ==================
 
+  * Removed deprecated public.py.
+    [hannosch]
+
   * Adjusted rest tests to Zope2.10 output.
     [hannosch]
 
