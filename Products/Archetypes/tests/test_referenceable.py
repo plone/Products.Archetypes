@@ -391,8 +391,6 @@ class BaseReferenceableTests(ATSiteTestCase):
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
-        at = self.portal.archetype_tool
-
         a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
 
@@ -406,6 +404,24 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, 'Flogs')
         self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
         self.assertEquals(len(a.getRefs()), 2)
+
+    def test_multipleReferences(self):
+        # If you provide updateReferences=False to addReference, it
+        # will add, not replace the reference
+        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+
+        #Add the same ref twice
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+
+        self.assertEquals(len(a.getRefs('KnowsAbout')),  2)
+
+        #In this case its a different relationship
+        a.addReference(b, 'Flogs')
+        self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
+        self.assertEquals(len(a.getRefs()), 3)
+        
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again

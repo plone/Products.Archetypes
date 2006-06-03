@@ -15,11 +15,9 @@ from Globals import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent  import PortalContent
 
-try:
-    from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
-except:
-    from Products.CMFCore.PortalFolder import PortalFolder
-    
+from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
+
+from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.interfaces import IBaseFolder
@@ -46,12 +44,8 @@ class BaseFolderMixin(CatalogMultiplex,
     isAnObjectManager = 1
     __dav_marshall__ = False
 
-    def __call__(self):
-        """Invokes the default view.
-        """
 
-        return PortalFolder.__call__( self )
-    
+    __call__ = PortalContent.__call__.im_func
 
     # This special value informs ZPublisher to use __call__
     index_html = None
@@ -81,10 +75,9 @@ class BaseFolderMixin(CatalogMultiplex,
         # is not.
         BaseObject._notifyOfCopyTo(self, container, op=op)
         PortalFolder._notifyOfCopyTo(self, container, op=op)
-        if op==1: # For efficiency, remove if op==0 needs something
-            for child in self.contentValues():
-                if IReferenceable.isImplementedBy(child):
-                    child._notifyOfCopyTo(self, op)
+        for child in self.contentValues():
+            if IReferenceable.isImplementedBy(child):
+                child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):

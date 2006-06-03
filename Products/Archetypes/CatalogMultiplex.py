@@ -1,4 +1,3 @@
-
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -7,6 +6,9 @@ from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.utils import shasattr
+from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
+
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -14,20 +16,26 @@ class CatalogMultiplex(CMFCatalogAware):
     def __url(self):
         return '/'.join( self.getPhysicalPath() )
 
-    security.declareProtected(ModifyPortalContent, 'indexObject')
-    def indexObject(self):
+    def getCatalogs(self):
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
-            return
-        catalogs = at.getCatalogsByType(self.meta_type)
+            return []
+
+        if CATALOGMAP_USES_PORTALTYPE:
+            return at.getCatalogsByType(self.portal_type)
+        else:
+            return at.getCatalogsByType(self.meta_type)
+
+    security.declareProtected(ModifyPortalContent, 'indexObject')
+    def indexObject(self):
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             c.catalog_object(self, url)
-            
+
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
-        at = getToolByName(self, TOOL_NAME)
-        catalogs = at.getCatalogsByType(self.meta_type)
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             c.uncatalog_object(url)
@@ -35,25 +43,24 @@ class CatalogMultiplex(CMFCatalogAware):
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
         """update indexes of this object in all registered catalogs.
-        
+
         Catalogs are registered per 'meta_type' in archetypes tool.
-        
-        'idxs' are a list of index names. If this list is given only the given 
-        indexes are refreshed. If a index does not exist in catalog its 
+
+        'idxs' are a list of index names. If this list is given only the given
+        indexes are refreshed. If a index does not exist in catalog its
         silently ignored.
         """
-        if idxs == [] and hasattr(aq_base(self), 'notifyModified'):
-            # Archetypes default setup has this defined in ExtensibleMetadata 
+        if idxs == [] and shasattr(self, 'notifyModified'):
+            # Archetypes default setup has this defined in ExtensibleMetadata
             # mixin. note: this refreshes the 'etag ' too.
             self.notifyModified()
 
         self.http__refreshEtag()
 
-        at = getToolByName(self, TOOL_NAME, None)
-        if at is None:
+        catalogs = self.getCatalogs()
+        if not catalogs:
             return
 
-        catalogs = at.getCatalogsByType(self.meta_type)
         url = self.__url()
 
         for c in catalogs:

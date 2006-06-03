@@ -5,6 +5,7 @@ import sys
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
+from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
 
@@ -19,7 +20,6 @@ from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from ExtensionClass import Base
 from Globals import InitializeClass
-from OFS.content_types import guess_content_type
 from OFS.Image import File
 from OFS.Image import Pdata
 from OFS.Image import Image as BaseImage
@@ -64,9 +64,9 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
-from Products.Archetypes.debug import ERROR
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -79,6 +79,14 @@ from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
+try:
+    from zope.contenttype import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 try:
     import PIL.Image
@@ -579,6 +587,31 @@ class Field(DefaultLayerContainer):
             return getattr(instance, self.mutator, None)
         return None
 
+    security.declarePublic('getIndexAccessor')
+    def getIndexAccessor(self, instance):
+        """Return the index accessor, i.e. the getter for an indexable
+        value."""
+        return getattr(instance, self.getIndexAccessorName())
+
+    security.declarePublic('getIndexAccessorName')
+    def getIndexAccessorName(self):
+        """Return the index accessor's name defined by the
+        'index_method' field property."""
+        if not hasattr(self, 'index_method'):
+            return self.accessor
+        elif self.index_method == '_at_accessor':
+            return self.accessor
+        elif self.index_method == '_at_edit_accessor':
+            return self.edit_accessor or self.accessor
+
+        # If index_method is not a string, we raise ValueError (this
+        # is actually tested for in test_extensions_utils):
+        elif not isinstance(self.index_method, (str, unicode)):
+            raise ValueError("Bad index accessor value : %r"
+                             % self.index_method)
+        else:
+            return self.index_method
+
     security.declarePrivate('toString')
     def toString(self):
         """Utility method for converting a Field to a string for the
@@ -847,8 +880,6 @@ class FileField(ObjectField):
                         filename = ''
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif (isinstance(value, Pdata) or (shasattr(value, 'read') and
                                            shasattr(value, 'seek'))):
@@ -874,7 +905,11 @@ class FileField(ObjectField):
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
-                d, f, mimetype = mtr(body[:8096], **kw)
+                # this may split the encoded file inside a multibyte character
+                try:
+                    d, f, mimetype = mtr(body[:8096], **kw)
+                except UnicodeDecodeError:
+                    d, f, mimetype = mtr(len(body) < 8096 and body or '', **kw)
             else:
                 mimetype = getattr(file, 'content_type', None)
                 if mimetype is None:
@@ -1171,8 +1206,6 @@ class TextField(FileField):
             value.seek(0)
         elif isinstance(value, basestring):
             # Let it go, mimetypes_registry will be used below if available
-            # if mimetype is None:
-            #     mimetype, enc = guess_content_type(filename, value, mimetype)
             pass
         elif isinstance(value, Pdata):
             pass
@@ -2057,7 +2090,7 @@ class ImageField(FileField):
 
         try:
             data = self.rescaleOriginal(value, **kwargs)
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
             if not self.swallowResizeExceptions:
@@ -2068,30 +2101,6 @@ class ImageField(FileField):
         # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, data, **kwargs)
         self.createScales(instance, value=data)
-
-#    def _updateKwargs(self, instance, value, **kwargs):
-#        # get filename from kwargs, then from the value
-#        # if no filename is available set it to ''
-#        vfilename = getattr(value, 'filename', '')
-#        kfilename = kwargs.get('filename', '')
-#        if kfilename:
-#            filename = kfilename
-#        else:
-#            filename = vfilename
-#        kwargs['filename'] = filename
-#
-#        # set mimetype from kwargs, then from the field itself
-#        # if no mimetype is available set it to 'image/png'
-#        kmimetype = kwargs.get('mimetype', None)
-#        if kmimetype:
-#            mimetype = kmimetype
-#        else:
-#            try:
-#                mimetype = self.getContentType(instance)
-#            except RuntimeError:
-#                mimetype = None
-#        kwargs['mimetype'] = mimetype and mimetype or 'image/png'
-#        return kwargs
 
     security.declareProtected(permissions.View, 'getAvailableSizes')
     def getAvailableSizes(self, instance):
@@ -2214,7 +2223,7 @@ class ImageField(FileField):
             __traceback_info__ = (self, instance, id, w, h)
             try:
                 imgdata, format = self.scale(data, w, h)
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except:
                 if not self.swallowResizeExceptions:
@@ -2374,12 +2383,20 @@ class ImageField(FileField):
         return '%s />' % result
 
 # photo field implementation, derived from CMFPhoto by Magnus Heino
+# DEPRECATED
 
 class DynVariantWrapper(Base):
     """Provide a transparent wrapper from image to dynvariant call it
     with url ${image_url}/variant/${variant}
     """
-
+    
+    def __init__(self):
+        deprecated('DynVariantWrapper (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )   
     def __of__(self, parent):
         return parent.Variants()
 
@@ -2387,7 +2404,12 @@ class DynVariant(Implicit, Traversable):
     """Provide access to the variants."""
 
     def __init__(self):
-        pass
+        deprecated('DynVariant (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )   
 
     def __getitem__(self, name):
         if self.checkForVariant(name):
@@ -2407,6 +2429,12 @@ class ScalableImage(BaseImage):
     security  = ClassSecurityInfo()
 
     def __init__(self, id, title='', file='', displays={}):
+        deprecated('ScalableImage (for PhotoField) is deprecated after work '
+                   'done on ImageField and ATImage. It will be removed in '
+                   'Archetypes 1.5. If someone like to keep the code please '
+                   'move it over to an own Product in MoreFieldsAndWidgets '
+                   'repository.'
+        )        
         BaseImage.__init__(self, id, title, file)
         self._photos = OOBTree()
         self.displays = displays
@@ -2591,7 +2619,7 @@ class ScalableImage(BaseImage):
 
                 image.seek(0)
 
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except Exception, e:
             log_exc('Error while resizing image')
@@ -2636,6 +2664,14 @@ class PhotoField(ObjectField):
     security  = ClassSecurityInfo()
 
     default_view = "view"
+    
+    def __init__(self, *args, **kwargs):
+        deprecated('PhotoField is deprecated after work done on ImageField and '
+                   'ATImage. It will be removed in Archetypes 1.5. If someone '
+                   'like to keep the code please move it over to an own '
+                   'Product in MoreFieldsAndWidgets repository.'
+        )
+        super(PhotoField, self).__init__(*args, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kw):
@@ -2649,6 +2685,8 @@ class PhotoField(ObjectField):
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
+    
+# end of DEPRECATED PhotoField code    
 
 __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',

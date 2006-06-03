@@ -106,7 +106,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
             self.fail('The class %s does not implement %s correctly: \n%s'
                 % (className(klass), className(interface), errmsg))
 
-    def interfaceImplementedBy(self, instance, interface):
+    def interfaceImplementedBy(self, instance, interface):        
         """ tests if the instance implements the interface in the right way """
         # is the class really implemented by the given interface?
         self.failUnless(interface.isImplementedBy(instance),

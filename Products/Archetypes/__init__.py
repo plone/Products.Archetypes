@@ -2,6 +2,7 @@ import os.path
 __version__ = open(os.path.join(__path__[0], 'version.txt')).read().strip()
 
 import sys
+import bbb
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
@@ -11,8 +12,13 @@ from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
+try:
+    from Products.CMFPlone.interfaces import IPloneSiteRoot
+    from Products.GenericSetup import EXTENSION, profile_registry
+    HAS_GENERICSETUP = True
+except ImportError:
+    HAS_GENERICSETUP = False
 
-from zLOG import LOG, PROBLEM
 
 ###
 ## security
@@ -94,3 +100,21 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
+
+    if HAS_GENERICSETUP:
+        profile_registry.registerProfile('Archetypes',
+                'Archetypes',
+                'Extension profile for default Archetypes setup',
+                'profiles/default',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+
+        profile_registry.registerProfile('Archetypes_samplecontent',
+                'Archetypes Sample Content Types',
+                'Extension profile including Archetypes sample content types',
+                'profiles/sample_content',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+

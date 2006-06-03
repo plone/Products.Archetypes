@@ -187,16 +187,6 @@ def fixActionsForType(portal_type, typesTool):
                     else:
                         new.append(action)
 
-            # the code was moved to modify_fti()
-            ## Update Aliases
-            #if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-            #    if (hasattr(portal_type, 'aliases') and
-            #        hasattr(typeInfo, 'setMethodAliases')):
-            #        typeInfo.setMethodAliases(portal_type.aliases)
-            #    else:
-            #        # Custom views might need to reguess the aliases
-            #        if hasattr(typeInfo, '_guessMethodAliases'):
-            #            typeInfo._guessMethodAliases()
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
 
@@ -708,7 +698,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     # Type/Schema Management
     security.declareProtected(permissions.View, 'listRegisteredTypes')
-    def listRegisteredTypes(self, inProject=False):
+    def listRegisteredTypes(self, inProject=False, portalTypes=False):
         """Return the list of sorted types.
         """
 
@@ -729,8 +719,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
             tt = getToolByName(self, 'portal_types')
-            meta_types = tt.listContentTypes(self, by_metatype=True)
-            values = [v for v in values if v['meta_type'] in meta_types]
+            types = tt.listContentTypes(self, by_metatype=not portalTypes)
+	    if portalTypes:
+                values = [v for v in values if v['portal_type'] in types]
+            else:
+                values = [v for v in values if v['meta_type'] in types]
 
         return values
 
@@ -780,7 +773,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except: # XXX bare exception
             pass
@@ -1112,29 +1105,29 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'setCatalogsByType')
-    def setCatalogsByType(self, meta_type, catalogList):
+    def setCatalogsByType(self, portal_type, catalogList):
         """ associate catalogList with meta_type. (unfortunally not portal_type).
         
             catalogList is a list of strings with the ids of the catalogs.
             Each catalog is has to be a tool, means unique in site root.
         """
-        self.catalog_map[meta_type] = catalogList
+        self.catalog_map[portal_type] = catalogList
 
 
     security.declareProtected(permissions.View, 'getCatalogsByType')
-    def getCatalogsByType(self, meta_type):
+    def getCatalogsByType(self, portal_type):
         """Return the catalog objects assoicated with a given type.
         """
         catalogs = []
         catalog_map = getattr(self, 'catalog_map', None)
         if catalog_map is not None:
-            names = self.catalog_map.get(meta_type, ['portal_catalog'])
+            names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
         for name in names:
             try:
                 catalogs.append(getToolByName(self, name))
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, E:
                 log('No tool', name, E)

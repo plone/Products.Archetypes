@@ -1,7 +1,12 @@
 import os
+import sys
+import time
+import urllib
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
+from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 from Acquisition import aq_base, aq_parent, aq_inner
@@ -12,6 +17,8 @@ from Products import CMFCore
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -80,7 +87,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
-            except ConflictError:
+            except (ConflictError, KeyboardInterrupt):
                 raise
             except: #NotFound # XXX bare exception
                 pass
@@ -91,26 +98,24 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
 
             return obj
-        except ConflictError:
+        except (ConflictError, KeyboardInterrupt):
             raise
         except:
-            #import traceback
-            #traceback.print_exc()
-            zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
-                     error=sys.exc_info())
+            log('UIDCatalogBrains getObject raised an error:\n %s' %
+                 sys.exc_info())
             pass
 
 InitializeClass(UIDCatalogBrains)
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
-    """    
+    """
     def __init__(self, obj):
         self._obj = obj
-                
+
     def __getattr__(self, name):
         return getattr(self._obj, name)
-        
+
     def Title(self):
         # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
         # converted to an ascii string
@@ -169,14 +174,13 @@ class UIDResolver(Base):
         relpath = obj.getPhysicalPath()[portal_path_len:]
         uid = '/'.join(relpath)
         __traceback_info__ = (repr(obj), uid)
-        ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
         ZCatalog.catalog_object(self, obj, uid, **kwargs)
 
 InitializeClass(UIDResolver)
 
 class UIDBaseCatalog(PluggableCatalog):
     BASE_CLASS = UIDCatalogBrains
-    
+
 
 class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     """Unique id catalog
@@ -197,7 +201,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
         self._catalog = UIDBaseCatalog()
-        
+
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
     def catalog_object(self, object, uid, idxs=[],
                        update_metadata=1, pghandler=None):
@@ -255,4 +259,4 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
- 
+
