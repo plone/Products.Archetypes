@@ -1,6 +1,13 @@
 1.5.0 - unreleased
 ==================
 
+  * Based tests on PloneTestCase with extension profile support for site setup.
+    [hannosch]
+
+  * Added (Default) alias to base_view to all sample types, so calling them will
+    still work in CMF >= 2.0.
+    [hannosch]
+
   * Removed deprecated spec argument from listFolderContents and
     folderlistingFolderContents of BaseFolderMixin.
     [hannosch]
