@@ -6,7 +6,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.exceptions import NotFound
+from zExceptions import NotFound
 
 mtr = getToolByName(context, 'mimetypes_registry', None)
 if mtr is None:
