@@ -3,11 +3,13 @@ import sys
 from types import StringType, UnicodeType
 import time
 import urllib
+from zope.interface import implements
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces.referenceengine import \
-    IReference, IContentReference, IReferenceCatalog
+    IContentReference, IReferenceCatalog, IReference as Z2IReference
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
@@ -52,7 +54,8 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (IReference,)
+    __implements__ = Referenceable.__implements__ + (Z2IReference,)
+    implements(IReference)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'

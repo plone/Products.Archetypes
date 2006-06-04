@@ -1,6 +1,9 @@
 1.5.0 - unreleased
 ==================
 
+  * Marked Base* as implementing their Z3 interfaces.
+    [hannosch]
+
   * Based tests on PloneTestCase with extension profile support for site setup.
     [hannosch]
 

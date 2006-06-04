@@ -3,8 +3,11 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.interfaces import IBaseFolder
+from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
-from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import shasattr
 
@@ -20,7 +23,6 @@ from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import getToolByName
 
-from Products.Archetypes.interfaces import IBaseFolder
 from zope.interface import implements
 
 class BaseFolderMixin(CatalogMultiplex,
@@ -30,10 +32,9 @@ class BaseFolderMixin(CatalogMultiplex,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (z2IBaseFolder, IReferenceable, BaseObject.__implements__,
+    __implements__ = (z2IBaseFolder, z2IReferenceable, BaseObject.__implements__,
                       PortalFolder.__implements__)
-
-    implements(IBaseFolder)
+    implements(IBaseFolder, IBaseObject, IReferenceable)
 
     security = ClassSecurityInfo()
 
@@ -76,7 +77,7 @@ class BaseFolderMixin(CatalogMultiplex,
         BaseObject._notifyOfCopyTo(self, container, op=op)
         PortalFolder._notifyOfCopyTo(self, container, op=op)
         for child in self.contentValues():
-            if IReferenceable.isImplementedBy(child):
+            if IReferenceable.providedBy(child):
                 child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
@@ -241,6 +242,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     Metadata included"""
 
     __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
+    implements(IBaseFolder, IBaseObject, IReferenceable)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 
@@ -267,7 +269,6 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)
-
 
 BaseFolderSchema = BaseFolder.schema
 

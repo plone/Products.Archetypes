@@ -20,6 +20,8 @@ from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
@@ -55,7 +57,6 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from Products.Archetypes.interfaces import IBaseObject
 from zope.interface import implements
 
 _marker = []
@@ -155,8 +156,7 @@ class BaseObject(Referenceable):
     _at_rename_after_creation = False # rename object according to title?
 
     __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
-
-    implements(IBaseObject)
+    implements(IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
         self.id = oid
