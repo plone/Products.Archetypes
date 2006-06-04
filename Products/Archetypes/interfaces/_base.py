@@ -152,13 +152,12 @@ class IBaseFolder(IBaseObject):
     OFS.Folder.Folder
     """
 
-    def listFolderContents(spec=None, contentFilter=None, suppressHiddenFiles=0):
+    def listFolderContents(contentFilter=None, suppressHiddenFiles=0):
         """
         Optionally you can suppress 'hidden' files, or files that begin with '.'
         """
 
-    def folderlistingFolderContents(spec=None, contentFilter=None,
-                                    suppressHiddenFiles=0 ):
+    def folderlistingFolderContents(contentFilter=None, suppressHiddenFiles=0 ):
         """
         Calls listFolderContents in protected only by ACI so that folder_listing
         can work without the List folder contents permission, as in CMFDefault

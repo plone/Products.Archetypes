@@ -1,6 +1,10 @@
 1.5.0 - unreleased
 ==================
 
+  * Removed deprecated spec argument from listFolderContents and
+    folderlistingFolderContents of BaseFolderMixin.
+    [hannosch]
+
   * Changed import of TAL.ndiff to zope.tal.ndiff.
     [hannosch]
 
