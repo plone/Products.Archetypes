@@ -1,3 +1,7 @@
+  * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
+    This closes http://dev.plone.org/archetypes/ticket/656.
+    [hannosch]
+
 1.4.0-RC1 - 2006-06-02
 ======================
 
