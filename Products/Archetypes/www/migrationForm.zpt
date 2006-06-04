@@ -1,0 +1,22 @@
+<h1 tal:replace="structure here/manage_page_header|nothing">Header</h1>
+<h2 tal:define="manage_tabs_message options/manage_tabs_message | nothing"
+    tal:replace="structure here/manage_tabs">Tabs</h2>
+
+
+<p>Migrate your site from an older Archetypes version to a newer one. </p>
+
+<ul>
+<li>This covers at the moment 1.2 and 1.3b2 to a recent 1.3 version.</li>
+<li><strong><span style="color: red;">Backup</span> your database before!!!</strong> 
+    Theres no guaranty that it works in smoothly every situation and environment.</li>
+<li>Please read the <code>docs/migration.txt</code>. 
+    <a href="http://sourceforge.net/tracker/?group_id=75272&atid=543430">Bug-reports</a> 
+    and patches are welcome.</li>
+
+<li><em>This may take a while.</em></li>
+</ul>
+<form method="put" action="manage_migrate">
+  <input type="submit" name="submit" value="start migration" />
+</form>
+    
+<tal:footer tal:replace="structure here/manage_page_footer|nothing">footer</tal:footer>

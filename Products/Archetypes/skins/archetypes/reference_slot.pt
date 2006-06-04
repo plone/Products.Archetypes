@@ -1,0 +1,38 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+    <div metal:define-macro="referenceBox"
+         tal:on-error="nothing"
+	 tal:define="
+	 ct nocall:here/reference_catalog;
+	 refs python: ct.getReferences(here);
+	 brefs python: ct.getBackReferences(here);
+	 "
+	 >
+      <!-- Reference Box-->
+      <div class="box" tal:condition="python: refs or brefs">
+	<h5>References</h5>
+	<div class="body">
+	  <div tal:condition="refs">
+	    <strong>Cites</strong>
+	    <br />
+	    <div class="odd" tal:repeat="ref refs">
+	      <a href="#" tal:attributes="href python:ref.getTargetObject().absolute_url()"><img alt="" src="#" tal:attributes="src python: ref.getTargetObject().getIcon()"/> <span tal:content="python: ref.getTargetObject().Title()"/></a>
+	    </div>
+	  </div>
+	  <div tal:condition="brefs">
+	    <strong>Cited By</strong>
+	    <div class="even" tal:repeat="ref brefs">
+	      <a href="#" tal:attributes="href python:ref.getSourceObject().absolute_url()"><img alt="" src="#" tal:attributes="src python: ref.getSourceObject().getIcon()"/> <span tal:content="python: ref.getSourceObject().Title()"/></a>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </body>
+
+</html>
+

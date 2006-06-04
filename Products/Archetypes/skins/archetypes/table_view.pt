@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master">
+  <head>
+
+    <title></title>
+
+    <metal:fill_slot fill-slot="css_slot">
+      <link rel="stylesheet"
+            type="text/css"
+            media="screen"
+            href=""
+            tal:attributes="href string:$portal_url/table_view.css" />
+    </metal:fill_slot>
+
+  </head>
+  <body>
+
+    <metal:fill_main fill-slot="main">
+      <div metal:define-macro="main"
+           tal:define="body_macro body_macro|here/table/macros/body;
+           field_macro field_macro|here/widgets/field_table/macros/view;">
+        <metal:use_main use-macro="here/base_view/macros/main" />
+      </div>
+    </metal:fill_main>
+
+  </body>
+</html>

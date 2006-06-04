@@ -1,0 +1,70 @@
+NAME=Archetypes
+MAJOR_VERSION=1.3
+MINOR_VERSION=4
+RELEASE_TAG=-rc1
+PACKAGE_NAME=${NAME}-${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}
+
+PYTHON=/usr/bin/python
+TMPDIR=/tmp
+
+CURDIR=$(shell pwd)
+BASE_DIR=$(shell dirname ${CURDIR})
+INSTANCE_HOME=~/src/instance/plone21
+
+PACKAGES=Archetypes PortalTransforms MimetypesRegistry validation generator
+
+RM=rm -f
+RMRF=rm -rf
+FIND=find
+XARGS=xargs
+CD=cd
+LN=ln -sfn
+CP=cp
+TAR=tar
+MKDIR=mkdir -p
+
+.PHONY : clean test reindent reindent_clean sdist
+.PHONY : default
+
+# default:     The default step (invoked when make is called without a target)
+default: test
+
+clean :
+	find . \( -name '*~' -o -name '*.py[co]' -o -name '*.bak' \) -exec rm {} \; -print
+
+reindent :
+	~/scripts/reindent.py -r -v .
+
+test :
+	cd $(INSTANCE_HOME) && \
+	./bin/zopectl test -v --keepbytecode --libdir Products/$(NAME)
+
+# sdist:       Create a source distribution file (implies clean).
+#
+sdist: sdist_tgz
+
+
+# sdist_tgz:   Create a tgz archive file as a source distribution.
+#
+sdist_tgz:
+	echo -n "${MAJOR_VERSION}.${MINOR_VERSION}${RELEASE_TAG}" >\
+          ${CURDIR}/version.txt
+	${MKDIR} ${TMPDIR}/${PACKAGE_NAME}
+	${CD} ${TMPDIR}/${PACKAGE_NAME} && \
+          for package in ${PACKAGES}; \
+	  do ${LN} ${BASE_DIR}/$$package .; \
+	  done && \
+          ${CD} ${TMPDIR} && ${TAR} \
+           --exclude=${PACKAGE_NAME}.tgz \
+           --exclude=CVS \
+           --exclude=.svn \
+           --exclude=.cvsignore \
+           --exclude=makefile \
+           --exclude=Makefile \
+           --exclude=*.pyc \
+           --exclude=*.pyo \
+           --exclude=TAGS \
+           --exclude=*~ \
+           --exclude=.#* \
+	-zhcf ${BASE_DIR}/${PACKAGE_NAME}.tgz ${PACKAGE_NAME}
+	${RMRF} ${TMPDIR}/${PACKAGE_NAME}
