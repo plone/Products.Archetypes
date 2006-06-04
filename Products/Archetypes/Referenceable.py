@@ -1,4 +1,7 @@
+from zope.app.container.interfaces import IObjectAddedEvent
+from zope.app.container.interfaces import IObjectMovedEvent
 from zope.interface import implements
+
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
@@ -9,12 +12,12 @@ from Products.Archetypes.utils import shasattr
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
 from ExtensionClass import Base
-from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
+from OFS.ObjectManager import BeforeDeleteException
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
@@ -390,3 +393,7 @@ class Referenceable(CopySource):
 InitializeClass(Referenceable)
 
 
+def handleEvents(ob, event):
+    """ Event subscriber for IReferenceable events.
+    """
+    pass

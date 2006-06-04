@@ -43,6 +43,8 @@ from Acquisition import ExplicitAcquisitionWrapper
 from Acquisition import Explicit
 
 from ComputedAttribute import ComputedAttribute
+from OFS.interfaces import IObjectWillBeAddedEvent
+from OFS.interfaces import IObjectWillBeRemovedEvent
 from OFS.ObjectManager import ObjectManager
 from ZODB.POSException import ConflictError
 import transaction
@@ -183,19 +185,14 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        __traceback_info__ = (self, item, container)
         Referenceable.manage_afterAdd(self, item, container)
-        self.initializeLayers(item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        __traceback_info__ = (self, item)
         Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        __traceback_info__ = (self, item, container)
-        self.cleanupLayers(item, container)
         Referenceable.manage_beforeDelete(self, item, container)
 
     security.declarePrivate('initializeLayers')
@@ -1114,6 +1111,17 @@ class BaseObject(Referenceable):
         raise AttributeError(name)
 
 InitializeClass(BaseObject)
+
+def handleEvents(ob, event):
+    """Event subscriber for IBaseObject events.
+    """
+    if IObjectWillBeAddedEvent.providedBy(event):
+        if event.newParent is not None:
+            ob.initializeLayers(ob, event.newParent)
+
+    elif IObjectWillBeRemovedEvent.providedBy(event):
+        if event.oldParent is not None:
+            ob.cleanupLayers(ob, event.oldParent)
 
 class Wrapper(Explicit):
     """Wrapper object for access to sub objects."""

@@ -3,6 +3,7 @@ import sys
 from types import StringType, UnicodeType
 import time
 import urllib
+from zope.app.container.interfaces import IObjectAddedEvent
 from zope.interface import implements
 
 from Products.Archetypes.debug import log, log_exc
@@ -20,6 +21,7 @@ from Products.Archetypes.exceptions import ReferenceException
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
+from OFS.interfaces import IObjectWillBeMovedEvent
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
@@ -174,6 +176,28 @@ class Reference(Referenceable, SimpleItem):
         rc.uncatalog_object(url)
 
 InitializeClass(Reference)
+
+def handleReferenceEvents(ob, event):
+    """ Event subscriber for IReference events.
+    """
+    return
+    if IObjectAddedEvent.providedBy(event):
+        if event.newParent is not None:
+            # when copying a full site parent is the container of the plone site
+            # and ob is the plone site (at least for objects in portal root)
+            base = event.newParent
+        else:
+            base = ob
+        rc = getToolByName(base, REFERENCE_CATALOG)
+        url = getRelURL(base, ob.getPhysicalPath())
+        rc.catalog_object(ob, url)
+
+    elif IObjectWillBeMovedEvent.providedBy(event):
+        if event.oldParent is not None:
+            rc  = getToolByName(event.oldParent, REFERENCE_CATALOG)
+            url = getRelURL(event.oldParent, ob.getPhysicalPath())
+            rc.uncatalog_object(url)
+
 
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 

@@ -6,7 +6,6 @@ import bbb
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
