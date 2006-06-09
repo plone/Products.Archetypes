@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,13 +23,15 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""BBB
+"""
 
-from zope.interface import Interface
+from Testing import ZopeTestCase
 
-class IATAnnotations(Interface):
-    """
-    """
+from Products.Archetypes.tests.attestcase import ATTestCase as \
+    ArchetypesTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase as \
+    ArcheSiteTestCase
 
-class IATAnnotatable(Interface):
-    """
-    """
+from Products.Archetypes.tests.attestcase import *
+from Products.Archetypes.tests.atsitetestcase import *

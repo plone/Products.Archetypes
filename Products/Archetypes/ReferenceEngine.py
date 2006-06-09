@@ -3,39 +3,38 @@ import sys
 from types import StringType, UnicodeType
 import time
 import urllib
-from zope.app.container.interfaces import IObjectAddedEvent
-from zope.interface import implements
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces.referenceengine import \
-    IContentReference, IReferenceCatalog, IReference as Z2IReference
+    IReference, IContentReference, IReferenceCatalog, IUIDCatalog
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
 from Products.Archetypes.config import UID_CATALOG, \
      REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.utils import getRelURL
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
 from ExtensionClass import Base
-from OFS.interfaces import IObjectWillBeMovedEvent
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
 from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore import permissions
+from Products.CMFCore import CMFCorePermissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
+from ZODB.POSException import ConflictError
 from zExceptions import NotFound
+import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
@@ -44,9 +43,6 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
-from UIDCatalog import UIDCatalog
-from UIDCatalog import UIDCatalogBrains
-from UIDCatalog import UIDResolver
 
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References
@@ -56,8 +52,7 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (Z2IReference,)
-    implements(IReference)
+    __implements__ = Referenceable.__implements__ + (IReference,)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
@@ -73,7 +68,7 @@ class Reference(Referenceable, SimpleItem):
         SimpleItem.manage_options
         )
 
-    security.declareProtected(permissions.ManagePortal,
+    security.declareProtected(CMFCorePermissions.ManagePortal,
                               'manage_view')
     manage_view = PageTemplateFile('view_reference', _www)
 
@@ -97,8 +92,8 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Convenience methods
     def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
+        tool = getToolByName(self, UID_CATALOG)
+        if not tool: return ''
         brains = tool(UID=self.sourceUID)
         for brain in brains:
             obj = brain.getObject()
@@ -107,7 +102,7 @@ class Reference(Referenceable, SimpleItem):
 
     def getTargetObject(self):
         tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
+        if not tool: return ''
         brains = tool(UID=self.targetUID)
         for brain in brains:
             obj = brain.getObject()
@@ -177,28 +172,6 @@ class Reference(Referenceable, SimpleItem):
 
 InitializeClass(Reference)
 
-def handleReferenceEvents(ob, event):
-    """ Event subscriber for IReference events.
-    """
-    return
-    if IObjectAddedEvent.providedBy(event):
-        if event.newParent is not None:
-            # when copying a full site parent is the container of the plone site
-            # and ob is the plone site (at least for objects in portal root)
-            base = event.newParent
-        else:
-            base = ob
-        rc = getToolByName(base, REFERENCE_CATALOG)
-        url = getRelURL(base, ob.getPhysicalPath())
-        rc.catalog_object(ob, url)
-
-    elif IObjectWillBeMovedEvent.providedBy(event):
-        if event.oldParent is not None:
-            rc  = getToolByName(event.oldParent, REFERENCE_CATALOG)
-            url = getRelURL(event.oldParent, ob.getPhysicalPath())
-            rc.uncatalog_object(url)
-
-
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
 class ContentReference(ObjectManager, Reference):
@@ -267,6 +240,49 @@ class ContentReferenceCreator:
 InitializeClass(ContentReferenceCreator)
 
 # The brains we want to use
+class UIDCatalogBrains(AbstractCatalogBrain):
+    """fried my little brains"""
+
+    security = ClassSecurityInfo()
+
+    def getObject(self, REQUEST=None):
+        """
+        Used to resolve UIDs into real objects. This also must be
+        annotation aware. The protocol is:
+        We have the path to an object. We get this object. If its
+        UID is not the UID in the brains then we need to pull it
+        from the reference annotation and return that object
+
+        Thus annotation objects store the path to the source object
+        """
+        obj = None
+        try:
+            path = self.getPath()
+            try:
+                portal = getToolByName(self, 'portal_url').getPortalObject()
+                obj = portal.unrestrictedTraverse(self.getPath())
+                obj = aq_inner( obj )
+            except ConflictError:
+                raise
+            except: #NotFound # XXX bare exception
+                pass
+
+            if obj is None:
+                if REQUEST is None:
+                    REQUEST = self.REQUEST
+                obj = self.aq_parent.resolve_url(self.getPath(), REQUEST)
+
+            return obj
+        except ConflictError:
+            raise
+        except:
+            #import traceback
+            #traceback.print_exc()
+            zLOG.LOG('UIDCatalogBrains', zLOG.INFO, 'getObject raised an error',
+                     error=sys.exc_info())
+            pass
+
+InitializeClass(UIDCatalogBrains)
 
 class ReferenceCatalogBrains(UIDCatalogBrains):
     pass
@@ -300,9 +316,80 @@ class PluggableCatalog(Catalog):
 
 InitializeClass(PluggableCatalog)
 
+class UIDBaseCatalog(PluggableCatalog):
+    BASE_CLASS = UIDCatalogBrains
+
 class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
 
+_marker=[]
+
+##class CatalogObjectWrapper:
+##    """
+##    """
+##
+##    def __init__(self, context, obj):
+##        self._context = context
+##        self._obj = obj
+##        self._clean_obj = aq_base(obj)
+##
+##    def __getattr__(self, key, default=None):
+##        if key == 'getPhysicalPath':
+##            return getRelPath(self._context, self._obj.getPhysicalPath())
+##        if getattr(self._clean_obj, key, _marker) is not _marker:
+##            return getattr(self._obj, key)
+##        else:
+##            return default
+
+class ReferenceResolver(Base):
+
+    security = ClassSecurityInfo()
+    # XXX FIXME more security
+
+    def resolve_url(self, path, REQUEST):
+        """Strip path prefix during resolution, This interacts with
+        the default brains.getObject model and allows and fakes the
+        ZCatalog protocol for traversal
+        """
+        parts = path.split('/')
+        # XXX REF_PREFIX is undefined
+        #if parts[-1].find(REF_PREFIX) == 0:
+        #    path = '/'.join(parts[:-1])
+
+        portal_object = self.portal_url.getPortalObject()
+
+        try:
+            return portal_object.unrestrictedTraverse(path)
+        except (KeyError, AttributeError, NotFound):
+            # ObjectManager may raise a KeyError when the object isn't there
+            return None
+
+    def catalog_object(self, obj, uid=None, **kwargs):
+        """Use the relative path from the portal root as uid
+
+        Ordinary the catalog is using the path from root towards object but we
+        want only a relative path from the portal root
+
+        Note: This method could be optimized by improving the calculation of the
+              relative path like storing the portal root physical path in a
+              _v_ var.
+        """
+        portal_path_len = getattr(aq_base(self), '_v_portal_path_len', None)
+
+        if not portal_path_len:
+            # cache the lenght of the portal path in a _v_ var
+            urlTool = getToolByName(self, 'portal_url')
+            portal_path = urlTool.getPortalObject().getPhysicalPath()
+            portal_path_len = len(portal_path)
+            self._v_portal_path_len = portal_path_len
+
+        relpath = obj.getPhysicalPath()[portal_path_len:]
+        uid = '/'.join(relpath)
+        __traceback_info__ = (repr(obj), uid)
+        ##ZCatalog.catalog_object(self, CatalogObjectWrapper(context=self, obj=obj), uid, **kwargs)
+        ZCatalog.catalog_object(self, obj, uid, **kwargs)
+
+InitializeClass(ReferenceResolver)
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
@@ -324,8 +411,91 @@ class IndexableObjectWrapper(object):
         except UnicodeDecodeError:
             return self._obj.getId()
 
+class UIDCatalog(UniqueObject, ReferenceResolver, ZCatalog):
+    """Unique id catalog
+    """
 
-class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
+    id = UID_CATALOG
+    security = ClassSecurityInfo()
+    __implements__ = IUIDCatalog
+
+    manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
+
+    manage_options = ZCatalog.manage_options + \
+        ({'label': 'Rebuild catalog',
+         'action': 'manage_rebuildCatalog',}, )
+
+
+    def __init__(self, id, title='', vocab_id=None, container=None):
+        """We hook up the brains now"""
+        ZCatalog.__init__(self, id, title, vocab_id, container)
+        self._catalog = UIDBaseCatalog()
+        
+    security.declareProtected(ManageZCatalogEntries, 'catalog_object')
+    def catalog_object(self, object, uid, idxs=[],
+                       update_metadata=1, pghandler=None):
+        w = IndexableObjectWrapper(object)
+        try:
+            # pghandler argument got added in Zope 2.8
+            ZCatalog.catalog_object(self, w, uid, idxs,
+                                    update_metadata, pghandler=pghandler)
+        except TypeError:
+            try:
+                # update_metadata argument got added somewhere into
+                # the Zope 2.6 line (?)
+                ZCatalog.catalog_object(self, w, uid, idxs, update_metadata)
+            except TypeError:
+                ZCatalog.catalog_object(self, w, uid, idxs)
+
+    def _catalogObject(self, obj, path):
+        """catalog the object. the object will be cataloged with the absolute path
+        in case we don't pass the relative url.
+        """
+        url = getRelURL(self, obj.getPhysicalPath())
+        self.catalog_object(obj, url)
+        
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
+    def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
+        """
+        """
+        elapse = time.time()
+        c_elapse = time.clock()
+
+        atool   = getToolByName(self, TOOL_NAME)
+        obj     = aq_parent(self)
+        if not REQUEST:
+            REQUEST = self.REQUEST
+            
+        # build a list of archetype meta types
+        mt = tuple([typ['meta_type'] for typ in atool.listRegisteredTypes()])
+
+        # clear the catalog
+        self.manage_catalogClear()
+
+        # find and catalog objects
+        path = '/'.join(obj.getPhysicalPath())
+        results = self.ZopeFindAndApply(obj,
+                                        obj_metatypes=mt,
+                                        search_sub=1,
+                                        apply_func=self._catalogObject,
+                                        apply_path=path,
+                                        REQUEST=REQUEST)
+
+        elapse = time.time() - elapse
+        c_elapse = time.clock() - c_elapse
+
+        if RESPONSE:
+            RESPONSE.redirect(
+            REQUEST.URL1 +
+            '/manage_catalogView?manage_tabs_message=' +
+            urllib.quote('Catalog Rebuilded\n'
+                         'Total time: %s\n'
+                         'Total CPU time: %s'
+                         % (`elapse`, `c_elapse`))
+            )
+
+
+class ReferenceCatalog(UniqueObject, ReferenceResolver, ZCatalog):
     """Reference catalog
     """
 
@@ -350,7 +520,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     ###
     ## Public API
     def addReference(self, source, target, relationship=None,
-                     referenceClass=None, updateReferences=True, **kwargs):
+                     referenceClass=None, **kwargs):
         sID, sobj = self._uidFor(source)
         if not sID or sobj is None:
             raise ReferenceException('Invalid source UID')
@@ -359,17 +529,17 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         if not tID or tobj is None:
             raise ReferenceException('Invalid target UID')
 
-        if updateReferences:
-            objects = self._resolveBrains(
-                self._queryFor(sID, tID, relationship))
-            if objects:
-                #we want to update the existing reference
-                existing = objects[0]
-                if existing:
-                    # We can't del off self, we now need to remove it
-                    # from the source objects annotation, which we have
-                    annotation = sobj._getReferenceAnnotations()
-                    annotation._delObject(existing.id)
+        objects = self._resolveBrains(self._queryFor(sID, tID, relationship))
+        if objects:
+            #we want to update the existing reference
+            #XXX we might need to being a subtransaction here to
+            #    do this properly, and close it later
+            existing = objects[0]
+            if existing:
+                # We can't del off self, we now need to remove it
+                # from the source objects annotation, which we have
+                annotation = sobj._getReferenceAnnotations()
+                annotation._delObject(existing.id)
 
 
         rID = self._makeName(sID, tID)
@@ -486,11 +656,11 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     #####
     ## UID register/unregister
-    security.declareProtected(permissions.ModifyPortalContent, 'registerObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'registerObject')
     def registerObject(self, object):
         self._uidFor(object)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
@@ -600,7 +770,6 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             root=getToolByName(self,'portal_url').getPortalObject()
 
         path = '/'.join(root.getPhysicalPath())
-
         results = self.ZopeFindAndApply(root,
                                         search_sub=1,
                                         apply_func=self._catalogReferencesFor,
@@ -643,7 +812,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
-    security.declareProtected(permissions.ManagePortal, 'manage_rebuildCatalog')
+    security.declareProtected(CMFCorePermissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
         """
@@ -651,9 +820,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         c_elapse = time.clock()
 
         atool   = getToolByName(self, TOOL_NAME)
-        func    = self.catalog_object
         obj     = aq_parent(self)
-        path    = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
 
@@ -696,3 +863,18 @@ def manage_addReferenceCatalog(self, id, title,
     if REQUEST is not None:
         return self.manage_main(self, REQUEST,update_menu=1)
 
+InitializeClass(ReferenceCatalog)
+
+
+def manage_addUIDCatalog(self, id, title,
+                         vocab_id=None, # Deprecated
+                         REQUEST=None):
+    """Add the UID Catalog
+    """
+    id = str(id)
+    title = str(title)
+    c = UIDCatalog(id, title, vocab_id, self)
+    self._setObject(id, c)
+
+    if REQUEST is not None:
+        return self.manage_main(self, REQUEST,update_menu=1)

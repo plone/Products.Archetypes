@@ -94,16 +94,16 @@ setting:
   Indexing: /plone/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc1 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc1 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_doc1 []
+  Indexing: /plone/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
   >>> self.folder['new_doc1'].Title()
@@ -125,16 +125,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc2 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_doc2 []
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
   >>> self.folder['new_doc2'].Title()
@@ -164,15 +164,6 @@ Rename:
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc11 ['getObjPositionInParent']
-  ------------------------------------------------------------
 
 Copy and paste:
 
@@ -186,6 +177,9 @@ Copy and paste:
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
@@ -223,16 +217,16 @@ setting:
   Indexing: /plone/Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder1 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder1 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_folder1 []
+  Indexing: /plone/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
   >>> self.folder['new_folder1'].Title()
@@ -254,16 +248,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder2 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_folder2 []
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
 
@@ -294,18 +288,6 @@ Rename:
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder11 ['getObjPositionInParent']
-  ------------------------------------------------------------
 
 Copy and paste:
 
@@ -319,6 +301,9 @@ Copy and paste:
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
@@ -356,16 +341,16 @@ setting:
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_btree_folder1 []
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
   >>> self.folder['new_btree_folder1'].Title()
@@ -387,16 +372,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['portal_type', 'Type']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
-  ------------------------------------------------------------
-  Catalog:  /plone/uid_catalog
-  Indexing: Members/test_user_1_/new_btree_folder2 []
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
   >>> self.folder['new_btree_folder2'].Title()
@@ -426,21 +411,6 @@ Rename:
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  /plone/portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder11 ['getObjPositionInParent']
-  ------------------------------------------------------------
 
 Copy and paste:
 
@@ -454,6 +424,9 @@ Copy and paste:
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  /plone/portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']

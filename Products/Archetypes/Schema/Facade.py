@@ -8,9 +8,9 @@ from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
+from Products.CMFCore.CMFCorePermissions import View
 
-# Crude mapping for now. We should instantiate
+# XXX Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields
 # that map better.
 _field_mapping = {'CheckBoxField':BooleanField,
@@ -72,7 +72,7 @@ class CMFMetadataFieldsDescriptor:
             return {}
         set = pm.getMetadataSet(obj.set_id)
         fields = fieldsFromSet(set, obj)
-        # TODO This would *really* benefit from some
+        # XXX This would *really* benefit from some
         # caching/timestamp checking.
         # Calling generateMethods and reconstructing
         # the fields each time may actually be

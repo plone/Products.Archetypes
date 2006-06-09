@@ -1,4 +1,4 @@
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes import Field
 from SimpleType import SimpleType
 from Products.Archetypes.config import PKG_NAME
@@ -7,6 +7,7 @@ fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
           'IntegerField', 'FloatField', 'FixedPointField',
           'BooleanField', 'ImageField'
+          # 'ComputedField', 'CMFObjectField', 'ReferenceField'
           ]
 
 field_instances = []
@@ -46,12 +47,20 @@ schema = Schema(tuple(field_instances) + (
                    allowed_types=('ComplexType', ),
                    multiValued=1,
                   ),
+    #ReferenceField('reffield1',
+    #               relationship='myref1',
+    #               widget=InAndOutWidget(label='Ref1')
+    #              ),
+    #ReferenceField('reffield2',
+    #               relationship='myref2',
+    #               widget=PicklistWidget(label='Ref1'),
+    #              ),
     )) + ExtensibleMetadata.schema
 
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
-    archetype_name = meta_type = "ComplexType"
+    archetype_name = meta_type = "Complex Type"
     portal_type = 'ComplexType'
 
     def _get_selection_vocab(self):

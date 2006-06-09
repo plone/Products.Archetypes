@@ -1,28 +1,22 @@
-from zope.app.container.interfaces import IObjectAddedEvent
-from zope.app.container.interfaces import IObjectMovedEvent
-from zope.interface import implements
-
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
+from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
 from AccessControl import getSecurityManager, Unauthorized
 from ExtensionClass import Base
+from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
+from Products.CMFCore import CMFCorePermissions
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from OFS.ObjectManager import BeforeDeleteException
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
-
 ####
 ## In the case of:
 ## - a copy:
@@ -40,8 +34,8 @@ from ref_graph import get_cmapx, get_png
 class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
-    implements(IReferenceable)
-    __implements__ = (DEPRECATED,)
+
+    __implements__ = (IReferenceable,)
 
     security = ClassSecurityInfo()
     # XXX FIXME more security
@@ -55,11 +49,9 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, referenceClass=None,
-                     updateReferences=True, **kwargs):
+    def addReference(self, object, relationship=None, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, referenceClass,
-                                 updateReferences, **kwargs)
+        return tool.addReference(self, object, relationship, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -194,7 +186,7 @@ class Referenceable(CopySource):
         try:
             uc = getToolByName(container, config.UID_CATALOG)
         except AttributeError:
-            # TODO when trying to rename or copy a whole site than
+            # XXX when trying to rename or copy a whole site than
             # container is the object "under" the portal so we can
             # NEVER ever find the catalog which is bad ...
             container = aq_parent(self)
@@ -237,7 +229,7 @@ class Referenceable(CopySource):
             # UID already.  Don't mess with UID anymore.
             return
 
-        # TODO Should we ever get here after the isCopy flag addition??
+        # XXX Should we ever get here after the isCopy flag addition??
         # If the object has no UID or the UID already exists, then
         # we should get a new one
         if (not shasattr(self,config.UUID_ATTR) or
@@ -376,13 +368,13 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""
@@ -393,7 +385,3 @@ class Referenceable(CopySource):
 InitializeClass(Referenceable)
 
 
-def handleEvents(ob, event):
-    """ Event subscriber for IReferenceable events.
-    """
-    pass

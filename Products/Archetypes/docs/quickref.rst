@@ -203,12 +203,12 @@ mode
 
 read_permission
   Permission needed to view the field. Defaults to
-  ``permissions.View``. Is checked when the view is being
+  ``CMFCorePermissions.View``. Is checked when the view is being
   auto-generated.
 
 write_permission
   Permission needed to edit the field. Defaults to
-  ``permissions.ModifyPortalContent``. Is checked when the
+  ``CMFCorePermissions.ModifyPortalContent``. Is checked when the
   submitted form is being processed..
 
 storage
@@ -324,6 +324,7 @@ BaseValidators
 inNumericRange
   The argument must be numeric. The validator should be called with the
   minimum and maximum values as second and third arguments. 
+  XXX: example in practice?
 
 isDecimal
   The argument must be decimal, may be positive or
@@ -374,6 +375,7 @@ isEmpty
 isEmptyNoError
   ``isEmpty`` fails with an error message, but ``isEmptyNoError`` just
   fails.
+  XXX: illustrative use case?
 
 
 SupplValidators
@@ -588,6 +590,7 @@ Additional notes about Factory Type Information
   actions **extend** or **replace** any existing actions for your type.
   If you want to delete or rearange actions, you need to manipulate
   ``fti['actions']`` in the ``modify_fti`` method of your module. 
+  XXX: When is ArchetypeTool.fixActionsForType used?
 
   This means that if you want custom views or something you only need to
   say something like::
@@ -596,7 +599,7 @@ Additional notes about Factory Type Information
           actions = ({'id': 'view',
 	                  'name': 'View',
                       'action': 'string:${object_url}/custom_view',
-                      'permissions': (permissions.View,)
+                      'permissions': (CMFCorePermissions.View,)
                      },)
 
 

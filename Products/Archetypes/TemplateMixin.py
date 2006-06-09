@@ -4,7 +4,7 @@ from Products.Archetypes.Widget import SelectionWidget
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
-from Products.CMFCore import permissions
+from Products.CMFCore import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
@@ -16,7 +16,7 @@ from ExtensionClass import Base
 TemplateMixinSchema = Schema((
     # TemplateMixin
     StringField('layout',
-                write_permission=permissions.ModifyPortalContent,
+                write_permission=CMFCorePermissions.ModifyPortalContent,
                 default_method="getDefaultLayout",
                 vocabulary="_voc_templates",
                 # we can't use enforce because we may use the view name from the
@@ -43,7 +43,7 @@ class TemplateMixin(Base):
         { 'id': 'view',
           'name': 'View',
           'action': 'string:${object_url}/',
-          'permissions': (permissions.View,),
+          'permissions': (CMFCorePermissions.View,),
         },
         )
 
@@ -75,10 +75,10 @@ class TemplateMixin(Base):
         at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
-    # BBB backward compatibility
+    # XXX backward compatibility
     templates = _voc_templates
 
-    security.declareProtected(permissions.View, 'getLayout')
+    security.declareProtected(CMFCorePermissions.View, 'getLayout')
     def getLayout(self, **kw):
         """Get the current layout or the default layout if the current one is None
         """
@@ -93,7 +93,7 @@ class TemplateMixin(Base):
         else:
             return self.getDefaultLayout()
 
-    security.declareProtected(permissions.View, 'getDefaultLayout')
+    security.declareProtected(CMFCorePermissions.View, 'getDefaultLayout')
     def getDefaultLayout(self):
         """Get the default layout used for TemplateMixin.
 
@@ -128,7 +128,7 @@ class TemplateMixin(Base):
 
 InitializeClass(TemplateMixin)
 
-# BBB backward compatibility
+# XXX backward compatibility
 schema = TemplateMixinSchema
 getTemplateFor = TemplateMixin.getTemplateFor
 

@@ -12,11 +12,6 @@
       interface=".interfaces.IBaseObject"
       /> 
       
-  <implements
-      class=".ArchetypeTool.ArchetypeTool"
-      interface=".interfaces.IArchetypeTool"
-      />
-      
   <!-- TODO: more -->
 
 </configure>

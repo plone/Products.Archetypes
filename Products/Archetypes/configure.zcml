@@ -1,13 +1,10 @@
-<configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:five="http://namespaces.zope.org/five">
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    >
 
   <include file="bridge.zcml"/>
 
-  <include file="event.zcml"/>
-
   <include file="implements.zcml"/>
-
-  <include package=".exportimport" />
 
 </configure>
 

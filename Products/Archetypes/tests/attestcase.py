@@ -30,18 +30,63 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
-from Products.PloneTestCase import PloneTestCase
-from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Archetypes:Archetypes',
-                                   'Archetypes:Archetypes_samplecontent'
-                                  ])
+# the output of some tests may differ when CMFPlone is installed
+try:
+    import Products.CMFPlone
+except ImportError:
+    HAS_PLONE = HAS_PLONE21 = False
+else:
+    HAS_PLONE = True
+    try:
+        from Products.CMFPlone.migrations import v2_1
+    except ImportError:
+        HAS_PLONE21 = False
+    else:
+        HAS_PLONE21 = True
+
+# Use either plain CMF or Plone to run the portal tests
+# You have to install:
+#  * CMF, CMFQuickInstaller, CMFFormController, CMFTestCase for CMF tests
+#  * Plone and PloneTestCase for Plone tests
+#USE_PLONETESTCASE = True
+#USE_PLONETESTCASE = False
+USE_PLONETESTCASE = HAS_PLONE
+
+if not USE_PLONETESTCASE:
+    # setup is installing some required products
+    import Products.CMFTestCase.setup
+    # install the rest manually
+    ZopeTestCase.installProduct('CMFCalendar')
+    ZopeTestCase.installProduct('CMFTopic')
+    ZopeTestCase.installProduct('DCWorkflow')
+    ZopeTestCase.installProduct('CMFActionIcons')
+    ZopeTestCase.installProduct('CMFQuickInstallerTool')
+    ZopeTestCase.installProduct('CMFFormController')
+    ZopeTestCase.installProduct('ZCTextIndex')
+    ZopeTestCase.installProduct('PageTemplates', quiet=1)
+    ZopeTestCase.installProduct('PythonScripts', quiet=1)
+    ZopeTestCase.installProduct('ExternalMethod', quiet=1)
+else:
+    # setup is installing all required products
+    import Products.PloneTestCase.setup
+
+DEPS_AT = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes',
+            'ArchetypesTestUpdateSchema',)
+
+# install products
+for product in DEPS_AT:
+    ZopeTestCase.installProduct(product)
 
 # Fixup zope 2.7+ configuration
-from App import config
-config._config.rest_input_encoding = 'ascii'
-config._config.rest_output_encoding = 'ascii'
-config._config.rest_header_level = 3
-del config
+try:
+    from App import config
+except ImportError:
+    pass
+else:
+    config._config.rest_input_encoding = 'ascii'
+    config._config.rest_output_encoding = 'ascii'
+    config._config.rest_header_level = 3
+    del config
 
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
@@ -57,5 +102,7 @@ from Testing.ZopeTestCase import user_password
 default_user = user_name
 default_role = 'Member'
 
-__all__ = ('default_user', 'default_role', 'user_name', 'user_password',
+
+__all__ = ('USE_PLONETESTCASE', 'HAS_PLONE',
+           'default_user', 'default_role', 'user_name', 'user_password',
            'ATTestCase', 'ATFunctionalTestCase', )

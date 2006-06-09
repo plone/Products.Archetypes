@@ -24,8 +24,8 @@ from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
 
-from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
-from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
+from Products.Archetypes.ReferenceEngine import \
+     manage_addReferenceCatalog, manage_addUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
      IReferenceCatalog, IUIDCatalog
 
@@ -203,7 +203,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
-        # TODO: find a better way to do this, but that seems not feasible
+        # XXX: find a better way to do this, but that seems not feasible
         #      until Zope stops using string exceptions
         if str(e).endswith(' is reserved.'):
             # trying to use a reserved identifier, let the user know
@@ -242,11 +242,9 @@ def install_types(self, out, types, package_name):
         except:
             pass
 
-        typeinfo_name = "%s: %s (%s)" % (package_name, klass.__name__,
-                                         klass.meta_type)
-
-        # get the meta type of the FTI from the class, use the
-        # default FTI as default
+        typeinfo_name = "%s: %s" % (package_name, klass.meta_type)
+        
+        # get the meta type of the FTI from the class, use the default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if not fti_meta_type:
             fti_meta_type = FactoryTypeInformation.meta_type
