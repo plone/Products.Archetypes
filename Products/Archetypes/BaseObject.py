@@ -1,6 +1,7 @@
 import sys
 from Globals import InitializeClass
 
+from Products.Archetypes import transaction
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
@@ -20,10 +21,8 @@ from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
-from Products.Archetypes.interfaces import IBaseObject
-from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
-from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
+from Products.Archetypes.interfaces.base import IBaseObject
+from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
@@ -32,24 +31,19 @@ from Products.Archetypes.ArchetypeTool import _guessPackage
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from AccessControl.Permissions import copy_or_move as permission_copy_or_move
 from Acquisition import Implicit
 from Acquisition import aq_base
 from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
-from Acquisition import ImplicitAcquisitionWrapper
 from Acquisition import ExplicitAcquisitionWrapper
 from Acquisition import Explicit
 
 from ComputedAttribute import ComputedAttribute
-from OFS.interfaces import IObjectWillBeAddedEvent
-from OFS.interfaces import IObjectWillBeRemovedEvent
 from OFS.ObjectManager import ObjectManager
 from ZODB.POSException import ConflictError
-import transaction
 
-from Products.CMFCore import permissions
+from Products.CMFCore  import CMFCorePermissions
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _checkPermission as checkPerm
 
@@ -58,8 +52,6 @@ from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
-
-from zope.interface import implements
 
 _marker = []
 
@@ -105,7 +97,6 @@ content_type = Schema((
         required=0, # Still actually required, but the widget will
                     # supply the missing value on non-submits
         mode='rw',
-        permission=permission_copy_or_move,
         accessor='getId',
         mutator='setId',
         default=None,
@@ -157,16 +148,15 @@ class BaseObject(Referenceable):
     typeDescription = ''
     _at_rename_after_creation = False # rename object according to title?
 
-    __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
-    implements(IBaseObject, IReferenceable)
+    __implements__ = (IBaseObject, ) + Referenceable.__implements__
 
     def __init__(self, oid, **kwargs):
         self.id = oid
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """Called by the generated add* factory in types tool.
+        """Called by the generated addXXX factory in types tool.
         """
         try:
             self.initializeLayers()
@@ -176,7 +166,7 @@ class BaseObject(Referenceable):
                 kwargs['_initializing_'] = True
                 self.edit(**kwargs)
             self._signature = self.Schema().signature()
-        except (ConflictError, KeyboardInterrupt):
+        except ConflictError:
             raise
         except:
             log_exc()
@@ -185,14 +175,19 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
+        __traceback_info__ = (self, item, container)
         Referenceable.manage_afterAdd(self, item, container)
+        self.initializeLayers(item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
+        __traceback_info__ = (self, item)
         Referenceable.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
+        __traceback_info__ = (self, item, container)
+        self.cleanupLayers(item, container)
         Referenceable.manage_beforeDelete(self, item, container)
 
     security.declarePrivate('initializeLayers')
@@ -203,7 +198,7 @@ class BaseObject(Referenceable):
     def cleanupLayers(self, item=None, container=None):
         self.Schema().cleanupLayers(self, item, container)
 
-    security.declareProtected(permissions.View, 'title_or_id')
+    security.declareProtected(CMFCorePermissions.View, 'title_or_id')
     def title_or_id(self):
         """Returns the title if it is not blank and the id otherwise.
         """
@@ -213,13 +208,13 @@ class BaseObject(Referenceable):
 
         return self.getId()
 
-    security.declareProtected(permissions.View, 'getId')
+    security.declareProtected(CMFCorePermissions.View, 'getId')
     def getId(self):
         """Gets the object id.
         """
         return self.id
 
-    security.declareProtected(permissions.ModifyPortalContent, 'setId')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'setId')
     def setId(self, value):
         """Sets the object id.
         """
@@ -231,7 +226,7 @@ class BaseObject(Referenceable):
                 parent.manage_renameObject(self.id, value)
             self._setId(value)
 
-    security.declareProtected(permissions.View, 'Type')
+    security.declareProtected(CMFCorePermissions.View, 'Type')
     def Type(self):
         """Dublin Core element - Object type.
 
@@ -245,13 +240,13 @@ class BaseObject(Referenceable):
                 return ti.Title()
         return self.meta_type
 
-    security.declareProtected(permissions.View, 'getField')
+    security.declareProtected(CMFCorePermissions.View, 'getField')
     def getField(self, key, wrapped=False):
         """Returns a field object.
         """
         return self.Schema().get(key)
 
-    security.declareProtected(permissions.View, 'getWrappedField')
+    security.declareProtected(CMFCorePermissions.View, 'getWrappedField')
     def getWrappedField(self, key):
         """Gets a field by id which is explicitly wrapped.
 
@@ -259,14 +254,14 @@ class BaseObject(Referenceable):
         """
         return ExplicitAcquisitionWrapper(self.getField(key), self)
 
-    security.declareProtected(permissions.View, 'getDefault')
+    security.declareProtected(CMFCorePermissions.View, 'getDefault')
     def getDefault(self, field):
         """Return the default value of a field.
         """
         field = self.getField(field)
         return field.getDefault(self)
 
-    security.declareProtected(permissions.View, 'isBinary')
+    security.declareProtected(CMFCorePermissions.View, 'isBinary')
     def isBinary(self, key):
         """Return wether a field contains binary data.
         """
@@ -280,14 +275,14 @@ class BaseObject(Referenceable):
             return 0
         return 1
 
-    security.declareProtected(permissions.View, 'isTransformable')
+    security.declareProtected(CMFCorePermissions.View, 'isTransformable')
     def isTransformable(self, name):
         """Returns wether a field is transformable.
         """
         field = self.getField(name)
         return isinstance(field, TextField) or not self.isBinary(name)
 
-    security.declareProtected(permissions.View, 'widget')
+    security.declareProtected(CMFCorePermissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
         """Returns the rendered widget.
         """
@@ -297,7 +292,7 @@ class BaseObject(Referenceable):
         return renderer.render(field_name, mode, widget, self, field=field,
                                **kwargs)
 
-    security.declareProtected(permissions.View, 'getFilename')
+    security.declareProtected(CMFCorePermissions.View, 'getFilename')
     def getFilename(self, key=None):
         """Returns the filename from a field.
         """
@@ -313,7 +308,7 @@ class BaseObject(Referenceable):
 
         return value
 
-    security.declareProtected(permissions.View, 'getContentType')
+    security.declareProtected(CMFCorePermissions.View, 'getContentType')
     def getContentType(self, key=None):
         """Returns the content type from a field.
         """
@@ -330,15 +325,15 @@ class BaseObject(Referenceable):
         return value
 
     # Backward compatibility
-    security.declareProtected(permissions.View, 'content_type')
+    security.declareProtected(CMFCorePermissions.View, 'content_type')
     content_type = ComputedAttribute(getContentType, 1)
 
     # XXX Where's get_content_type comes from??? There's no trace at both
     # Zope and CMF. It should be removed ASAP!
-    security.declareProtected(permissions.View, 'get_content_type')
+    security.declareProtected(CMFCorePermissions.View, 'get_content_type')
     get_content_type = getContentType
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setContentType')
     def setContentType(self, value, key=None):
         """Sets the content type of a field.
@@ -351,7 +346,7 @@ class BaseObject(Referenceable):
         if field and IFileField.isImplementedBy(field):
             field.setContentType(self, value)
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'setFilename')
     def setFilename(self, value, key=None):
         """Sets the filename of a field.
@@ -364,7 +359,7 @@ class BaseObject(Referenceable):
         if field and IFileField.isImplementedBy(field):
             field.setFilename(self, value)
 
-    security.declareProtected(permissions.View, 'getPrimaryField')
+    security.declareProtected(CMFCorePermissions.View, 'getPrimaryField')
     def getPrimaryField(self):
         """The primary field is some object that responds to
         PUT/manage_FTPget events.
@@ -374,7 +369,7 @@ class BaseObject(Referenceable):
             return fields[0]
         return None
 
-    security.declareProtected(permissions.View, 'get_portal_metadata')
+    security.declareProtected(CMFCorePermissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
         """Returns the portal_metadata for a field.
         """
@@ -383,9 +378,7 @@ class BaseObject(Referenceable):
         try:
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-
-
-        except (ConflictError, KeyboardInterrupt):
+        except ConflictError:
             raise
         except:
             log_exc()
@@ -397,7 +390,7 @@ class BaseObject(Referenceable):
         return DisplayList(map(lambda x: (x,x), policy.allowedVocabulary())), \
                policy.enforceVocabulary()
 
-    security.declareProtected(permissions.View, 'Vocabulary')
+    security.declareProtected(CMFCorePermissions.View, 'Vocabulary')
     def Vocabulary(self, key):
         """Returns the vocabulary for a specified field.
         """
@@ -450,7 +443,7 @@ class BaseObject(Referenceable):
         """
         self.Schema().setDefaults(self)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'update')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):
         """Changes the values of the field and reindex the object.
         """
@@ -463,10 +456,10 @@ class BaseObject(Referenceable):
             # Avoid double indexing during initialization.
             self.reindexObject()
 
-    security.declareProtected(permissions.ModifyPortalContent, 'edit')
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'edit')
     edit = update
 
-    security.declareProtected(permissions.View,
+    security.declareProtected(CMFCorePermissions.View,
                               'validate_field')
     def validate_field(self, name, value, errors):
         """Field's validate hook.
@@ -489,15 +482,15 @@ class BaseObject(Referenceable):
 
     ## Pre/post validate hooks that will need to write errors
     ## into the errors dict directly using errors[fieldname] = ""
-    security.declareProtected(permissions.View, 'pre_validate')
+    security.declareProtected(CMFCorePermissions.View, 'pre_validate')
     def pre_validate(self, REQUEST=None, errors=None):
         pass
 
-    security.declareProtected(permissions.View, 'post_validate')
+    security.declareProtected(CMFCorePermissions.View, 'post_validate')
     def post_validate(self, REQUEST=None, errors=None):
         pass
 
-    security.declareProtected(permissions.View, 'validate')
+    security.declareProtected(CMFCorePermissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
         """Validates the form data from the request.
         """
@@ -511,7 +504,7 @@ class BaseObject(Referenceable):
         self.post_validate(REQUEST, errors)
         return errors
 
-    security.declareProtected(permissions.View, 'SearchableText')
+    security.declareProtected(CMFCorePermissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
         here for indexing purpose.
@@ -529,9 +522,7 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
-
-
-                except (ConflictError, KeyboardInterrupt):
+                except ConflictError:
                     raise
                 except:
                     continue
@@ -558,7 +549,7 @@ class BaseObject(Referenceable):
         data = ' '.join(data)
         return data
 
-    security.declareProtected(permissions.View, 'getCharset')
+    security.declareProtected(CMFCorePermissions.View, 'getCharset')
     def getCharset(self):
         """Returns the site default charset, or utf-8.
         """
@@ -569,7 +560,7 @@ class BaseObject(Referenceable):
                 return site_properties.getProperty('default_charset')
         return 'utf-8'
 
-    security.declareProtected(permissions.View, 'get_size')
+    security.declareProtected(CMFCorePermissions.View, 'get_size')
     def get_size(self):
         """Used for FTP and apparently the ZMI now too.
         """
@@ -630,7 +621,7 @@ class BaseObject(Referenceable):
 
         self.reindexObject()
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'processForm')
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Processes the schema looking for data in the form.
@@ -658,7 +649,7 @@ class BaseObject(Referenceable):
     def at_post_edit_script(self):
         pass
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'markCreationFlag')
     def markCreationFlag(self):
         """Sets flag on the instance to indicate that the object hasn't been
@@ -678,7 +669,7 @@ class BaseObject(Referenceable):
             if meth in ('GET', 'POST'):
                 self._at_creation_flag = True
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'unmarkCreationFlag')
     def unmarkCreationFlag(self):
         """Removes the creation flag.
@@ -686,7 +677,7 @@ class BaseObject(Referenceable):
         if shasattr(aq_inner(self), '_at_creation_flag'):
             self._at_creation_flag = False
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'checkCreationFlag')
     def checkCreationFlag(self):
         """Returns True if the object has been fully saved, False otherwise.
@@ -698,6 +689,11 @@ class BaseObject(Referenceable):
         This id is used when automatically renaming an object after creation.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
+        if plone_tool is None or not shasattr(plone_tool, 'normalizeString'):
+            # Plone tool is not available or too old
+            # XXX log?
+            return None
+
         title = self.Title()
         if not title:
             # Can't work w/o a title
@@ -778,18 +774,11 @@ class BaseObject(Referenceable):
             return script(id)
         return False
 
-    security.declareProtected(permissions.View, 'Schemata')
+    security.declareProtected(CMFCorePermissions.View, 'Schemata')
     def Schemata(self):
         """Returns the Schemata for the Object.
         """
         return getSchemata(self)
-
-    def Schema(self):
-        """Return a (wrapped) schema instance for
-        this object instance.
-        """
-        schema = self.schema
-        return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
@@ -885,9 +874,7 @@ class BaseObject(Referenceable):
             try:
                 if IFileField.isImplementedBy(field):
                     return field.getBaseUnit(self)
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -897,9 +884,7 @@ class BaseObject(Referenceable):
                 editAccessor = field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -909,9 +894,7 @@ class BaseObject(Referenceable):
                 accessor = field.getAccessor(self)
                 if accessor:
                     return accessor()
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -926,9 +909,7 @@ class BaseObject(Referenceable):
             # Because of this line value = value.replace(',','.')
             try:
                 return self[field.getName()]
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -942,9 +923,7 @@ class BaseObject(Referenceable):
                 editAccessor = new_field.getEditAccessor(self)
                 if editAccessor:
                     return editAccessor()
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -954,9 +933,7 @@ class BaseObject(Referenceable):
                 accessor = new_field.getAccessor(self)
                 if accessor:
                     return accessor()
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -964,9 +941,7 @@ class BaseObject(Referenceable):
             # Still no luck -- try to get the value directly using the new name
             try:
                 return self[new_field.getName()]
-
-
-            except (ConflictError, KeyboardInterrupt):
+            except ConflictError:
                 raise
             except:
                 pass
@@ -994,9 +969,7 @@ class BaseObject(Referenceable):
                     args = [value,]
                     mapply(mutator, *args, **kw)
                     return
-
-
-                except (ConflictError, KeyboardInterrupt):
+                except ConflictError:
                     raise
                 except:
                     log_exc()
@@ -1007,7 +980,7 @@ class BaseObject(Referenceable):
                 return
         raise ValueError, 'name = %s, value = %s' % (name, value)
 
-    security.declareProtected(permissions.View, 'isTemporary')
+    security.declareProtected(CMFCorePermissions.View, 'isTemporary')
     def isTemporary(self):
         """Checks to see if we are created as temporary object by
         portal factory.
@@ -1016,7 +989,7 @@ class BaseObject(Referenceable):
         return shasattr(parent, 'meta_type') and \
                parent.meta_type == 'TempFolder'
 
-    security.declareProtected(permissions.View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getFolderWhenPortalFactory')
     def getFolderWhenPortalFactory(self):
         """Returns the folder where this object was created temporarily.
@@ -1047,7 +1020,7 @@ class BaseObject(Referenceable):
     # Those objects are specific to a session.
     #
 
-    security.declareProtected(permissions.ModifyPortalContent,
+    security.declareProtected(CMFCorePermissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
         """Adds a dictionary of objects to a volatile attribute.
@@ -1060,7 +1033,7 @@ class BaseObject(Referenceable):
             for name, obj in objects.items():
                 storage[name] = aq_base(obj)
 
-    security.declareProtected(permissions.View, 'getSubObject')
+    security.declareProtected(CMFCorePermissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
         """Gets a dictionary of objects from a volatile attribute.
         """
@@ -1111,17 +1084,6 @@ class BaseObject(Referenceable):
         raise AttributeError(name)
 
 InitializeClass(BaseObject)
-
-def handleEvents(ob, event):
-    """Event subscriber for IBaseObject events.
-    """
-    if IObjectWillBeAddedEvent.providedBy(event):
-        if event.newParent is not None:
-            ob.initializeLayers(ob, event.newParent)
-
-    elif IObjectWillBeRemovedEvent.providedBy(event):
-        if event.oldParent is not None:
-            ob.cleanupLayers(ob, event.oldParent)
 
 class Wrapper(Explicit):
     """Wrapper object for access to sub objects."""
