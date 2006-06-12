@@ -3,7 +3,9 @@ from types import DictType, FileType, ListType, StringTypes
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
-from Products.CMFCore.Expression import createExprContext
+
+from Products.PageTemplates.Expressions import getEngine
+from Products.PageTemplates.Expressions import SecureModuleImporter
 
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
@@ -25,9 +27,18 @@ class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
+        # This two lines come from generator/widget.py
+        'visible': {'view': 'visible', 'edit': 'visible'},
+        'condition': '',
+        # New visibility features
+        'visibility': {'edit': True, 'view': True},
+        'hidden_if_expr': '', # return 'visible', 'hidden' or 'invisible'
+        'widget_mode_expr': '', # 'view', 'edit', 'search'
+        'css_class_expr': '',
+        'javascript_expr': '',
         'populate' : True,  # should this field be populated in edit and view?
         'postback' : True,  # should this field be repopulated with POSTed
-                         # value when an error occurs?
+                            # value when an error occurs?
         'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
@@ -55,6 +66,10 @@ class TypesWidget(macrowidget, Base):
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
+
+    ##
+    ## Old visibility features
+    ##
 
     security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
@@ -111,12 +126,125 @@ class TypesWidget(macrowidget, Base):
         try:
             if self.condition:
                 __traceback_info__ = (folder, portal, object, self.condition)
+                ## Use CMFCore Expression context
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
             else:
                 return True
         except AttributeError:
             return True
+
+    ##
+    ## New visibilty features
+    ##
+    ## Each visibility feature can be computed with a TALES expression which
+    ## keep object, widget and mode context
+    ##
+
+    security.declarePrivate('_createExprContext')
+    def _createExprContext(self, object, field, mode):
+        """An expression context provides names for TALES expressions.
+        """
+        pm = getToolByName(object, 'portal_membership')
+        wf = getToolByName(object, 'portal_workflow')
+        if object is None:
+            object_url = ''
+            request = None
+            review_state = None
+        else:
+            object_url = object.absolute_url()
+            request = getattr( object, 'REQUEST', None )
+            review_state = wf.getInfoFor(object, 'review_state', None)
+            
+        if pm.isAnonymousUser():
+            member = None
+        else:
+            member = pm.getAuthenticatedMember()
+        data = {
+            'object_url':   object_url,
+            'object':       object,
+            'review_state': review_state,
+            'nothing':      None,
+            'request':      request,
+            'modules':      SecureModuleImporter,
+            'member':       member,
+            'field': field,
+            'widget': self,
+            'mode': mode,
+            }
+        return getEngine().getContext(data)
+
+    security.declarePublic('isRendered')
+    def isRendered(self, object, field, mode):
+        """Decide if a field is rendered in a given mode
+
+        If an expression exist we compute it and return the value (True or False).
+        If not, we return the visibility associated value.
+        """
+        if self.hidden_if_expr:
+            __traceback_info__ = (self, object, field, mode, self.hidden_if_expr)
+            ec = self._createExprContext(object, field, mode)
+            state = Expression(self.hidden_if_expr)(ec)
+            return state
+
+        return self.visibility.get(mode, True)
+
+
+    security.declarePublic('renderingMode')
+    def renderingMode(self, object, field, mode):
+        """ return the rendering macro used by the widget
+
+        Default are 'view', 'edit' and 'search'.
+        New modes must starts with one of these.
+        """
+        authorized_mode = ('view', 'edit', 'search')
+
+        if self.widget_mode_expr:
+            __traceback_info__ = (self, object, field, mode, self.widget_mode_expr)
+            ec = self._createExprContext(object, field, mode)
+            computed_mode = Expression(self.widget_mode_expr)(ec)
+
+            if computed_mode:
+                mode = computed_mode
+
+        if not mode.startswith('view') \
+           and not mode.startswith('edit') \
+           and not mode.startswith('search'):
+            raise KeyError, "Expression must return a valid mode."
+
+        return mode
+
+    security.declarePublic('getCssClass')
+    def getCssClass(self, object, field, mode):
+        """Return CSS classes used on the main div field's tag
+
+        We don't allow empty class return.
+        """
+        if self.widget_mode_expr:
+            __traceback_info__ = (self, object, field, mode, self.css_class_expr)
+            ec = self._createExprContext(object, field, mode)
+            computed = Expression(self.css_class_expr)(ec)
+
+            if computed:
+                return computed
+
+        return 'field'
+
+    security.declarePublic('getJavascriptCode')
+    def getJavascriptCode(self, object, field, mode):
+        """Return the javascript code used on the main div field's tag
+        """
+        if self.widget_mode_expr:
+            __traceback_info__ = (self, object, field, mode, self.javascript_expr)
+            ec = self._createExprContext(object, field, mode)
+            computed = Expression(self.javascript_expr)(ec)
+            return computed
+
+        return ''
+
+    ##
+    ## Utilities method
+    ##
 
     # XXX
     security.declarePublic('process_form')
