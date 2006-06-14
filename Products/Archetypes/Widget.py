@@ -208,9 +208,13 @@ class TypesWidget(macrowidget, Base):
             computed = Expression(self.widget_mode_expr)(ec)
 
             if computed:
+                invalid_mode = True
                 for key in self.visibility.keys():
-                    if not mode.startswith(key):
-                        raise KeyError, "Expression must return a valid mode."
+                    if computed.startswith(key):
+                        invalid_mode = False
+                        break
+                if invalid_mode:
+                    raise KeyError, "Expression must return a valid mode. %s is not a valid mode: %s" % (repr(computed), ', '.join(self.visibility.keys()))
 
                 return computed
 
