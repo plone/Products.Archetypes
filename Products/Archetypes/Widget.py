@@ -2,7 +2,7 @@ from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression
+from Products.CMFCore.Expression import Expression, createExprContext
 
 from Products.PageTemplates.Expressions import getEngine
 from Products.PageTemplates.Expressions import SecureModuleImporter
@@ -31,14 +31,16 @@ class TypesWidget(macrowidget, Base):
         'visible': {'view': 'visible', 'edit': 'visible'},
         'condition': '',
         # New visibility features
-        'visibility': {'edit': True, 'view': True},
-        'hidden_if_expr': '', # return 'visible', 'hidden' or 'invisible'
+        'visibility': {'view': True, 'edit': True, 'search': True},
+        'rendered_if_expr': '', # True or False
         'widget_mode_expr': '', # 'view', 'edit', 'search'
-        'css_class_expr': '',
-        'javascript_expr': '',
+        'css_class_expr'  : '',
+        'javascript_expr' : '',
+        # Form features
         'populate' : True,  # should this field be populated in edit and view?
         'postback' : True,  # should this field be repopulated with POSTed
                             # value when an error occurs?
+        # Rendering options
         'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
@@ -181,11 +183,11 @@ class TypesWidget(macrowidget, Base):
         If an expression exist we compute it and return the value (True or False).
         If not, we return the visibility associated value.
         """
-        if self.hidden_if_expr:
-            __traceback_info__ = (self, object, field, mode, self.hidden_if_expr)
+        if self.rendered_if_expr:
+            __traceback_info__ = (self, object, field, mode, self.rendered_if_expr)
             ec = self._createExprContext(object, field, mode)
-            state = Expression(self.hidden_if_expr)(ec)
-            return state
+            computed = Expression(self.rendered_if_expr)(ec)
+            return computed
 
         return self.visibility.get(mode, True)
 
@@ -197,20 +199,20 @@ class TypesWidget(macrowidget, Base):
         Default are 'view', 'edit' and 'search'.
         New modes must starts with one of these.
         """
-        authorized_mode = ('view', 'edit', 'search')
+        if mode not in self.visibility.keys():
+            raise KeyError, "%s is not a valid mode: %s" % (repr(mode), ', '.join(self.visibility.keys()))
 
         if self.widget_mode_expr:
             __traceback_info__ = (self, object, field, mode, self.widget_mode_expr)
             ec = self._createExprContext(object, field, mode)
-            computed_mode = Expression(self.widget_mode_expr)(ec)
+            computed = Expression(self.widget_mode_expr)(ec)
 
-            if computed_mode:
-                mode = computed_mode
+            if computed:
+                for key in self.visibility.keys():
+                    if not mode.startswith(key):
+                        raise KeyError, "Expression must return a valid mode."
 
-        if not mode.startswith('view') \
-           and not mode.startswith('edit') \
-           and not mode.startswith('search'):
-            raise KeyError, "Expression must return a valid mode."
+                return computed
 
         return mode
 
