@@ -193,7 +193,7 @@ class TypesWidget(macrowidget, Base):
 
 
     security.declarePublic('renderingMode')
-    def renderingMode(self, object, field, mode):
+    def getWidgetMode(self, object, field, mode):
         """ return the rendering macro used by the widget
 
         Default are 'view', 'edit' and 'search'.
