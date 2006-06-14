@@ -31,7 +31,7 @@
   * Removed some more BBB code.
     [hannosch]
 
-  * Removed deprecated public.py and ArchetypesTestCase.py.
+  * Removed deprecated ArchetypesTestCase.py.
     [hannosch]
 
   * Adjusted rest tests to Zope2.10 output.
