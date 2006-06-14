@@ -43,6 +43,10 @@
 1.4.0 - unreleased
 ==================
 
+  * Undeprecated 'public', there are too many products relying on it and it's
+    just a name change without any real benefit.
+    [hannosch]
+
   * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
     This closes http://dev.plone.org/archetypes/ticket/656.
     [hannosch]
