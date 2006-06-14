@@ -77,7 +77,10 @@
 
           <metal:block define-slot="widgets">
             <tal:fields repeat="field fields">
-              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+              <tal:isRendered tal:condition="python:field.widget.isRendered(here, field, mode)">
+                <metal:fieldMacro use-macro="python:here.widget(field.getName(),
+                                                                mode=field.widget.getWidgetMode(here, field, mode))" />
+              </tal:isRendered>
             </tal:fields>
           </metal:block>
 

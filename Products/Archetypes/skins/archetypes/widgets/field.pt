@@ -11,7 +11,8 @@
     <!-- Base Field Widgets -->
     <metal:base_view_macro
         define-macro="base_view"
-        tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
+        tal:define="widget_view python:here.widget(field.getName(),  use_label=True,
+                                                   mode=field.widget.getWidgetMode(here, field, mode));
                     field_macros here/widgets/field/macros;
                     label_macro view_macros/label | label_macro | field_macros/label;
                     data_macro view_macros/data | data_macro | field_macros/data;
@@ -76,7 +77,7 @@
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
-                 tal:content="python:field.widget.widget.Label(here)"
+                 tal:content="python:field.widget.Label(here)"
                  tal:attributes="for python:field.getName()">
           </label>
           <span class="fieldRequired"

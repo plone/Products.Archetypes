@@ -29,9 +29,10 @@
                           tal:define="field_macro field_macro | here/widgets/field/macros/view;"
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
           <tal:if_visible define="mode string:view;
+                                  isRendered python:field.widget.isRendered(here, field, mode);
                                   visState python:field.widget.isVisible(here, mode);
                                   visCondition python:field.widget.testCondition(here, portal, template);"
-                          condition="python:visState == 'visible' and visCondition">
+                          condition="python:isRendered and visState == 'visible' and visCondition">
             <metal:use_field use-macro="field_macro" />
           </tal:if_visible>
         </metal:body_macro>
