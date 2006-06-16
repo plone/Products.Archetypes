@@ -41,6 +41,9 @@ ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 # in a restricted environment
 allow_class(DisplayList)
 
+# Allow import of NotFound exception
+ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
+
 
 ###
 # register tools and content types

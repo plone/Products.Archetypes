@@ -854,10 +854,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 # as different widgets with the same name
                 # on different schemas means only the first
                 # one found will be used
+                indexes=self.portal_catalog.indexes()
                 fields = [f for f in fields
                           if (f.accessor and
                               not w_keys.has_key(f.accessor)
-                              and f.index)]
+                              and f.accessor in indexes)]
             if f_names is not None:
                 fields = filter(lambda f: f.getName() in f_names, fields)
             for field in fields:

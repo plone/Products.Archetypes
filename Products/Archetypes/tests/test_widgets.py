@@ -61,6 +61,11 @@ class WidgetTests(ATSiteTestCase):
         # Make SESSION var available
         self.app.REQUEST['SESSION'] = {}
 
+    def beforeTearDown(self):
+        global stub_text_file, stub_bin_file
+        stub_text_file.close()
+        stub_bin_file.close()
+
     def test_subject_keyword_widget(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['subject']
@@ -227,10 +232,9 @@ class WidgetTests(ATSiteTestCase):
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
         self.assertEqual(str(doc[field.getName()]), stub_text_content)
 
-    def beforeTearDown(self):
-        global stub_text_file, stub_bin_file
-        stub_text_file.close()
-        stub_bin_file.close()
+    def test_getBestIcon(self):
+        doc = makeContent(self.folder, 'SimpleType', id='doc')
+        self.assertEqual(doc.getBestIcon(), 'txt.png')
 
 
 def test_suite():
