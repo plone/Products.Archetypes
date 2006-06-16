@@ -1,5 +1,5 @@
-pre 1.4.0
-==========
+1.4.0-final - 2006-06-16
+========================
 
   * Undeprecated 'public', there are too many products relying on it and it's
     just a name change without any real benefit.
