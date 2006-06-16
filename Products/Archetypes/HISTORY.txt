@@ -1,3 +1,6 @@
+pre 1.4.0
+==========
+
   * Undeprecated 'public', there are too many products relying on it and it's
     just a name change without any real benefit.
     [hannosch]
