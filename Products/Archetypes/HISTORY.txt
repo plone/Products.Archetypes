@@ -1,3 +1,11 @@
+1.4.1-beta1 - ?
+===============
+
+  * Fix #670: addCreator function fails with AttributeError in
+    ExtensibleMetadata.  This closes
+    http://dev.plone.org/archetypes/ticket/670
+    [nouri]
+
 1.4.0-final - 2006-06-16
 ========================
 
