@@ -40,8 +40,16 @@
   * Remove BBB code for calendar_macros.
     [hannosch]
 
-1.4.0 - unreleased
-==================
+1.4.1-beta1 - ?
+===============
+
+  * Fix #670: addCreator function fails with AttributeError in
+    ExtensibleMetadata.  This closes
+    http://dev.plone.org/archetypes/ticket/670
+    [nouri]
+
+1.4.0-final - 2006-06-16
+========================
 
   * Undeprecated 'public', there are too many products relying on it and it's
     just a name change without any real benefit.

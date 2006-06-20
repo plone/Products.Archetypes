@@ -541,8 +541,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             creator = mtool.getAuthenticatedMember().getId()
 
         # call self.listCreators() to make sure self.creators exists
-        if creator and not creator in self.listCreators():
-            self.setCreators(self.creators + (creator, ))
+        curr_creators = self.listCreators()
+        if creator and not creator in curr_creators:
+            self.setCreators(curr_creators + (creator, ))
 
     security.declareProtected(permissions.View, 'listCreators')
     def listCreators(self):
