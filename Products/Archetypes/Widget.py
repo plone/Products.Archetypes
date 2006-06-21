@@ -1,5 +1,6 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
+from DateTime import DateTime
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
@@ -365,7 +366,8 @@ class TextAreaWidget(TypesWidget):
                     
                     # Add a datestamp along with divider if desired.
                     if getattr(field.widget, 'timestamp', None):
-                        divider = DateTime() + '\n' + divider
+
+                        divider = "\n\n" + str(DateTime()) + divider
                         
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
