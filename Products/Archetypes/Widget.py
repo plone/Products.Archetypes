@@ -323,7 +323,10 @@ class TextAreaWidget(TypesWidget):
         'cols'  : 40,
         'format': 0,
         'append_only': False,
+        'timestamp' : False,        
         'divider':"\n\n========================\n\n",
+        'maxlength' : False,
+        'helper_js': ('widgets/js/textcount.js',),        
         })
 
     security = ClassSecurityInfo()
@@ -352,16 +355,21 @@ class TextAreaWidget(TypesWidget):
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
-        """ handle append_only  """
-        # SPANKY: It would be nice to add a datestamp too, if desired
-
+        """ handle append_only """
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None):
             if field.getEditAccessor(instance)():
                 if (value and not value.isspace()):
+                    
+                    divider = field.widget.divider
+                    
+                    # Add a datestamp along with divider if desired.
+                    if getattr(field.widget, 'timestamp', None):
+                        divider = DateTime() + '\n' + divider
+                        
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
-                    value = value + field.widget.divider + \
+                    value = value + divider + \
                             field.getEditAccessor(instance)()
                 else:
                     # keep historical entries
