@@ -191,7 +191,7 @@ class Referenceable(CopySource):
         try:
             uc = getToolByName(container, config.UID_CATALOG)
         except AttributeError:
-            # TODO when trying to rename or copy a whole site than
+            # XXX when trying to rename or copy a whole site than
             # container is the object "under" the portal so we can
             # NEVER ever find the catalog which is bad ...
             container = aq_parent(self)
@@ -234,7 +234,7 @@ class Referenceable(CopySource):
             # UID already.  Don't mess with UID anymore.
             return
 
-        # TODO Should we ever get here after the isCopy flag addition??
+        # XXX Should we ever get here after the isCopy flag addition??
         # If the object has no UID or the UID already exists, then
         # we should get a new one
         if (not shasattr(self,config.UUID_ATTR) or
