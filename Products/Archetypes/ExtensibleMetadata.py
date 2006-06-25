@@ -1,5 +1,5 @@
 import string
-from logging import DEBUG
+from logging import INFO, DEBUG
 
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
@@ -37,8 +37,6 @@ CEILING_DATE = DateTime(2500, 0) # never expires
 class ExtensibleMetadata(Persistence.Persistent):
     """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
     """
-
-
     # XXX This is not completely true. We need to review this later
     # and make sure it is true.
     # Just so you know, the problem here is that Title
@@ -214,13 +212,13 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     def __init__(self):
         pass
-        #self.setCreationDate(None)
-        #self.setModificationDate(None)
 
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
         """Retrieve the default language"""
-        # XXX This method is kept around for backward compatibility only
+        # This method is kept around for backward compatibility only
+        log('defaultLanguage is deprecated and will be removed in AT 1.6',
+            level=INFO)
         return config.LANGUAGE_DEFAULT
 
     security.declareProtected(permissions.View, 'isDiscussable')
@@ -306,7 +304,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Dublin Core element - date resource created.
         """
         creation = self.getField('creation_date').get(self)
-        # XXX return unknown if never set properly
+        # return unknown if never set properly
         return creation is None and 'Unknown' or creation.ISO()
 
     security.declarePublic( permissions.View, 'EffectiveDate')
@@ -314,7 +312,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Dublin Core element - date resource becomes effective.
         """
         effective = self.getField('effectiveDate').get(self)
-        # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
     def _effective_date(self):
@@ -331,7 +328,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         """Dublin Core element - date resource expires.
         """
         expires = self.getField('expirationDate').get(self)
-        # XXX None? CEILING_DATE
         return expires is None and 'None' or expires.ISO()
 
     def _expiration_date(self):
@@ -388,7 +384,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     def contentExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
-            # XXX we need some unittesting for this
             date = DateTime()
         expires = self.getField('expirationDate').get(self)
         if not expires:
@@ -412,7 +407,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         returned as DateTime.
         """
         modified = self.getField('modification_date').get(self)
-        # XXX may return None
+        # TODO may return None
         return modified
 
     security.declareProtected(permissions.View, 'effective')
@@ -458,7 +453,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         Take appropriate action after the resource has been modified.
         For now, change the modification_date.
         """
-        # XXX This could also store the id of the user doing modifications.
         self.setModificationDate(DateTime())
         if shasattr(self, 'http__refreshEtag'):
             self.http__refreshEtag()

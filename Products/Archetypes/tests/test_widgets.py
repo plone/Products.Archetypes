@@ -212,7 +212,7 @@ class WidgetTests(ATSiteTestCase):
         expected = 'The little black dog', {}
         result = widget.process_form(doc, field, form)
         #self.assertEqual(expected, result)
-        
+
 
     def test_rich_text_widget(self):
         request = FakeRequest()

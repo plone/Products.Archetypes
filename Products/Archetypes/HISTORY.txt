@@ -1,3 +1,45 @@
+1.5.0 - unreleased
+==================
+
+  * Marked Base* as implementing their Z3 interfaces.
+    [hannosch]
+
+  * Based tests on PloneTestCase with extension profile support for site setup.
+    [hannosch]
+
+  * Added (Default) alias to base_view to all sample types, so calling them will
+    still work in CMF >= 2.0.
+    [hannosch]
+
+  * Removed deprecated spec argument from listFolderContents and
+    folderlistingFolderContents of BaseFolderMixin.
+    [hannosch]
+
+  * Changed import of TAL.ndiff to zope.tal.ndiff.
+    [hannosch]
+
+  * Cleaned up XXX comments, converted non-critical ones to TODO.
+    [hannosch]
+
+  * Removed five:traversable from configure.zcml as it is not needed anymore for
+    Zope 2.10, which we require now.
+    [hannosch]
+
+  * Cleaned up some comments, removed a pdb and an unused zLOG import.
+    [hannosch]
+
+  * Removed some more BBB code.
+    [hannosch]
+
+  * Removed deprecated ArchetypesTestCase.py.
+    [hannosch]
+
+  * Adjusted rest tests to Zope2.10 output.
+    [hannosch]
+
+  * Remove BBB code for calendar_macros.
+    [hannosch]
+
 1.4.1-beta1 - ?
 ===============
 
@@ -1448,8 +1490,6 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
-   XXX: Add a comment to the documentation that users should take care when
-   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature

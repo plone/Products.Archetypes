@@ -31,7 +31,7 @@
                             rows widget/rows;
                             tabindex tabindex/next;
                             onkeydown python:test(maxlength, keypress, None);
-                            onkeyup python:test(maxlength, keypress, None);"                            
+                            onkeyup python:test(maxlength, keypress, None);"
             tal:define="content python:not append_only and content or '';"
             tal:content="content">content</textarea>
 
