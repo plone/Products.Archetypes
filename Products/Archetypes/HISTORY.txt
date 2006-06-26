@@ -1,6 +1,11 @@
 1.5.0 - unreleased
 ==================
 
+  * Renamed sample_content profile to sample_types as it only includes types
+    but no content ;) This profile is not registered globally anymore but only
+    during test runs, as these types aren't meant to be used for anything else.
+    [hannosch]   
+
   * Marked Base* as implementing their Z3 interfaces.
     [hannosch]
 
