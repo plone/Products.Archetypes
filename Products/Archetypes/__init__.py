@@ -27,8 +27,6 @@ except ImportError:
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
-import transaction
-
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
 from PloneCompat import IndexIterator
@@ -54,20 +52,6 @@ from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
      process_types, listTypes, fixAfterRenameType
 ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
-
-
-###
-# Test dependencies
-###
-# XXX: Check if we need these imports here, after version checks are removed
-this_module = sys.modules[__name__]
-import Products.MimetypesRegistry
-import Products.PortalTransforms
-import Products.validation
-
-###
-# Tools
-###
 
 tools = (
     ArchetypeTool,

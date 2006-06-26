@@ -38,7 +38,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-from Products.Archetypes import config, transaction
+from Products.Archetypes import config
 from Products.Archetypes.references import HoldingReference, CascadeReference
 from Products.Archetypes.exceptions import ReferenceException
 from OFS.ObjectManager import BeforeDeleteException
