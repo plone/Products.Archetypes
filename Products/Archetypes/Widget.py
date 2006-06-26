@@ -189,7 +189,10 @@ class TypesWidget(macrowidget, Base):
             computed = Expression(self.rendered_if_expr)(ec)
             return computed
 
-        return self.visibility.get(mode, True)
+        if hasattr(self, 'visibility'):
+            return self.visibility.get(mode, True)
+        else:
+            return True
 
 
     security.declarePublic('renderingMode')
@@ -199,6 +202,10 @@ class TypesWidget(macrowidget, Base):
         Default are 'view', 'edit' and 'search'.
         New modes must starts with one of these.
         """
+        # If migration doesn't work here we need to return the old mode style
+        if not hasattr(self, 'visibility'):
+            return mode
+
         if mode not in self.visibility.keys():
             raise KeyError, "%s is not a valid mode: %s" % (repr(mode), ', '.join(self.visibility.keys()))
 
@@ -207,7 +214,7 @@ class TypesWidget(macrowidget, Base):
             ec = self._createExprContext(object, field, mode)
             computed = Expression(self.widget_mode_expr)(ec)
 
-            if computed and hasattr(self, 'visibility'):
+            if computed:
                 invalid_mode = True
                 for key in self.visibility.keys():
                     if computed.startswith(key):
