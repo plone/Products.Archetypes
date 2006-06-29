@@ -1,6 +1,10 @@
 1.5.0 - unreleased
 ==================
 
+  * Modernized DisplayLists to use isinstance instead of type checking. Now
+    derived string types like Messages are allowed as keys and values as well.
+    [hannosch] 
+
   * Removed last bits of dependency version checks from __init__.py as well as
     support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
     live site but only serve as code examples and are used during test runs.

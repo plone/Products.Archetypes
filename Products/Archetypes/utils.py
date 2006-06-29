@@ -5,8 +5,7 @@ from random import random, randint
 from time import time
 from inspect import getargs, getmro
 from md5 import md5
-from types import TupleType, ListType, ClassType, IntType, NoneType
-from types import UnicodeType, StringType, MethodType
+from types import ClassType, MethodType
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -352,7 +351,7 @@ class DisplayList:
 
     def fromList(self, lst):
         for item in lst:
-            if isinstance(item, ListType):
+            if isinstance(item, list):
                 item = tuple(item)
             self.add(*item)
 
@@ -377,15 +376,15 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if type(key) is IntType:
+        if isinstance(key, int):
             deprecated('Using ints as DisplayList keys is deprecated (add)')
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
+        if not isinstance(value, basestring) and not isinstance(value, basestring):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        if type(msgid) not in (StringType, NoneType):
+        if msgid is not None and not isinstance(msgid, basestring):
             raise TypeError('DisplayList msg ids must be strings, got %s' %
                             type(msgid))
         self.index +=1
@@ -395,8 +394,8 @@ class DisplayList:
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
-        if msgid: self._i18n_msgids[key] = msgid
-
+        if msgid is not None:
+            self._i18n_msgids[key] = msgid
 
     def getKey(self, value, default=None):
         """get key"""
@@ -409,9 +408,9 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if type(key) is IntType:
+        if isinstance(key, int):
             deprecated('Using ints as DisplayList keys is deprecated (getValue)')
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
@@ -423,9 +422,9 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) is IntType:
+        if isinstance(key, int):
             deprecated('Using ints as DisplayList keys is deprecated (msgid)')
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         if self._i18n_msgids.has_key(key):
@@ -557,13 +556,13 @@ class IntDisplayList(DisplayList):
     security.setDefaultAccess('allow')
 
     def add(self, key, value, msgid=None):
-        if type(key) is not IntType:
+        if not isinstance(key, int):
             raise TypeError('DisplayList keys must be ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, UnicodeType, IntType):
+        if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        if type(msgid) not in (StringType, NoneType):
+        if msgid is not None and not isinstance(msgid, basestring):
             raise TypeError('DisplayList msg ids must be strings, got %s' %
                             type(msgid))
         self.index +=1
@@ -573,13 +572,14 @@ class IntDisplayList(DisplayList):
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
-        if msgid: self._i18n_msgids[key] = msgid
+        if msgid is not None:
+            self._i18n_msgids[key] = msgid
 
     def getValue(self, key, default=None):
         """get value"""
-        if type(key) in (StringType, UnicodeType):
+        if isinstance(key, basestring):
             key = int(key)
-        elif type(key) is IntType:
+        elif isinstance(key, int):
             pass
         else:
             raise TypeError("Key must be string or int")
@@ -592,9 +592,9 @@ class IntDisplayList(DisplayList):
 
     def getMsgId(self, key):
         "get i18n msgid"
-        if type(key) in (StringType, UnicodeType):
+        if isinstance(key, basestring):
             key = int(key)
-        elif type(key) is IntType:
+        elif isinstance(key, int):
             pass
         else:
             raise TypeError("Key must be string or int")
@@ -624,9 +624,9 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if type(key) is IntType:
+        if isinstance(key, int):
             deprecated('Using ints as DisplayList keys is deprecated (getValue)')
-        if type(key) not in (StringType, UnicodeType, IntType):
+        if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
