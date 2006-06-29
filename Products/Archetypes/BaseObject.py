@@ -1,6 +1,7 @@
 import sys
 from Globals import InitializeClass
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
@@ -108,13 +109,11 @@ content_type = Schema((
         mutator='setId',
         default=None,
         widget=IdWidget(
-            label='Short Name',
-            label_msgid='label_short_name',
-            description='Should not contain spaces, underscores or mixed case. '\
-                        'Short Name is part of the item\'s web address.',
-            description_msgid='help_shortname',
-            visible={'view' : 'invisible'},
-            i18n_domain='plone',
+            label=_(u'label_short_name', default=u'Short Name'),
+            description=_(u'help_shortname',
+                          default=u'Should not contain spaces, underscores or mixed case. '
+                                   'Short Name is part of the item\'s web address.'),
+            visible={'view' : 'invisible'}
         ),
     ),
 

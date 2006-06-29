@@ -1,6 +1,10 @@
 1.5.0 - unreleased
 ==================
 
+  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
+    internationalization of labels and descriptions.
+    [hannosch] 
+
   * Optimized the basic widget for the new default case of labels and
     descriptions as Messages. These are not translated automatically anymore
     but this is delayed to be triggered by the time they are rendered in a TAL

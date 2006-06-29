@@ -35,6 +35,11 @@ allow_class(IndexIterator)
 from PloneCompat import transaction_note
 ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 
+# Import "PloneMessageFactory as _" to create messages in plone domain
+# duplicated here so we don't add a dependency on CMFPlone
+from zope.i18nmessageid import MessageFactory
+PloneMessageFactory = MessageFactory('plone')
+
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
 allow_class(DisplayList)
