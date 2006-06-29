@@ -5,6 +5,8 @@ from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
 import i18n
 
+from zope.i18nmessageid import Message
+
 class iwidget:
     def __call__(instance, context=None):
         """Returns a rendered fragment that can be included in a larger
@@ -83,6 +85,11 @@ class widget:
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated."""
         value = getattr(self, 'label_method', None)
+        # Short circuit for the new default case
+        # If it is a Message we don't translate it but hand it back for later
+        # translation
+        if type(value) == Message:
+            return value
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
             # Label methods can be called with kwargs and should
@@ -95,6 +102,11 @@ class widget:
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated."""
         value = self.description
+        # Short circuit for the new default case
+        # If it is a Message we don't translate it but hand it back for later
+        # translation
+        if type(value) == Message:
+            return value
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
             # Description methods can be called with kwargs and should

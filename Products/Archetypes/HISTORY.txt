@@ -1,6 +1,12 @@
 1.5.0 - unreleased
 ==================
 
+  * Optimized the basic widget for the new default case of labels and
+    descriptions as Messages. These are not translated automatically anymore
+    but this is delayed to be triggered by the time they are rendered in a TAL
+    context. This will ultimately safe quite some translation machinery hackery.
+    [hannosch]
+
   * Modernized DisplayLists to use isinstance instead of type checking. Now
     derived string types like Messages are allowed as keys and values as well.
     [hannosch] 
