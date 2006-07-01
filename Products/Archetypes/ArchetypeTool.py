@@ -8,6 +8,7 @@ from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -861,7 +862,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
+                        field.vocabulary = DisplayList([('', _(u'at_search_any', default=u'<any>'))]) + \
                                            field.vocabulary
                     widget.populate = False
                     field_name = field.accessor

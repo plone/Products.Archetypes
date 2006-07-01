@@ -18,7 +18,10 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-from Products.Archetypes.generator import i18n
+
+# BBB, this can be removed once we do not support PTS anymore
+from Products.PageTemplates.GlobalTranslationService \
+     import getGlobalTranslationService as getGTS
 
 from Interface.bridge import createZope3Bridge
 from Products.Five.fiveconfigure import createZope2Bridge
@@ -321,9 +324,6 @@ class DisplayList:
     >>> idl.items()
     ((1, 'number one'), (2, 'just the second'))
 
-    >>> idl.getMsgId(1)
-    'number one'
-
     Remove warning hook
     >>> w.uninstall(); del w
     """
@@ -384,9 +384,12 @@ class DisplayList:
         if not isinstance(value, basestring) and not isinstance(value, basestring):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        if msgid is not None and not isinstance(msgid, basestring):
-            raise TypeError('DisplayList msg ids must be strings, got %s' %
-                            type(msgid))
+        if msgid is not None:
+            deprecated('Using explicit msgids for DisplayLists is deprecated. '
+                        'Store Zope3 Messages as values directly.')
+            if not isinstance(msgid, basestring):
+                raise TypeError('DisplayList msg ids must be strings, got %s' %
+                                type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -422,6 +425,8 @@ class DisplayList:
 
     def getMsgId(self, key):
         "get i18n msgid"
+        deprecated('DisplayList getMsgId is deprecated. Store Zope3 Messages '
+                   'as values instead.')
         if isinstance(key, int):
             deprecated('Using ints as DisplayList keys is deprecated (msgid)')
         if not isinstance(key, basestring) and not isinstance(key, int):
@@ -548,8 +553,6 @@ class IntDisplayList(DisplayList):
     'number one'
     >>> idl.getValue(u"1")
     'number one'
-    >>> idl.getMsgId(1)
-    'number one'
     """
 
     security = ClassSecurityInfo()
@@ -562,9 +565,12 @@ class IntDisplayList(DisplayList):
         if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        if msgid is not None and not isinstance(msgid, basestring):
-            raise TypeError('DisplayList msg ids must be strings, got %s' %
-                            type(msgid))
+        if msgid is not None:
+            deprecated('Using explicit msgids for IntDisplayLists is deprecated. '
+                        'Store Zope3 Messages as values directly.')
+            if not isinstance(msgid, basestring):
+                raise TypeError('DisplayList msg ids must be strings, got %s' %
+                                type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -592,6 +598,8 @@ class IntDisplayList(DisplayList):
 
     def getMsgId(self, key):
         "get i18n msgid"
+        deprecated('IntDisplayList getMsgId is deprecated. Store Zope3 Messages'
+                   ' as values instead.')
         if isinstance(key, basestring):
             key = int(key)
         elif isinstance(key, int):
@@ -642,8 +650,8 @@ class Vocabulary(DisplayList):
         if self._i18n_domain and self._instance:
             msg = self._i18n_msgids.get(key, None) or value
 
-            return i18n.translate(self._i18n_domain, msg,
-                                  context=self._instance, default=value)
+            return getGTS().translate(self._i18n_domain, msg,
+                                      context=self._instance, default=value)
         else:
             return value
 

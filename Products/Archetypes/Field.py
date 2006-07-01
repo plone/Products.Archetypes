@@ -10,6 +10,7 @@ from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
 
 from zope.contenttype import guess_content_type
+from zope.i18nmessageid import Message 
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -34,6 +35,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import permissions
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.storage import IStorage
@@ -47,7 +49,6 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.generator import i18n
 from Products.Archetypes.Widget import BooleanWidget
 from Products.Archetypes.Widget import CalendarWidget
 from Products.Archetypes.Widget import ComputedWidget
@@ -76,6 +77,10 @@ from Products.Archetypes.Storage import ReadOnlyStorage
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerField
 from Products.Archetypes.Registry import registerPropertyType
+
+# BBB, this can be removed once we do not support PTS anymore
+from Products.PageTemplates.GlobalTranslationService \
+     import getGlobalTranslationService as getGTS
 
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
@@ -332,12 +337,16 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            error = i18n.translate(
-                'archetypes', 'error_required',
-                {'name': label}, instance,
-                default = "%s is required, please correct."
-                % label,
-                )
+            if isinstance(label, Message):
+                # BBB, this should be a call to zope.i18n.translate instead,
+                # once we do not support PTS anymore
+                label = getGTS().translate(None, label, context=instance)
+            error = _(u'error_required',
+                      default=u'${name} is required, please correct.',
+                      mapping={'name': label})
+            # BBB, this should be a call to zope.i18n.translate instead,
+            # once we do not support PTS anymore
+            error = getGTS().translate(None, error, context=instance)
             errors[name] = error
             return error
         return None
@@ -376,13 +385,9 @@ class Field(DefaultLayerContainer):
 
         if error:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = i18n.translate(
-                'archetypes', 'error_vocabulary',
-                {'val': val, 'name': label}, instance,
-                default = "Value %s is not allowed for vocabulary "
-                "of element %s." % (val, label),
-                )
-
+            errors[self.getName()] = error = _( u'error_vocabulary',
+                default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
+                mapping={'val': val, 'name': label})
         return error
 
     security.declarePublic('Vocabulary')
@@ -1719,10 +1724,8 @@ class ReferenceField(ObjectField):
 
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
-        #elif len(brains) > self.vocabulary_display_path_bound:
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
-            at = i18n.translate(domain='archetypes', msgid='label_at',
-                                context=content_instance, default='at')
+            at = _(u'label_at', default=u'at')
             label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance),
                                              at, b.getPath())
         else:
@@ -1769,10 +1772,8 @@ class ReferenceField(ObjectField):
                 pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
-            no_reference = i18n.translate(domain='archetypes',
-                                          msgid='label_no_reference',
-                                          context=content_instance,
-                                          default='<no reference>')
+            no_reference = _(u'label_no_reference',
+                             default=u'<no reference>')
             pairs.insert(0, ('', no_reference))
 
         __traceback_info__ = (content_instance, self.getName(), pairs)

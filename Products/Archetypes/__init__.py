@@ -39,6 +39,7 @@ ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 # duplicated here so we don't add a dependency on CMFPlone
 from zope.i18nmessageid import MessageFactory
 PloneMessageFactory = MessageFactory('plone')
+ModuleSecurityInfo('Products.Archetypes').declarePublic('PloneMessageFactory')
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment

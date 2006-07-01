@@ -3,7 +3,10 @@ from AccessControl.unauthorized import Unauthorized
 from Acquisition import aq_base, aq_inner
 from Globals import InitializeClass
 from Products.Archetypes.debug import log, log_exc
-import i18n
+
+# BBB, this can be removed once we do not support PTS anymore
+from Products.PageTemplates.GlobalTranslationService \
+     import getGlobalTranslationService as getGTS
 
 from zope.i18nmessageid import Message
 
@@ -65,7 +68,7 @@ class widget:
         """Returns a prepared context or an empty {}."""
         return {}
 
-    def _translate_attribute(self, instance, name, target_language=None):
+    def _translate_attribute(self, instance, name):
         value = getattr(self, name, '')
         msgid = getattr(self, name+'_msgid', None) or value
 
@@ -78,9 +81,8 @@ class widget:
         if domain is None:
             return value
 
-        return i18n.translate(domain, msgid, mapping=instance.REQUEST,
-                              context=instance, default=value,
-                              target_language=target_language)
+        return getGTS().translate(domain, msgid, mapping=instance.REQUEST,
+                                  context=instance, default=value)
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated."""
@@ -96,8 +98,7 @@ class widget:
             # return the i18n version of the description
             value = method(**kwargs)
             return value
-        target_language = kwargs.get('target_language', None)
-        return self._translate_attribute(instance, 'label', target_language)
+        return self._translate_attribute(instance, 'label')
 
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated."""
@@ -114,8 +115,7 @@ class widget:
             value = method(**kwargs)
             return value
         target_language = kwargs.get('target_language', None)
-        return self._translate_attribute(instance, 'description',
-                                         target_language)
+        return self._translate_attribute(instance, 'description')
 
 
 class macrowidget(widget):
