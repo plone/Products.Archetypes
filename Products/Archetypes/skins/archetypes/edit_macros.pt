@@ -71,14 +71,22 @@
             enctype="multipart/form-data"
             class="enableUnloadProtection"
             action=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id">
+            tal:attributes="action python:here.absolute_url()+'/'+template.id;
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-            <tal:fields repeat="field fields">
-              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-            </tal:fields>
+            <fieldset tal:repeat="fieldset fieldsets"
+                      tal:attributes="id string:fieldset-${fieldset}">
+              <legend id=""
+                      tal:content="fieldset"
+                      tal:attributes="id string:fieldsetlegend-${fieldset}"
+                      i18n:translate="" />
+              <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
+                <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+              </tal:fields>
+            </fieldset>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />
