@@ -1,29 +1,31 @@
 import os.path
-
 from types import StringType
+from zope.interface import implements
 
-from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces import IBaseUnit
+from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log, ERROR
+from Products.Archetypes.debug import log
+from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
-#from Products.MimetypesRegistry.mime_types import text_plain, \
-#     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []
 
 class BaseUnit(File):
-    __implements__ = WriteLockInterface, IBaseUnit
+    __implements__ = WriteLockInterface, z2IBaseUnit
+    implements(IBaseUnit)
+
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -232,7 +234,7 @@ class BaseUnit(File):
             delattr(self, '_v_transform_cache')
 
     ### index_html
-    security.declareProtected(CMFCorePermissions.View, "index_html")
+    security.declareProtected(permissions.View, "index_html")
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
         filename = self.getFilename()
@@ -246,7 +248,7 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( CMFCorePermissions.ModifyPortalContent, 'PUT')
+    security.declareProtected( permissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
@@ -278,6 +280,3 @@ class BaseUnit(File):
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
-
-# XXX Should go away after 1.3-final
-newBaseUnit = BaseUnit

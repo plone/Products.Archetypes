@@ -37,7 +37,7 @@ from OFS.Image import File
 from Globals import package_home
 
 ZopeTestCase.installProduct('Archetypes')
-from Products.Archetypes.public import MetadataStorage, BaseContent
+from Products.Archetypes.atapi import MetadataStorage, BaseContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 class FileLike:

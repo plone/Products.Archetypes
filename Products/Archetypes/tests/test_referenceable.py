@@ -33,8 +33,8 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Acquisition import aq_base
+import transaction
 
-from Products.Archetypes import transaction
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
@@ -391,8 +391,6 @@ class BaseReferenceableTests(ATSiteTestCase):
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
-        at = self.portal.archetype_tool
-
         a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
         b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
 
@@ -406,6 +404,24 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, 'Flogs')
         self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
         self.assertEquals(len(a.getRefs()), 2)
+
+    def test_multipleReferences(self):
+        # If you provide updateReferences=False to addReference, it
+        # will add, not replace the reference
+        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
+        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+
+        #Add the same ref twice
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+        a.addReference(b, "KnowsAbout", updateReferences=False)
+
+        self.assertEquals(len(a.getRefs('KnowsAbout')),  2)
+
+        #In this case its a different relationship
+        a.addReference(b, 'Flogs')
+        self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
+        self.assertEquals(len(a.getRefs()), 3)
+        
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
@@ -538,28 +554,26 @@ class BaseReferenceableTests(ATSiteTestCase):
         field.multiValued = 0
 
         expected = DisplayList([
-            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
+            ('', u'label_no_reference'),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
 
         field = field.copy()
         field.vocabulary_display_path_bound = 1
         expected = DisplayList([
-            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
+            ('', u'label_no_reference'),
             ])
         self.failIfEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
-
-
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference

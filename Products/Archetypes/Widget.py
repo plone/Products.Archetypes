@@ -1,16 +1,15 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
+from DateTime import DateTime
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.Expression import Expression, createExprContext
-
-from Products.PageTemplates.Expressions import getEngine
-from Products.PageTemplates.Expressions import SecureModuleImporter
+from Products.CMFCore.Expression import Expression
+from Products.CMFCore.Expression import createExprContext
 
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
-from Products.generator.widget import macrowidget
+from Products.Archetypes.generator import macrowidget
 from Products.Archetypes.debug import log
 from Products.Archetypes.Registry import registerPropertyType
 from Products.Archetypes.Registry import registerWidget
@@ -27,20 +26,9 @@ class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
     _properties.update({
         'modes' : ('view', 'edit'),
-        # This two lines come from generator/widget.py
-        'visible': {'view': 'visible', 'edit': 'visible'},
-        'condition': '',
-        # New visibility features
-        'visibility': {'view': True, 'edit': True, 'search': True},
-        'rendered_if_expr': '', # True or False
-        'widget_mode_expr': '', # 'view', 'edit', 'search'
-        'css_class_expr'  : '',
-        'javascript_expr' : '',
-        # Form features
         'populate' : True,  # should this field be populated in edit and view?
         'postback' : True,  # should this field be repopulated with POSTed
-                            # value when an error occurs?
-        # Rendering options
+                         # value when an error occurs?
         'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
@@ -68,10 +56,6 @@ class TypesWidget(macrowidget, Base):
         name = field.getName()
         if not self.label:
             self.label = capitalize(name)
-
-    ##
-    ## Old visibility features
-    ##
 
     security.declarePublic('isVisible')
     def isVisible(self, instance, mode='view'):
@@ -111,7 +95,6 @@ class TypesWidget(macrowidget, Base):
         #      )
         return state
 
-    # XXX
     security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
@@ -128,7 +111,6 @@ class TypesWidget(macrowidget, Base):
         try:
             if self.condition:
                 __traceback_info__ = (folder, portal, object, self.condition)
-                ## Use CMFCore Expression context
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
             else:
@@ -136,130 +118,6 @@ class TypesWidget(macrowidget, Base):
         except AttributeError:
             return True
 
-    ##
-    ## New visibilty features
-    ##
-    ## Each visibility feature can be computed with a TALES expression which
-    ## keep object, widget and mode context
-    ##
-
-    security.declarePrivate('_createExprContext')
-    def _createExprContext(self, object, field, mode):
-        """An expression context provides names for TALES expressions.
-        """
-        pm = getToolByName(object, 'portal_membership')
-        wf = getToolByName(object, 'portal_workflow')
-        if object is None:
-            object_url = ''
-            request = None
-            review_state = None
-        else:
-            object_url = object.absolute_url()
-            request = getattr( object, 'REQUEST', None )
-            review_state = wf.getInfoFor(object, 'review_state', None)
-            
-        if pm.isAnonymousUser():
-            member = None
-        else:
-            member = pm.getAuthenticatedMember()
-        data = {
-            'object_url':   object_url,
-            'object':       object,
-            'review_state': review_state,
-            'nothing':      None,
-            'request':      request,
-            'modules':      SecureModuleImporter,
-            'member':       member,
-            'field': field,
-            'widget': self,
-            'mode': mode,
-            }
-        return getEngine().getContext(data)
-
-    security.declarePublic('isRendered')
-    def isRendered(self, object, field, mode):
-        """Decide if a field is rendered in a given mode
-
-        If an expression exist we compute it and return the value (True or False).
-        If not, we return the visibility associated value.
-        """
-        if getattr(self, 'rendered_if_expr', None):
-            __traceback_info__ = (self, object, field, mode, self.rendered_if_expr)
-            ec = self._createExprContext(object, field, mode)
-            computed = Expression(self.rendered_if_expr)(ec)
-            return computed
-
-        if hasattr(self, 'visibility'):
-            return self.visibility.get(mode, True)
-        else:
-            return True
-
-
-    security.declarePublic('renderingMode')
-    def getWidgetMode(self, object, field, mode):
-        """ return the rendering macro used by the widget
-
-        Default are 'view', 'edit' and 'search'.
-        New modes must starts with one of these.
-        """
-        # If migration doesn't work here we need to return the old mode style
-        if not hasattr(self, 'visibility'):
-            return mode
-
-        if mode not in self.visibility.keys():
-            raise KeyError, "%s is not a valid mode: %s" % (repr(mode), ', '.join(self.visibility.keys()))
-
-        if getattr(self, 'widget_mode_expr', None):
-            __traceback_info__ = (self, object, field, mode, self.widget_mode_expr)
-            ec = self._createExprContext(object, field, mode)
-            computed = Expression(self.widget_mode_expr)(ec)
-
-            if computed:
-                invalid_mode = True
-                for key in self.visibility.keys():
-                    if computed.startswith(key):
-                        invalid_mode = False
-                        break
-                if invalid_mode:
-                    raise KeyError, "Expression must return a valid mode. %s is not a valid mode: %s" % (repr(computed), ', '.join(self.visibility.keys()))
-
-                return computed
-
-        return mode
-
-    security.declarePublic('getCssClass')
-    def getCssClass(self, object, field, mode):
-        """Return CSS classes used on the main div field's tag
-
-        We don't allow empty class return.
-        """
-        if getattr(self, 'widget_mode_expr', None):
-            __traceback_info__ = (self, object, field, mode, self.css_class_expr)
-            ec = self._createExprContext(object, field, mode)
-            computed = Expression(self.css_class_expr)(ec)
-
-            if computed:
-                return computed
-
-        return 'field'
-
-    security.declarePublic('getJavascriptCode')
-    def getJavascriptCode(self, object, field, mode):
-        """Return the javascript code used on the main div field's tag
-        """
-        if getattr(self, 'widget_mode_expr', None):
-            __traceback_info__ = (self, object, field, mode, self.javascript_expr)
-            ec = self._createExprContext(object, field, mode)
-            computed = Expression(self.javascript_expr)(ec)
-            return computed
-
-        return ''
-
-    ##
-    ## Utilities method
-    ##
-
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -442,7 +300,7 @@ class ReferenceWidget(TypesWidget):
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:
-                        #XXX Might as well check for type, doing it everywhere else
+                        #TODO Might as well check for type, doing it everywhere else
                         value['destinations'].append(place)
 
             if value['destinations']:
@@ -466,12 +324,14 @@ class TextAreaWidget(TypesWidget):
         'cols'  : 40,
         'format': 0,
         'append_only': False,
+        'timestamp' : False,        
         'divider':"\n\n========================\n\n",
+        'maxlength' : False,
+        'helper_js': ('widgets/js/textcount.js',),        
         })
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -496,16 +356,22 @@ class TextAreaWidget(TypesWidget):
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
-        """ handle append_only  """
-        # SPANKY: It would be nice to add a datestamp too, if desired
-
+        """ handle append_only """
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None):
             if field.getEditAccessor(instance)():
                 if (value and not value.isspace()):
+                    
+                    divider = field.widget.divider
+                    
+                    # Add a datestamp along with divider if desired.
+                    if getattr(field.widget, 'timestamp', None):
+
+                        divider = "\n\n" + str(DateTime()) + divider
+                        
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
-                    value = value + field.widget.divider + \
+                    value = value + divider + \
                             field.getEditAccessor(instance)()
                 else:
                     # keep historical entries
@@ -594,7 +460,6 @@ class KeywordWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -625,7 +490,6 @@ class FileWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -665,7 +529,6 @@ class RichWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -728,7 +591,6 @@ class IdWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -745,7 +607,6 @@ class RequiredIdWidget(IdWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None):
         """Override IdWidget.process_form to require id."""
@@ -762,7 +623,6 @@ class ImageWidget(FileWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):

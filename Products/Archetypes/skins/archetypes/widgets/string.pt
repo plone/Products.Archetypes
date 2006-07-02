@@ -8,18 +8,24 @@
 
     <!-- String Widgets -->
     <metal:view_macro define-macro="view"
-                      tal:replace="structure accessor" />
+		      tal:replace="structure accessor" />
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-        <input metal:fill-slot="widget_body"
-               type="text" name="" value="" size="30" tabindex="#"
-               tal:attributes="name fieldName;
+	<input metal:fill-slot="widget_body"
+	       type="text"
+	       name=""
+	       id=""
+               value=""
+	       size="30"
+	       tabindex="#"
+	       tal:attributes="name fieldName;
+	       id fieldName;
                value value;
-               size widget/size;
-               maxlength widget/maxlength;
-               tabindex tabindex/next;"
-               />
+	       size widget/size;
+	       maxlength widget/maxlength;
+	       tabindex tabindex/next;"
+	       />
       </metal:use>
     </metal:define>
 

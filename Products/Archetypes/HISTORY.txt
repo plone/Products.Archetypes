@@ -1,6 +1,45 @@
 1.5.0 - unreleased
 ==================
 
+  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
+    directly as values instead to get the same behaviour.
+    [hannosch]
+
+  * Deprecated the generator.i18n module. We use the translate method of the
+    GlobalTranslationService directly for now, as long as we support
+    PlacelessTranslationService. Ultimately this should be replaced by calls
+    to 'from zope.i18n import translate'
+    [hannosch]
+
+  * Removed outdated message catalogs and changed the few remaining texts in the
+    'archetypes' domain to use the 'plone' domain instead. The translation
+    files can be found as usual as part of the PloneTranslations product.
+    [hannosch]
+
+  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
+    internationalization of labels and descriptions.
+    [hannosch]
+
+  * Optimized the basic widget for the new default case of labels and
+    descriptions as Messages. These are not translated automatically anymore
+    but this is delayed to be triggered by the time they are rendered in a TAL
+    context. This will ultimately safe quite some translation machinery hackery.
+    [hannosch]
+
+  * Modernized DisplayLists to use isinstance instead of type checking. Now
+    derived string types like Messages are allowed as keys and values as well.
+    [hannosch]
+
+  * Removed last bits of dependency version checks from __init__.py as well as
+    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
+    live site but only serve as code examples and are used during test runs.
+    [hannosch]
+
+  * Renamed sample_content profile to sample_types as it only includes types
+    but no content ;) This profile is not registered globally anymore but only
+    during test runs, as these types aren't meant to be used for anything else.
+    [hannosch]
+
   * Marked Base* as implementing their Z3 interfaces.
     [hannosch]
 

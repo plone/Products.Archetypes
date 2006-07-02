@@ -12,6 +12,7 @@ Those tests make sure that the catalog is only called as necessary.
   >>> from Products.Archetypes.utils import call_original as call
   >>> from Products.Archetypes.tests.attestcase import default_user
   >>> from Products.Archetypes.tests.atsitetestcase import portal_owner
+  >>> import transaction
 
   >>> self.setRoles(['Manager'])
   >>> _ = self.folder.invokeFactory(type_name='Folder', id='sub')
@@ -146,7 +147,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> transaction.savepoint(optimistic=True) and None
 
 Rename:
 
@@ -276,7 +277,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> transaction.savepoint(optimistic=True) and None
 
 Rename:
 
@@ -408,7 +409,7 @@ More complex invokeFactory call, setting title and description:
 Now hold your breath. We are going to rename,
 copy-and-paste and cut-and-paste.
 
-  >>> get_transaction().commit(1)
+  >>> transaction.savepoint(optimistic=True) and None
 
 Rename:
 

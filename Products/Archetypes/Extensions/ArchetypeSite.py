@@ -18,7 +18,7 @@ def doCustomization(self):
     out = StringIO()
 
     # Always include demo types
-    result = installArchetypes(self, include_demo=1)
+    result = installArchetypes(self)
     print >> out, result
 
     return out.getvalue()

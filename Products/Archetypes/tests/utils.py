@@ -27,7 +27,7 @@
 """
 
 import re
-from TAL import ndiff
+from zope.tal import ndiff
 from Globals import InitializeClass, package_home
 from UserDict import UserDict
 import ExtensionClass
@@ -50,6 +50,13 @@ except ImportError:
     ZOPE28 = False
 else:
     ZOPE28 = True
+
+try:
+    import OFS.subscribers
+except ImportError:
+    ZOPE29 = False
+else:
+    ZOPE29 = True
 
 
 def gen_class(klass, schema=None):
@@ -105,10 +112,6 @@ def start_http(address, port):
     import socket
 
     import Zope # Sigh, make product initialization happen
-    try:
-        Zope.startup()
-    except: # Zope > 2.6
-        pass
 
     from ZServer import setNumberOfThreads
     setNumberOfThreads(4)

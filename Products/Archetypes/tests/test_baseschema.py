@@ -37,10 +37,11 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 # need this to initialize new BU for tests
 from Products.Archetypes.tests.test_classgen import Dummy
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
 from Products.Archetypes.interfaces.layer import ILayerContainer
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore import permissions
 from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE
 from Products.Archetypes.ExtensibleMetadata import CEILING_DATE
 from Products.validation import ValidationChain
@@ -82,9 +83,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 0)
         self.failUnless(field.accessor == 'getId')
         self.failUnless(field.mutator == 'setId')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'veVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
@@ -111,9 +112,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 0)
         self.failUnless(field.accessor == 'Title')
         self.failUnless(field.mutator == 'setTitle')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'veVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
@@ -130,23 +131,26 @@ class BaseSchemaTest(ATSiteTestCase):
     def test_allowdiscussion(self):
         dummy = self._dummy
         field = dummy.getField('allowDiscussion')
+        
+        vocabulary=DisplayList((
+                ('None', _(u'label_discussion_default', default=u'Default')),
+                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
+                ('0', _(u'label_discussion_disabled', default=u'Disabled'))))
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
-        self.failUnless(field.vocabulary == DisplayList((('0', 'Disabled'),
-                                                         ('1', 'Enabled'),
-                                                         ('None', 'Default'))))
+        self.failUnless(field.vocabulary == vocabulary)
         self.failUnless(field.enforceVocabulary == 1)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'isDiscussable')
         self.failUnless(field.mutator == 'allowDiscussion')
         self.failUnless(field.edit_accessor == 'editIsDiscussable')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
@@ -156,9 +160,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
-        self.failUnless(vocab == DisplayList((('0', 'Disabled'),
-                                              ('1', 'Enabled'),
-                                              ('None', 'Default'))))
+        self.failUnless(field.vocabulary == vocabulary)
 
     def test_subject(self):
         dummy = self._dummy
@@ -175,9 +177,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'Subject')
         self.failUnless(field.mutator == 'setSubject')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'lines')
@@ -204,9 +206,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'Description')
         self.failUnless(field.mutator == 'setDescription')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'text')
@@ -233,9 +235,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'Contributors')
         self.failUnless(field.mutator == 'setContributors')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'lines')
@@ -262,9 +264,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.mutator == 'setEffectiveDate')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'datetime')
@@ -291,9 +293,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.mutator == 'setExpirationDate')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'datetime')
@@ -321,9 +323,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'Language')
         self.failUnless(field.mutator == 'setLanguage')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'string')
@@ -350,9 +352,9 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'Rights')
         self.failUnless(field.mutator == 'setRights')
-        self.failUnless(field.read_permission == CMFCorePermissions.View)
+        self.failUnless(field.read_permission == permissions.View)
         self.failUnless(field.write_permission ==
-                        CMFCorePermissions.ModifyPortalContent)
+                        permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
         self.failUnless(field.type == 'text')

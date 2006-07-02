@@ -34,10 +34,10 @@
   <metal:head fill-slot="top_slot">
     <tal:block define="macro edit_macros/topslot | nothing"
                     condition="macro">
-      <metal:block use-macro="macro" />
+	<metal:block use-macro="macro" />
     </tal:block>
   </metal:head>
-
+  
   <metal:javascript_head fill-slot="javascript_head_slot">
     <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
@@ -71,11 +71,10 @@
       <metal:block use-macro="macro" />
     </tal:block>
   </metal:css>
-
+    
   <body>
 
-    <metal:fill fill-slot="main"
-                tal:define="mode string:edit;">
+    <metal:fill fill-slot="main">
       <metal:main define-macro="main">
         <metal:use_header use-macro="header_macro" />
         <metal:use_typedescription use-macro="typedescription_macro" />

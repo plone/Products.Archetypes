@@ -36,12 +36,12 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 import types
+import transaction
 from Acquisition import aq_base
 
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 
-from Products.Archetypes import transaction
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.atsitetestcase import portal_owner
@@ -169,12 +169,6 @@ class PortalCopyTests(ATSiteTestCase):
     def test_copy_paste_sets_ownership(self):
         # Copy/pasting a File should set new ownership including local roles
         # borrowed from CMFCore tests
-
-        # BBB this test will fail with CMF 1.4 as CMF 1.4 does not set local
-        # roles on copy, so let's not bother
-        qi = self.portal.portal_quickinstaller
-        if 'CMF-1.4' in qi.getProductVersion('CMFCore'):
-            return
 
         # First, add two users to the user folder, a member and a manager
         # and create a member area for the member

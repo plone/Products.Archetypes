@@ -1,6 +1,7 @@
 import sys
 from Globals import InitializeClass
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
@@ -20,6 +21,8 @@ from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
@@ -55,11 +58,7 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from Products.Archetypes.interfaces import IBaseObject
 from zope.interface import implements
-
-from zope.event import notify
-from zope.app.event.objectevent import ObjectModifiedEvent
 
 _marker = []
 
@@ -110,13 +109,11 @@ content_type = Schema((
         mutator='setId',
         default=None,
         widget=IdWidget(
-            label='Short Name',
-            label_msgid='label_short_name',
-            description='Should not contain spaces, underscores or mixed case. '\
-                        'Short Name is part of the item\'s web address.',
-            description_msgid='help_shortname',
-            visible={'view' : 'invisible'},
-            i18n_domain='plone',
+            label=_(u'label_short_name', default=u'Short Name'),
+            description=_(u'help_shortname',
+                          default=u'Should not contain spaces, underscores or mixed case. '
+                                   'Short Name is part of the item\'s web address.'),
+            visible={'view' : 'invisible'}
         ),
     ),
 
@@ -158,8 +155,7 @@ class BaseObject(Referenceable):
     _at_rename_after_creation = False # rename object according to title?
 
     __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
-
-    implements(IBaseObject)
+    implements(IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -167,7 +163,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """Called by the generated addXXX factory in types tool.
+        """Called by the generated add* factory in types tool.
         """
         try:
             self.initializeLayers()
@@ -468,7 +464,6 @@ class BaseObject(Referenceable):
         if not initializing:
             # Avoid double indexing during initialization.
             self.reindexObject()
-	notify(ObjectModifiedEvent(self))
 
     security.declareProtected(permissions.ModifyPortalContent, 'edit')
     edit = update
@@ -654,7 +649,6 @@ class BaseObject(Referenceable):
             self.at_post_create_script()
         else:
             self.at_post_edit_script()
-	notify(ObjectModifiedEvent(self))
 
     # This method is only called once after object creation.
     security.declarePrivate('at_post_create_script')
@@ -706,11 +700,6 @@ class BaseObject(Referenceable):
         This id is used when automatically renaming an object after creation.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
-        if plone_tool is None or not shasattr(plone_tool, 'normalizeString'):
-            # Plone tool is not available or too old
-            # XXX log?
-            return None
-
         title = self.Title()
         if not title:
             # Can't work w/o a title
