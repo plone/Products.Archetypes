@@ -102,7 +102,7 @@ class WidgetTests(ATSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
-    def test_subject_keyword_widget(self):
+    def test_subject_keyword_widget2(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['selectionlinesfield3']
         widget = field.widget
@@ -150,69 +150,6 @@ class WidgetTests(ATSiteTestCase):
         expected = mystring + widget.divider + mystring, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
-
-    def test_appendtextarea_timestamp_widget(self):
-        """ This is a test I can write """
-        request = FakeRequest()
-        mystring = str('<<<<this is a test string>>>>')
-        
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
-        field = doc.Schema()['textarea_appendonly_timestamp']
-        widget = field.widget
-        
-        form = {'textarea_appendonly_timestamp':''}
-        result = widget.process_form(doc, field, form)
-        expected = '', {}
-        self.assertEqual(expected, result)
-        
-        form = {'textarea_appendonly_timestamp': mystring}
-        expected = mystring, {}
-        result = widget.process_form(doc, field, form)
-        self.assertEqual(expected, result)
-
-        doc.Schema()[field.getName()].set(doc, mystring)
-        form = {'textarea_appendonly_timestamp': mystring}
-        expectation = mystring + '\n\n' + str(DateTime()) + widget.divider + mystring, {}
-        results = widget.process_form(doc, field, form)
-        
-        # some magic (nightmares?) here for rectifying DateTime delay        
-        result = results[0].split('\n\n')
-        expected = expectation[0].split('\n\n')
-        
-        result[1] = result[1].split(' ')
-        expected[1] = expected[1].split(' ')
-        
-        result[1][1] = expected[1][1][:-3]
-        expected[1][1] = expected[1][1][:-3]
-        
-        self.assertEqual(expected, result)
-
-    def test_maxlength_textarea_widget(self):
-        """ Show me HOW to write this test and I will ~Spanky """
-        
-        request = FakeRequest()
-        mystring = str('The little black dog jumped over the sleeping Moose')
-        
-        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
-        field = doc.Schema()['textarea_maxlength']
-        widget = field.widget
-        
-        form = {'textarea_maxlength':''}
-        result = widget.process_form(doc, field, form)
-        expected = '', {}
-        self.assertEqual(expected, result)
-        
-        form = {'textarea_maxlength': mystring}
-        expected = mystring, {}
-        result = widget.process_form(doc, field, form)
-        self.assertEqual(expected, result)
-
-        doc.Schema()[field.getName()].set(doc, mystring)
-        form = {'textarea_maxlength': mystring}
-        expected = 'The little black dog', {}
-        result = widget.process_form(doc, field, form)
-        #self.assertEqual(expected, result)
-
 
     def test_rich_text_widget(self):
         request = FakeRequest()
