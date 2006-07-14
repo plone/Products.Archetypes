@@ -90,9 +90,6 @@ class TypesWidget(macrowidget, Base):
             state = 'invisible'
         elif vis_dic < 0:
             state = 'hidden'
-        #assert(state in ('visible', 'hidden', 'invisible',),
-        #      'Invalid view state %s' % state
-        #      )
         return state
 
     security.declarePublic('setCondition')

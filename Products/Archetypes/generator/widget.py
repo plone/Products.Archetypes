@@ -1,8 +1,7 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.unauthorized import Unauthorized
-from Acquisition import aq_base, aq_inner
+from Acquisition import aq_inner
 from Globals import InitializeClass
-from Products.Archetypes.debug import log, log_exc
 
 # BBB, this can be removed once we do not support PTS anymore
 from Products.PageTemplates.GlobalTranslationService \
@@ -75,6 +74,9 @@ class widget:
         if not value and not msgid:
             return ''
 
+        if isinstance(value, Message):
+            return value
+
         domain = (getattr(self, 'i18n_domain', None) or
                   getattr(instance, 'i18n_domain', None))
 
@@ -87,11 +89,6 @@ class widget:
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated."""
         value = getattr(self, 'label_method', None)
-        # Short circuit for the new default case
-        # If it is a Message we don't translate it but hand it back for later
-        # translation
-        if type(value) == Message:
-            return value
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
             # Label methods can be called with kwargs and should
@@ -103,11 +100,6 @@ class widget:
     def Description(self, instance, **kwargs):
         """Returns the description, possibly translated."""
         value = self.description
-        # Short circuit for the new default case
-        # If it is a Message we don't translate it but hand it back for later
-        # translation
-        if type(value) == Message:
-            return value
         method = value and getattr(aq_inner(instance), value, None)
         if method and callable(method):
             # Description methods can be called with kwargs and should
