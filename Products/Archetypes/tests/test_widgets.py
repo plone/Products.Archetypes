@@ -102,7 +102,7 @@ class WidgetTests(ATSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
-    def test_subject_keyword_widget(self):
+    def test_subject_keyword_widget2(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['selectionlinesfield3']
         widget = field.widget
