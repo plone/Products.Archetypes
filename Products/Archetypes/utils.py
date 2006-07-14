@@ -6,6 +6,7 @@ from time import time
 from inspect import getargs, getmro
 from md5 import md5
 from types import ClassType, MethodType
+from zope.i18nmessageid import Message
 from UserDict import UserDict as BaseDict
 
 from AccessControl import ClassSecurityInfo
@@ -650,6 +651,12 @@ class Vocabulary(DisplayList):
         if self._i18n_domain and self._instance:
             msg = self._i18n_msgids.get(key, None) or value
 
+            if isinstance(msg, Message):
+                return msg
+
+            if not msg:
+                return ''
+
             return getGTS().translate(self._i18n_domain, msg,
                                       context=self._instance, default=value)
         else:
@@ -941,7 +948,7 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     charset default changed to utf-8 for consistency with the rest of Archetypes.
     """
 
-    from email.Message import Message
+    from email.Message import Message as emailMessage
     from email import Utils
 
     for key, value in kw.items():
@@ -960,6 +967,6 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
         except UnicodeDecodeError:
             value = (charset, language, value)
 
-    m = Message()
+    m = emailMessage()
     m.add_header('content-disposition', disposition, **kw)
     return m['content-disposition']
