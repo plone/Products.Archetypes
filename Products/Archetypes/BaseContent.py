@@ -59,7 +59,10 @@ class BaseContentMixin(CatalogMultiplex,
         """OFS.CopySupport notify
         """
         BaseObject._notifyOfCopyTo(self, container, op=op)
-        PortalContent._notifyOfCopyTo(self, container, op=op)
+        # keep reference info internally when op == 1 (move)
+        # because in those cases we need to keep refs
+        if op==1:
+            self._v_cp_refs = 1
 
     security.declareProtected(permissions.ModifyPortalContent, 'PUT')
     PUT = WebDAVSupport.PUT

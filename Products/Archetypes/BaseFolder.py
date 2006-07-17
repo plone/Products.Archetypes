@@ -17,9 +17,7 @@ from Acquisition import aq_base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent  import PortalContent
-
 from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
-
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import getToolByName
 
@@ -75,7 +73,10 @@ class BaseFolderMixin(CatalogMultiplex,
         # it needs to be used in BaseBTreeFolder as well, it currently
         # is not.
         BaseObject._notifyOfCopyTo(self, container, op=op)
-        PortalFolder._notifyOfCopyTo(self, container, op=op)
+        # keep reference info internally when op == 1 (move)
+        # because in those cases we need to keep refs
+        if op==1:
+            self._v_cp_refs = 1
         for child in self.contentValues():
             if IReferenceable.providedBy(child):
                 child._notifyOfCopyTo(self, op)
@@ -83,27 +84,17 @@ class BaseFolderMixin(CatalogMultiplex,
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item, container)
         CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
         CatalogMultiplex.manage_afterClone(self, item)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
         CatalogMultiplex.manage_beforeDelete(self, item, container)
-        # We don't need to call PortalFolder's version because it delegates to
-        # CMFCatalogAware, just like CatalogMultiplex
-        #PortalFolder.manage_afterAdd(self, item, container)
-
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
