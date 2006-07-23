@@ -1,6 +1,10 @@
 1.5.0 - unreleased
 ==================
 
+  * Fix #585 by providing the right arguments for testCondition in
+    templates.
+    [nouri]
+
   * Added small optimizations for DisplayLists to not translate values of type
     Message by itself, added some tests.
     [hannosch]
