@@ -16,7 +16,7 @@
                     label_macro view_macros/label | label_macro | field_macros/label;
                     data_macro view_macros/data | data_macro | field_macros/data;
                     visState python:widget.isVisible(here, mode);
-                    visCondition python:field.widget.testCondition(context.getParentNode(), portal, context);">
+                    visCondition python:field.widget.testCondition(here, portal, template);">
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <tal:if_perm
@@ -65,7 +65,7 @@
                     getMethod python:(widget.populate and (edit_accessor or accessor)) or None;
                     value python:getMethod and getMethod();
                     value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
-                    visCondition python:field.widget.testCondition(context.getParentNode(), portal, context);
+                    visCondition python:field.widget.testCondition(here, portal, template);
                     error_id python:errors.get(fieldName)">
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
