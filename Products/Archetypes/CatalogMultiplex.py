@@ -1,12 +1,13 @@
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent
+from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
+from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
 
 
 class CatalogMultiplex(CMFCatalogAware):
@@ -15,20 +16,26 @@ class CatalogMultiplex(CMFCatalogAware):
     def __url(self):
         return '/'.join( self.getPhysicalPath() )
 
-    security.declareProtected(ModifyPortalContent, 'indexObject')
-    def indexObject(self):
+    def getCatalogs(self):
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
-            return
-        catalogs = at.getCatalogsByType(self.meta_type)
+            return []
+
+        if CATALOGMAP_USES_PORTALTYPE:
+            return at.getCatalogsByType(self.portal_type)
+        else:
+            return at.getCatalogsByType(self.meta_type)
+
+    security.declareProtected(ModifyPortalContent, 'indexObject')
+    def indexObject(self):
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
-        at = getToolByName(self, TOOL_NAME)
-        catalogs = at.getCatalogsByType(self.meta_type)
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             c.uncatalog_object(url)
@@ -88,11 +95,10 @@ class CatalogMultiplex(CMFCatalogAware):
 
         self.http__refreshEtag()
 
-        at = getToolByName(self, TOOL_NAME, None)
-        if at is None:
+        catalogs = self.getCatalogs()
+        if not catalogs:
             return
 
-        catalogs = at.getCatalogsByType(self.meta_type)
         url = self.__url()
 
         for c in catalogs:
