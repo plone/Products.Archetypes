@@ -44,7 +44,7 @@
 		            	value="" 
 		            	tabindex="-1" 
 		            	tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
-				 			 inputsize python:len(maxlength)"
+				 			 inputsize string:4"
 		            	tal:attributes="name string:textCounter_${fieldName};
 		            		value remaining;
 		            		maxlength inputsize;
