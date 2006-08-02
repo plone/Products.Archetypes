@@ -8,7 +8,6 @@
 
     <!-- String Widgets -->
     <metal:view_macro define-macro="view">
-      <tal:block tal:replace="field_macro|nothing" />
       <metal:use use-macro="field_macro | here/widgets/field/macros/view">
         <metal:fill fill-slot="widget_body">
           <tal:block tal:replace="structure accessor" />
