@@ -10,7 +10,13 @@
 
     <!-- TextArea Widgets -->
 
-    <metal:view_macro define-macro="view" tal:replace="structure accessor" />
+    <metal:view_macro define-macro="view">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/view">
+        <metal:fill fill-slot="widget_body">
+          <tal:block tal:replace="structure accessor" />
+        </metal:fill>
+      </metal:use>
+    </metal:view_macro>
 
     <metal:define define-macro="area_edit">
       <tal:define
@@ -19,9 +25,7 @@
                   content python: not not base and value.getRaw() or value;
                   content python: not binary and content or '';
                   content_length python:len(content);
-                  append_only python: getattr(widget, 'append_only', None);
-                  maxlength python: getattr(widget, 'maxlength', None);
-                  keypress string:textCounter(this, this.form.textCounter_${fieldName}, ${maxlength});">
+                  append_only python: getattr(widget, 'append_only', None);">
 
         <textarea
             tabindex="#"
@@ -29,29 +33,9 @@
                             id fieldName;
                             cols widget/cols;
                             rows widget/rows;
-                            tabindex tabindex/next;
-                            onkeydown python:test(maxlength, keypress, None);
-                            onkeyup python:test(maxlength, keypress, None);"
+                            tabindex tabindex/next;"
             tal:define="content python:not append_only and content or '';"
             tal:content="content">content</textarea>
-
-			<div tal:condition="maxlength">
-		        <input readonly 
-		        		type="text" 
-		            	name="" 
-		           		maxlength="4" 
-		            	size="4" 
-		            	value="" 
-		            	tabindex="-1" 
-		            	tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
-				 			 inputsize python:len(maxlength)"
-		            	tal:attributes="name string:textCounter_${fieldName};
-		            		value remaining;
-		            		maxlength inputsize;
-		            		size inputsize;
-		            		id string:maxlength_${fieldName};" /> 
-		            	<span i18n:translate="characters_remaining">characters remaining</span>
-	        </div>
 
             <fieldset tal:condition="append_only">
               <legend i18n:translate=""
@@ -125,9 +109,7 @@
     <metal:define define-macro="search">
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
-
           <metal:block use-macro="here/widgets/textarea/macros/area_edit" />
-
         </metal:fill>
       </metal:use>
     </metal:define>

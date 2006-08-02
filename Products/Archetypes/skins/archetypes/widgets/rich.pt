@@ -10,8 +10,13 @@
 
     <metal:view_macro define-macro="view"
                       tal:define="transformable python: here.isTransformable(fieldName);">
-      <span tal:condition="transformable"
-            tal:replace="structure accessor"/>
+      <span tal:condition="transformable">
+        <metal:use use-macro="field_macro | here/widgets/field/macros/view">
+          <metal:fill fill-slot="widget_body">
+            <tal:block tal:replace="structure accessor" />
+          </metal:fill>
+        </metal:use>
+      </span>
 <tal:comment replace="nothing">
 Commented out the View/Edit links for ordinary display - feel free to
 enable these in your site, but they should definitely not be there by
