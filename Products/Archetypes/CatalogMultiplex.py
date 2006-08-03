@@ -68,12 +68,13 @@ class CatalogMultiplex(CMFCatalogAware):
                 # Recatalog with the same catalog uid.
                 try:
                     indexes=self._cmf_security_indexes
+                    catalog.reindexObject(ob, idxs=indexes, update_metadata=0,
+                                            uid=brain_path)
                 except AttributeError:
                     # BBB: CMF 1.4
                     indexes=['allowedRolesAndUsers']
+                    catalog.reindexObject(ob, idxs=indexes)
 
-                catalog.reindexObject(ob, idxs=indexes, update_metadata=0,
-                                        uid=brain_path)
 
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
