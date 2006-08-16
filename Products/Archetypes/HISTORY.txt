@@ -1,6 +1,11 @@
 1.4.1-beta1 - ?
 ===============
 
+  * Make all WebDAV request types return NullResources on failure, not just PUT
+    and MKCOL.  This fixes a test failure resulting from some Zope traversal
+    machinery tweaks.  Thanks to sidnei for webdav guidance.
+    [alecm]
+
   * Safari uses HTTP_ACCEPT=='*/*', which meant that the image widget never
     rendered an image due to some faulty boolean logic.
     [alecm]
