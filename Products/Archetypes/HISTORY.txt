@@ -1,6 +1,9 @@
 1.4.1-beta1 - ?
 ===============
 
+  * Fixed simple xhtml non-compliance and some erroneous i18n markup.
+    [hannosch]
+
   * Make all WebDAV request types return NullResources on failure, not just PUT
     and MKCOL.  This fixes a test failure resulting from some Zope traversal
     machinery tweaks.  Thanks to sidnei for webdav guidance.
