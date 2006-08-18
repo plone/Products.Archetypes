@@ -139,7 +139,13 @@ class UIDResolver(Base):
         the default brains.getObject model and allows and fakes the
         ZCatalog protocol for traversal
         """
+        parts = path.split('/')
+        # XXX REF_PREFIX is undefined
+        #if parts[-1].find(REF_PREFIX) == 0:
+        #    path = '/'.join(parts[:-1])
+
         portal_object = self.portal_url.getPortalObject()
+
         try:
             return portal_object.unrestrictedTraverse(path)
         except (KeyError, AttributeError, NotFound):

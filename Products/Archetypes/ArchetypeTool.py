@@ -8,7 +8,6 @@ from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
-from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -759,6 +758,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 return t
         return None
 
+    # XXX unusable because nothing is writing to _schemas
+    #security.declareProtected(permissions.View,
+    #                          'getSchema')
+    #def getSchema(self, sid):
+    #    return self._schemas[sid]
+
     security.declareProtected(permissions.ManagePortal,
                               'manage_installType')
     def manage_installType(self, typeName, package=None,
@@ -830,8 +835,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             for t in self.listTypes(package, type):
                 instance = t('fake_instance')
                 instance._at_is_fake_instance = True
+                # XXX _is_fake_instance will go away in AT 1.4
+                instance._is_fake_instance = True
                 wrapped = instance.__of__(context)
                 wrapped.initializeArchetype()
+                #if isinstance(wrapped, DefaultDublinCoreImpl):
+                #    DefaultDublinCoreImpl.__init__(wrapped)
                 instances.append(wrapped)
         for instance in instances:
             if schemata is not None:
@@ -862,7 +871,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([('', _(u'at_search_any', default=u'<any>'))]) + \
+                        field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
                                            field.vocabulary
                     widget.populate = False
                     field_name = field.accessor

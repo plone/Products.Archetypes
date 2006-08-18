@@ -27,6 +27,8 @@ except ImportError:
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
 
+import transaction
+
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
 from PloneCompat import IndexIterator
@@ -34,12 +36,6 @@ allow_class(IndexIterator)
 
 from PloneCompat import transaction_note
 ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
-
-# Import "PloneMessageFactory as _" to create messages in plone domain
-# duplicated here so we don't add a dependency on CMFPlone
-from zope.i18nmessageid import MessageFactory
-PloneMessageFactory = MessageFactory('plone')
-ModuleSecurityInfo('Products.Archetypes').declarePublic('PloneMessageFactory')
 
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
@@ -58,6 +54,20 @@ from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
      process_types, listTypes, fixAfterRenameType
 ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
+
+
+###
+# Test dependencies
+###
+# XXX: Check if we need these imports here, after version checks are removed
+this_module = sys.modules[__name__]
+import Products.MimetypesRegistry
+import Products.PortalTransforms
+import Products.validation
+
+###
+# Tools
+###
 
 tools = (
     ArchetypeTool,
@@ -102,3 +112,12 @@ def initialize(context):
                 'Archetypes',
                 EXTENSION,
                 for_=IPloneSiteRoot)
+
+        profile_registry.registerProfile('Archetypes_samplecontent',
+                'Archetypes Sample Content Types',
+                'Extension profile including Archetypes sample content types',
+                'profiles/sample_content',
+                'Archetypes',
+                EXTENSION,
+                for_=IPloneSiteRoot)
+

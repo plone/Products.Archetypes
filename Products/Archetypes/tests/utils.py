@@ -27,7 +27,7 @@
 """
 
 import re
-from zope.tal import ndiff
+from TAL import ndiff
 from Globals import InitializeClass, package_home
 from UserDict import UserDict
 import ExtensionClass

@@ -1253,6 +1253,8 @@ can with an INSERT, we should have our trigger call Zope not just as
 `DO INSTEAD` but `DO`, so the Zope deletion happens and the normal
 PostgreSQL deletion happens.  When the Zope deletion tries ...
 
+XXX FIXME XXX
+
 
 Inserting a Child Record
 ++++++++++++++++++++++++
@@ -1518,9 +1520,9 @@ unmarshaller.  These are the routines that Archetypes will run on a
 value before it tries to write them to the database, and after it
 retrieves the value from the database.
 
-There are hooks in Archetypes for this: any function called map_*
-is called when storing field type * and a method called
-unmap_* is called when retrieving field type *.
+There are hooks in Archetypes for this: any function called *map_XXX*
+is called when storing field type *XXX* and a method called
+*unmap_XXX* is called when retrieving field type *XXX*.
 
 Our mapping will convert this list back to a newline-separated string,
 and this is the format it will be given to our relational database
@@ -2190,8 +2192,8 @@ a different schema path. Then, depending on which database adapter I
 used, I could see different results.
 
 Or, even more interesting, we can ask PostgreSQL to change our schema
-path for us by executing the SQL command `SET search_path=foo`, where
-foo is our new, comma-separated search path. If we set our search
+path for us by executing the SQL command `SET search_path=XXX`, where
+*XXX* is our new, comma-separated search path. If we set our search
 path differently, we could get different results. Useful ideas would
 be to have the search path set differently based on who the logged in
 user was, or what her or his roles were, etc.

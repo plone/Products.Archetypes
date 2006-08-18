@@ -7,6 +7,10 @@
 
   <include package=".exportimport" />
 
+  <five:traversable
+      class=".atapi.BaseObject"
+      />
+
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
 

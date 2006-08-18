@@ -40,6 +40,44 @@ class CatalogMultiplex(CMFCatalogAware):
         for c in catalogs:
             c.uncatalog_object(url)
 
+    security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
+    def reindexObjectSecurity(self, skip_self=False):
+        """update security information in all registered catalogs.
+        """
+        at = getToolByName(self, TOOL_NAME, None)
+        if at is None:
+            return
+
+        catalogs = [c for c in at.getCatalogsByType(self.meta_type)
+                                if c is not None]
+        path = '/'.join(self.getPhysicalPath())
+
+        for catalog in catalogs:
+            for brain in catalog.unrestrictedSearchResults(path=path):
+                brain_path = brain.getPath()
+                if brain_path == path and skip_self:
+                    continue
+
+                # Get the object
+                if hasattr(aq_base(brain), '_unrestrictedGetObject'):
+                    ob = brain._unrestrictedGetObject()
+                else:
+                    # BBB: Zope 2.7
+                    ob = self.unrestrictedTraverse(brain_path, None)
+                if ob is None:
+                    # BBB: Ignore old references to deleted objects.
+                    # Can happen only in Zope 2.7, or when using
+                    # catalog-getObject-raises off in Zope 2.8
+                    LOG('reindexObjectSecurity', PROBLEM,
+                            "Cannot get %s from catalog" % brain_path)
+                    continue
+
+                # Recatalog with the same catalog uid.
+                catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
+                                        update_metadata=0, uid=brain_path)
+
+
+
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
         """update indexes of this object in all registered catalogs.
