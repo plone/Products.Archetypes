@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -48,7 +49,7 @@ DOCTEST_MODULES = (
 
 DOCTEST_FILES = ()
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase, ATSiteLayer
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
 def test_suite():
@@ -60,7 +61,6 @@ def test_suite():
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATSiteTestCase)
                      )
-    suite.layer = ATSiteLayer 
     return suite
 
 if __name__ == '__main__':

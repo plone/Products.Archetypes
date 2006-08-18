@@ -56,11 +56,12 @@ using the following combination:
 
 - Plone 2.x
 
-- CMF 1.4.x
+- CMF 1.x
 
-You should install the *PortalTransforms*, *MimetypeRegistry*, *validation* 
-and *generator* packages available in the archetypes repository (see above) 
-before installing Archetypes itself. 
+You should install the *PortalTransforms*, *MimetypeRegistry* and *validation* 
+packages available in the archetypes repository (see above) before installing
+Archetypes itself.
+ 
 The easiest way to get all the necessary packages is to download the tarball 
 made available upon release or check out the *bundle* from the repository to 
 fetch the latest development release. For example, this is tarball containing 
@@ -73,8 +74,7 @@ Using the tarball
 
 2. Decompress it --- it should contain the following directories::
 
-    Archetypes  generator  MimetypesRegistry  PortalTransforms
-    validation
+    Archetypes  MimetypesRegistry  PortalTransforms  validation
 
 3. Copy these into the ``Products`` directory of your Zope installation.
 
@@ -324,7 +324,6 @@ BaseValidators
 inNumericRange
   The argument must be numeric. The validator should be called with the
   minimum and maximum values as second and third arguments. 
-  XXX: example in practice?
 
 isDecimal
   The argument must be decimal, may be positive or
@@ -375,7 +374,6 @@ isEmpty
 isEmptyNoError
   ``isEmpty`` fails with an error message, but ``isEmptyNoError`` just
   fails.
-  XXX: illustrative use case?
 
 
 SupplValidators
@@ -466,14 +464,8 @@ description
   Some documentation for this field. It's rendered as a ``div`` with the
   CSS class ``formHelp``.
 
-description_msgid
-  i18n id for the description.
-
 label
   Is used as the label for the field when rendering the form.
-
-label_msgid
-  i18n id for the label.
 
 visible
   Defaults to ``{'edit':'visible', 'view':'visible'}``, which signifies
@@ -590,7 +582,6 @@ Additional notes about Factory Type Information
   actions **extend** or **replace** any existing actions for your type.
   If you want to delete or rearange actions, you need to manipulate
   ``fti['actions']`` in the ``modify_fti`` method of your module. 
-  XXX: When is ArchetypeTool.fixActionsForType used?
 
   This means that if you want custom views or something you only need to
   say something like::

@@ -203,7 +203,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
     try:
         addDirectoryViews(skinstool, product_skins_dir, globals)
     except BadRequestException, e:
-        # XXX: find a better way to do this, but that seems not feasible
+        # TODO: find a better way to do this, but that seems not feasible
         #      until Zope stops using string exceptions
         if str(e).endswith(' is reserved.'):
             # trying to use a reserved identifier, let the user know

@@ -554,28 +554,26 @@ class BaseReferenceableTests(ATSiteTestCase):
         field.multiValued = 0
 
         expected = DisplayList([
-            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
+            ('', u'label_no_reference'),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
 
         field = field.copy()
         field.vocabulary_display_path_bound = 1
         expected = DisplayList([
-            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
+            ('', u'label_no_reference'),
             ])
         self.failIfEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
-
-
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference

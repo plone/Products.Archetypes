@@ -1,6 +1,7 @@
 import string
-from logging import DEBUG
+from logging import INFO, DEBUG
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema
@@ -24,12 +25,6 @@ from ComputedAttribute import ComputedAttribute
 
 _marker=[]
 
-try:
-    True
-except NameError:
-    True=1
-    False=0
-
 FLOOR_DATE = DateTime(1000, 0) # always effective
 CEILING_DATE = DateTime(2500, 0) # never expires
 
@@ -37,8 +32,6 @@ CEILING_DATE = DateTime(2500, 0) # never expires
 class ExtensibleMetadata(Persistence.Persistent):
     """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
     """
-
-
     # XXX This is not completely true. We need to review this later
     # and make sure it is true.
     # Just so you know, the problem here is that Title
@@ -58,15 +51,14 @@ class ExtensibleMetadata(Persistence.Persistent):
             default=None,
             enforceVocabulary=1,
             vocabulary=DisplayList((
-        ('None', 'Default', 'label_discussion_default'),
-        ('1',    'Enabled', 'label_discussion_enabled'),
-        ('0',    'Disabled', 'label_discussion_disabled'),
-        )),
+                ('None', _(u'label_discussion_default', default=u'Default')),
+                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
+                ('0', _(u'label_discussion_disabled', default=u'Disabled')),
+                )),
             widget=SelectionWidget(
-                label="Allow Discussion on this item",
-                label_msgid="label_allow_discussion",
-                description_msgid="help_allow_discussion",
-                i18n_domain="plone"),
+                label=_(u'label_allow_discussion',
+                        default=u'Allow Discussion on this item')
+                ),
         ),
         LinesField(
             'subject',
@@ -74,10 +66,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Subject",
             searchable=True,
             widget=KeywordWidget(
-                label="Keywords",
-                label_msgid="label_keywords",
-                description_msgid="help_keyword",
-                i18n_domain="plone"),
+                label=_(u'label_keywords', default=u'Keywords')
+                ),
         ),
         TextField(
             'description',
@@ -85,64 +75,56 @@ class ExtensibleMetadata(Persistence.Persistent):
             searchable=1,
             accessor="Description",
             widget=TextAreaWidget(
-                label='Description',
-                description="A short summary of the content",
-                label_msgid="label_description",
-                description_msgid="help_description",
-                i18n_domain="plone"),
+                label=_(u'label_description', default=u'Description'),
+                description=_(u'help_description',
+                              default=u'A short summary of the content'),
+                ),
         ),
         LinesField(
             'contributors',
             accessor="Contributors",
             widget=LinesWidget(
-                label='Contributors',
-                label_msgid="label_contributors",
-                description="The names of people that have contributed to this "
-                            "item. Each contributor should be on a separate "
-                            "line.",
-                description_msgid="help_contributors",
-                i18n_domain="plone"),
+                label=_(u'label_contributors', u'Contributors'),
+                description=_(u'help_contributors',
+                              default=u"The names of people that have contributed "
+                                       "to this item. Each contributor should "
+                                       "be on a separate line."),
+                ),
         ),
         LinesField(
             'creators',
             accessor="Creators",
             widget=LinesWidget(
-                label='Creators',
-                label_msgid="label_creators",
-                rows = 3,
-                description="Persons responsible for creating the content of  "
-                            "this item. Please enter a list of user names, one "
-                            "per line. The principal creator should come first.",
-                description_msgid="help_creators",
-                i18n_domain="plone"),
+                label=_(u'label_creators', u'Creators'),
+                description=_(u'help_creators',
+                              default=u"Persons responsible for creating the content of  "
+                                       "this item. Please enter a list of user names, one "
+                                       "per line. The principal creator should come first."),
+                rows = 3
+                ),
         ),
         DateTimeField(
             'effectiveDate',
             mutator='setEffectiveDate',
             languageIndependent = True,
-            #default=FLOOR_DATE,
             widget=CalendarWidget(
-                label="Effective Date",
-                description=("Date when the content should become available "
-                             "on the public site"),
-                label_msgid="label_effective_date",
-                description_msgid="help_effective_date",
-                i18n_domain="plone"),
+                label=_(u'label_effective_date', u'Effective Date'),
+                description=_(u'help_effective_date',
+                              default=u"Date when the content should become "
+                                       "available on the public site"),
+                ),
         ),
         DateTimeField(
             'expirationDate',
             mutator='setExpirationDate',
             languageIndependent = True,
-            #default=CEILING_DATE,
             widget=CalendarWidget(
-                label="Expiration Date",
-                description=("Date when the content should no longer be "
-                             "visible on the public site"),
-                label_msgid="label_expiration_date",
-                description_msgid="help_expiration_date",
-                i18n_domain="plone"),
+                label=_(u'label_expiration_date', u'Expiration Date'),
+                description=_(u'help_expiration_date',
+                              default=u"Date when the content should no longer "
+                                       "be visible on the public site"),
+                ),
         ),
-
         StringField(
             'language',
             accessor="Language",
@@ -157,20 +139,17 @@ class ExtensibleMetadata(Persistence.Persistent):
             default_method ='defaultLanguage',
             vocabulary='languages',
             widget=SelectionWidget(
-                label='Language',
-                label_msgid="label_language",
-                description_msgid="help_language",
-                i18n_domain="plone"),
+                label=_(u'label_language', default=u'Language'),
+                ),
         ),
         TextField(
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
-                label='Copyrights',
-                description="The copyrights on this item.",
-                label_msgid="label_copyrights",
-                description_msgid="help_copyrights",
-                i18n_domain="plone")),
+                label=_(u'label_copyrights', default=u'Copyrights'),
+                description=_(u'help_copyrights',
+                              default=u'The copyrights on this item.'),
+                )),
         )) + Schema((
         # XXX change this to MetadataSchema in AT 1.4
         # Currently we want to stay backward compatible without migration
@@ -186,11 +165,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             generateMode='mVc',
             widget=CalendarWidget(
-                label="Creation Date",
-                description=("Date this object was created"),
-                label_msgid="label_creation_date",
-                description_msgid="help_creation_date",
-                i18n_domain="plone",
+                label=_(u'label_creation_date', default=u'Creation Date'),
+                description=_(u'help_creation_date',
+                              default=u'Date this object was created'),
                 visible={'edit':'invisible', 'view':'invisible'}),
         ),
         DateTimeField(
@@ -203,24 +180,23 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             generateMode='mVc',
             widget=CalendarWidget(
-                label="Modification Date",
-                description=("Date this content was modified last"),
-                label_msgid="label_modification_date",
-                description_msgid="help_modification_date",
-                i18n_domain="plone",
+                label=_(u'label_modification_date',
+                        default=u'Modification Date'),
+                description=_(u'help_modification_date',
+                              default=u'Date this content was modified last'),
                 visible={'edit':'invisible', 'view':'invisible'}),
         ),
         ))
 
     def __init__(self):
         pass
-        #self.setCreationDate(None)
-        #self.setModificationDate(None)
 
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
         """Retrieve the default language"""
-        # XXX This method is kept around for backward compatibility only
+        # This method is kept around for backward compatibility only
+        log('defaultLanguage is deprecated and will be removed in AT 1.6',
+            level=INFO)
         return config.LANGUAGE_DEFAULT
 
     security.declareProtected(permissions.View, 'isDiscussable')
@@ -306,7 +282,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Dublin Core element - date resource created.
         """
         creation = self.getField('creation_date').get(self)
-        # XXX return unknown if never set properly
+        # return unknown if never set properly
         return creation is None and 'Unknown' or creation.ISO()
 
     security.declarePublic( permissions.View, 'EffectiveDate')
@@ -314,7 +290,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Dublin Core element - date resource becomes effective.
         """
         effective = self.getField('effectiveDate').get(self)
-        # XXX None? FLOOR_DATE
         return effective is None and 'None' or effective.ISO()
 
     def _effective_date(self):
@@ -331,7 +306,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         """Dublin Core element - date resource expires.
         """
         expires = self.getField('expirationDate').get(self)
-        # XXX None? CEILING_DATE
         return expires is None and 'None' or expires.ISO()
 
     def _expiration_date(self):
@@ -388,7 +362,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     def contentExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
-            # XXX we need some unittesting for this
             date = DateTime()
         expires = self.getField('expirationDate').get(self)
         if not expires:
@@ -412,7 +385,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         returned as DateTime.
         """
         modified = self.getField('modification_date').get(self)
-        # XXX may return None
+        # TODO may return None
         return modified
 
     security.declareProtected(permissions.View, 'effective')
@@ -458,7 +431,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         Take appropriate action after the resource has been modified.
         For now, change the modification_date.
         """
-        # XXX This could also store the id of the user doing modifications.
         self.setModificationDate(DateTime())
         if shasattr(self, 'http__refreshEtag'):
             self.http__refreshEtag()

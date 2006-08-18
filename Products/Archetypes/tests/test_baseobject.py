@@ -34,10 +34,9 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-
-from types import StringType
 
 class DummyDiscussionTool:
     def isDiscussionAllowedFor( self, content ):
@@ -47,12 +46,11 @@ class DummyDiscussionTool:
 
 MULTIPLEFIELD_LIST = DisplayList(
     (
-    ('1', 'Option 1 : printemps'),
-    ('2', 'Option 2 : été'),
-    ('3', 'Option 3 : automne'),
-    ('4', 'Option 3 : hiver'),
+    ('1', _(u'Option 1 : printemps')),
+    ('2', unicode('Option 2 : Ã©tÃ©', 'utf-8')),
+    ('3', u'Option 3 : automne'),
+    ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
-
 
 schema = BaseSchema + Schema((
     LinesField(
@@ -63,15 +61,14 @@ schema = BaseSchema + Schema((
             i18n_domain = 'plone',
             ),
         ), 
-            ))
-
+))
 
 class Dummy(BaseContent):
    
     portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
-         return 'iso-8859-1'
+         return 'utf-8'
          
 class BaseObjectTest(ATSiteTestCase):
 
@@ -85,21 +82,21 @@ class BaseObjectTest(ATSiteTestCase):
         Fix bug [ 951955 ] BaseObject/SearchableText and list of Unicode stuffs
         """
         dummy = self._dummy
-        
-        
+
         # Set a multiple field
         dummy.setMULTIPLEFIELD(['1','2'])
-        
-        # Get searchableText
         searchable = dummy.SearchableText()
-        
-        # Test searchable type
-        self.assertEquals(type(searchable), StringType)
-        
-        # Test searchable value
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+
+        self.failUnless(isinstance(searchable, basestring))
+        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : Ã©tÃ©')
+
+        dummy.setMULTIPLEFIELD(['3','4'])
+        searchable = dummy.SearchableText()
+
+        self.assertEquals(searchable, '3 4 Option 3 : automne option3')
+
     def test_searchableTextUsesIndexMethod(self):
-        """See https://dev.plone.org/archetypes/ticket/645
+        """See http://dev.plone.org/archetypes/ticket/645
 
         We want SearchableText to use the ``index_method`` attribute
         of fields to determine which is the accessor it should use
