@@ -1,0 +1,12 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:five="http://namespaces.zope.org/five"
+   >
+
+  <adapter
+      factory=".archetypetool.ArchetypeToolXMLAdapter"
+      provides="Products.GenericSetup.interfaces.IBody"
+      for="Products.Archetypes.interfaces.IArchetypeTool
+           Products.GenericSetup.interfaces.ISetupEnviron"
+      />
+</configure>

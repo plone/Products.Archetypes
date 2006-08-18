@@ -1,0 +1,8 @@
+.field td {
+ vertical-align: top;
+ padding: 0.25em;
+}
+
+.field label {
+ white-space: nowrap;
+}
