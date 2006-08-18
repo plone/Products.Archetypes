@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -360,6 +359,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 def test_suite():
     from unittest import TestSuite, makeSuite
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+    from atsitetestcase import ATSiteLayer
     suite = TestSuite()
     suite.addTest(makeSuite(TestFunctionalObjectCreation))
     files = (
@@ -374,6 +374,7 @@ def test_suite():
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
                      )
+    suite.layer = ATSiteLayer
     return suite
 
 if __name__ == '__main__':
