@@ -39,7 +39,7 @@ from Products.Archetypes.tests.test_classgen import Dummy
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.CMFCore import permissions
 from Products.Archetypes.ExtensibleMetadata import FLOOR_DATE
@@ -308,13 +308,13 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(tuple(vocab) == ())
 
     def test_language(self):
-        default=LANGUAGE_DEFAULT
+        default=u''
         dummy = self._dummy
         field = dummy.getField('language')
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
-        self.failUnless(field.default == LANGUAGE_DEFAULT)
+        self.failUnless(field.default == default)
         self.failUnless(field.searchable == 0)
         vocab = field.vocabulary
         self.failUnless(vocab == 'languages')

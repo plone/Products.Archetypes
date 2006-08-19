@@ -44,9 +44,7 @@ from Products.Archetypes.tests.test_classgen import schema
 from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes import config
 from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
@@ -233,7 +231,7 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
         self.folder.invokeFactory(id="dummy",
                                   type_name="SimpleType")
         dummy = getattr(self.folder, 'dummy')
-        self.failUnlessEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
+        self.failUnlessEqual(dummy.Language(), u'')
 
 
 class ExtMetadataSetFormatTest(ATSiteTestCase):
