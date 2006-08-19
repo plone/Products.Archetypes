@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -35,6 +34,7 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+from Testing.ZopeTestCase import setAllLayers
 import unittest
 
 # a list of dotted paths to modules which contains doc tests
@@ -49,7 +49,7 @@ DOCTEST_MODULES = (
 
 DOCTEST_FILES = ()
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase, ATSiteLayer
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
 def test_suite():
@@ -61,7 +61,7 @@ def test_suite():
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATSiteTestCase)
                      )
-    return suite
+    return setAllLayers(suite, ATSiteLayer)
 
 if __name__ == '__main__':
     framework()
