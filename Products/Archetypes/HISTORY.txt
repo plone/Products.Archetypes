@@ -1,94 +1,31 @@
-1.5.0 - unreleased
-==================
-
-  * Fix #585 by providing the right arguments for testCondition in
-    templates.
-    [nouri]
-
-  * Added small optimizations for DisplayLists to not translate values of type
-    Message by itself, added some tests.
-    [hannosch]
-
-  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
-    directly as values instead to get the same behaviour.
-    [hannosch]
-
-  * Deprecated the generator.i18n module. We use the translate method of the
-    GlobalTranslationService directly for now, as long as we support
-    PlacelessTranslationService. Ultimately this should be replaced by calls
-    to 'from zope.i18n import translate'
-    [hannosch]
-
-  * Removed outdated message catalogs and changed the few remaining texts in the
-    'archetypes' domain to use the 'plone' domain instead. The translation
-    files can be found as usual as part of the PloneTranslations product.
-    [hannosch]
-
-  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
-    internationalization of labels and descriptions.
-    [hannosch]
-
-  * Optimized the basic widget for the new default case of labels and
-    descriptions as Messages. These are not translated automatically anymore
-    but this is delayed to be triggered by the time they are rendered in a TAL
-    context. This will ultimately safe quite some translation machinery hackery.
-    [hannosch]
-
-  * Modernized DisplayLists to use isinstance instead of type checking. Now
-    derived string types like Messages are allowed as keys and values as well.
-    [hannosch]
-
-  * Removed last bits of dependency version checks from __init__.py as well as
-    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
-    live site but only serve as code examples and are used during test runs.
-    [hannosch]
-
-  * Renamed sample_content profile to sample_types as it only includes types
-    but no content ;) This profile is not registered globally anymore but only
-    during test runs, as these types aren't meant to be used for anything else.
-    [hannosch]
-
-  * Marked Base* as implementing their Z3 interfaces.
-    [hannosch]
-
-  * Based tests on PloneTestCase with extension profile support for site setup.
-    [hannosch]
-
-  * Added (Default) alias to base_view to all sample types, so calling them will
-    still work in CMF >= 2.0.
-    [hannosch]
-
-  * Removed deprecated spec argument from listFolderContents and
-    folderlistingFolderContents of BaseFolderMixin.
-    [hannosch]
-
-  * Changed import of TAL.ndiff to zope.tal.ndiff.
-    [hannosch]
-
-  * Cleaned up XXX comments, converted non-critical ones to TODO.
-    [hannosch]
-
-  * Removed five:traversable from configure.zcml as it is not needed anymore for
-    Zope 2.10, which we require now.
-    [hannosch]
-
-  * Cleaned up some comments, removed a pdb and an unused zLOG import.
-    [hannosch]
-
-  * Removed some more BBB code.
-    [hannosch]
-
-  * Removed deprecated ArchetypesTestCase.py.
-    [hannosch]
-
-  * Adjusted rest tests to Zope2.10 output.
-    [hannosch]
-
-  * Remove BBB code for calendar_macros.
-    [hannosch]
-
 1.4.1-beta1 - ?
 ===============
+
+  * Made the BaseObject __bobo_traverse__ fallback on Five traversal except in
+    those cases where it would return something different.  This allows views
+    to override acquired attributes. (this change is not intended for Zope 2.10,
+    which behaves differently)
+    [alecm]
+
+  * Fixed simple xhtml non-compliance and some erroneous i18n markup.
+    [hannosch]
+
+  * Make all WebDAV request types return NullResources on failure, not just PUT
+    and MKCOL.  This fixes a test failure resulting from some Zope traversal
+    machinery tweaks.  Thanks to sidnei for webdav guidance.
+    [alecm]
+
+  * Safari uses HTTP_ACCEPT=='*/*', which meant that the image widget never
+    rendered an image due to some faulty boolean logic.
+    [alecm]
+
+  * Backport of fix for #585 from trunk
+    [nouri]
+
+  * Add a multiple catalog aware reindexObjectSecurity to BaseObject. This
+    fixes problems with security checks in catalogs when objects are changed
+    through other means than normal editing (such as workflow changes).
+    [wichert]
 
   * Fix #670: addCreator function fails with AttributeError in
     ExtensibleMetadata.  This closes
@@ -1537,6 +1474,8 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
+   XXX: Add a comment to the documentation that users should take care when
+   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
