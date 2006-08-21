@@ -169,24 +169,6 @@ method instead.
   HTTP/1.0 200 OK
   ...Root Document...
 
-Lets make sure zope3 view lookup takes precedence over acquired views.
-
-  >>> from Products.Five import zcml
-  >>> zcml.load_string('''<configure xmlns="http://namespaces.zope.org/browser">
-  ... <page
-  ...     name="document_view"
-  ...     for="*"
-  ...     permission="zope.Public"
-  ...     class="Products.Archetypes.tests.utils.SimpleView"
-  ...     />
-  ... </configure>''')
-
-  >>> print http(r"""
-  ... GET /%s/simple_btree_folder/test_document/document_view HTTP/1.0
-  ... Authorization: Basic %s:%s
-  ... """ % (portal_name, user_name, user_password))
-  HTTP/1.0 200 OK
-  ...SimpleView simple output...
 
 WebDAV
 ------

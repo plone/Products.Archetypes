@@ -1,9 +1,6 @@
 import string
 from logging import INFO, DEBUG
 
-from plone.i18n.locales.interfaces import IMetadataLanguageAvailability
-from zope.component import queryUtility
-
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
@@ -131,7 +128,14 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            default = u'',
+            # Special default here, cite limi: "If you don't add any language to
+            # an item, the template that renders the Plone page will fall back
+            # to the declared portal-wide language setting. This is the
+            # behaviour we want, and thus setting language explicitly is not
+            # necessary. (I fixed this behaviour in Plone 2.0.5, IIRC)"
+            # So I keep it backward compatible if needed and adding a
+            # configureable behaviour for 1.3.x. (Jensens)
+            default = config.LANGUAGE_DEFAULT,
             default_method ='defaultLanguage',
             vocabulary='languages',
             widget=SelectionWidget(
@@ -193,7 +197,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # This method is kept around for backward compatibility only
         log('defaultLanguage is deprecated and will be removed in AT 1.6',
             level=INFO)
-        return u''
+        return config.LANGUAGE_DEFAULT
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
@@ -259,16 +263,17 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         """Vocabulary method for the language field
         """
-        util = queryUtility(IMetadataLanguageAvailability)
-        if util is None:
+        # XXX document me
+        # use a list of languages from PLT?
+        available_langs = getattr(self, 'availableLanguages', None)
+        if available_langs is None:
             return DisplayList(
                 (('en','English'), ('fr','French'), ('es','Spanish'),
                  ('pt','Portuguese'), ('ru','Russian')))
-        languages = util.getLanguageListing()
-        languages.sort(lambda x,y:cmp(x[1], y[1]))
-        # Put language neutral at the top.
-        languages.insert(0,(u'',_(u'Language neutral (site default)')))
-        return DisplayList(languages)
+        if callable(available_langs):
+            available_langs = available_langs()
+        return DisplayList(available_langs)
+
 
     #  DublinCore interface query methods #####################################
 

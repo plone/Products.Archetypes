@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -36,7 +37,6 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.attestcase import default_user
-from Products.Archetypes.tests.attestcase import HAS_PLONE
 from Products.Archetypes.tests.atsitetestcase import portal_owner
 from Products.Archetypes.tests.utils import DummySessionDataManager
 
@@ -359,23 +359,20 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 def test_suite():
     from unittest import TestSuite, makeSuite
     from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-    from Testing.ZopeTestCase import setAllLayers
-    from atsitetestcase import ATSiteLayer
     suite = TestSuite()
     suite.addTest(makeSuite(TestFunctionalObjectCreation))
     files = (
         'traversal.txt',
         'traversal_4981.txt',
         'folder_marshall.txt',
+        'reindex_sanity_plone21.txt',
         'webdav_operations.txt',
         )
-    if HAS_PLONE:
-        files += ('reindex_sanity_plone21.txt',)
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
                      )
-    return setAllLayers(suite, ATSiteLayer)
+    return suite
 
 if __name__ == '__main__':
     framework()

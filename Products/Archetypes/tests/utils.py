@@ -27,7 +27,7 @@
 """
 
 import re
-from TAL import ndiff
+from zope.tal import ndiff
 from Globals import InitializeClass, package_home
 from UserDict import UserDict
 import ExtensionClass
@@ -296,8 +296,3 @@ class DummySDMTraverseHook(Persistent):
         sdm = getattr(container, id)
         getSessionData = sdm.getSessionData
         request.set_lazy('SESSION', getSessionData)
-
-from Products.Five import BrowserView
-class SimpleView(BrowserView):
-    def __call__(self):
-        return 'SimpleView simple output'
