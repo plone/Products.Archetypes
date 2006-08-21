@@ -1,0 +1,8 @@
+
+/* Base kss resource for Archetypes */
+
+.kssValidateInput:blur {
+    action-server:                kssValidateField;
+    kssValidateField-fieldname:   nodeAttr('kukit:atfieldname', true);
+    kssValidateField-value:  currentFormVar();
+}

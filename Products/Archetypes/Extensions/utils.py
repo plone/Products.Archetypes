@@ -396,6 +396,23 @@ def isPloneSite(self):
         return 1
     return 0
 
+# kukit stylesheets (kss)
+kss_all = [
+    'at_base.kss', # this goes to normal skin, it should move to resources?
+]
+
+# XXX TODO move this to genericsetup!
+def install_kss_resources(self, out):
+    csstool = getToolByName(self, 'portal_css')
+    # kukit-stylesheet
+    for kss in kss_all:
+        csstool.manage_addStylesheet(id=kss,
+            rel='k-stylesheet',
+            rendering = 'link',
+            enabled=True,
+            cookable=False,
+            )
+    print >> out, "Registered kss resources."
 
 def filterTypes(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
@@ -456,6 +473,9 @@ def setupArchetypes(self, out, require_dependencies=True):
     # install skins and register templates
     install_subskin(self, out, types_globals)
     install_templates(self, out)
+
+    # register kss resources
+    install_kss_resources(self, out)
 
 def setupEnvironment(self, out, types,
                      package_name,

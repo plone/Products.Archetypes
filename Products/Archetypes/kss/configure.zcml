@@ -1,0 +1,15 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:five="http://namespaces.zope.org/five"
+           xmlns:azax="http://namespaces.zope.org/azax"
+           >
+
+    <browser:page
+        for="Products.Archetypes.interfaces.IBaseObject"
+        attribute="kssValidateField"
+        class=".validation.ValidationView"
+        name="kssValidateField"
+        permission="cmf.ModifyPortalContent"
+        />
+
+</configure>
