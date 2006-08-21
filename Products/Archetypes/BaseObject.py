@@ -60,6 +60,9 @@ from webdav.NullResource import NullResource
 
 from zope.interface import implements
 
+from zope.event import notify
+from zope.lifecycleevent import ObjectModifiedEvent
+
 _marker = []
 
 class AttributeValidator(Implicit):
@@ -464,6 +467,7 @@ class BaseObject(Referenceable):
         if not initializing:
             # Avoid double indexing during initialization.
             self.reindexObject()
+	notify(ObjectModifiedEvent(self))
 
     security.declareProtected(permissions.ModifyPortalContent, 'edit')
     edit = update
@@ -649,6 +653,7 @@ class BaseObject(Referenceable):
             self.at_post_create_script()
         else:
             self.at_post_edit_script()
+	notify(ObjectModifiedEvent(self))
 
     # This method is only called once after object creation.
     security.declarePrivate('at_post_create_script')
