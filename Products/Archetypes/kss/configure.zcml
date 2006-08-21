@@ -12,4 +12,12 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <browser:page
+        for="Products.Archetypes.interfaces.IBaseObject"
+        attribute="kssValidateForm"
+        class=".validation.ValidationView"
+        name="kssValidateForm"
+        permission="cmf.ModifyPortalContent"
+        />
+
 </configure>

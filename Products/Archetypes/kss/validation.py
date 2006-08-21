@@ -21,22 +21,40 @@ class ValidationView(AzaxBaseView):
         return self.render()
 
     # XXX full form validation
-    def XXX_vali(self, v={}):
-        context = self.context
-        # Merge the form var is the Request
-        context.REQUEST.form.update(v)
-        errors = {}
+    def kssValidateForm(self, data):
+        # Put the form vars on the request, as AT cannot work
+        # from data
+        self.request.form.update(data)
         # Check for Errors
-        errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
+        errors = self.context.aq_inner.validate(self.request, errors={}, data=1, metadata=0)
         if errors:
-            pms = 'Please correct the indicated errors.'
-            self.replaceInnerHTML(self.getCssSelector('div.portalMessage'),unicode(pms)) 
-            ## Display ATFieldErrors
+            # give the portal message
+            self.issuePortalMessage('Please correct the indicated errors.')
+            # reset all error fields (as we only know the error ones.)
+            self.clearChildNodes(self.getCssSelector('div.field div.fieldErrorBox'))
+            # Set error fields
+            for fieldname, error in errors.iteritems():
+                self.issueFieldError(fieldname, error)
+        else:
+            # I just resubmit the form then
+            # XXX of course this should be handled from here, save the
+            # content and redirect already to the result page - I guess
+            # I just don't want to clean up AT form submit procedures
+            self.addCommand('plone-submitCurrentForm', self.getSelector('samenode', ''))
         return self.render()
 
     # --
     # Helpers
     # --
+
+    def issuePortalMessage(self, error):
+        'Issue this portal message'
+        # XXX translation?
+        self.replaceInnerHTML(self.getHtmlIdSelector('kssPortalMessage'), error) 
+        # Now there is always a portal message but it has to be
+        # rendered visible or invisible, accordingly
+        self.setStyle(self.getHtmlIdSelector('kssPortalMessage'), 
+            'display', error and 'block' or 'none') 
 
     def issueFieldError(self, fieldname, error):
         'Issue this error message for the field'
