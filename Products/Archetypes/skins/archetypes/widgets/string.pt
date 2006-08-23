@@ -15,7 +15,6 @@
 	<input metal:fill-slot="widget_body"
 	       type="text"
 	       name=""
-               class="kssValidateInput"
 	       id=""
                value=""
 	       size="30"

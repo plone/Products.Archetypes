@@ -54,10 +54,7 @@
 
     <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1]"
         tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                          id string:archetypes-fieldname-${field/getName};
-                          kukit:atwidgetname widget/getName;
-                          kukit:atfieldname field/getName;
-                          kukit:widgetstate string:view">
+                          id string:archetypes-fieldname-${field/getName}">
           <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
     </div>
 
@@ -76,10 +73,7 @@
              tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
              tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
-                             id python: 'archetypes-fieldname-' + field.getName();
-                             kukit:atwidgetname widget/getName;
-                             kukit:atfieldname field/getName;
-                             kukit:widgetstate string:edit">
+                             id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
                  tal:content="python:widget.Label(here)"
@@ -114,7 +108,7 @@
           </span>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div class="fieldErrorBox"
+            <div tal:condition="error_id"
                  tal:content="error_id" i18n:translate="">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>
