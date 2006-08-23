@@ -35,7 +35,6 @@ here/widgets/field/macros/edit">
 	       tabindex="#"
 	       tal:attributes="name fieldName; 
 	       id fieldName;
-	       id fieldName;
                value value;
 	       size widget/size;
 	       maxlength widget/maxlength;

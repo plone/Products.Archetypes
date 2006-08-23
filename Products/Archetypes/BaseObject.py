@@ -513,7 +513,7 @@ class BaseObject(Referenceable):
         self.post_validate(REQUEST, errors)
         return errors
 
-    security.declareProtected(CMFCorePermissions.ModifyPortalContent, 'ajax_set')
+    security.declareProtected(permissions.ModifyPortalContent, 'ajax_set')
     def ajax_set(self, field_name, value, REQUEST=None):
         """Set a field value through the schema. Returns the display
         value, such as a transform from REST to HTML.
@@ -551,7 +551,7 @@ class BaseObject(Referenceable):
         return msg
 
 
-    security.declareProtected(CMFCorePermissions.View, 'ajax_validate')
+    security.declareProtected(permissions.View, 'ajax_validate')
     def ajax_validate(self, name, value, REQUEST=None):
         """Validates the form data from the request. This is intended
         for use with AJAX. It will set the HTTP header response code
@@ -591,7 +591,7 @@ class BaseObject(Referenceable):
         REQUEST.RESPONSE.setHeader("status", response)
         return msg
 
-    security.declareProtected(CMFCorePermissions.View, 'ajax_widget')
+    security.declareProtected(permissions.View, 'ajax_widget')
     def ajax_widget(self, field_name, mode="view", field=None, **kwargs):
         """Returns the rendered widget.
         """
@@ -602,7 +602,7 @@ class BaseObject(Referenceable):
                                     **kwargs)
 
 
-    security.declareProtected(CMFCorePermissions.View, 'SearchableText')
+    security.declareProtected(permissions.View, 'SearchableText')
     def SearchableText(self):
         """All fields marked as 'searchable' are concatenated together
         here for indexing purpose.

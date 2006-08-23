@@ -3,6 +3,11 @@ from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 
+from StringIO import StringIO
+from TAL.TALInterpreter import TALInterpreter
+from Products.CMFCore.Expression import createExprContext
+from Products.CMFPlone.utils import IndexIterator
+
 _marker = []
 
 class ArchetypesRenderer:
@@ -63,14 +68,8 @@ InitializeClass(ArchetypesRenderer)
 
 renderer = ArchetypesRenderer()
 
-from StringIO import StringIO
-from Products.PageTemplates.Expressions import getEngine
-engine = getEngine()
-from TAL.TALInterpreter import TALInterpreter
-from Products.CMFCore.Expression import createExprContext
-from Products.CMFPlone.utils import IndexIterator
 
-class AJAXRenderer(BaseRenderer):
+class AJAXRenderer(ArchetypesRenderer):
     security = ClassSecurityInfo()
 
     def render(self, field_name, mode, widget, instance=None,
