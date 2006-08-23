@@ -256,7 +256,6 @@ def modify_fti(fti, klass, pkg_name):
             raise TypeError, "Invalid type for method aliases in class %s" % klass
         for required in ('(Default)', 'view',):
             if required not in aliases:
-                import pdb;pdb.set_trace()
                 raise ValueError, "Alias %s is required but not provied by %s" % (
                                   required, klass)
         fti[0]['aliases'] = aliases 
