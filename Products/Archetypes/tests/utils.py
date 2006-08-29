@@ -296,3 +296,8 @@ class DummySDMTraverseHook(Persistent):
         sdm = getattr(container, id)
         getSessionData = sdm.getSessionData
         request.set_lazy('SESSION', getSessionData)
+
+from Products.Five import BrowserView
+class SimpleView(BrowserView):
+    def __call__(self):
+        return 'SimpleView simple output'
