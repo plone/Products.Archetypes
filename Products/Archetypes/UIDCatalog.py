@@ -122,6 +122,8 @@ class IndexableObjectWrapper(object):
         # Title is used for sorting only, maybe we could replace it by a better
         # version
         title = self._obj.Title()
+        if isinstance(title, unicode):
+            return title.encode('utf-8')
         try:
             return str(title)
         except UnicodeDecodeError:
