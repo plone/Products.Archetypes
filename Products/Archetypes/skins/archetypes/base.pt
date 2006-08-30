@@ -30,7 +30,7 @@
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
           <tal:if_visible define="mode string:view;
                                   visState python:field.widget.isVisible(here, mode);
-                                  visCondition python:field.widget.testCondition(context.getParentNode(), portal, context);"
+                                  visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
                           condition="python:visState == 'visible' and visCondition">
             <metal:use_field use-macro="field_macro" />
           </tal:if_visible>
