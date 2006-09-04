@@ -59,13 +59,8 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from zope.interface import implements
-
-from zope.event import notify
-from Products.Archetypes.events import EditEndsEvent
-
 from zope import event
 from zope.app.event import objectevent
-
 
 _marker = []
 
@@ -393,6 +388,7 @@ class BaseObject(Referenceable):
             spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
 
+
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
@@ -538,6 +534,7 @@ class BaseObject(Referenceable):
                 try:
                     datum =  method()
 
+
                 except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
@@ -665,7 +662,7 @@ class BaseObject(Referenceable):
     # This method is called after every subsequent edit
     security.declarePrivate('at_post_edit_script')
     def at_post_edit_script(self):
-        notify(EditEndsEvent(self))
+        pass
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'markCreationFlag')
@@ -895,6 +892,7 @@ class BaseObject(Referenceable):
                 if IFileField.isImplementedBy(field):
                     return field.getBaseUnit(self)
 
+
             except (ConflictError, KeyboardInterrupt):
                 raise
             except:
@@ -906,6 +904,7 @@ class BaseObject(Referenceable):
                 if editAccessor:
                     return editAccessor()
 
+
             except (ConflictError, KeyboardInterrupt):
                 raise
             except:
@@ -916,6 +915,7 @@ class BaseObject(Referenceable):
                 accessor = field.getAccessor(self)
                 if accessor:
                     return accessor()
+
 
             except (ConflictError, KeyboardInterrupt):
                 raise
@@ -933,6 +933,7 @@ class BaseObject(Referenceable):
             try:
                 return self[field.getName()]
 
+
             except (ConflictError, KeyboardInterrupt):
                 raise
             except:
@@ -948,6 +949,7 @@ class BaseObject(Referenceable):
                 if editAccessor:
                     return editAccessor()
 
+
             except (ConflictError, KeyboardInterrupt):
                 raise
             except:
@@ -958,6 +960,7 @@ class BaseObject(Referenceable):
                 accessor = new_field.getAccessor(self)
                 if accessor:
                     return accessor()
+
 
             except (ConflictError, KeyboardInterrupt):
                 raise
@@ -997,6 +1000,7 @@ class BaseObject(Referenceable):
                     args = [value,]
                     mapply(mutator, *args, **kw)
                     return
+
 
                 except (ConflictError, KeyboardInterrupt):
                     raise

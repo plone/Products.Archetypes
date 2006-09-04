@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import urllib
-
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -255,4 +254,5 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          'Total CPU time: %s'
                          % (`elapse`, `c_elapse`))
             )
+
 

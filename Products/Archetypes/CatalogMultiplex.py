@@ -31,14 +31,24 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            c.catalog_object(self, url)
+            # XXX This is an ugly workaround. This method shouldn't be called
+            # twice for an object in the first place, so we don't have to check
+            # if it is not cataloged so far. 
+            rid = c.getrid(url)
+            if rid is None:
+                c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            c.uncatalog_object(url)
+            # XXX This is an ugly workaround. This method shouldn't be called
+            # twice for an object in the first place, so we don't have to check
+            # if it is still cataloged. 
+            rid = c.getrid(url)
+            if rid is not None:
+                c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
@@ -120,8 +130,31 @@ class CatalogMultiplex(CMFCatalogAware):
         if not idxs:
             if isinstance(self, Referenceable):
                 self._catalogUID(self)
-                # _catalogRefs used to be called here, but all possible
-                # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable now.
+
+    # Hooks copied from CMFCore.CMFCatalogAware of CMF 1.6 
+    # ----------------------------------------------------
+
+    def manage_afterAdd(self, item, container):
+        """
+            Add self to the catalog.
+            (Called when the object is created or moved.)
+        """
+        self.indexObject()
+
+    def manage_afterClone(self, item):
+        """
+            Add self to the workflow.
+            (Called when the object is cloned.)
+        """
+        self.notifyWorkflowCreated()
+
+    def manage_beforeDelete(self, item, container):
+        """
+            Remove self from the catalog.
+            (Called when the object is deleted or moved.)
+        """
+        self.unindexObject()
+        #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
+        self._v_cp_refs = None
 
 InitializeClass(CatalogMultiplex)

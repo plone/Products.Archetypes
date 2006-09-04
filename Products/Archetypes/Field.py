@@ -88,14 +88,6 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 try:
-    from zope.app.contenttypes import guess_content_type
-except ImportError: # BBB: Zope < 2.10
-    try:
-        from zope.app.content_types import guess_content_type
-    except ImportError: # BBB: Zope < 2.9
-        from OFS.content_types import guess_content_type
-
-try:
     import PIL.Image
 except ImportError:
     # no PIL, no scaled versions!
