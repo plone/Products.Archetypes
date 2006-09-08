@@ -309,7 +309,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # XXX return unknown if never set properly
         return creation is None and 'Unknown' or creation.ISO()
 
-    security.declarePublic( permissions.View, 'EffectiveDate')
+    security.declareProtected( permissions.View, 'EffectiveDate')
     def EffectiveDate(self):
         """ Dublin Core element - date resource becomes effective.
         """
@@ -322,11 +322,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         return self.getField('effectiveDate').get(self)
 
-    security.declarePublic(permissions.View, 'effective_date')
+    security.declareProtected(permissions.View, 'effective_date')
     effective_date = ComputedAttribute(_effective_date, 1)
 
 
-    security.declarePublic( permissions.View, 'ExpirationDate')
+    security.declareProtected( permissions.View, 'ExpirationDate')
     def ExpirationDate(self):
         """Dublin Core element - date resource expires.
         """
@@ -339,7 +339,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         return self.getField('expirationDate').get(self)
 
-    security.declarePublic(permissions.View, 'expiration_date')
+    security.declareProtected(permissions.View, 'expiration_date')
     expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(permissions.View, 'Date')
@@ -547,8 +547,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             creator = mtool.getAuthenticatedMember().getId()
 
         # call self.listCreators() to make sure self.creators exists
-        if creator and not creator in self.listCreators():
-            self.setCreators(self.creators + (creator, ))
+        curr_creators = self.listCreators()
+        if creator and not creator in curr_creators:
+            self.setCreators(curr_creators + (creator, ))
 
     security.declareProtected(permissions.View, 'listCreators')
     def listCreators(self):

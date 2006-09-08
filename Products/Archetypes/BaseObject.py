@@ -57,6 +57,8 @@ from webdav.NullResource import NullResource
 
 from Products.Archetypes.interfaces import IBaseObject
 from zope.interface import implements
+from zope import event
+from zope.app.event import objectevent
 
 _marker = []
 
@@ -647,8 +649,10 @@ class BaseObject(Referenceable):
 
         # Post create/edit hooks
         if is_new_object:
+            event.notify(objectevent.ObjectCreatedEvent(self))
             self.at_post_create_script()
         else:
+            event.notify(objectevent.ObjectModifiedEvent(self))
             self.at_post_edit_script()
 
     # This method is only called once after object creation.
@@ -1109,13 +1113,14 @@ class BaseObject(Referenceable):
         else:
             # We are allowed to acquire
             target = getattr(self, name, None)
-        if target is not None:
-            return target
-        if (method in ('PUT', 'MKCOL') and not
-            isinstance(RESPONSE, xmlrpc.Response)):
+        if (target is None and
+            method not in ('GET', 'POST') and not
+            isinstance(RESPONSE, xmlrpc.Response) and
+            REQUEST.maybe_webdav_client):
             return NullResource(self, name, REQUEST).__of__(self)
 
-        # Nothing has been found. Raise an AttributeError and be done with it.
+        # Raise an AttributeError fallback on Five traversal if we didn't need a
+        # NullResource.
         raise AttributeError(name)
 
 InitializeClass(BaseObject)

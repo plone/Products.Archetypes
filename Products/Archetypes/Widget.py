@@ -1,5 +1,6 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
+from DateTime import DateTime
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
@@ -326,6 +327,8 @@ class TextAreaWidget(TypesWidget):
         'format': 0,
         'append_only': False,
         'divider':"\n\n========================\n\n",
+        'maxlength' : False,
+        'helper_js': ('widgets/js/textcount.js',),        
         })
 
     security = ClassSecurityInfo()
@@ -356,15 +359,21 @@ class TextAreaWidget(TypesWidget):
             kwargs['mimetype'] = text_format
 
         """ handle append_only  """
-        # SPANKY: It would be nice to add a datestamp too, if desired
-
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None):
             if field.getEditAccessor(instance)():
                 if (value and not value.isspace()):
+                    
+                    divider = field.widget.divider
+                    
+                    # Add a datestamp along with divider if desired.
+                    if getattr(field.widget, 'timestamp', None):
+
+                        divider = "\n\n" + str(DateTime()) + divider
+                        
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
-                    value = value + field.widget.divider + \
+                    value = value + divider + \
                             field.getEditAccessor(instance)()
                 else:
                     # keep historical entries

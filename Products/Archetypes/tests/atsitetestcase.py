@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -37,6 +36,8 @@ from Acquisition import aq_base
 import transaction
 import sys, code
 
+USELAYER=False
+
 if not attestcase.USE_PLONETESTCASE:
     from Products.CMFTestCase import CMFTestCase
     from Products.CMFTestCase.setup import portal_name
@@ -45,12 +46,14 @@ if not attestcase.USE_PLONETESTCASE:
     CMFTestCase.setupCMFSite()
     PortalTestClass = CMFTestCase.CMFTestCase
 else:
+    import Products.PloneTestCase.setup
     from Products.PloneTestCase import PloneTestCase
     from Products.PloneTestCase.setup import portal_name
     from Products.PloneTestCase.setup import portal_owner
     # setup a Plone site 
     PloneTestCase.setupPloneSite()
     PortalTestClass = PloneTestCase.PloneTestCase
+    USELAYER = Products.PloneTestCase.setup.USELAYER
 
 class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
     """AT test case inside a CMF site
@@ -160,7 +163,12 @@ def setupArchetypes(app, id=portal_name, quiet=0):
         transaction.commit()
         if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
 
+if USELAYER:
+    from Products.PloneTestCase.utils import safe_load_site_wrapper
+    setupArchetypes = safe_load_site_wrapper(setupArchetypes)  
+
 # Install Archetypes
+# XXX replace with layer
 app = ZopeTestCase.app()
 setupArchetypes(app)
 ZopeTestCase.close(app)

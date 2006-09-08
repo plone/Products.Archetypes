@@ -288,12 +288,14 @@ class Field(DefaultLayerContainer):
         self.validators = validators
 
     security.declarePublic('validate')
-    def validate(self, value, instance, errors={}, **kwargs):
+    def validate(self, value, instance, errors=None, **kwargs):
         """
         Validate passed-in value using all field validators.
         Return None if all validations pass; otherwise, return failed
         result returned by validator
         """
+        if errors is None:
+            errors = {}
         name = self.getName()
         if errors and errors.has_key(name):
             return True
@@ -1806,7 +1808,7 @@ class ReferenceField(ObjectField):
         return 0
 
 
-class ComputedField(Field):
+class ComputedField(ObjectField):
     """A field that stores a read-only computation."""
     __implements__ = Field.__implements__
 

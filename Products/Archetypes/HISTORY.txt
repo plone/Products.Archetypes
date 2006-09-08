@@ -1,3 +1,45 @@
+1.4.1-final - 2006-09-08
+========================
+
+  * Fixed log_exc function in debug.py to print the actual exception including
+    the traceback.
+    [hannosch]
+
+  * base_edit (anything calling processForm, actually) now fires off
+    appropriate IObjectCreatedEvent and IObjectModifiedEvent zope 3 events
+    [rocky]
+
+  * Made the BaseObject __bobo_traverse__ fallback on Five traversal except in
+    those cases where it would return something different.  This allows views
+    to override acquired attributes. (this change is not intended for Zope 2.10,
+    which behaves differently)
+    [alecm]
+
+  * Fixed simple xhtml non-compliance and some erroneous i18n markup.
+    [hannosch]
+
+  * Make all WebDAV request types return NullResources on failure, not just PUT
+    and MKCOL.  This fixes a test failure resulting from some Zope traversal
+    machinery tweaks.  Thanks to sidnei for webdav guidance.
+    [alecm]
+
+  * Safari uses HTTP_ACCEPT=='*/*', which meant that the image widget never
+    rendered an image due to some faulty boolean logic.
+    [alecm]
+
+  * Backport of fix for #585 from trunk
+    [nouri]
+
+  * Add a multiple catalog aware reindexObjectSecurity to BaseObject. This
+    fixes problems with security checks in catalogs when objects are changed
+    through other means than normal editing (such as workflow changes).
+    [wichert]
+
+  * Fix #670: addCreator function fails with AttributeError in
+    ExtensibleMetadata.  This closes
+    http://dev.plone.org/archetypes/ticket/670
+    [nouri]
+
 1.4.0-final - 2006-06-16
 ========================
 
