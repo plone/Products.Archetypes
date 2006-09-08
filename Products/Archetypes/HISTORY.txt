@@ -1,5 +1,5 @@
-1.4.1-beta1 - ?
-===============
+1.4.1-final - 2006-09-08
+========================
 
   * Fixed log_exc function in debug.py to print the actual exception including
     the traceback.
