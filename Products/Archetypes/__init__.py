@@ -19,6 +19,7 @@ try:
 except ImportError:
     HAS_GENERICSETUP = False
 
+
 ###
 ## security
 ###

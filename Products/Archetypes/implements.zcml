@@ -11,12 +11,7 @@
       class=".BaseObject.BaseObject"
       interface=".interfaces.IBaseObject"
       /> 
-
-   <implements
-      class=".BaseObject.BaseObject"
-      interface=".interfaces.ITTWLockable"
-      /> 
-     
+      
   <implements
       class=".ArchetypeTool.ArchetypeTool"
       interface=".interfaces.IArchetypeTool"

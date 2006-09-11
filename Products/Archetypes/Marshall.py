@@ -8,7 +8,6 @@ from zope.contenttype import guess_content_type
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from Globals import InitializeClass
-
 from OFS.Image import File
 from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall
@@ -17,7 +16,6 @@ from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
-
 
 sample_data = r"""title: a title
 content-type: text/plain

@@ -3,7 +3,6 @@ from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 from Products.Archetypes.tests import attestcase
 import sys, code
-import sys, code
 
 from Products.PloneTestCase import PloneTestCase
 from Products.PloneTestCase.setup import portal_name

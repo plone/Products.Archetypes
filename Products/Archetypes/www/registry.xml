@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE registry SYSTEM "file:/Users/paul/sandboxes/archebuilder/registry.dtd">
+<?xml-stylesheet type="text/xsl" href="archebuilder.xsl"?>
+<?oxygen RNGSchema="file:/Users/paul/sandboxes/archebuilder/registry.rng" type="xml"?>
+<registry>
+    <fieldelements>
+        <fieldelement id="Products.Archetypes.Fields.IntegerField">
+            <title>Integer</title>
+            <description>Integer fields hold integer values.</description>
+            <defaultwidget>Products.Archetypes.Widgets.IntegerWidget</defaultwidget>
+            <allowedwidgetelements>
+                <widget>Products.Archetypes.Widgets.IntegerWidget</widget>
+            </allowedwidgetelements>
+            <properties>
+                <property>
+                    <name>required</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
+                    <name>searchable</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>vocabulary</name>
+                    <type>string</type>
+                </property>
+                <property>
+                    <name>validators</name>
+                    <type>lines</type>
+                </property>
+            </properties>
+        </fieldelement>
+        <fieldelement id="Products.Archetypes.Fields.LinesField">
+            <title>Lines</title>
+            <description>List of string values without markup</description>
+            <defaultwidget>Products.Archetypes.Widgets.LinesWidget</defaultwidget>
+            <allowedwidgetelements>
+                <widget>Products.Archetypes.Widgets.LinesWidget</widget>
+            </allowedwidgetelements>
+            <properties>
+                <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
+                    <name>required</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>searchable</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>vocabulary</name>
+                    <type>string</type>
+                </property>
+                <property>
+                    <name>validators</name>
+                    <type>lines</type>
+                </property>
+            </properties>
+        </fieldelement>
+        <fieldelement id="Products.Archetypes.Fields.StringField">
+            <title>String</title>
+            <description>Simple text value</description>
+            <defaultwidget>Products.Archetypes.Widgets.StringWidget</defaultwidget>
+            <allowedwidgetelements>
+                <widget>Products.Archetypes.Widgets.SelectionWidget</widget>
+                <widget>Products.Archetypes.Widgets.StringWidget</widget>
+            </allowedwidgetelements>
+            <properties>
+                <property>
+                    <name>required</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
+                    <name>searchable</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>vocabulary</name>
+                    <type>string</type>
+                </property>
+                <property>
+                    <name>validators</name>
+                    <type>lines</type>
+                </property>
+            </properties>
+        </fieldelement>
+        <fieldelement id="Products.Archetypes.Fields.ReferenceField">
+            <title>Reference</title>
+            <description>Reference value</description>
+            <defaultwidget>Products.Archetypes.Widgets.ReferenceWidget</defaultwidget>
+            <allowedwidgetelements>
+                <widget>Products.Archetypes.Widgets.ReferenceWidget</widget>
+            </allowedwidgetelements>
+            <properties>
+                <property>
+                    <name>required</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>widget</name>
+                    <type>widget</type>
+                </property>
+                <property>
+                    <name>searchable</name>
+                    <type>boolean</type>
+                </property>
+                <property>
+                    <name>vocabulary</name>
+                    <type>string</type>
+                </property>
+                <property>
+                    <name>validators</name>
+                    <type>lines</type>
+                </property>
+            </properties>
+        </fieldelement>
+    </fieldelements>
+    <widgetelements>
+        <widgetelement id="Products.Archetypes.Widgets.IntegerWidget">
+            <title>Integer</title>
+            <description>HTML input box</description>
+            <properties>
+                <property>
+                    <name>label</name>
+                    <type>i18ntext</type>
+                </property>
+                <property>
+                    <name>description</name>
+                    <type>i18ntext</type>
+                </property>
+            </properties>
+        </widgetelement>
+        <widgetelement id="Products.Archetypes.Widgets.LinesWidget">
+            <title>Lines</title>
+            <description>Multiline html textarea</description>
+            <properties>
+                <property>
+                    <name>label</name>
+                    <type>i18ntext</type>
+                </property>
+                <property>
+                    <name>description</name>
+                    <type>i18ntext</type>
+                </property>
+            </properties>
+        </widgetelement>
+        <widgetelement id="Products.Archetypes.Widgets.StringWidget">
+            <title>String</title>
+            <description>Single line html input box</description>
+            <properties>
+                <property>
+                    <name>label</name>
+                    <type>i18ntext</type>
+                </property>
+                <property>
+                    <name>description</name>
+                    <type>i18ntext</type>
+                </property>
+            </properties>
+        </widgetelement>
+        <widgetelement id="Products.Archetypes.Widgets.SelectionWidget">
+            <title>Selection</title>
+            <description>Select pull-down</description>
+            <properties>
+                <property>
+                    <name>label</name>
+                    <type>i18ntext</type>
+                </property>
+                <property>
+                    <name>description</name>
+                    <type>i18ntext</type>
+                </property>
+            </properties>
+        </widgetelement>
+        <widgetelement id="Products.Archetypes.Widgets.ReferenceWidget">
+            <title>Reference</title>
+            <description>Select pull-down for reference values</description>
+            <properties>
+                <property>
+                    <name>label</name>
+                    <type>i18ntext</type>
+                </property>
+                <property>
+                    <name>description</name>
+                    <type>i18ntext</type>
+                </property>
+            </properties>
+        </widgetelement>
+    </widgetelements>
+    <validatorelements>
+        <validatorelement id="validation.regexvalidators.isurl">
+            <title>Well-formed URL</title>
+            <description>Check to see if a string has a valid protocol and syntactically valid
+                format for URLs</description>
+        </validatorelement>
+    </validatorelements>
+    <types>
+        <type id="Products.Archetypes.TTWTypes.Customer" selected="1">
+            <basetypes>
+                <basetype>Products.Archetypes.BaseContent.BaseContent</basetype>
+            </basetypes>
+            <portaltype>Customer</portaltype>
+            <schema>
+                <schemata id="Products.Archetypes.TTWTypes.Customer.default">
+                    <name>default</name>
+                    <field id="Products.Archetypes.TTWTypes.Customer.default.firstname" selected="1">
+                        <name>firstname</name>
+                        <type>Products.Archetypes.Fields.StringField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.StringWidget</type>
+                                <label xml:lang="en">First Name</label>
+                                <label xml:lang="pt-br">Nome</label>
+                                <description xml:lang="en">Provide a first name</description>
+                            </widget>
+                            <required>1</required>
+                            <searchable>0</searchable>
+                        </properties>
+                    </field>
+                    <field id="Products.Archetypes.TTWTypes.Customer.default.lastname">
+                        <name>lastname</name>
+                        <type>Products.Archetypes.Fields.StringField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.StringWidget</type>
+                                <label xml:lang="en">Last Name</label>
+                                <label xml:lang="pt-br">Sobrenome</label>
+                                <description xml:lang="en">Provide a last name</description>
+                            </widget>
+                            <required>1</required>
+                            <searchable>1</searchable>
+                        </properties>
+                    </field>
+                </schemata>
+                <schemata id="Products.Archetypes.TTWTypes.Customer.other">
+                    <name>other</name>
+                    <field id="Products.Archetypes.TTWTypes.Customer.other.country">
+                        <name>country</name>
+                        <type>Products.Archetypes.Fields.StringField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.SelectionWidget</type>
+                            </widget>
+                            <required>0</required>
+                            <searchable>0</searchable>
+                            <vocabulary>getCountries</vocabulary>
+                        </properties>
+                    </field>
+                    <field id="Products.Archetypes.TTWTypes.Customer.other.homepage">
+                        <name>homepage</name>
+                        <type>Products.Archetypes.Fields.StringField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.StringWidget</type>
+                            </widget>
+                            <required>0</required>
+                            <searchable>0</searchable>
+                            <validators>
+                                <validator>validation.regexvalidators.isurl</validator>
+                            </validators>
+                        </properties>
+                    </field>
+                </schemata>
+            </schema>
+        </type>
+        <type id="Products.Archetypes.TTWTypes.Article">
+            <basetypes>
+                <basetype>Products.ArchExample.Article.Article</basetype>
+            </basetypes>
+            <portaltype>TTW Article</portaltype>
+            <schema>
+                <schemata id="Products.Archetypes.TTWTypes.Article.default">
+                    <name>default</name>
+                    <field id="Products.Archetypes.TTWTypes.Article.default.author">
+                        <name>author</name>
+                        <type>Products.Archetypes.Fields.ReferenceField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.ReferenceWidget</type>
+                                <label xml:lang="en">Author</label>
+                                <label xml:lang="pt-br">Autor</label>
+                                <description xml:lang="en">Choose the author</description>
+                            </widget>
+                            <searchable>0</searchable>
+                            <allowedtypes>
+                                <type>Products.Archetypes.TTWTypes.Customer</type>
+                            </allowedtypes>
+                        </properties>
+                    </field>
+                </schemata>
+            </schema>
+        </type>
+        <type id="Products.ArchExample.Article.Article">
+            <basetypes>
+                <basetype>Products.Archetypes.BaseContent.BaseContent</basetype>
+            </basetypes>
+            <portaltype>Article</portaltype>
+            <readonly>1</readonly>
+            <schema>
+                <schemata id="Products.ArchExample.Article.Article.default">
+                    <name>default</name>
+                    <field id="Products.ArchExample.Article.Article.default.content">
+                        <name>content</name>
+                        <type>Products.Archetypes.Fields.StringField</type>
+                        <properties>
+                            <widget>
+                                <type>Products.Archetypes.Widgets.StringWidget</type>
+                                <label xml:lang="en">Content</label>
+                                <label xml:lang="pt-br">Conteudo</label>
+                                <description xml:lang="en">Fill the article's content</description>
+                            </widget>
+                            <searchable>0</searchable>
+                        </properties>
+                    </field>
+                </schemata>
+            </schema>
+        </type>
+    </types>
+</registry>

@@ -7,10 +7,6 @@ from _annotations import IATAnnotatable, IATAnnotations
 from _base import IBaseObject, IBaseContent, IBaseFolder, IBaseUnit
 from _field import IField, IObjectField, IImageField, IFileField
 from _layer import ILayer, ILayerContainer, ILayerRuntime
-from locking import IEditBeginsEvent
-from locking import ITTWLockable
-from locking import ILock
-from locking import IEditEndsEvent
 from _marshall import IMarshall
 from _orderedfolder import IOrderedFolder, IOrderedContainer
 from _referenceable import IReferenceable
@@ -60,5 +56,3 @@ _m(vocabulary, IVocabulary)
 _m(orderedfolder, IOrderedFolder, IOrderedContainer)
 _m(templatemixin, ITemplateMixin)
 _m(athistoryaware, IATHistoryAware)
-
-
