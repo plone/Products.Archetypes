@@ -39,6 +39,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
+from Products.Archetypes import transaction
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import populateFolder
 
@@ -47,8 +48,6 @@ from Products.Archetypes.tests.utils import unwrap_method
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import UUID_ATTR
-
-import transaction
 
 class Counter:
 

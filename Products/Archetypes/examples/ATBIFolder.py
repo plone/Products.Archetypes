@@ -1,4 +1,4 @@
-from Products.Archetypes.atapi import *
+from Products.Archetypes.public import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.AllowedTypesByIface import AllowedTypesByIfaceMixin
 

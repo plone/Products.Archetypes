@@ -19,23 +19,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-from Products.Archetypes.generator import i18n
-
-from Interface.bridge import createZope3Bridge
-from Products.Five.fiveconfigure import createZope2Bridge
-def makeBridgeMaker(func):
-    def makeBridge(*args):
-        module=args[0]
-        ifaces = args[1:]
-        for iface in ifaces:
-            try:
-                func(iface, module, iface.__name__)
-            except ValueError:
-                import pdb; pdb.set_trace()
-    return makeBridge
-
-makeZ2Bridges=makeBridgeMaker(createZope2Bridge)
-makeZ3Bridges=makeBridgeMaker(createZope3Bridge)
+import Products.generator.i18n as i18n
 
 try:
     _v_network = str(socket.gethostbyname(socket.gethostname()))
@@ -385,7 +369,7 @@ class DisplayList:
         if type(key) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
+        if type(value) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
         if type(msgid) not in (StringType, NoneType):

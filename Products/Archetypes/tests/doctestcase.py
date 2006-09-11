@@ -73,12 +73,6 @@ def ZopeDocTestSuite(*modules, **kw):
         if var in kw:
             del kw[var]
 
-    # Fix for http://zope.org/Collectors/Zope/2178
-    if hasattr(test_class, 'layer'):
-        layer = test_class.layer
-    else:
-        layer = None
-
     # If the passed-in test_class doesn't subclass base.TestCase,
     # we mix it in for you, but we will issue a warning.
     if not issubclass(test_class, TestCase):
@@ -133,9 +127,6 @@ def ZopeDocTestSuite(*modules, **kw):
 
     for module in modules:
         suite.addTest(doctest.DocTestSuite(module, **kw))
-
-    if layer is not None:
-        suite.layer = layer
 
     return suite
 

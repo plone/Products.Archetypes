@@ -11,7 +11,7 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 
-from Products.CMFCore import permissions
+from Products.CMFCore import CMFCorePermissions
 from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
@@ -63,7 +63,7 @@ class VariableSchemaSupport(Base):
 
     security = ClassSecurityInfo()
 
-    security.declareProtected(permissions.View,
+    security.declareProtected(CMFCorePermissions.View,
                               'Schemata')
     def Schemata(self):
         """Returns an ordered dictionary, which maps all Schemata names to
@@ -76,7 +76,7 @@ class VariableSchemaSupport(Base):
             schemata[f.schemata] = sub.__of__(self)
         return schemata
 
-    security.declareProtected(permissions.View,
+    security.declareProtected(CMFCorePermissions.View,
                               'Schema')
     def Schema(self):
         schema = self.getAndPrepareSchema()
@@ -85,7 +85,7 @@ class VariableSchemaSupport(Base):
         #    return schema.wrapped(self)
         return ImplicitAcquisitionWrapper(schema, self)
 
-    security.declareProtected(permissions.ManagePortal,
+    security.declareProtected(CMFCorePermissions.ManagePortal,
                               'getAndPrepareSchema')
     def getAndPrepareSchema(self):
         s = self.getSchema()
@@ -94,7 +94,7 @@ class VariableSchemaSupport(Base):
         hash=sha.new(str([f.__dict__ for f in s.values()]) +
                      str(self.__class__)).hexdigest()
 
-        if schemadict.has_key(hash): #ok we had that schema already, so take it
+        if schemadict.has_key(hash): #ok we had that shema already, so take it
             schema=schemadict[hash]
         else: #make a new one and store it using the hash key
             schemadict[hash]=s
@@ -105,12 +105,12 @@ class VariableSchemaSupport(Base):
         return schema
 
     # supposed to be overloaded. here the object can return its own schema
-    security.declareProtected(permissions.View,
+    security.declareProtected(CMFCorePermissions.View,
                               'getSchema')
     def getSchema(self):
         return self.schema
 
-    security.declareProtected(permissions.ManagePortal,
+    security.declareProtected(CMFCorePermissions.ManagePortal,
                               'setSchema')
     def setSchema(self, schema):
         self.schema=schema

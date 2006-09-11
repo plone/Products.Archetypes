@@ -3,6 +3,96 @@
     >
   
   <bridge
+      zope2="Products.Archetypes.interfaces.annotations.IATAnnotatable"
+      package=".interfaces"
+      name="IATAnnotatable"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.annotations.IATAnnotations"
+      package=".interfaces"
+      name="IATAnnotations"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.base.IBaseContent"
+      package=".interfaces"
+      name="IBaseContent"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.base.IBaseFolder"
+      package=".interfaces"
+      name="IBaseFolder"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.base.IBaseObject"
+      package=".interfaces"
+      name="IBaseObject"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.base.IBaseUnit"
+      package=".interfaces"
+      name="IBaseUnit"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.field.IField"
+      package=".interfaces"
+      name="IField"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.field.IFileField"
+      package=".interfaces"
+      name="IFileField"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.field.IImageField"
+      package=".interfaces"
+      name="IImageField"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.field.IObjectField"
+      package=".interfaces"
+      name="IObjectField"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.layer.ILayer"
+      package=".interfaces"
+      name="ILayer"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.layer.ILayerContainer"
+      package=".interfaces"
+      name="ILayerContainer"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.layer.ILayerRuntime"
+      package=".interfaces"
+      name="ILayerRuntime"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.marshall.IMarshall"
+      package=".interfaces"
+      name="IMarshall"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.metadata.IExtensibleMetadata"
+      package=".interfaces"
+      name="IExtensibleMetadata"
+      /> 
+ 
+  <bridge
       zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedContainer"
       package=".interfaces"
       name="IOrderedContainer"
@@ -12,6 +102,78 @@
       zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedFolder"
       package=".interfaces"
       name="IOrderedFolder"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.referenceable.IReferenceable"
+      package=".interfaces"
+      name="IReferenceable"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.referenceengine.IContentReference"
+      package=".interfaces"
+      name="IContentReference"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.referenceengine.IReference"
+      package=".interfaces"
+      name="IReference"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.referenceengine.IReferenceCatalog"
+      package=".interfaces"
+      name="IReferenceCatalog"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.referenceengine.IUIDCatalog"
+      package=".interfaces"
+      name="IUIDCatalog"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.schema.IBindableSchema"
+      package=".interfaces"
+      name="IBindableSchema"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.schema.ICompositeSchema"
+      package=".interfaces"
+      name="ICompositeSchema"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.schema.IManagedSchema"
+      package=".interfaces"
+      name="IManagedSchema"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.schema.ISchema"
+      package=".interfaces"
+      name="ISchema"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.schema.ISchemata"
+      package=".interfaces"
+      name="ISchemata"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.storage.ISQLStorage"
+      package=".interfaces"
+      name="ISQLStorage"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.storage.IStorage"
+      package=".interfaces"
+      name="IStorage"
       /> 
  
   <bridge

@@ -51,13 +51,6 @@ except ImportError:
 else:
     ZOPE28 = True
 
-try:
-    import OFS.subscribers
-except ImportError:
-    ZOPE29 = False
-else:
-    ZOPE29 = True
-
 
 def gen_class(klass, schema=None):
     """generats and registers the klass
@@ -112,6 +105,10 @@ def start_http(address, port):
     import socket
 
     import Zope # Sigh, make product initialization happen
+    try:
+        Zope.startup()
+    except: # Zope > 2.6
+        pass
 
     from ZServer import setNumberOfThreads
     setNumberOfThreads(4)
@@ -296,8 +293,3 @@ class DummySDMTraverseHook(Persistent):
         sdm = getattr(container, id)
         getSessionData = sdm.getSessionData
         request.set_lazy('SESSION', getSessionData)
-
-from Products.Five import BrowserView
-class SimpleView(BrowserView):
-    def __call__(self):
-        return 'SimpleView simple output'

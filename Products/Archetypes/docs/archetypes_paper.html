@@ -386,7 +386,7 @@
     <p><br>
     </p>
 <div class="code">
-    from Products.Archetypes.atapi import *
+    from Products.Archetypes.public import *
     
     schema = BaseSchema +  Schema((
 	  StringField('blurb',
@@ -425,7 +425,7 @@
 <div class="code">
     from Globals import package_home
     from Products.CMFCore import utils
-    from Products.Archetypes.atapi import *
+    from Products.Archetypes.public import *
     from Products.Archetypes import listTypes
     
     ADD_CONTENTS_PERMISSION = 'Add example content'

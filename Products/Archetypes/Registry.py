@@ -167,9 +167,9 @@ availableFields = fieldDescriptionRegistry.items
 def registerField(klass, **kw):
     # XXX check me high > low security order.
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
-    #setSecurity(klass, defaultAccess=None, objectPermission=permissions.View)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
     setSecurity(klass, defaultAccess='allow', objectPermission=None)
-    #setSecurity(klass, defaultAccess='allow', objectPermission=permissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
     #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     field = FieldDescription(klass, **kw)
     fieldDescriptionRegistry.register(field.id, field)
@@ -179,10 +179,10 @@ availableWidgets = widgetDescriptionRegistry.items
 def registerWidget(klass, **kw):
     # XXX check me high > low security order.
     #setSecurity(klass, defaultAccess=None, objectPermission=None)
-    #setSecurity(klass, defaultAccess=None, objectPermission=permissions.View)
+    #setSecurity(klass, defaultAccess=None, objectPermission=CMFCorePermissions.View)
 
     setSecurity(klass, defaultAccess='allow', objectPermission=None)
-    #setSecurity(klass, defaultAccess='allow', objectPermission=permissions.View)
+    #setSecurity(klass, defaultAccess='allow', objectPermission=CMFCorePermissions.View)
     #setSecurity(klass, defaultAccess='allow', objectPermission='public')
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
