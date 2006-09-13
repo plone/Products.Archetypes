@@ -985,7 +985,7 @@ def setDefaultContentType(context, value):
     site_properties.manage_changeProperties(default_contenttype=value)
         
 def getAllowedContentTypes(context):
-    """ copmutes the list of allowed content types by subtracting the site property blacklist 
+    """ computes the list of allowed content types by subtracting the site property blacklist 
         from the list of installed types.
     """
     allowable_types = getAllowableContentTypes(context)
