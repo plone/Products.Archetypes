@@ -38,7 +38,7 @@
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
           <tal:if_visible define="mode string:view;
                                   widget_view python:here.widget(field.getName(), use_label=True,
-                                                                 mode=field.widget.getWidgetMode(here, field, mode)
+                                                                 mode=field.widget.getWidgetMode(here, field, mode),
                                                                  field=field);
                                   isRendered python:field.widget.isRendered(here, field, mode);
                                   visState python:field.widget.isVisible(here, mode);
