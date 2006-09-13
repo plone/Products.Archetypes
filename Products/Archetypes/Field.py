@@ -62,6 +62,7 @@ from Products.Archetypes.Widget import ReferenceWidget
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
@@ -1133,9 +1134,9 @@ class TextField(FileField):
         'type' : 'text',
         'default' : '',
         'widget': StringWidget,
-        'default_content_type' : 'text/plain',
+        'default_content_type' : None,
         'default_output_type'  : 'text/plain',
-        'allowable_content_types' : ('text/plain',),
+        'allowable_content_types' : None,
         'primary' : False,
         'content_class': BaseUnit,
         })
@@ -1159,6 +1160,18 @@ class TextField(FileField):
                 level=ERROR)
 
     getContentType = ObjectField.getContentType.im_func
+
+    security.declarePublic('getAllowedContentTypes')
+    def getAllowedContentTypes(self, instance):
+        """ returns the list of allowed content types for this field.
+            If the fields schema doesn't define any, the site's default
+            values are returned.
+        """
+        act_attribute = getattr(self, 'allowable_content_types')
+        if act_attribute is not None:
+            return act_attribute
+        else:
+            return getAllowedContentTypesProperty(instance) 
 
     def _make_file(self, id, title='', file='', instance=None):
         return self.content_class(id, file=file, instance=instance)
