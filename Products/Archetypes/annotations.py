@@ -43,6 +43,8 @@ AT_MD_STORAGE  = 'Archetypes.storage.MetadataAnnotationStorage'
 AT_FIELD_MD    = 'Archetypes.field.Metadata'
 AT_REF         = 'Archetypes.referenceEngine.Reference'
 
+# all keys so someone can test against this list
+AT_ANN_KEYS = (AT_ANN_STORAGE, AT_MD_STORAGE, AT_FIELD_MD, AT_REF)
 
 class ATAnnotations(DictMixin, Explicit):
     """Store annotations in the '__annotations__' attribute on a IATAnnotatable

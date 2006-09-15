@@ -2,8 +2,8 @@ import sys
 from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
+import transaction
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes import transaction
 from Products.Archetypes.Extensions.utils import install_uidcatalog
 from Products.Archetypes.utils import make_uuid
 from Products.Archetypes.config import *

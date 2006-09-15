@@ -8,7 +8,7 @@ from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.CMFCorePermissions import View
+from Products.CMFCore.permissions import View
 
 # XXX Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields

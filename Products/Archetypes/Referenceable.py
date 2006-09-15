@@ -1,7 +1,9 @@
+from zope.interface import implements
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.debug import log, log_exc
-from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
@@ -10,13 +12,14 @@ from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore import CMFCorePermissions
+from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+
 ####
 ## In the case of:
 ## - a copy:
@@ -34,8 +37,8 @@ from ref_graph import get_cmapx, get_png
 class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
-
-    __implements__ = (IReferenceable,)
+    implements(IReferenceable)
+    __implements__ = (DEPRECATED,)
 
     security = ClassSecurityInfo()
     # XXX FIXME more security
@@ -49,9 +52,11 @@ class Referenceable(CopySource):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
-    def addReference(self, object, relationship=None, **kwargs):
+    def addReference(self, object, relationship=None, referenceClass=None,
+                     updateReferences=True, **kwargs):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        return tool.addReference(self, object, relationship, **kwargs)
+        return tool.addReference(self, object, relationship, referenceClass,
+                                 updateReferences, **kwargs)
 
     def deleteReference(self, target, relationship=None):
         tool = getToolByName(self, config.REFERENCE_CATALOG)
@@ -368,13 +373,13 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(View,
                               'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(CMFCorePermissions.View,
+    security.declareProtected(View,
                               'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""

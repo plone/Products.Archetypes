@@ -15,11 +15,13 @@
 	<input metal:fill-slot="widget_body"
 	       type="text"
 	       name=""
-	       value=""
+	       id=""
+               value=""
 	       size="30"
 	       tabindex="#"
 	       tal:attributes="name fieldName;
-	       value value;
+	       id fieldName;
+               value value;
 	       size widget/size;
 	       maxlength widget/maxlength;
 	       tabindex tabindex/next;"
