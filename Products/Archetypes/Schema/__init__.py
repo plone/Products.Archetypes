@@ -8,8 +8,8 @@ from Products.Archetypes.interfaces.layer import ILayerContainer, \
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
-from Products.Archetypes.utils import OrderedDict, mapply, shasattr, \
-    getDefaultContentType, getAllowedContentTypes
+from Products.Archetypes.utils import OrderedDict, mapply, shasattr
+from Products.Archetypes.mimetype_utils import getDefaultContentType, getAllowedContentTypes
 from Products.Archetypes.debug import log, warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException

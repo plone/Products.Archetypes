@@ -25,7 +25,7 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         self.assertEqual(descriptionfield.getContentType(obj), 'text/plain')
         
         # then we change the sitewide default: 
-        from Products.Archetypes.utils import setDefaultContentType
+        from Products.Archetypes.mimetype_utils import setDefaultContentType
         setDefaultContentType(self.portal, "text/x-web-markdown")
         self.assertEqual(textfield.getContentType(obj), 'text/html')
         # this should only affect new objects:

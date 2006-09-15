@@ -62,12 +62,12 @@ from Products.Archetypes.Widget import ReferenceWidget
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.utils import DisplayList
-from Products.Archetypes.utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
+from Products.Archetypes.mimetype_utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import deprecated
