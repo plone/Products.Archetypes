@@ -107,6 +107,9 @@ class SiteProperties:
     def getProperty(self, name, default=None):
         return getattr(self, name, default)
 
+    def hasProperty(self, name):
+        return hasattr(self, name)
+
 class PortalProperties:
     site_properties = SiteProperties()
 
