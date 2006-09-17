@@ -1167,11 +1167,11 @@ class TextField(FileField):
             If the fields schema doesn't define any, the site's default
             values are returned.
         """
-        act_attribute = getattr(self, 'allowable_content_types')
-        if act_attribute is not None:
-            return act_attribute
-        else:
+        act_attribute = getattr(self, 'allowable_content_types', None)
+        if act_attribute is None:
             return getAllowedContentTypesProperty(instance) 
+        else:
+            return act_attribute
 
     def _make_file(self, id, title='', file='', instance=None):
         return self.content_class(id, file=file, instance=instance)
