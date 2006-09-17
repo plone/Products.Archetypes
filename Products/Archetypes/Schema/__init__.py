@@ -486,9 +486,6 @@ class BasicSchema(Schemata):
             args = (default,)
             kw = {'field': field.__name__,
                   '_initializing_': True}
-            # print ">>>>>>>>>> %s" % field.getName()
-            # if field.getName() == 'description':
-            #     import pdb; pdb.set_trace()
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
