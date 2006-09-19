@@ -32,7 +32,7 @@
       <style type="text/css"
              media="all"
              tal:condition="python:exists('portal/%s' % item)"
-             tal:content="string:@import url($portal_url/$item);">
+             tal:content="structure string:<!-- @import url($portal_url/$item); -->">
       </style>
     </tal:css>
     <tal:js condition="js"
@@ -48,8 +48,7 @@
 
   <body>
 
-    <div metal:fill-slot="main"
-         tal:define="mode string:edit">
+    <div metal:fill-slot="main">
       <div metal:define-macro="main">
 
   <h1 tal:content="here/title_or_id"
@@ -62,11 +61,7 @@
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
       <tal:fields repeat="field python: schematas[fieldset].fields()">
-        <tal:isRendered tal:condition="python:field.widget.isRendered(here, field, mode)">
-          <metal:fieldMacro use-macro="python: here.widget(field.getName(),
-                                                           mode=field.widget.getWidgetMode(here, field, mode),
-                                                           field=field)"/>
-        </tal:isRendered>
+        <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
 
       <input type="hidden" name="form.submitted" value="1" />

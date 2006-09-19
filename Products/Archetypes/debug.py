@@ -167,7 +167,7 @@ class ZLogger(ClassLog):
         logger.log(level, msg)
 
     def log_exc(self, msg=None, *args, **kwargs):
-        logger.exception(msg)
+        logger.log(logging.ERROR, '%s:\n%s' % (msg, sys.exc_info()))
 
 def warn(msg, level=3):
     # level is the stack level

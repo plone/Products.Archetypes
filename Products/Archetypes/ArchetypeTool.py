@@ -153,11 +153,7 @@ def fixActionsForType(portal_type, typesTool):
                 # If no standard actions are wished don't display them
                 new = []
 
-            try:
-                cmfver = getCMFVersion()
-            except ImportError:
-                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
-                                     ## need to know here for now
+            cmfver = getCMFVersion()
 
             for action in portal_type.actions:
                 # DM: "Expression" derives from "Persistent" and

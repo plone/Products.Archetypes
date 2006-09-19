@@ -9,7 +9,6 @@ from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
-from Products.Archetypes.mimetype_utils import getDefaultContentType, getAllowedContentTypes
 from Products.Archetypes.debug import log, warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
@@ -489,19 +488,7 @@ class BasicSchema(Schemata):
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
-                # if the schema supplies a default, we honour that, 
-                # otherwise we use the site property
-                default_content_type = field.default_content_type
-                if default_content_type is None:
-                    default_content_type = getDefaultContentType(instance)
-                kw['mimetype'] = default_content_type
-            # if the schema supplies a list of allowable contenttypes, 
-            # we honour that, otherwise we use the site property
-            if shasattr(field, 'allowable_content_types'):
-                act = getattr(field, 'allowable_content_types')
-                if act == None:
-                    act = getAllowedContentTypes(instance)
-                    setattr(field, 'allowable_content_types', act)
+                kw['mimetype'] = field.default_content_type
             mapply(mutator, *args, **kw)
 
     security.declareProtected(permissions.ModifyPortalContent,

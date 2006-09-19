@@ -63,6 +63,17 @@
           </p>
 
         </tal:description>
+        <tal:comment replace="nothing">
+            BBB: The above code can be simplified once we do not support
+            typeDescMsgId anymore and should simply read:
+            <p class="discreet"
+               i18n:translate=""
+               tal:define="desc here/typeDescription| nothing"
+               tal:content="desc">
+                type description
+            </p>
+            
+        </tal:comment>
     </div>
 
     <div metal:define-macro="body">
@@ -77,11 +88,7 @@
 
           <metal:block define-slot="widgets">
             <tal:fields repeat="field fields">
-              <tal:isRendered tal:condition="python:field.widget.isRendered(here, field, mode)">
-                <metal:fieldMacro use-macro="python:here.widget(field.getName(),
-                                                                mode=field.widget.getWidgetMode(here, field, mode),
-                                                                field=field)" />
-              </tal:isRendered>
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
             </tal:fields>
           </metal:block>
 

@@ -10,35 +10,27 @@
 
     <!-- Base Field Widgets -->
     <metal:base_view_macro
-        define-macro="view"
-        tal:define="widget_view python:here.widget(field.getName(), use_label=True,
-                                                   mode=field.widget.getWidgetMode(here, field, mode),
-                                                   field=field);
+        define-macro="base_view"
+        tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
                     field_macros here/widgets/field/macros;
                     label_macro view_macros/label | label_macro | field_macros/label;
                     data_macro view_macros/data | data_macro | field_macros/data;
-                    visState python:field.widget.isVisible(here, mode);
-                    visCondition python:field.widget.testCondition(here, portal, template);">
-      <div tal:define="fieldtypename python:field.getType().split('.')[-1]"
-           tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                         id string:archetypes-fieldname-${field/getName}">
+                    visState python:widget.isVisible(here, mode);
+                    visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);">
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <tal:if_perm
-            condition="python:'view' in field.widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
+            condition="python:'view' in widget.modes and 'r' in field.mode and field.checkPermission('r',here)">
           <tal:if_use_label condition="use_label | nothing">
             <metal:use_label use-macro="label_macro" />
           </tal:if_use_label>
-          <div metal:define-slot="widget_body">
-            <tal:block tal:replace="structure accessor" />
-          </div>
+          <metal:use_data use-macro="data_macro|default" />
         </tal:if_perm>
       </tal:condition>
-      </div>
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
-      <label><span i18n:translate="" tal:content="python:field.widget.Label(here)">Field</span>:</label>
+      <label><span i18n:translate="" tal:content="python:widget.Label(here)">Field</span>:</label>
       <span tal:condition="field/workflowable | nothing"
             tal:omit-tag="">
         (
@@ -60,32 +52,31 @@
       <metal:block use-macro="widget_view" />
     </metal:data_macro>
 
-    <div metal:define-macro="old_view"
-         tal:define="fieldtypename python:field.getType().split('.')[-1]"
-         tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                         id string:archetypes-fieldname-${field/getName}">
-      <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
+    <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1]"
+        tal:attributes="class string:field ArchetypesField-${fieldtypename};
+                          id string:archetypes-fieldname-${field/getName}">
+          <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
     </div>
 
     <metal:define
         define-macro="edit"
-        tal:define="visState python:field.widget.isVisible(here, mode);
+        tal:define="visState python:widget.isVisible(here, mode);
                     edit_accessor python:field.getEditAccessor(here);
-                    getMethod python:(field.widget.populate and (edit_accessor or accessor)) or None;
+                    getMethod python:(widget.populate and (edit_accessor or accessor)) or None;
                     value python:getMethod and getMethod();
-                    value python:field.widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
-                    visCondition python:field.widget.testCondition(here, portal, template);
+                    value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
+                    visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);
                     error_id python:errors.get(fieldName)">
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
-             tal:condition="python:('edit' in field.widget.modes and 'w' in field.mode and field.checkPermission('w',here))
+             tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
-             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + field.widget.getName(), 'field ' + 'Archetypes' + field.widget.getName());
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
-                 tal:content="python:field.widget.Label(here)"
+                 tal:content="python:widget.Label(here)"
                  tal:attributes="for python:field.getName()">
           </label>
           <span class="fieldRequired"
@@ -96,7 +87,7 @@
             (Required)
           </span>
           <div class="formHelp"
-               tal:define="description python:field.widget.Description(here)"
+               tal:define="description python:widget.Description(here)"
                tal:content="structure description"
                tal:attributes="id string:${fieldName}_help"
                i18n:translate="">
@@ -126,7 +117,7 @@
 
       <tal:condition condition="python: visState == 'hidden'">
         <metal:hiddenmacro
-            tal:define="widget_macro python:path('here/%s/macros' % field.widget.macro);
+            tal:define="widget_macro python:path('here/%s/macros' % widget.macro);
                         default_hidden_macro here/widgets/field/macros/hidden;
                         hidden_macro widget_macro/hidden | default_hidden_macro;
                         ">
