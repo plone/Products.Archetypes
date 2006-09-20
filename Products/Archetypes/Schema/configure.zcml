@@ -1,0 +1,17 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:five="http://namespaces.zope.org/five">
+
+  <adapter factory=".composition.DefaultSchemaComposer" />
+
+  <adapter 
+    name="default"
+    factory=".composition.BaseSchemaProvider" 
+    />
+
+  <subscriber 
+    for="..interfaces.ISchemaInvalidatedEvent"
+    handler=".registry.invalidateSchema"
+    />
+      
+</configure>
+
