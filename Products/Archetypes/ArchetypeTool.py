@@ -82,6 +82,8 @@ folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
 # Never actually used
+## rr: started using this again at least for the actions when trying
+## to get installTypes back for CMF-2.0
 base_factory_type_information = (
     { 'id': 'Archetype'
       , 'content_icon': 'document_icon.gif'
@@ -103,39 +105,30 @@ base_factory_type_information = (
                      }
       , 'actions': (
                      { 'id': 'view',
-                       'name': 'View',
-                       'action': 'string:${object_url}/base_view',
+                       'title': 'View',
+                       'action': Expression('string:${object_url}/base_view'),
                        'permissions': (permissions.View,),
                        },
 
                      { 'id': 'edit',
-                       'name': 'Edit',
-                       'action': 'string:${object_url}/base_edit',
+                       'title': 'Edit',
+                       'action': Expression('string:${object_url}/base_edit'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
-                       'name': 'Properties',
-                       'action': 'string:${object_url}/base_metadata',
+                       'title': 'Properties',
+                       'action': Expression('string:${object_url}/base_metadata'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'references',
-                       'name': 'References',
-                       'action': 'string:${object_url}/reference_graph',
-                       'condition': 'object/archetype_tool/has_graphviz',
+                       'title': 'References',
+                       'action': Expression('string:${object_url}/reference_graph'),
+                       'condition': Expression('object/archetype_tool/has_graphviz'),
                        'permissions': (permissions.ModifyPortalContent,
                                        permissions.ReviewPortalContent,),
                        'visible' : True,
-                       },
-
-                     { 'id': 'folderlisting',
-                       'name': 'Folder Listing',
-                       'action': 'string:${folder_url}/folder_listing',
-                       'condition': 'object/isPrincipiaFolderish',
-                       'permissions': (permissions.View,),
-                       'category': 'folder',
-                       'visible' : False,
                        },
                      )
       }, )
@@ -147,13 +140,27 @@ def fixActionsForType(portal_type, typesTool):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            if getattr(portal_type,'include_default_actions', True):
-                new = list(typeInfo._actions)
+            ## rr: this is now trial-and-error programming
+            ## I really don't know what's going on here
+            ## most importantly I don't know why the default
+            ## actions are not set in some cases :-(
+            ## (maybe they are removed afterwards sometimes???)
+            ## if getattr(portal_type,'include_default_actions', True):
+            if True:
+                default = [ActionInformation(**action) for action in
+                           base_factory_type_information[0]['actions']]
+                next = [ActionInformation(**action) for action in
+                        list(typeInfo._actions)]
+                all = next + default
+                new = [a.clone() for a in all]
             else:
                 # If no standard actions are wished don't display them
                 new = []
-
-            cmfver = getCMFVersion()
+            try:
+                cmfver = getCMFVersion()
+            except ImportError:
+                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
+                                     ## need to know here for now
 
             for action in portal_type.actions:
                 # DM: "Expression" derives from "Persistent" and
