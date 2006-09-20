@@ -466,7 +466,6 @@ class BaseObject(Referenceable):
         if not initializing:
             # Avoid double indexing during initialization.
             self.reindexObject()
-	event.notify(objectevent.ObjectModifiedEvent(self))
 
     security.declareProtected(permissions.ModifyPortalContent, 'edit')
     edit = update
