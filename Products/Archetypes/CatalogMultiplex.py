@@ -1,3 +1,5 @@
+from debug import log
+from logging import WARNING
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -68,8 +70,8 @@ class CatalogMultiplex(CMFCatalogAware):
                     # BBB: Ignore old references to deleted objects.
                     # Can happen only in Zope 2.7, or when using
                     # catalog-getObject-raises off in Zope 2.8
-                    LOG('reindexObjectSecurity', PROBLEM,
-                            "Cannot get %s from catalog" % brain_path)
+                    log("reindexObjectSecurity: Cannot get %s from catalog" % 
+                        brain_path, level=WARNING)
                     continue
 
                 # Recatalog with the same catalog uid.
