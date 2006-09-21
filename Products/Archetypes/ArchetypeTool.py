@@ -81,9 +81,6 @@ document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
 folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
-# Never actually used
-## rr: started using this again at least for the actions when trying
-## to get installTypes back for CMF-2.0
 base_factory_type_information = (
     { 'id': 'Archetype'
       , 'content_icon': 'document_icon.gif'
@@ -96,29 +93,30 @@ base_factory_type_information = (
       , 'filter_content_types': False
       , 'allow_discussion': False
       , 'fti_meta_type' : FactoryTypeInformation.meta_type
-      , 'aliases' : {'(Default)' : '',
-                     'view' : '',
-                     'index.html' : '',
+      , 'aliases' : {'(Default)' : 'base_view',
+                     'view' : '(Default)',
+                     'index.html' : '(Default)',
                      'edit' : 'base_edit',
+                     'properties' : 'base_metadata',
                      'gethtml' : '',
                      'mkdir' : '',
                      }
       , 'actions': (
                      { 'id': 'view',
                        'title': 'View',
-                       'action': Expression('string:${object_url}/base_view'),
+                       'action': Expression('string:${object_url}/view'),
                        'permissions': (permissions.View,),
                        },
 
                      { 'id': 'edit',
                        'title': 'Edit',
-                       'action': Expression('string:${object_url}/base_edit'),
+                       'action': Expression('string:${object_url}/edit'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
                        'title': 'Properties',
-                       'action': Expression('string:${object_url}/base_metadata'),
+                       'action': Expression('string:${object_url}/properties'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
