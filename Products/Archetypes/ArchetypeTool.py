@@ -133,7 +133,9 @@ base_factory_type_information = (
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.portal_type)
+        typeInfo = getattr(typesTool, portal_type.portal_type, None)
+        if typeInfo is None:
+            return
         if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
