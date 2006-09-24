@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<tool-setup>
-  <required tool_id="archetype_tool"
-  	  class="Products.Archetypes.ArchetypeTool"/>
-</tool-setup>
