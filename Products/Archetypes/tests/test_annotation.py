@@ -65,7 +65,6 @@ def gen_anndummy():
 class AnnotationTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self) 
         gen_dummy()
         dummy = Dummy(oid='dummy')
         self.folder._setObject('dummy', dummy)
@@ -116,7 +115,6 @@ class AnnotationTest(ATSiteTestCase):
 class MetadataAnnotationStorageTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self) 
         gen_anndummy()
         dummy = AnnDummy(oid='dummy')
         self.folder._setObject('dummy', dummy)
@@ -141,7 +139,6 @@ class MetadataAnnotationStorageTest(ATSiteTestCase):
 class AnnotationStorageTest(ATSiteTestCase):
     
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self) 
         gen_anndummy()
         dummy = AnnDummy(oid='dummy')
         self.folder._setObject('dummy', dummy)

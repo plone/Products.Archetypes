@@ -47,7 +47,6 @@ from Products.Archetypes.atapi import *
 class GetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -116,7 +115,6 @@ class GetContentTypeTest(ATTestCase):
 class SetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()

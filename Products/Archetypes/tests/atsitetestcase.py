@@ -10,8 +10,8 @@ from Products.PloneTestCase.setup import portal_owner
 
 # setup a Plone site 
 from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes',
-                                   'Products.Archetypes:Archetypes_sampletypes'
+setupPloneSite(extension_profiles=['Archetypes:Archetypes',
+                                   'Archetypes:Archetypes_sampletypes'
                                   ])
 
 class ATSiteTestCase(PloneTestCase.PloneTestCase, attestcase.ATTestCase):

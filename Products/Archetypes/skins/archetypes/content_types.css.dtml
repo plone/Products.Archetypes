@@ -1,0 +1,15 @@
+/*
+generate css selectors to apply on content types links
+(we're using that to render reference fields)
+
+IMPORTANT:
+replace *spaces* in content type id with *underscores*
+*/
+<dtml-with portal_types>
+<dtml-in listTypeInfo>
+a.<dtml-var "getId().replace(' ', '_')"> {
+    background: transparent url("<dtml-var portal_url>/<dtml-var content_icon>") 0 1px no-repeat;
+    padding: 2px 0px 2px 18px;
+}
+</dtml-in>
+</dtml-with>

@@ -17,14 +17,12 @@ from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import getSchemata
-from Products.Archetypes.Schema.registry import findSchema, updateSchema
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces import ISchemaComposer
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
@@ -796,10 +794,7 @@ class BaseObject(Referenceable):
         """Return a (wrapped) schema instance for
         this object instance.
         """
-        schema = findSchema(self.__class__)
-        if schema is None:
-            composer = ISchemaComposer(self)
-            schema = updateSchema(self.__class__, composer())
+        schema = self.schema
         return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')

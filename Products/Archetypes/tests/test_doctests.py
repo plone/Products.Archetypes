@@ -39,17 +39,15 @@ import unittest
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
-    #'Products.Archetypes.utils',
-    #'Products.Archetypes.Schema',
-    #'Products.Archetypes.ArchetypeTool',
-    #'Products.Archetypes.AllowedTypesByIface',
-    #'Products.Archetypes.Field',
-    #'Products.Archetypes.Marshall',
+    'Products.Archetypes.utils',
+    'Products.Archetypes.Schema',
+    'Products.Archetypes.ArchetypeTool',
+    'Products.Archetypes.AllowedTypesByIface',
+    'Products.Archetypes.Field',
+    'Products.Archetypes.Marshall',
     )
 
-DOCTEST_FILES = (
-    'schema.txt',
-    )
+DOCTEST_FILES = ()
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite

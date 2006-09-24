@@ -12,7 +12,6 @@ from _orderedfolder import IOrderedFolder, IOrderedContainer
 from _referenceable import IReferenceable
 from _referenceengine import IReference, IContentReference, IReferenceCatalog, IUIDCatalog
 from _schema import ISchema, ISchemata, ICompositeSchema, IBindableSchema, IManagedSchema 
-from _schema import ISchemaInvalidatedEvent, ISchemaRegistry, ISchemaComposer, ISchemaProvider
 from _storage import IStorage, ISQLStorage
 from _templatemixin import ITemplateMixin
 from _vocabulary import IVocabulary

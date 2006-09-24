@@ -46,7 +46,6 @@ from Products.Archetypes.atapi import *
 class GetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -115,7 +114,6 @@ class GetFilenameTest(ATTestCase):
 class SetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self)
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()

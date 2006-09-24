@@ -1,5 +1,4 @@
-from zope.interface import Interface, Attribute
-import zope.schema
+from zope.interface import Interface
 
 class ISchemata(Interface):
     """Schemata (roughly) represents a group of fields"""
@@ -190,58 +189,4 @@ class IManagedSchema(ISchema):
         """Move a schemata to left (direction=-1) or to right
         (direction=1)
         """
-class ISchemaInvalidatedEvent(Interface):
-    """An event fired when the schema of a content object is to be invalidated
-    (because it has changed).
-    """
-    
-    klass = Attribute("The class object of the content object being invalidated")
-    
-class ISchemaRegistry(Interface):
-    """A registry of loaded/initialised schema's.
-    """
-    
-    def findSchema(klass):
-        """Find the schema registered for the given class.
-        
-        Return None if the schema has not been registered/initialised. Note that
-        an ISchemaInvalidatedEvent may clear the registry entry.
-        """
-        
-    def updateSchema(klass, schema):
-        """Update/create the schema registered for the given class.
-        """
-        
-class ISchemaComposer(Interface):
-    """A component capable of finding and composing several schemas into 
-    once.
-    
-    Typically registered an adapter from a content type interface - BaseObject
-    does composer = ISchemaComposer(self).
-    """
-    
-    def __call__():
-        """Return a single, non-acquisition-wrapped schema instance.
-        """
-        
-class ISchemaProvider(Interface):
-    """A component which can provide a schema or part of a schema to an
-    object.
-    
-    The default schema composer will find all multi-adapters from 
-    (context, composer) to ISchemaProvider, and compose those schemas into one.
-    
-    The 'default' schema provider has order 0 and looks at context.schema.
-    """
-    
-    order = zope.schema.Int(
-        title=u"Order",
-        description=u"A numerical ordering for the schema. Schemas will be composed in this order")
-                                    
-    def __call__(current=None):
-        """Return a schema to apply.
-        
-        If 'current' is given, the returned schema should be an extension of 
-        it. Note that it is generally not safe to mutate 'current' - call
-        curreny.copy() if necessary.
-        """
+

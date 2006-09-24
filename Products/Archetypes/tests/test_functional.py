@@ -53,7 +53,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     """Tests object renaming and creation"""
 
     def afterSetUp(self):
-        ATFunctionalSiteTestCase.afterSetUp(self) 
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
         request = self.app.REQUEST

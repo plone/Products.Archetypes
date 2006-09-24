@@ -49,7 +49,6 @@ stub_bin_content = ''
 class WidgetTests(ATSiteTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self) 
         # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
                stub_bin_file, stub_bin_content

@@ -59,26 +59,6 @@ else:
     ZOPE29 = True
 
 
-def provideSchemaAdapters():
-    """Register the adapters used for schema composition.
-    
-    Normally, ZCML takes care of this, but for a test, we set them up
-    explicitly.
-    """
-    from zope.component import provideAdapter, provideSubscriptionAdapter
-    from zope.interface import Interface
-    
-    from Products.Archetypes.interfaces import ISchemaInvalidatedEvent
-    from Products.Archetypes.Schema.registry import invalidateSchema
-    
-    provideSubscriptionAdapter(invalidateSchema, (Interface,), ISchemaInvalidatedEvent)
-    
-    from Products.Archetypes.Schema.composition import DefaultSchemaComposer
-    from Products.Archetypes.Schema.composition import BaseSchemaProvider
-    
-    provideAdapter(DefaultSchemaComposer)
-    provideAdapter(BaseSchemaProvider, name=u'default')
-
 def gen_class(klass, schema=None):
     """generats and registers the klass
     """

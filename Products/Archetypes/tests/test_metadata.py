@@ -242,7 +242,6 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
     filename = 'foo.txt'
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self) 
         portal = self.portal
 
         # to enable overrideDiscussionFor

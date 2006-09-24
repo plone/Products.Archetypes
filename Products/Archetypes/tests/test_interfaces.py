@@ -65,7 +65,6 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.atapi import registerType
 
-
 def className(klass):
     """ get the short class name """
     # remove <>
@@ -168,9 +167,6 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 ###############################################################################
 ###                         testing starts here                             ###
 ###############################################################################
-
-from Products.Archetypes.tests.utils import provideSchemaAdapters
-provideSchemaAdapters()
 
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""

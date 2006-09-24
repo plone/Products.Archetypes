@@ -46,7 +46,6 @@ from DateTime import DateTime
 class ChangeStorageTest(ATTestCase):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self) 
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -96,7 +95,6 @@ class ChangeStorageTest(ATTestCase):
 class MetadataStorageTest( ATTestCase ):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self) 
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
@@ -108,7 +106,6 @@ class MetadataStorageTest( ATTestCase ):
 class AttributeStorageTest( ATTestCase ):
 
     def afterSetUp(self):
-        ATTestCase.afterSetUp(self) 
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
