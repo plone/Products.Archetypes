@@ -4,23 +4,19 @@ from Testing.ZopeTestCase.functional import Functional
 from Products.PloneTestCase import PloneTestCase
 
 # setup test content types
-from Products.CMFPlone.interfaces import IPloneSiteRoot
 from Products.GenericSetup import EXTENSION, profile_registry
-
-from Products.Archetypes.tests.utils import provideSchemaAdapters
 
 profile_registry.registerProfile('Archetypes_sampletypes',
     'Archetypes Sample Content Types',
     'Extension profile including Archetypes sample content types',
     'profiles/sample_types',
-    'Archetypes',
-    EXTENSION,
-    for_=IPloneSiteRoot)
+    'Products.Archetypes',
+    EXTENSION)
 
 # setup a Plone site
 from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Archetypes:Archetypes',
-                                   'Archetypes:Archetypes_sampletypes'
+setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes',
+                                   'Products.Archetypes:Archetypes_sampletypes'
                                   ])
 
 # Fixup zope 2.7+ configuration
@@ -33,10 +29,6 @@ del config
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
-    
-    def afterSetUp(self): 
-        super(ATTestCase, self).afterSetUp() 
-        provideSchemaAdapters()
 
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests

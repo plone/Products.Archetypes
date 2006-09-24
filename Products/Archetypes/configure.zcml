@@ -5,9 +5,9 @@
 
   <include file="implements.zcml"/>
 
+  <include file="profiles.zcml"/>
+
   <include package=".exportimport" />
-  
-  <include package=".Schema" />
 
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
@@ -44,7 +44,5 @@
 
   <five:deprecatedManageAddDelete
       class=".examples.SimpleType.SimpleType" />
-      
-      
-</configure>
 
+</configure>
