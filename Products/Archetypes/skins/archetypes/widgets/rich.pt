@@ -11,7 +11,7 @@
     <metal:view_macro define-macro="view">
       <metal:use use-macro="field_macro | here/widgets/field/macros/view">
         <metal:fill fill-slot="widget_body">
-          <span tal:condition="python: here.isTransformable(fieldName);"
+          <span tal:condition="python: here.isTransformable(fieldName)"
                 tal:replace="structure accessor" />
 
           <tal:comment replace="nothing">
