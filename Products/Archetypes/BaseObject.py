@@ -5,6 +5,8 @@ from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
+from Products.Archetypes.event import ObjectPreValidatingEvent
+from Products.Archetypes.event import ObjectPostValidatingEvent
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import fixSchema
@@ -21,7 +23,7 @@ from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
-from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IBaseObject, ISchema
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
@@ -60,44 +62,11 @@ from webdav.NullResource import NullResource
 
 from zope.interface import implements
 from zope import event
-from zope.app.event import objectevent
+from zope import lifecycleevent
 
 _marker = []
 
-class AttributeValidator(Implicit):
-    """(Ab)Use the security policy implementation.
-
-    This class will be used to protect attributes managed by
-    AttributeStorage with the same permission as the accessor method.
-
-    It does so by abusing a feature of the security policy
-    implementation that the
-    '__allow_access_to_unprotected_subobjects__' attribute can be (0,
-    1) or a dictionary of {name: 0|1} or a callable instance taking
-    'name' and 'value' arguments.
-
-    The said attribute is accessed through getattr(), so by
-    subclassing from Implicit we get the accessed object as our
-    aq_parent.
-
-    Next step is to check if the name is indeed a field name, and if
-    so, if it's using AttributeStorage, and if so, check the
-    read_permission against the object being accessed. All other cases
-    return '1' which means allow.
-    """
-
-    def __call__(self, name, value):
-        context = aq_parent(self)
-        schema = context.Schema()
-        if not schema.has_key(name):
-            return 1
-        field = schema[name]
-        if not isinstance(field.getStorage(), AttributeStorage):
-            return 1
-        perm = field.read_permission
-        if checkPerm(perm, context):
-            return 1
-        return 0
+from validator import AttributeValidator
 
 content_type = Schema((
 
@@ -385,14 +354,15 @@ class BaseObject(Referenceable):
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
-            schema = getattr(pmt, 'DCMI', None)
-            spec = schema.getElementSpec(field.accessor)
+            spec = pmt.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
+
+
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
-            return None, False
+            return None, 0
 
         if not policy:
             policy = spec.getPolicy(None)
@@ -507,11 +477,13 @@ class BaseObject(Referenceable):
         if errors is None:
             errors = {}
         self.pre_validate(REQUEST, errors)
+        event.notify(ObjectPreValidatingEvent(self, REQUEST, errors)) 
         if errors:
             return errors
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
+        event.notify(ObjectPostValidatingEvent(self, REQUEST, errors)) 
         return errors
 
     security.declareProtected(permissions.View, 'SearchableText')
@@ -647,10 +619,10 @@ class BaseObject(Referenceable):
 
         # Post create/edit hooks
         if is_new_object:
-            event.notify(objectevent.ObjectCreatedEvent(self))
+            event.notify(lifecycleevent.ObjectCreatedEvent(self))
             self.at_post_create_script()
         else:
-            event.notify(objectevent.ObjectModifiedEvent(self))
+            event.notify(lifecycleevent.ObjectModifiedEvent(self))
             self.at_post_edit_script()
 
     # This method is only called once after object creation.
@@ -793,7 +765,7 @@ class BaseObject(Referenceable):
         """Return a (wrapped) schema instance for
         this object instance.
         """
-        schema = self.schema
+        schema = ISchema(self)
         return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')
