@@ -128,15 +128,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            # Special default here, cite limi: "If you don't add any language to
-            # an item, the template that renders the Plone page will fall back
-            # to the declared portal-wide language setting. This is the
-            # behaviour we want, and thus setting language explicitly is not
-            # necessary. (I fixed this behaviour in Plone 2.0.5, IIRC)"
-            # So I keep it backward compatible if needed and adding a
-            # configureable behaviour for 1.3.x. (Jensens)
             default = config.LANGUAGE_DEFAULT,
-            default_method ='defaultLanguage',
             vocabulary='languages',
             widget=SelectionWidget(
                 label=_(u'label_language', default=u'Language'),
