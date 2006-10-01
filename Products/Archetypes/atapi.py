@@ -77,9 +77,6 @@ from Products.Archetypes.annotations import AT_ANN_STORAGE
 from Products.Archetypes.annotations import AT_MD_STORAGE
 from Products.Archetypes.annotations import AT_FIELD_MD
 from Products.Archetypes.annotations import AT_REF
-# events
-from Products.Archetypes.event import ObjectPreValidatingEvent
-from Products.Archetypes.event import ObjectPostValidatingEvent
 # misc
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import IntDisplayList

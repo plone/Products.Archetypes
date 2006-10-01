@@ -5,8 +5,6 @@ from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
-from Products.Archetypes.event import ObjectPreValidatingEvent
-from Products.Archetypes.event import ObjectPostValidatingEvent
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import fixSchema
@@ -32,6 +30,11 @@ from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
 from Products.Archetypes.ArchetypeTool import getType
 from Products.Archetypes.ArchetypeTool import _guessPackage
+
+from Products.Archetypes.event import ObjectPreValidatingEvent
+from Products.Archetypes.event import ObjectPostValidatingEvent
+from Products.Archetypes.event import ObjectInitializedEvent
+from Products.Archetypes.event import ObjectEditedEvent
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -62,7 +65,6 @@ from webdav.NullResource import NullResource
 
 from zope.interface import implements
 from zope import event
-from zope import lifecycleevent
 
 _marker = []
 
@@ -619,10 +621,10 @@ class BaseObject(Referenceable):
 
         # Post create/edit hooks
         if is_new_object:
-            event.notify(lifecycleevent.ObjectCreatedEvent(self))
+            event.notify(ObjectInitializedEvent(self))
             self.at_post_create_script()
         else:
-            event.notify(lifecycleevent.ObjectModifiedEvent(self))
+            event.notify(ObjectEditedEvent(self))
             self.at_post_edit_script()
 
     # This method is only called once after object creation.
