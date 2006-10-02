@@ -1,7 +1,27 @@
 1.5.0 - unreleased
 ==================
 
-  * Fix #585 by providing the right arguments for testCondition in templates.
+  * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
+    constructor, and two custom events are fired during processForm() - 
+    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from 
+    IObjectModifiedEvent, and the Initialized event is fired on the first
+    save, whereas the Edited event is fired on subsequent saves.
+    [optilude]
+
+  * Applied patch from George Lee and modernised code a bit for Zope 2.10,
+    to support event-based pre- and post-validation. See interfaces/_event.py
+    [optilude]
+
+  * Cleaned up VarClassGen a bit to make it potentially useful for people
+    needing it as part of a custom ISchema adapter.
+    [optilude]
+
+  * Made it possible to look up AT schema using an adapter from self
+    to ISchema. See note in Schema/factory.py.
+    [whit, optilude]
+
+  * Fix #585 by providing the right arguments for testCondition in
+    templates.
     [nouri]
 
   * Added small optimizations for DisplayLists to not translate values of type

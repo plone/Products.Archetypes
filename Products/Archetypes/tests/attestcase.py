@@ -6,6 +6,7 @@ from Products.PloneTestCase import PloneTestCase
 # setup test content types
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 from Products.GenericSetup import EXTENSION, profile_registry
+from Products.PloneTestCase.layer import ZCMLLayer
 
 profile_registry.registerProfile('Archetypes_sampletypes',
     'Archetypes Sample Content Types',
@@ -31,11 +32,12 @@ del config
 class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
+    layer = ZCMLLayer
 
 class ATFunctionalTestCase(Functional, ATTestCase):
     """Simple AT test case for functional tests
     """
-    __implements__ = Functional.__implements__ + ATTestCase.__implements__
+    layer = ZCMLLayer
 
 from Testing.ZopeTestCase import user_name
 from Testing.ZopeTestCase import user_password
