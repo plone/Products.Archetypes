@@ -11,7 +11,6 @@ from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
 
-
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
 
@@ -33,24 +32,14 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            # XXX This is an ugly workaround. This method shouldn't be called
-            # twice for an object in the first place, so we don't have to check
-            # if it is not cataloged so far. 
-            rid = c.getrid(url)
-            if rid is None:
-                c.catalog_object(self, url)
+            c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            # XXX This is an ugly workaround. This method shouldn't be called
-            # twice for an object in the first place, so we don't have to check
-            # if it is still cataloged. 
-            rid = c.getrid(url)
-            if rid is not None:
-                c.uncatalog_object(url)
+            c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
@@ -87,8 +76,6 @@ class CatalogMultiplex(CMFCatalogAware):
                 # Recatalog with the same catalog uid.
                 catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
                                         update_metadata=0, uid=brain_path)
-
-
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):
@@ -128,35 +115,9 @@ class CatalogMultiplex(CMFCatalogAware):
         # manage_afterAdd/manage_beforeDelete from Referenceable take
         # care of most of the issues, but some places still expect to
         # call reindexObject and have the uid_catalog updated.
-        # TODO: fix this so we can remove the following lines.
+        # XXX: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
                 self._catalogUID(self)
-
-    # Hooks copied from CMFCore.CMFCatalogAware of CMF 1.6 
-    # ----------------------------------------------------
-
-    def manage_afterAdd(self, item, container):
-        """
-            Add self to the catalog.
-            (Called when the object is created or moved.)
-        """
-        self.indexObject()
-
-    def manage_afterClone(self, item):
-        """
-            Add self to the workflow.
-            (Called when the object is cloned.)
-        """
-        self.notifyWorkflowCreated()
-
-    def manage_beforeDelete(self, item, container):
-        """
-            Remove self from the catalog.
-            (Called when the object is deleted or moved.)
-        """
-        self.unindexObject()
-        #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
-        self._v_cp_refs = None
 
 InitializeClass(CatalogMultiplex)

@@ -3,6 +3,8 @@
 
   <include file="bridge.zcml"/>
 
+  <include file="event.zcml"/>
+
   <include file="implements.zcml"/>
 
   <include file="profiles.zcml"/>

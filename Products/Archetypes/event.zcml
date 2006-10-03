@@ -1,0 +1,10 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope">
+
+  <subscriber
+      for="Products.Archetypes.interfaces.IReferenceable
+           zope.component.interfaces.IObjectEvent"
+      handler=".Referenceable.handleReferenceEvents"
+      />
+
+</configure>
