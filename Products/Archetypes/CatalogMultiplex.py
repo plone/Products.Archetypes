@@ -115,9 +115,11 @@ class CatalogMultiplex(CMFCatalogAware):
         # manage_afterAdd/manage_beforeDelete from Referenceable take
         # care of most of the issues, but some places still expect to
         # call reindexObject and have the uid_catalog updated.
-        # XXX: fix this so we can remove the following lines.
+        # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
-                self._catalogUID(self)
+                isCopy = getattr(self, '_v_is_cp', None)
+                if isCopy is None:
+                    self._catalogUID(self)
 
 InitializeClass(CatalogMultiplex)

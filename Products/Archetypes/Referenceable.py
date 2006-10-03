@@ -397,8 +397,3 @@ class Referenceable(CopySource):
         return get_png(self)
 
 InitializeClass(Referenceable)
-
-def handleReferenceEvents(ob, event):
-    """ Event subscriber for (IReferenceable, IObjectEvent) events.
-    """
-    pass
