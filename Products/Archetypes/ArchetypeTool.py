@@ -81,7 +81,6 @@ document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
 folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
-# Never actually used
 base_factory_type_information = (
     { 'id': 'Archetype'
       , 'content_icon': 'document_icon.gif'
@@ -94,66 +93,73 @@ base_factory_type_information = (
       , 'filter_content_types': False
       , 'allow_discussion': False
       , 'fti_meta_type' : FactoryTypeInformation.meta_type
-      , 'aliases' : {'(Default)' : '',
-                     'view' : '',
-                     'index.html' : '',
+      , 'aliases' : {'(Default)' : 'base_view',
+                     'view' : '(Default)',
+                     'index.html' : '(Default)',
                      'edit' : 'base_edit',
+                     'properties' : 'base_metadata',
                      'gethtml' : '',
                      'mkdir' : '',
                      }
       , 'actions': (
                      { 'id': 'view',
-                       'name': 'View',
-                       'action': 'string:${object_url}/base_view',
+                       'title': 'View',
+                       'action': Expression('string:${object_url}/view'),
                        'permissions': (permissions.View,),
                        },
 
                      { 'id': 'edit',
-                       'name': 'Edit',
-                       'action': 'string:${object_url}/base_edit',
+                       'title': 'Edit',
+                       'action': Expression('string:${object_url}/edit'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
-                       'name': 'Properties',
-                       'action': 'string:${object_url}/base_metadata',
+                       'title': 'Properties',
+                       'action': Expression('string:${object_url}/properties'),
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'references',
-                       'name': 'References',
-                       'action': 'string:${object_url}/reference_graph',
-                       'condition': 'object/archetype_tool/has_graphviz',
+                       'title': 'References',
+                       'action': Expression('string:${object_url}/reference_graph'),
+                       'condition': Expression('object/archetype_tool/has_graphviz'),
                        'permissions': (permissions.ModifyPortalContent,
                                        permissions.ReviewPortalContent,),
                        'visible' : True,
-                       },
-
-                     { 'id': 'folderlisting',
-                       'name': 'Folder Listing',
-                       'action': 'string:${folder_url}/folder_listing',
-                       'condition': 'object/isPrincipiaFolderish',
-                       'permissions': (permissions.View,),
-                       'category': 'folder',
-                       'visible' : False,
                        },
                      )
       }, )
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.portal_type)
+        typeInfo = getattr(typesTool, portal_type.portal_type, None)
+        if typeInfo is None:
+            return
         if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            if getattr(portal_type,'include_default_actions', True):
-                new = list(typeInfo._actions)
+            ## rr: this is now trial-and-error programming
+            ## I really don't know what's going on here
+            ## most importantly I don't know why the default
+            ## actions are not set in some cases :-(
+            ## (maybe they are removed afterwards sometimes???)
+            ## if getattr(portal_type,'include_default_actions', True):
+            if True:
+                default = [ActionInformation(**action) for action in
+                           base_factory_type_information[0]['actions']]
+                next = list(typeInfo._actions)
+                all = next + default
+                new = [a.clone() for a in all]
             else:
                 # If no standard actions are wished don't display them
                 new = []
-
-            cmfver = getCMFVersion()
+            try:
+                cmfver = getCMFVersion()
+            except ImportError:
+                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
+                                     ## need to know here for now
 
             for action in portal_type.actions:
                 # DM: "Expression" derives from "Persistent" and

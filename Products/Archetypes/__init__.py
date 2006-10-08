@@ -6,19 +6,11 @@ import bbb
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
-try:
-    from Products.CMFPlone.interfaces import IPloneSiteRoot
-    from Products.GenericSetup import EXTENSION, profile_registry
-    HAS_GENERICSETUP = True
-except ImportError:
-    HAS_GENERICSETUP = False
-
 
 ###
 ## security
@@ -47,7 +39,6 @@ allow_class(DisplayList)
 
 # Allow import of NotFound exception
 ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
-
 
 ###
 # register tools and content types
@@ -93,12 +84,3 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
-
-    if HAS_GENERICSETUP:
-        profile_registry.registerProfile('Archetypes',
-                'Archetypes',
-                'Extension profile for default Archetypes setup',
-                'profiles/default',
-                'Archetypes',
-                EXTENSION,
-                for_=IPloneSiteRoot)

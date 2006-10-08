@@ -4,7 +4,6 @@ from Testing.ZopeTestCase.functional import Functional
 from Products.PloneTestCase import PloneTestCase
 
 # setup test content types
-from Products.CMFPlone.interfaces import IPloneSiteRoot
 from Products.GenericSetup import EXTENSION, profile_registry
 from Products.PloneTestCase.layer import ZCMLLayer
 
@@ -12,14 +11,13 @@ profile_registry.registerProfile('Archetypes_sampletypes',
     'Archetypes Sample Content Types',
     'Extension profile including Archetypes sample content types',
     'profiles/sample_types',
-    'Archetypes',
-    EXTENSION,
-    for_=IPloneSiteRoot)
+    'Products.Archetypes',
+    EXTENSION)
 
 # setup a Plone site
 from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Archetypes:Archetypes',
-                                   'Archetypes:Archetypes_sampletypes'
+setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes',
+                                   'Products.Archetypes:Archetypes_sampletypes'
                                   ])
 
 # Fixup zope 2.7+ configuration

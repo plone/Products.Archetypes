@@ -5,6 +5,8 @@
 
   <include file="implements.zcml"/>
 
+  <include file="profiles.zcml"/>
+
   <include package=".exportimport" />
 
   <include package=".Schema" />
@@ -46,4 +48,3 @@
       class=".examples.SimpleType.SimpleType" />
 
 </configure>
-

@@ -6,11 +6,15 @@ from Globals import package_home
 from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
 from Acquisition import aq_base, aq_parent
+from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, minimalpath
 from Products.Archetypes.ArchetypeTool import fixActionsForType
+from Products.Archetypes.ArchetypeTool import listTypes
+from Products.Archetypes.ArchetypeTool import process_types
+from Products.Archetypes.ArchetypeTool import base_factory_type_information
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
@@ -248,21 +252,36 @@ def install_types(self, out, types, package_name):
         # get the meta type of the FTI from the class, use the
         # default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
-        if not fti_meta_type:
-            fti_meta_type = FactoryTypeInformation.meta_type
-
-        typesTool.manage_addTypeInformation(fti_meta_type,
-                                            id=klass.portal_type,
-                                            typeinfo_name=typeinfo_name)
+        if not fti_meta_type or fti_meta_type == 'simple item':
+            ## rr: explicitly catching 'simple item' because
+            ## CMF 2.0 removed the meta_type from the basic TIs :-(
+            ## seems to me, 'manage_addTypeInformation' is just broken
+            fti_meta_type = 'Factory-based Type Information'
+        try:
+            typesTool.manage_addTypeInformation(fti_meta_type,
+                                                id=klass.portal_type,
+                                                typeinfo_name=typeinfo_name)
+        except ValueError:
+            print "failed to add '%s'" %  klass.portal_type
+            print "fti_meta_type = %s" % fti_meta_type
+        ## rr: from CMF-2.0 onward typeinfo_name from the call above
+        ## is ignored and we have to do some more work
+        t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, package_name)
+        if t and fti:
+            t.manage_changeProperties(**fti)
+            if fti.has_key('aliases'):
+                t.setMethodAliases(fti['aliases'])
+        
         # Set the human readable title explicitly
-        t = getattr(typesTool, klass.portal_type, None)
+        ## t = getattr(typesTool, klass.portal_type, None)
         if t:
             t.title = klass.archetype_name
 
         # If the class appears folderish and the 'use_folder_tabs' is
         # not set to a false value, then we add the portal_type to
         # Plone's 'use_folder_tabs' property
-        use_folder_tabs = klass.isPrincipiaFolderish and getattr(klass, 'use_folder_tabs', 1)
+        use_folder_tabs = klass.isPrincipiaFolderish and \
+                          getattr(klass, 'use_folder_tabs', 1)
         if use_folder_tabs:
             folderish.append(klass.portal_type)
     if folderish:
@@ -282,10 +301,28 @@ def install_types(self, out, types, package_name):
             folders = tuple(dict(zip(folders, folders)).keys())
             sp._updateProperty(prop, folders)
 
+def _getFtiAndDataFor(tool, typename, package_name):
+    """helper method for type info setting
+       returns fti object from the types tool and the data created
+       by process_types for the fti
+    """
+    t = getattr(tool, typename, None)
+    if t is None:
+        return None, None
+    all_ftis = process_types(listTypes(package_name),
+                             package_name)[2]
+    for fti in all_ftis:
+        if fti['id'] == typename:
+            fti['content_meta_type'] = fti['meta_type']
+            return t, fti
+    return t, None
+    
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
+        ## rr: XXX TODO somehow the following doesn't do anymore what
+        ## it used to do :-(
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
@@ -407,22 +444,26 @@ def filterTypes(self, out, types, package_name):
         name = rti['name']
         meta_type = rti['meta_type']
 
-        # CMF 1.4 name: (product_id, metatype)
-        typeinfo_name="%s: %s" % (package_name, meta_type)
-        # CMF 1.5 name: (product_id, id, metatype)
-        typeinfo_name2="%s: %s (%s)" % (package_name, name, meta_type)
-        info = typesTool.listDefaultTypeInformation()
-        found = 0
-        for (name, ft) in info:
-            #if name.startswith(typeinfo_name):
-            if name in (typeinfo_name, typeinfo_name2):
-                found = 1
-                break
+        ## rr: skipping the first check as 'listDefaultTypeInformation
+        ## isn't available anymore in CMF-2.0. For now we rely on the
+        ## types being passed in to be safe
 
-        if not found:
-            print >> out, ('%s is not a registered Type '
-                           'Information' % typeinfo_name)
-            continue
+##         # CMF 1.4 name: (product_id, metatype)
+##         typeinfo_name="%s: %s" % (package_name, meta_type)
+##         # CMF 1.5 name: (product_id, id, metatype)
+##         typeinfo_name2="%s: %s (%s)" % (package_name, name, meta_type)
+##         info = typesTool.listDefaultTypeInformation()
+##         found = 0
+##         for (name, ft) in info:
+##             #if name.startswith(typeinfo_name):
+##             if name in (typeinfo_name, typeinfo_name2):
+##                 found = 1
+##                 break
+
+##         if not found:
+##             print >> out, ('%s is not a registered Type '
+##                            'Information' % typeinfo_name)
+##             continue
 
         isBaseObject = 0
         if IBaseObject.isImplementedByInstancesOf(t):
@@ -482,6 +523,30 @@ def setupEnvironment(self, out, types,
     install_indexes(self, out, ftypes)
     install_actions(self, out, ftypes)
 
+def doubleCheckDefaultTypeActions(self, ftypes):
+    # rr: for some reason, AT's magic wrt adding the default type actions
+    # stopped working when moving to CMF-2.0
+    # Instead of trying to resurect the old way (which I tried but couldn't)
+    # I make it brute force here
+
+    typesTool = getToolByName(self, 'portal_types')
+    defaultTypeActions = [ActionInformation(**action) for action in
+                          base_factory_type_information[0]['actions']]
+
+    for ftype in ftypes:
+        portal_type = ftype.portal_type
+        fti = typesTool.get(portal_type, None)
+        if fti is None:
+            continue
+        actions = list(fti._actions)
+        action_ids = [a.id for a in actions]
+        prepend = []
+        for a in defaultTypeActions:
+            if a.id not in action_ids:
+                prepend.append(a.clone())
+        if prepend:
+            fti._actions = tuple(prepend + actions)
+    
 
 ## The master installer
 def installTypes(self, out, types, package_name,
@@ -495,6 +560,8 @@ def installTypes(self, out, types, package_name,
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies,
                      install_deps)
+    ## rr: sometimes the default actions are still missing
+    doubleCheckDefaultTypeActions(self, ftypes)
     if refresh_references and ftypes:
         rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()

@@ -40,18 +40,14 @@ class BaseContentMixin(CatalogMultiplex,
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
-        CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
-        CatalogMultiplex.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
-        CatalogMultiplex.manage_beforeDelete(self, item, container)
-
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
@@ -59,7 +55,10 @@ class BaseContentMixin(CatalogMultiplex,
         """OFS.CopySupport notify
         """
         BaseObject._notifyOfCopyTo(self, container, op=op)
-        PortalContent._notifyOfCopyTo(self, container, op=op)
+        # keep reference info internally when op == 1 (move)
+        # because in those cases we need to keep refs
+        if op==1:
+            self._v_cp_refs = 1
 
     security.declareProtected(permissions.ModifyPortalContent, 'PUT')
     PUT = WebDAVSupport.PUT

@@ -294,8 +294,12 @@ class Referenceable(CopySource):
         if not uc:
             uc = getToolByName(self, config.UID_CATALOG)
         url = self._getURL()
-        uc.uncatalog_object(url)
-
+        # XXX This is an ugly workaround. This method shouldn't be called
+        # twice for an object in the first place, so we don't have to check
+        # if it is still cataloged. 
+        rid = uc.getrid(url)
+        if rid is not None:
+            uc.uncatalog_object(url)
 
     def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
@@ -319,8 +323,15 @@ class Referenceable(CopySource):
                 rc = getToolByName(self, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
                 url = getRelURL(uc, ref.getPhysicalPath())
-                uc.uncatalog_object(url)
-                rc.uncatalog_object(url)
+                # XXX This is an ugly workaround. This method shouldn't be
+                # called twice for an object in the first place, so we don't
+                # have to check if it is still cataloged. 
+                uc_rid = uc.getrid(url)
+                if uc_rid is not None:
+                    uc.uncatalog_object(url)
+                rc_rid = rc.getrid(url)
+                if rc_rid is not None:
+                    rc.uncatalog_object(url)
 
     def _getCopy(self, container):
         # We only set the '_v_is_cp' flag here if it was already set.
@@ -373,14 +384,12 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(View,
-                              'getReferenceMap')
+    security.declareProtected(View, 'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(View,
-                              'getReferencePng')
+    security.declareProtected(View, 'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""
         if REQUEST:
@@ -388,5 +397,3 @@ class Referenceable(CopySource):
         return get_png(self)
 
 InitializeClass(Referenceable)
-
-

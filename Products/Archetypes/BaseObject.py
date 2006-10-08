@@ -357,15 +357,14 @@ class BaseObject(Referenceable):
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
-            spec = pmt.getElementSpec(field.accessor)
+            schema = getattr(pmt, 'DCMI', None)
+            spec = schema.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-
-
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
-            return None, 0
+            return None, False
 
         if not policy:
             policy = spec.getPolicy(None)
