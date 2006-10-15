@@ -11,6 +11,8 @@
 
   <include package=".Schema" />
 
+  <include package=".browser" />
+
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
 
