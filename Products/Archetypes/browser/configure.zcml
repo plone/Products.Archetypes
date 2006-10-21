@@ -7,7 +7,7 @@
       name="at_base_edit_view"
       class=".edit.Edit"
       permission="zope.Public"
-      allowed_attributes="isMultiPageSchema"
+      allowed_attributes="isMultiPageSchema getTranslatedSchemaLabel"
       />
 
 </configure>

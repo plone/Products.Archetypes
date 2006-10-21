@@ -92,9 +92,8 @@
               <fieldset tal:repeat="fieldset fieldsets"
                         tal:attributes="id string:fieldset-${fieldset}">
                 <legend id=""
-                        tal:content="fieldset"
-                        tal:attributes="id string:fieldsetlegend-${fieldset}"
-                        i18n:translate="" />
+                        tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
+                        tal:attributes="id string:fieldsetlegend-${fieldset}" />
                 <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
                   <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
                 </tal:fields>

@@ -7,3 +7,6 @@ class IEdit(Interface):
         """ Returns true if the schema for the current object should be
         rendered on multiple pages.
         """
+
+    def getTranslatedSchemaLabel(schema):
+        """ Returns the translated title for the given schema. """
