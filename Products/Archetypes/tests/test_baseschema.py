@@ -37,6 +37,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 # need this to initialize new BU for tests
 from Products.Archetypes.tests.test_classgen import Dummy
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
 from Products.Archetypes.interfaces.layer import ILayerContainer
@@ -130,14 +131,17 @@ class BaseSchemaTest(ATSiteTestCase):
     def test_allowdiscussion(self):
         dummy = self._dummy
         field = dummy.getField('allowDiscussion')
+        
+        vocabulary=DisplayList((
+                ('None', _(u'label_discussion_default', default=u'Default')),
+                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
+                ('0', _(u'label_discussion_disabled', default=u'Disabled'))))
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
-        self.failUnless(field.vocabulary == DisplayList((('0', 'Disabled'),
-                                                         ('1', 'Enabled'),
-                                                         ('None', 'Default'))))
+        self.failUnless(field.vocabulary == vocabulary)
         self.failUnless(field.enforceVocabulary == 1)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
@@ -156,9 +160,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
-        self.failUnless(vocab == DisplayList((('0', 'Disabled'),
-                                              ('1', 'Enabled'),
-                                              ('None', 'Default'))))
+        self.failUnless(field.vocabulary == vocabulary)
 
     def test_subject(self):
         dummy = self._dummy

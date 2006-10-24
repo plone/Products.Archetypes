@@ -1,8 +1,9 @@
 import os.path
-
 from types import StringType
+from zope.interface import implements
 
-from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces import IBaseUnit
+from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log
@@ -17,14 +18,14 @@ from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
-#from Products.MimetypesRegistry.mime_types import text_plain, \
-#     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []
 
 class BaseUnit(File):
-    __implements__ = WriteLockInterface, IBaseUnit
+    __implements__ = WriteLockInterface, z2IBaseUnit
+    implements(IBaseUnit)
+
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -279,6 +280,3 @@ class BaseUnit(File):
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
-
-# XXX Should go away after 1.3-final
-newBaseUnit = BaseUnit

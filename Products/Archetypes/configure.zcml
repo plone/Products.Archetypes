@@ -5,11 +5,11 @@
 
   <include file="implements.zcml"/>
 
+  <include file="profiles.zcml"/>
+
   <include package=".exportimport" />
 
-  <five:traversable
-      class=".atapi.BaseObject"
-      />
+  <include package=".Schema" />
 
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
@@ -48,4 +48,3 @@
       class=".examples.SimpleType.SimpleType" />
 
 </configure>
-

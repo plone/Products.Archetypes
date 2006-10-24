@@ -1,3 +1,5 @@
+from debug import log
+from logging import WARNING
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -8,7 +10,6 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
-
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -68,8 +69,8 @@ class CatalogMultiplex(CMFCatalogAware):
                     # BBB: Ignore old references to deleted objects.
                     # Can happen only in Zope 2.7, or when using
                     # catalog-getObject-raises off in Zope 2.8
-                    LOG('reindexObjectSecurity', PROBLEM,
-                            "Cannot get %s from catalog" % brain_path)
+                    log("reindexObjectSecurity: Cannot get %s from catalog" % 
+                        brain_path, level=WARNING)
                     continue
 
                 # Recatalog with the same catalog uid.
@@ -119,9 +120,8 @@ class CatalogMultiplex(CMFCatalogAware):
         # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
-                self._catalogUID(self)
-                # _catalogRefs used to be called here, but all possible
-                # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable now.
+                isCopy = getattr(self, '_v_is_cp', None)
+                if isCopy is None:
+                    self._catalogUID(self)
 
 InitializeClass(CatalogMultiplex)

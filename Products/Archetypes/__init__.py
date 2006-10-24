@@ -6,19 +6,11 @@ import bbb
 
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
-import Products.Archetypes.patches
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
-try:
-    from Products.CMFPlone.interfaces import IPloneSiteRoot
-    from Products.GenericSetup import EXTENSION, profile_registry
-    HAS_GENERICSETUP = True
-except ImportError:
-    HAS_GENERICSETUP = False
-
 
 ###
 ## security
@@ -26,8 +18,6 @@ except ImportError:
 # make log and log_exc public
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
-
-import transaction
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone
@@ -37,13 +27,18 @@ allow_class(IndexIterator)
 from PloneCompat import transaction_note
 ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
 
+# Import "PloneMessageFactory as _" to create messages in plone domain
+# duplicated here so we don't add a dependency on CMFPlone
+from zope.i18nmessageid import MessageFactory
+PloneMessageFactory = MessageFactory('plone')
+ModuleSecurityInfo('Products.Archetypes').declarePublic('PloneMessageFactory')
+
 # make DisplayList accessible from python scripts and others objects executed
 # in a restricted environment
 allow_class(DisplayList)
 
 # Allow import of NotFound exception
 ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
-
 
 ###
 # register tools and content types
@@ -54,20 +49,6 @@ from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
      process_types, listTypes, fixAfterRenameType
 ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
-
-
-###
-# Test dependencies
-###
-# XXX: Check if we need these imports here, after version checks are removed
-this_module = sys.modules[__name__]
-import Products.MimetypesRegistry
-import Products.PortalTransforms
-import Products.validation
-
-###
-# Tools
-###
 
 tools = (
     ArchetypeTool,
@@ -103,21 +84,3 @@ def initialize(context):
         registerFileExtension('xul', FSFile)
     except ImportError:
         pass
-
-    if HAS_GENERICSETUP:
-        profile_registry.registerProfile('Archetypes',
-                'Archetypes',
-                'Extension profile for default Archetypes setup',
-                'profiles/default',
-                'Archetypes',
-                EXTENSION,
-                for_=IPloneSiteRoot)
-
-        profile_registry.registerProfile('Archetypes_samplecontent',
-                'Archetypes Sample Content Types',
-                'Extension profile including Archetypes sample content types',
-                'profiles/sample_content',
-                'Archetypes',
-                EXTENSION,
-                for_=IPloneSiteRoot)
-

@@ -11,7 +11,6 @@ modname=PRODUCT.__name__
 major, minor, bugfix =  version.split('.')[:3]
 bugfix, release = bugfix.split('-')[:2]
 
-relinfo = None
 if 'alpha' in release:
     relinfo=-99
 if 'beta' in release:
@@ -20,9 +19,6 @@ if 'rc' in release:
     relinfo=-19
 if 'final' in release:
     relinfo=0
-
-if relinfo is None:
-    relinfo = -9
 
 numversion = (int(major), int(minor), int(bugfix), relinfo)
 
