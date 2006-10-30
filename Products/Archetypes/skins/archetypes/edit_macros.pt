@@ -30,8 +30,8 @@
         </div>
       </tal:has_document_byline>
 
-      <div id="archetypes-schemata-links" 
-           tal:condition="fieldsets">
+      <div id="archetypes-schemata-links"
+           tal:condition="python: fieldsets and not allow_tabbing">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
