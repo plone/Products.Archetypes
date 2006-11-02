@@ -1,3 +1,9 @@
+1.5.0-a2 - unreleased
+=====================
+
+  * Fixed a DeprecationWarning for listContentTypes(by_metatype=1).
+    [hannosch]
+
 1.5.0-a1 - 2006-10-25
 =====================
 
@@ -20,8 +26,7 @@
     to ISchema. See note in Schema/factory.py.
     [whit, optilude]
 
-  * Fix #585 by providing the right arguments for testCondition in
-    templates.
+  * Fix #585 by providing the right arguments for testCondition in templates.
     [nouri]
 
   * Added small optimizations for DisplayLists to not translate values of type

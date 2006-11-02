@@ -726,7 +726,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
             tt = getToolByName(self, 'portal_types')
-            types = tt.listContentTypes(self, by_metatype=not portalTypes)
+            types = [ti.Metatype() for ti in ttool.listTypeInfo()]
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
             else:
