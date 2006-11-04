@@ -1,118 +1,9 @@
-1.5.0-a1 - 2006-10-25
-=====================
+1.4.1-final - 2006-09-08
+========================
 
-  * By default base_edit will show all fields of all schemas on one page now.
-    The old behaviour can be kept by marking a content type with the
-    IMultiPageSchema interface.
-    [fschulze]
-
-  * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
-    constructor, and two custom events are fired during processForm() - 
-    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from 
-    IObjectModifiedEvent, and the Initialized event is fired on the first
-    save, whereas the Edited event is fired on subsequent saves.
-    [optilude]
-
-  * Applied patch from George Lee and modernised code a bit for Zope 2.10,
-    to support event-based pre- and post-validation. See interfaces/_event.py
-    [optilude]
-
-  * Cleaned up VarClassGen a bit to make it potentially useful for people
-    needing it as part of a custom ISchema adapter.
-    [optilude]
-
-  * Made it possible to look up AT schema using an adapter from self
-    to ISchema. See note in Schema/factory.py.
-    [whit, optilude]
-
-  * Fix #585 by providing the right arguments for testCondition in
-    templates.
-    [nouri]
-
-  * Added small optimizations for DisplayLists to not translate values of type
-    Message by itself, added some tests.
+  * Fixed log_exc function in debug.py to print the actual exception including
+    the traceback.
     [hannosch]
-
-  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
-    directly as values instead to get the same behavior.
-    [hannosch]
-
-  * Deprecated the generator.i18n module. We use the translate method of the
-    GlobalTranslationService directly for now, as long as we support
-    PlacelessTranslationService. Ultimately this should be replaced by calls
-    to 'from zope.i18n import translate'
-    [hannosch]
-
-  * Removed outdated message catalogs and changed the few remaining texts in the
-    'archetypes' domain to use the 'plone' domain instead. The translation
-    files can be found as usual as part of the PloneTranslations product.
-    [hannosch]
-
-  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
-    internationalization of labels and descriptions.
-    [hannosch]
-
-  * Optimized the basic widget for the new default case of labels and
-    descriptions as Messages. These are not translated automatically anymore
-    but this is delayed to be triggered by the time they are rendered in a TAL
-    context. This will ultimately safe quite some translation machinery hackery.
-    [hannosch]
-
-  * Modernized DisplayLists to use isinstance instead of type checking. Now
-    derived string types like Messages are allowed as keys and values as well.
-    [hannosch]
-
-  * Removed last bits of dependency version checks from __init__.py as well as
-    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
-    live site but only serve as code examples and are used during test runs.
-    [hannosch]
-
-  * Renamed sample_content profile to sample_types as it only includes types
-    but no content ;) This profile is not registered globally anymore but only
-    during test runs, as these types aren't meant to be used for anything else.
-    [hannosch]
-
-  * Marked Base* as implementing their Z3 interfaces.
-    [hannosch]
-
-  * Based tests on PloneTestCase with extension profile support for site setup.
-    [hannosch]
-
-  * Added (Default) alias to base_view to all sample types, so calling them will
-    still work in CMF >= 2.0.
-    [hannosch]
-
-  * Removed deprecated spec argument from listFolderContents and
-    folderlistingFolderContents of BaseFolderMixin.
-    [hannosch]
-
-  * Changed import of TAL.ndiff to zope.tal.ndiff.
-    [hannosch]
-
-  * Cleaned up XXX comments, converted non-critical ones to TODO.
-    [hannosch]
-
-  * Removed five:traversable from configure.zcml as it is not needed anymore for
-    Zope 2.10, which we require now.
-    [hannosch]
-
-  * Cleaned up some comments, removed a pdb and an unused zLOG import.
-    [hannosch]
-
-  * Removed some more BBB code.
-    [hannosch]
-
-  * Removed deprecated ArchetypesTestCase.py.
-    [hannosch]
-
-  * Adjusted rest tests to Zope2.10 output.
-    [hannosch]
-
-  * Remove BBB code for calendar_macros.
-    [hannosch]
-
-1.4.1-beta1 - ?
-===============
 
   * base_edit (anything calling processForm, actually) now fires off
     appropriate IObjectCreatedEvent and IObjectModifiedEvent zope 3 events
@@ -156,10 +47,6 @@
     just a name change without any real benefit.
     [hannosch]
 
-  * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
-    This closes http://dev.plone.org/archetypes/ticket/656.
-    [hannosch]
-
 1.4.0-RC1 - 2006-06-02
 ======================
 
@@ -184,11 +71,6 @@
     This closes http://dev.plone.org/plone/ticket/5214.
     [hannosch]
 
-  * Add a new generateNewId method to BaseObject which is used to suggest
-    a new id when automatically renaming an object after creation. This makes
-    it easier to used custom naming in derived types.
-    [wichert]
-
   * Add GenericSetup support for importing/exporting the catalog map from
     ArchetypeTool
     [wichert]
@@ -196,10 +78,6 @@
   * Use portal type instead of meta type for the catalog map. Add an option
     to config.py to switch back to the old behaviour.
     [wichert]
-
-  * Check mimetype before schema update and reapply type after.  This fixes
-    https://dev.plone.org/archetypes/ticket/618
-    [alecm]
 
   * Removed some old commented out code.
     [hannosch]
@@ -336,6 +214,30 @@
     unicode itself but also types inherited from unicode are allowed. This is
     needed to handle zope.i18nmessageid.MessageID objects correctly.
     [hannosch]
+
+1.3.10-final2 - 2006-09-14
+==========================
+
+  * Check mimetype before schema update and reapply type after. This fixes
+    https://dev.plone.org/archetypes/ticket/618
+    [alecm]
+
+  * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
+    This closes http://dev.plone.org/archetypes/ticket/656.
+    [hannosch]
+
+1.3.9-final - 2006-05-16
+========================
+
+  * Add a new generateNewId method to BaseObject which is used to suggest 
+    a new id when automatically renaming an object after creation. This makes 
+    it easier to used custom naming in derived types. 
+    [wichert] 
+
+  * Fix visual widget to not lose formatting if there's only one allowed
+    content type - without passing this variable along, the field will revert
+    to text/plain or MIME type guessing the second time it's saved.
+    [optilude]
 
 1.3.8-final - 2006-04-30
 ========================
@@ -1591,6 +1493,8 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
+   XXX: Add a comment to the documentation that users should take care when
+   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
