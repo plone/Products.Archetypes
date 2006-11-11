@@ -25,6 +25,9 @@
           <tal:define define="id fieldName;
                               show_hm widget/show_hm|nothing;
                               show_ymd widget/show_ymd|nothing;
+                              starting_year widget/starting_year|nothing;
+                              ending_year widget/ending_year|nothing;
+                              future_years widget/future_years|nothing;
                               inputname fieldName;
                               formname string:edit_form;
                               inputvalue python:test(value!='None', value, '');">
