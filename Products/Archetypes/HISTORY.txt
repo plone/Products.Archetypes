@@ -114,6 +114,12 @@
 1.4.1-beta1 - ?
 ===============
 
+  * Fix #635.  Large files were truncated on `setFileName`.  In
+    `setFilename` of FileField, we now set the `filename` attribute
+    directly instead of retrieving the BaseObject, setting the
+    filename and setting the object again.
+    [nouri]
+
   * Fixed log_exc function in debug.py to print the actual exception including
     the traceback.
     [hannosch]

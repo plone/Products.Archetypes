@@ -1084,9 +1084,8 @@ class FileField(ObjectField):
     def setFilename(self, instance, filename):
         """Set file name in the base unit.
         """
-        bu = self.getBaseUnit(instance)
-        bu.setFilename(filename)
-        self.set(instance, bu)
+        obj = self.getRaw(instance)
+        obj.filename = filename
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
