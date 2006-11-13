@@ -1088,8 +1088,9 @@ class FileField(ObjectField):
     def setFilename(self, instance, filename):
         """Set file name in the base unit.
         """
-        obj = self.getRaw(instance)
-        obj.filename = filename
+        bu = self.getBaseUnit(instance, full=True)
+        bu.setFilename(filename)
+        self.set(instance, bu)
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
@@ -1298,7 +1299,7 @@ class TextField(FileField):
         return data or ''
 
     security.declarePrivate('getBaseUnit')
-    def getBaseUnit(self, instance):
+    def getBaseUnit(self, instance, full=False):
         """Return the value of the field wrapped in a base unit object
         """
         return self.get(instance, raw=True)
