@@ -1,3 +1,9 @@
+Unreleased
+==========
+
+  * Made tests use layers for AT site setup.
+    [stefan]
+
 1.4.1-final - 2006-09-08
 ========================
 
