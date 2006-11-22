@@ -1,6 +1,9 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * Made ATSiteTestCase inherit its layer from PloneTestCase.
+    [stefan]
+
   * Fixed a DeprecationWarning for listContentTypes(by_metatype=1).
     [hannosch]
 
