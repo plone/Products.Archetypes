@@ -1,23 +1,22 @@
 from Testing import ZopeTestCase
 
-from Testing.ZopeTestCase.functional import Functional
+from Testing.ZopeTestCase import Functional
 from Products.Archetypes.tests import attestcase
 import sys, code
 
 from Products.PloneTestCase import PloneTestCase
-from Products.PloneTestCase.layer import ZCMLLayer
 from Products.PloneTestCase.setup import portal_name
 from Products.PloneTestCase.setup import portal_owner
 
+
 class ATSiteTestCase(PloneTestCase.PloneTestCase, attestcase.ATTestCase):
-    """AT test case inside a CMF site
+    """AT test case with Plone site
     """
-    layer = ZCMLLayer
-    
+
+
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
-    """AT test case for functional tests inside a CMF site
+    """AT test case for functional tests with Plone site
     """
-    layer = ZCMLLayer
     
     def interact(self, locals=None):
         """Provides an interactive shell aka console inside your testcase.
@@ -45,6 +44,7 @@ Ctrl-D ends session and continues testing.
         sys.stdout.write('\nend of DocTest Interactive Console session\n')
         sys.stdout.write('='*70+'\n')
         sys.stdout = savestdout
+
 
 __all__ = ('ATSiteTestCase', 'ATFunctionalSiteTestCase', 'portal_name',
            'portal_owner')
