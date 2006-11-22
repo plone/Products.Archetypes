@@ -51,7 +51,7 @@ from Products.Archetypes.config import UUID_ATTR
 import transaction
 
 try:
-    from OFS.interfaces import IObjectWillBeAddedEvent
+    from OFS import subscribers
     HAS_EVENTS = True
 except ImportError:
     HAS_EVENTS = False
