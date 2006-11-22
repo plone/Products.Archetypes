@@ -1,13 +1,11 @@
 <tal:block metal:define-macro="master"
-           define="view context/@@at_base_edit_view;
-                   errors options/state/getErrors | nothing;
+           define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
                    schematas here/Schemata;
-                   allow_tabbing python: not view.isMultiPageSchema();
-                   fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];
+                   fieldsets python:[key for key in schematas.keys() if (key != 'metadata') and (schematas[key].editableFields(here, visible_only=True))];
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
-                   fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
+                   fields python:schematas[fieldset].editableFields(here);
                    dummy python:here.at_isEditable(fields);
                    portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
                    type_name here/getPortalTypeName|here/archetype_name;

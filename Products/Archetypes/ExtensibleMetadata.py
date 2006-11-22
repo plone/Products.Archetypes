@@ -1,6 +1,9 @@
 import string
 from logging import INFO, DEBUG
 
+from plone.i18n.locales.interfaces import IMetadataLanguageAvailability
+from zope.component import queryUtility
+
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
@@ -128,7 +131,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            default = config.LANGUAGE_DEFAULT,
+            default = u'',
             vocabulary='languages',
             widget=SelectionWidget(
                 label=_(u'label_language', default=u'Language'),
@@ -189,7 +192,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # This method is kept around for backward compatibility only
         log('defaultLanguage is deprecated and will be removed in AT 1.6',
             level=INFO)
-        return config.LANGUAGE_DEFAULT
+        return u''
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
@@ -255,17 +258,16 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         """Vocabulary method for the language field
         """
-        # XXX document me
-        # use a list of languages from PLT?
-        available_langs = getattr(self, 'availableLanguages', None)
-        if available_langs is None:
+        util = queryUtility(IMetadataLanguageAvailability)
+        if util is None:
             return DisplayList(
                 (('en','English'), ('fr','French'), ('es','Spanish'),
                  ('pt','Portuguese'), ('ru','Russian')))
-        if callable(available_langs):
-            available_langs = available_langs()
-        return DisplayList(available_langs)
-
+        languages = util.getLanguageListing()
+        languages.sort(lambda x,y:cmp(x[1], y[1]))
+        # Put language neutral at the top.
+        languages.insert(0,(u'',_(u'Language neutral (site default)')))
+        return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################
 
@@ -277,7 +279,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # return unknown if never set properly
         return creation is None and 'Unknown' or creation.ISO()
 
-    security.declarePublic( permissions.View, 'EffectiveDate')
+    security.declareProtected( permissions.View, 'EffectiveDate')
     def EffectiveDate(self):
         """ Dublin Core element - date resource becomes effective.
         """
@@ -289,11 +291,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         return self.getField('effectiveDate').get(self)
 
-    security.declarePublic(permissions.View, 'effective_date')
+    security.declareProtected(permissions.View, 'effective_date')
     effective_date = ComputedAttribute(_effective_date, 1)
 
 
-    security.declarePublic( permissions.View, 'ExpirationDate')
+    security.declareProtected( permissions.View, 'ExpirationDate')
     def ExpirationDate(self):
         """Dublin Core element - date resource expires.
         """
@@ -305,7 +307,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         return self.getField('expirationDate').get(self)
 
-    security.declarePublic(permissions.View, 'expiration_date')
+    security.declareProtected(permissions.View, 'expiration_date')
     expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(permissions.View, 'Date')

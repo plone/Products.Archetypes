@@ -13,13 +13,12 @@ from _marshall import IMarshall
 from _orderedfolder import IOrderedFolder, IOrderedContainer
 from _referenceable import IReferenceable
 from _referenceengine import IReference, IContentReference, IReferenceCatalog, IUIDCatalog
-from _schema import ISchema, ISchemata, ICompositeSchema, IBindableSchema, IManagedSchema, IMultiPageSchema
+from _schema import ISchema, ISchemata, ICompositeSchema, IBindableSchema, IManagedSchema 
 from _storage import IStorage, ISQLStorage
 from _templatemixin import ITemplateMixin
 from _vocabulary import IVocabulary
 from _athistoryaware import IATHistoryAware
 from _archetypetool import IArchetypeTool
-from _edit import IEdit
 
 # BBB
 from Interface.bridge import createZope3Bridge

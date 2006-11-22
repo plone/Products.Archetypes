@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import urllib
-import traceback
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -103,7 +102,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             raise
         except:
             log('UIDCatalogBrains getObject raised an error:\n %s' %
-                '\n'.join(traceback.format_exception(*sys.exc_info())))
+                 sys.exc_info())
             pass
 
 InitializeClass(UIDCatalogBrains)
@@ -123,6 +122,8 @@ class IndexableObjectWrapper(object):
         # Title is used for sorting only, maybe we could replace it by a better
         # version
         title = self._obj.Title()
+        if isinstance(title, unicode):
+            return title.encode('utf-8')
         try:
             return str(title)
         except UnicodeDecodeError:
@@ -140,13 +141,7 @@ class UIDResolver(Base):
         the default brains.getObject model and allows and fakes the
         ZCatalog protocol for traversal
         """
-        parts = path.split('/')
-        # XXX REF_PREFIX is undefined
-        #if parts[-1].find(REF_PREFIX) == 0:
-        #    path = '/'.join(parts[:-1])
-
         portal_object = self.portal_url.getPortalObject()
-
         try:
             return portal_object.unrestrictedTraverse(path)
         except (KeyError, AttributeError, NotFound):
