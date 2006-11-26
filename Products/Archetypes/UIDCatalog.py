@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import urllib
+import traceback
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -20,6 +21,7 @@ from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
+from Products.Archetypes.utils import getRelURL
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -102,7 +104,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             raise
         except:
             log('UIDCatalogBrains getObject raised an error:\n %s' %
-                 sys.exc_info())
+                '\n'.join(traceback.format_exception(*sys.exc_info())))
             pass
 
 InitializeClass(UIDCatalogBrains)
@@ -214,6 +216,13 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
             except TypeError:
                 ZCatalog.catalog_object(self, w, uid, idxs)
 
+    def _catalogObject(self, obj, path):
+        """Catalog the object. The object will be cataloged with the absolute
+           path in case we don't pass the relative url.
+        """ 
+        url = getRelURL(self, obj.getPhysicalPath()) 
+        self.catalog_object(obj, url) 
+
     security.declareProtected(CMFCore.permissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
@@ -222,7 +231,6 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         c_elapse = time.clock()
 
         atool   = getToolByName(self, TOOL_NAME)
-        func    = self.catalog_object
         obj     = aq_parent(self)
         path    = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
@@ -239,7 +247,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                               obj_metatypes=mt,
                               search_sub=1,
                               REQUEST=REQUEST,
-                              apply_func=func,
+                              apply_func=self._catalogObject,
                               apply_path=path)
 
         elapse = time.time() - elapse
@@ -254,5 +262,4 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          'Total CPU time: %s'
                          % (`elapse`, `c_elapse`))
             )
-
 

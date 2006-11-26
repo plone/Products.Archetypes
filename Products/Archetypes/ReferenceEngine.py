@@ -627,9 +627,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         c_elapse = time.clock()
 
         atool   = getToolByName(self, TOOL_NAME)
-        func    = self.catalog_object
         obj     = aq_parent(self)
-        path    = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
 

@@ -114,8 +114,18 @@
   * Remove BBB code for calendar_macros.
     [hannosch]
 
-1.4.1-beta1 - ?
-===============
+1.4.2 - Unreleased
+==================
+
+  * Fixed #5929. UID catalog rebuild broke path convention.
+    http://dev.plone.org/plone/ticket/5929.
+    [hannosch]
+
+  * Made tests use layers for AT site setup.
+    [stefan]
+
+1.4.1-final - 2006-09-08
+========================
 
   * Fix #635.  Large files were truncated on `setFileName`.  In
     `setFilename` of FileField, we now set the `filename` attribute
