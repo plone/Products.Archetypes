@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<import-steps>
+  <import-step id="archetypetool"
+    version="20060509-01"
+    handler="Products.Archetypes.exportimport.archetypetool.importArchetypeTool"
+    title="Archetype Tool">
+    <dependency step="toolset"/>
+    Import Archetype type specific configuration.
+  </import-step>
+</import-steps>
