@@ -1,0 +1,8 @@
+#
+# results of svn propget svn:externals
+# https://svn.plone.org/svn/collective/ploneazax/ATAzax/trunk/skins/atazax/widgets
+#
+# You can update your working dir by: 
+#     svn propset svn:externals -F EXTERNALS.TXT .
+#
+js https://svn.plone.org/svn/archetypes/Archetypes/trunk/skins/archetypes/widgets/js 
