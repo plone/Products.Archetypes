@@ -135,6 +135,8 @@ class AllowedTypesByIfaceMixin:
         tmp_name = '%s_TMP' % self.portal_type
         ti = pt.getTypeInfo(self.portal_type)
         pt.manage_delObjects([self.portal_type])
-        value = BaseFolder._verifyObjectPaste(self, object, validate_src)
-        pt._setObject(self.portal_type, ti)
+        try:
+            value = BaseFolder._verifyObjectPaste(self, object, validate_src)
+        finally:
+            pt._setObject(self.portal_type, ti)
         return value
