@@ -17,7 +17,6 @@ class ATSite(BaseLayer):
     setUp = classmethod(setUp)
 
     def tearDown(cls):
-        # Remove demo types?
         pass
     tearDown = classmethod(tearDown)
 
