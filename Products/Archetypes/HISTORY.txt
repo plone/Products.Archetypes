@@ -1,6 +1,10 @@
 Unreleased
 ==========
 
+  * Silenced more catalog unindexing log error messages by checking if
+    an object exists in the catalog before uncataloging.
+    [rocky]
+
   * Fixed #5963. Now all the first headers of the page have 
     "documentFirstHeading" class applied.
     http://dev.plone.org/plone/ticket/5963
