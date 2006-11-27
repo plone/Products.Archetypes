@@ -3,10 +3,8 @@ from Testing.ZopeTestCase import utils
 from Products.Archetypes.tests import attestcase
 
 if not attestcase.USE_PLONETESTCASE:
-    from Products.CMFTestCase.setup import USELAYER
     from Products.CMFTestCase.layer import CMFSite as BaseLayer
 else:
-    from Products.PloneTestCase.setup import USELAYER
     from Products.PloneTestCase.layer import PloneSite as BaseLayer
 
 
