@@ -39,7 +39,8 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            c.uncatalog_object(url)
+            if c._catalog.uids.get(url, None) is not None:
+                c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
