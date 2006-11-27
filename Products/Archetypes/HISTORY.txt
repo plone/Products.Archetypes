@@ -1,10 +1,6 @@
 1.5.0-a2 - unreleased
 =====================
 
-  * Silenced more catalog unindexing log error messages by checking if
-    an object exists in the catalog before uncataloging.
-    [rocky]
-
   * Made ATSiteTestCase inherit its layer from PloneTestCase.
     [stefan]
 
@@ -120,6 +116,27 @@
 
 1.4.2 - Unreleased
 ==================
+
+  * Add a try: finally: clause in AllowedTypesByIfaceMixin when deleting
+    the typeinfo "temporarily" Fixes http://dev.plone.org/plone/ticket/5314
+    [alecm]
+
+  * Fix the unique name finder during initial rename on create so that it
+    checks the names validity.  Fixes http://dev.plone.org/plone/ticket/5044
+    [alecm]
+
+  * Fix BaseObject.isBinary to not assume AttributeStorage.  Fixes
+    http://dev.plone.org/plone/ticket/5822
+    [alecm]
+
+  * Silenced more catalog unindexing log error messages by checking if
+    an object exists in the catalog before uncataloging.
+    [rocky]
+
+  * Fixed #5963. Now all the first headers of the page have 
+    "documentFirstHeading" class applied.
+    http://dev.plone.org/plone/ticket/5963
+    [spliter]
 
   * Fixed #5929. UID catalog rebuild broke path convention.
     http://dev.plone.org/plone/ticket/5929.
@@ -1856,3 +1873,4 @@
 
  * Fixed [ 988898 ] Don't swallow ConflictError (SQL missing)
    [tiran]
+

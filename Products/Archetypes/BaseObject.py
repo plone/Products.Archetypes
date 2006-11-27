@@ -246,9 +246,10 @@ class BaseObject(Referenceable):
     def isBinary(self, key):
         """Return wether a field contains binary data.
         """
-        element = getattr(self, key, None)
-        if element and shasattr(element, 'isBinary'):
-            return element.isBinary()
+        field = self.getField(key)
+        if IFileField.isImplementedBy(field):
+            value = field.getBaseUnit(self)
+            return value.isBinary()
         mimetype = self.getContentType(key)
         if mimetype and shasattr(mimetype, 'binary'):
             return mimetype.binary
@@ -727,16 +728,20 @@ class BaseObject(Referenceable):
         RENAME_AFTER_CREATION_ATTEMPTS, set in config.py. If no id can be
         found, return None.
         """
-        parent = aq_parent(aq_inner(self))
-        parent_ids = parent.objectIds()
+        check_id = getattr(self, 'check_id', None)
+        if check_id is None:
+            parent = aq_parent(aq_inner(self))
+            parent_ids = parent.objectIds()
+            check_id = lambda id, required: id in parent_ids
 
-        if id not in parent_ids:
+        invalid_id = check_id(id, required=1)
+        if not invalid_id:
             return id
 
         idx = 1
         while idx <= RENAME_AFTER_CREATION_ATTEMPTS:
             new_id = "%s-%d" % (id, idx)
-            if new_id not in parent_ids:
+            if not check_id(new_id, required=1):
                 return new_id
             idx += 1
 
