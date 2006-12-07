@@ -17,7 +17,16 @@
           <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
           </div>
-          <h1 tal:content="title_string | here/title_or_id" />
+          <h1 tal:define="field python:context.getField('title');
+                          writable python:field.writeable(context);
+                          kukitclasses string:kukit-atfieldname-title kukit-widgetstate-view;
+                          kukitattrs python:test(writable, kukitclasses, '');"
+              id="archetypes-fieldname-title"
+              tal:content="title_string | here/title_or_id"
+              tal:attributes="class kukitattrs;">
+            Title or id
+          </h1>
+    
           <tal:has_document_byline tal:condition="exists:here/document_byline">
             <div metal:use-macro="here/document_byline/macros/byline">
               Get the byline - contains details about author and modification date.
