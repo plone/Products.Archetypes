@@ -52,9 +52,12 @@
       <metal:block use-macro="widget_view" />
     </metal:data_macro>
 
-    <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1]"
-        tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                          id string:archetypes-fieldname-${field/getName}">
+    <div metal:define-macro="view" tal:define="writable python:field.writeable(context);
+                                               fieldtypename python:field.getType().split('.')[-1];
+                                               kukitclasses string:kukit-atfieldname-${field/getName} kukit-widgetstate-view;
+                                               kukitattrs python:test(writable, ' ' + kukitclasses, '');"
+        tal:attributes="class string:field ArchetypesField-${fieldtypename}${kukitattrs};
+                        id string:archetypes-fieldname-${field/getName}">
           <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
     </div>
 
@@ -70,9 +73,10 @@
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
+             tal:define="kukitattrs string:kukit-atfieldname-${field/getName} kukit-widgetstate-edit"
              tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
-             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kukitattrs;
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
@@ -108,7 +112,7 @@
           </span>
           <span tal:omit-tag=""
                 tal:define="error python:errors.get(fieldName)">
-            <div tal:condition="error_id"
+            <div class="fieldErrorBox"
                  tal:content="error_id" i18n:translate="">Validation Error</div>
             <div metal:define-slot="widget_body"></div>
           </span>

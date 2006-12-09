@@ -1,6 +1,0 @@
-
-We really need to copy the whole contents of this directory, since because
-widgets is now taken from our skin, all the content will continue traversing
-here. This enforcement is the consequence of AT's using subdirectories under
-the skin directories.
-
