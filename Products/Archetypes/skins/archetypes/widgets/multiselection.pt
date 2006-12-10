@@ -31,7 +31,6 @@
 		<div class="ArchetypesMultiSelectionValue" id=""
 			tal:attributes="id string:archetypes-value-${fieldName}_${repeat/item/number}">
 	      <input
-               class="kssValidateInput"
 	       tal:attributes="type string:checkbox;
 	       name string:$fieldName:list;
 	       id string:${fieldName}_${repeat/item/number};
@@ -46,7 +45,6 @@
 	  </span>
 
 	  <select multiple="multiple"
-                  class="kssValidateInput"
 		  tal:condition="python:format=='select'"
 		  tal:attributes="name string:${fieldName}:list;
 		  id fieldName;

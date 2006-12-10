@@ -1,13 +1,15 @@
+from debug import log
+from logging import WARNING
 from Globals import InitializeClass
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore.CMFCorePermissions import ModifyPortalContent
+from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
-
+from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -15,20 +17,26 @@ class CatalogMultiplex(CMFCatalogAware):
     def __url(self):
         return '/'.join( self.getPhysicalPath() )
 
-    security.declareProtected(ModifyPortalContent, 'indexObject')
-    def indexObject(self):
+    def getCatalogs(self):
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
-            return
-        catalogs = at.getCatalogsByType(self.meta_type)
+            return []
+
+        if CATALOGMAP_USES_PORTALTYPE:
+            return at.getCatalogsByType(self.portal_type)
+        else:
+            return at.getCatalogsByType(self.meta_type)
+
+    security.declareProtected(ModifyPortalContent, 'indexObject')
+    def indexObject(self):
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
-        at = getToolByName(self, TOOL_NAME)
-        catalogs = at.getCatalogsByType(self.meta_type)
+        catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
             if c._catalog.uids.get(url, None) is not None:
@@ -62,19 +70,13 @@ class CatalogMultiplex(CMFCatalogAware):
                     # BBB: Ignore old references to deleted objects.
                     # Can happen only in Zope 2.7, or when using
                     # catalog-getObject-raises off in Zope 2.8
-                    LOG('reindexObjectSecurity', PROBLEM,
-                            "Cannot get %s from catalog" % brain_path)
+                    log("reindexObjectSecurity: Cannot get %s from catalog" % 
+                        brain_path, level=WARNING)
                     continue
 
                 # Recatalog with the same catalog uid.
-                try:
-                    indexes=self._cmf_security_indexes
-                    catalog.reindexObject(ob, idxs=indexes, update_metadata=0,
-                                            uid=brain_path)
-                except AttributeError:
-                    # BBB: CMF 1.4
-                    indexes=['allowedRolesAndUsers']
-                    catalog.reindexObject(ob, idxs=indexes)
+                catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
+                                        update_metadata=0, uid=brain_path)
 
 
 
@@ -95,11 +97,10 @@ class CatalogMultiplex(CMFCatalogAware):
 
         self.http__refreshEtag()
 
-        at = getToolByName(self, TOOL_NAME, None)
-        if at is None:
+        catalogs = self.getCatalogs()
+        if not catalogs:
             return
 
-        catalogs = at.getCatalogsByType(self.meta_type)
         url = self.__url()
 
         for c in catalogs:
@@ -120,9 +121,8 @@ class CatalogMultiplex(CMFCatalogAware):
         # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
-                self._catalogUID(self)
-                # _catalogRefs used to be called here, but all possible
-                # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable now.
+                isCopy = getattr(self, '_v_is_cp', None)
+                if isCopy is None:
+                    self._catalogUID(self)
 
 InitializeClass(CatalogMultiplex)

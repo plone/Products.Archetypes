@@ -30,8 +30,8 @@
         </div>
       </tal:has_document_byline>
 
-      <div id="archetypes-schemata-links" 
-           tal:condition="fieldsets">
+      <div id="archetypes-schemata-links"
+           tal:condition="python: fieldsets and not allow_tabbing">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
@@ -63,6 +63,17 @@
           </p>
 
         </tal:description>
+        <tal:comment replace="nothing">
+            BBB: The above code can be simplified once we do not support
+            typeDescMsgId anymore and should simply read:
+            <p class="discreet"
+               i18n:translate=""
+               tal:define="desc here/typeDescription| nothing"
+               tal:content="desc">
+                type description
+            </p>
+            
+        </tal:comment>
     </div>
 
     <div metal:define-macro="body">
@@ -71,14 +82,28 @@
             enctype="multipart/form-data"
             class="enableUnloadProtection"
             action=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id">
+            tal:attributes="action python:here.absolute_url()+'/'+template.id;
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-            <tal:fields repeat="field fields">
-              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-            </tal:fields>
+            <tal:tabbed tal:condition="allow_tabbing | nothing">
+              <fieldset tal:repeat="fieldset fieldsets"
+                        tal:attributes="id string:fieldset-${fieldset}">
+                <legend id=""
+                        tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
+                        tal:attributes="id string:fieldsetlegend-${fieldset}" />
+                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
+                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+                </tal:fields>
+              </fieldset>
+            </tal:tabbed>
+            <tal:nottabbed tal:condition="not: allow_tabbing | nothing">
+                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
+                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+                </tal:fields>
+            </tal:nottabbed>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />
