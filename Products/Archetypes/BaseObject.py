@@ -38,6 +38,8 @@ from Products.Archetypes.event import ObjectPostValidatingEvent
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
 
+from Products.Archetypes.interfaces import IMultiPageSchema
+
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from AccessControl.Permissions import copy_or_move as permission_copy_or_move
@@ -568,7 +570,9 @@ class BaseObject(Referenceable):
         schemata = self.Schemata()
         fields = []
 
-        if fieldset is not None:
+        if not IMultiPageSchema.providedBy(self):
+            fields = schema.fields()
+        elif fieldset is not None:
             fields = schemata[fieldset].fields()
         else:
             if data: fields += schema.filterFields(isMetadata=0)
