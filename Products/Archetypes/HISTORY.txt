@@ -1,6 +1,11 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * By default base_edit will show all fields of all schemas on one page now.
+    The old behaviour can be kept by marking a content type with the
+    IMultiPageSchema interface.
+    [fschulze]
+
   * Made ATSiteTestCase inherit its layer from PloneTestCase.
     [stefan]
 
