@@ -1,0 +1,13 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:five="http://namespaces.zope.org/five">
+
+  <browser:page
+      for="*"
+      name="at_base_edit_view"
+      class=".edit.Edit"
+      permission="zope.Public"
+      allowed_attributes="isMultiPageSchema getTranslatedSchemaLabel"
+      />
+
+</configure>

@@ -1,9 +1,126 @@
-Unreleased
-==========
+1.5.0-a2 - unreleased
+=====================
 
-  * Fixed a minor issue of FixedPointField: It now works with integer default 
-    value.
-    [jensens]
+  * By default base_edit will show all fields of all schemas on one page now.
+    The old behaviour can be kept by marking a content type with the
+    IMultiPageSchema interface.
+    [fschulze]
+
+  * Made ATSiteTestCase inherit its layer from PloneTestCase.
+    [stefan]
+
+  * Fixed a DeprecationWarning for listContentTypes(by_metatype=1).
+    [hannosch]
+
+1.5.0-a1 - 2006-10-25
+=====================
+
+  * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
+    constructor, and two custom events are fired during processForm() - 
+    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from 
+    IObjectModifiedEvent, and the Initialized event is fired on the first
+    save, whereas the Edited event is fired on subsequent saves.
+    [optilude]
+
+  * Applied patch from George Lee and modernised code a bit for Zope 2.10,
+    to support event-based pre- and post-validation. See interfaces/_event.py
+    [optilude]
+
+  * Cleaned up VarClassGen a bit to make it potentially useful for people
+    needing it as part of a custom ISchema adapter.
+    [optilude]
+
+  * Made it possible to look up AT schema using an adapter from self
+    to ISchema. See note in Schema/factory.py.
+    [whit, optilude]
+
+  * Fix #585 by providing the right arguments for testCondition in templates.
+    [nouri]
+
+  * Added small optimizations for DisplayLists to not translate values of type
+    Message by itself, added some tests.
+    [hannosch]
+
+  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
+    directly as values instead to get the same behavior.
+    [hannosch]
+
+  * Deprecated the generator.i18n module. We use the translate method of the
+    GlobalTranslationService directly for now, as long as we support
+    PlacelessTranslationService. Ultimately this should be replaced by calls
+    to 'from zope.i18n import translate'
+    [hannosch]
+
+  * Removed outdated message catalogs and changed the few remaining texts in the
+    'archetypes' domain to use the 'plone' domain instead. The translation
+    files can be found as usual as part of the PloneTranslations product.
+    [hannosch]
+
+  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
+    internationalization of labels and descriptions.
+    [hannosch]
+
+  * Optimized the basic widget for the new default case of labels and
+    descriptions as Messages. These are not translated automatically anymore
+    but this is delayed to be triggered by the time they are rendered in a TAL
+    context. This will ultimately safe quite some translation machinery hackery.
+    [hannosch]
+
+  * Modernized DisplayLists to use isinstance instead of type checking. Now
+    derived string types like Messages are allowed as keys and values as well.
+    [hannosch]
+
+  * Removed last bits of dependency version checks from __init__.py as well as
+    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
+    live site but only serve as code examples and are used during test runs.
+    [hannosch]
+
+  * Renamed sample_content profile to sample_types as it only includes types
+    but no content ;) This profile is not registered globally anymore but only
+    during test runs, as these types aren't meant to be used for anything else.
+    [hannosch]
+
+  * Marked Base* as implementing their Z3 interfaces.
+    [hannosch]
+
+  * Based tests on PloneTestCase with extension profile support for site setup.
+    [hannosch]
+
+  * Added (Default) alias to base_view to all sample types, so calling them will
+    still work in CMF >= 2.0.
+    [hannosch]
+
+  * Removed deprecated spec argument from listFolderContents and
+    folderlistingFolderContents of BaseFolderMixin.
+    [hannosch]
+
+  * Changed import of TAL.ndiff to zope.tal.ndiff.
+    [hannosch]
+
+  * Cleaned up XXX comments, converted non-critical ones to TODO.
+    [hannosch]
+
+  * Removed five:traversable from configure.zcml as it is not needed anymore for
+    Zope 2.10, which we require now.
+    [hannosch]
+
+  * Cleaned up some comments, removed a pdb and an unused zLOG import.
+    [hannosch]
+
+  * Removed some more BBB code.
+    [hannosch]
+
+  * Removed deprecated ArchetypesTestCase.py.
+    [hannosch]
+
+  * Adjusted rest tests to Zope2.10 output.
+    [hannosch]
+
+  * Remove BBB code for calendar_macros.
+    [hannosch]
+
+1.4.2 - Unreleased
+==================
 
   * Add a try: finally: clause in AllowedTypesByIfaceMixin when deleting
     the typeinfo "temporarily" Fixes http://dev.plone.org/plone/ticket/5314
@@ -1534,8 +1651,6 @@ Unreleased
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
-   XXX: Add a comment to the documentation that users should take care when
-   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
