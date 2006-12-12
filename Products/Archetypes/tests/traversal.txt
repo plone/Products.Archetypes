@@ -1,0 +1,404 @@
+Traversal Behavior
+==================
+
+BaseObject overrides ``__bobo_traverse__`` to expose subobjects
+created by ``PortalTransforms`` during the transformation of
+content. However, overriding traversal can be tricky, and very hard to
+get right.
+
+Those tests pretend to make sure that this functionality behaves
+correctly accross the many use cases that must co-exist.
+
+First, we are going to setup an environment so we can test that stuff
+is acquired or not acquired at the right times.
+
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> self.setRoles(['Manager'])
+
+  CMF and Plone sites may have different default titles so we set one
+  >>> self.portal.setTitle('Portal Title')
+  
+  CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
+
+  >>> self.portal.invokeFactory('DDocument', 'test_document',
+  ...             title='Root Document') in (None, 'test_document')
+  True
+
+  >>> self.portal.invokeFactory('DDocument', 'index_html',
+  ...             title='Root Index') in (None, 'index_html')
+  True
+
+  >>> self.portal.invokeFactory('SimpleFolder', 'simple_folder') in \
+  ...                           (None, 'simple_folder')
+  True
+  
+  >>> self.portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
+  ...                           in (None, 'simple_btree_folder')
+  True
+
+XML-RPC
+-------
+
+XML-RPC is basically a ``POST`` with content-type text/xml. It should
+be allowed to acquire content from higher-level hierarchies:
+
+  >>> print http(r"""
+  ... POST /%s HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml
+  ...
+  ... <?xml version='1.0'?>
+  ... <methodCall>
+  ... <methodName>title_or_id</methodName>
+  ... <params>
+  ... </params>
+  ...
+  ... </methodCall>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Portal Title...
+
+  >>> print self.portal.test_document.getPortalTypeName()
+  DDocument
+
+  >>> print self.portal.test_document.title_or_id()
+  Root Document
+
+  >>> print http(r"""
+  ... POST /%s HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml
+  ...
+  ... <?xml version='1.0'?>
+  ... <methodCall>
+  ... <methodName>test_document.title_or_id</methodName>
+  ... <params>
+  ... </params>
+  ...
+  ... </methodCall>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+  >>> 'test_document' in self.portal.simple_folder.objectIds()
+  False
+
+  >>> print http(r"""
+  ... POST /%s HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml
+  ...
+  ... <?xml version='1.0'?>
+  ... <methodCall>
+  ... <methodName>simple_folder.test_document.title_or_id</methodName>
+  ... <params>
+  ... </params>
+  ...
+  ... </methodCall>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+  >>> 'test_document' in self.portal.simple_btree_folder.objectIds()
+  False
+
+  >>> print http(r"""
+  ... POST /%s HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml
+  ...
+  ... <?xml version='1.0'?>
+  ... <methodCall>
+  ... <methodName>simple_btree_folder.test_document.title_or_id</methodName>
+  ... <params>
+  ... </params>
+  ...
+  ... </methodCall>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+Browser
+-------
+
+For testing Browser access, we are going to just try using the ``GET``
+method instead.
+
+  >>> print self.portal.title_or_id()
+  Portal Title
+
+  >>> print http(r"""
+  ... GET /%s/title_or_id HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Portal Title...
+
+  >>> print self.portal.test_document.getPortalTypeName()
+  DDocument
+
+  >>> print self.portal.test_document.title_or_id()
+  Root Document
+
+  >>> print http(r"""
+  ... GET /%s/test_document/title_or_id HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+  >>> 'test_document' in self.portal.simple_folder.objectIds()
+  False
+
+  >>> print http(r"""
+  ... GET /%s/simple_folder/test_document/title_or_id HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+  >>> 'test_document' in self.portal.simple_btree_folder.objectIds()
+  False
+
+  >>> print http(r"""
+  ... GET /%s/simple_btree_folder/test_document/title_or_id HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...Root Document...
+
+Lets make sure zope3 view lookup takes precedence over acquired views.
+
+  >>> from Products.Five import zcml
+  >>> zcml.load_string('''<configure xmlns="http://namespaces.zope.org/browser">
+  ... <page
+  ...     name="document_view"
+  ...     for="*"
+  ...     permission="zope.Public"
+  ...     class="Products.Archetypes.tests.utils.SimpleView"
+  ...     />
+  ... </configure>''')
+
+  >>> print http(r"""
+  ... GET /%s/simple_btree_folder/test_document/document_view HTTP/1.0
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.0 200 OK
+  ...SimpleView simple output...
+
+WebDAV
+------
+
+Now for the tricky part. WebDAV requests are *not* allowed to acquire
+content, because that would completely break creation of content
+through WebDAV.
+
+  >>> print http(r"""
+  ... PROPFIND /%s/test_document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... <?xml version="1.0" encoding="utf-8"?>
+  ...   <DAV:propfind xmlns:DAV="DAV:"
+  ...      xmlns:zope="http://www.zope.org/propsets/default">
+  ...      <DAV:prop><zope:title/></DAV:prop>
+  ...   </DAV:propfind>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 207 Multi-Status
+  ...Root Document...
+
+  >>> print http(r"""
+  ... PROPFIND /%s/simple_folder/test_document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... <?xml version="1.0" encoding="utf-8"?>
+  ...   <DAV:propfind xmlns:DAV="DAV:"
+  ...      xmlns:zope="http://www.zope.org/propsets/default">
+  ...      <DAV:prop><zope:title/></DAV:prop>
+  ...   </DAV:propfind>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 404 Not Found
+  ...
+
+  >>> print http(r"""
+  ... PROPFIND /%s/simple_btree_folder/test_document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/xml; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... <?xml version="1.0" encoding="utf-8"?>
+  ...   <DAV:propfind xmlns:DAV="DAV:"
+  ...      xmlns:zope="http://www.zope.org/propsets/default">
+  ...      <DAV:prop><zope:title/></DAV:prop>
+  ...   </DAV:propfind>
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 404 Not Found
+  ...
+
+Should be possible to create objects via PUT that would otherwise be
+acquired.
+
+Create a CTR predicate to map any content to ``DDocument``:
+
+  >>> from Products.CMFCore.utils import getToolByName
+  >>> ctr = getToolByName(self.portal, 'content_type_registry')
+  >>> p_id = 'at_dav_test'
+  >>> p_type = 'name_regex'
+  >>> ctr.addPredicate(p_id, p_type)
+  >>> class foo: pass
+  >>> p_dict = foo()
+  >>> p_dict.pattern = '.*'
+  >>> ctr.updatePredicate(p_id, p_dict, 'DDocument')
+  >>> ctr.reorderPredicate(p_id, 0)
+
+  >>> print http(r"""
+  ... PUT /%s/simple_folder/test_document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... Simple Folder Document Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_folder
+  >>> print folder.test_document.getPortalTypeName()
+  DDocument
+
+  >>> print folder.test_document.title_or_id()
+  test_document
+
+  >>> print folder.test_document.body
+  Simple Folder Document Content
+  <BLANKLINE>
+  
+  >>> folder.test_document.called_afterPUT_hook
+  True
+
+  >>> print http(r"""
+  ... PUT /%s/simple_btree_folder/test_document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... BTree Folder Document Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_btree_folder
+  >>> print folder.test_document.getPortalTypeName()
+  DDocument
+
+  >>> print folder.test_document.title_or_id()
+  test_document
+
+  >>> print folder.test_document.body
+  BTree Folder Document Content
+  <BLANKLINE>
+  
+  >>> folder.test_document.called_afterPUT_hook
+  True
+
+Make sure it's possible to create a item named ``index_html`` into a
+AT-based folder.
+
+  >>> folder = self.portal.simple_folder
+  >>> 'index_html' in folder.objectIds()
+  False
+
+  >>> print folder.index_html
+  None
+
+  >>> print http(r"""
+  ... PUT /%s/simple_folder/index_html HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... Simple Folder Index
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> print folder.index_html.title_or_id()
+  index_html
+
+  >>> print folder.index_html.body
+  Simple Folder Index
+  <BLANKLINE>
+
+
+Now for a BTreeFolder:
+
+  >>> folder = self.portal.simple_btree_folder
+  >>> 'index_html' in folder.objectIds()
+  False
+
+  >>> print folder.index_html
+  None
+
+  >>> print http(r"""
+  ... PUT /%s/simple_btree_folder/index_html HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... Simple BTree Folder Index
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> 'index_html' in folder.objectIds()
+  True
+
+  >>> print folder.index_html.title_or_id()
+  index_html
+
+  >>> print folder.index_html.body
+  Simple BTree Folder Index
+  <BLANKLINE>
+
+Finally, cleanup the CTR predicate to not affect other tests:
+
+  >>> ctr.removePredicate(p_id)
+
+Creating folders should work the same way. And the newly created folder
+should be of the same kind as the parent:
+
+  >>> print http(r"""
+  ... MKCOL /%s/simple_folder/simple_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_folder.simple_folder
+  >>> print folder.getPortalTypeName()
+  SimpleFolder
+  
+manage_afterMKCOL is called in the MKCOL_handler code for all Archetypes. The
+test types are assigning a dummy var called_afterMKCOL_hook.
+  >>> folder.called_afterMKCOL_hook
+  True
+
+  >>> print http(r"""
+  ... MKCOL /%s/simple_btree_folder/simple_btree_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> folder = self.portal.simple_btree_folder.simple_btree_folder
+  >>> print folder.getPortalTypeName()
+  SimpleBTreeFolder
+  >>> folder.called_afterMKCOL_hook
+  True
+  
+

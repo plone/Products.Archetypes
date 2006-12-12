@@ -1,0 +1,52 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:omit-tag="">
+  <head tal:replace="nothing"><title></title></head>
+
+  <body tal:omit-tag="">
+    <h1 tal:replace="structure here/manage_page_header|nothing">
+      Header
+    </h1>
+
+    <h2 tal:define="manage_tabs_message request/manage_tabs_message | nothing"
+        tal:replace="structure here/manage_tabs">
+      Tabs
+    </h2>
+
+    <link rel="stylesheet" href="archetypes_zmi.css" />
+
+    <h2 tal:content="string:Edit ${options/portal_type}">
+      Form Title
+    </h2>
+
+    <!--
+      <p class="form-help">
+      Composites (from the CompositePage product) let you design pages
+      using a drag and drop interface with context menus.
+      </p>
+    -->
+
+    <form action="manage_addSomething" method="POST"
+          tal:attributes="action options/handler">
+      <div tal:define="purl nocall:here/portal_url;
+                       portal purl/getPortalObject;
+                       errors options/state/getErrors | python:{};
+                       Iterator python:modules['Products.Archetypes'].IndexIterator;
+                       tabindex python:Iterator();
+                       widgets python:here.archetype_tool.getWidgets(instance=context, mode='edit', schemata='default', context=container, package=options['package'], type=options['type'])">
+        <tal:fields repeat="widget widgets">
+          <metal:fieldMacro use-macro="widget" />
+        </tal:fields>
+
+      </div>
+      <div class="form-element">
+        <input class="form-element" type="submit" name="submit"
+               value=" Save " />
+      </div>
+    </form>
+  </body>
+</html>

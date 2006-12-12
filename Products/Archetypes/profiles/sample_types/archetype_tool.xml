@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<archetypetool>
+ <catalogmap>
+  <type portal_type="ComplexType">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="DDocument">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="SimpleBTreeFolder">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="ATBIFolder">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="SimpleProtectedType">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="Refnode">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="SimpleType">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="Fact">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="SimpleFolder">
+   <catalog value="portal_catalog"/>
+  </type>
+  <type portal_type="SimpleFile">
+   <catalog value="portal_catalog"/>
+  </type>
+ </catalogmap>
+</archetypetool>
