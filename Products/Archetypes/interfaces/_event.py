@@ -15,10 +15,18 @@ class IObjectInitializedEvent(IObjectModifiedEvent):
 class IObjectEditedEvent(IObjectModifiedEvent):
     """An object is being edited, i.e. modified after the first save
     """
+
+class IEditBegunEvent(IObjectEvent):
+    """An event signalling that editing has begun on an object
+    """
+    
+class IEditCancelledEvent(IObjectEvent):
+    """An event signalling that editing was cancelled on the given object
+    """
     
 # Validation
     
-class IObjectValidatingEvent(Interface):
+class IObjectValidatingEvent(IObjectEvent):
     """A validation-related event
     """
     

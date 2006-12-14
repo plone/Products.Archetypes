@@ -3,11 +3,19 @@
            xmlns:five="http://namespaces.zope.org/five">
 
   <browser:page
-      for="*"
+      for="..interfaces.IBaseObject"
       name="at_base_edit_view"
       class=".edit.Edit"
       permission="zope.Public"
       allowed_attributes="isMultiPageSchema getTranslatedSchemaLabel"
+      />
+
+  <browser:page
+      for="..interfaces.IBaseObject"
+      name="at_lifecycle_view"
+      class=".lifecycle.Lifecycle"
+      permission="zope.Public"
+      allowed_attributes="begin_edit cancel_edit"
       />
 
 </configure>

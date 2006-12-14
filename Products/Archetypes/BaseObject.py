@@ -72,6 +72,7 @@ from zope import event
 
 _marker = []
 
+from plone.locking.interfaces import ILockable
 
 content_type = Schema((
 
@@ -206,7 +207,15 @@ class BaseObject(Referenceable):
             if parent is not None:
                 # See Referenceable, keep refs on what is a move/rename
                 self._v_cp_refs = 1
+                # We can't rename if the object is locked
+                lockable = ILockable(self)
+                was_locked = False
+                if lockable.locked():
+                    was_locked = True
+                    lockable.unlock()
                 parent.manage_renameObject(self.id, value)
+                if was_locked:
+                    lockable.lock()
             self._setId(value)
 
     security.declareProtected(permissions.View, 'Type')
