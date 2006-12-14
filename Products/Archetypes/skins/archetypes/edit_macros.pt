@@ -44,11 +44,41 @@
       </div>
       <metal:block define-slot="extra_info" />
 
-      <p class="portalMessage"
-         tal:condition="isLocked"
-         i18n:translate="description_webdav_locked">
-        This item is in use by someone else and cannot be modified
-      </p>
+      <tal:block condition="isLocked">
+          <tal:locked define="stealable lock_info/lock_is_stealable;
+                              lock_details lock_info/lock_info;">
+              <p class="portalMessage"
+                 tal:condition="not:stealable"
+                 i18n:translate="description_webdav_locked_not_stealable">
+                This item was locked by 
+                    <a i18n:name="author"
+                       tal:content="lock_details/fullname"
+                       tal:attributes="href lock_details/author_page" />
+                    <span i18n:name="time"
+                       tal:content="lock_details/time_difference" /> ago.
+              </p>
+              <form tal:condition="stealable"
+                    tal:attributes="action string:${context/absolute_url}/@@plone_lock_operations/force_unlock">
+                  <p class="portalMessage"
+                     tal:condition="stealable"
+                     i18n:translate="description_webdav_locked_stealable">
+                    This item was locked by 
+                        <a i18n:name="author"
+                           tal:content="lock_details/fullname"
+                           tal:attributes="href lock_details/author_page" />
+                        <span i18n:name="time"
+                           tal:content="lock_details/time_difference" /> ago.
+                    If you are certain this user has abandoned the object, you
+                    may
+                        <input type="submit" 
+                               value="Unlock" 
+                               i18n:name="unlock_button"
+                               i18n:attributes="value" /> 
+                    the object. You will then be able to edit it.
+                  </p>
+              </form>
+          </tal:locked>
+      </tal:block>
 
     </div>
 

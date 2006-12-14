@@ -16,6 +16,10 @@ from Products.CMFCore.utils import getToolByName
 #utool = getToolByName(context, 'portal_url')
 #portal_object = utool.getPortalObject()
 
+# Tell the world that we cancelled
+lifecycle_view = context.restrictedTraverse('@@at_lifecycle_view')
+lifecycle_view.cancel_edit()
+
 if context.isTemporary():
     # object was created using portal factory and it's just a temporary object
     # XXX disabled mark creation flag

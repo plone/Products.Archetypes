@@ -6,7 +6,7 @@ from Products.Archetypes import utils
 from _annotations import IATAnnotatable, IATAnnotations
 from _base import IBaseObject, IBaseContent, IBaseFolder, IBaseUnit
 from _event import IObjectValidatingEvent, IObjectPreValidatingEvent, IObjectPostValidatingEvent
-from _event import IObjectInitializedEvent, IObjectEditedEvent
+from _event import IObjectInitializedEvent, IObjectEditedEvent, IEditBegunEvent, IEditCancelledEvent
 from _field import IField, IObjectField, IImageField, IFileField
 from _layer import ILayer, ILayerContainer, ILayerRuntime
 from _marshall import IMarshall
