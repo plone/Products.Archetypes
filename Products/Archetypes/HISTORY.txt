@@ -1,5 +1,9 @@
 Unreleased
 ==========
+  * Fixzd missing declaration of timestamp property in TextAreaWidget for
+    append_only mode.
+    It may need a better intregration of plone datetime format property.
+    [encolpe]
 
   * Fixed missing i18n statement for the text format label on visual widgets.
     This closes http://dev.plone.org/archetypes/ticket/687.
