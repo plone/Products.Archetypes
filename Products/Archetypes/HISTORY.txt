@@ -1,5 +1,5 @@
-Unreleased
-==========
+1.4.2-final - 2006-12-15
+========================
   * Fixzd missing declaration of timestamp property in TextAreaWidget for
     append_only mode.
     It may need a better intregration of plone datetime format property.
