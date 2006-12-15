@@ -30,6 +30,9 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from StringIO import StringIO
+import transaction
+
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -165,6 +168,20 @@ class SetFilenameTest(ATTestCase):
         self.assertEqual(field1.getFilename(obj), filename1)
         self.assertEqual(field2.getFilename(obj), filename2)
 
+
+class LargeFileTest(ATSiteTestCase):
+    def testSetFilenameOfLargeFile(self):
+        """Test for https://dev.plone.org/archetypes/ticket/635
+        """
+        self.folder.invokeFactory('SimpleFile', 'sf')
+        obj = self.folder.sf
+        contents = StringIO('largest file, ' * 10000)
+        obj.setBody(contents)
+        self.assertEqual(obj.getBody().size, 140000)
+        obj.getBody().setFilename('Spam.txt')
+        self.assertEqual(obj.getBody().size, 140000)
+        
+
 class StrangeIdTest(ATSiteTestCase):
     def test_strangeUnallowedIds(self):
         """ Certain IDs used to give an error and are unusable
@@ -185,6 +202,7 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(GetFilenameTest))
     suite.addTest(makeSuite(SetFilenameTest))
+    suite.addTest(makeSuite(LargeFileTest))
     suite.addTest(makeSuite(StrangeIdTest))
     return suite
 

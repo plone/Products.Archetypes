@@ -200,10 +200,7 @@ def generateCtor(name, module):
     # self is a App.FactoryDispater, Destination() is the real folder
     ctor = """
 def add%(name)s(self, id, **kwargs):
-    from zope.event import notify
-    from zope.lifecycleevent import ObjectCreatedEvent
     obj = %(name)s(id)
-    notify(ObjectCreatedEvent(obj))
     self._setObject(id, obj)
     obj = self._getOb(id)
     obj.initializeArchetype(**kwargs)

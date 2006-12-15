@@ -170,6 +170,12 @@ class PortalCopyTests(ATSiteTestCase):
         # Copy/pasting a File should set new ownership including local roles
         # borrowed from CMFCore tests
 
+        # BBB this test will fail with CMF 1.4 as CMF 1.4 does not set local
+        # roles on copy, so let's not bother
+        qi = self.portal.portal_quickinstaller
+        if 'CMF-1.4' in qi.getProductVersion('CMFCore'):
+            return
+
         # First, add two users to the user folder, a member and a manager
         # and create a member area for the member
         uf = self.portal.acl_users

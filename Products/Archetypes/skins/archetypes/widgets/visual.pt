@@ -34,7 +34,7 @@
                   mimetypes python:  allowableContentTypes + (fieldCType not in allowableContentTypes and [fieldCType] or []);">
 
 <div class="fieldTextFormat" tal:condition="python: len(mimetypes) &gt; 1">
-    <label>Text Format</label>
+    <label i18n:translate="label_text_format">Text Format</label>
 
     <select tal:attributes="
             id string:${fieldName}_text_format;

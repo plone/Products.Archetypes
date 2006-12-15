@@ -8,7 +8,6 @@
 ##parameters=state, id=''
 ##
 
-from Products.Archetypes import PloneMessageFactory as _
 from Products.CMFCore.utils import getToolByName
 
 REQUEST = context.REQUEST
@@ -26,7 +25,11 @@ form = REQUEST.form
 if form.has_key('current_lang'):
     form['language'] = form.get('current_lang')
 
-portal_status_message = _(u'Changes saved.')
+portal_status_message = context.translate(
+    msgid='message_content_changes_saved',
+    domain='archetypes',
+    default='Content changes saved.')
+
 portal_status_message = REQUEST.get('portal_status_message',
                                     portal_status_message)
 
@@ -72,11 +75,15 @@ if reference_source_url is not None:
     reference_source_fieldset = env['reference_source_fieldset'].pop()
     portal = context.portal_url.getPortalObject()
     reference_obj = portal.restrictedTraverse(reference_source_url)
-    portal_status_message = _(u'message_reference_added',
-                              default=u'Reference added.')
+    portal_status_message = context.translate(
+        msgid='message_reference_added',
+        domain='archetypes',
+        default='Reference Added.')
 
-    edited_reference_message = _(u'message_reference_edited',
-                                 default=u'Reference edited.')
+    edited_reference_message = context.translate(
+        msgid='message_reference_edited',
+        domain='archetypes',
+        default='Reference Edited.')
 
     # Avoid implicitly creating a session if one doesn't exists
     session = None
@@ -104,6 +111,9 @@ if reference_source_url is not None:
             saved_dic[reference_source_field] = saved_value
             session.set(reference_obj.getId(), saved_dic)
 
+    # XXX disabled mark creation flag
+    ## context.remove_creation_mark(old_id)
+
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
@@ -128,6 +138,9 @@ if state.errors:
                 status='failure',
                 context=new_context,
                 portal_status_message=portal_status_message)
+
+# XXX disabled mark creation flag
+## context.remove_creation_mark(old_id)
 
 if not state.errors:
     from Products.Archetypes import transaction_note

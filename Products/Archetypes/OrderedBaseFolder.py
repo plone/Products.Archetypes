@@ -8,6 +8,7 @@ from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata

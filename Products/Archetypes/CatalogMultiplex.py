@@ -11,6 +11,7 @@ from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
 
+
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
 
@@ -39,7 +40,8 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            c.uncatalog_object(url)
+            if c._catalog.uids.get(url, None) is not None:
+                c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
@@ -120,8 +122,9 @@ class CatalogMultiplex(CMFCatalogAware):
         # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
-                isCopy = getattr(self, '_v_is_cp', None)
-                if isCopy is None:
-                    self._catalogUID(self)
+                self._catalogUID(self)
+                # _catalogRefs used to be called here, but all possible
+                # occurrences should be handled by
+                # manage_afterAdd/manage_beforeDelete from Referenceable now.
 
 InitializeClass(CatalogMultiplex)

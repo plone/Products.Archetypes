@@ -471,7 +471,7 @@ class BasicSchema(Schemata):
         """Only call during object initialization. Sets fields to
         schema defaults
         """
-        ## TODO think about layout/vs dyn defaults
+        ## XXX think about layout/vs dyn defaults
         for field in self.values():
             if field.getName().lower() == 'id': continue
             if field.type == "reference": continue
@@ -591,7 +591,7 @@ class BasicSchema(Schemata):
     # purpose of comparing schema.  This comparison is used for
     # determining whether a schema has changed in the auto update
     # function.  Right now it's pretty crude.
-    # TODO FIXME!
+    # XXX FIXME!
     security.declareProtected(permissions.View,
                               'toString')
     def toString(self):

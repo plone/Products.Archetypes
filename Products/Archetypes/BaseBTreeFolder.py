@@ -1,11 +1,9 @@
 from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.atapi import BaseFolder
-from Products.Archetypes.interfaces import IBaseFolder
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
-from zope.interface import implements
 
 # to keep backward compatibility
 has_btree = 1
@@ -20,7 +18,6 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security = ClassSecurityInfo()
 
     __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
-    implements(IBaseFolder)
 
     def __init__(self, oid, **kwargs):
         CMFBTreeFolder.__init__(self, oid)

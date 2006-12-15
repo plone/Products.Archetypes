@@ -3,11 +3,8 @@ from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.interfaces import IBaseFolder
-from Products.Archetypes.interfaces import IBaseObject
-from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
-from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
+from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import shasattr
 
@@ -16,11 +13,14 @@ from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
-from Products.CMFCore.interfaces import IContentish
-from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
-from Products.CMFCore.PortalContent import PortalContent
-from Products.CMFCore.utils import _checkPermission
+from Products.CMFCore.PortalContent  import PortalContent
 
+from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
+
+from Products.CMFCore.PortalContent import PortalContent
+from Products.CMFCore.utils import getToolByName
+
+from Products.Archetypes.interfaces import IBaseFolder
 from zope.interface import implements
 
 class BaseFolderMixin(CatalogMultiplex,
@@ -30,9 +30,10 @@ class BaseFolderMixin(CatalogMultiplex,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (z2IBaseFolder, z2IReferenceable, BaseObject.__implements__,
+    __implements__ = (z2IBaseFolder, IReferenceable, BaseObject.__implements__,
                       PortalFolder.__implements__)
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
+
+    implements(IBaseFolder)
 
     security = ClassSecurityInfo()
 
@@ -73,25 +74,35 @@ class BaseFolderMixin(CatalogMultiplex,
         # it needs to be used in BaseBTreeFolder as well, it currently
         # is not.
         BaseObject._notifyOfCopyTo(self, container, op=op)
-        # keep reference info internally when op == 1 (move)
-        # because in those cases we need to keep refs
-        if op==1:
-            self._v_cp_refs = 1
+        PortalFolder._notifyOfCopyTo(self, container, op=op)
         for child in self.contentValues():
-            if IReferenceable.providedBy(child):
+            if IReferenceable.isImplementedBy(child):
                 child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
+        # We don't need to call PortalFolder's version because it delegates to
+        # CMFCatalogAware, just like CatalogMultiplex
+        #PortalFolder.manage_afterAdd(self, item, container)
+        CatalogMultiplex.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
+        CatalogMultiplex.manage_afterClone(self, item)
+        # We don't need to call PortalFolder's version because it delegates to
+        # CMFCatalogAware, just like CatalogMultiplex
+        #PortalFolder.manage_afterAdd(self, item)
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
+        CatalogMultiplex.manage_beforeDelete(self, item, container)
+        # We don't need to call PortalFolder's version because it delegates to
+        # CMFCatalogAware, just like CatalogMultiplex
+        #PortalFolder.manage_afterAdd(self, item, container)
+
         #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
@@ -99,22 +110,26 @@ class BaseFolderMixin(CatalogMultiplex,
                               'manage_delObjects')
     def manage_delObjects(self, ids=[], REQUEST=None):
         """We need to enforce security."""
-        if isinstance(ids, basestring):
+        mt = getToolByName(self, 'portal_membership')
+        if type(ids) is str:
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
-            if not _checkPermission(permissions.DeleteObjects, item):
+            if not mt.checkPermission(permissions.DeleteObjects, item):
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
         return PortalFolder.manage_delObjects(self, ids, REQUEST=REQUEST)
 
     security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
-    def listFolderContents(self, contentFilter=None, suppressHiddenFiles=0):
+    def listFolderContents(self, spec=None, contentFilter=None,
+                           suppressHiddenFiles=0):
         """Optionally you can suppress "hidden" files, or files that begin
         with a dot.
         """
-        contents=PortalFolder.listFolderContents(self, contentFilter=contentFilter)
+        contents=PortalFolder.listFolderContents(self,
+                                                  spec=spec,
+                                                  contentFilter=contentFilter)
         if suppressHiddenFiles:
             contents=[obj for obj in contents if obj.getId()[:1]!='.']
 
@@ -122,14 +137,13 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.AccessContentsInformation,
                               'folderlistingFolderContents')
-    def folderlistingFolderContents(self, contentFilter=None,
+    def folderlistingFolderContents(self, spec=None, contentFilter=None,
                                     suppressHiddenFiles=0):
         """Calls listFolderContents in protected only by ACI so that
         folder_listing can work without the List folder contents permission,
         as in CMFDefault.
         """
-        return self.listFolderContents(contentFilter=contentFilter,
-                                       suppressHiddenFiles=suppressHiddenFiles)
+        return self.listFolderContents(spec, contentFilter, suppressHiddenFiles)
 
     security.declareProtected(permissions.View, 'Title')
     def Title(self, **kwargs):
@@ -229,7 +243,6 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     Metadata included"""
 
     __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 
@@ -256,6 +269,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
         self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)
+
 
 BaseFolderSchema = BaseFolder.schema
 
