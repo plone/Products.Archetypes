@@ -327,7 +327,7 @@ class TextAreaWidget(TypesWidget):
         'format': 0,
         'append_only': False,
         'divider':"\n\n========================\n\n",
-        'timestamp': True,
+        'timestamp': False,
         'maxlength' : False,
         'helper_js': ('widgets/js/textcount.js',),        
         })
