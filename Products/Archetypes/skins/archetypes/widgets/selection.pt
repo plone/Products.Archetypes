@@ -33,7 +33,7 @@
 
                     <tal:radios repeat="item vocab">
 
-                        <input class="noborder"
+                        <input class="noborder kssValidateInput"
                                tabindex=""
                                type="radio"
                                tal:define="tabindex tabindex/next"

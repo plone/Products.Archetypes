@@ -18,4 +18,12 @@
       allowed_attributes="begin_edit cancel_edit"
       />
 
+  <browser:page
+      for="*"
+      name="kss_field_decorator_view"
+      permission="zope2.View"
+      class=".fields.DefaultFieldDecoratorView"
+      allowed_attributes="kss_class"
+      />
+
 </configure>

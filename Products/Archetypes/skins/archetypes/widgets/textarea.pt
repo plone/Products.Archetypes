@@ -25,6 +25,7 @@
 
         <textarea
             tabindex="#"
+            class="kssValidateInput"
             tal:attributes="name fieldName;
                             id fieldName;
                             cols widget/cols;
