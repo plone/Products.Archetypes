@@ -493,7 +493,7 @@ class Field(DefaultLayerContainer):
 
 
     security.declarePublic('writeable')
-    def writeable(self, instance, debug=True):
+    def writeable(self, instance, debug=False):
         if 'w' not in self.mode:
             if debug:
                 log("Tried to update %s:%s but field is not writeable." % \
