@@ -1,6 +1,11 @@
+  * Fixed translation domain of two messages in go_back.cpy. These were missing
+    from the Archetypes translation files.
+    [hannosch]
+
 1.4.2-final - 2006-12-15
 ========================
-  * Fixzd missing declaration of timestamp property in TextAreaWidget for
+
+  * Fixed missing declaration of timestamp property in TextAreaWidget for
     append_only mode.
     It may need a better intregration of plone datetime format property.
     [encolpe]
