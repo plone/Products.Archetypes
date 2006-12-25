@@ -1,14 +1,20 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * Fix failing test in traversal.txt:184, where an acquired template
+    overrode a view.  Added logic to BaseObject.__bobo_traverse__ to
+    make sure the right order is respected.
+    [nouri]
+
   * Turned off debug mode for writeable checks on fields per default, as this
     caused a major performance problem with KSS.
     [hannosch]
 
-  * Made it work with the kss merge in. Some templates are modified, extra 
-    markup is added and a kss decorator view is defined that is overwritten if
-    kss is loaded. Currently the addability support in the reference and inandout 
-	widgets has its javasacript commented out, this needs to get fixed asap.
+  * Made it work with the kss merge in. Some templates are modified,
+    extra markup is added and a kss decorator view is defined that is
+    overwritten if kss is loaded. Currently the addability support in
+    the reference and inandout widgets has its javasacript commented
+    out, this needs to get fixed asap.
     [ree]
 
   * By default base_edit will show all fields of all schemas on one page now.
