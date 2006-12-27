@@ -67,7 +67,8 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from zope.interface import implements
+from zope.interface import implements, Interface
+from zope.component import queryMultiAdapter
 from zope import event
 
 _marker = []
@@ -1096,17 +1097,26 @@ class BaseObject(Referenceable):
             if shasattr(self, name):
                 target = getattr(self, name)
         else:
-            # We are allowed to acquire
-            target = getattr(self, name, None)
+            if shasattr(self, name): # attributes of self come first
+                target = getattr(self, name)
+            else: # then views
+                target = queryMultiAdapter((self, REQUEST), Interface, name)
+                if target is not None:
+                    # We don't return the view, we raise an
+                    # AttributeError instead (below)
+                    target = None
+                else: # then acquired attributes
+                    target = getattr(self, name, None)
+
         if target is not None:
             return target
-        if (method not in ('GET', 'POST') and not
-            isinstance(RESPONSE, xmlrpc.Response) and
-            REQUEST.maybe_webdav_client):
+        elif (method not in ('GET', 'POST') and not
+              isinstance(RESPONSE, xmlrpc.Response) and
+              REQUEST.maybe_webdav_client):
             return NullResource(self, name, REQUEST).__of__(self)
-
-        # Nothing has been found. Raise an AttributeError and be done with it.
-        raise AttributeError(name)
+        else:
+            # Raising AttributeError will look up views for us
+            raise AttributeError(name)
 
 InitializeClass(BaseObject)
 

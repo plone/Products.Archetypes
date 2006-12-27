@@ -16,6 +16,10 @@ from Products.CMFCore.utils import getToolByName
 #utool = getToolByName(context, 'portal_url')
 #portal_object = utool.getPortalObject()
 
+# Tell the world that we cancelled
+lifecycle_view = context.restrictedTraverse('@@at_lifecycle_view')
+lifecycle_view.cancel_edit()
+
 if context.isTemporary():
     # object was created using portal factory and it's just a temporary object
     # XXX disabled mark creation flag
@@ -23,7 +27,7 @@ if context.isTemporary():
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
     portal_status_message=context.translate(
         msgid='message_add_new_item_cancelled',
-        domain='plone',
+        domain='archetypes',
         default='Add New Item operation was cancelled.')
 ##elif old_id in cflag.keys():
 ##    redirect_to = last_referer
@@ -37,7 +41,7 @@ else:
     redirect_to = last_referer
     portal_status_message=context.translate(
         msgid='message_edit_item_cancelled',
-        domain='plone',
+        domain='archetypes',
         default='Edit cancelled.')
 
 kwargs = {
