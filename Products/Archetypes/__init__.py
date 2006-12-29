@@ -8,7 +8,7 @@ from Products.Archetypes.config import *
 from Products.Archetypes.utils import DisplayList, getPkgInfo
 
 from AccessControl import ModuleSecurityInfo
-from AccessControl import allow_class
+from AccessControl import allow_class, allow_module
 from Products.CMFCore import permissions
 from Products.CMFCore.DirectoryView import registerDirectory
 
@@ -16,8 +16,16 @@ from Products.CMFCore.DirectoryView import registerDirectory
 ## security
 ###
 # make log and log_exc public
+allow_module('Products.Archetypes.utils')
+
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getAllowableContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getAllowedContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getForbiddenContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getDefaultContentType')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setForbiddenContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setDefaultContentType')
 
 # Plone compatibility in plain CMF. Templates should use IndexIterator from
 # Archetypes and not from CMFPlone

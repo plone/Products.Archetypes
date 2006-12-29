@@ -344,10 +344,8 @@ class TextAreaWidget(TypesWidget):
         if emptyReturnsMarker and value == '':
             return empty_marker
 
-        if hasattr(field, 'allowable_content_types') and \
-               field.allowable_content_types:
-            format_field = "%s_text_format" % field.getName()
-            text_format = form.get(format_field, empty_marker)
+        format_field = "%s_text_format" % field.getName()
+        text_format = form.get(format_field, empty_marker)
         kwargs = {}
 
         if text_format is not empty_marker and text_format:
@@ -536,12 +534,9 @@ class RichWidget(TypesWidget):
         isFile = False
         value = None
 
-        # text field with formatting
-        if hasattr(field, 'allowable_content_types') and \
-           field.allowable_content_types:
-            # was a mimetype specified
-            format_field = "%s_text_format" % field.getName()
-            text_format = form.get(format_field, empty_marker)
+        # was a mimetype specified
+        format_field = "%s_text_format" % field.getName()
+        text_format = form.get(format_field, empty_marker)
 
         # or a file?
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
