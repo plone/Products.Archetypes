@@ -1,6 +1,9 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * Adjusted some code to work better with the CMF 2.1 tools as utilities work.
+    [hannosch]
+
   * Fix failing test in traversal.txt:184, where an acquired template
     overrode a view.  Added logic to BaseObject.__bobo_traverse__ to
     make sure the right order is respected.

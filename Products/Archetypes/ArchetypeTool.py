@@ -1122,9 +1122,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
+        portal = getToolByName(self, 'portal_url').getPortalObject()
         for name in names:
             try:
-                catalogs.append(getToolByName(self, name))
+                catalogs.append(getToolByName(portal, name))
             except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, E:
@@ -1136,9 +1137,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-        root_objects = self.portal_url.getPortalObject().objectValues()
+        portal = getToolByName(self, 'portal_url').getPortalObject()
         res = []
-        for object in root_objects:
+        for object in portal.objectValues():
             if ICatalogTool.isImplementedBy(object):
                 res.append(object.getId())
                 continue
