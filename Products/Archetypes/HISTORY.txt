@@ -1,6 +1,11 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * Removed the typeDescription and typeDescMsgId attributes from all content
+    classes. These were only used on the edit form which has been altered to
+    use the Description method from the type information instead.
+    [hannosch]
+
   * Removed some BBB code in generator/i18n.py.
     [hannosch]
 

@@ -83,27 +83,13 @@
     </div>
 
     <div metal:define-macro="typedescription">
-        <tal:description tal:define="msgid here/typeDescMsgId | nothing;
-                                     default here/typeDescription| nothing;
-                                     default_translated python:here.translate(default);"
-                         tal:condition="default">
-
-          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default_translated)">
-            type description
-          </p>
-
-        </tal:description>
-        <tal:comment replace="nothing">
-            BBB: The above code can be simplified once we do not support
-            typeDescMsgId anymore and should simply read:
-            <p class="discreet"
-               i18n:translate=""
-               tal:define="desc here/typeDescription| nothing"
-               tal:content="desc">
+        <tal:description tal:define="fti python:here.portal_types.getTypeInfo(here);
+                                     desc fti/Description;"
+                         tal:condition="desc">
+            <p class="discreet" i18n:translate="" tal:content="desc">
                 type description
             </p>
-            
-        </tal:comment>
+        </tal:description>
     </div>
 
     <div metal:define-macro="body">

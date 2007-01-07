@@ -128,8 +128,6 @@ class BaseObject(Referenceable):
 
     installMode = ['type', 'actions', 'indexes']
 
-    typeDescMsgId = ''
-    typeDescription = ''
     _at_rename_after_creation = False # rename object according to title?
 
     __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
