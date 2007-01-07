@@ -18,15 +18,9 @@ translate = None
 def translate_wrapper(domain, msgid, mapping=None, context=None,
                       target_language=None, default=None):
     """Wrapper for calling the translate() method with a fallback value."""
-
-    if hasattr(service, 'utranslate'):
-        res = service.utranslate(domain, msgid, mapping=mapping, context=context,
-                                 target_language=target_language,
-                                 default=default)
-    else:
-        res = service.translate(domain, msgid, mapping=mapping, context=context,
-                                target_language=target_language,
-                                default=default)
+    res = service.translate(domain, msgid, mapping=mapping, context=context,
+                            target_language=target_language,
+                            default=default)
 
     if res is None or res is msgid:
         return default

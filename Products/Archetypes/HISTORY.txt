@@ -1,6 +1,9 @@
 1.5.0-a2 - unreleased
 =====================
 
+  * Removed some BBB code in generator/i18n.py.
+    [hannosch]
+
   * Adjusted some code to work better with the CMF 2.1 tools as utilities work.
     [hannosch]
 
