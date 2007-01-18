@@ -1,3 +1,10 @@
+  * Update the base folder types to use sane permissions for
+    manage_copyObjects, manage_pasteObjects, manage_renameObject(s)
+    rather than the default 'View management screens' given by
+    OFS.CopySupport (the permission mapping used is from
+    Plone.PloneFolder)
+    [alecm]
+
   * Backported the catalog unindexing silencer code from trunk, as in contrast
     to the former code on this branch it doesn't use any private attributes.
     [hannosch]
