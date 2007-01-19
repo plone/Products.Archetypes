@@ -1,3 +1,6 @@
+  * BaseContent.PUT will not also fire the object modified event.
+    [nouri]
+
   * Update the base folder types to use sane permissions for
     manage_copyObjects, manage_pasteObjects, manage_renameObject(s)
     rather than the default 'View management screens' given by
