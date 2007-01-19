@@ -1,0 +1,54 @@
+Events in Archetypes
+====================
+
+This doctest makes sure that at relevant places in the Arcehtypes
+code, events are fired.  To test events, we'll set up an event handler
+that listens for object events for `IBaseObject`:
+
+  >>> from pprint import pprint
+  >>> from StringIO import StringIO
+  >>> from zope.app.testing import ztapi
+  >>> from Products.Archetypes.tests.utils import makeContent, aputrequest
+  >>> from Products.Archetypes.interfaces import IBaseObject
+  >>> from zope.app.container.interfaces import IObjectEvent
+
+
+  >>> class Handler:
+  ...     def __init__(self):
+  ...         self.got = []
+  ...     def __call__(self, *args):
+  ...         self.got.append(args)
+  ...     def print_and_flush(self):
+  ...         pprint(self.got)
+  ...         self.got = []
+  >>> handler = Handler()
+  >>> ztapi.subscribe([IBaseObject, IObjectEvent], None, handler)
+
+Creating an AT object will fire three events.  Note that the
+`ObjectCreatedEvent` is not fired, which is a bug:
+
+  >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
+  >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  [(<DDocument at a>, <OFS.event.ObjectWillBeAddedEvent object at ...>),
+   (<DDocument at /plone/Members/test_user_1_/a>,
+    <zope.app.container.contained.ObjectAddedEvent object at ...>),
+   (<ATFolder at /plone/Members/test_user_1_>,
+    <zope.app.container.contained.ContainerModifiedEvent object at ...>)]
+
+Calling `processForm`, which is what happens on submitting a form,
+will fire the modified event:
+
+  >>> d.processForm()
+  >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  [(<DDocument at /plone/Members/test_user_1_/a>,
+    <zope.app.event.objectevent.ObjectModifiedEvent object at ...>)]
+
+Doing a `PUT` request will also fire the modified event:
+
+  >>> contents = StringIO('some contents')
+  >>> request = aputrequest(contents, 'text/plain')
+  >>> request.processInputs()
+  >>> ignore = d.PUT(request, request.RESPONSE)
+  >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  [(<DDocument at /plone/Members/test_user_1_/a>,
+    <zope.app.event.objectevent.ObjectModifiedEvent object at ...>)]
