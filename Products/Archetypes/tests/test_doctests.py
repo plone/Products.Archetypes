@@ -39,7 +39,7 @@ import unittest
 
 # XXX: I believe this can go away with Zope 2.9
 from zope.testing import doctest
-OPTIONFLAGS = (doctest.ELLIPSIS,)
+OPTIONFLAGS = doctest.ELLIPSIS
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
