@@ -1,12 +1,10 @@
-from __future__ import nested_scopes
-
 import sys
 
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
-from types import ListType, TupleType, ClassType, FileType, DictType, IntType
+from types import ListType, TupleType, ClassType, FileType
 from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
@@ -111,7 +109,7 @@ __docformat__ = 'reStructuredText'
 
 def encode(value, instance, **kwargs):
     """ensure value is an encoded string"""
-    if type(value) is UnicodeType:
+    if isinstance(value, unicode):
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -125,7 +123,7 @@ def encode(value, instance, **kwargs):
 
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
-    if type(value) is StringType:
+    if isinstance(value, str):
         encoding = kwargs.get('encoding')
         if encoding is None:
             try:
@@ -253,7 +251,7 @@ class Field(DefaultLayerContainer):
         """
         chainname = 'Validator_%s' % self.getName()
 
-        if type(self.validators) is DictType:
+        if isinstance(self.validators, dict):
             raise NotImplementedError, 'Please use the new syntax with validation chains'
         elif IValidationChain.isImplementedBy(self.validators):
             validators = self.validators
@@ -458,7 +456,7 @@ class Field(DefaultLayerContainer):
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)
-            elif len(sample) and type(sample[0]) is StringType:
+            elif len(sample) and isinstance(sample[0], basestring):
                 value = DisplayList(zip(value, value))
             else:
                 log('Unhandled type in Vocab')
@@ -551,7 +549,7 @@ class Field(DefaultLayerContainer):
         field"""
         dm = self.default_method
         if dm:
-            if type(dm) is StringType and shasattr(instance, dm):
+            if isinstance(dm, basestring) and shasattr(instance, dm):
                 method = getattr(instance, dm)
                 return method()
             elif callable(dm):
@@ -1524,7 +1522,8 @@ class FixedPointField(ObjectField):
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None: return self.getDefault(instance)
-        if type(value) in (StringType,): value = self._to_tuple(instance, value)
+        if isinstance(value, basestring):
+            value = self._to_tuple(instance, value)
         return template % value
 
     security.declarePrivate('validate_required')
@@ -1884,7 +1883,7 @@ class CMFObjectField(ObjectField):
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
-        if type(value) is not StringType:
+        if not isinstance(value, basestring):
             if ((isinstance(value, FileUpload) and value.filename != '') or \
                 (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
@@ -2104,13 +2103,13 @@ class ImageField(FileField):
             A callable
         """
         sizes = self.sizes
-        if type(sizes) is DictType:
+        if isinstance(sizes, dict):
             return sizes
-        elif type(sizes) is StringType:
+        elif isinstance(sizes, basestring):
             assert(shasattr(instance, sizes))
             method = getattr(instance, sizes)
             data = method()
-            assert(type(data) is DictType)
+            assert(isinstance(data, dict))
             return data
         elif callable(sizes):
             return sizes()
@@ -2665,7 +2664,7 @@ class PhotoField(ObjectField):
 
     security.declarePrivate('set')
     def set(self, instance, value, **kw):
-        if type(value) is StringType:
+        if isinstance(value, str):
             value = StringIO(value)
         image = ScalableImage(self.getName(), file=value,
                               displays=self.displays)
