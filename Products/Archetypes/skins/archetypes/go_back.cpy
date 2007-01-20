@@ -27,7 +27,7 @@ if context.isTemporary():
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
     portal_status_message=context.translate(
         msgid='message_add_new_item_cancelled',
-        domain='archetypes',
+        domain='plone',
         default='Add New Item operation was cancelled.')
 ##elif old_id in cflag.keys():
 ##    redirect_to = last_referer
@@ -41,7 +41,7 @@ else:
     redirect_to = last_referer
     portal_status_message=context.translate(
         msgid='message_edit_item_cancelled',
-        domain='archetypes',
+        domain='plone',
         default='Edit cancelled.')
 
 kwargs = {

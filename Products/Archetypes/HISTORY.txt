@@ -146,8 +146,39 @@
   * Remove BBB code for calendar_macros.
     [hannosch]
 
-1.4.2 - Unreleased
+1.4.3 - Unreleased
 ==================
+
+  * Update the base folder types to use sane permissions for
+    manage_copyObjects, manage_pasteObjects, manage_renameObject(s)
+    rather than the default 'View management screens' given by
+    OFS.CopySupport (the permission mapping used is from
+    Plone.PloneFolder)
+    [alecm]
+
+  * Backported the catalog unindexing silencer code from trunk, as in contrast
+    to the former code on this branch it doesn't use any private attributes.
+    [hannosch]
+
+  * Fixed translation domain of two messages in go_back.cpy. These were missing
+    from the Archetypes translation files.
+    [hannosch]
+
+1.4.2-final - 2006-12-15
+========================
+
+  * Fixed missing declaration of timestamp property in TextAreaWidget for
+    append_only mode.
+    It may need a better intregration of plone datetime format property.
+    [encolpe]
+
+  * Fixed missing i18n statement for the text format label on visual widgets.
+    This closes http://dev.plone.org/archetypes/ticket/687.
+    [hannosch]
+
+  * Fixed a minor issue of FixedPointField: It now works with integer default 
+    value.
+    [jensens]
 
   * Add a try: finally: clause in AllowedTypesByIfaceMixin when deleting
     the typeinfo "temporarily" Fixes http://dev.plone.org/plone/ticket/5314

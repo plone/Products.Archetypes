@@ -36,6 +36,14 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security = ClassSecurityInfo()
 
+    # Fix permissions set by CopySupport.py
+    __ac_permissions__ = (
+        (permissions.ModifyPortalContent,
+         ('manage_cutObjects', 'manage_pasteObjects',
+          'manage_renameObject', 'manage_renameObjects',)),
+        )
+    security.declareProtected('Copy or Move', 'manage_copyObjects')
+
     manage_options = PortalFolder.manage_options
     content_icon = "folder_icon.gif"
     use_folder_tabs = 1

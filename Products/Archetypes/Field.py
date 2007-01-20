@@ -7,7 +7,7 @@ from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
-from types import StringType, UnicodeType, StringTypes
+from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18nmessageid import Message 
@@ -1497,7 +1497,8 @@ class FixedPointField(ObjectField):
         # * the locale settings of the zope-server, Plone, logged in user
         # * maybe the locale of the browser sending the value.
         # same should happen with the output.
-        value = value.replace(',','.')
+        if isinstance(value, basestring):
+            value = value.replace(',','.')
 
         value = value.split('.')
         __traceback_info__ = (self, value)
@@ -1718,7 +1719,7 @@ class ReferenceField(ObjectField):
         if shasattr(brain, 'Title') and brain.Title != '':
             title = brain.Title
 
-        if title is not None and type(title) in StringTypes:
+        if title is not None and isinstance(title, basestring):
             return decode(title, instance)
         
         raise AttributeError, "Brain has no title or id"

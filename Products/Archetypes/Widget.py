@@ -323,6 +323,7 @@ class TextAreaWidget(TypesWidget):
         'append_only': False,
         'timestamp' : False,        
         'divider':"\n\n========================\n\n",
+        'timestamp': False,
         'maxlength' : False,
         'helper_js': ('widgets/js/textcount.js',),        
         })
@@ -884,6 +885,7 @@ registerPropertyType('rows', 'integer', TextAreaWidget)
 registerPropertyType('cols', 'integer', TextAreaWidget)
 registerPropertyType('append_only', 'boolean', TextAreaWidget)
 registerPropertyType('divider', 'string', TextAreaWidget)
+registerPropertyType('timestamp', 'boolean', TextAreaWidget)
 registerPropertyType('rows', 'integer', LinesWidget)
 registerPropertyType('cols', 'integer', LinesWidget)
 registerPropertyType('rows', 'integer', VisualWidget)
