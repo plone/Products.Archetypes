@@ -1,16 +1,11 @@
 <tal:block metal:define-macro="master"
-           define="view context/@@at_base_edit_view;
-                   lifecycle context/@@at_lifecycle_view;
-                   lock_info context/@@plone_lock_info;
-                   dummy lifecycle/begin_edit;
-                   errors options/state/getErrors | nothing;
+           define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
                    schematas here/Schemata;
-                   allow_tabbing python: not view.isMultiPageSchema();
-                   fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];
+                   fieldsets python:[key for key in schematas.keys() if (key != 'metadata') and (schematas[key].editableFields(here, visible_only=True))];
                    default_fieldset python:(not schematas or schematas.has_key('default')) and 'default' or fieldsets[0];
                    fieldset request/fieldset|options/fieldset|default_fieldset;
-                   fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
+                   fields python:schematas[fieldset].editableFields(here);
                    dummy python:here.at_isEditable(fields);
                    portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
                    type_name here/getPortalTypeName|here/archetype_name;
@@ -21,7 +16,8 @@
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
-                   isLocked lock_info/is_locked_for_current_user;
+                   lockable python:hasattr(here, 'wl_isLocked');
+                   isLocked python:lockable and here.wl_isLocked();
                    tabindex tabindex|python:Iterator(pos=7000);
                    css python:here.getUniqueWidgetAttr(fields, 'helper_css');
                    js python:here.getUniqueWidgetAttr(fields, 'helper_js');">

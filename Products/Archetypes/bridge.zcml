@@ -1,0 +1,29 @@
+<configure
+    xmlns="http://namespaces.zope.org/five"
+    >
+  
+  <bridge
+      zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedContainer"
+      package=".interfaces"
+      name="IOrderedContainer"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedFolder"
+      package=".interfaces"
+      name="IOrderedFolder"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.templatemixin.ITemplateMixin"
+      package=".interfaces"
+      name="ITemplateMixin"
+      /> 
+ 
+  <bridge
+      zope2="Products.Archetypes.interfaces.vocabulary.IVocabulary"
+      package=".interfaces"
+      name="IVocabulary"
+      /> 
+
+</configure>

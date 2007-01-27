@@ -8,8 +8,7 @@
                    type_title fti/Title|type_name;
                    fieldset request/fieldset|options/fieldset|string:metadata;
                    schematas here/Schemata;
-                   schema python:schematas.get(fieldset, None);
-                   fields python:schema is not None and schema.fields() or [];
+                   fields python:schematas[fieldset].fields();
                    metadata_macros python:path('here/metadata_macros/macros|nothing');
                    css python:here.getUniqueWidgetAttr(fields, 'helper_css');
                    js python:here.getUniqueWidgetAttr(fields, 'helper_js');"
@@ -61,7 +60,7 @@
         class="enableUnloadProtection"
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
-      <tal:fields repeat="field fields">
+      <tal:fields repeat="field python: schematas[fieldset].fields()">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
 

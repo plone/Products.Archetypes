@@ -3,13 +3,11 @@ import sys
 from types import StringType, UnicodeType
 import time
 import urllib
-from zope.interface import implements
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces.referenceengine import \
-    IContentReference, IReferenceCatalog, IReference as Z2IReference
+    IReference, IContentReference, IReferenceCatalog
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
@@ -34,6 +32,7 @@ from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from zExceptions import NotFound
+import zLOG
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
@@ -54,8 +53,7 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (Z2IReference,)
-    implements(IReference)
+    __implements__ = Referenceable.__implements__ + (IReference,)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
@@ -340,6 +338,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                 self._queryFor(sID, tID, relationship))
             if objects:
                 #we want to update the existing reference
+                #XXX we might need to being a subtransaction here to
+                #    do this properly, and close it later
                 existing = objects[0]
                 if existing:
                     # We can't del off self, we now need to remove it

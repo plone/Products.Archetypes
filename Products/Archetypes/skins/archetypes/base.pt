@@ -17,14 +17,7 @@
           <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
           </div>
-          <h1 tal:define="kss_field_decorator_view kss_field_decorator_view | context/@@kss_field_decorator_view;
-                          kss_class python:kss_field_decorator_view.kss_class('title', 'view');"
-              id="archetypes-fieldname-title"
-              tal:content="title_string | here/title_or_id"
-              tal:attributes="class kss_class;">
-            Title or id
-          </h1>
-    
+          <h1 tal:content="title_string | here/title_or_id" />
           <tal:has_document_byline tal:condition="exists:here/document_byline">
             <div metal:use-macro="here/document_byline/macros/byline">
               Get the byline - contains details about author and modification date.
@@ -33,8 +26,7 @@
         </metal:header_macro>
 
         <metal:body_macro metal:define-macro="body"
-                          tal:define="field_macro field_macro | here/widgets/field/macros/view;
-                                      kss_field_decorator_view kss_field_decorator_view | context/@@kss_field_decorator_view;"
+                          tal:define="field_macro field_macro | here/widgets/field/macros/view;"
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
           <tal:if_visible define="mode string:view;
                                   visState python:field.widget.isVisible(here, mode);

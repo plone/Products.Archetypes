@@ -9,9 +9,6 @@ from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType, DictType, IntType
 from types import StringType, UnicodeType, StringTypes
 
-from zope.contenttype import guess_content_type
-from zope.i18nmessageid import Message 
-
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
@@ -35,7 +32,6 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import permissions
 
-from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.storage import IStorage
@@ -49,6 +45,7 @@ from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
 from Products.Archetypes.exceptions import ReferenceException
+from Products.Archetypes.generator import i18n
 from Products.Archetypes.Widget import BooleanWidget
 from Products.Archetypes.Widget import CalendarWidget
 from Products.Archetypes.Widget import ComputedWidget
@@ -67,7 +64,6 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
-from Products.Archetypes.mimetype_utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import deprecated
@@ -79,14 +75,18 @@ from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerField
 from Products.Archetypes.Registry import registerPropertyType
 
-# BBB, this can be removed once we do not support PTS anymore
-from Products.PageTemplates.GlobalTranslationService \
-     import getGlobalTranslationService as getGTS
-
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
+
+try:
+    from zope.contenttype import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 try:
     import PIL.Image
@@ -249,7 +249,7 @@ class Field(DefaultLayerContainer):
         We could replace strings with class refs and keep things impl
         the ivalidator in the list.
 
-        Note: this is not compat with aq_ things like scripts with __call__
+        Note: XXX this is not compat with aq_ things like scripts with __call__
         """
         chainname = 'Validator_%s' % self.getName()
 
@@ -340,16 +340,12 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            if isinstance(label, Message):
-                # BBB, this should be a call to zope.i18n.translate instead,
-                # once we do not support PTS anymore
-                label = getGTS().translate(None, label, context=instance)
-            error = _(u'error_required',
-                      default=u'${name} is required, please correct.',
-                      mapping={'name': label})
-            # BBB, this should be a call to zope.i18n.translate instead,
-            # once we do not support PTS anymore
-            error = getGTS().translate(None, error, context=instance)
+            error = i18n.translate(
+                'archetypes', 'error_required',
+                {'name': label}, instance,
+                default = "%s is required, please correct."
+                % label,
+                )
             errors[name] = error
             return error
         return None
@@ -388,9 +384,13 @@ class Field(DefaultLayerContainer):
 
         if error:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = _( u'error_vocabulary',
-                default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
-                mapping={'val': val, 'name': label})
+            errors[self.getName()] = error = i18n.translate(
+                'archetypes', 'error_vocabulary',
+                {'val': val, 'name': label}, instance,
+                default = "Value %s is not allowed for vocabulary "
+                "of element %s." % (val, label),
+                )
+
         return error
 
     security.declarePublic('Vocabulary')
@@ -494,7 +494,7 @@ class Field(DefaultLayerContainer):
 
 
     security.declarePublic('writeable')
-    def writeable(self, instance, debug=False):
+    def writeable(self, instance, debug=True):
         if 'w' not in self.mode:
             if debug:
                 log("Tried to update %s:%s but field is not writeable." % \
@@ -546,6 +546,7 @@ class Field(DefaultLayerContainer):
         return className(self)
 
     security.declarePublic('getDefault')
+    #XXX
     def getDefault(self, instance):
         """Return the default value to be used for initializing this
         field"""
@@ -618,8 +619,8 @@ class Field(DefaultLayerContainer):
         """Utility method for converting a Field to a string for the
         purpose of comparing fields.  This comparison is used for
         determining whether a schema has changed in the auto update
-        function. Right now it's pretty crude."""
-        # TODO fixme
+        function.  Right now it's pretty crude."""
+        # XXX fixme
         s = '%s(%s): {' % ( self.__class__.__name__, self.__name__ )
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
@@ -652,6 +653,7 @@ class ObjectField(Field):
     layer.
     """
     __implements__ = IObjectField, ILayerContainer
+    #XXX __implements__ = IField.__implements__, IObjectField
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -669,7 +671,6 @@ class ObjectField(Field):
             return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
-            # @@ and at every other possible occurence of an AttributeError?!!
             if not kwargs.get('_initializing_', False):
                 self.set(instance, self.getDefault(instance), _initializing_=True, **kwargs)
             return self.getDefault(instance)
@@ -816,6 +817,7 @@ class FileField(ObjectField):
     want text format conversion"""
 
     __implements__ = IFileField, ILayerContainer
+    #XXX __implements__ = IFileField, IObjectField.__implements__
 
     _properties = ObjectField._properties.copy()
     _properties.update({
@@ -1135,9 +1137,9 @@ class TextField(FileField):
         'type' : 'text',
         'default' : '',
         'widget': StringWidget,
-        'default_content_type' : None,
+        'default_content_type' : 'text/plain',
         'default_output_type'  : 'text/plain',
-        'allowable_content_types' : None,
+        'allowable_content_types' : ('text/plain',),
         'primary' : False,
         'content_class': BaseUnit,
         })
@@ -1161,18 +1163,6 @@ class TextField(FileField):
                 level=ERROR)
 
     getContentType = ObjectField.getContentType.im_func
-
-    security.declarePublic('getAllowedContentTypes')
-    def getAllowedContentTypes(self, instance):
-        """ returns the list of allowed content types for this field.
-            If the fields schema doesn't define any, the site's default
-            values are returned.
-        """
-        act_attribute = getattr(self, 'allowable_content_types', None)
-        if act_attribute is None:
-            return getAllowedContentTypesProperty(instance) 
-        else:
-            return act_attribute
 
     def _make_file(self, id, title='', file='', instance=None):
         return self.content_class(id, file=file, instance=instance)
@@ -1199,7 +1189,7 @@ class TextField(FileField):
             value = value.data
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
-            # TODO Should be fixed eventually
+            # XXX Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
         elif isinstance(value, FileType) or shasattr(value, 'name'):
@@ -1213,7 +1203,7 @@ class TextField(FileField):
                     # repr() and full path in 'file.name'
                     if '<fdopen>' in v:
                         filename = ''
-            # TODO Should be fixed eventually
+            # XXX Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
         elif isinstance(value, basestring):
@@ -1233,7 +1223,7 @@ class TextField(FileField):
             raise TextFieldException('Value is not File or String (%s - %s)' %
                                      (type(value), klass))
         if isinstance(value, Pdata):
-            # TODO Should be fixed eventually
+            # XXX Should be fixed eventually
             value = str(value)
         filename = filename[max(filename.rfind('/'),
                                 filename.rfind('\\'),
@@ -1483,6 +1473,18 @@ class FixedPointField(ObjectField):
         'validators' : ('isDecimal'),
         })
 
+#    XXX TODO
+#    security.declarePrivate('validate_required')
+#    def validate_required(self, instance, value, errors):
+#        try:
+#            int(value)
+#        except ValueError:
+#            result = False
+#        else:
+#            result = True
+#        return ObjectField.validate_required(self, instance, result, errors)
+
+
     security  = ClassSecurityInfo()
 
     def _to_tuple(self, instance, value):
@@ -1497,7 +1499,8 @@ class FixedPointField(ObjectField):
         # * the locale settings of the zope-server, Plone, logged in user
         # * maybe the locale of the browser sending the value.
         # same should happen with the output.
-        value = value.replace(',','.')
+        if type(value) in StringTypes:
+            value = value.replace(',','.')
 
         value = value.split('.')
         __traceback_info__ = (self, value)
@@ -1740,8 +1743,10 @@ class ReferenceField(ObjectField):
 
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
+        #elif len(brains) > self.vocabulary_display_path_bound:
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
-            at = _(u'label_at', default=u'at')
+            at = i18n.translate(domain='archetypes', msgid='label_at',
+                                context=content_instance, default='at')
             label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance),
                                              at, b.getPath())
         else:
@@ -1788,8 +1793,10 @@ class ReferenceField(ObjectField):
                 pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
-            no_reference = _(u'label_no_reference',
-                             default=u'<no reference>')
+            no_reference = i18n.translate(domain='archetypes',
+                                          msgid='label_no_reference',
+                                          context=content_instance,
+                                          default='<no reference>')
             pairs.insert(0, ('', no_reference))
 
         __traceback_info__ = (content_instance, self.getName(), pairs)
@@ -1802,7 +1809,7 @@ class ReferenceField(ObjectField):
         return 0
 
 
-class ComputedField(Field):
+class ComputedField(ObjectField):
     """A field that stores a read-only computation."""
     __implements__ = Field.__implements__
 
@@ -1991,6 +1998,8 @@ class ImageField(FileField):
         max_size -- similar to max_size but if it's given then the image
                     is checked to be no bigger than any of the given values
                     of width or height.
+                    XXX: I think it is, because the one who added it did not
+                    document it ;-) (mrtopf - 2003/07/20)
 
         example:
 
@@ -2055,10 +2064,13 @@ class ImageField(FileField):
 
     default_view = "view"
 
+    #_process_input = _old_process_input
+
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         if not value:
             return
+        
         # Do we have to delete the image?
         if value=="DELETE_IMAGE":
             self.removeScales(instance, **kwargs)
@@ -2089,7 +2101,7 @@ class ImageField(FileField):
             else:
                 log_exc()
                 data = str(value.data)
-        # TODO add self.ZCacheable_invalidate() later
+        # XXX add self.ZCacheable_invalidate() later
         self.createOriginal(instance, data, **kwargs)
         self.createScales(instance, value=data)
 
@@ -2258,6 +2270,8 @@ class ImageField(FileField):
         elif original_mode == 'P':
             image = image.convert('RGBA')
         image.thumbnail(size, self.pil_resize_algo)
+        # XXX: tweak to make the unit test
+        #      test_fields.ProcessingTest.test_processing_fieldset run
         format = image.format and image.format or default_format
         # decided to only preserve palletted mode
         # for GIF, could also use image.format in ('GIF','PNG')
@@ -2311,7 +2325,7 @@ class ImageField(FileField):
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         
-        TODO: We should only return the size of the original image
+        XXX: We should only return the size of the original image
         """
         sizes = self.getAvailableSizes(instance)
         original = self.get(instance)

@@ -8,6 +8,7 @@ from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 from Products.Archetypes.interfaces.base import IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -114,7 +115,7 @@ class OrderedContainer:
         """Get the ids of only cmf objects (used for moveObjectsByDelta)
         """
         ttool = getToolByName(self, 'portal_types')
-        cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
+        cmf_meta_types = ttool.listContentTypes(by_metatype=1)
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
     security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')

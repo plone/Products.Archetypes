@@ -30,8 +30,8 @@
         </div>
       </tal:has_document_byline>
 
-      <div id="archetypes-schemata-links"
-           tal:condition="python: fieldsets and not allow_tabbing">
+      <div id="archetypes-schemata-links" 
+           tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
@@ -44,41 +44,11 @@
       </div>
       <metal:block define-slot="extra_info" />
 
-      <tal:block condition="isLocked">
-          <tal:locked define="stealable lock_info/lock_is_stealable;
-                              lock_details lock_info/lock_info;">
-              <p class="portalMessage"
-                 tal:condition="not:stealable"
-                 i18n:translate="description_webdav_locked_not_stealable">
-                This item was locked by 
-                    <a i18n:name="author"
-                       tal:content="lock_details/fullname"
-                       tal:attributes="href lock_details/author_page" />
-                    <span i18n:name="time"
-                       tal:content="lock_details/time_difference" /> ago.
-              </p>
-              <form tal:condition="stealable"
-                    tal:attributes="action string:${context/absolute_url}/@@plone_lock_operations/force_unlock">
-                  <p class="portalMessage"
-                     tal:condition="stealable"
-                     i18n:translate="description_webdav_locked_stealable">
-                    This item was locked by 
-                        <a i18n:name="author"
-                           tal:content="lock_details/fullname"
-                           tal:attributes="href lock_details/author_page" />
-                        <span i18n:name="time"
-                           tal:content="lock_details/time_difference" /> ago.
-                    If you are certain this user has abandoned the object, you
-                    may
-                        <input type="submit" 
-                               value="Unlock" 
-                               i18n:name="unlock_button"
-                               i18n:attributes="value" /> 
-                    the object. You will then be able to edit it.
-                  </p>
-              </form>
-          </tal:locked>
-      </tal:block>
+      <p class="portalMessage"
+         tal:condition="isLocked"
+         i18n:translate="description_webdav_locked">
+        This item is in use by someone else and cannot be modified
+      </p>
 
     </div>
 
@@ -93,17 +63,6 @@
           </p>
 
         </tal:description>
-        <tal:comment replace="nothing">
-            BBB: The above code can be simplified once we do not support
-            typeDescMsgId anymore and should simply read:
-            <p class="discreet"
-               i18n:translate=""
-               tal:define="desc here/typeDescription| nothing"
-               tal:content="desc">
-                type description
-            </p>
-            
-        </tal:comment>
     </div>
 
     <div metal:define-macro="body">
@@ -112,28 +71,14 @@
             enctype="multipart/form-data"
             class="enableUnloadProtection"
             action=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
+            tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-            <tal:tabbed tal:condition="allow_tabbing | nothing">
-              <fieldset tal:repeat="fieldset fieldsets"
-                        tal:attributes="id string:fieldset-${fieldset}">
-                <legend id=""
-                        tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
-                        tal:attributes="id string:fieldsetlegend-${fieldset}" />
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-              </fieldset>
-            </tal:tabbed>
-            <tal:nottabbed tal:condition="not: allow_tabbing | nothing">
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-            </tal:nottabbed>
+            <tal:fields repeat="field fields">
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+            </tal:fields>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />
