@@ -596,8 +596,15 @@ class BaseObject(Referenceable):
         schemata = self.Schemata()
         fields = []
 
+        #raise 'fieldset is %s' % fieldset
+
         if fieldset is not None:
-            fields = schemata[fieldset].fields()
+            if type(fieldset) == type([]):
+                for fset in fieldset:
+                    fields += schemata[fset].fields()
+            else:
+                fields += schemata[fieldset].fields() 
+            #raise str(fields)
         else:
             if data: fields += schema.filterFields(isMetadata=0)
             if metadata: fields += schema.filterFields(isMetadata=1)

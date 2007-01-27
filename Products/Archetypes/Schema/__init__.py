@@ -19,6 +19,8 @@ from ExtensionClass import Base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
 
+
+
 __docformat__ = 'reStructuredText'
 _marker = []
 
@@ -545,8 +547,14 @@ class BasicSchema(Schemata):
 
         if fieldset is not None:
             schemata = instance.Schemata()
-            fields = [(field.getName(), field)
-                      for field in schemata[fieldset].fields()]
+            if type(fieldset) == type([]):
+                for fset in fieldset:
+                    fields = [(field.getName(), field)
+                          for field in schemata[fset].fields()]
+            else:
+                fields = [(field.getName(), field)
+                          for field in schemata[fieldset].fields()]
+            
         else:
             if data:
                 fields.extend([(field.getName(), field)
@@ -562,7 +570,9 @@ class BasicSchema(Schemata):
         for name, field in fields:
             error = 0
             value = None
+            
             widget = field.widget
+
             if form:
                 result = widget.process_form(instance, field, form,
                                              empty_marker=_marker)
