@@ -23,7 +23,7 @@ class ObjectInitializedEvent(ObjectModifiedEvent):
     implements(IObjectInitializedEvent)
 
 class ObjectEditedEvent(ObjectModifiedEvent):
-    """An object is being initialised, i.e. populated for the first time
+    """An object is being edited, i.e. modified after the first save
     """
     implements(IObjectEditedEvent)
 
