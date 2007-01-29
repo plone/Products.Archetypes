@@ -149,6 +149,11 @@
 1.4.3 - Unreleased
 ==================
 
+  * Fix unicodeEncode skin method to deal with sequences; fixes SelectionWidget
+    with underlying LinesField case where the current value was not reflected
+    in the edit widget. Fixes issue #705.
+    [mj]
+  
   * Update the base folder types to use sane permissions for
     manage_copyObjects, manage_pasteObjects, manage_renameObject(s)
     rather than the default 'View management screens' given by
