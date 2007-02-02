@@ -69,9 +69,11 @@
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection"
+            class="enableUnloadProtection atBaseEditForm"
             action=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id">
+            id=""
+            tal:attributes="action python:here.absolute_url()+'/'+template.id;
+                            id string:${portal_type}-base-edit">
 
           <metal:block define-slot="extra_top" />
 

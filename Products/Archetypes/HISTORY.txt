@@ -1,3 +1,10 @@
+1.4.3 unreleased
+----------------
+
+  * for better css styling hpeter added a class and a id to edit_macros form
+    element, which enables per-type styling of base_edit. 
+    [jensens]
+
   * Fix unicodeEncode skin method to deal with sequences; fixes SelectionWidget
     with underlying LinesField case where the current value was not reflected
     in the edit widget. Fixes issue #705.
