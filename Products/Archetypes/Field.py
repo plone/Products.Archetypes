@@ -87,7 +87,7 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 try:
-    import Image
+    import PIL.Image
 except ImportError:
     # no PIL, no scaled versions!
     log("Warning: no Python Imaging Libraries (PIL) found."+\
@@ -96,7 +96,7 @@ except ImportError:
     PIL_ALGO = None
 else:
     HAS_PIL=True
-    PIL_ALGO = Image.ANTIALIAS
+    PIL_ALGO = PIL.Image.ANTIALIAS
 
 STRING_TYPES = [StringType, UnicodeType]
 """String-types currently supported"""
@@ -2245,7 +2245,7 @@ class ImageField(FileField):
         size = int(w), int(h)
 
         original_file=StringIO(data)
-        image = Image.open(original_file)
+        image = PIL.Image.open(original_file)
         # consider image mode when scaling
         # source images can be mode '1','L,','P','RGB(A)'
         # convert to greyscale or RGBA before scaling
@@ -2576,7 +2576,7 @@ class ScalableImage(BaseImage):
 
         try:
             if HAS_PIL:
-                img = Image.open(StringIO(str(self.data)))
+                img = PIL.Image.open(StringIO(str(self.data)))
                 fmt = img.format
                 # Resize photo
                 img.thumbnail((width, height))
