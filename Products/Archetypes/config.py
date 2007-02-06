@@ -7,7 +7,6 @@ TOOL_NAME = "archetype_tool" ## Name the tool will be installed under
 UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True ##Initialize the demo types
-INSTALL_DEMO_TYPES = False ##Install the demo types
 DEBUG =  False ## Hide debug messages
 #DEBUG = True  ## See debug messages
 
@@ -54,12 +53,7 @@ HAS_GRAPHVIZ = False
 ATTRIBUTE_SECURITY = True
 
 ## set language default for metadata, it will be overwritten by portal-settings!
-## This is in Archetypes 1.3.2 fixated to 'en'. LinguaPlone and i18nLayer don't
-## like default here. They expect empty string ('') for language neutral content.
-## If your product relies on the old behaviour and you dont need content-i18n,
-## it's save to use 'en'. Otherwise keep it empty for the future.
 LANGUAGE_DEFAULT=''
-#LANGUAGE_DEFAULT='en'
 
 ## Archetypes before 1.4 managed the catalog map using meta types instead of
 ## portal types. If you need this old behaviour change this setting to False.

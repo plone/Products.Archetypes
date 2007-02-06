@@ -10,6 +10,13 @@
 if site_charset is None:
     site_charset = context.getCharset()
 
+# Recursively deal with sequences
+if (same_type(value, ()) or same_type(value, [])):
+    encoded = [context.unicodeEncode(v) for v in value]
+    if same_type(value, ()):
+        encoded = tuple(encoded)
+    return encoded
+
 if not (same_type(value, '') or same_type(value, u'')):
     value = str(value)
 

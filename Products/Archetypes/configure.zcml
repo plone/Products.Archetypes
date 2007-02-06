@@ -1,15 +1,16 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:five="http://namespaces.zope.org/five">
 
+  <include package="plone.locking" />
+  
   <include file="bridge.zcml"/>
-
   <include file="implements.zcml"/>
-
+  <include file="profiles.zcml"/>
+  <include file="events.zcml" />
+  
   <include package=".exportimport" />
-
-  <five:traversable
-      class=".atapi.BaseObject"
-      />
+  <include package=".Schema" />
+  <include package=".browser" />
 
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
@@ -48,4 +49,3 @@
       class=".examples.SimpleType.SimpleType" />
 
 </configure>
-

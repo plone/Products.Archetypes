@@ -1,6 +1,7 @@
 import sys
 from Globals import InitializeClass
 
+from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.debug import _default_logger
@@ -20,13 +21,24 @@ from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
+from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces import ISchema
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.validator import AttributeValidator
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
 from Products.Archetypes.ArchetypeTool import getType
 from Products.Archetypes.ArchetypeTool import _guessPackage
+
+from Products.Archetypes.event import ObjectPreValidatingEvent
+from Products.Archetypes.event import ObjectPostValidatingEvent
+from Products.Archetypes.event import ObjectInitializedEvent
+from Products.Archetypes.event import ObjectEditedEvent
+
+from Products.Archetypes.interfaces import IMultiPageSchema
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -55,47 +67,13 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from Products.Archetypes.interfaces import IBaseObject
-from zope.interface import implements
+from zope.interface import implements, Interface
+from zope.component import queryMultiAdapter
 from zope import event
-from zope.app.event import objectevent
 
 _marker = []
 
-class AttributeValidator(Implicit):
-    """(Ab)Use the security policy implementation.
-
-    This class will be used to protect attributes managed by
-    AttributeStorage with the same permission as the accessor method.
-
-    It does so by abusing a feature of the security policy
-    implementation that the
-    '__allow_access_to_unprotected_subobjects__' attribute can be (0,
-    1) or a dictionary of {name: 0|1} or a callable instance taking
-    'name' and 'value' arguments.
-
-    The said attribute is accessed through getattr(), so by
-    subclassing from Implicit we get the accessed object as our
-    aq_parent.
-
-    Next step is to check if the name is indeed a field name, and if
-    so, if it's using AttributeStorage, and if so, check the
-    read_permission against the object being accessed. All other cases
-    return '1' which means allow.
-    """
-
-    def __call__(self, name, value):
-        context = aq_parent(self)
-        schema = context.Schema()
-        if not schema.has_key(name):
-            return 1
-        field = schema[name]
-        if not isinstance(field.getStorage(), AttributeStorage):
-            return 1
-        perm = field.read_permission
-        if checkPerm(perm, context):
-            return 1
-        return 0
+from plone.locking.interfaces import ILockable
 
 content_type = Schema((
 
@@ -109,13 +87,11 @@ content_type = Schema((
         mutator='setId',
         default=None,
         widget=IdWidget(
-            label='Short Name',
-            label_msgid='label_short_name',
-            description='Should not contain spaces, underscores or mixed case. '\
-                        'Short Name is part of the item\'s web address.',
-            description_msgid='help_shortname',
-            visible={'view' : 'invisible'},
-            i18n_domain='plone',
+            label=_(u'label_short_name', default=u'Short Name'),
+            description=_(u'help_shortname',
+                          default=u'Should not contain spaces, underscores or mixed case. '
+                                   'Short Name is part of the item\'s web address.'),
+            visible={'view' : 'invisible'}
         ),
     ),
 
@@ -152,13 +128,10 @@ class BaseObject(Referenceable):
 
     installMode = ['type', 'actions', 'indexes']
 
-    typeDescMsgId = ''
-    typeDescription = ''
     _at_rename_after_creation = False # rename object according to title?
 
     __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
-
-    implements(IBaseObject)
+    implements(IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
         self.id = oid
@@ -166,7 +139,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """Called by the generated addXXX factory in types tool.
+        """Called by the generated add* factory in types tool.
         """
         try:
             self.initializeLayers()
@@ -233,7 +206,15 @@ class BaseObject(Referenceable):
             if parent is not None:
                 # See Referenceable, keep refs on what is a move/rename
                 self._v_cp_refs = 1
+                # We can't rename if the object is locked
+                lockable = ILockable(self)
+                was_locked = False
+                if lockable.locked():
+                    was_locked = True
+                    lockable.unlock()
                 parent.manage_renameObject(self.id, value)
+                if was_locked:
+                    lockable.lock()
             self._setId(value)
 
     security.declareProtected(permissions.View, 'Type')
@@ -387,15 +368,14 @@ class BaseObject(Referenceable):
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
-            spec = pmt.getElementSpec(field.accessor)
+            schema = getattr(pmt, 'DCMI', None)
+            spec = schema.getElementSpec(field.accessor)
             policy = spec.getPolicy(self.portal_type)
-
-
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
             log_exc()
-            return None, 0
+            return None, False
 
         if not policy:
             policy = spec.getPolicy(None)
@@ -510,11 +490,13 @@ class BaseObject(Referenceable):
         if errors is None:
             errors = {}
         self.pre_validate(REQUEST, errors)
+        event.notify(ObjectPreValidatingEvent(self, REQUEST, errors)) 
         if errors:
             return errors
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
         self.post_validate(REQUEST, errors)
+        event.notify(ObjectPostValidatingEvent(self, REQUEST, errors)) 
         return errors
 
     security.declareProtected(permissions.View, 'SearchableText')
@@ -596,7 +578,9 @@ class BaseObject(Referenceable):
         schemata = self.Schemata()
         fields = []
 
-        if fieldset is not None:
+        if not IMultiPageSchema.providedBy(self):
+            fields = schema.fields()
+        elif fieldset is not None:
             fields = schemata[fieldset].fields()
         else:
             if data: fields += schema.filterFields(isMetadata=0)
@@ -650,11 +634,11 @@ class BaseObject(Referenceable):
 
         # Post create/edit hooks
         if is_new_object:
+            event.notify(ObjectInitializedEvent(self))
             self.at_post_create_script()
         else:
+            event.notify(ObjectEditedEvent(self))
             self.at_post_edit_script()
-
-        event.notify(objectevent.ObjectModifiedEvent(self))
 
     # This method is only called once after object creation.
     security.declarePrivate('at_post_create_script')
@@ -706,11 +690,6 @@ class BaseObject(Referenceable):
         This id is used when automatically renaming an object after creation.
         """
         plone_tool = getToolByName(self, 'plone_utils', None)
-        if plone_tool is None or not shasattr(plone_tool, 'normalizeString'):
-            # Plone tool is not available or too old
-            # XXX log?
-            return None
-
         title = self.Title()
         if not title:
             # Can't work w/o a title
@@ -805,7 +784,7 @@ class BaseObject(Referenceable):
         """Return a (wrapped) schema instance for
         this object instance.
         """
-        schema = self.schema
+        schema = ISchema(self)
         return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')
@@ -1116,17 +1095,26 @@ class BaseObject(Referenceable):
             if shasattr(self, name):
                 target = getattr(self, name)
         else:
-            # We are allowed to acquire
-            target = getattr(self, name, None)
-        if (target is None and
-            method not in ('GET', 'POST') and not
-            isinstance(RESPONSE, xmlrpc.Response) and
-            REQUEST.maybe_webdav_client):
-            return NullResource(self, name, REQUEST).__of__(self)
+            if shasattr(self, name): # attributes of self come first
+                target = getattr(self, name)
+            else: # then views
+                target = queryMultiAdapter((self, REQUEST), Interface, name)
+                if target is not None:
+                    # We don't return the view, we raise an
+                    # AttributeError instead (below)
+                    target = None
+                else: # then acquired attributes
+                    target = getattr(self, name, None)
 
-        # Raise an AttributeError fallback on Five traversal if we didn't need a
-        # NullResource.
-        raise AttributeError(name)
+        if target is not None:
+            return target
+        elif (method not in ('GET', 'POST') and not
+              isinstance(RESPONSE, xmlrpc.Response) and
+              REQUEST.maybe_webdav_client):
+            return NullResource(self, name, REQUEST).__of__(self)
+        else:
+            # Raising AttributeError will look up views for us
+            raise AttributeError(name)
 
 InitializeClass(BaseObject)
 

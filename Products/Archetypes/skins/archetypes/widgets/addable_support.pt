@@ -90,7 +90,7 @@
                   </div>
                 </div>
               </fieldset>
-              <script tal:content="structure here/reference_js"></script>
+              <!--script tal:content="structure here/reference_js"></script-->
             </div>
           </div>
         </tal:block>

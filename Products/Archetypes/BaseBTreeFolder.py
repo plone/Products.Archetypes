@@ -1,9 +1,11 @@
 from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.atapi import BaseFolder
+from Products.Archetypes.interfaces import IBaseFolder
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from zope.interface import implements
 
 # to keep backward compatibility
 has_btree = 1
@@ -18,6 +20,15 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security = ClassSecurityInfo()
 
     __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
+    implements(IBaseFolder)
+
+    # Fix permissions set by CopySupport.py
+    __ac_permissions__ = (
+        (permissions.ModifyPortalContent,
+         ('manage_cutObjects', 'manage_pasteObjects',
+          'manage_renameObject', 'manage_renameObjects',)),
+        )
+    security.declareProtected('Copy or Move', 'manage_copyObjects')
 
     def __init__(self, oid, **kwargs):
         CMFBTreeFolder.__init__(self, oid)

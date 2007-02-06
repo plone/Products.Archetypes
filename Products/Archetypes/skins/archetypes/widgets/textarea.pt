@@ -25,6 +25,7 @@
 
         <textarea
             tabindex="#"
+            class="kssValidateInput"
             tal:attributes="name fieldName;
                             id fieldName;
                             cols widget/cols;
@@ -46,7 +47,7 @@
                        tabindex="-1"
                        i18n:name="count"
                        tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
-                                   inputsize python:len(maxlength)"
+                                   inputsize string:4"
                        tal:attributes="name string:textCounter_${fieldName};
                                        value remaining;
                                        maxlength inputsize;
@@ -80,7 +81,7 @@
       <tal:define
           define="field_text_format string:${fieldName}_text_format;
                   contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                  allowable_ct python:getattr(field, 'allowable_content_types', ());
+                  allowable_ct python:field.getAllowedContentTypes(here);
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
                   contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
 
