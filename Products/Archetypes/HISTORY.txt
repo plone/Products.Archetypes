@@ -1,6 +1,12 @@
 1.4.3 unreleased
 ----------------
 
+  * The last change expected portal_type global available. This is true for all
+    good archetypes products ;-) but failed with CacheSetup, where editmacros 
+    was called w/o setting it. Archetypes now ignores this missing global and
+    inititalize it to 'unknowntype'. 
+    [jensens]
+
   * for better css styling hpeter added a class and a id to edit_macros form
     element, which enables per-type styling of base_edit. 
     [jensens]
