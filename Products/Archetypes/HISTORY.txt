@@ -1,6 +1,10 @@
 1.4.3 unreleased
 ----------------
 
+  * Fix http://dev.plone.org/archetypes/ticket/686: "zid.pt does not
+    respect the portal wide visible_ids setting".
+    [nouri]
+
   * The last change expected portal_type global available. This is true for all
     good archetypes products ;-) but failed with CacheSetup, where editmacros 
     was called w/o setting it. Archetypes now ignores this missing global and
@@ -16,7 +20,7 @@
     in the edit widget. Fixes issue #705.
     [mj]
   
-  * BaseContent.PUT will not also fire the object modified event.
+  * BaseContent.PUT will now also fire the object modified event.
     [nouri]
 
   * Update the base folder types to use sane permissions for
