@@ -1,5 +1,6 @@
 import string
 from logging import INFO, DEBUG
+from zope.component import queryUtility
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
@@ -27,6 +28,13 @@ _marker=[]
 
 FLOOR_DATE = DateTime(1000, 0) # always effective
 CEILING_DATE = DateTime(2500, 0) # never expires
+
+# We import this conditionally, in order not to introduce a hard dependency
+try:
+    from plone.i18n.locales.interfaces import IMetadataLanguageAvailability
+    HAS_PLONE_I18N = True
+except ImportError:
+    HAS_PLONE_I18N = False
 
 ## MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
@@ -257,17 +265,26 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         """Vocabulary method for the language field
         """
-        # XXX document me
-        # use a list of languages from PLT?
-        available_langs = getattr(self, 'availableLanguages', None)
-        if available_langs is None:
-            return DisplayList(
-                (('en','English'), ('fr','French'), ('es','Spanish'),
-                 ('pt','Portuguese'), ('ru','Russian')))
-        if callable(available_langs):
-            available_langs = available_langs()
-        return DisplayList(available_langs)
-
+        util = None
+        # Try the utility first
+        if HAS_PLONE_I18N:
+            util = queryUtility(IMetadataLanguageAvailability)
+        # Fall back to acquiring availableLanguages
+        if util is None:
+            languages = getattr(self, 'availableLanguages', None)
+            if callable(languages):
+                languages = languages()
+            # Fall back to static definition
+            if languages is None:
+                return DisplayList(
+                    (('en','English'), ('fr','French'), ('es','Spanish'),
+                     ('pt','Portuguese'), ('ru','Russian')))
+        else:
+            languages = util.getLanguageListing()
+            languages.sort(lambda x,y:cmp(x[1], y[1]))
+            # Put language neutral at the top.
+            languages.insert(0,(u'',_(u'Language neutral (site default)')))
+        return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################
 

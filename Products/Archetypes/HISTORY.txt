@@ -1,6 +1,11 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * Merged the plip174-reusable-i18n branch. This adds the optional ability to
+    control the language metadata on objects by an utility approach based on
+    plone.i18n.
+    [hannosch]
+
 1.5.0-a2 - 2007-02-06
 =====================
 
