@@ -1,6 +1,10 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * Activated relaxed mode for automatic title to id normalization. Now the
+    language dependent filters are used.
+    [hannosch]
+
   * Merged the plip174-reusable-i18n branch. This adds the optional ability to
     control the language metadata on objects by an utility approach based on
     plone.i18n.
