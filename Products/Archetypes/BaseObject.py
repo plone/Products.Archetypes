@@ -695,7 +695,7 @@ class BaseObject(Referenceable):
             # Can't work w/o a title
             return None
 
-        return plone_tool.normalizeString(title, relaxed=True)
+        return plone_tool.normalizeString(title)
 
     security.declarePrivate('_renameAfterCreation')
     def _renameAfterCreation(self, check_auto_id=False):
