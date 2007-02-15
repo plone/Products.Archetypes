@@ -1,6 +1,10 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * Automatic title to id generation is now optionally based on the plone.i18n
+    package instead of requiring the plone_tool.
+    [hannosch]
+
   * Merged the plip174-reusable-i18n branch. This adds the optional ability to
     control the language metadata on objects by an utility approach based on
     plone.i18n.
