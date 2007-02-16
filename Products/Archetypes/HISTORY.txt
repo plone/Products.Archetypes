@@ -1,6 +1,12 @@
 1.4.3 unreleased
 ----------------
 
+  * BooleanWidget always displays 'True' and 'False'. This is very IT-centric!
+    In real world people prefer 'Yes' and 'No' - or custom settings. Latter was
+    fixed before, but Archetypes should have a sane default behaviour, so its
+    now changed to display 'Yes' and 'No' - and is l10n aware.
+    [jensens]
+
   * BooleanWidget offers to show something different than True/ False in view
     macro using a vocabulary. Unfortunally it passed a boolean to the 
     DisplayList, which raised a TypeError. Now we pass the string 
