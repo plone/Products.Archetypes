@@ -1,6 +1,11 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * FileField is now a bit cleverer about indexing.  If you set a file
+    field to be 'searchable' it will now per default attempt to
+    convert it to plain text on indexing.
+    [nouri]
+
   * Replaced status message handling with new approach based on
     Products.statusmessages. This refs http://dev.plone.org/plone/ticket/6131.
     [hannosch]
