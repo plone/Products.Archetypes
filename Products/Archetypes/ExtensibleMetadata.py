@@ -107,7 +107,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label=_(u'label_creators', u'Creators'),
                 description=_(u'help_creators',
-                              default=u"Persons responsible for creating the content of  "
+                              default=u"Persons responsible for creating the content of "
                                        "this item. Please enter a list of user names, one "
                                        "per line. The principal creator should come first."),
                 rows = 3
@@ -118,10 +118,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator='setEffectiveDate',
             languageIndependent = True,
             widget=CalendarWidget(
-                label=_(u'label_effective_date', u'Effective Date'),
+                label=_(u'label_effective_date', u'Publication Date'),
                 description=_(u'help_effective_date',
-                              default=u"Date when the content should become "
-                                       "available on the public site"),
+                              default=u"If this date is in the future, the content will "
+                                       "not show up in listings and searches until this date."),
                 ),
         ),
         DateTimeField(
@@ -131,8 +131,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=CalendarWidget(
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
-                              default=u"Date when the content should no longer "
-                                       "be visible on the public site"),
+                              default=u"When this date is reached, the content will no"
+                                       "longer be visible in listings and searches."),
                 ),
         ),
         StringField(
