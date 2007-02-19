@@ -36,6 +36,16 @@ input[name="form_submit"]:click {
     saveField-value: currentForm();
 }
 
+
+#azax-inlineform-attendees input[name=azax-save]:click {
+    saveField-macro_path: 'here/event_view/macros/attendees-field-view';
+}
+
+
+#azax-inlineform-subject input[name=azax-save]:click {
+    saveField-macro_path: 'here/event_view/macros/subject-field-view';
+}
+
 .azax-inline-field input[name=azax-cancel]:click {
     evt-click-preventdefault: true;
     action-server: replaceField;
