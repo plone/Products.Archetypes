@@ -177,6 +177,7 @@ class PortalCopyTests(ATSiteTestCase):
         uf._doAddUser('manager1', 'secret', ['Manager'], [])
         member = uf.getUser('member').__of__(uf)
         manager1 = uf.getUser('manager1').__of__(uf)
+        self.portal.portal_membership.setMemberareaCreationFlag()
         self.portal.portal_membership.createMemberArea('member')
         member_area = self.portal.Members.member
 
