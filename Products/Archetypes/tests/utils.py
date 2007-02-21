@@ -27,6 +27,8 @@
 """
 
 import re
+import sys
+
 from zope.tal import ndiff
 from Globals import InitializeClass, package_home
 from UserDict import UserDict
@@ -34,6 +36,8 @@ import ExtensionClass
 from Acquisition import Implicit
 from AccessControl import ClassSecurityInfo
 from ZPublisher.BeforeTraverse import registerBeforeTraverse
+from ZPublisher.HTTPRequest import HTTPRequest
+from ZPublisher.HTTPResponse import HTTPResponse
 from Persistence import Persistent
 
 from Products.Archetypes.atapi import registerType
@@ -301,3 +305,13 @@ from Products.Five import BrowserView
 class SimpleView(BrowserView):
     def __call__(self):
         return 'SimpleView simple output'
+
+def aputrequest(file, content_type):
+    resp = HTTPResponse(stdout=sys.stdout)
+    environ = {}
+    environ['SERVER_NAME']='foo'
+    environ['SERVER_PORT']='80'
+    environ['REQUEST_METHOD'] = 'PUT'
+    environ['CONTENT_TYPE'] = content_type
+    req = HTTPRequest(stdin=file, environ=environ, response=resp)
+    return req

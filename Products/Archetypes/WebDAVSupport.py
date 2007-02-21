@@ -6,6 +6,9 @@ from Products.Archetypes.utils import shasattr, mapply
 # Recent enough Zopes will have this. Do we care about older ones?
 from ZPublisher.Iterators import IStreamIterator
 
+from zope import event
+from zope.app.event import objectevent
+
 class PdataStreamIterator(object):
 
     __implements__ = (IStreamIterator,)
@@ -116,6 +119,8 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         self.demarshall_hook(ddata)
     self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
     self.reindexObject()
+    event.notify(objectevent.ObjectModifiedEvent(self))
+    
     RESPONSE.setStatus(204)
     return RESPONSE
 

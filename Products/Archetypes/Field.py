@@ -1873,7 +1873,8 @@ class BooleanField(ObjectField):
     _properties.update({
         'type' : 'boolean',
         'default': None,
-        'widget' : BooleanWidget,
+        'vocabulary': (('True','Yes', 'yes'),('False','No', 'no')),
+        'widget' : BooleanWidget,        
         })
 
     security  = ClassSecurityInfo()

@@ -92,13 +92,16 @@
         </tal:description>
     </div>
 
-    <div metal:define-macro="body">
+    <div metal:define-macro="body"
+         tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection"
+            class="enableUnloadProtection atBaseEditForm"
             action=""
+            id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
+                            id string:${portal_type}-base-edit;
                             class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
 
           <metal:block define-slot="extra_top" />

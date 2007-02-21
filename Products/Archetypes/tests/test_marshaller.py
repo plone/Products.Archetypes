@@ -40,6 +40,7 @@ from unittest import TestCase
 from OFS.Image import Pdata
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.utils import aputrequest
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.atapi import *
 from Products.Archetypes import config
@@ -47,21 +48,8 @@ from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
 
 from ZPublisher.HTTPRequest import FileUpload
-from ZPublisher.HTTPRequest import HTTPRequest
-from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.BaseRequest import RequestContainer
 from Testing.makerequest import makerequest
-
-def aputrequest(file, content_type):
-    resp = HTTPResponse(stdout=sys.stdout)
-    environ = {}
-    environ['SERVER_NAME']='foo'
-    environ['SERVER_PORT']='80'
-    environ['REQUEST_METHOD'] = 'PUT'
-    environ['CONTENT_TYPE'] = content_type
-    req = HTTPRequest(stdin=file, environ=environ, response=resp)
-    return req
-
 
 class MarshallerTests(ATSiteTestCase):
 
