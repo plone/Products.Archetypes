@@ -7,10 +7,10 @@
 ##bind subpath=traverse_subpath
 ##parameters=last_referer=None
 ##title=Go Back
-##
-##SESSION = context.REQUEST.SESSION
-##old_id = context.getId()
-##cflag = SESSION.get('__creation_flag__', {})
+
+#SESSION = context.REQUEST.SESSION
+#old_id = context.getId()
+#cflag = SESSION.get('__creation_flag__', {})
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.utils import addStatusMessage
