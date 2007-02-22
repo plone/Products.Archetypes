@@ -1,7 +1,8 @@
 from zope.interface import Interface
 
-class IEdit(Interface):
-    """ Edit """
+class IEditForm(Interface):
+    """Archetypes edit form view
+    """
 
     def isMultiPageSchema():
         """ Returns true if the schema for the current object should be
