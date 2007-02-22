@@ -93,6 +93,7 @@
     </div>
 
     <div metal:define-macro="body"
+         tal:condition="not:isLocked"
          tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
             method="post"
