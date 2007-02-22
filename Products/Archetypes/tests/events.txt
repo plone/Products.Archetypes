@@ -24,8 +24,7 @@ that listens for object events for `IBaseObject`:
   >>> handler = Handler()
   >>> ztapi.subscribe([IBaseObject, IObjectEvent], None, handler)
 
-Creating an AT object will fire three events.  Note that the
-`ObjectCreatedEvent` is not fired, which is a bug:
+Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
