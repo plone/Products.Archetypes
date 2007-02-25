@@ -1,6 +1,10 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * Updated error message handling in validation to use Zope3-style translation,
+    which is available in the latest PTS.
+    [hannosch]
+
   * FileField is now a bit cleverer about indexing.  If you set a file
     field to be 'searchable' it will now per default attempt to
     convert it to plain text on indexing.

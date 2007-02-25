@@ -8,6 +8,7 @@ from types import ListType, TupleType, ClassType, FileType
 from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
+from zope.i18n import translate
 from zope.i18nmessageid import Message 
 
 from AccessControl import ClassSecurityInfo
@@ -76,10 +77,6 @@ from Products.Archetypes.Storage import ReadOnlyStorage
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerField
 from Products.Archetypes.Registry import registerPropertyType
-
-# BBB, this can be removed once we do not support PTS anymore
-from Products.PageTemplates.GlobalTranslationService \
-     import getGlobalTranslationService as getGTS
 
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
@@ -338,16 +335,10 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            if isinstance(label, Message):
-                # BBB, this should be a call to zope.i18n.translate instead,
-                # once we do not support PTS anymore
-                label = getGTS().translate(None, label, context=instance)
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            # BBB, this should be a call to zope.i18n.translate instead,
-            # once we do not support PTS anymore
-            error = getGTS().translate(None, error, context=instance)
+            error = translate(error, context=instance)
             errors[name] = error
             return error
         return None
@@ -386,9 +377,11 @@ class Field(DefaultLayerContainer):
 
         if error:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = _( u'error_vocabulary',
+            error = _( u'error_vocabulary',
                 default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
                 mapping={'val': val, 'name': label})
+            error = translate(error, context=instance)
+            errors[self.getName()] = error
         return error
 
     security.declarePublic('Vocabulary')
