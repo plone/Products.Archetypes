@@ -65,7 +65,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 )),
             widget=SelectionWidget(
                 label=_(u'label_allow_discussion',
-                        default=u'Allow Discussion on this item')
+                        default=u'Allow comments on this item')
                 ),
         ),
         LinesField(
