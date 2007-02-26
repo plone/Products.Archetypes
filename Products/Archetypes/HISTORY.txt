@@ -1,6 +1,9 @@
 1.5.0-b1 - unreleased
 =====================
 
+  * Fixed deprecation warnings for minimalpath in skins install code.
+    [hannosch]
+
   * Updated error message handling in validation to use Zope3-style translation,
     which is available in the latest PTS.
     [hannosch]
