@@ -240,6 +240,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 # work around a bug in CMFDefault.DiscussionTool. It's using
                 # an unsafe hasattr() instead of a more secure getattr() on an
                 # unwrapped object
+                # XXX CMF 2.1 fixes this bug, check if we can remove this code
                 msg = "Unable to set discussion on %s to None. Already " \
                       "deleted allow_discussion attribute? Message: %s" % (
                        self.getPhysicalPath(), str(err))
