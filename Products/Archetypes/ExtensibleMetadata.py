@@ -74,7 +74,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Subject",
             searchable=True,
             widget=KeywordWidget(
-                label=_(u'label_keywords', default=u'Keywords')
+                label=_(u'label_keywords', default=u'Categories'),
+                description=_(u'help_categories',
+                              default=u'Also known as keywords, tags or labels, '
+                                       'these help you categorize your content.'),
                 ),
         ),
         TextField(
@@ -87,7 +90,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=TextAreaWidget(
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
-                              default=u'A short summary of the content'),
+                              default=u'A short summary of the content.'),
                 ),
         ),
         LinesField(
