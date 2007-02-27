@@ -177,7 +177,7 @@
 1.4.3 - Unreleased
 ==================
 
-  * Fix https://dev.plone.org/archetypes/ticket/712: Do not put security
+  * Fix http://dev.plone.org/archetypes/ticket/712: Do not put security
     declarations on a ComputedAttribute, or on 'def content_type(self)'.
     [mj]
 
@@ -372,7 +372,7 @@
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
-    https://dev.plone.org/archetypes/ticket/645
+    http://dev.plone.org/archetypes/ticket/645
     [nouri]
 
   * Avoid DeprecationWarnings for manageAddDelete methods and converted the
@@ -502,7 +502,7 @@
 ==========================
 
   * Check mimetype before schema update and reapply type after. This fixes
-    https://dev.plone.org/archetypes/ticket/618
+    http://dev.plone.org/archetypes/ticket/618
     [alecm]
 
   * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
@@ -532,7 +532,7 @@
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
-    https://dev.plone.org/archetypes/ticket/645
+    http://dev.plone.org/archetypes/ticket/645
     [nouri]
 
   * Removed reST-test-kludge. reStructuredText of Zope < 2.8 is buggy,
@@ -590,7 +590,7 @@
     [jensens]
 
   * Fixed missing import of PersistentMapping.
-    Closes https://trac.plone.org/plone/ticket/5182
+    Closes http://dev.plone.org/plone/ticket/5182
     [hannosch]
 
   * Usability fix for file widget ( widgets/file.pt ) so that the
@@ -649,7 +649,7 @@
 
   * Make rename-after-creation resolve duplicates by appending -n, where n is
     a number, to the id when an existing object exists in the parent folder.
-    This closes http://trac.plone.org/plone/ticket/4510.
+    This closes http://dev.plone.org/plone/ticket/4510.
 
   * Return the new PdataStreamIterator when a Pdata-like chain is
     found (we always assume this if the marshaller didn't return a
@@ -660,7 +660,7 @@
     with len(data). Yuck.
     [dreamcatcher]
 
-  * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
+  * Fixed http://dev.plone.org/plone/ticket/4768 - wrong status message.
     [hannosch]
 
   * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
