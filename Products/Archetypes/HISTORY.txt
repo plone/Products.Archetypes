@@ -1,7 +1,7 @@
 1.4.3 unreleased
 ----------------
 
-  * Fix https://dev.plone.org/archetypes/ticket/712: Do not put security
+  * Fix http://dev.plone.org/archetypes/ticket/712: Do not put security
     declarations on a ComputedAttribute, or on 'def content_type(self)'.
     [mj]
 
