@@ -47,7 +47,7 @@ class DummyDiscussionTool:
 MULTIPLEFIELD_LIST = DisplayList(
     (
     ('1', _(u'Option 1 : printemps')),
-    ('2', unicode('Option 2 : été', 'utf-8')),
+    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')), # e-acute t e-acute
     ('3', u'Option 3 : automne'),
     ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
@@ -88,7 +88,7 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
 
         self.failUnless(isinstance(searchable, basestring))
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
         dummy.setMULTIPLEFIELD(['3','4'])
         searchable = dummy.SearchableText()
