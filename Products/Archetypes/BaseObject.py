@@ -67,8 +67,16 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
+# Import conditionally, so we don't introduce a hard depdendency
+try:
+    from plone.i18n.normalizer.interfaces import IUserPreferredURLNormalizer
+    from plone.i18n.normalizer.interfaces import IURLNormalizer
+    URL_NORMALIZER = True
+except ImportError:
+    URL_NORMALIZER = False
+
 from zope.interface import implements, Interface
-from zope.component import queryMultiAdapter
+from zope.component import queryMultiAdapter, queryUtility
 from zope import event
 
 _marker = []
@@ -317,7 +325,8 @@ class BaseObject(Referenceable):
         return value
 
     # Backward compatibility
-    security.declareProtected(permissions.View, 'content_type')
+    # Note: ComputedAttribute should never be protected by a security 
+    # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
     # XXX Where's get_content_type comes from??? There's no trace at both
@@ -689,13 +698,24 @@ class BaseObject(Referenceable):
         """Suggest an id for this object.
         This id is used when automatically renaming an object after creation.
         """
-        plone_tool = getToolByName(self, 'plone_utils', None)
         title = self.Title()
+        # Can't work w/o a title
         if not title:
-            # Can't work w/o a title
             return None
 
-        return plone_tool.normalizeString(title)
+        # Don't do anything without the plone.i18n package
+        if not URL_NORMALIZER:
+            return None
+
+        if not isinstance(title, unicode):
+            charset = self.getCharset()
+            title = unicode(title, charset)
+
+        request = getattr(self, 'REQUEST', None)
+        if request is not None:
+            return IUserPreferredURLNormalizer(request).normalize(title)
+
+        return queryUtility(IURLNormalizer).normalize(title)
 
     security.declarePrivate('_renameAfterCreation')
     def _renameAfterCreation(self, check_auto_id=False):

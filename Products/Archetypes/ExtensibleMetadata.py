@@ -1,5 +1,6 @@
 import string
 from logging import INFO, DEBUG
+from zope.component import queryUtility
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
@@ -27,6 +28,13 @@ _marker=[]
 
 FLOOR_DATE = DateTime(1000, 0) # always effective
 CEILING_DATE = DateTime(2500, 0) # never expires
+
+# We import this conditionally, in order not to introduce a hard dependency
+try:
+    from plone.i18n.locales.interfaces import IMetadataLanguageAvailability
+    HAS_PLONE_I18N = True
+except ImportError:
+    HAS_PLONE_I18N = False
 
 ## MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
@@ -57,7 +65,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 )),
             widget=SelectionWidget(
                 label=_(u'label_allow_discussion',
-                        default=u'Allow Discussion on this item')
+                        default=u'Allow comments on this item')
                 ),
         ),
         LinesField(
@@ -66,7 +74,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Subject",
             searchable=True,
             widget=KeywordWidget(
-                label=_(u'label_keywords', default=u'Keywords')
+                label=_(u'label_keywords', default=u'Categories'),
+                description=_(u'help_categories',
+                              default=u'Also known as keywords, tags or labels, '
+                                       'these help you categorize your content.'),
                 ),
         ),
         TextField(
@@ -79,7 +90,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=TextAreaWidget(
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
-                              default=u'A short summary of the content'),
+                              default=u'A short summary of the content.'),
                 ),
         ),
         LinesField(
@@ -99,7 +110,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=LinesWidget(
                 label=_(u'label_creators', u'Creators'),
                 description=_(u'help_creators',
-                              default=u"Persons responsible for creating the content of  "
+                              default=u"Persons responsible for creating the content of "
                                        "this item. Please enter a list of user names, one "
                                        "per line. The principal creator should come first."),
                 rows = 3
@@ -110,10 +121,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator='setEffectiveDate',
             languageIndependent = True,
             widget=CalendarWidget(
-                label=_(u'label_effective_date', u'Effective Date'),
+                label=_(u'label_effective_date', u'Publication Date'),
                 description=_(u'help_effective_date',
-                              default=u"Date when the content should become "
-                                       "available on the public site"),
+                              default=u"If this date is in the future, the content will "
+                                       "not show up in listings and searches until this date."),
                 ),
         ),
         DateTimeField(
@@ -123,8 +134,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=CalendarWidget(
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
-                              default=u"Date when the content should no longer "
-                                       "be visible on the public site"),
+                              default=u"When this date is reached, the content will no"
+                                       "longer be visible in listings and searches."),
                 ),
         ),
         StringField(
@@ -229,6 +240,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 # work around a bug in CMFDefault.DiscussionTool. It's using
                 # an unsafe hasattr() instead of a more secure getattr() on an
                 # unwrapped object
+                # XXX CMF 2.1 fixes this bug, check if we can remove this code
                 msg = "Unable to set discussion on %s to None. Already " \
                       "deleted allow_discussion attribute? Message: %s" % (
                        self.getPhysicalPath(), str(err))
@@ -257,17 +269,26 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         """Vocabulary method for the language field
         """
-        # XXX document me
-        # use a list of languages from PLT?
-        available_langs = getattr(self, 'availableLanguages', None)
-        if available_langs is None:
-            return DisplayList(
-                (('en','English'), ('fr','French'), ('es','Spanish'),
-                 ('pt','Portuguese'), ('ru','Russian')))
-        if callable(available_langs):
-            available_langs = available_langs()
-        return DisplayList(available_langs)
-
+        util = None
+        # Try the utility first
+        if HAS_PLONE_I18N:
+            util = queryUtility(IMetadataLanguageAvailability)
+        # Fall back to acquiring availableLanguages
+        if util is None:
+            languages = getattr(self, 'availableLanguages', None)
+            if callable(languages):
+                languages = languages()
+            # Fall back to static definition
+            if languages is None:
+                return DisplayList(
+                    (('en','English'), ('fr','French'), ('es','Spanish'),
+                     ('pt','Portuguese'), ('ru','Russian')))
+        else:
+            languages = util.getLanguageListing()
+            languages.sort(lambda x,y:cmp(x[1], y[1]))
+            # Put language neutral at the top.
+            languages.insert(0,(u'',_(u'Language neutral (site default)')))
+        return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################
 
@@ -543,7 +564,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore utility methods
     #
 
-    security.declareProtected(permissions.View, 'content_type')
+    # Deliberately *not* protected by a security declaration
+    # See https://dev.plone.org/archetypes/ticket/712
     def content_type(self):
         """ WebDAV needs this to do the Right Thing (TM).
         """

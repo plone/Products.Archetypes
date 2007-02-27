@@ -47,7 +47,7 @@ DOCTEST_MODULES = (
     'Products.Archetypes.Marshall',
     )
 
-DOCTEST_FILES = ()
+DOCTEST_FILES = ('events.txt',)
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite

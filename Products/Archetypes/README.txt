@@ -29,11 +29,13 @@ Features
 
 Requires
 
-  * CMF 1.6.0+
+  * CMF 2.1.0+
 
   * Zope 2.10.0+
 
   * Plone 3.0.0+
+
+  * statusmessages 3.0+
 
 Recommended
 

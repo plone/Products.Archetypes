@@ -10,7 +10,7 @@ from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName, minimalpath
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.ArchetypeTool import process_types
@@ -194,12 +194,12 @@ def install_additional_templates(self, out, types):
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getToolByName(self, 'portal_skins')
 
-    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
-    productSkinsPath = minimalpath(fullProductSkinsPath)
+    product = globals['__name__']
+    registry_key = "%s:%s" % (product, product_skins_dir)
     registered_directories = manage_listAvailableDirectories()
-    if productSkinsPath not in registered_directories:
+    if registry_key not in registered_directories:
         try:
-            registerDirectory(product_skins_dir, globals)
+            registerDirectory(registry_key, globals)
         except OSError, ex:
             if ex.errno == 2: # No such file or directory
                 return
@@ -218,11 +218,12 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
         # directory view has already been added
         pass
 
+    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
         # skip directories with a dot or special dirs
         # or maybe just startswith('.')?
-        if productSkinName.find('.') != -1 or productSkinName in ('CVS', '{arch}'):
+        if '.' in productSkinName or productSkinName in ('CVS', '_svn', '{arch}'):
             continue
         if isdir(join(fullProductSkinsPath, productSkinName)):
             for skinName in skinstool.getSkinSelections():

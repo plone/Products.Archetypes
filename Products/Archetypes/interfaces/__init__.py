@@ -19,7 +19,7 @@ from _templatemixin import ITemplateMixin
 from _vocabulary import IVocabulary
 from _athistoryaware import IATHistoryAware
 from _archetypetool import IArchetypeTool
-from _edit import IEdit
+from _edit import IEditForm
 
 # BBB
 from Interface.bridge import createZope3Bridge

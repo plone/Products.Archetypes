@@ -19,6 +19,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
+from Products.statusmessages.interfaces import IStatusMessage
 
 # BBB, this can be removed once we do not support PTS anymore
 from Products.PageTemplates.GlobalTranslationService \
@@ -970,3 +971,8 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     m = emailMessage()
     m.add_header('content-disposition', disposition, **kw)
     return m['content-disposition']
+
+def addStatusMessage(request, message, type='info'):
+    """Add a status message to the request.
+    """
+    IStatusMessage(request).addStatusMessage(message, type=type)

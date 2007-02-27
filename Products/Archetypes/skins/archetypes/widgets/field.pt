@@ -110,12 +110,9 @@
               review_state
             </a>
           </span>
-          <span tal:omit-tag=""
-                tal:define="error python:errors.get(fieldName)">
-            <div class="fieldErrorBox"
-                 tal:content="error_id" i18n:translate="">Validation Error</div>
-            <div metal:define-slot="widget_body"></div>
-          </span>
+          <div class="fieldErrorBox"
+               tal:content="error_id" i18n:translate="">Validation Error</div>
+          <div metal:define-slot="widget_body"></div>
         </div>
       </tal:condition>
 

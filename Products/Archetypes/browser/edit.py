@@ -3,13 +3,13 @@ from zope.component import getMultiAdapter
 
 from Products.Five import BrowserView
 
-from Products.Archetypes.interfaces import IEdit
+from Products.Archetypes.interfaces import IEditForm
 from Products.Archetypes.interfaces import IMultiPageSchema
 
 from Products.Archetypes import PloneMessageFactory as _
 
 class Edit(BrowserView):
-    implements(IEdit)
+    implements(IEditForm)
 
     def isMultiPageSchema(self):
         return IMultiPageSchema.providedBy(self.context)

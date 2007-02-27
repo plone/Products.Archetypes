@@ -53,7 +53,7 @@ HAS_GRAPHVIZ = False
 ATTRIBUTE_SECURITY = True
 
 ## set language default for metadata, it will be overwritten by portal-settings!
-LANGUAGE_DEFAULT=''
+LANGUAGE_DEFAULT=u''
 
 ## Archetypes before 1.4 managed the catalog map using meta types instead of
 ## portal types. If you need this old behaviour change this setting to False.

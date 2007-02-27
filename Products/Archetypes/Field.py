@@ -8,6 +8,7 @@ from types import ListType, TupleType, ClassType, FileType
 from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
+from zope.i18n import translate
 from zope.i18nmessageid import Message 
 
 from AccessControl import ClassSecurityInfo
@@ -76,10 +77,6 @@ from Products.Archetypes.Storage import ReadOnlyStorage
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerField
 from Products.Archetypes.Registry import registerPropertyType
-
-# BBB, this can be removed once we do not support PTS anymore
-from Products.PageTemplates.GlobalTranslationService \
-     import getGlobalTranslationService as getGTS
 
 from Products.validation import ValidationChain
 from Products.validation import UnknowValidatorError
@@ -338,16 +335,10 @@ class Field(DefaultLayerContainer):
         if not value:
             label = self.widget.Label(instance)
             name = self.getName()
-            if isinstance(label, Message):
-                # BBB, this should be a call to zope.i18n.translate instead,
-                # once we do not support PTS anymore
-                label = getGTS().translate(None, label, context=instance)
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            # BBB, this should be a call to zope.i18n.translate instead,
-            # once we do not support PTS anymore
-            error = getGTS().translate(None, error, context=instance)
+            error = translate(error, context=instance)
             errors[name] = error
             return error
         return None
@@ -386,9 +377,11 @@ class Field(DefaultLayerContainer):
 
         if error:
             label = self.widget.Label(instance)
-            errors[self.getName()] = error = _( u'error_vocabulary',
+            error = _( u'error_vocabulary',
                 default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
                 mapping={'val': val, 'name': label})
+            error = translate(error, context=instance)
+            errors[self.getName()] = error
         return error
 
     security.declarePublic('Vocabulary')
@@ -1122,6 +1115,38 @@ class FileField(ObjectField):
         # Backwards compatibility
         return len(str(file))
 
+    security.declarePublic('getIndexAccessor')
+    def getIndexAccessor(self, instance):
+        name = self.getIndexAccessorName()
+        if name in (self.edit_accessor, self.accessor):
+            return lambda: self.getIndexable(instance)
+        else:
+            return ObjectField.getIndexAccessor(self, instance)
+
+    security.declarePrivate('getIndexable')
+    def getIndexable(self, instance):
+        # XXX Naive implementation that loads all data contents into
+        # memory.  To have this not happening set your field to not
+        # 'searchable' (the default) or define your own 'index_method'
+        # property.
+        transforms = getToolByName(instance, 'portal_transforms')
+        f = self.get(instance)
+        
+        try:
+            datastream = transforms.convertTo(
+                "text/plain",
+                str(f), # 666
+                mimetype = self.getContentType(instance),
+                filename = self.getFilename(instance, 0),
+                )
+        except (ConflictError, KeyboardInterrupt):
+            raise
+        except Exception, e:
+            log("Error while trying to convert file contents to 'text/plain' "
+                "in %r.getIndexable() of %r: %s" % (self, instance, e))
+
+        return str(datastream)
+
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -1841,7 +1866,8 @@ class BooleanField(ObjectField):
     _properties.update({
         'type' : 'boolean',
         'default': None,
-        'widget' : BooleanWidget,
+        'vocabulary': (('True','Yes', 'yes'),('False','No', 'no')),
+        'widget' : BooleanWidget,        
         })
 
     security  = ClassSecurityInfo()

@@ -44,42 +44,6 @@
       </div>
       <metal:block define-slot="extra_info" />
 
-      <tal:block condition="isLocked">
-          <tal:locked define="stealable lock_info/lock_is_stealable;
-                              lock_details lock_info/lock_info;">
-              <p class="portalMessage"
-                 tal:condition="not:stealable"
-                 i18n:translate="description_webdav_locked_not_stealable">
-                This item was locked by 
-                    <a i18n:name="author"
-                       tal:content="lock_details/fullname"
-                       tal:attributes="href lock_details/author_page" />
-                    <span i18n:name="time"
-                       tal:content="lock_details/time_difference" /> ago.
-              </p>
-              <form tal:condition="stealable"
-                    tal:attributes="action string:${context/absolute_url}/@@plone_lock_operations/force_unlock">
-                  <p class="portalMessage"
-                     tal:condition="stealable"
-                     i18n:translate="description_webdav_locked_stealable">
-                    This item was locked by 
-                        <a i18n:name="author"
-                           tal:content="lock_details/fullname"
-                           tal:attributes="href lock_details/author_page" />
-                        <span i18n:name="time"
-                           tal:content="lock_details/time_difference" /> ago.
-                    If you are certain this user has abandoned the object, you
-                    may
-                        <input type="submit" 
-                               value="Unlock" 
-                               i18n:name="unlock_button"
-                               i18n:attributes="value" /> 
-                    the object. You will then be able to edit it.
-                  </p>
-              </form>
-          </tal:locked>
-      </tal:block>
-
     </div>
 
     <div metal:define-macro="typedescription">
@@ -92,13 +56,17 @@
         </tal:description>
     </div>
 
-    <div metal:define-macro="body">
+    <div metal:define-macro="body"
+         tal:condition="not:isLocked"
+         tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection"
+            class="enableUnloadProtection atBaseEditForm"
             action=""
+            id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
+                            id string:${portal_type}-base-edit;
                             class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
 
           <metal:block define-slot="extra_top" />

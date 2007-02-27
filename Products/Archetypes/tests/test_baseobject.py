@@ -47,7 +47,7 @@ class DummyDiscussionTool:
 MULTIPLEFIELD_LIST = DisplayList(
     (
     ('1', _(u'Option 1 : printemps')),
-    ('2', unicode('Option 2 : été', 'utf-8')),
+    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')), # e-acute t e-acute
     ('3', u'Option 3 : automne'),
     ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
@@ -61,6 +61,10 @@ schema = BaseSchema + Schema((
             i18n_domain = 'plone',
             ),
         ), 
+    TextField(
+        'TEXTFIELD',
+        primary=True,
+        ),
 ))
 
 class Dummy(BaseContent):
@@ -88,7 +92,7 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
 
         self.failUnless(isinstance(searchable, basestring))
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
         dummy.setMULTIPLEFIELD(['3','4'])
         searchable = dummy.SearchableText()
@@ -119,6 +123,28 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
         self.failUnless(searchable.startswith("What do you expect of a Dummy"))
         del Dummy.myMethod
+        
+    def test_authenticatedContentType(self):
+        """See https://dev.plone.org/archetypes/ticket/712
+        
+        content_type should not be protected by a security declaration, as
+        it is usually an attribute. If a security declaration *is* set (in
+        BaseObject or one of it's base classes) non-anonymous access from
+        protected code (guarded_getattr) will fail.
+        
+        """
+        from AccessControl.unauthorized import Unauthorized
+        from AccessControl.Permissions import view
+        from AccessControl.ZopeGuards import guarded_getattr
+        
+        dummy = self._dummy
+        dummy.manage_permission(view, ('Manager',), False)
+        # dummy.content_type in a Python Script
+        self.assertRaises(Unauthorized, guarded_getattr, dummy, 'content_type')
+        
+        self.setRoles(('Manager',))
+        # dummy.content_type in a Python Script
+        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
         
 
 def test_suite():

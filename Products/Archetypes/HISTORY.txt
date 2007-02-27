@@ -1,3 +1,34 @@
+1.5.0-b2 - unreleased
+=====================
+
+1.5.0-b1 - 2007-02-27
+=====================
+
+  * Fixed deprecation warnings for minimalpath in skins install code.
+    [hannosch]
+
+  * Updated error message handling in validation to use Zope3-style translation,
+    which is available in the latest PTS.
+    [hannosch]
+
+  * FileField is now a bit cleverer about indexing.  If you set a file
+    field to be 'searchable' it will now per default attempt to
+    convert it to plain text on indexing.
+    [nouri]
+
+  * Replaced status message handling with new approach based on
+    Products.statusmessages. This refs http://dev.plone.org/plone/ticket/6131.
+    [hannosch]
+
+  * Automatic title to id generation is now optionally based on the plone.i18n
+    package instead of requiring the plone_tool.
+    [hannosch]
+
+  * Merged the plip174-reusable-i18n branch. This adds the optional ability to
+    control the language metadata on objects by an utility approach based on
+    plone.i18n.
+    [hannosch]
+
 1.5.0-a2 - 2007-02-06
 =====================
 
@@ -149,11 +180,45 @@
 1.4.3 - Unreleased
 ==================
 
+  * Fix http://dev.plone.org/archetypes/ticket/712: Do not put security
+    declarations on a ComputedAttribute, or on 'def content_type(self)'.
+    [mj]
+
+  * BooleanWidget always displays 'True' and 'False'. This is very IT-centric!
+    In real world people prefer 'Yes' and 'No' - or custom settings. Latter was
+    fixed before, but Archetypes should have a sane default behaviour, so its
+    now changed to display 'Yes' and 'No' - and is l10n aware.
+    [jensens]
+
+  * BooleanWidget offers to show something different than True/ False in view
+    macro using a vocabulary. Unfortunally it passed a boolean to the 
+    DisplayList, which raised a TypeError. Now we pass the string 
+    representations 'True' and 'False using 'str(key)', so one can define
+    a vocabulary like [('True', 'Yes'), ('False', 'No')].
+    [jensens]
+
+  * Fix http://dev.plone.org/archetypes/ticket/686: "zid.pt does not
+    respect the portal wide visible_ids setting".
+    [nouri]
+
+  * The last change expected portal_type global available. This is true for all
+    good archetypes products ;-) but failed with CacheSetup, where editmacros 
+    was called w/o setting it. Archetypes now ignores this missing global and
+    inititalize it to 'unknowntype'. 
+    [jensens]
+
+  * for better css styling hpeter added a class and a id to edit_macros form
+    element, which enables per-type styling of base_edit. 
+    [jensens]
+
   * Fix unicodeEncode skin method to deal with sequences; fixes SelectionWidget
     with underlying LinesField case where the current value was not reflected
     in the edit widget. Fixes issue #705.
     [mj]
   
+  * BaseContent.PUT will now also fire the object modified event.
+    [nouri]
+
   * Update the base folder types to use sane permissions for
     manage_copyObjects, manage_pasteObjects, manage_renameObject(s)
     rather than the default 'View management screens' given by
@@ -310,7 +375,7 @@
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
-    https://dev.plone.org/archetypes/ticket/645
+    http://dev.plone.org/archetypes/ticket/645
     [nouri]
 
   * Avoid DeprecationWarnings for manageAddDelete methods and converted the
@@ -440,7 +505,7 @@
 ==========================
 
   * Check mimetype before schema update and reapply type after. This fixes
-    https://dev.plone.org/archetypes/ticket/618
+    http://dev.plone.org/archetypes/ticket/618
     [alecm]
 
   * Fixed import of NotFound in getBestIcon.py which broke CMF1.4 compatibility.
@@ -470,7 +535,7 @@
   * Moved 'index_method' computation out from Extensions/utils.py into
     Field.  Because we want SearchableText of BaseObject to use the
     'index_method' too.  This fixes
-    https://dev.plone.org/archetypes/ticket/645
+    http://dev.plone.org/archetypes/ticket/645
     [nouri]
 
   * Removed reST-test-kludge. reStructuredText of Zope < 2.8 is buggy,
@@ -528,7 +593,7 @@
     [jensens]
 
   * Fixed missing import of PersistentMapping.
-    Closes https://trac.plone.org/plone/ticket/5182
+    Closes http://dev.plone.org/plone/ticket/5182
     [hannosch]
 
   * Usability fix for file widget ( widgets/file.pt ) so that the
@@ -587,7 +652,7 @@
 
   * Make rename-after-creation resolve duplicates by appending -n, where n is
     a number, to the id when an existing object exists in the parent folder.
-    This closes http://trac.plone.org/plone/ticket/4510.
+    This closes http://dev.plone.org/plone/ticket/4510.
 
   * Return the new PdataStreamIterator when a Pdata-like chain is
     found (we always assume this if the marshaller didn't return a
@@ -598,7 +663,7 @@
     with len(data). Yuck.
     [dreamcatcher]
 
-  * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
+  * Fixed http://dev.plone.org/plone/ticket/4768 - wrong status message.
     [hannosch]
 
   * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
