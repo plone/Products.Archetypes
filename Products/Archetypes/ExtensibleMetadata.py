@@ -151,9 +151,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             'rights',
             accessor="Rights",
             widget=TextAreaWidget(
-                label=_(u'label_copyrights', default=u'Copyrights'),
+                label=_(u'label_copyrights', default=u'Rights'),
                 description=_(u'help_copyrights',
-                              default=u'The copyrights on this item.'),
+                              default=u'Copyright statement or other rights information on this item.'),
                 )),
         )) + Schema((
         # XXX change this to MetadataSchema in AT 1.4
