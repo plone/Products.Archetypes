@@ -63,6 +63,11 @@ schema = BaseSchema + Schema((
             i18n_domain = 'plone',
             ),
         ), 
+    
+    TextField(
+        'TEXTFIELD',
+        primary=True,
+        ),
             ))
 
 
@@ -123,6 +128,28 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
         self.failUnless(searchable.startswith("What do you expect of a Dummy"))
         del Dummy.myMethod
+        
+    def test_authenticatedContentType(self):
+        """See https://dev.plone.org/archetypes/ticket/712
+        
+        content_type should not be protected by a security declaration, as
+        it is usually an attribute. If a security declaration *is* set (in
+        BaseObject or one of it's base classes) non-anonymous access from
+        protected code (guarded_getattr) will fail.
+        
+        """
+        from AccessControl.unauthorized import Unauthorized
+        from AccessControl.Permissions import view
+        from AccessControl.ZopeGuards import guarded_getattr
+        
+        dummy = self._dummy
+        dummy.manage_permission(view, ('Manager',), False)
+        # dummy.content_type in a Python Script
+        self.assertRaises(Unauthorized, guarded_getattr, dummy, 'content_type')
+        
+        self.setRoles(('Manager',))
+        # dummy.content_type in a Python Script
+        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
         
 
 def test_suite():

@@ -1,6 +1,10 @@
 1.4.3 unreleased
 ----------------
 
+  * Fix https://dev.plone.org/archetypes/ticket/712: Do not put security
+    declarations on a ComputedAttribute, or on 'def content_type(self)'.
+    [mj]
+
   * BooleanWidget always displays 'True' and 'False'. This is very IT-centric!
     In real world people prefer 'Yes' and 'No' - or custom settings. Latter was
     fixed before, but Archetypes should have a sane default behaviour, so its
