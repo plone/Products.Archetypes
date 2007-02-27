@@ -564,7 +564,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore utility methods
     #
 
-    security.declareProtected(permissions.View, 'content_type')
+    # Deliberately *not* protected by a security declaration
+    # See https://dev.plone.org/archetypes/ticket/712
     def content_type(self):
         """ WebDAV needs this to do the Right Thing (TM).
         """
