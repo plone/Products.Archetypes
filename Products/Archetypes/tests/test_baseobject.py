@@ -48,7 +48,7 @@ class DummyDiscussionTool:
 MULTIPLEFIELD_LIST = DisplayList(
     (
     ('1', 'Option 1 : printemps'),
-    ('2', 'Option 2 : été'),
+    ('2', 'Option 2 : \xc3\xa9t\xc3\xa9'), # e-acute t e-acute
     ('3', 'Option 3 : automne'),
     ('4', 'Option 3 : hiver'),
     ))
@@ -97,7 +97,7 @@ class BaseObjectTest(ATSiteTestCase):
         self.assertEquals(type(searchable), StringType)
         
         # Test searchable value
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : été')
+        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
     def test_searchableTextUsesIndexMethod(self):
         """See https://dev.plone.org/archetypes/ticket/645
