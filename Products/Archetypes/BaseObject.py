@@ -337,7 +337,7 @@ class BaseObject(Referenceable):
 
     # Backward compatibility
     # Note: ComputedAttribute should never be protected by a security 
-    # declaration! See https://dev.plone.org/archetypes/ticket/712
+    # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
     # XXX Where's get_content_type comes from??? There's no trace at both
