@@ -29,7 +29,7 @@ input[name="form_submit"]:click {
     action-client: log;
 }
 
-.azax-inline-field input[name=azax-save]:click {
+.kss-inline-field input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
@@ -37,16 +37,16 @@ input[name="form_submit"]:click {
 }
 
 
-#azax-inlineform-attendees input[name=azax-save]:click {
+#kss-inlineform-attendees input[name=kss-save]:click {
     saveField-macro_path: 'here/event_view/macros/attendees-field-view';
 }
 
 
-#azax-inlineform-subject input[name=azax-save]:click {
+#kss-inlineform-subject input[name=kss-save]:click {
     saveField-macro_path: 'here/event_view/macros/subject-field-view';
 }
 
-.azax-inline-field input[name=azax-cancel]:click {
+.kss-inline-field input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
     action-server: replaceField;
     replaceField-fieldname: kssAttr('atfieldname', true);
