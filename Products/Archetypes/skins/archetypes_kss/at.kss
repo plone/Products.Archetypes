@@ -22,7 +22,7 @@ input[name="form_submit"]:click {
     action-client: log;
 }
 
-.kss-inline-field input[name=kss-save]:click {
+.kssInlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
@@ -31,7 +31,7 @@ input[name="form_submit"]:click {
     saveField-templateId: kssAttr('templateId', true);
 }
 
-.kss-inline-field input[name=kss-cancel]:click {
+.kssInlineForm input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
     action-server: replaceWithView;
     replaceWithView-fieldname: kssAttr('atfieldname', true);
