@@ -1,6 +1,19 @@
 1.5.0-b2 - unreleased
 =====================
 
+  * Allow field defaults to be looked up using an adapter of the instance
+    to IFieldDefaultProvider, with a name that is the same as the field name
+    in question (only if no default or default_method was set for that 
+    field). This allows dynamically determined, context-sensitive defaults 
+    without having to add a method into the class itself.
+    [optilude]
+
+  * Make it possible to use vocabulary_factory for fields, giving the name
+    of a Zope 3 style named IVocabularyFactory utility. This means that
+    Archetypes fields can use more general Zope 3 vocabularies, and share them
+    with e.g. formlib forms.
+    [optilude]
+
 1.5.0-b1 - 2007-02-27
 =====================
 

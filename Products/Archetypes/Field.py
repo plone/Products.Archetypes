@@ -10,6 +10,8 @@ from types import StringType, UnicodeType
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
 from zope.i18nmessageid import Message 
+from zope import schema
+from zope import component
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -83,6 +85,8 @@ from Products.validation import UnknowValidatorError
 from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
+from Products.Archetypes.interfaces import IFieldDefaultProvider
+
 try:
     import PIL.Image
 except ImportError:
@@ -153,6 +157,7 @@ class Field(DefaultLayerContainer):
         'default' : None,
         'default_method' : None,
         'vocabulary' : (),
+        'vocabulary_factory' : None,
         'enforceVocabulary' : False,
         'multiValued' : False,
         'searchable' : False,
@@ -417,9 +422,29 @@ class Field(DefaultLayerContainer):
            - vocabulary is a class implementing IVocabulary:
                 the "getDisplayList" method of the class will be called.
 
-        """
+        3) Zope 3 vocabulary factory vocabulary
+        
+            - precondition: a content_instance is given
+            
+            - self.vocabulary_factory is given
+            
+            - a named utility providing zope.schema.interfaces.IVocbularyFactory 
+              exists for the name self.vocabulary_factory.
 
+        """
         value = self.vocabulary
+        
+        # Attempt to get the value from a a vocabulary factory if one was given
+        # and no explicit vocabulary was set
+        if not isinstance(value, DisplayList) and not value:
+            factory_name = self.vocabulary_factory
+            if factory_name is not None:
+                factory = component.getUtility(schema.interfaces.IVocabularyFactory, name=factory_name)
+                factory_context = content_instance
+                if factory_context is None:
+                    factory_context = self
+                value = DisplayList([(t.value, t.title or t.token) for t in factory(factory_context)])
+                    
         if not isinstance(value, DisplayList):
 
             if content_instance is not None and type(value) in STRING_TYPES:
@@ -551,8 +576,13 @@ class Field(DefaultLayerContainer):
                 raise ValueError('%s.default_method is neither a method of %s'
                                  ' nor a callable' % (self.getName(),
                                                       instance.__class__))
-        else:
-            return self.default
+        
+        if not self.default:
+            default_adapter = component.queryAdapter(instance, IFieldDefaultProvider, name=self.__name__)
+            if default_adapter is not None:
+                return default_adapter()
+                
+        return self.default
 
     security.declarePublic('getAccessor')
     def getAccessor(self, instance):
