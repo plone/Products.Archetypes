@@ -143,7 +143,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Language",
             default = config.LANGUAGE_DEFAULT,
             vocabulary='languages',
-            widget=SelectionWidget(
+            widget=LanguageWidget(
                 label=_(u'label_language', default=u'Language'),
                 ),
         ),

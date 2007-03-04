@@ -421,6 +421,16 @@ class SelectionWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+class LanguageWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'format': "flex", # possible values: flex, select, radio
+        'macro' : "widgets/languagewidget",
+        'blurrable' : True,
+        })
+
+    security = ClassSecurityInfo()
+
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -719,6 +729,7 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           'LanguageWidget',
            )
 
 registerWidget(StringWidget,
@@ -791,6 +802,15 @@ registerWidget(SelectionWidget,
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
+
+registerWidget(LanguageWidget,
+              title='Language',
+              description=('Renders a HTML selection widget for choosing '
+                           'a language from a vocabulary. The widget can be '
+                           'represented as a dropdown, or as a group of'
+                           'of radio buttons'),
+              used_for=('Products.Archetypes.Field.StringField')
+              )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',

@@ -332,7 +332,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == EmptyValidator)
-        self.failUnless(isinstance(field.widget, SelectionWidget))
+        self.failUnless(isinstance(field.widget, LanguageWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(vocab == dummy.languages())
