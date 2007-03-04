@@ -11,7 +11,6 @@
     <metal:view_macro define-macro="view"
 		      tal:define="vocab python:field.Vocabulary(here);
 		      value python:accessor();
-              selection python:here.getSelected(vocab, value);
 		      display python:here.displayValue(vocab, value);"
 		      tal:replace="structure display" />
 
@@ -19,6 +18,7 @@
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
+                                selection python:here.getSelected(vocab, value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"
