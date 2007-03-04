@@ -1,6 +1,11 @@
 1.5.0-b2 - unreleased
 =====================
 
+  * Speed up the selection widget considerably by calculating the selected
+    values ones and not for every value in the selection using a new
+    getSelected script.
+    [hannosch]
+
   * Modernized some code in checkSelected and unicodeEncode scripts.
     [hannosch]
 
