@@ -1,7 +1,7 @@
 
 /* Base kss resource for Archetypes */
 
-.kssValidateInput:blur {
+.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
@@ -22,7 +22,7 @@ input[name="form_submit"]:click {
     action-client: log;
 }
 
-.kssInlineForm input[name=kss-save]:click {
+.inlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
@@ -31,10 +31,28 @@ input[name="form_submit"]:click {
     saveField-templateId: kssAttr('templateId', true);
 }
 
-.kssInlineForm input[name=kss-cancel]:click {
+.inlineForm .blurrable:blur {
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    action-cancel: kssValidateField;
+}
+
+.inlineForm input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
     action-server: replaceWithView;
     replaceWithView-fieldname: kssAttr('atfieldname', true);
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
 }
+
+.inlineForm .blurrable:keypress {
+    evt-keypress-keycodes: '27';
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+}
+

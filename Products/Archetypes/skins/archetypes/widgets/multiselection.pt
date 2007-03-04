@@ -30,14 +30,13 @@
 	    <tal:block tal:define="tabindex tabindex/next">
 		<div class="ArchetypesMultiSelectionValue" id=""
 			tal:attributes="id string:archetypes-value-${fieldName}_${repeat/item/number}">
-	      <input
-               class="kssValidateInput"
-	       tal:attributes="type string:checkbox;
-	       name string:$fieldName:list;
-	       id string:${fieldName}_${repeat/item/number};
-	       tabindex tabindex;
-	       checked python:test(here.unicodeTestIn(item, value), 'checked', None);
-	       value nocall:item;"/>
+	      <input class="blurrable"
+               tal:attributes="type string:checkbox;
+               name string:$fieldName:list;
+               id string:${fieldName}_${repeat/item/number};
+               tabindex tabindex;
+               checked python:test(here.unicodeTestIn(item, value), 'checked', None);
+               value nocall:item;"/>
           <label tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"
                  i18n:translate=""
                  tal:attributes="for string:${fieldName}_${repeat/item/number}" />
@@ -46,12 +45,12 @@
 	  </span>
 
 	  <select multiple="multiple"
-                  class="kssValidateInput"
-		  tal:condition="python:format=='select'"
-		  tal:attributes="name string:${fieldName}:list;
-		  id fieldName;
-		  size widget/size;
-		  tabindex tabindex/next;">
+            class="blurrable"
+            tal:condition="python:format=='select'"
+            tal:attributes="name string:${fieldName}:list;
+            id fieldName;
+            size widget/size;
+            tabindex tabindex/next;">
 	    <option selected=""
 		    tal:repeat="item vocab"
 		    tal:attributes="value nocall:item;
