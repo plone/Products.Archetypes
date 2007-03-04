@@ -1,6 +1,14 @@
 1.5.0-b2 - unreleased
 =====================
 
+  * Modernized some code in checkSelected and unicodeEncode scripts.
+    [hannosch]
+
+  * Removed explicit invocations of the translate script from various
+    vocabulary widgets. The getValue method of a vocabulary returns a Message
+    which can be translated by the usual TAL engine.
+    [hannosch]
+
   * Allow field defaults to be looked up using an adapter of the instance
     to IFieldDefaultProvider, with a name that is the same as the field name
     in question (only if no default or default_method was set for that 

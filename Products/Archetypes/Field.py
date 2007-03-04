@@ -447,7 +447,7 @@ class Field(DefaultLayerContainer):
                     
         if not isinstance(value, DisplayList):
 
-            if content_instance is not None and type(value) in STRING_TYPES:
+            if content_instance is not None and isinstance(value, basestring):
                 # Dynamic vocabulary by method on class of content_instance
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
@@ -467,10 +467,10 @@ class Field(DefaultLayerContainer):
             if isinstance(sample, DisplayList):
                 # Do nothing, the bomb is already set up
                 pass
-            elif type(sample) in (TupleType, ListType):
+            elif isinstance(sample, (list, tuple)):
                 # Assume we have ((value, display), ...)
                 # and if not ('', '', '', ...)
-                if sample and type(sample[0]) not in (TupleType, ListType):
+                if sample and not isinstance((sample[0]), (list, tuple)):
                     # if not a 2-tuple
                     value = zip(value, value)
                 value = DisplayList(value)

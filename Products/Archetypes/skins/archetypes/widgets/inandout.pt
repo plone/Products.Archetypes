@@ -69,10 +69,11 @@
       
                         <tal:block tal:repeat="vocab_item vocab">
                           <option
-                            tal:define="label python:here.translate(vocab.getMsgId(vocab_item), default=vocab.getValue(vocab_item))"
+                            tal:define="label python:vocab.getValue(vocab_item)"
                             tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 0, 1)"
                             tal:attributes="value vocab_item;"
-                            tal:content="label">
+                            tal:content="label"
+                            i18n:translate="">
                             option
                           </option>
                         </tal:block>
@@ -105,9 +106,10 @@
                     <option
                       tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
                       tal:attributes="value single_value;"
-                      tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
-                       selected="selected">
-                      option
+                      tal:content="python:vocab.getValue(single_value)"
+                      selected="selected"
+                      i18n:translate="">
+                       option
                     </option>
                   </tal:block>
                   </select>
