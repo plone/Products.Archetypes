@@ -11,6 +11,7 @@
     <metal:view_macro define-macro="view"
 		      tal:define="vocab python:field.Vocabulary(here);
 		      value python:accessor();
+              selection python:here.getSelected(vocab, value);
 		      display python:here.displayValue(vocab, value);"
 		      tal:replace="structure display" />
 
@@ -65,9 +66,8 @@
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')">
 
-                  <tal:block tal:repeat="single_value value">
+                  <tal:block tal:repeat="single_value selection">
                     <option
-                      tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
                       tal:attributes="value single_value;"
                       tal:content="python:vocab.getValue(single_value)"
                       selected="selected"

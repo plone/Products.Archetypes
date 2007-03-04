@@ -18,8 +18,9 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
 	<metal:fill fill-slot="widget_body"
 		    tal:define="vocab python:field.Vocabulary(here);
-		    format python:test(widget.format, widget.format, 'select');
-		    vlen  python: len(vocab)">
+                        format python:test(widget.format, widget.format, 'select');
+                        selection python:here.getSelected(vocab, value);
+                        vlen  python: len(vocab)">
 
 	  <input type="hidden"
 		 value=""
@@ -35,7 +36,7 @@
                name string:$fieldName:list;
                id string:${fieldName}_${repeat/item/number};
                tabindex tabindex;
-               checked python:test(here.unicodeTestIn(item, value), 'checked', None);
+               checked python:item in selection and 'checked' or None;
                value nocall:item;"/>
           <label tal:content="python:vocab.getValue(item)"
                  i18n:translate=""
@@ -54,7 +55,7 @@
 	    <option selected=""
 		    tal:repeat="item vocab"
 		    tal:attributes="value nocall:item;
-		    selected python:test(here.unicodeTestIn(item, value), 'selected', None);"
+		    selected python:item in selection and 'checked' or None;"
 		    tal:content="python:vocab.getValue(item)"
 		    i18n:translate="" />
 	  </select>
