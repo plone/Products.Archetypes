@@ -8,7 +8,7 @@
 
   * Speed up the selection widget considerably by calculating the selected
     values ones and not for every value in the selection using a new
-    getSelected script.
+    getSelectionWidgetSelected script.
     [hannosch]
 
   * Modernized some code in checkSelected and unicodeEncode scripts.
