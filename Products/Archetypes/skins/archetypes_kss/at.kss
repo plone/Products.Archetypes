@@ -1,7 +1,7 @@
 
 /* Base kss resource for Archetypes */
 
-.kssValidateInput:blur {
+.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
@@ -13,42 +13,46 @@ input[name="form_submit"]:click {
     kssValidateForm-data:         currentForm();
 }
 
-.kssFieldDblClickable:dblclick {
-    evt-dblclick-allowbubbling: true;
-    action-server: replaceField;
-    replaceField-fieldname: kssAttr('atfieldname', true);
-    replaceField-mode: edit;
-    action-client: log;
-}
-
-.kssFieldClickable:click {
+.inlineEditable:click {
     evt-click-allowbubbling: true;
     action-server: replaceField;
     replaceField-fieldname: kssAttr('atfieldname', true);
-    replaceField-mode: edit;
+    replaceField-macro: kssAttr('macro', true);
+    replaceField-templateId: kssAttr('templateId', true);
     action-client: log;
 }
 
-.azax-inline-field input[name=azax-save]:click {
+.inlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
     saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
 }
 
-
-#azax-inlineform-attendees input[name=azax-save]:click {
-    saveField-macro_path: 'here/event_view/macros/attendees-field-view';
+.inlineForm .blurrable:blur {
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    action-cancel: kssValidateField;
 }
 
-
-#azax-inlineform-subject input[name=azax-save]:click {
-    saveField-macro_path: 'here/event_view/macros/subject-field-view';
-}
-
-.azax-inline-field input[name=azax-cancel]:click {
+.inlineForm input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
-    action-server: replaceField;
-    replaceField-fieldname: kssAttr('atfieldname', true);
-    replaceField-mode: view;
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
 }
+
+.inlineForm .blurrable:keypress {
+    evt-keypress-keycodes: '27';
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+}
+

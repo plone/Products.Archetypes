@@ -18,7 +18,6 @@ from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
-from Acquisition import Implicit
 
 _marker = []
 
@@ -32,6 +31,7 @@ class TypesWidget(macrowidget, Base):
         'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
+        'blurrable': False,
         })
 
     security = ClassSecurityInfo()
@@ -144,6 +144,7 @@ class StringWidget(TypesWidget):
         'macro' : "widgets/string",
         'size' : '30',
         'maxlength' : '255',
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -326,6 +327,7 @@ class TextAreaWidget(TypesWidget):
         'timestamp': False,
         'maxlength' : False,
         'helper_js': ('widgets/js/textcount.js',),        
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -414,6 +416,17 @@ class SelectionWidget(TypesWidget):
     _properties.update({
         'format': "flex", # possible values: flex, select, radio
         'macro' : "widgets/selection",
+        'blurrable' : True,
+        })
+
+    security = ClassSecurityInfo()
+
+class LanguageWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'format': "flex", # possible values: flex, select, radio
+        'macro' : "widgets/languagewidget",
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -424,6 +437,7 @@ class MultiSelectionWidget(TypesWidget):
         'format': "select", # possible values: select, checkbox
         'macro' : "widgets/multiselection",
         'size'  : 5,
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -715,6 +729,7 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           'LanguageWidget',
            )
 
 registerWidget(StringWidget,
@@ -787,6 +802,15 @@ registerWidget(SelectionWidget,
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
+
+registerWidget(LanguageWidget,
+              title='Language',
+              description=('Renders a HTML selection widget for choosing '
+                           'a language from a vocabulary. The widget can be '
+                           'represented as a dropdown, or as a group of'
+                           'of radio buttons'),
+              used_for=('Products.Archetypes.Field.StringField')
+              )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',

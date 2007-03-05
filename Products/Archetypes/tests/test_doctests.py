@@ -50,6 +50,7 @@ DOCTEST_MODULES = (
 DOCTEST_FILES = ('events.txt',)
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
 def test_suite():
@@ -59,7 +60,7 @@ def test_suite():
                              )
     for file in DOCTEST_FILES:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
-                                test_class=ATSiteTestCase)
+                                test_class=ATFunctionalSiteTestCase)
                      )
     return suite
 

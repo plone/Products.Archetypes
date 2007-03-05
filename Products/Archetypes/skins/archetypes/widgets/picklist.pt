@@ -18,6 +18,7 @@
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
+                                selection python:here.getSelectionWidgetSelected(vocab, value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"
@@ -39,7 +40,8 @@
                   <option
                     tal:repeat="item vocab"
                     tal:attributes="value item;"
-                    tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))">
+                    tal:content="python:vocab.getValue(item)"
+                    i18n:translate="">
                     option
                   </option>
                 </select>
@@ -64,13 +66,13 @@
                                   tabindex tabindex/next;
                                   onDblClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')">
 
-                  <tal:block tal:repeat="single_value value">
+                  <tal:block tal:repeat="single_value selection">
                     <option
-                      tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
                       tal:attributes="value single_value;"
-                      tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
-		      selected="selected">
-                      option
+                      tal:content="python:vocab.getValue(single_value)"
+                      selected="selected"
+                      i18n:translate="">
+                       option
                     </option>
                   </tal:block>
                 </select>
