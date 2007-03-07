@@ -46,6 +46,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.POSException import ConflictError
 import transaction
 
+from zope.component.interfaces import ComponentLookupError
+
 class BoundPageTemplateFile(PageTemplateFile):
 
     def __init__(self, *args, **kw):
@@ -1122,7 +1124,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        
+        # Can happen during deletion of an entire site
+        try:
+            portal = getToolByName(self, 'portal_url').getPortalObject()
+        except ComponentLookupError, e:
+            log('Cannot get portal', e)
+            return catalogs
+            
         for name in names:
             try:
                 catalogs.append(getToolByName(portal, name))
