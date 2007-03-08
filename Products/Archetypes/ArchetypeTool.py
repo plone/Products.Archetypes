@@ -8,6 +8,11 @@ from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
+from zope.component import getUtility
+from Products.CMFCore.interfaces import ICatalogTool as z3ICatalogTool
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
+
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -692,7 +697,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids
         ['ATBIFolder', 'ComplexType', ...]
         """
-        pt = getToolByName(self, 'portal_types')
+        pt = getUtility(ITypesTool)
         value = []
         for data in listTypes():
             klass = data['klass']
@@ -725,7 +730,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
-            tt = getToolByName(self, 'portal_types')
+            tt = getUtility(ITypesTool)
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
@@ -771,7 +776,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                            uninstall=None, REQUEST=None):
         """Un/Install a type TTW.
         """
-        typesTool = getToolByName(self, 'portal_types')
+        typesTool = getUtility(ITypesTool)
         try:
             typesTool._delObject(typeName)
         except (ConflictError, KeyboardInterrupt):
@@ -892,7 +897,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'.
         """
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getUtility(z3ICatalogTool)
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
@@ -1034,8 +1039,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # relying on the catalog to find objects, because an object
             # may be uncatalogable because of its schema, and then you
             # can't update it if you require that it be in the catalog.
-            catalog = getToolByName(self, 'portal_catalog')
-            portal = getToolByName(self, 'portal_url').getPortalObject()
+            catalog = getUtility(z3ICatalogTool)
+            portal = getUtility(IURLTool).getPortalObject()
             meta_types = [_types[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
@@ -1122,7 +1127,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        
+        portal = getUtility(IURLTool).getPortalObject()
+
         for name in names:
             try:
                 catalogs.append(getToolByName(portal, name))
@@ -1137,7 +1144,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        portal = getUtility(IURLTool).getPortalObject()
         res = []
         for object in portal.objectValues():
             if ICatalogTool.isImplementedBy(object):

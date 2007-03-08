@@ -22,6 +22,8 @@ from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
+from zope.component import getUtility
+from Products.CMFCore.interfaces import IURLTool
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -86,7 +88,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         try:
             path = self.getPath()
             try:
-                portal = getToolByName(self, 'portal_url').getPortalObject()
+                portal = getUtility(IURLTool).getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
             except (ConflictError, KeyboardInterrupt):
@@ -164,7 +166,7 @@ class UIDResolver(Base):
 
         if not portal_path_len:
             # cache the lenght of the portal path in a _v_ var
-            urlTool = getToolByName(self, 'portal_url')
+            urlTool = getUtility(IURLTool)
             portal_path = urlTool.getPortalObject().getPhysicalPath()
             portal_path_len = len(portal_path)
             self._v_portal_path_len = portal_path_len

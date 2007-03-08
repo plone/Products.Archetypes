@@ -2,7 +2,11 @@ from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
 from DateTime import DateTime
 
-from Products.CMFCore.utils import getToolByName
+from zope.component import getUtility
+from Products.CMFCore.interfaces import ICatalogTool
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
+
 from Products.CMFCore.Expression import Expression
 from Products.CMFCore.Expression import createExprContext
 
@@ -217,7 +221,7 @@ class ReferenceWidget(TypesWidget):
                     if act_dict.has_key(typeinfo.getId()):
                         searchFor.append(regType.getId())
 
-        catalog = getToolByName(purl, 'portal_catalog')
+        catalog = getUtility(ICatalogTool)
         containers = []
         portal_path = "/".join(purl.getPortalObject().getPhysicalPath())
         for wanted in searchFor:
@@ -232,8 +236,8 @@ class ReferenceWidget(TypesWidget):
         """ Returns a list of dictionaries which maps portal_type
             to a human readable form.
         """
-        tool = getToolByName(instance, 'portal_types')
-        purl = getToolByName(instance, 'portal_url')
+        tool = getUtility(ITypesTool)
+        purl = getUtility(IURLTool)
 
         lookupDestinationsFor = self.lookupDestinationsFor
         getRelativeContentURL = purl.getRelativeContentURL

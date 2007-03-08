@@ -4,6 +4,7 @@ from types import StringType, UnicodeType
 import time
 import urllib
 from zope.interface import implements
+from zope.component import getUtility
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -35,6 +36,8 @@ from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from zExceptions import NotFound
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -193,7 +196,7 @@ class ContentReference(ObjectManager, Reference):
         # creates the content instance
         if type(self.contentType) in (type(''),type(u'')):
             # type given as string
-            tt=getToolByName(self,'portal_types')
+            tt=getUtility(ITypesTool)
             tt.constructContent(self.contentType, self,
                                 REFERENCE_CONTENT_INSTANCE_NAME)
         else:
@@ -573,7 +576,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
            can be used to specify the tree that has to be searched for references '''
 
         if not root:
-            root=getToolByName(self,'portal_url').getPortalObject()
+            root=getUtility(IURLTool).getPortalObject()
 
         path = '/'.join(root.getPhysicalPath())
 

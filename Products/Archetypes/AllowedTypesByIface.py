@@ -28,6 +28,8 @@ from Interface import Implements
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes.ArchetypeTool import listTypes
+from zope.component import getUtility
+from Products.CMFCore.interfaces import ITypesTool
 
 class AllowedTypesByIfaceMixin:
     """An approach to restrict allowed content types in a container by
@@ -105,7 +107,7 @@ class AllowedTypesByIfaceMixin:
         """Invokes the portal_types tool.
 
         Overrides PortalFolder.invokeFactory."""
-        pt = getToolByName(self, 'portal_types')
+        pt = getUtility(ITypesTool)
         at = getToolByName(self, 'archetype_tool')
         fti = None
         for t in listTypes():
@@ -131,7 +133,7 @@ class AllowedTypesByIfaceMixin:
         #      PortalFolder._verifyObjectPaste in its check for
         #      allowed content types. We make our typeinfo temporarily
         #      unavailable.
-        pt = getToolByName(self, 'portal_types')
+        pt = getUtility(ITypesTool)
         tmp_name = '%s_TMP' % self.portal_type
         ti = pt.getTypeInfo(self.portal_type)
         pt.manage_delObjects([self.portal_type])

@@ -10,8 +10,14 @@ from types import StringType, UnicodeType
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
 from zope.i18nmessageid import Message 
+from zope.component import getUtility
 from zope import schema
 from zope import component
+
+from Products.CMFCore.interfaces import ICatalogTool
+from Products.CMFCore.interfaces import IPropertiesTool
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -537,7 +543,7 @@ class Field(DefaultLayerContainer):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance """
 
-        pp = getToolByName(instance, 'portal_properties')
+        pp = getUtility(IPropertiesTool)
         sp = getattr(pp, 'site_properties', None)
         if sp is not None:
             if getattr(sp, 'ext_editor', None) \
@@ -1780,9 +1786,9 @@ class ReferenceField(ObjectField):
 
     def _Vocabulary(self, content_instance):
         pairs = []
-        pc = getToolByName(content_instance, 'portal_catalog')
+        pc = getUtility(ICatalogTool)
         uc = getToolByName(content_instance, config.UID_CATALOG)
-        purl = getToolByName(content_instance, 'portal_url')
+        purl = getUtility(IURLTool)
 
         allowed_types = self.allowed_types
         allowed_types_method = getattr(self, 'allowed_types_method', None)
@@ -1966,7 +1972,7 @@ class CMFObjectField(ObjectField):
             return self.getStorage(instance).get(self.getName(), instance, **kwargs)
         except AttributeError:
             # object doesnt exists
-            tt = getToolByName(instance, 'portal_types', None)
+            tt = queryUtility(ITypesTool)
             if tt is None:
                 msg = "Coudln't get portal_types tool from this context"
                 raise AttributeError(msg)

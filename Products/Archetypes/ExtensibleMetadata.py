@@ -1,5 +1,6 @@
 import string
 from logging import INFO, DEBUG
+from zope.component import getUtility
 from zope.component import queryUtility
 
 from Products.Archetypes import PloneMessageFactory as _
@@ -20,9 +21,10 @@ from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
-from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
+from Products.CMFCore.interfaces import IDiscussionTool
+from Products.CMFCore.interfaces import IMembershipTool
 
 _marker=[]
 
@@ -206,7 +208,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
-        dtool = getToolByName(self, 'portal_discussion')
+        dtool = getUtility(IDiscussionTool)
         return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
@@ -232,7 +234,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 allowDiscussion = allowDiscussion.lower().strip()
                 d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
                 allowDiscussion = d.get(allowDiscussion, None)
-        dtool = getToolByName(self, 'portal_discussion')
+        dtool = getUtility(IDiscussionTool)
         try:
             dtool.overrideDiscussionFor(self, allowDiscussion)
         except (KeyError, AttributeError), err:
@@ -530,7 +532,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Add creator to Dublin Core creators.
         """
         if creator is None:
-            mtool = getToolByName(self, 'portal_membership')
+            mtool = getUtility(IMembershipTool)
             creator = mtool.getAuthenticatedMember().getId()
 
         # call self.listCreators() to make sure self.creators exists

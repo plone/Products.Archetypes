@@ -13,6 +13,9 @@ from OFS.SimpleItem import SimpleItem
 from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
 
+from zope.component import queryUtility
+from Products.CMFCore.interfaces import ITypesTool
+
 class SQLStorageConfig (SimpleItem):
 
     """ Map Archetypes to SQL Database Connections.
@@ -105,7 +108,7 @@ class SQLStorageConfig (SimpleItem):
         """ Return the default conn, if applicable, for ob.
         """
     
-        types_tool = getToolByName( self, 'portal_types', None )
+        types_tool = queryUtility(ITypesTool)
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
             return self._default_conn
@@ -128,7 +131,7 @@ class SQLStorageConfig (SimpleItem):
 
     security.declareProtected( ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
-        pt = getToolByName(self, 'portal_types', None)
+        pt = queryUtility(ITypesTool)
         at = getToolByName(self, TOOL_NAME, None)
         if pt is None:
             return ()
