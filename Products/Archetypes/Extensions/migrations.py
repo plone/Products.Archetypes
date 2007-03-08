@@ -3,6 +3,8 @@ from Globals import PersistentMapping
 from StringIO import StringIO
 from Acquisition import aq_base
 import transaction
+from zope.component import getUtility
+from Products.CMFCore.interfaces import IURLTool
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog
 from Products.Archetypes.utils import make_uuid
@@ -272,7 +274,7 @@ def refreshCatalogs(portal, out):
 def migrate(self):
     """migrate an AT site"""
     out = StdoutStringIO()
-    portal = getToolByName(self,'portal_url').getPortalObject()
+    portal = getUtility(IURLTool).getPortalObject()
 
     print >>out, "Begin Migration"
 

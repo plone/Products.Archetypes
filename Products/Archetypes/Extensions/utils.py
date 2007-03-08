@@ -27,6 +27,12 @@ from Products.MimetypesRegistry.Extensions.Install \
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
+from zope.component import getUtility, queryUtility
+from Products.CMFCore.interfaces import ICatalogTool
+from Products.CMFCore.interfaces import IPropertiesTool
+from Products.CMFCore.interfaces import ISkinsTool
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
 
 from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
@@ -90,7 +96,7 @@ def install_uidcatalog(self, out, rebuild=False):
     
     if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
-        parent = getToolByName(self, "portal_url").getPortalObject()
+        parent = getUtility(IURLTool).getPortalObject()
         parent.manage_delObjects([UID_CATALOG,])
         catalog = None
         rebuild = True
@@ -192,7 +198,7 @@ def install_additional_templates(self, out, types):
             at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
-    skinstool=getToolByName(self, 'portal_skins')
+    skinstool=getUtility(ISkinsTool)
 
     product = globals['__name__']
     registry_key = "%s:%s" % (product, product_skins_dir)
@@ -239,7 +245,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
                 skinstool.addSkinSelection(skinName, path)
 
 def install_types(self, out, types, package_name):
-    typesTool = getToolByName(self, 'portal_types')
+    typesTool = getUtility(ITypesTool)
     folderish = []
     for klass in types:
         try:
@@ -286,7 +292,7 @@ def install_types(self, out, types, package_name):
         if use_folder_tabs:
             folderish.append(klass.portal_type)
     if folderish:
-        pt = getToolByName(self, 'portal_properties', None)
+        pt = queryUtility(IPropertiesTool)
         if pt is None:
             return
         sp = getattr(pt, 'site_properties', None)
@@ -320,14 +326,14 @@ def _getFtiAndDataFor(tool, typename, package_name):
     
 
 def install_actions(self, out, types):
-    typesTool = getToolByName(self, 'portal_types')
+    typesTool = getUtility(ITypesTool)
     for portal_type in types:
         ## rr: XXX TODO somehow the following doesn't do anymore what
         ## it used to do :-(
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    portal_catalog = catalog = getToolByName(self, 'portal_catalog')
+    portal_catalog = catalog = getUtility(ICatalogTool)
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
@@ -436,7 +442,7 @@ def isPloneSite(self):
 
 
 def filterTypes(self, out, types, package_name):
-    typesTool = getToolByName(self, 'portal_types')
+    typesTool = getUtility(ITypesTool)
 
     filtered_types = []
 
@@ -530,7 +536,7 @@ def doubleCheckDefaultTypeActions(self, ftypes):
     # Instead of trying to resurect the old way (which I tried but couldn't)
     # I make it brute force here
 
-    typesTool = getToolByName(self, 'portal_types')
+    typesTool = getUtility(ITypesTool)
     defaultTypeActions = [ActionInformation(**action) for action in
                           base_factory_type_information[0]['actions']]
 
