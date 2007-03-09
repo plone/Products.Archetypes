@@ -21,6 +21,8 @@ from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 
 from zope.component import getUtility
+from zope.component import queryUtility
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import IURLTool
 
 # BBB, this can be removed once we do not support PTS anymore
@@ -747,9 +749,10 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    urlTool = getUtility(IURLTool)
-    portal_path = urlTool.getPortalObject().getPhysicalPath()
-    ppath = ppath[len(portal_path):]
+    portal = queryUtility(ISiteRoot)
+    if portal is not None:
+        portal_path = portal.getPhysicalPath()
+        ppath = ppath[len(portal_path):]
     return ppath
 
 def getRelURL(self, ppath):
