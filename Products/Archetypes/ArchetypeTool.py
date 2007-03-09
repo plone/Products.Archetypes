@@ -8,6 +8,7 @@ from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
+from zope.interface import implements
 from zope.component import getUtility
 from zope.component import queryUtility
 
@@ -17,6 +18,7 @@ from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFCore.interfaces import IURLTool
 
 from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -497,8 +499,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     """Archetypes tool, manage aspects of Archetype instances.
     """
     id = TOOL_NAME
-
     meta_type = TOOL_NAME.title().replace('_', ' ')
+
+    implements(IArchetypeTool)
 
     isPrincipiaFolderish = True # Show up in the ZMI
 

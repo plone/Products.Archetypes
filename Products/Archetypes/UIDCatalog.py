@@ -3,6 +3,8 @@ import sys
 import time
 import urllib
 import traceback
+from zope.interface import implements
+
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -20,7 +22,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
-from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
 from zope.component import getUtility
 from Products.CMFCore.interfaces import IURLTool
@@ -188,7 +190,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     id = UID_CATALOG
     security = ClassSecurityInfo()
-    __implements__ = IUIDCatalog
+    implements(IUIDCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
 

@@ -9,8 +9,9 @@ from zope.component import getUtility
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces import IReference
+from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces.referenceengine import \
-    IContentReference, IReferenceCatalog, IReference as Z2IReference
+    IContentReference, IReference as Z2IReference
 
 from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
     getRelPath, shasattr
@@ -310,7 +311,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    __implements__ = IReferenceCatalog
+    implements(IReferenceCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
