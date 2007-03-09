@@ -9,7 +9,10 @@ from StringIO import StringIO
 from debug import deprecated
 
 from zope.component import getUtility
+from zope.component import queryUtility
+
 from Products.CMFCore.interfaces import ICatalogTool as z3ICatalogTool
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFCore.interfaces import IURLTool
 
@@ -1128,7 +1131,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         else:
             names = ['portal_catalog']
         
-        portal = getUtility(IURLTool).getPortalObject()
+        portal = queryUtility(ISiteRoot)
 
         for name in names:
             try:
