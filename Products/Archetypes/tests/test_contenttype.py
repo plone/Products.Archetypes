@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import gen_class
 
@@ -43,7 +43,7 @@ from Products.Archetypes.tests.test_classgen import default_text
 from Products.Archetypes.atapi import *
 
 
-class GetContentTypeTest(ATTestCase):
+class GetContentTypeTest(ATSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -111,7 +111,7 @@ class GetContentTypeTest(ATTestCase):
         self.assertEqual(field.getContentType(obj), 'application/x-tar')
 
 
-class SetContentTypeTest(ATTestCase):
+class SetContentTypeTest(ATSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()

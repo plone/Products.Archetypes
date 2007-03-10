@@ -36,7 +36,6 @@ import transaction
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.tests.test_classgen import Dummy
@@ -46,7 +45,7 @@ from Products.Archetypes.tests.test_classgen import default_text
 from Products.Archetypes.atapi import *
 
 
-class GetFilenameTest(ATTestCase):
+class GetFilenameTest(ATSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -114,7 +113,7 @@ class GetFilenameTest(ATTestCase):
         self.assertEqual(field.getFilename(obj), 'rest1.tgz')
 
 
-class SetFilenameTest(ATTestCase):
+class SetFilenameTest(ATSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()

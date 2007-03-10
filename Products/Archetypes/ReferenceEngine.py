@@ -1,15 +1,17 @@
 import os
-import sys
 from types import StringType, UnicodeType
 import time
 import urllib
 from zope.interface import implements
 from zope.component import getUtility
+from zope.component import queryUtility
 
 from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces import IReferenceCatalog
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
     IContentReference, IReference as Z2IReference
 
@@ -26,7 +28,6 @@ from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
 from Globals import InitializeClass, DTMLFile, PersistentMapping
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
@@ -99,8 +100,9 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Convenience methods
     def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
+        tool = queryUtility(IUIDCatalog)
+        if tool is None:
+            return ''
         brains = tool(UID=self.sourceUID)
         for brain in brains:
             obj = brain.getObject()
@@ -108,8 +110,9 @@ class Reference(Referenceable, SimpleItem):
                 return obj
 
     def getTargetObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
+        tool = queryUtility(IUIDCatalog)
+        if tool is None:
+            return ''
         brains = tool(UID=self.targetUID)
         for brain in brains:
             obj = brain.getObject()
@@ -162,18 +165,13 @@ class Reference(Referenceable, SimpleItem):
         # when copying a full site containe is the container of the plone site
         # and item is the plone site (at least for objects in portal root)
         base = container
-        try:
-            rc = getToolByName(base, REFERENCE_CATALOG)
-        except:
-            base = item
-            rc = getToolByName(base, REFERENCE_CATALOG)
+        rc = getUtility(IReferenceCatalog)
         url = getRelURL(base, self.getPhysicalPath())
         rc.catalog_object(self, url)
 
-
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
-        rc  = getToolByName(container, REFERENCE_CATALOG)
+        rc  = getUtility(IReferenceCatalog)
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
@@ -473,14 +471,14 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        uc = getToolByName(self, UID_CATALOG)
+        uc = getUtility(IUIDCatalog)
         uc.uncatalog_object(object._getURL())
 
 
     ######
     ## Private/Internal
     def _objectByUUID(self, uuid):
-        tool = getToolByName(self, UID_CATALOG)
+        tool = getUtility(IUIDCatalog)
         brains = tool(UID=uuid)
         for brain in brains:
             obj = brain.getObject()
@@ -524,7 +522,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             uuid = obj
             obj = None
             #and we look up the object
-            uid_catalog = getToolByName(self, UID_CATALOG)
+            uid_catalog = getUtility(IUIDCatalog)
             brains = uid_catalog(UID=uuid)
             for brain in brains:
                 res = brain.getObject()
@@ -630,8 +628,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool   = getToolByName(self, TOOL_NAME)
-        obj     = aq_parent(self)
+        atool = getUtility(IArchetypeTool)
+        obj = aq_parent(self)
         if not REQUEST:
             REQUEST = self.REQUEST
 

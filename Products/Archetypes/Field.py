@@ -9,8 +9,8 @@ from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
-from zope.i18nmessageid import Message 
 from zope.component import getUtility
+from zope.component import queryUtility
 from zope import schema
 from zope import component
 
@@ -38,13 +38,15 @@ from OFS.Cache import ChangeCacheSettingsPermission
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.POSException import ConflictError
 
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import permissions
+from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
+from Products.PortalTransforms.interfaces import IPortalTransformsTool
 
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes.interfaces import IReferenceCatalog
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
@@ -928,7 +930,7 @@ class FileField(ObjectField):
             body = file.data
             if not isinstance(body, basestring):
                 body = body.data
-            mtr = getToolByName(instance, 'mimetypes_registry', None)
+            mtr = queryUtility(IMimetypesRegistryTool)
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
@@ -1165,7 +1167,7 @@ class FileField(ObjectField):
         # memory.  To have this not happening set your field to not
         # 'searchable' (the default) or define your own 'index_method'
         # property.
-        transforms = getToolByName(instance, 'portal_transforms')
+        transforms = getUtility(IPortalTransformsTool)
         f = self.get(instance)
         
         try:
@@ -1302,7 +1304,7 @@ class TextField(FileField):
         if mimetype is None or mimetype == 'text/x-unknown-content-type':
             if body is None:
                 body = value[:CHUNK]
-            mtr = getToolByName(instance, 'mimetypes_registry', None)
+            mtr = queryUtility(IMimetypesRegistryTool)
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
@@ -1704,7 +1706,7 @@ class ReferenceField(ObjectField):
         >>> nodes[2].getLink()
         <SimpleBTreeFolder...>
         """
-        tool = getToolByName(instance, REFERENCE_CATALOG)
+        tool = getUtility(IReferenceCatalog)
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
@@ -1752,7 +1754,7 @@ class ReferenceField(ObjectField):
         """Return the list of UIDs referenced under this fields
         relationship
         """
-        rc = getToolByName(instance, REFERENCE_CATALOG)
+        rc = getUtility(IReferenceCatalog)
         brains = rc(sourceUID=instance.UID(),
                     relationship=self.relationship)
         res = [b.targetUID for b in brains]
@@ -1787,7 +1789,7 @@ class ReferenceField(ObjectField):
     def _Vocabulary(self, content_instance):
         pairs = []
         pc = getUtility(ICatalogTool)
-        uc = getToolByName(content_instance, config.UID_CATALOG)
+        uc = getUtility(IUIDCatalog)
         purl = getUtility(IURLTool)
 
         allowed_types = self.allowed_types
@@ -2685,7 +2687,7 @@ class ScalableImage(BaseImage):
         for size in self._photos.keys():
             variant = self.getPhoto(size).__of__(self)
             variant.ZCacheable_setManagerId(manager_id)
-        inherited_attr = Photo.inheritedAttribute('ZCacheable_setManagerId')
+        inherited_attr = ScalableImage.inheritedAttribute('ZCacheable_setManagerId')
         return inherited_attr(self, manager_id, REQUEST)
 
 

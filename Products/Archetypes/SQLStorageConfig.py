@@ -1,7 +1,8 @@
 """ SQL Storage Configuration for Archetypes.
 """
+from zope.component import queryUtility
 
-from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 
@@ -9,12 +10,8 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
-
-from Products.CMFCore.permissions import ManagePortal
-from Products.CMFCore.utils import getToolByName
-
-from zope.component import queryUtility
 from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.permissions import ManagePortal
 
 class SQLStorageConfig (SimpleItem):
 
@@ -132,7 +129,7 @@ class SQLStorageConfig (SimpleItem):
     security.declareProtected( ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
         pt = queryUtility(ITypesTool)
-        at = getToolByName(self, TOOL_NAME, None)
+        at = queryUtility(IArchetypeTool)
         if pt is None:
             return ()
         if at is None:

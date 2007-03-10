@@ -33,10 +33,10 @@ if __name__ == '__main__':
 # Load fixture
 import unittest
 from Testing import ZopeTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from OFS.Image import File
 from Globals import package_home
 
-ZopeTestCase.installProduct('Archetypes')
 from Products.Archetypes.atapi import MetadataStorage, BaseContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -66,7 +66,7 @@ class FileLike:
         return self.pos
 
 
-class FileFieldTest(ZopeTestCase.ZopeTestCase):
+class FileFieldTest(ATSiteTestCase):
 
     def afterSetUp(self):
         from Products.Archetypes import Field

@@ -15,7 +15,6 @@ HOWTO: Using Archetypes SQLStorage and Advanced Tips
 
   -- T. S. Eliot, *The Rock*
 
-
 .. contents::
 
 Introduction
@@ -387,7 +386,7 @@ ArchetypeTool.py)::
         if not uid:
             return None
         object = None
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getUtility(ICatalogTool)
         result  = catalog({'UID' : uid})
         if result:
             #This is an awful workaround for the UID under containment

@@ -1,15 +1,16 @@
 from debug import log
 from logging import WARNING
-from Globals import InitializeClass
+from zope.component import queryUtility
+
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
+from Products.Archetypes.Referenceable import Referenceable
+from Products.Archetypes.utils import shasattr
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -18,7 +19,7 @@ class CatalogMultiplex(CMFCatalogAware):
         return '/'.join( self.getPhysicalPath() )
 
     def getCatalogs(self):
-        at = getToolByName(self, TOOL_NAME, None)
+        at = queryUtility(IArchetypeTool)
         if at is None:
             return []
 
@@ -46,7 +47,7 @@ class CatalogMultiplex(CMFCatalogAware):
     def reindexObjectSecurity(self, skip_self=False):
         """update security information in all registered catalogs.
         """
-        at = getToolByName(self, TOOL_NAME, None)
+        at = queryUtility(IArchetypeTool)
         if at is None:
             return
 

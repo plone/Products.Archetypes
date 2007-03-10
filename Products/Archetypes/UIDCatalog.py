@@ -3,6 +3,7 @@ import sys
 import time
 import urllib
 import traceback
+from zope.component import getUtility
 from zope.interface import implements
 
 from Globals import InitializeClass
@@ -18,13 +19,11 @@ from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
-from zope.component import getUtility
 from Products.CMFCore.interfaces import IURLTool
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -234,9 +233,9 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool   = getToolByName(self, TOOL_NAME)
-        obj     = aq_parent(self)
-        path    = '/'.join(obj.getPhysicalPath())
+        atool = getUtility(IArchetypeTool)
+        obj = aq_parent(self)
+        path = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
 

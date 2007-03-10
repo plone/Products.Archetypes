@@ -1,6 +1,6 @@
 from zope.component import getUtility
 from Products.CMFCore.interfaces import IPropertiesTool
-from Products.CMFCore.utils import getToolByName
+from Products.PortalTransforms.interfaces import IPortalTransformsTool
 
 #
 # default- and allowable content type handling
@@ -27,7 +27,7 @@ def getAllowedContentTypes(context):
     
 def getAllowableContentTypes(context):
     """ retrieves the list of installed content types by querying portal transforms. """
-    portal_transforms = getToolByName(context, 'portal_transforms', None)
+    portal_transforms = getUtility(IPortalTransformsTool)
     return portal_transforms.listAvailableTextInputs()
 
 def setForbiddenContentTypes(context, forbidden_contenttypes=[]):

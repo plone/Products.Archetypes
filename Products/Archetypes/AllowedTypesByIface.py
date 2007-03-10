@@ -25,8 +25,8 @@
 ###############################################################################
 
 from Interface import Implements
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.atapi import BaseFolder
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.ArchetypeTool import listTypes
 from zope.component import getUtility
 from Products.CMFCore.interfaces import ITypesTool
@@ -100,7 +100,7 @@ class AllowedTypesByIfaceMixin:
 
     def allowedContentTypes(self):
         """Redefines CMF PortalFolder's allowedContentTypes."""
-        at = getToolByName(self, 'archetype_tool')
+        at = getUtility(IArchetypeTool)
         return at.listPortalTypesWithInterfaces(self.allowed_interfaces)
 
     def invokeFactory(self, type_name, id, RESPONSE = None, *args, **kwargs):
@@ -108,7 +108,7 @@ class AllowedTypesByIfaceMixin:
 
         Overrides PortalFolder.invokeFactory."""
         pt = getUtility(ITypesTool)
-        at = getToolByName(self, 'archetype_tool')
+        at = getUtility(IArchetypeTool)
         fti = None
         for t in listTypes():
             if t['portal_type'] == type_name:

@@ -19,6 +19,7 @@ from Products.CMFCore.interfaces import IURLTool
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -393,7 +394,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     If you like to swallow the error please use a try/except block in your own
     code and do NOT 'fix' this method.
     """
-    at_tool = getToolByName(context, TOOL_NAME)
+    at_tool = getUtility(IArchetypeTool)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in _types.values()])
     # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
@@ -693,7 +694,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
-        >>> tool = getToolByName(self.portal, TOOL_NAME)
+        >>> tool = getUtility(IArchetypeTool)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
         
@@ -916,7 +917,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
-        catalog = getToolByName(self, UID_CATALOG)
+        catalog = getUtility(IUIDCatalog)
         keys = catalog.uniqueValuesFor('UID')
         for uid in keys:
             o = self.getObject(uid)
@@ -930,7 +931,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def Content(self):
         """Return a list of all the content ids.
         """
-        catalog = getToolByName(self, UID_CATALOG)
+        catalog = getUtility(IUIDCatalog)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(UID=keys)
         return results
@@ -1135,7 +1136,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = ['portal_catalog']
         
         portal = queryUtility(ISiteRoot)
-
         for name in names:
             try:
                 catalogs.append(getToolByName(portal, name))

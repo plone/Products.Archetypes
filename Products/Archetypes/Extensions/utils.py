@@ -1,6 +1,9 @@
-import traceback, os
+import os
 from os.path import isdir, join
 from types import *
+from zope.component import getSiteManager
+from zope.component import getUtility
+from zope.component import queryUtility
 
 from Globals import package_home
 from Globals import PersistentMapping
@@ -11,11 +14,15 @@ from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName
+from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.ArchetypeTool import process_types
 from Products.Archetypes.ArchetypeTool import base_factory_type_information
 from Products.Archetypes import types_globals
+from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IReferenceCatalog
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.config import *
@@ -27,23 +34,21 @@ from Products.MimetypesRegistry.Extensions.Install \
 from Products.PortalTransforms.Extensions.Install \
      import install as install_portal_transforms
 
-from zope.component import getUtility, queryUtility
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.interfaces import IPropertiesTool
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ISkinsTool
 from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFCore.interfaces import IURLTool
 
 from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
 from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
-from Products.Archetypes.interfaces.referenceengine import \
-     IReferenceCatalog, IUIDCatalog
+
 
 class Extra:
     """indexes extra properties holder"""
 
 def install_dependencies(self, out, required=1):
-    qi=getToolByName(self, 'portal_quickinstaller', None)
+    qi=queryUtility(IQuickInstallerTool)
     if qi is None:
         if required:
             raise RuntimeError, (
@@ -65,10 +70,14 @@ def install_dependencies(self, out, required=1):
         print >>out, 'Installing PortalTransforms'
 
 def install_archetypetool(self, out):
-    at = getToolByName(self, 'archetype_tool', None)
+    at = queryUtility(IArchetypeTool)
+    parent = getUtility(ISiteRoot)
+
     if at is None:
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
+        sm = getSiteManager()
+        sm.registerUtility(parent.archetype_tool, IArchetypeTool)
         print >>out, 'Installing Archetype Tool'
     else:
         # Migration from 1.0
@@ -83,7 +92,6 @@ def install_tools(self, out):
     install_uidcatalog(self, out)
 
 def install_uidcatalog(self, out, rebuild=False):
-
     index_defs=( ('UID', 'FieldIndex'),
                  ('Type', 'FieldIndex'),
                  ('id', 'FieldIndex'),
@@ -92,11 +100,11 @@ def install_uidcatalog(self, out, rebuild=False):
                )
     metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
     reindex = False
-    catalog = getToolByName(self, UID_CATALOG, None)
-    
+    catalog = queryUtility(IUIDCatalog)
+    parent = getUtility(ISiteRoot)
+
     if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
-        parent = getUtility(IURLTool).getPortalObject()
         parent.manage_delObjects([UID_CATALOG,])
         catalog = None
         rebuild = True
@@ -105,7 +113,9 @@ def install_uidcatalog(self, out, rebuild=False):
         #Add a zcatalog for uids
         addCatalog = manage_addUIDCatalog
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = getToolByName(self, UID_CATALOG)
+        catalog = parent.uid_catalog
+        sm = getSiteManager()
+        sm.registerUtility(catalog, IUIDCatalog)
         print >>out, 'Installing uid catalog'
 
     for indexName, indexType in index_defs:
@@ -126,10 +136,12 @@ def install_uidcatalog(self, out, rebuild=False):
         catalog.manage_rebuildCatalog()
 
 def install_referenceCatalog(self, out, rebuild=False):
-    catalog = getToolByName(self, REFERENCE_CATALOG, None)
-    if catalog and not IReferenceCatalog.isImplementedBy(catalog):
+    catalog = queryUtility(IReferenceCatalog)
+    parent = getUtility(ISiteRoot)
+
+    if catalog is not None and not IReferenceCatalog.isImplementedBy(catalog):
         # got a catalog but it's doesn't implement IUIDCatalog
-        aq_parent(catalog).manage_delObjects([REFERENCE_CATALOG,])
+        parent.manage_delObjects([REFERENCE_CATALOG,])
         catalog = None
         rebuild = 1
 
@@ -137,7 +149,9 @@ def install_referenceCatalog(self, out, rebuild=False):
         #Add a zcatalog for uids
         addCatalog = manage_addReferenceCatalog
         addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
-        catalog = getToolByName(self, REFERENCE_CATALOG)
+        catalog = parent.reference_catalog
+        sm = getSiteManager()
+        sm.registerUtility(catalog, IReferenceCatalog)
         print >>out, 'Installing reference catalog'
         schema = catalog.schema()
         for indexName, indexType in (
@@ -160,11 +174,11 @@ def install_referenceCatalog(self, out, rebuild=False):
         catalog.manage_reindexIndex()
 
     if rebuild:
-        catalog = getToolByName(self, REFERENCE_CATALOG)
+        catalog = getUtility(IReferenceCatalog)
         catalog.manage_rebuildCatalog()
 
 def install_templates(self, out):
-    at = getToolByName(self, 'archetype_tool')
+    at = getUtility(IArchetypeTool)
     at.registerTemplate('base_view', 'Base View')
     
     # fix name of base_view
@@ -175,7 +189,7 @@ def install_templates(self, out):
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
-    at = getToolByName(self, 'archetype_tool')
+    at = getUtility(IArchetypeTool)
     
     for t in types:
         klass = t['klass']
@@ -513,7 +527,7 @@ def setupEnvironment(self, out, types,
                      install_deps=1):
 
     if install_deps:
-        qi=getToolByName(self, 'portal_quickinstaller', None)
+        qi = queryUtility(IQuickInstallerTool)
         if qi is None:
             setupArchetypes(self, out, require_dependencies=require_dependencies)
         else:
@@ -570,7 +584,7 @@ def installTypes(self, out, types, package_name,
     ## rr: sometimes the default actions are still missing
     doubleCheckDefaultTypeActions(self, ftypes)
     if refresh_references and ftypes:
-        rc = getToolByName(self, REFERENCE_CATALOG)
+        rc = getUtility(IReferenceCatalog)
         rc.manage_rebuildCatalog()
 
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
@@ -589,7 +603,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
         # no types to install
         return
 
-    rc = getToolByName(self, REFERENCE_CATALOG)
+    rc = getUtility(IReferenceCatalog)
     mt = tuple([t.meta_type for t in ftypes])
     
     # because manage_catalogFoundItems sucks we have to do it on our own ...
