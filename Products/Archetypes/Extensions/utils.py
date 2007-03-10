@@ -29,10 +29,6 @@ from Products.Archetypes.config import *
 
 from Products.CMFFormController.Extensions.Install \
      import install as install_formcontroller
-from Products.MimetypesRegistry.Extensions.Install \
-     import install as install_mimetypes_registry
-from Products.PortalTransforms.Extensions.Install \
-     import install as install_portal_transforms
 
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.interfaces import IPropertiesTool
@@ -56,8 +52,6 @@ def install_dependencies(self, out, required=1):
                 'required to install Archetypes dependencies')
         else:
             print >>out, install_formcontroller(self)
-            print >>out, install_mimetypes_registry(self)
-            print >>out, install_portal_transforms(self)
 
     if not qi.isProductInstalled('CMFFormController'):
         qi.installProduct('CMFFormController',locked=1)
