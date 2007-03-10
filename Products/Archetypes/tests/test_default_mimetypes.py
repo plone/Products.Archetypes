@@ -5,7 +5,6 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from Products.CMFCore.utils import getToolByName
 from Testing.ZopeTestCase import FunctionalDocFileSuite, FunctionalDocTestSuite
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from unittest import TestSuite, makeSuite

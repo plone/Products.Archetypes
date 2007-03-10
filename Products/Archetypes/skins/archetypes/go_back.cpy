@@ -14,8 +14,6 @@
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.utils import addStatusMessage
-from Products.CMFCore.utils import getToolByName
-
 
 REQUEST = context.REQUEST
 

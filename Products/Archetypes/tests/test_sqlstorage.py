@@ -33,10 +33,11 @@ if __name__ == '__main__':
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import Dummy
 from Products.Archetypes.tests.utils import PACKAGE_HOME
-from Products.Archetypes.tests.utils import makeContent
 
 import transaction
+from zope.component import getUtility
 from zExceptions.ExceptionFormatter import format_exception
 
 def pretty_exc(self, exc, *args, **kw):
@@ -51,13 +52,10 @@ unittest.TestResult._exc_info_to_string = pretty_exc
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes import SQLStorage
 from Products.Archetypes import SQLMethod
-from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.CMFCore.TypesTool import FactoryTypeInformation
-from Products.Archetypes.tests.utils import makeContent
-from Products.Archetypes.tests.utils import Dummy
 
 from DateTime import DateTime
 
@@ -70,21 +68,6 @@ connectors = {}
 # aditional cleanup
 cleanup = {}
 
-
-# Gadfly
-
-# XXX: Gadfly no longer works in Zope 2.7.8/2.8.2
-# See http://www.zope.org/Collectors/Zope/556
-# We may get around this by avoiding NULL in SQLStorage,
-# but for now I am disabling the tests. [shh]
-#
-#try:
-#    from Products.ZGadflyDA.DA import Connection
-#except ImportError:
-#    print >>sys.stderr, 'Failed to import ZGadflyDA'
-#else:
-#    ZopeTestCase.installProduct('ZGadflyDA', 0)
-#    connectors['Gadfly'] = 'demo'
 
 # Postgresql
 
@@ -231,7 +214,7 @@ def commonAfterSetUp(self):
         typeinfo_name = 'CMFDefault: Document')
 
     # set archetype_tool default connection
-    at = getToolByName(portal, TOOL_NAME)
+    at = getUtility(IArchetypeTool)
     at.setDefaultConn(connection_id)
 
     # create storage instance and schema

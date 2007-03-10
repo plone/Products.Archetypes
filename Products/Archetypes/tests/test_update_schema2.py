@@ -30,6 +30,7 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -39,7 +40,6 @@ import shutil
 from zope.component import getUtility
 
 from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
-from ZPublisher.HTTPRequest import HTTPRequest
 
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
@@ -48,13 +48,11 @@ except ImportError:
 else:
     hasATTUS = True
 
-
-
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
 # run multiple tests in the same test suite.
 
-class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
+class TestUpdateSchema2(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
         qi = getUtility(IQuickInstallerTool)
@@ -75,74 +73,47 @@ class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
         self.app.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
 
-
-    def test_detect_schema_change(self):
+    def test_update_schema(self):
         self._setClass(1)
 
         t1 = makeContent(self.folder, portal_type='TestClass', id='t1')
-        self.failUnless(t1._isSchemaCurrent())
+
+        self.failUnless(hasattr(t1, 'a'))
+        self.failUnless(t1.Schema().get('a').required == 0)
+        self.failIf(hasattr(t1, 'b'))
 
         self.portal.archetype_tool.manage_updateSchema()
-        self.failUnless(t1._isSchemaCurrent())
+
+        self.failUnless(hasattr(t1, 'a'))
+        self.failIf(hasattr(t1, 'b'))
 
         self._setClass(2)
 
-        t1 = self.folder.t1
-        self.failIf(t1._isSchemaCurrent())
-
         t2 = makeContent(self.folder, portal_type='TestClass', id='t2')
-        self.failUnless(t2._isSchemaCurrent())
+        self.failUnless(hasattr(t2, 'a'))
+        self.failUnless(hasattr(t2, 'b'))
 
+        t1 = self.folder.t1
+
+        self.failUnless(hasattr(t1, 'a'))
+        self.failUnless(t1.Schema().get('a').required == 0)
+        self.failIf(hasattr(t1, 'b'))
+
+        # update schema
         self.portal.archetype_tool.manage_updateSchema()
-        self.failUnless(t1._isSchemaCurrent())
 
-
-class TestBasicSchemaUpdate(ATSiteTestCase):
-    """Tests for update schema behavior which depend only on the basic
-       types, and examine baseline behavior when no real schema changes have
-       happened."""
-
-    def test_update_preserves_tyoe(self):
-        self.folder.invokeFactory('DDocument', 'mydoc', title="My Doc")
-        doc = self.folder.mydoc
-        doc.setBody("""
-An rst Document
-===============
-
-* Which
-
-  * has
-
-  * some
-
-* bullet::
-
-  points.
-
-* for testing""",  mimetype="text/restructured")
-        doc.reindexObject()
-        mimetype = doc.getField('body').getContentType(doc)
-        self.assertEqual(mimetype, 'text/x-rst')
-
-        # update schema for all DDocuments and check if our type is preserved
-        request = HTTPRequest(sys.stdin,
-                              {'SERVER_NAME':'test', 'SERVER_PORT': '8080'},
-                              {})
-        request.form['Archetypes.DDocument'] = True
-        request.form['update_all'] = True
-        self.portal.archetype_tool.manage_updateSchema(REQUEST=request)
-        doc = self.folder.mydoc
-        mimetype = doc.getField('body').getContentType(doc)
-        self.assertEqual(mimetype, 'text/x-rst')
-
+        self.failUnless(hasattr(t1, 'a'))
+        self.failUnless(t1.Schema().get('a').required == 1)
+        self.failUnless(hasattr(t1, 'b'))
+        self.failUnless(hasattr(t1, 'getA'))
+        self.failUnless(hasattr(t1, 'getB'))
 
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     if hasATTUS:
-        suite.addTest(makeSuite(TestUpdateSchema1))
-    suite.addTest(makeSuite(TestBasicSchemaUpdate))
+        suite.addTest(makeSuite(TestUpdateSchema2))
     return suite
 
 if __name__ == '__main__':
