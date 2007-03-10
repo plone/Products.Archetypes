@@ -9,61 +9,61 @@
     <!-- Keyword Widgets -->
 
     <metal:view_macro define-macro="view"
-		      tal:repeat="item accessor">
+              tal:repeat="item accessor">
       <span tal:content="item"/><br />
     </metal:view_macro>
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-	<tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
-		    allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
-		    site_props here/portal_properties/site_properties;
-		    allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
+    <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
+            allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
+            site_props here/portal_properties/site_properties;
+            allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
 
-	  <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
-	    <div style="width: 45%; float: right;">
-	      <span i18n:translate="label_new_keywords">New categories</span>
-	      <br />
-	      <textarea id="entered_subjects"
-			name="subject:lines"
-			rows="11"
-			cols="15"
-			wrap="off"
-			tabindex=""
-			tal:attributes="id string:${fieldName}_keywords;
-			name string:${fieldName}_keywords:lines;
-			tabindex tabindex/next;"
-			tal:define="subject python:[item for item in value if item not in allowedKeywords]"
-			tal:content="python:'\n'.join(subject)">
-		selected categories
-	      </textarea>
+      <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
+        <div style="width: 45%; float: right;">
+          <span i18n:translate="label_new_keywords">New categories</span>
+          <br />
+          <textarea id="entered_subjects"
+            name="subject:lines"
+            rows="11"
+            cols="15"
+            wrap="off"
+            tabindex=""
+            tal:attributes="id string:${fieldName}_keywords;
+            name string:${fieldName}_keywords:lines;
+            tabindex tabindex/next;"
+            tal:define="subject python:[item for item in value if item not in allowedKeywords]"
+            tal:content="python:'\n'.join(subject)">
+        selected categories
+          </textarea>
 
-	    </div>
-	  </tal:condition>
+        </div>
+      </tal:condition>
 
-	  <div style="width: 45%">
-	    <span i18n:translate="label_existing_keywords">Existing categories</span>
-	    <br />
-	    <select id="predefined_subjects"
-		    name="predefined_subjects:list"
-		    size="14"
-		    multiple="multiple"
-		    tabindex=""
-		    tal:attributes="id string:${fieldName}_existing_keywords;
-		    name string:${fieldName}_existing_keywords:list;
-		    tabindex tabindex/next;">
-	      <option value="#" tal:repeat="keyword allowedKeywords"
-		      tal:content="keyword" tal:attributes="value keyword;
-		      selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
-		an existing category
-	      </option>
-	    </select>
+      <div style="width: 45%">
+        <span i18n:translate="label_existing_keywords">Existing categories</span>
+        <br />
+        <select id="predefined_subjects"
+            name="predefined_subjects:list"
+            size="14"
+            multiple="multiple"
+            tabindex=""
+            tal:attributes="id string:${fieldName}_existing_keywords;
+            name string:${fieldName}_existing_keywords:list;
+            tabindex tabindex/next;">
+          <option value="#" tal:repeat="keyword allowedKeywords"
+              tal:content="keyword" tal:attributes="value keyword;
+              selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
+        an existing category
+          </option>
+        </select>
 
-	  </div>
+      </div>
 
       <div class="visualClear"><!-- --></div>
 
-	</tal:define>
+    </tal:define>
       </metal:use>
     </metal:define>
 
