@@ -95,6 +95,17 @@ class ExtensibleMetadata(Persistence.Persistent):
                               default=u'A short summary of the content.'),
                 ),
         ),
+        # Location, also known as Coverage in the DC metadata standard, but we
+        # keep the term Location here for historical reasons.
+        StringField(
+            'location',
+            searchable=True,
+            widget = StringWidget(
+                label = _(u'label_location', default=u'Location'),
+                description=_(u'help_description',
+                              default=u'The geographical location of the item.'),
+                ),
+        ),
         LinesField(
             'contributors',
             accessor="Contributors",
