@@ -71,7 +71,7 @@ def install_archetypetool(self, out):
         addTool = self.manage_addProduct['Archetypes'].manage_addTool
         addTool('Archetype Tool')
         sm = getSiteManager()
-        sm.registerUtility(parent.archetype_tool, IArchetypeTool)
+        sm.registerUtility(aq_base(parent.archetype_tool), IArchetypeTool)
         print >>out, 'Installing Archetype Tool'
     else:
         # Migration from 1.0
@@ -109,7 +109,7 @@ def install_uidcatalog(self, out, rebuild=False):
         addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
         catalog = parent.uid_catalog
         sm = getSiteManager()
-        sm.registerUtility(catalog, IUIDCatalog)
+        sm.registerUtility(aq_base(catalog), IUIDCatalog)
         print >>out, 'Installing uid catalog'
 
     for indexName, indexType in index_defs:
@@ -145,7 +145,7 @@ def install_referenceCatalog(self, out, rebuild=False):
         addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
         catalog = parent.reference_catalog
         sm = getSiteManager()
-        sm.registerUtility(catalog, IReferenceCatalog)
+        sm.registerUtility(aq_base(catalog), IReferenceCatalog)
         print >>out, 'Installing reference catalog'
         schema = catalog.schema()
         for indexName, indexType in (
