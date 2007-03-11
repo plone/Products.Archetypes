@@ -38,7 +38,7 @@
   <metal:head fill-slot="top_slot">
     <tal:block define="macro edit_macros/topslot | nothing"
                     condition="macro">
-	<metal:block use-macro="macro" />
+      <metal:block use-macro="macro" />
     </tal:block>
   </metal:head>
   
