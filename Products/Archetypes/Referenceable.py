@@ -293,47 +293,50 @@ class Referenceable(CopySource):
         uc.catalog_object(self, url)
 
     def _uncatalogUID(self, aq, uc=None):
-        if not uc:
-            uc = getUtility(IUIDCatalog)
-        url = self._getURL()
-        # XXX This is an ugly workaround. This method shouldn't be called
-        # twice for an object in the first place, so we don't have to check
-        # if it is still cataloged. 
-        rid = uc.getrid(url)
-        if rid is not None:
-            uc.uncatalog_object(url)
+        if uc is None:
+            uc = queryUtility(IUIDCatalog)
+        if uc is not None:
+            url = self._getURL()
+            # XXX This is an ugly workaround. This method shouldn't be called
+            # twice for an object in the first place, so we don't have to check
+            # if it is still cataloged. 
+            rid = uc.getrid(url)
+            if rid is not None:
+                uc.uncatalog_object(url)
 
     def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            if not uc:
-                uc = getUtility(IUIDCatalog)
-            if not rc:
-                rc = getUtility(IReferenceCatalog)
-            for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
-                uc.catalog_object(ref, url)
-                rc.catalog_object(ref, url)
-                ref._catalogRefs(uc, uc, rc)
+            if uc is None:
+                uc = queryUtility(IUIDCatalog)
+            if rc is None:
+                rc = queryUtility(IReferenceCatalog)
+            if uc is not None and rc is not None:
+                for ref in annotations.objectValues():
+                    url = getRelURL(uc, ref.getPhysicalPath())
+                    uc.catalog_object(ref, url)
+                    rc.catalog_object(ref, url)
+                    ref._catalogRefs(uc, uc, rc)
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            if not uc:
-                uc = getUtility(IUIDCatalog)
-            if not rc:
-                rc = getUtility(IReferenceCatalog)
-            for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
-                # XXX This is an ugly workaround. This method shouldn't be
-                # called twice for an object in the first place, so we don't
-                # have to check if it is still cataloged. 
-                uc_rid = uc.getrid(url)
-                if uc_rid is not None:
-                    uc.uncatalog_object(url)
-                rc_rid = rc.getrid(url)
-                if rc_rid is not None:
-                    rc.uncatalog_object(url)
+            if uc is None:
+                uc = queryUtility(IUIDCatalog)
+            if rc is None:
+                rc = queryUtility(IReferenceCatalog)
+            if uc is not None and rc is not None:
+                for ref in annotations.objectValues():
+                    url = getRelURL(uc, ref.getPhysicalPath())
+                    # XXX This is an ugly workaround. This method shouldn't be
+                    # called twice for an object in the first place, so we don't
+                    # have to check if it is still cataloged. 
+                    uc_rid = uc.getrid(url)
+                    if uc_rid is not None:
+                        uc.uncatalog_object(url)
+                    rc_rid = rc.getrid(url)
+                    if rc_rid is not None:
+                        rc.uncatalog_object(url)
 
     def _getCopy(self, container):
         # We only set the '_v_is_cp' flag here if it was already set.
