@@ -81,7 +81,7 @@ class SchemataTest( ATTestCase ):
         schemata = dummy.Schemata()
         meta_names = getNames(schemata['metadata'])
         self.assertEqual(meta_names, ['allowDiscussion', 'subject',
-                                      'description', 'contributors',
+                                      'description', 'location', 'contributors',
                                       'creators', 'effectiveDate',
                                       'expirationDate', 'language',
                                       'rights', 'creation_date',
