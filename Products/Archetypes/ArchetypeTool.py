@@ -40,7 +40,9 @@ from Products.Archetypes.Renderer import renderer
 from Products.CMFCore import permissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
-from Products.CMFCore.utils import UniqueObject, getToolByName
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import registerToolInterface
+from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
@@ -1193,3 +1195,4 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return HAS_GRAPHVIZ
 
 InitializeClass(ArchetypeTool)
+registerToolInterface('archetype_tool', IArchetypeTool)

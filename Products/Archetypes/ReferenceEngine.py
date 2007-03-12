@@ -30,6 +30,7 @@ from OFS.ObjectManager import ObjectManager
 from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
+from Products.CMFCore.utils import registerToolInterface
 from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
@@ -658,6 +659,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             )
 
 InitializeClass(ReferenceCatalog)
+registerToolInterface('reference_catalog', IReferenceCatalog)
 
 
 def manage_addReferenceCatalog(self, id, title,

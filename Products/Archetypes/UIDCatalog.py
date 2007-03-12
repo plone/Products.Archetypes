@@ -18,6 +18,7 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
+from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.debug import log
@@ -266,3 +267,5 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
+InitializeClass(UIDCatalog)
+registerToolInterface('uid_catalog', IUIDCatalog)
