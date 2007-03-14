@@ -1,7 +1,7 @@
 1.5.0-b3 - unreleased
 =====================
 
-  * Removed tests/runalltests.py and test/framework.py as they have
+  * Removed tests/runalltests.py and tests/framework.py as they have
     outlived their usefulness. To run tests use Zope's testrunner:
     ./bin/zopectl test --nowarn -s Products.Archetypes
     [stefan]
