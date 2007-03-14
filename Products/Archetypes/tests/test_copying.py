@@ -29,10 +29,7 @@ Unittests for a copying/cutting and pasting archetypes objects.
 $Id$
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
+import os
 from Testing import ZopeTestCase
 
 import types
@@ -315,6 +312,3 @@ def test_suite():
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
     suite.addTest(makeSuite(PortalCopyTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

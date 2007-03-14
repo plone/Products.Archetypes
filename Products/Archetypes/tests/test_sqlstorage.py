@@ -27,9 +27,6 @@
 """
 
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -541,6 +538,3 @@ def test_suite():
     for test in tests:
         suite.addTest(makeSuite(test))
     return suite
-
-if __name__ == '__main__':
-    framework()

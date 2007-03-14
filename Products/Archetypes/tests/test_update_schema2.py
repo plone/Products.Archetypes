@@ -26,10 +26,6 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 
 from Testing import ZopeTestCase
 
@@ -115,6 +111,3 @@ def test_suite():
     if hasATTUS:
         suite.addTest(makeSuite(TestUpdateSchema2))
     return suite
-
-if __name__ == '__main__':
-    framework()

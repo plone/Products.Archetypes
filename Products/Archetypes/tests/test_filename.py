@@ -26,10 +26,7 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
+import os
 from StringIO import StringIO
 import transaction
 
@@ -204,6 +201,3 @@ def test_suite():
     suite.addTest(makeSuite(LargeFileTest))
     suite.addTest(makeSuite(StrangeIdTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

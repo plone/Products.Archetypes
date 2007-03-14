@@ -26,10 +26,6 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
@@ -122,6 +118,3 @@ def test_suite():
     suite.addTest(makeSuite(MetadataStorageTest))
     suite.addTest(makeSuite(AttributeStorageTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

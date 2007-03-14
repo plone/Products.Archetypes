@@ -26,12 +26,7 @@
 """
 """
 
-import os, sys
 import time
-
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
@@ -55,9 +50,11 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     def afterSetUp(self):
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
-        request = self.app.REQUEST
+        if 'session_data_manager' in self.app.objectIds():
+            self.app._delObject('session_data_manager')
         self.app._setObject('session_data_manager', DummySessionDataManager())
         sdm = self.app.session_data_manager
+        request = self.app.REQUEST
         request.set('SESSION', sdm.getSessionData())
 
         self.folder_url = self.folder.absolute_url()
@@ -373,6 +370,3 @@ def test_suite():
                                 test_class=ATFunctionalSiteTestCase)
                      )
     return suite
-
-if __name__ == '__main__':
-    framework()

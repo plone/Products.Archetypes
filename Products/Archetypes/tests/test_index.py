@@ -26,10 +26,7 @@
 """
 """
 
-import os, sys, time
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
+import time
 from Testing import ZopeTestCase
 
 from zope.component import getUtility
@@ -103,6 +100,3 @@ def test_suite():
     suite.addTest(makeSuite(ETagTest))
     suite.addTest(makeSuite(ReindexTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

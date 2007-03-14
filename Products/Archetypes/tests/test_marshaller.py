@@ -29,10 +29,7 @@ Unittests for marshaller
 $Id$
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
+import os
 from Testing import ZopeTestCase
 
 import urllib
@@ -172,6 +169,3 @@ def test_suite():
     suite.addTest(makeSuite(MarshallerTests))
     suite.addTest(makeSuite(PdataStreamTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

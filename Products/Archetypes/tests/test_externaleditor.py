@@ -26,36 +26,27 @@
 """
 """
 
-__author__ = 'Christian Heimes'
-__docformat__ = 'restructuredtext'
-
 from Testing import ZopeTestCase
-from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-import unittest
-
-# a list of dotted paths to modules which contains doc tests
-DOCTEST_MODULES = (
-    'Products.Archetypes.utils',
-    'Products.Archetypes.Schema',
-    'Products.Archetypes.ArchetypeTool',
-    'Products.Archetypes.AllowedTypesByIface',
-    'Products.Archetypes.Field',
-    'Products.Archetypes.Marshall',
-    )
-
-DOCTEST_FILES = ('events.txt',)
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
-from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
+from Products.Archetypes.tests.utils import makeContent
+
+from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.interfaces.base import IBaseUnit
+
+
+class ExternalEditorTest(ATSiteTestCase):
+
+    def testExternalEditor(self):
+        #really a test that baseobject.__getitem__ returns something
+        #which externaleditor can use
+        obj = makeContent(self.folder, portal_type='SimpleType', id='obj')
+        self.failUnless(IBaseUnit.isImplementedBy(obj.body))
+
 
 def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
-                             extraglobs={},
-                             *DOCTEST_MODULES
-                             )
-    for file in DOCTEST_FILES:
-        suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
-                                test_class=ATFunctionalSiteTestCase)
-                     )
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ExternalEditorTest))
     return suite

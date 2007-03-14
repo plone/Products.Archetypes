@@ -26,10 +26,6 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 
 from Testing import ZopeTestCase
 
@@ -99,6 +95,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(OrderedDictTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

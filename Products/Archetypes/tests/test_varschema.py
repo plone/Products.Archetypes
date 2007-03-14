@@ -26,36 +26,48 @@
 """
 """
 
-__author__ = 'Christian Heimes'
-__docformat__ = 'restructuredtext'
 
 from Testing import ZopeTestCase
-from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-import unittest
 
-# a list of dotted paths to modules which contains doc tests
-DOCTEST_MODULES = (
-    'Products.Archetypes.utils',
-    'Products.Archetypes.Schema',
-    'Products.Archetypes.ArchetypeTool',
-    'Products.Archetypes.AllowedTypesByIface',
-    'Products.Archetypes.Field',
-    'Products.Archetypes.Marshall',
-    )
+from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.Schema import Schemata
+from Products.Archetypes.Schema import getNames
+from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
 
-DOCTEST_FILES = ('events.txt',)
+from DateTime import DateTime
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
-from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
+schema = BaseSchema
+schema1= BaseSchema + Schema((StringField('additionalField'),))
+
+class Dummy(VariableSchemaSupport,BaseContent):
+    schema = schema
+
+
+class VarSchemataTest( ATTestCase ):
+
+    def afterSetUp(self):
+        registerType(Dummy, 'Archetypes')
+        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+
+    def test_variableschema(self):        
+        self.folder.dummy = Dummy(oid='dummy')
+        dummy = self.folder.dummy
+        dummy.setTitle('dummy1')
+        self.assertEqual(dummy.Title(),'dummy1')
+
+        #change the schema
+        dummy.schema=schema1
+        #try to read an old value using the new schema
+        self.assertEqual(dummy.Title(),'dummy1')
+        dummy.setAdditionalField('flurb')
+        #check if we can read the new field using the new schema
+        self.assertEqual(dummy.getAdditionalField(),'flurb')
+
 
 def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
-                             extraglobs={},
-                             *DOCTEST_MODULES
-                             )
-    for file in DOCTEST_FILES:
-        suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
-                                test_class=ATFunctionalSiteTestCase)
-                     )
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(VarSchemataTest))
     return suite

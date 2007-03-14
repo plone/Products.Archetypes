@@ -1,6 +1,11 @@
 1.5.0-b3 - unreleased
 =====================
 
+  * Removed tests/runalltests.py and test/framework.py as they have
+    outlived their usefulness. To run tests use Zope's testrunner:
+    ./bin/zopectl test --nowarn -s Products.Archetypes
+    [stefan]
+
   * Added the Location element (also known as Coverage in Dublin Core) to the
     standard metadata set. This allows lots of interesting things like
     geotagging of images, location notices on news items, etc.
