@@ -3,7 +3,6 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType, StringTypes
 from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
@@ -29,7 +28,6 @@ from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict
@@ -45,7 +43,6 @@ from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
-from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -76,7 +73,7 @@ class BoundPageTemplateFile(PageTemplateFile):
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
-    # Configuration and getCMFVersion come with Plone 2.0
+    # Configuration and getCMFVersion come with Plone
     def getCMFVersion():
         from os.path import join
         from Globals import package_home
@@ -619,7 +616,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         Returns a DisplayList.
         """
         results = []
-        if not type(instance_or_portaltype) in StringTypes:
+        if not isinstance(instance_or_portaltype, basestring):
             portal_type = instance_or_portaltype.getTypeInfo().getId()
         else:
             portal_type = instance_or_portaltype
@@ -739,7 +736,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
-            tt = getUtility(ITypesTool)
+            ttool = getUtility(ITypesTool)
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
