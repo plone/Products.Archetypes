@@ -1,7 +1,6 @@
 import sys
 import transaction
 from zope.component import getUtility
-from zope.component import queryUtility
 
 from Acquisition import aq_base
 from Globals import PersistentMapping

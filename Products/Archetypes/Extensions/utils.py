@@ -1,6 +1,5 @@
 import os
 from os.path import isdir, join
-from types import *
 from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -8,9 +7,8 @@ from zope.component import queryUtility
 from Globals import package_home
 from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from Products.CMFCore.ActionInformation import ActionInformation
-from Products.CMFCore.TypesTool import  FactoryTypeInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName
@@ -25,7 +23,7 @@ from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
-from Products.Archetypes.config import *
+from Products.Archetypes.config import UID_CATALOG, REFERENCE_CATALOG
 
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.interfaces import IPropertiesTool
@@ -169,11 +167,6 @@ def install_referenceCatalog(self, out, rebuild=False):
 def install_templates(self, out):
     at = getUtility(IArchetypeTool)
     at.registerTemplate('base_view', 'Base View')
-    
-    # fix name of base_view
-    #rt = at._registeredTemplates
-    #if 'base_view' not in rt.keys() or rt['base_view'] == 'base_view':
-    #    at.registerTemplate(base_view)
 
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
@@ -283,7 +276,6 @@ def install_types(self, out, types, package_name):
                 t.setMethodAliases(fti['aliases'])
         
         # Set the human readable title explicitly
-        ## t = getattr(typesTool, klass.portal_type, None)
         if t:
             t.title = klass.archetype_name
 
@@ -345,9 +337,9 @@ def install_indexes(self, out, types):
             if not field.index:
                 continue
 
-            if type(field.index) is StringType:
+            if isinstance(field.index, basestring):
                 index = (field.index,)
-            elif isinstance(field.index, (TupleType, ListType) ):
+            elif isinstance(field.index, (tuple, list)):
                 index = field.index
             else:
                 raise SyntaxError("Invalid Index Specification %r"
@@ -453,27 +445,6 @@ def filterTypes(self, out, types, package_name):
         t = rti['klass']
         name = rti['name']
         meta_type = rti['meta_type']
-
-        ## rr: skipping the first check as 'listDefaultTypeInformation
-        ## isn't available anymore in CMF-2.0. For now we rely on the
-        ## types being passed in to be safe
-
-##         # CMF 1.4 name: (product_id, metatype)
-##         typeinfo_name="%s: %s" % (package_name, meta_type)
-##         # CMF 1.5 name: (product_id, id, metatype)
-##         typeinfo_name2="%s: %s (%s)" % (package_name, name, meta_type)
-##         info = typesTool.listDefaultTypeInformation()
-##         found = 0
-##         for (name, ft) in info:
-##             #if name.startswith(typeinfo_name):
-##             if name in (typeinfo_name, typeinfo_name2):
-##                 found = 1
-##                 break
-
-##         if not found:
-##             print >> out, ('%s is not a registered Type '
-##                            'Information' % typeinfo_name)
-##             continue
 
         isBaseObject = 0
         if IBaseObject.isImplementedByInstancesOf(t):

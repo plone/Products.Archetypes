@@ -1,5 +1,4 @@
-from Products.Archetypes.config import *
-from Products.Archetypes.Extensions.utils import setupEnvironment
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.Extensions.utils import setupArchetypes
 from StringIO import StringIO
 
@@ -14,8 +13,3 @@ def install(self, require_dependencies=1):
     print >> out, 'Successfully installed %s' % PKG_NAME
 
     return out.getvalue()
-
-def uninstall(portal):
-    prod = getattr(portal.portal_quickinstaller, PKG_NAME)
-    prod.portalobjects = [po for po in prod.portalobjects
-                          if po[-8:] != '_catalog']
