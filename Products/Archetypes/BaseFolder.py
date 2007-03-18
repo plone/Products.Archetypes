@@ -1,5 +1,4 @@
 from Products.Archetypes import WebDAVSupport
-from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
@@ -9,11 +8,9 @@ from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.utils import shasattr
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from Acquisition import aq_base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.interfaces import IContentish

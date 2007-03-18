@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,8 +28,6 @@ Unittests for a renaming archetypes objects.
 $Id$
 """
 
-from Testing import ZopeTestCase
-
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 from Products.Archetypes.tests.utils import makeContent
@@ -43,6 +40,7 @@ from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
 import transaction
+import warnings
 
 class Counter:
 

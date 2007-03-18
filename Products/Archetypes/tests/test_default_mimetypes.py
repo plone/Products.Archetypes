@@ -1,7 +1,5 @@
-# -*- coding: UTF-8 -*-
 # test initialisation and setup
 
-from Testing.ZopeTestCase import FunctionalDocFileSuite, FunctionalDocTestSuite
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from unittest import TestSuite, makeSuite
 

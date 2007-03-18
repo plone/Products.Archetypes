@@ -2,14 +2,10 @@ import sys
 from Globals import InitializeClass
 
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import _default_logger
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import fixSchema
-from Products.Archetypes.utils import getRelURL
-from Products.Archetypes.utils import getRelPath
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Field import TextField
@@ -17,7 +13,6 @@ from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import getSchemata
-from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Widget import IdWidget
 from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
@@ -25,7 +20,6 @@ from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces import ISchema
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
-from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.validator import AttributeValidator
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
@@ -43,9 +37,7 @@ from Products.Archetypes.interfaces import IMultiPageSchema
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from AccessControl.Permissions import copy_or_move as permission_copy_or_move
-from Acquisition import Implicit
 from Acquisition import aq_base
-from Acquisition import aq_acquire
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition import ImplicitAcquisitionWrapper
@@ -53,12 +45,10 @@ from Acquisition import ExplicitAcquisitionWrapper
 from Acquisition import Explicit
 
 from ComputedAttribute import ComputedAttribute
-from OFS.ObjectManager import ObjectManager
 from ZODB.POSException import ConflictError
 import transaction
 
 from Products.CMFCore import permissions
-from Products.CMFCore.utils import _checkPermission as checkPerm
 
 from Referenceable import Referenceable
 from types import TupleType, ListType, UnicodeType
@@ -66,7 +56,11 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
+from zope import event
+from zope.interface import implements, Interface
 from zope.component import getUtility, queryUtility
+from zope.component import queryMultiAdapter
+
 from Products.CMFCore.interfaces import IMetadataTool
 from Products.CMFCore.interfaces import IPropertiesTool
 from Products.CMFCore.interfaces import IURLTool
@@ -80,9 +74,6 @@ try:
 except ImportError:
     URL_NORMALIZER = False
 
-from zope.interface import implements, Interface
-from zope.component import queryMultiAdapter, queryUtility
-from zope import event
 
 _marker = []
 

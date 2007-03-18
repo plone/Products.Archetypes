@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,7 +26,6 @@
 """
 
 import time
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
@@ -71,7 +69,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
         # error log
         from Products.SiteErrorLog.SiteErrorLog import temp_logs
-        temp_logs = {} # clean up log
+        temp_logs.clear() # clean up log
         self.error_log = self.portal.error_log
         self.error_log._ignored_exceptions = ()
 

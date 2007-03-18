@@ -6,8 +6,6 @@ from Products.Archetypes.utils import capitalize
 from Products.Archetypes.utils import _getSecurity
 from Products.Archetypes.debug import warn
 from Products.Archetypes.debug import deprecated
-from Acquisition import ImplicitAcquisitionWrapper
-from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
 # marker that AT should generate a method -- used to discard unwanted

@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,16 +22,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.examples import ComplexType as complextype
 from Products.Archetypes.ClassGen import generateCtor
-import Products.Archetypes.tests.test_classgen
 
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl

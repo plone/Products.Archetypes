@@ -22,25 +22,5 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import makeContent
-
-from Products.Archetypes.atapi import *
-from Products.Archetypes.interfaces.base import IBaseUnit
-
-
-class ExternalEditorTest(ATSiteTestCase):
-
-    def testExternalEditor(self):
-        #really a test that baseobject.__getitem__ returns something
-        #which externaleditor can use
-        obj = makeContent(self.folder, portal_type='SimpleType', id='obj')
-        self.failUnless(IBaseUnit.isImplementedBy(obj.body))
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(ExternalEditorTest))
-    return suite
+"""Archetypes test package.
+"""

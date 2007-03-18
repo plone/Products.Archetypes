@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -30,9 +29,6 @@ $Id$
 """
 
 import os
-from Testing import ZopeTestCase
-
-import urllib
 from unittest import TestCase
 from OFS.Image import Pdata
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -40,13 +36,8 @@ from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import aputrequest
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.atapi import *
-from Products.Archetypes import config
 from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
-
-from ZPublisher.HTTPRequest import FileUpload
-from ZPublisher.BaseRequest import RequestContainer
-from Testing.makerequest import makerequest
 
 class MarshallerTests(ATSiteTestCase):
 

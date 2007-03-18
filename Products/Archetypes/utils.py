@@ -1,7 +1,7 @@
 import sys
-import os, os.path
+import os
 import socket
-from random import random, randint
+from random import random
 from time import time
 from inspect import getargs, getmro
 from md5 import md5
@@ -20,10 +20,8 @@ from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 
-from zope.component import getUtility
 from zope.component import queryUtility
 from Products.CMFCore.interfaces import ISiteRoot
-from Products.CMFCore.interfaces import IURLTool
 
 # BBB, this can be removed once we do not support PTS anymore
 from Products.PageTemplates.GlobalTranslationService \
@@ -955,7 +953,6 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     """
 
     from email.Message import Message as emailMessage
-    from email import Utils
 
     for key, value in kw.items():
         # stringify the value

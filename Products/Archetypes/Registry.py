@@ -1,8 +1,6 @@
 import types
 
 from Products.Archetypes.utils import className
-from Products.Archetypes.utils import _getSecurity
-from Products.Archetypes.utils import mergeSecurity
 from Products.Archetypes.utils import setSecurity
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject

@@ -26,11 +26,9 @@
 """
 
 import os
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
-from Products.Archetypes.tests.utils import gen_class
 
 # this trigger zope imports
 from Products.Archetypes.tests.test_classgen import Dummy

@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,7 +26,6 @@
 """
 
 import os
-from Testing import ZopeTestCase
 
 from zope.interface import implements
 from zope.component import getSiteManager
@@ -40,11 +38,10 @@ from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
-from Products.Archetypes.Field import ScalableImage, Image
+from Products.Archetypes.Field import ScalableImage
 from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime

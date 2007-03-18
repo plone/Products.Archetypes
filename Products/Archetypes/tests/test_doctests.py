@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,9 +28,7 @@
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
 
-from Testing import ZopeTestCase
 from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-import unittest
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (

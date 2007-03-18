@@ -1,6 +1,5 @@
 
 import textwrap
-from Testing import ZopeTestCase
 from AccessControl import Unauthorized
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase

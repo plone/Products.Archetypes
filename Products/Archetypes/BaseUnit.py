@@ -12,7 +12,6 @@ from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions

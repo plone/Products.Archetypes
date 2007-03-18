@@ -1,6 +1,5 @@
 from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces import IBaseContent
 from Products.Archetypes.interfaces import IReferenceable
@@ -9,8 +8,6 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IRe
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
-from Acquisition import aq_base
-from Acquisition import aq_get
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.History import Historical

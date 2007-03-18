@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -30,9 +29,7 @@ $Id$
 """
 
 import os
-from Testing import ZopeTestCase
 
-import types
 import transaction
 from Acquisition import aq_base
 
@@ -72,8 +69,6 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         fto.manage_pasteObjects(cb)
         self.failIf('tourist' in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
-
-from Testing.ZopeTestCase.ZopeTestCase import user_name
 
 class PortalCopyTests(ATSiteTestCase):
 

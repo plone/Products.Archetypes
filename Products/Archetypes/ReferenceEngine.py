@@ -6,7 +6,6 @@ from zope.interface import implements
 from zope.component import getUtility
 from zope.component import queryUtility
 
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IReference
@@ -15,15 +14,12 @@ from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
     IContentReference, IReference as Z2IReference
 
-from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
-    getRelPath, shasattr
-from Products.Archetypes.config import UID_CATALOG, \
-     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
+from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
+from Products.Archetypes.config import REFERENCE_CATALOG,UUID_ATTR
 from Products.Archetypes.exceptions import ReferenceException
 
-from Acquisition import aq_base, aq_parent, aq_inner
+from Acquisition import aq_base, aq_parent
 from AccessControl import ClassSecurityInfo
-from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
@@ -31,14 +27,11 @@ from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import registerToolInterface
-from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
-from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
-from zExceptions import NotFound
-from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
+
 from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFCore.interfaces import IURLTool
 
@@ -48,7 +41,6 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
-from UIDCatalog import UIDCatalog
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 

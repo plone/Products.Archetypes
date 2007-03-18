@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,24 +26,18 @@
 """
 
 import unittest
-from Testing import ZopeTestCase
-
-from copy import deepcopy
 
 from DateTime import DateTime
-
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC, ACCESS_PRIVATE
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.ClassGen import generateMethods
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
-from Products.CMFCore.DiscussionTool import DiscussionTool
 
 
 default_text = """

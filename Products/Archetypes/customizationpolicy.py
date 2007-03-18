@@ -9,11 +9,17 @@ __docformat__ = 'restructuredtext'
 from zope.component import getUtility
 from StringIO import StringIO
 
+from logging import getLogger
+logger = getLogger('Archetypes')
+
 try:
     import Products.CMFPlone
-except:
-    class DefaultCustomizationPolicy: pass
-    def addPolicy(*args, **kwargs): pass
+except ImportError:
+    class DefaultCustomizationPolicy:
+        pass
+    def addPolicy(*args, **kwargs):
+        raise ValueError('CustomizationPolicies not available.')
+        
 else:
     from Products.CMFPlone.Portal import addPolicy
     from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
@@ -21,13 +27,7 @@ else:
 from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
 from Products.Archetypes.utils import shasattr
 
-# Check for Plone 2.1
-try:
-    from Products.CMFPlone.migrations import v2_1
-except ImportError:
-    HAS_PLONE21 = False
-else:
-    HAS_PLONE21 = True
+HAS_PLONE21 = True
 
 PRODUCTS = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )
 

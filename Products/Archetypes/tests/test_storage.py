@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -30,10 +29,7 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.tests.test_classgen import ClassGenTest
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 

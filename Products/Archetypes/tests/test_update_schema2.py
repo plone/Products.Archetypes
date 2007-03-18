@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,6 +26,7 @@
 """
 
 
+import os
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -38,7 +38,8 @@ from zope.component import getUtility
 from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
 
 try:
-    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
+    from Products.ArchetypesTestUpdateSchema.Extensions.Install import \
+         install as install_test
 except ImportError:
     hasATTUS = False
 else:

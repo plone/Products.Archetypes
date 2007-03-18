@@ -4,7 +4,6 @@ Unittests for the events fired by Archetypes.
 
 from zope.interface import Interface, directlyProvides
 
-from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 from zope.app.testing import ztapi

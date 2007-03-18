@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,16 +22,12 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 
 class DummyDiscussionTool:
     def isDiscussionAllowedFor( self, content ):

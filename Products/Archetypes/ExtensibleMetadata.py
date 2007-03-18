@@ -11,8 +11,6 @@ from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 import Persistence
 from Acquisition import aq_base

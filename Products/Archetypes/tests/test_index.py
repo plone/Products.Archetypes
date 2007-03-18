@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -32,9 +31,7 @@ from Testing import ZopeTestCase
 from zope.component import getUtility
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.tests.utils import makeContent
 from Products.CMFCore.interfaces import ICatalogTool
 

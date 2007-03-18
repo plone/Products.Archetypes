@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,7 +26,6 @@
 """
 
 import operator
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import *
@@ -36,9 +34,6 @@ from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.exceptions import SchemaException
-
-from DateTime import DateTime
-import unittest
 
 schema = BaseSchema
 
