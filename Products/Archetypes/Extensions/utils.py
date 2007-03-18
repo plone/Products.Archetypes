@@ -8,7 +8,7 @@ from OFS.ObjectManager import BadRequestException
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
-from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import getToolByName, getPackageName
 from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
@@ -57,12 +57,12 @@ def install_additional_templates(self, out, types):
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
     skinstool=getUtility(ISkinsTool)
 
-    product = globals['__name__']
+    product = getPackageName(globals)
     registry_key = "%s:%s" % (product, product_skins_dir)
     registered_directories = manage_listAvailableDirectories()
     if registry_key not in registered_directories:
         try:
-            registerDirectory(registry_key, globals)
+            registerDirectory(product_skins_dir, globals)
         except OSError, ex:
             if ex.errno == 2: # No such file or directory
                 return
