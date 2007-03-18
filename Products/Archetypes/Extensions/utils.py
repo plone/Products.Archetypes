@@ -27,9 +27,6 @@ from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.config import *
 
-from Products.CMFFormController.Extensions.Install \
-     import install as install_formcontroller
-
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.interfaces import IPropertiesTool
 from Products.CMFCore.interfaces import ISiteRoot
@@ -50,8 +47,6 @@ def install_dependencies(self, out, required=1):
             raise RuntimeError, (
                 'portal_quickinstaller tool could not be found, and it is '
                 'required to install Archetypes dependencies')
-        else:
-            print >>out, install_formcontroller(self)
 
     if not qi.isProductInstalled('CMFFormController'):
         qi.installProduct('CMFFormController',locked=1)
