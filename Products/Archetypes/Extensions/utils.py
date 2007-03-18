@@ -1,13 +1,10 @@
 import os
 from os.path import isdir, join
-from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
 
 from Globals import package_home
-from Globals import PersistentMapping
 from OFS.ObjectManager import BadRequestException
-from Acquisition import aq_base
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
@@ -20,153 +17,17 @@ from Products.Archetypes.ArchetypeTool import base_factory_type_information
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
-from Products.Archetypes.config import UID_CATALOG, REFERENCE_CATALOG
 
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.interfaces import IPropertiesTool
-from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ISkinsTool
 from Products.CMFCore.interfaces import ITypesTool
-
-from Products.Archetypes.ReferenceEngine import manage_addReferenceCatalog
-from Products.Archetypes.UIDCatalog import manage_addUIDCatalog
 
 
 class Extra:
     """indexes extra properties holder"""
-
-def install_dependencies(self, out, required=1):
-    qi=queryUtility(IQuickInstallerTool)
-    if qi is None:
-        if required:
-            raise RuntimeError, (
-                'portal_quickinstaller tool could not be found, and it is '
-                'required to install Archetypes dependencies')
-
-    if not qi.isProductInstalled('CMFFormController'):
-        qi.installProduct('CMFFormController',locked=1)
-        print >>out, 'Installing CMFFormController'
-    if not qi.isProductInstalled('MimetypesRegistry'):
-        qi.installProduct('MimetypesRegistry')
-        print >>out, 'Installing MimetypesRegistry'
-    if not qi.isProductInstalled('PortalTransforms'):
-        qi.installProduct('PortalTransforms')
-        print >>out, 'Installing PortalTransforms'
-
-def install_archetypetool(self, out):
-    at = queryUtility(IArchetypeTool)
-    parent = getUtility(ISiteRoot)
-
-    if at is None:
-        addTool = self.manage_addProduct['Archetypes'].manage_addTool
-        addTool('Archetype Tool')
-        sm = getSiteManager()
-        sm.registerUtility(aq_base(parent.archetype_tool), IArchetypeTool)
-        print >>out, 'Installing Archetype Tool'
-    else:
-        # Migration from 1.0
-        if not hasattr(aq_base(at), '_registeredTemplates'):
-            at._registeredTemplates = PersistentMapping()
-        if not hasattr(aq_base(at), 'catalog_map'):
-            at.catalog_map = PersistentMapping()
-
-def install_tools(self, out):
-    # Backwards compat. People (eg: me!) may depend on that
-    install_archetypetool(self, out)
-    install_uidcatalog(self, out)
-
-def install_uidcatalog(self, out, rebuild=False):
-    index_defs=( ('UID', 'FieldIndex'),
-                 ('Type', 'FieldIndex'),
-                 ('id', 'FieldIndex'),
-                 ('Title', 'FieldIndex'), # used for sorting
-                 ('portal_type', 'FieldIndex'),
-               )
-    metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
-    reindex = False
-    catalog = queryUtility(IUIDCatalog)
-    parent = getUtility(ISiteRoot)
-
-    if catalog is not None and not IUIDCatalog.isImplementedBy(catalog):
-        # got a catalog but it's doesn't implement IUIDCatalog
-        parent.manage_delObjects([UID_CATALOG,])
-        catalog = None
-        rebuild = True
-
-    if catalog is None:
-        #Add a zcatalog for uids
-        addCatalog = manage_addUIDCatalog
-        addCatalog(self, UID_CATALOG, 'Archetypes UID Catalog')
-        catalog = parent.uid_catalog
-        sm = getSiteManager()
-        sm.registerUtility(aq_base(catalog), IUIDCatalog)
-        print >>out, 'Installing uid catalog'
-
-    for indexName, indexType in index_defs:
-        try: #ugly try catch XXX FIXME
-            if indexName not in catalog.indexes():
-                catalog.addIndex(indexName, indexType, extra=None)
-                reindex = True
-        except:
-            pass
-
-    for metadata in metadata_defs:
-        if not indexName in catalog.schema():
-            catalog.addColumn(metadata)
-            reindex = True
-    if reindex:
-        catalog.manage_reindexIndex()
-    elif rebuild:
-        catalog.manage_rebuildCatalog()
-
-def install_referenceCatalog(self, out, rebuild=False):
-    catalog = queryUtility(IReferenceCatalog)
-    parent = getUtility(ISiteRoot)
-
-    if catalog is not None and not IReferenceCatalog.isImplementedBy(catalog):
-        # got a catalog but it's doesn't implement IUIDCatalog
-        parent.manage_delObjects([REFERENCE_CATALOG,])
-        catalog = None
-        rebuild = 1
-
-    if not catalog:
-        #Add a zcatalog for uids
-        addCatalog = manage_addReferenceCatalog
-        addCatalog(self, REFERENCE_CATALOG, 'Archetypes Reference Catalog')
-        catalog = parent.reference_catalog
-        sm = getSiteManager()
-        sm.registerUtility(aq_base(catalog), IReferenceCatalog)
-        print >>out, 'Installing reference catalog'
-        schema = catalog.schema()
-        for indexName, indexType in (
-                                      ('UID', 'FieldIndex'),
-                                      ('sourceUID', 'FieldIndex'),
-                                      ('targetUID', 'FieldIndex'),
-                                      ('relationship', 'FieldIndex'),
-                                      ('targetId', 'FieldIndex'),
-                                      ):
-            try:
-                catalog.addIndex(indexName, indexType, extra=None)
-            except:
-                pass
-            try:
-                if not indexName in schema:
-                    catalog.addColumn(indexName)
-            except:
-                pass
-
-        catalog.manage_reindexIndex()
-
-    if rebuild:
-        catalog = getUtility(IReferenceCatalog)
-        catalog.manage_rebuildCatalog()
-
-def install_templates(self, out):
-    at = getUtility(IArchetypeTool)
-    at.registerTemplate('base_view', 'Base View')
 
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
@@ -466,19 +327,6 @@ def filterTypes(self, out, types, package_name):
 
     return filtered_types
 
-def setupArchetypes(self, out, require_dependencies=True):
-    # installing dependency products
-    install_dependencies(self, out, require_dependencies)
-
-    # install archetype tools and templates
-    install_archetypetool(self, out)
-    install_uidcatalog(self, out, rebuild=False)
-    install_referenceCatalog(self, out, rebuild=False)
-
-    # install skins and register templates
-    install_subskin(self, out, types_globals)
-    install_templates(self, out)
-
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
@@ -488,9 +336,16 @@ def setupEnvironment(self, out, types,
 
     if install_deps:
         qi = queryUtility(IQuickInstallerTool)
-        if qi is None:
-            setupArchetypes(self, out, require_dependencies=require_dependencies)
-        else:
+        if require_dependencies:
+            if not qi.isProductInstalled('CMFFormController'):
+                qi.installProduct('CMFFormController',locked=1)
+                print >>out, 'Installing CMFFormController'
+            if not qi.isProductInstalled('MimetypesRegistry'):
+                qi.installProduct('MimetypesRegistry')
+                print >>out, 'Installing MimetypesRegistry'
+            if not qi.isProductInstalled('PortalTransforms'):
+                qi.installProduct('PortalTransforms')
+                print >>out, 'Installing PortalTransforms'
             if not qi.isProductInstalled('Archetypes'):
                 qi.installProduct('Archetypes')
                 print >>out, 'Installing Archetypes'

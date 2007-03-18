@@ -5,12 +5,11 @@ import sys
 import bbb
 
 from Products.Archetypes.config import *
-from Products.Archetypes.utils import DisplayList, getPkgInfo
+from Products.Archetypes.utils import DisplayList
 
 from AccessControl import ModuleSecurityInfo
 from AccessControl import allow_class, allow_module
 from Products.CMFCore import permissions
-from Products.CMFCore.DirectoryView import registerDirectory
 
 ###
 ## security
@@ -51,16 +50,20 @@ ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
 ###
 # register tools and content types
 ###
-registerDirectory('skins', globals())
-
-from Products.Archetypes.ArchetypeTool import ArchetypeTool, \
-     process_types, listTypes, fixAfterRenameType
+from Products.Archetypes.ArchetypeTool import \
+    process_types, listTypes, fixAfterRenameType
+from Products.Archetypes.ArchetypeTool import ArchetypeTool
 ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
+from Products.Archetypes.ReferenceEngine import ReferenceCatalog as RefTool
+from Products.Archetypes.UIDCatalog import UIDCatalog as UIDTool
+
 
 tools = (
     ArchetypeTool,
     ArchTTWTool,
+    RefTool,
+    UIDTool,
     )
 
 types_globals=globals()
