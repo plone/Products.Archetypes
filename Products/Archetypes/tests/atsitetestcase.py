@@ -1,5 +1,7 @@
 from Testing.ZopeTestCase import Functional
 from Products.Archetypes.tests import attestcase
+from Products.PloneTestCase.setup import portal_name
+from Products.PloneTestCase.setup import portal_owner
 import sys, code
 
 from Products.PloneTestCase import PloneTestCase
