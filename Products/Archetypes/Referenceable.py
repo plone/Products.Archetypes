@@ -4,22 +4,19 @@ from zope.interface import implements
 
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
-from AccessControl import getSecurityManager, Unauthorized
-from ExtensionClass import Base
+from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
+from utils import getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -84,10 +81,11 @@ class Referenceable(CopySource):
 
     def getRefs(self, relationship=None, targetObject=None):
         """get all the referenced objects for this object"""
-        tool = getUtility(IReferenceCatalog)
-        refs = tool.getReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return [ref.getTargetObject() for ref in refs]
+        tool = queryUtility(IReferenceCatalog)
+        if tool is not None:
+            refs = tool.getReferences(self, relationship, targetObject=targetObject)
+            if refs:
+                return [ref.getTargetObject() for ref in refs]
         return []
 
     def _getURL(self):
@@ -128,9 +126,9 @@ class Referenceable(CopySource):
             return
 
         if reference_manager is None:
-            reference_manager = getUtility(IReferenceCatalog)
-        reference_manager.registerObject(self)
-
+            reference_manager = queryUtility(IReferenceCatalog)
+        if reference_manager is not None:
+            reference_manager.registerObject(self)
 
     def _unregister(self):
         """unregister with the archetype tool, remove all references"""
@@ -192,19 +190,13 @@ class Referenceable(CopySource):
         """
         # the UID index needs to be updated for any annotations we
         # carry
-        try:
-            uc = getUtility(IUIDCatalog)
-        except AttributeError:
-            # TODO when trying to rename or copy a whole site than
-            # container is the object "under" the portal so we can
-            # NEVER ever find the catalog which is bad ...
-            container = aq_parent(self)
-            uc = getUtility(IUIDCatalog)
+        uc = queryUtility(IUIDCatalog)
+        rc = queryUtility(IReferenceCatalog)
 
-        rc = getUtility(IReferenceCatalog)
-
-        self._catalogUID(container, uc=uc)
-        self._catalogRefs(container, uc=uc, rc=rc)
+        if uc is not None:
+            self._catalogUID(container, uc=uc)
+            if rc is not None:
+                self._catalogRefs(container, uc=uc, rc=rc)
 
     ## OFS Hooks
     def manage_afterAdd(self, item, container):
