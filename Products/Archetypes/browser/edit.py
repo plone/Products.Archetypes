@@ -1,5 +1,4 @@
 from zope.interface import implements
-from zope.component import getMultiAdapter
 
 from Products.Five import BrowserView
 

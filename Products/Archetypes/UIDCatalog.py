@@ -3,6 +3,9 @@ import sys
 import time
 import urllib
 import traceback
+from zope.component import getUtility
+from zope.interface import implements
+
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -15,13 +18,14 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
+from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
-from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
+from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
+from Products.CMFCore.interfaces import IURLTool
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
@@ -86,7 +90,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         try:
             path = self.getPath()
             try:
-                portal = getToolByName(self, 'portal_url').getPortalObject()
+                portal = getUtility(IURLTool).getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
                 obj = aq_inner( obj )
             except (ConflictError, KeyboardInterrupt):
@@ -164,7 +168,7 @@ class UIDResolver(Base):
 
         if not portal_path_len:
             # cache the lenght of the portal path in a _v_ var
-            urlTool = getToolByName(self, 'portal_url')
+            urlTool = getUtility(IURLTool)
             portal_path = urlTool.getPortalObject().getPhysicalPath()
             portal_path_len = len(portal_path)
             self._v_portal_path_len = portal_path_len
@@ -186,7 +190,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     id = UID_CATALOG
     security = ClassSecurityInfo()
-    __implements__ = IUIDCatalog
+    implements(IUIDCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
 
@@ -230,9 +234,9 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool   = getToolByName(self, TOOL_NAME)
-        obj     = aq_parent(self)
-        path    = '/'.join(obj.getPhysicalPath())
+        atool = getUtility(IArchetypeTool)
+        obj = aq_parent(self)
+        path = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
 
@@ -263,3 +267,5 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
+InitializeClass(UIDCatalog)
+registerToolInterface('uid_catalog', IUIDCatalog)

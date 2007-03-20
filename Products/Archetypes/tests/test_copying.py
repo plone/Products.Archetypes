@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,13 +28,8 @@ Unittests for a copying/cutting and pasting archetypes objects.
 $Id$
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
+import os
 
-from Testing import ZopeTestCase
-
-import types
 import transaction
 from Acquisition import aq_base
 
@@ -75,8 +69,6 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         fto.manage_pasteObjects(cb)
         self.failIf('tourist' in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
-
-from Testing.ZopeTestCase.ZopeTestCase import user_name
 
 class PortalCopyTests(ATSiteTestCase):
 
@@ -315,6 +307,3 @@ def test_suite():
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
     suite.addTest(makeSuite(PortalCopyTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

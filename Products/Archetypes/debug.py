@@ -7,7 +7,7 @@ from types import StringType
 import warnings
 import logging
 
-from Products.Archetypes.config import PKG_NAME, DEBUG
+from Products.Archetypes.config import DEBUG
 
 if os.name == 'posix':
     COLOR = 1

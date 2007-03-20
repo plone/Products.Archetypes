@@ -1,5 +1,6 @@
 import os.path
 from types import StringType
+from zope.component import getUtility
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
@@ -11,13 +12,13 @@ from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
-from Products.CMFCore.utils import getToolByName
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
+from Products.MimetypesRegistry.interfaces import IMimetype
+from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
 from Products.PortalTransforms.interfaces import idatastream
+from Products.PortalTransforms.interfaces import IPortalTransformsTool
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []
@@ -49,11 +50,7 @@ class BaseUnit(File):
         encoding = kw.get('encoding', None)
         context  = kw.get('context', instance)
 
-        adapter = getToolByName(context, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(adapter):
-            raise RuntimeError, \
-                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
-                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
+        adapter = getUtility(IMimetypesRegistryTool)
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -98,7 +95,7 @@ class BaseUnit(File):
         if not hasattr(instance, 'aq_parent'):
             return orig
 
-        transformer = getToolByName(instance, 'portal_transforms')
+        transformer = getUtility(IPortalTransformsTool)
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      context=instance,
                                      mimetype=self.mimetype,
@@ -202,10 +199,7 @@ class BaseUnit(File):
     def setContentType(self, instance, value):
         """Set the file mimetype string.
         """
-        mtr = getToolByName(instance, 'mimetypes_registry')
-        if not IMimetypesRegistry.isImplementedBy(mtr):
-            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
-                               (repr(mtr), repr(mtr.__class__)))
+        mtr = getUtility(IMimetypesRegistryTool)
         result = mtr.lookup(value)
         if not result:
             raise ValueError('Unknown mime type %s' % value)

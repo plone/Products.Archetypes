@@ -3,12 +3,22 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
-from types import StringType, StringTypes
 from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
+from zope.interface import implements
+from zope.component import getUtility
+from zope.component import queryUtility
+
+from Products.CMFCore.interfaces import ICatalogTool as z3ICatalogTool
+from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.interfaces import IURLTool
+
 from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -18,7 +28,6 @@ from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict
@@ -29,10 +38,11 @@ from Products.Archetypes.Renderer import renderer
 from Products.CMFCore import permissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
-from Products.CMFCore.utils import UniqueObject, getToolByName
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils import registerToolInterface
+from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
-from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -63,7 +73,7 @@ class BoundPageTemplateFile(PageTemplateFile):
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
-    # Configuration and getCMFVersion come with Plone 2.0
+    # Configuration and getCMFVersion come with Plone
     def getCMFVersion():
         from os.path import join
         from Globals import package_home
@@ -383,7 +393,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     If you like to swallow the error please use a try/except block in your own
     code and do NOT 'fix' this method.
     """
-    at_tool = getToolByName(context, TOOL_NAME)
+    at_tool = getUtility(IArchetypeTool)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in _types.values()])
     # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
@@ -489,8 +499,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     """Archetypes tool, manage aspects of Archetype instances.
     """
     id = TOOL_NAME
-
     meta_type = TOOL_NAME.title().replace('_', ' ')
+
+    implements(IArchetypeTool)
 
     isPrincipiaFolderish = True # Show up in the ZMI
 
@@ -605,7 +616,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         Returns a DisplayList.
         """
         results = []
-        if not type(instance_or_portaltype) in StringTypes:
+        if not isinstance(instance_or_portaltype, basestring):
             portal_type = instance_or_portaltype.getTypeInfo().getId()
         else:
             portal_type = instance_or_portaltype
@@ -682,7 +693,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
-        >>> tool = getToolByName(self.portal, TOOL_NAME)
+        >>> tool = getUtility(IArchetypeTool)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
         
@@ -692,7 +703,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids
         ['ATBIFolder', 'ComplexType', ...]
         """
-        pt = getToolByName(self, 'portal_types')
+        pt = getUtility(ITypesTool)
         value = []
         for data in listTypes():
             klass = data['klass']
@@ -725,7 +736,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
-            tt = getToolByName(self, 'portal_types')
+            ttool = getUtility(ITypesTool)
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
@@ -771,7 +782,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                            uninstall=None, REQUEST=None):
         """Un/Install a type TTW.
         """
-        typesTool = getToolByName(self, 'portal_types')
+        typesTool = getUtility(ITypesTool)
         try:
             typesTool._delObject(typeName)
         except (ConflictError, KeyboardInterrupt):
@@ -892,7 +903,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'.
         """
-        catalog = getToolByName(self, 'portal_catalog')
+        catalog = getUtility(z3ICatalogTool)
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
@@ -905,7 +916,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
-        catalog = getToolByName(self, UID_CATALOG)
+        catalog = getUtility(IUIDCatalog)
         keys = catalog.uniqueValuesFor('UID')
         for uid in keys:
             o = self.getObject(uid)
@@ -919,7 +930,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def Content(self):
         """Return a list of all the content ids.
         """
-        catalog = getToolByName(self, UID_CATALOG)
+        catalog = getUtility(IUIDCatalog)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(UID=keys)
         return results
@@ -1034,8 +1045,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # relying on the catalog to find objects, because an object
             # may be uncatalogable because of its schema, and then you
             # can't update it if you require that it be in the catalog.
-            catalog = getToolByName(self, 'portal_catalog')
-            portal = getToolByName(self, 'portal_url').getPortalObject()
+            catalog = getUtility(z3ICatalogTool)
+            portal = getUtility(IURLTool).getPortalObject()
             meta_types = [_types[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
@@ -1122,7 +1133,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        
+        portal = queryUtility(ISiteRoot)
         for name in names:
             try:
                 catalogs.append(getToolByName(portal, name))
@@ -1137,7 +1149,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        portal = getUtility(IURLTool).getPortalObject()
         res = []
         for object in portal.objectValues():
             if ICatalogTool.isImplementedBy(object):
@@ -1180,3 +1192,4 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return HAS_GRAPHVIZ
 
 InitializeClass(ArchetypeTool)
+registerToolInterface('archetype_tool', IArchetypeTool)

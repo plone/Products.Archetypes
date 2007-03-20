@@ -1,7 +1,7 @@
 import sys
-import os, os.path
+import os
 import socket
-from random import random, randint
+from random import random
 from time import time
 from inspect import getargs, getmro
 from md5 import md5
@@ -15,11 +15,13 @@ from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
+
+from zope.component import queryUtility
+from Products.CMFCore.interfaces import ISiteRoot
 
 # BBB, this can be removed once we do not support PTS anymore
 from Products.PageTemplates.GlobalTranslationService \
@@ -745,9 +747,10 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    urlTool = getToolByName(self, 'portal_url')
-    portal_path = urlTool.getPortalObject().getPhysicalPath()
-    ppath = ppath[len(portal_path):]
+    portal = queryUtility(ISiteRoot)
+    if portal is not None:
+        portal_path = portal.getPhysicalPath()
+        ppath = ppath[len(portal_path):]
     return ppath
 
 def getRelURL(self, ppath):
@@ -950,7 +953,6 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     """
 
     from email.Message import Message as emailMessage
-    from email import Utils
 
     for key, value in kw.items():
         # stringify the value

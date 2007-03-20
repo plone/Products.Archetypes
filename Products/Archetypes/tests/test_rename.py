@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,14 +28,6 @@ Unittests for a renaming archetypes objects.
 $Id$
 """
 
-import os, sys
-import warnings
-
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
-
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 from Products.Archetypes.tests.utils import makeContent
@@ -49,6 +40,7 @@ from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import UUID_ATTR
 
 import transaction
+import warnings
 
 class Counter:
 
@@ -215,6 +207,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(RenameTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

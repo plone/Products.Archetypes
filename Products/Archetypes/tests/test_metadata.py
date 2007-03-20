@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,14 +22,6 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 from Acquisition import aq_parent
@@ -41,15 +32,12 @@ from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import schema
 
-from types import FunctionType, ListType, TupleType
+from types import FunctionType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes import config
-from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from Products.CMFCore.utils import getToolByName
 
 fieldList = [
     # (accessor, mutator, field),
@@ -358,6 +346,3 @@ def test_suite():
     suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
     suite.addTest(makeSuite(ExtMetadataSetFormatTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

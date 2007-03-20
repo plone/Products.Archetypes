@@ -1,5 +1,8 @@
 __metaclass__ = type
 
+from zope.component import queryUtility
+from Products.CMFCore.interfaces import IMetadataTool
+
 from Products.Archetypes.Schema import BasicSchema
 from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
@@ -7,7 +10,6 @@ from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
 from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
-from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 
 # Crude mapping for now. We should instantiate
@@ -67,7 +69,7 @@ class CMFMetadataFieldsDescriptor:
     fields from a CMFMetadata Set (Formulator-based)"""
 
     def __get__(self, obj, objtype=None):
-        pm = getToolByName(obj.context, 'portal_metadata', None)
+        pm = queryUtility(IMetadataTool)
         if pm is None:
             return {}
         set = pm.getMetadataSet(obj.set_id)
@@ -86,7 +88,7 @@ class CMFMetadataFieldNamesDescriptor:
     fields from a CMFMetadata Set (Formulator-based)"""
 
     def __get__(self, obj, objtype=None):
-        pm = getToolByName(obj.context, 'portal_metadata', None)
+        pm = queryUtility(IMetadataTool)
         if pm is None:
             return []
         set = pm.getMetadataSet(obj.set_id)
@@ -172,7 +174,7 @@ class FacadeMetadataSchema(BasicSchema):
                 value = result[0]
             field_data[name] = value
 
-        pm = getToolByName(self.context, 'portal_metadata', None)
+        pm = queryUtility(IMetadataTool)
         set = pm.getMetadataSet(self.set_id)
         set.validate(self.set_id, field_data, errors)
         return errors

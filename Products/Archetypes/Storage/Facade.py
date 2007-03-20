@@ -1,4 +1,3 @@
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Storage import StorageLayer
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
@@ -6,6 +5,10 @@ from Products.Archetypes.Field import encode
 
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import registerStorage
+
+from zope.component import getUtility
+from Products.CMFCore.interfaces import IMetadataTool
+
 
 class FacadeMetadataStorage(StorageLayer):
     """A Facade Storage which delegates to
@@ -22,7 +25,7 @@ class FacadeMetadataStorage(StorageLayer):
 
     security.declarePrivate('getTool')
     def getTool(self, instance):
-        return getToolByName(instance, 'portal_metadata')
+        return getUtility(IMetadataTool)
 
     security.declarePrivate('initializeInstance')
     def initializeInstance(self, instance, item=None, container=None):

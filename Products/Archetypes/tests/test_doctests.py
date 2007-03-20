@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,13 +28,7 @@
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-import unittest
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
@@ -63,6 +56,3 @@ def test_suite():
                                 test_class=ATFunctionalSiteTestCase)
                      )
     return suite
-
-if __name__ == '__main__':
-    framework()

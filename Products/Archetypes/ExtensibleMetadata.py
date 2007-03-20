@@ -1,5 +1,6 @@
 import string
 from logging import INFO, DEBUG
+from zope.component import getUtility
 from zope.component import queryUtility
 
 from Products.Archetypes import PloneMessageFactory as _
@@ -10,8 +11,6 @@ from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 import Persistence
 from Acquisition import aq_base
@@ -20,9 +19,10 @@ from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
-from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
+from Products.CMFCore.interfaces import IDiscussionTool
+from Products.CMFCore.interfaces import IMembershipTool
 
 _marker=[]
 
@@ -91,6 +91,17 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
                               default=u'A short summary of the content.'),
+                ),
+        ),
+        # Location, also known as Coverage in the DC metadata standard, but we
+        # keep the term Location here for historical reasons.
+        StringField(
+            'location',
+            searchable=True,
+            widget = StringWidget(
+                label = _(u'label_location', default=u'Location'),
+                description=_(u'help_description',
+                              default=u'The geographical location of the item.'),
                 ),
         ),
         LinesField(
@@ -206,7 +217,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
-        dtool = getToolByName(self, 'portal_discussion')
+        dtool = getUtility(IDiscussionTool)
         return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
@@ -232,7 +243,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 allowDiscussion = allowDiscussion.lower().strip()
                 d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
                 allowDiscussion = d.get(allowDiscussion, None)
-        dtool = getToolByName(self, 'portal_discussion')
+        dtool = getUtility(IDiscussionTool)
         try:
             dtool.overrideDiscussionFor(self, allowDiscussion)
         except (KeyError, AttributeError), err:
@@ -530,7 +541,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Add creator to Dublin Core creators.
         """
         if creator is None:
-            mtool = getToolByName(self, 'portal_membership')
+            mtool = getUtility(IMembershipTool)
             creator = mtool.getAuthenticatedMember().getId()
 
         # call self.listCreators() to make sure self.creators exists

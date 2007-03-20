@@ -1,5 +1,3 @@
-import os, sys
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -27,20 +25,14 @@ import os, sys
 """
 """
 
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
-
+import os
 import glob
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import normalize_html
-from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.utils import ZOPE28
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 
@@ -101,6 +93,3 @@ def test_suite():
     for test in tests:
         suite.addTest(makeSuite(test))
     return suite
-
-if __name__ == '__main__':
-    framework()

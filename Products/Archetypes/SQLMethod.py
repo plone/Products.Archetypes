@@ -224,7 +224,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             else:
                 try:
                     query = query.encode(site_encoding)
-                except UnicodeEncodingError:
+                except UnicodeEncodeError:
                     query = query.encode('UTF-8')
 
 

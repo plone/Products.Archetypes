@@ -101,6 +101,7 @@ like a normal resource:
   allowDiscussion: None
   subject:
   description: Simple Folder Content
+  location:
   contributors:
   creators: test_user_1_
   effectiveDate: None
@@ -178,6 +179,7 @@ like a normal resource:
   allowDiscussion: None
   subject:
   description: BTree Folder Content
+  location:
   contributors:
   creators: test_user_1_
   effectiveDate: None

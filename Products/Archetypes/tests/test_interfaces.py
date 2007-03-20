@@ -26,10 +26,6 @@
 # @@ auto generating tests is bullshit. this should go somewhere more
 # easily auditable, like doctests.  DWM
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -64,7 +60,6 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.atapi import registerType
 from Products.PloneTestCase.layer import ZCMLLayer
 
@@ -261,6 +256,3 @@ def test_suite():
     for test in tests:
         suite.addTest(makeSuite(test))
     return suite
-
-if __name__ == '__main__':
-    framework()

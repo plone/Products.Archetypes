@@ -2,16 +2,10 @@
 Unittests for the events fired by Archetypes.
 """
 
-import os, sys
-import warnings
-
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from zope.interface import Interface, directlyProvides
 
-from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests import utils
 
 from zope.app.testing import ztapi
 from zope.publisher.browser import TestRequest
@@ -27,6 +21,7 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 class Dummy(BaseContent):
     pass
+utils.gen_class(Dummy)
 
 def prehandler(ob, event):
     event.errors['foo'] = 1
@@ -55,15 +50,21 @@ class IObject3(Interface):
 class ValidationEventTests(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        ztapi.subscribe((IObject1, IObjectPreValidatingEvent,),  None, prehandler)
-        ztapi.subscribe((IObject2, IObjectPostValidatingEvent,), None, posthandler)
-        ztapi.subscribe((IObject3, IObjectPreValidatingEvent,),  None, prehandler)
-        ztapi.subscribe((IObject3, IObjectPostValidatingEvent,), None, posthandler)
+        ztapi.subscribe(
+            (IObject1, IObjectPreValidatingEvent,),  None, prehandler)
+        ztapi.subscribe(
+            (IObject2, IObjectPostValidatingEvent,), None, posthandler)
+        ztapi.subscribe(
+            (IObject3, IObjectPreValidatingEvent,),  None, prehandler)
+        ztapi.subscribe(
+            (IObject3, IObjectPostValidatingEvent,), None, posthandler)
 
-        ztapi.subscribe((IObject1, IObjectCreatedEvent,), None, createdhandler)
-        
-        ztapi.subscribe((IObject1, IObjectInitializedEvent,), None, initializedhandler)
-        ztapi.subscribe((IObject1, IObjectEditedEvent,), None, editedhandler)
+        ztapi.subscribe(
+            (IObject1, IObjectCreatedEvent,), None, createdhandler)
+        ztapi.subscribe(
+            (IObject1, IObjectInitializedEvent,), None, initializedhandler)
+        ztapi.subscribe(
+            (IObject1, IObjectEditedEvent,), None, editedhandler)
     
     def beforeTearDown(self):
         ATSiteTestCase.beforeTearDown(self)
@@ -131,6 +132,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(ValidationEventTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

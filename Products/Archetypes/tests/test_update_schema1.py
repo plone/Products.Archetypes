@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,27 +22,20 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-
-from ZPublisher.HTTPRequest import HTTPRequest
+import os
+import sys
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 import shutil
+from zope.component import getUtility
 
-from Products.Archetypes.Extensions.Install import install as install_archetypes
-from Products.CMFCore.utils import getToolByName
+from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from ZPublisher.HTTPRequest import HTTPRequest
 
-from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.atapi import listTypes, registerType
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
@@ -60,7 +52,7 @@ else:
 class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
-        qi = getToolByName(self.portal, 'portal_quickinstaller')
+        qi = getUtility(IQuickInstallerTool)
         qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
@@ -147,6 +139,3 @@ def test_suite():
         suite.addTest(makeSuite(TestUpdateSchema1))
     suite.addTest(makeSuite(TestBasicSchemaUpdate))
     return suite
-
-if __name__ == '__main__':
-    framework()

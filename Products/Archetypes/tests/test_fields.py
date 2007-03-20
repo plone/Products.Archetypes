@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -26,11 +25,7 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
+import os
 
 from zope.interface import implements
 from zope.component import getSiteManager
@@ -43,11 +38,10 @@ from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
-from Products.Archetypes.Field import ScalableImage, Image
+from Products.Archetypes.Field import ScalableImage
 from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime
@@ -358,6 +352,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(ProcessingTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

@@ -16,8 +16,7 @@ profile_registry.registerProfile('Archetypes_sampletypes',
 
 # setup a Plone site
 from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes',
-                                   'Products.Archetypes:Archetypes_sampletypes'
+setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes_sampletypes'
                                   ])
 
 # Fixup zope 2.7+ configuration

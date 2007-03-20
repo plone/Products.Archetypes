@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -26,19 +25,13 @@
 """
 """
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-
-from Testing import ZopeTestCase
+import os
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
 from Products.Archetypes.atapi import *
-from OFS.Image import File
 from DateTime import DateTime
 
 stub_text_file = None
@@ -306,6 +299,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(WidgetTests))
     return suite
-
-if __name__ == '__main__':
-    framework()

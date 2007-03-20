@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -26,13 +25,7 @@
 """
 """
 
-import os, sys
 import time
-
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
@@ -55,9 +48,11 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     def afterSetUp(self):
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
-        request = self.app.REQUEST
+        if 'session_data_manager' in self.app.objectIds():
+            self.app._delObject('session_data_manager')
         self.app._setObject('session_data_manager', DummySessionDataManager())
         sdm = self.app.session_data_manager
+        request = self.app.REQUEST
         request.set('SESSION', sdm.getSessionData())
 
         self.folder_url = self.folder.absolute_url()
@@ -74,7 +69,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
         # error log
         from Products.SiteErrorLog.SiteErrorLog import temp_logs
-        temp_logs = {} # clean up log
+        temp_logs.clear() # clean up log
         self.error_log = self.portal.error_log
         self.error_log._ignored_exceptions = ()
 
@@ -373,6 +368,3 @@ def test_suite():
                                 test_class=ATFunctionalSiteTestCase)
                      )
     return suite
-
-if __name__ == '__main__':
-    framework()

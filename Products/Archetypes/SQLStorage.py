@@ -1,12 +1,15 @@
+from zope.component import getUtility
+
 from Products.Archetypes.SQLMethod import SQLMethod
+from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.debug import log
-from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
+from Products.Archetypes.config import MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base, aq_inner, aq_parent
-from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.interfaces import IFactoryTool
 from ZODB.POSException import ConflictError
 from OFS.ObjectManager import BeforeDeleteException
 
@@ -117,7 +120,7 @@ class BaseSQLStorage(StorageLayer):
         pass
 
     def _query(self, instance, query, args):
-        c_tool = getToolByName(instance, TOOL_NAME)
+        c_tool = getUtility(IArchetypeTool)
         connection_id = c_tool.getConnFor(instance)
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), query)
@@ -129,7 +132,7 @@ class BaseSQLStorage(StorageLayer):
             getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
-        factory = getToolByName(instance,'portal_factory')
+        factory = getUtility(IFactoryTool)
         if factory.isTemporary(instance):
           return
               
@@ -245,7 +248,7 @@ class BaseSQLStorage(StorageLayer):
             temps[f.getName()] = f.get(instance)
         setattr(instance, '_v_%s_temps' % self.getName(), temps)
         # now, remove data from sql
-        c_tool = getToolByName(instance, TOOL_NAME)
+        c_tool = getUtility(IArchetypeTool)
         connection_id = c_tool.getConnFor(instance)
         args = {}
         args['table'] = instance.portal_type

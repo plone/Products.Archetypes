@@ -1,12 +1,7 @@
-import os, sys, textwrap
 
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
+import textwrap
 from AccessControl import Unauthorized
 
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
@@ -164,6 +159,3 @@ def test_suite():
     for klass in tests:
         suite.addTest(unittest.makeSuite(klass))
     return suite
-
-if __name__ == '__main__':
-    framework(descriptions=0, verbosity=1)

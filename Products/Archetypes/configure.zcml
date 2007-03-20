@@ -1,4 +1,5 @@
 <configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:cmf="http://namespaces.zope.org/cmf"
            xmlns:five="http://namespaces.zope.org/five">
 
   <include package="plone.locking" />
@@ -11,6 +12,12 @@
   <include package=".exportimport" />
   <include package=".Schema" />
   <include package=".browser" />
+
+  <cmf:registerDirectory
+      name="skins"
+      directory="skins"
+      recursive="True"
+      />
 
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
