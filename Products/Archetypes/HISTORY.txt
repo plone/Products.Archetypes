@@ -1,4 +1,7 @@
-1.5.0-b3 - unreleased
+1.5.0-b4 - unreleased
+=====================
+
+1.5.0-b3 - 2007-03-20
 =====================
 
   * Refactored installation code. This is now based on a GenericSetup extension
