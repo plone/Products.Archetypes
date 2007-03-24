@@ -1,6 +1,9 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Make the boolean widget work correctly with or without javascript.
+    [elvix]
+
   * Removed the default value for starting_year from the CalendarWidget. This
     ensures the value can be looked up dynamically from the properties.
     [hannosch]

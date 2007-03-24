@@ -32,7 +32,11 @@
 		 id fieldName;
 		 checked python:value;"
 		 />
-
+	  <input 
+		 type="hidden"
+		 value=""
+		 tal:attributes="name string:${fieldName}:boolean:default;"
+		 />
 	</metal:fill>
       </metal:use>
     </metal:define>
