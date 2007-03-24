@@ -199,12 +199,13 @@ def generateCtor(name, module):
     ctor = """
 def add%(name)s(self, id, **kwargs):
     from zope.event import notify
-    from zope.lifecycleevent import ObjectCreatedEvent
+    from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
     obj = %(name)s(id)
     notify(ObjectCreatedEvent(obj))
     self._setObject(id, obj)
     obj = self._getOb(id)
     obj.initializeArchetype(**kwargs)
+    notify(ObjectModifiedEvent(obj))
     return obj.getId()
 """ % {'name' : name}
     exec ctor in module.__dict__
