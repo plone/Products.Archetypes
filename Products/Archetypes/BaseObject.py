@@ -182,8 +182,6 @@ class BaseObject(Referenceable):
             log_exc()
             #_default_logger.log_exc()
             #raise
-        else:
-            event.notify(objectevent.ObjectModifiedEvent(self))            
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
