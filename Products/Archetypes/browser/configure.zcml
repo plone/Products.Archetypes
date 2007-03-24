@@ -6,15 +6,15 @@
       for="..interfaces.IBaseObject"
       name="at_base_edit_view"
       class=".edit.Edit"
-      permission="zope.Public"
-      allowed_attributes="isMultiPageSchema getTranslatedSchemaLabel"
+      permission="cmf.ModifyPortalContent"
+      allowed_attributes="isTemporaryObject isMultiPageSchema getTranslatedSchemaLabel"
       />
 
   <browser:page
       for="..interfaces.IBaseObject"
       name="at_lifecycle_view"
       class=".lifecycle.Lifecycle"
-      permission="zope.Public"
+      permission="cmf.ModifyPortalContent"
       allowed_attributes="begin_edit cancel_edit"
       />
 

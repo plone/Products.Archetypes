@@ -1,5 +1,6 @@
 <tal:block metal:define-macro="master"
            define="view context/@@at_base_edit_view;
+                   dummy python:view.isTemporaryObject() and request.set('disable_border', True);
                    lifecycle context/@@at_lifecycle_view;
                    lock_info context/@@plone_lock_info;
                    dummy lifecycle/begin_edit;

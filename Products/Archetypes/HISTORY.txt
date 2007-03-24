@@ -1,6 +1,11 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Disable the content border when an object is being added using
+    portal_factory. These tabs don't make sense in an "add form" scenario,
+    and were causing errors.
+    [optilude]
+
 1.5.0-b3 - 2007-03-20
 =====================
 
