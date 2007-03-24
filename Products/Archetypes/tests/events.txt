@@ -19,6 +19,7 @@ that listens for object events for `IBaseObject`:
   ...     def __call__(self, *args):
   ...         self.got.append(args)
   ...     def print_and_flush(self):
+  ...         print "%s events:" % len(self.got)
   ...         pprint(self.got)
   ...         self.got = []
   >>> handler = Handler()
@@ -28,6 +29,7 @@ Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  7 events:
   [(<DDocument at a>,
     <zope.app.event.objectevent.ObjectCreatedEvent object at ...>),
    (<DDocument at a>, <OFS.event.ObjectWillBeAddedEvent object at ...>),
@@ -35,6 +37,8 @@ Creating an AT object will a couple of events:
     <zope.app.container.contained.ObjectAddedEvent object at ...>),
    (<ATFolder at /plone/Members/test_user_1_>,
     <zope.app.container.contained.ContainerModifiedEvent object at ...>),
+   (<DDocument at /plone/Members/test_user_1_/a>,
+    <zope.app.event.objectevent.ObjectModifiedEvent object at ...),
    (<DDocument at /plone/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.BeforeTransitionEvent object at ...>),
    (<DDocument at /plone/Members/test_user_1_/a>,
@@ -46,6 +50,7 @@ will fire the modified event:
 
   >>> d.processForm()
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  1 events:
   [(<DDocument at /plone/Members/test_user_1_/a>,
     <Products.Archetypes.event.ObjectInitializedEvent object at ...>)]
 
@@ -56,5 +61,6 @@ Doing a `PUT` request will also fire the modified event:
   >>> request.processInputs()
   >>> ignore = d.PUT(request, request.RESPONSE)
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
+  1 events:
   [(<DDocument at /plone/Members/test_user_1_/a>,
     <zope.app.event.objectevent.ObjectModifiedEvent object at ...>)]

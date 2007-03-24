@@ -60,6 +60,7 @@ from zope import event
 from zope.interface import implements, Interface
 from zope.component import getUtility, queryUtility
 from zope.component import queryMultiAdapter
+from zope import lifecycleevent
 
 from Products.CMFCore.interfaces import IMetadataTool
 from Products.CMFCore.interfaces import IPropertiesTool
@@ -159,6 +160,8 @@ class BaseObject(Referenceable):
             log_exc()
             #_default_logger.log_exc()
             #raise
+        else:
+            event.notify(lifecycleevent.ObjectModifiedEvent(self))
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
