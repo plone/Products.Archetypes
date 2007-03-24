@@ -404,10 +404,10 @@ class CalendarWidget(TypesWidget):
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
         'show_hm' : True, 
-        'show_ymd' : True, # False not supported by the plone templates yet
-        'starting_year' : 1999, # not supported by the plone templates yet
-        'ending_year' : None, # not supported by the plone templates yet
-        'future_years' : 5, # not supported by the plone templates yet
+        'show_ymd' : True,
+        'starting_year' : None,
+        'ending_year' : None,
+        'future_years' : None,
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),

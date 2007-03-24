@@ -1,6 +1,10 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Removed the default value for starting_year from the CalendarWidget. This
+    ensures the value can be looked up dynamically from the properties.
+    [hannosch]
+
   * Disable the content border when an object is being added using
     portal_factory. These tabs don't make sense in an "add form" scenario,
     and were causing errors.
