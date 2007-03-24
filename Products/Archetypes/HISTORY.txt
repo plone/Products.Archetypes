@@ -1,6 +1,11 @@
 1.4.3 unreleased
 ----------------
 
+  * Add an ObjectModifiedEvent right after `initializeArchetype`,
+    since that modifies the object with default values defined in the
+    schema.
+    [nouri]
+
   * Fix http://dev.plone.org/archetypes/ticket/712: Do not put security
     declarations on a ComputedAttribute, or on 'def content_type(self)'.
     [mj]
