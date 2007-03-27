@@ -56,9 +56,10 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from Products.Archetypes.interfaces import IBaseObject
-from zope.interface import implements
+from zope.interface import implements, Interface
 from zope import event
 from zope.app.event import objectevent
+from zope.component import queryMultiAdapter
 
 _marker = []
 
@@ -1117,19 +1118,29 @@ class BaseObject(Referenceable):
             if shasattr(self, name):
                 target = getattr(self, name)
         else:
-            # We are allowed to acquire
-            target = getattr(self, name, None)
-        if (target is None and
-            method not in ('GET', 'POST') and not
-            isinstance(RESPONSE, xmlrpc.Response) and
-            REQUEST.maybe_webdav_client):
-            return NullResource(self, name, REQUEST).__of__(self)
+            if shasattr(self, name): # attributes of self come first
+                target = getattr(self, name)
+            else: # then views
+                target = queryMultiAdapter((self, REQUEST), Interface, name)
+                if target is not None:
+                    # We don't return the view, we raise an
+                    # AttributeError instead (below)
+                    target = None
+                else: # then acquired attributes
+                    target = getattr(self, name, None)
 
-        # Raise an AttributeError fallback on Five traversal if we didn't need a
-        # NullResource.
-        raise AttributeError(name)
+        if target is not None:
+            return target
+        elif (method not in ('GET', 'POST') and not
+              isinstance(RESPONSE, xmlrpc.Response) and
+              REQUEST.maybe_webdav_client):
+            return NullResource(self, name, REQUEST).__of__(self)
+        else:
+            # Raising AttributeError will look up views for us
+            raise AttributeError(name)
 
 InitializeClass(BaseObject)
+
 
 class Wrapper(Explicit):
     """Wrapper object for access to sub objects."""
