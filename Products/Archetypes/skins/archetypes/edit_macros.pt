@@ -13,16 +13,28 @@
         Document actions (print, sendto etc)
       </div>
 
-      <h1 i18n:translate="heading_edit_item" class="documentFirstHeading"
-          metal:define-slot="title">
-        Edit
-        <span i18n:name="itemtype"
-              tal:define="fti python:here.portal_types.getTypeInfo(here)">
-          <span i18n:translate=""
-                tal:content="fti/title_or_id"
-                tal:omit-tag="">Item type</span>
-        </span>
-      </h1>
+      <metal:block define-slot="title">
+        <h1 i18n:translate="heading_add_item" class="documentFirstHeading"
+            tal:condition="python:context.checkCreationFlag()">
+          Add
+          <span i18n:name="itemtype"
+                tal:define="fti python:here.portal_types.getTypeInfo(here)">
+            <span i18n:translate=""
+                  tal:content="fti/title_or_id"
+                  tal:omit-tag="">Item type</span>
+          </span>
+        </h1>
+        <h1 i18n:translate="heading_edit_item" class="documentFirstHeading"
+            tal:condition="python: not context.checkCreationFlag()">
+          Edit
+          <span i18n:name="itemtype"
+                tal:define="fti python:here.portal_types.getTypeInfo(here)">
+             <span i18n:translate=""
+                   tal:content="fti/title_or_id"
+                   tal:omit-tag="">Item type</span>
+          </span>
+        </h1>
+       </metal:block>
 
       <div id="archetypes-schemata-links"
            tal:condition="python: fieldsets and not allow_tabbing">
