@@ -1,0 +1,18 @@
+Known problems with sql-storage:
+
+ SQLStorage does not work well together with the portal factory tool.
+
+ for more information see:
+ http://sourceforge.net/tracker/index.php?func=detail&aid=1009865&group_id=75272&atid=543430
+
+ SQLStorage does not work well too if the python default encoding is ascii.
+
+ for more information see:
+ http://diveintopython.org/xml_processing/unicode.html (example 9.15)
+
+ # sitecustomize.py                   1
+ # this file can be anywhere in your Python path,
+ # but it usually goes in ${pythondir}/lib/site-packages/
+ import sys
+ sys.setdefaultencoding('iso-8859-1') 
+

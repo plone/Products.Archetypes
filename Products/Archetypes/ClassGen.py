@@ -6,8 +6,6 @@ from Products.Archetypes.utils import capitalize
 from Products.Archetypes.utils import _getSecurity
 from Products.Archetypes.debug import warn
 from Products.Archetypes.debug import deprecated
-from Acquisition import ImplicitAcquisitionWrapper
-from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
 # marker that AT should generate a method -- used to discard unwanted
@@ -200,13 +198,14 @@ def generateCtor(name, module):
     # self is a App.FactoryDispater, Destination() is the real folder
     ctor = """
 def add%(name)s(self, id, **kwargs):
-    from zope import event
-    from zope.app.event import objectevent
+    from zope.event import notify
+    from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
     obj = %(name)s(id)
+    notify(ObjectCreatedEvent(obj))
     self._setObject(id, obj)
     obj = self._getOb(id)
     obj.initializeArchetype(**kwargs)
-    event.notify(objectevent.ObjectModifiedEvent(obj))
+    notify(ObjectModifiedEvent(obj))
     return obj.getId()
 """ % {'name' : name}
     exec ctor in module.__dict__

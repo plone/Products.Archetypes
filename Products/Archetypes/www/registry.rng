@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+    xmlns="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    xmlns:f="http://axkit.org/NS/xsp/perform/v1" xmlns:s="http://www.ascc.net/xml/schematron" xmlns:xsp="http://apache.org/xsp/core/v1">
+    <start>
+        <element name="registry">
+            <interleave>
+                <element name="fieldelements">
+                    <zeroOrMore>
+                        <element name="fieldelement">
+                            <interleave>
+                                <attribute name="id">
+                                    <data
+                                        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                </attribute>
+                                <element name="title">
+                                    <text/>
+                                </element>
+                                <element name="description">
+                                    <text/>
+                                </element>
+                                <element name="defaultwidget">
+                                    <text/>
+                                </element>
+                                <element name="allowedwidgetelements">
+                                    <oneOrMore>
+                                        <element name="widget">
+                                            <text/>
+                                        </element>
+                                    </oneOrMore>
+                                </element>
+                                <element name="properties">
+                                    <oneOrMore>
+                                        <element name="property">
+                                            <interleave>
+                                                <element name="name">
+                                                  <text/>
+                                                </element>
+                                                <element name="type">
+                                                  <text/>
+                                                </element>
+                                                <optional>
+                                                  <element name="defaultvalue">
+                                                  <text/>
+                                                  </element>
+                                                </optional>
+                                            </interleave>
+                                        </element>
+                                    </oneOrMore>
+                                </element>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                </element>
+                <element name="widgetelements">
+                    <zeroOrMore>
+                        <element name="widgetelement">
+                            <interleave>
+                                <attribute name="id">
+                                    <data
+                                        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                </attribute>
+                                <element name="title">
+                                    <text/>
+                                </element>
+                                <element name="description">
+                                    <text/>
+                                </element>
+                                <element name="properties">
+                                    <oneOrMore>
+                                        <element name="property">
+                                            <interleave>
+                                                <element name="name">
+                                                  <text/>
+                                                </element>
+                                                <element name="type">
+                                                  <text/>
+                                                </element>
+                                                <optional>
+                                                  <element name="defaultvalue">
+                                                  <text/>
+                                                  </element>
+                                                </optional>
+                                            </interleave>
+                                        </element>
+                                    </oneOrMore>
+                                </element>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                </element>
+                <element name="validatorelements">
+                    <zeroOrMore>
+                        <element name="validatorelement">
+                            <interleave>
+                                <attribute name="id">
+                                    <data
+                                        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                </attribute>
+                                <element name="title">
+                                    <text/>
+                                </element>
+                                <element name="description">
+                                    <text/>
+                                </element>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                </element>
+                <element name="types">
+                    <zeroOrMore>
+                        <element name="type">
+                            <interleave>
+                                <attribute name="id">
+                                    <data
+                                        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                </attribute>
+                                <element name="portaltype">
+                                    <text/>
+                                </element>
+                                <optional>
+                                    <element name="readonly">
+                                        <data
+                                            datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="boolean"/>
+                                    </element>
+                                </optional>
+                                <element name="basetypes">
+                                    <oneOrMore>
+                                        <element name="basetype">
+                                            <text/>
+                                        </element>
+                                    </oneOrMore>
+                                </element>
+                                <element name="schema">
+                                    <oneOrMore>
+                                        <element name="schemata">
+                                            <attribute name="id">
+                                                <data
+                                                  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                            </attribute>
+                                            <element name="name">
+                                                <text/>
+                                            </element>
+                                            <oneOrMore>
+                                                <element name="field">
+                                                  <attribute name="id">
+                                                  <data
+                                                  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="ID"/>
+                                                  </attribute>
+                                                  <interleave>
+                                                  <element name="name">
+                                                  <text/>
+                                                  </element>
+                                                  <element name="type">
+                                                  <text/>
+                                                  </element>
+                                                  <element name="properties">
+                                                  <optional>
+                                                  <element name="widget">
+                                                  <interleave>
+                                                  <element name="type">
+                                                  <text/>
+                                                  </element>
+                                                  <zeroOrMore>
+                                                  <element name="label">
+                                                  <text/>
+                                                  <attribute name="xml:lang">
+                                                  <text/>
+                                                  </attribute>
+                                                  </element>
+                                                  </zeroOrMore>
+                                                  <zeroOrMore>
+                                                  <element name="description">
+                                                  <text/>
+                                                  <attribute name="xml:lang">
+                                                  <text/>
+                                                  </attribute>
+                                                  </element>
+                                                  </zeroOrMore>
+                                                  </interleave>
+                                                  </element>
+                                                  </optional>
+                                                  <optional>
+                                                  <element name="required">
+                                                  <data
+                                                  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="boolean"/>
+                                                  </element>
+                                                  </optional>
+                                                  <optional>
+                                                  <element name="searchable">
+                                                  <data
+                                                  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" type="boolean"/>
+                                                  </element>
+                                                  </optional>
+                                                  <optional>
+                                                  <element name="vocabulary">
+                                                  <text/>
+                                                  </element>
+                                                  </optional>
+                                                  <optional>
+                                                  <element name="validators">
+                                                  <oneOrMore>
+                                                  <element name="validator">
+                                                  <text/>
+                                                  </element>
+                                                  </oneOrMore>
+                                                  </element>
+                                                  </optional>
+                                                  <optional>
+                                                  <element name="allowedtypes">
+                                                  <oneOrMore>
+                                                  <element name="type">
+                                                  <text/>
+                                                  </element>
+                                                  </oneOrMore>
+                                                  </element>
+                                                  </optional>
+                                                  </element>
+                                                  </interleave>
+                                                </element>
+                                            </oneOrMore>
+                                        </element>
+                                    </oneOrMore>
+                                </element>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                </element>
+            </interleave>
+        </element>
+    </start>
+</grammar>
