@@ -48,7 +48,7 @@ input[name="form_submit"]:click {
     replaceWithView-templateId: kssAttr('templateId', true);
 }
 
-.inlineForm .blurrable:keypress {
+.inlineForm .blurrable:keypress(inlineescape) {
     evt-keypress-keycodes: '27';
     action-server: replaceWithView;
     replaceWithView-fieldname: kssAttr('atfieldname', true);
@@ -56,3 +56,29 @@ input[name="form_submit"]:click {
     replaceWithView-templateId: kssAttr('templateId', true);
 }
 
+.inlineForm input[type="text"].blurrable:keydown {
+    evt-keydown-preventdefault: true;
+    evt-keydown-keycodes: 13;
+    action-client: log;
+}
+
+/* Since some browsers (mainly, some version of Safari)
+   do a little bit of fireworks with the events (yeah,
+   cause it fires them up all together) we disable the
+   default on all of them */
+.inlineForm input[type="text"].blurrable:keypress {
+    evt-keypress-preventdefault: true;
+    evt-keypress-keycodes: 13;
+    action-client: log;
+	action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+}
+
+.inlineForm input[type="text"].blurrable:keyup {
+    evt-keyup-preventdefault: true;
+    evt-keyup-keycodes: 13;
+    action-client: log;
+}
