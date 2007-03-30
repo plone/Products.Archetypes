@@ -19,6 +19,7 @@ input[name="form_submit"]:click {
     replaceField-fieldname: kssAttr('atfieldname', true);
     replaceField-macro: kssAttr('macro', true);
     replaceField-templateId: kssAttr('templateId', true);
+    replaceField-edit: true;
     action-client: log;
 }
 

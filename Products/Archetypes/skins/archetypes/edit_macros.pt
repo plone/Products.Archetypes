@@ -73,7 +73,7 @@
             id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
                             id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing enableUnlockProtection', 'enableUnloadProtection enableUnlockProtection');">
 
           <metal:block define-slot="extra_top" />
 
