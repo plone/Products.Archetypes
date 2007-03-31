@@ -2,7 +2,7 @@
 =====================
 
   * Added an at_textarea_widget view and used it instead of the checkSelected,
-    unicodeEncode and lookupMime scripts on the textarea widget.
+    unicodeEncode and lookupMime scripts on the textarea and visual widgets.
     [hannosch]
 
   * Replaced the getSelectionWidgetSelected script introduced in beta2 with the

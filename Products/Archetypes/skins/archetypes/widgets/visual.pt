@@ -33,17 +33,19 @@
                   mimetypes python:field.getAllowedContentTypes(here);
                   ">
 
-<div class="fieldTextFormat" tal:condition="python: len(mimetypes) &gt; 1">
+<div class="fieldTextFormat" tal:condition="python: len(mimetypes) > 1">
     <label i18n:translate="label_text_format">Text Format</label>
 
-    <select tal:attributes="
-            id string:${fieldName}_text_format;
-            name string:${fieldName}_text_format;
-            tabindex tabindex/next;">
+    <select tal:define="textareaview context/@@at_textarea_widget;
+                        selection python:textareaview.getSelected(mimetypes, contentType)"
+            tal:attributes="id string:${fieldName}_text_format;
+                            name string:${fieldName}_text_format;
+                            tabindex tabindex/next;">
       <option selected=""
           tal:repeat="item mimetypes"
-          tal:attributes="selected python:test(str(contentType) == str(item), 'selected', None); value item;"
-          tal:content="python: here.lookupMime(item)" />
+          tal:attributes="selected python:item in selection and 'selected' or None;
+                          value item;"
+          tal:content="python:textareaview.lookupMime(item)" />
     </select>
 </div>
 
