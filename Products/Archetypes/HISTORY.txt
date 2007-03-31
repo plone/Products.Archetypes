@@ -1,6 +1,12 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Replaced the getSelectionWidgetSelected script introduced in beta2 with the
+    at_selection_widget browser view. This allows us to use a Python generator
+    and safes us from iterating over all values in the vocabulary, when the
+    first value is already the selected one.
+    [hannosch]
+
   * Make the boolean widget work correctly with or without javascript.
     [elvix]
 

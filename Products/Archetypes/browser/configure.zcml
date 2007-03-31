@@ -26,4 +26,12 @@
       allowed_attributes="getKssClassesInlineEditable getKssClasses"
       />
 
+  <browser:page
+      for="*"
+      name="at_selection_widget"
+      class=".widgets.SelectionWidget"
+      permission="zope2.View"
+      allowed_attributes="getSelected"
+      />
+
 </configure>

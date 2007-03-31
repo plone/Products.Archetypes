@@ -9,16 +9,17 @@
 <!-- Picklist Widgets -->
 
     <metal:view_macro define-macro="view"
-		      tal:define="vocab python:field.Vocabulary(here);
-		      value python:accessor();
-		      display python:here.displayValue(vocab, value);"
-		      tal:replace="structure display" />
+        tal:define="vocab python:field.Vocabulary(here);
+                    value python:accessor();
+                    display python:here.displayValue(vocab, value);"
+        tal:replace="structure display" />
 
     <metal:define define-macro="edit">
       <metal:use use-macro="here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
-                                selection python:here.getSelectionWidgetSelected(vocab, value);
+                                selectionview context/@@at_selection_widget;
+                                selection python:selectionview.getSelected(vocab, value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"

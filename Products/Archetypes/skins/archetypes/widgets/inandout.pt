@@ -47,7 +47,8 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
-                                selection python:here.getSelectionWidgetSelected(vocab, value);
+                                selectionview context/@@at_selection_widget;
+                                selection python:selectionview.getSelected(vocab, value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"
