@@ -30,8 +30,16 @@
       for="*"
       name="at_selection_widget"
       class=".widgets.SelectionWidget"
-      permission="zope2.View"
+      permission="cmf.ModifyPortalContent"
       allowed_attributes="getSelected"
+      />
+
+  <browser:page
+      for="*"
+      name="at_textarea_widget"
+      class=".widgets.TextareaWidget"
+      permission="cmf.ModifyPortalContent"
+      allowed_attributes="getSelected lookupMime"
       />
 
 </configure>

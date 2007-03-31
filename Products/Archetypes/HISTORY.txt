@@ -1,6 +1,10 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Added an at_textarea_widget view and used it instead of the checkSelected,
+    unicodeEncode and lookupMime scripts on the textarea widget.
+    [hannosch]
+
   * Replaced the getSelectionWidgetSelected script introduced in beta2 with the
     at_selection_widget browser view. This allows us to use a Python generator
     and safes us from iterating over all values in the vocabulary, when the

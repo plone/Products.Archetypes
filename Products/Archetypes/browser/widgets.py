@@ -2,6 +2,14 @@ from Acquisition import aq_inner
 from Products.Five import BrowserView
 
 
+# map from mimetypes used in allowable_content_types to mimetypes that are stored
+# in the base unit
+MIMETYPES_MAPPING = {
+    'text/x-python' : 'text/python-source',
+    'text/restructured': 'text/x-rst',
+}
+
+
 class SelectionWidget(BrowserView):
     """View used in Archetypes language and selection widget."""
 
@@ -42,3 +50,28 @@ class SelectionWidget(BrowserView):
                 selected.append(values[v])
 
         return selected
+
+
+class TextareaWidget(BrowserView):
+    """View used in Archetypes textarea widget."""
+
+    def getSelected(self, mimetypes, contenttype):
+        # An object can have only one contenttype at a time and mimetypes
+        # are limited to ASCII-only characters. We already assumed to get all
+        # values in all lowercase, so we don't do any case-juggling.
+
+        contenttype = MIMETYPES_MAPPING.get(contenttype, contenttype)
+
+        if contenttype in mimetypes:
+            return (contenttype, )
+
+        return ()
+
+    def lookupMime(self, name):
+        context = aq_inner(self.context)
+        mimetool = context.mimetypes_registry
+        mimetypes = mimetool.lookup(name)
+        if len(mimetypes):
+            return mimetypes[0].name()
+        else:
+            return name
