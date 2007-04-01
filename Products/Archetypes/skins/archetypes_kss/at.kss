@@ -70,15 +70,15 @@ input[name="form_submit"]:click {
     evt-keypress-preventdefault: true;
     evt-keypress-keycodes: 13;
     action-client: log;
-	action-server: saveField;
-    saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-value: currentForm();
-    saveField-macro: kssAttr('macro', true);
-    saveField-templateId: kssAttr('templateId', true);
 }
 
 .inlineForm input[type="text"].blurrable:keyup {
     evt-keyup-preventdefault: true;
     evt-keyup-keycodes: 13;
     action-client: log;
+	action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
 }
