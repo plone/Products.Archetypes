@@ -82,3 +82,7 @@ input[name="form_submit"]:click {
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
 }
+
+.inlineEditable span.link-external a:click {
+    evt-click-preventbubbling: true;
+}
