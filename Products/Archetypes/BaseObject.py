@@ -27,12 +27,12 @@ from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
 from Products.Archetypes.ArchetypeTool import getType
 from Products.Archetypes.ArchetypeTool import _guessPackage
 
-from Products.Archetypes.event import ObjectPreValidatingEvent
-from Products.Archetypes.event import ObjectPostValidatingEvent
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
 
 from Products.Archetypes.interfaces import IMultiPageSchema
+from Products.Archetypes.interfaces import IObjectPreValidation
+from Products.Archetypes.interfaces import IObjectPostValidation
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -58,6 +58,7 @@ from webdav.NullResource import NullResource
 
 from zope import event
 from zope.interface import implements, Interface
+from zope.component import subscribers
 from zope.component import getUtility, queryUtility
 from zope.component import queryMultiAdapter
 from zope import lifecycleevent
@@ -495,14 +496,20 @@ class BaseObject(Referenceable):
         """
         if errors is None:
             errors = {}
+            
         self.pre_validate(REQUEST, errors)
-        event.notify(ObjectPreValidatingEvent(self, REQUEST, errors)) 
+        for pre_validator in subscribers((self,), IObjectPreValidation):
+            pre_validator(REQUEST, errors)
+            
         if errors:
             return errors
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
+        
         self.post_validate(REQUEST, errors)
-        event.notify(ObjectPostValidatingEvent(self, REQUEST, errors)) 
+        for post_validator in subscribers((self,), IObjectPostValidation):
+            post_validator(REQUEST, errors)
+        
         return errors
 
     security.declareProtected(permissions.View, 'SearchableText')

@@ -11,10 +11,6 @@ from Products.Archetypes.interfaces import IObjectEditedEvent
 from Products.Archetypes.interfaces import IEditBegunEvent
 from Products.Archetypes.interfaces import IEditCancelledEvent
 
-from Products.Archetypes.interfaces import IObjectValidatingEvent
-from Products.Archetypes.interfaces import IObjectPreValidatingEvent
-from Products.Archetypes.interfaces import IObjectPostValidatingEvent
-
 # Modification
 
 class ObjectInitializedEvent(ObjectModifiedEvent):
@@ -36,25 +32,3 @@ class EditCancelledEvent(ObjectEvent):
     """An edit operation was cancelled
     """
     implements(IEditCancelledEvent)
-
-# Validation
-
-class ObjectValidatingEvent(ObjectEvent):
-    """Base class for validation events
-    """
-    implements(IObjectValidatingEvent)
-    
-    def __init__(self, object, REQUEST, errors):
-        super(ObjectValidatingEvent, self).__init__(object) 
-        self.REQUEST = REQUEST
-        self.errors = errors
-
-class ObjectPreValidatingEvent(ObjectValidatingEvent):
-    """An Archetypes object is being pre-validated.
-    """
-    implements(IObjectPreValidatingEvent)
-    
-class ObjectPostValidatingEvent(ObjectValidatingEvent):
-    """An archetypes object is being post-validated.
-    """
-    implements(IObjectPostValidatingEvent)

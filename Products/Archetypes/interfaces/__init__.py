@@ -5,7 +5,6 @@ import Products.Five
 from Products.Archetypes import utils
 from _annotations import IATAnnotatable, IATAnnotations
 from _base import IBaseObject, IBaseContent, IBaseFolder, IBaseUnit
-from _event import IObjectValidatingEvent, IObjectPreValidatingEvent, IObjectPostValidatingEvent
 from _event import IObjectInitializedEvent, IObjectEditedEvent, IEditBegunEvent, IEditCancelledEvent
 from _field import IField, IObjectField, IImageField, IFileField, IFieldDefaultProvider
 from _layer import ILayer, ILayerContainer, ILayerRuntime
@@ -20,6 +19,7 @@ from _vocabulary import IVocabulary
 from _athistoryaware import IATHistoryAware
 from _archetypetool import IArchetypeTool
 from _edit import IEditForm
+from _validator import IObjectPreValidation, IObjectPostValidation
 
 # BBB
 from Interface.bridge import createZope3Bridge

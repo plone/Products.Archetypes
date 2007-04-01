@@ -2,41 +2,23 @@
 Unittests for the events fired by Archetypes.
 """
 
-from zope.interface import Interface, directlyProvides
+from zope.interface import implements, Interface, directlyProvides
+from zope import component
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests import utils
 
-from zope.app.testing import ztapi
 from zope.publisher.browser import TestRequest
 
 from Products.Archetypes.atapi import BaseContent
 
-from Products.Archetypes.interfaces import IObjectPreValidatingEvent
-from Products.Archetypes.interfaces import IObjectPostValidatingEvent
+from Products.Archetypes.interfaces import IObjectPreValidation
+from Products.Archetypes.interfaces import IObjectPostValidation
+
 from Products.Archetypes.interfaces import IObjectInitializedEvent
 from Products.Archetypes.interfaces import IObjectEditedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
-
-class Dummy(BaseContent):
-    pass
-utils.gen_class(Dummy)
-
-def prehandler(ob, event):
-    event.errors['foo'] = 1
-
-def posthandler(ob, event):
-    event.errors['bar'] = 1
-    
-def createdhandler(ob, event):
-    ob._createdCaught = True
-    
-def initializedhandler(ob, event):
-    ob._initializedCaught = True
-    
-def editedhandler(ob, event):
-    ob._editedCaught = True
 
 class IObject1(Interface):
     pass
@@ -47,29 +29,49 @@ class IObject2(Interface):
 class IObject3(Interface):
     pass
 
-class ValidationEventTests(ATSiteTestCase):
-    def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
-        ztapi.subscribe(
-            (IObject1, IObjectPreValidatingEvent,),  None, prehandler)
-        ztapi.subscribe(
-            (IObject2, IObjectPostValidatingEvent,), None, posthandler)
-        ztapi.subscribe(
-            (IObject3, IObjectPreValidatingEvent,),  None, prehandler)
-        ztapi.subscribe(
-            (IObject3, IObjectPostValidatingEvent,), None, posthandler)
+class Dummy(BaseContent):
+    pass
+utils.gen_class(Dummy)
 
-        ztapi.subscribe(
-            (IObject1, IObjectCreatedEvent,), None, createdhandler)
-        ztapi.subscribe(
-            (IObject1, IObjectInitializedEvent,), None, initializedhandler)
-        ztapi.subscribe(
-            (IObject1, IObjectEditedEvent,), None, editedhandler)
+# Subscription adapters for validation
+
+class PreValidation(object):
+    implements(IObjectPreValidation)
     
-    def beforeTearDown(self):
-        ATSiteTestCase.beforeTearDown(self)
+    def __init__(self, context):
+        self.context = context
+    
+    def __call__(self, request, errors):
+        errors['foo'] = 1
+
+class PostValidation(object):
+    implements(IObjectPostValidation)
+    component.adapts(Dummy)
+    
+    def __init__(self, context):
+        self.context = context
+    
+    def __call__(self, request, errors):
+        errors['bar'] = 1
+    
+def created_handler(ob, event):
+    ob._createdCaught = True
+    
+def initialized_handler(ob, event):
+    ob._initializedCaught = True
+    
+def edited_handler(ob, event):
+    ob._editedCaught = True
+
+class ValidationEventTests(ATSiteTestCase):
 
     def testPreValidatingEvent(self):
+        
+        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject1,))
+        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject3,))
+        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject2,))
+        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject3,))
+        
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
@@ -87,8 +89,20 @@ class ValidationEventTests(ATSiteTestCase):
         errors = ob.validate()
         self.failUnless(errors['foo'])
         del ob
+        
+        sm = component.getSiteManager()
+        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject1,))
+        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject3,))
+        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject2,))
+        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject3,))
 
     def testPostValidatingEvent(self):
+        
+        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject1,))
+        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject3,))
+        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject2,))
+        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject3,))
+        
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
@@ -107,7 +121,18 @@ class ValidationEventTests(ATSiteTestCase):
         self.failUnless(not errors.has_key('bar'))
         del ob
         
+        sm = component.getSiteManager()
+        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject1,))
+        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject3,))
+        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject2,))
+        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject3,))
+        
     def testInitializedAndEditedEvent(self):
+        
+        component.provideHandler(created_handler, (IObject1, IObjectCreatedEvent,))
+        component.provideHandler(initialized_handler, (IObject1, IObjectInitializedEvent,))
+        component.provideHandler(edited_handler, (IObject1, IObjectEditedEvent,))
+        
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         self.folder._setObject('dummy', ob)
@@ -125,6 +150,11 @@ class ValidationEventTests(ATSiteTestCase):
         # Simulate subsequent edit
         ob.processForm(REQUEST=TestRequest())
         self.assertEquals(True, ob._editedCaught)
+        
+        sm = component.getSiteManager()
+        sm.unregisterHandler(created_handler, (IObject1, IObjectCreatedEvent,))
+        sm.unregisterHandler(initialized_handler, (IObject1, IObjectCreatedEvent,))
+        sm.unregisterHandler(edited_handler, (IObject1, IObjectCreatedEvent,))
         
 
 def test_suite():
