@@ -41,18 +41,17 @@ class PreValidation(object):
     def __init__(self, context):
         self.context = context
     
-    def __call__(self, request, errors):
-        errors['foo'] = 1
+    def __call__(self, request):
+        return dict(foo="Foo was invalid.")
 
 class PostValidation(object):
     implements(IObjectPostValidation)
-    component.adapts(Dummy)
     
     def __init__(self, context):
         self.context = context
     
-    def __call__(self, request, errors):
-        errors['bar'] = 1
+    def __call__(self, request):
+        return dict(bar="Bar was invalid.")
     
 def created_handler(ob, event):
     ob._createdCaught = True
@@ -67,11 +66,15 @@ class ValidationEventTests(ATSiteTestCase):
 
     def testPreValidatingEvent(self):
         
+        # Register some subscription adapters for different types of objects
+        # These will be called during validation
+
         component.provideSubscriptionAdapter(PreValidation, adapts=(IObject1,))
         component.provideSubscriptionAdapter(PreValidation, adapts=(IObject3,))
-        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject2,))
-        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject3,))
         
+        # Verify that they are called only on the right type of object,
+        # and that their return values are included in the error output
+
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
@@ -81,7 +84,7 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject2)
         errors = ob.validate()
-        self.failUnless(not errors.has_key('foo'))
+        self.failIf(errors.has_key('foo'))
         del ob
         
         ob = Dummy('dummy')
@@ -93,20 +96,21 @@ class ValidationEventTests(ATSiteTestCase):
         sm = component.getSiteManager()
         sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject1,))
         sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject3,))
-        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject2,))
-        sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject3,))
 
     def testPostValidatingEvent(self):
         
-        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject1,))
-        component.provideSubscriptionAdapter(PreValidation, adapts=(IObject3,))
+        # This test is similar to the test for pre-validation above. The
+        # difference is that the post validation works after main schema
+        # validation, whilst the pre-validation works before, and may
+        # short-circuit schema validation.
+        
         component.provideSubscriptionAdapter(PostValidation, adapts=(IObject2,))
         component.provideSubscriptionAdapter(PostValidation, adapts=(IObject3,))
         
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
-        self.failUnless(not errors.has_key('bar'))
+        self.failIf(errors.has_key('bar'))
         del ob
         
         ob = Dummy('dummy')
@@ -118,12 +122,10 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject3)
         errors = ob.validate()
-        self.failUnless(not errors.has_key('bar'))
+        self.failUnless(errors.has_key('bar'))
         del ob
         
         sm = component.getSiteManager()
-        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject1,))
-        sm.unregisterSubscriptionAdapter(PreValidation, required=(IObject3,))
         sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject2,))
         sm.unregisterSubscriptionAdapter(PostValidation, required=(IObject3,))
         

@@ -498,8 +498,15 @@ class BaseObject(Referenceable):
             errors = {}
             
         self.pre_validate(REQUEST, errors)
+        
         for pre_validator in subscribers((self,), IObjectPreValidation):
-            pre_validator(REQUEST, errors)
+            pre_errors = pre_validator(REQUEST)
+            if pre_errors is not None:
+                for field_name, error_message in pre_errors.items():
+                    if field_name in errors:
+                        errors[field_name] += " %s" % error_message
+                    else:
+                        errors[field_name] = error_message
             
         if errors:
             return errors
@@ -507,8 +514,15 @@ class BaseObject(Referenceable):
                                errors=errors, data=data, metadata=metadata)
         
         self.post_validate(REQUEST, errors)
+        
         for post_validator in subscribers((self,), IObjectPostValidation):
-            post_validator(REQUEST, errors)
+            post_errors = post_validator(REQUEST)
+            if post_errors is not None:
+                for field_name, error_message in post_errors.items():
+                    if field_name in errors:
+                        errors[field_name] += " %s" % error_message
+                    else:
+                        errors[field_name] = error_message
         
         return errors
 

@@ -7,24 +7,21 @@ README.txt and interfaces.py.
     
 from zope.interface import Interface
 
-class IObjectPreValidation(Interface):
-    """Pre-validate an Archetypes object
+class IObjectValidation(Interface):
+    """Pre- or post-validate an Archetypes object (common base interface)
     
     Will be called as a subscription adapter during validation.
     """
     
-    def __call__(request, errors):
-        """Validate the context object. Put any error messages,
-        keyed on field name, in the errors dict.
+    def __call__(request):
+        """Validate the context object. Return a dict with keys of fieldnames
+        and values of error strings.
         """
-    
-class IObjectPostValidation(Interface):
-    """Post-validate an Archetypes object
-    
-    Will be called as a subscription adapter during validation.
+class IObjectPreValidation(IObjectValidation):
+    """Validate before schema validation
     """
     
-    def __call__(request, errors):
-        """Validate the context object. Put any error messages,
-        keyed on field name, in the errors dict.
-        """
+class IObjectPostValidation(IObjectValidation):
+    """Validate after schema validation
+    """
+    
