@@ -101,7 +101,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
                 description=_(u'help_description',
-                              default=u'The geographical location of the item.'),
+                              default=u'The geographical location associated with the item, if applicable.'),
                 ),
         ),
         LinesField(
