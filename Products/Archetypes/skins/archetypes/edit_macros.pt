@@ -9,10 +9,6 @@
   <body>
 
     <div metal:define-macro="header">
-      <div metal:use-macro="here/document_actions/macros/document_actions">
-        Document actions (print, sendto etc)
-      </div>
-
       <metal:block define-slot="title">
         <h1 i18n:translate="heading_add_item" class="documentFirstHeading"
             tal:condition="python:context.checkCreationFlag()">
