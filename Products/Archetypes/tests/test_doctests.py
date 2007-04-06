@@ -38,7 +38,6 @@ DOCTEST_MODULES = (
     'Products.Archetypes.AllowedTypesByIface',
     'Products.Archetypes.Field',
     'Products.Archetypes.Marshall',
-    'Products.Archetypes.fieldproperty'
     )
 
 DOCTEST_FILES = ('events.txt',)
