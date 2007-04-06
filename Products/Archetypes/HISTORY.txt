@@ -1,6 +1,11 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be
+    used analogously to zope.schema.fieldproperty.FieldProperty for Archetypes
+    fields. See the doctest in that module for details.
+    [optilude]
+
   * Added an at_textarea_widget view and used it instead of the checkSelected,
     unicodeEncode and lookupMime scripts on the textarea and visual widgets.
     [hannosch]

@@ -87,6 +87,7 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
 from Products.Archetypes.BaseObject import AttributeValidator
 from Products.Archetypes.athistoryaware import ATHistoryAwareMixin
+from Products.Archetypes.fieldproperty import ATFieldProperty
 
 # dynamicly calculate which modules should be exported
 import sys
