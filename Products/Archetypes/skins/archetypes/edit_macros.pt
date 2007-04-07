@@ -30,6 +30,20 @@
                    tal:omit-tag="">Item type</span>
           </span>
         </h1>
+
+<dl class="portalMessage info"
+    tal:condition="here/@@plone/isDefaultPageInFolder">
+    <dt i18n:translate="">
+        Info
+    </dt>
+    <dd i18n:translate="enable_cookies_message">
+        You are editing the default view of a container. If you wanted to edit the container itself,
+       <a href="" 
+          title="sharing contents" 
+          tal:attributes="href python:'/'.join(here.aq_inner.aq_parent.getPhysicalPath()) + '/edit'">go here</a>.
+    </dd>
+</dl>
+
        </metal:block>
 
       <div id="archetypes-schemata-links"
