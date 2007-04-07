@@ -1,7 +1,9 @@
 
 /* Base kss resource for Archetypes */
 
-.blurrable:blur {
+input.blurrable:blur,
+select.blurrable:blur,
+textarea.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
@@ -22,7 +24,7 @@ input[name="form_submit"]:click {
     action-client: log;
 }
 
-.inlineForm input[name=kss-save]:click {
+form.inlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
@@ -31,7 +33,9 @@ input[name="form_submit"]:click {
     saveField-templateId: kssAttr('templateId', true);
 }
 
-.inlineForm .blurrable:blur {
+form.inlineForm input.blurrable:blur,
+form.inlineForm select.blurrable:blur,
+form.inlineForm textarea.blurrable:blur {
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
     saveField-value: currentForm();
@@ -40,7 +44,7 @@ input[name="form_submit"]:click {
     action-cancel: kssValidateField;
 }
 
-.inlineForm input[name=kss-cancel]:click {
+form.inlineForm input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
     action-server: replaceWithView;
     replaceWithView-fieldname: kssAttr('atfieldname', true);
@@ -48,7 +52,9 @@ input[name="form_submit"]:click {
     replaceWithView-templateId: kssAttr('templateId', true);
 }
 
-.inlineForm .blurrable:keypress(inlineescape) {
+form.inlineForm input.blurrable:keypress(inlineescape),
+form.inlineForm select.blurrable:keypress(inlineescape),
+form.inlineForm textarea.blurrable:keypress(inlineescape) {
     evt-keypress-keycodes: '27';
     action-server: replaceWithView;
     replaceWithView-fieldname: kssAttr('atfieldname', true);
@@ -56,7 +62,7 @@ input[name="form_submit"]:click {
     replaceWithView-templateId: kssAttr('templateId', true);
 }
 
-.inlineForm input[type="text"].blurrable:keydown {
+form.inlineForm input[type="text"].blurrable:keydown {
     evt-keydown-preventdefault: true;
     evt-keydown-keycodes: 13;
     action-client: log;
@@ -66,17 +72,17 @@ input[name="form_submit"]:click {
    do a little bit of fireworks with the events (yeah,
    cause it fires them up all together) we disable the
    default on all of them */
-.inlineForm input[type="text"].blurrable:keypress {
+form.inlineForm input[type="text"].blurrable:keypress {
     evt-keypress-preventdefault: true;
     evt-keypress-keycodes: 13;
     action-client: log;
 }
 
-.inlineForm input[type="text"].blurrable:keyup {
+form.inlineForm input[type="text"].blurrable:keyup {
     evt-keyup-preventdefault: true;
     evt-keyup-keycodes: 13;
     action-client: log;
-	action-server: saveField;
+    action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
     saveField-value: currentForm();
     saveField-macro: kssAttr('macro', true);
