@@ -1,8 +1,8 @@
 1.5.0-b4 - unreleased
 =====================
 
-  * Attempt to fix #620 by hardcoding enoding of filename to
-    ISO-8859-15 in Content-disposition header.
+  * Convert filename to ASCII in Content-Disposition header on
+    download.  This fixes #620.
     [nouri]
 
   * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be

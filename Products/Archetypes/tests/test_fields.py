@@ -357,20 +357,12 @@ class DownloadTest(ATSiteTestCase):
         self.failIf(isinstance(value, str))
 
     def test_download_filename_encoding(self):
-        # When downloading, the filename is usually encoded with ISO-8859-1
+        # When downloading, the filename is converted to ASCII:
         self.field.setFilename(self.dummy, '\xc3\xbcberzeugen')
         self.field.download(self.dummy, no_output=True)
         self.assertEqual(self.response.headers['content-disposition'],
-                         'attachment; filename="\xfcberzeugen"')
-
-        # unless we set the config.FILENAME_ENCODING to something else
-        orig = config.FILENAME_ENCODING
-        config.FILENAME_ENCODING = 'UTF-8'
-        self.field.download(self.dummy, no_output=True)
-        self.assertEqual(self.response.headers['content-disposition'],
-                         'attachment; filename="\xc3\xbcberzeugen"')
-        config.FILENAME_ENCODING = orig
-
+                         'attachment; filename="uberzeugen"')
+        
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
