@@ -1,6 +1,10 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Attempt to fix #620 by hardcoding enoding of filename to
+    ISO-8859-15 in Content-disposition header.
+    [nouri]
+
   * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be
     used analogously to zope.schema.fieldproperty.FieldProperty for Archetypes
     fields. See the doctest in that module for details.

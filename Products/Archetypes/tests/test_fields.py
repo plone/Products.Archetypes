@@ -42,6 +42,7 @@ from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
 from Products.Archetypes.Field import ScalableImage
+from Products.Archetypes import config
 from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime
@@ -333,22 +334,46 @@ class ProcessingTest(ATSiteTestCase):
         self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
 
+
+class DownloadTest(ATSiteTestCase):
+
+    def afterSetUp(self):
+        # Set up a content object with a field that has a word
+        # document in it
+        ATSiteTestCase.afterSetUp(self)
+        self.dummy = mkDummyInContext(
+            Dummy, oid='dummy', context=self.portal, schema=schema)
+        self.field = self.dummy.getField('textfield')
+        ptpath = PortalTransforms.__path__[0]
+        self.wordfile = open('%s/tests/input/test.doc' % ptpath)
+        self.field.getMutator(self.dummy)(self.wordfile.read())
+        self.request = self.app.REQUEST
+        self.response = self.request.response
+    
     def test_download_from_textfield(self):
         # make sure field data doesn't get transformed when using the
         # download method
-        dummy = self.makeDummy()
-        request = FakeRequest()
-        field = dummy.getField('textfield')
-        ptpath = PortalTransforms.__path__[0]
-        wordfile = open('%s/tests/input/test.doc' % ptpath)
-        field.getMutator(dummy)(wordfile.read())
-        value = field.download(dummy, no_output=True)
-        type = __builtins__['type']
-        self.failIf(type(value) == type('str'))
+        value = self.field.download(self.dummy, no_output=True)
+        self.failIf(isinstance(value, str))
 
+    def test_download_filename_encoding(self):
+        # When downloading, the filename is usually encoded with ISO-8859-1
+        self.field.setFilename(self.dummy, '\xc3\xbcberzeugen')
+        self.field.download(self.dummy, no_output=True)
+        self.assertEqual(self.response.headers['content-disposition'],
+                         'attachment; filename="\xfcberzeugen"')
+
+        # unless we set the config.FILENAME_ENCODING to something else
+        orig = config.FILENAME_ENCODING
+        config.FILENAME_ENCODING = 'UTF-8'
+        self.field.download(self.dummy, no_output=True)
+        self.assertEqual(self.response.headers['content-disposition'],
+                         'attachment; filename="\xc3\xbcberzeugen"')
+        config.FILENAME_ENCODING = orig
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ProcessingTest))
+    suite.addTest(makeSuite(DownloadTest))
     return suite

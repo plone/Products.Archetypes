@@ -1137,7 +1137,13 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
         if filename is not None:
-            header_value = contentDispositionHeader('attachment', instance.getCharset(), filename=filename)
+            # See #620
+            filename = unicode(filename, 'utf-8').encode(
+                config.FILENAME_ENCODING, 'ignore')
+            header_value = contentDispositionHeader(
+                disposition='attachment',
+                charset=config.FILENAME_ENCODING,
+                filename=filename)
             RESPONSE.setHeader("Content-disposition", header_value)
         if no_output:
             return file

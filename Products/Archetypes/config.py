@@ -58,3 +58,9 @@ LANGUAGE_DEFAULT=u''
 ## Archetypes before 1.4 managed the catalog map using meta types instead of
 ## portal types. If you need this old behaviour change this setting to False.
 CATALOGMAP_USES_PORTALTYPE = True
+
+# Used for setting the `Content-disposition` header on download. It
+# appears that encoding the filename as UTF-8 only works for Firefox,
+# while ISO-8859-1 is accepted by all of Firefox, Safari and IE.  (See
+# also #620)
+FILENAME_ENCODING = 'ISO-8859-1'
