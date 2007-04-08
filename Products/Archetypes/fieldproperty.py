@@ -69,7 +69,10 @@ class ATFieldProperty(object):
     def __get__(self, inst, klass):
         if inst is None:
             return self
-        return inst.getField(self.__name).get(inst)
+        field = inst.getField(self.__name)
+        if field is None:
+            raise KeyError("Cannot find field with name %s" % self.__name)
+        return field.get(inst)
 
     def __set__(self, inst, value):
         inst.getField(self.__name).set(inst, value)
