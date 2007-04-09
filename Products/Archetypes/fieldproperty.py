@@ -146,7 +146,11 @@ class ATDateTimeFieldProperty(ATFieldProperty):
         super(ATDateTimeFieldProperty, self).__init__(name, self._zope2python_dt, self._python2zope_dt)
         
     def _zope2python_dt(self, zope_dt):
+        if zope_dt is None:
+            return None
         return datetime.fromtimestamp(zope_dt.timeTime())
 
     def _python2zope_dt(self, python_dt):
+        if python_dt is None:
+            return None
         return DateTime(mktime(python_dt.timetuple()))
