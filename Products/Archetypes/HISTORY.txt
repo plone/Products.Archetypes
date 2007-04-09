@@ -1,6 +1,11 @@
 1.5.0-b4 - unreleased
 =====================
 
+  * Added an ATDateTimeFieldProperty version of the ATFieldProperty mentioned
+    below. This takes care of conversion between Zope 2 DateTime's and Python
+    datetime objects.
+    [optilude]
+
   * Convert filename to ASCII in Content-Disposition header on
     download.  This fixes #620.
     [nouri]
