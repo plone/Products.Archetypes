@@ -205,6 +205,17 @@ class ATHistoryAwareMixin:
             obj.__setstate__(state)
             obj._p_changed = 0
             
+            # Update revision metadata if needed
+            if revision['tid'] != tid:
+                metadata = history[tid].values()[0] # any other revision will do
+                revision = revision.copy()
+                revision['tid'] = tid
+                revision['description'] = metadata['description']
+                revision['time'] = metadata['time']
+                revision['user_name'] = metadata['user_name']
+                # size cannot be reconciled and will be inaccurate
+                del metadata
+            
             # clean up as we go
             del history[tid]
             
