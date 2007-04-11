@@ -138,6 +138,9 @@ class ATHistoryAwareMixin:
             
         if not getattr(self, '__annotations__', None):
             # No annotations, just return the history we have for self
+            # Note that if this object had __annotations__ in a past 
+            # transaction they will be ignored! Working around this is a
+            # YAGNI I think though.
             for tid in sorted(history.keys()):
                 yield history[tid][None]
             return
