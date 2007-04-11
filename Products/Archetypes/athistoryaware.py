@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -170,6 +171,7 @@ class ATHistoryAwareMixin:
             has_revision = lambda t, h=history, k=key: k in h[t]
             next_tid = itertools.ifilter(has_revision, tids).next()
             return history[next_tid][key]
+        
         for i, tid in enumerate(tids[:max]):
             revision = find_revision(tids[i:], None)
             obj = revision['object']
