@@ -337,6 +337,40 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.failIf(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), '0')
         
+class TimeZoneTest(ATSiteTestCase):
+    def _makeDummyContent(self, name):
+        return mkDummyInContext(
+            klass=Dummy, oid=name, context=self.portal, schema=schema)
+
+    def test_Date_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.Date('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_CreationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setCreationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.CreationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_ModificationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.ModificationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_EffectiveDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setEffectiveDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.EffectiveDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_ExpirationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setExpirationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.ExpirationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
 
 def test_suite():
     from unittest import TestSuite, makeSuite
@@ -345,4 +379,5 @@ def test_suite():
     suite.addTest(makeSuite(ExtMetadataContextTest))
     suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
     suite.addTest(makeSuite(ExtMetadataSetFormatTest))
+    suite.addTest(makeSuite(TimeZoneTest))
     return suite
