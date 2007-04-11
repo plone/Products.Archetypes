@@ -178,8 +178,12 @@ class ATHistoryAwareMixin:
         for i, tid in enumerate(tids[:max]):
             revision = find_revision(tids[i:], None)
             obj = revision['object']
+            # Track size to maintain correct metadata
+            size = revision['size']
             
-            anns = find_revision(tids[i:], '__annotations__')['object']
+            anns_rev = find_revision(tids[i:], '__annotations__')
+            size += anns_rev['size']
+            anns = anns_rev['object']
             
             # We use a temporary OOBTree to avoid _p_jar complaints from the
             # transaction machinery
@@ -190,7 +194,9 @@ class ATHistoryAwareMixin:
             for key in itertools.ifilter(isatkey, tempbtree.iterkeys()):
                 if not hasattr(tempbtree[key], '_p_jar'):
                     continue # Not persistent
-                tempbtree[key] = find_revision(tids[i:], key)['object']
+                value_rev = find_revision(tids[i:], key)
+                size += value_rev['size']
+                tempbtree[key] = value_rev['object']
                 
             # Now transfer the tembtree state over to anns, effectively 
             # bypassing the transaction registry while maintaining BTree 
@@ -207,14 +213,12 @@ class ATHistoryAwareMixin:
             
             # Update revision metadata if needed
             if revision['tid'] != tid:
-                metadata = history[tid].values()[0] # any other revision will do
-                revision = revision.copy()
-                revision['tid'] = tid
-                revision['description'] = metadata['description']
-                revision['time'] = metadata['time']
-                revision['user_name'] = metadata['user_name']
-                # size cannot be reconciled and will be inaccurate
-                del metadata
+                # any other revision will do; only size and object are unique
+                revision = history[tid].values()[0].copy()
+                revision['object'] = obj
+                
+            # Correct size based on merged records
+            revision['size'] = size
             
             # clean up as we go
             del history[tid]
