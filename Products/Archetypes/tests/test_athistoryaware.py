@@ -128,7 +128,7 @@ class ATHistoryAwareTests(unittest.TestCase):
         expected = (False, False, True, False, False)
         self.assertEqual(tuple(key3_history), expected)
         
-    def test_maxReturend(self):
+    def test_maxReturned(self):
         history = list(self.object.getHistories(max=2))
         self.assertEqual(len(history), 2)
         
