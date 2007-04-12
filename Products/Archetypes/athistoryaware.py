@@ -137,6 +137,9 @@ class ATHistoryAwareMixin:
             
         if not getattr(self, '__annotations__', None):
             # No annotations, just return the history we have for self
+            # Note that if this object had __annotations__ in a past 
+            # transaction they will be ignored! Working around this is a
+            # YAGNI I think though.
             for tid in sorted(history.keys()):
                 yield history[tid][None]
             return
@@ -170,11 +173,16 @@ class ATHistoryAwareMixin:
             has_revision = lambda t, h=history, k=key: k in h[t]
             next_tid = itertools.ifilter(has_revision, tids).next()
             return history[next_tid][key]
+        
         for i, tid in enumerate(tids[:max]):
             revision = find_revision(tids[i:], None)
             obj = revision['object']
+            # Track size to maintain correct metadata
+            size = revision['size']
             
-            anns = find_revision(tids[i:], '__annotations__')['object']
+            anns_rev = find_revision(tids[i:], '__annotations__')
+            size += anns_rev['size']
+            anns = anns_rev['object']
             
             # We use a temporary OOBTree to avoid _p_jar complaints from the
             # transaction machinery
@@ -185,7 +193,9 @@ class ATHistoryAwareMixin:
             for key in itertools.ifilter(isatkey, tempbtree.iterkeys()):
                 if not hasattr(tempbtree[key], '_p_jar'):
                     continue # Not persistent
-                tempbtree[key] = find_revision(tids[i:], key)['object']
+                value_rev = find_revision(tids[i:], key)
+                size += value_rev['size']
+                tempbtree[key] = value_rev['object']
                 
             # Now transfer the tembtree state over to anns, effectively 
             # bypassing the transaction registry while maintaining BTree 
@@ -199,6 +209,15 @@ class ATHistoryAwareMixin:
             state['__annotations__'] = anns
             obj.__setstate__(state)
             obj._p_changed = 0
+            
+            # Update revision metadata if needed
+            if revision['tid'] != tid:
+                # any other revision will do; only size and object are unique
+                revision = history[tid].values()[0].copy()
+                revision['object'] = obj
+                
+            # Correct size based on merged records
+            revision['size'] = size
             
             # clean up as we go
             del history[tid]
