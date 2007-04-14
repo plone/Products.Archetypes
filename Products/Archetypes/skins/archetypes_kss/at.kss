@@ -89,6 +89,6 @@ form.inlineForm input[type="text"].blurrable:keyup {
     saveField-templateId: kssAttr('templateId', true);
 }
 
-.inlineEditable span.link-external a:click {
+.inlineEditable a:click {
     evt-click-preventbubbling: true;
 }
