@@ -26,6 +26,8 @@ from Products.CMFCore.interfaces import IMembershipTool
 
 _marker=[]
 
+# http://www.zope.org/Collectors/CMF/325
+# http://www.zope.org/Collectors/CMF/476
 _zone = DateTime().timezone()
 
 FLOOR_DATE = DateTime(1000, 0) # always effective
@@ -306,17 +308,21 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore interface query methods #####################################
 
     security.declareProtected(permissions.View, 'CreationDate')
-    def CreationDate(self, zone=_zone):
+    def CreationDate(self, zone=None):
         """ Dublin Core element - date resource created.
         """
+        if zone is None:
+            zone = _zone
         creation = self.getField('creation_date').get(self)
         # return unknown if never set properly
         return creation is None and 'Unknown' or creation.toZone(zone).ISO()
 
     security.declareProtected( permissions.View, 'EffectiveDate')
-    def EffectiveDate(self, zone=_zone):
+    def EffectiveDate(self, zone=None):
         """ Dublin Core element - date resource becomes effective.
         """
+        if zone is None:
+            zone = _zone
         effective = self.getField('effectiveDate').get(self)
         return effective is None and 'None' or effective.toZone(zone).ISO()
 
@@ -330,9 +336,11 @@ class ExtensibleMetadata(Persistence.Persistent):
 
 
     security.declareProtected( permissions.View, 'ExpirationDate')
-    def ExpirationDate(self, zone=_zone):
+    def ExpirationDate(self, zone=None):
         """Dublin Core element - date resource expires.
         """
+        if zone is None:
+            zone = _zone
         expires = self.getField('expirationDate').get(self)
         return expires is None and 'None' or expires.toZone(zone).ISO()
 
@@ -345,12 +353,14 @@ class ExtensibleMetadata(Persistence.Persistent):
     expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(permissions.View, 'Date')
-    def Date(self, zone=_zone):
+    def Date(self, zone=None):
         """
         Dublin Core element - default date
         """
         # Return effective_date if specifically set, modification date
         # otherwise
+        if zone is None:
+            zone = _zone
         effective = self.getField('effectiveDate').get(self)
         if effective is None:
             effective = self.modified()
@@ -511,9 +521,11 @@ class ExtensibleMetadata(Persistence.Persistent):
         return 'No publisher'
 
     security.declareProtected(permissions.View, 'ModificationDate')
-    def ModificationDate(self, zone=_zone):
+    def ModificationDate(self, zone=None):
         """ Dublin Core element - date resource last modified.
         """
+        if zone is None:
+            zone = _zone
         modified = self.modified()
         return (modified is None and DateTime().toZone(zone)
                 or modified.toZone(zone).ISO())
