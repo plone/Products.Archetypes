@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,6 +23,14 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 from Acquisition import aq_parent
@@ -32,12 +41,15 @@ from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import schema
 
-from types import FunctionType
+from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes import config
+from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.config import PKG_NAME
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from Products.CMFCore.utils import getToolByName
 
 fieldList = [
     # (accessor, mutator, field),
@@ -337,6 +349,40 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.failIf(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), '0')
         
+class TimeZoneTest(ATSiteTestCase):
+    def _makeDummyContent(self, name):
+        return mkDummyInContext(
+            klass=Dummy, oid=name, context=self.portal, schema=schema)
+
+    def test_Date_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.Date('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_CreationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setCreationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.CreationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_ModificationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.ModificationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_EffectiveDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setEffectiveDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.EffectiveDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
+
+    def test_ExpirationDate_with_explicit_timezone(self):
+        item = self._makeDummyContent('item')
+        item.setExpirationDate(DateTime('2007-01-01T12:00:00Z'))
+        self.assertEqual(item.ExpirationDate('US/Eastern'),
+                         '2007-01-01 07:00:00')
 
 def test_suite():
     from unittest import TestSuite, makeSuite
@@ -345,4 +391,8 @@ def test_suite():
     suite.addTest(makeSuite(ExtMetadataContextTest))
     suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
     suite.addTest(makeSuite(ExtMetadataSetFormatTest))
+    suite.addTest(makeSuite(TimeZoneTest))
     return suite
+
+if __name__ == '__main__':
+    framework()
