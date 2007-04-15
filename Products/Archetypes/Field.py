@@ -1773,7 +1773,7 @@ class ReferenceField(ObjectField):
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
-        if self.vocabulary:
+        if self.vocabulary or self.vocabulary_factory:
             return ObjectField.Vocabulary(self, content_instance)
         else:
             return self._Vocabulary(content_instance).sortedByValue()
