@@ -6,7 +6,7 @@ import unittest
 import Acquisition
 import BTrees
 import transaction
-import OFS
+import OFS.Application
 import persistent
 import ZODB
 from ZODB.FileStorage import FileStorage
