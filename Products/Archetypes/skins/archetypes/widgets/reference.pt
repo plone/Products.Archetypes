@@ -91,10 +91,7 @@
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:vocab.getValue(item)"
-                       i18n:translate="">
-                    label
-                </label>
+                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))" />
 
 
                 <br />
@@ -114,8 +111,7 @@
                       tal:define="no_ref python: value is None and item == '';"
                       tal:attributes="value item;
                                       selected python:test((item in uids) or no_ref, 'selected', '')"
-                      tal:content="python:vocab.getValue(item)"
-                      i18n:translate=""></option>
+                      tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
              </tal:item>
             </select>
           </div>

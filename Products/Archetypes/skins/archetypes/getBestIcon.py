@@ -5,11 +5,10 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-
-from Products.CMFCore.utils import getToolByInterfaceName
+from Products.CMFCore.utils import getToolByName
 from zExceptions import NotFound
 
-mtr = getToolByInterfaceName('Products.MimetypesRegistry.interfaces.IMimetypesRegistryTool', None)
+mtr = getToolByName(context, 'mimetypes_registry', None)
 if mtr is None:
     return context.getIcon()
 lookup = mtr.lookup(context.getContentType())

@@ -52,9 +52,9 @@
       <metal:block use-macro="widget_view" />
     </metal:data_macro>
 
-    <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1];"
+    <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1]"
         tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                        id string:archetypes-fieldname-${field/getName}">
+                          id string:archetypes-fieldname-${field/getName}">
           <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
     </div>
 
@@ -70,12 +70,9 @@
       <tal:condition
           condition="python:visState == 'visible' and visCondition">
         <div class="field"
-             tal:define="kssClassesView context/@@kss_field_decorator_view;
-                         getKssClasses nocall:kssClassesView/getKssClasses;
-                         kss_class python:getKssClasses(field.getName());"
              tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
-             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class; 
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName());
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label i18n:translate=""
@@ -109,9 +106,12 @@
               review_state
             </a>
           </span>
-          <div class="fieldErrorBox"
-               tal:content="error_id" i18n:translate="">Validation Error</div>
-          <div metal:define-slot="widget_body"></div>
+          <span tal:omit-tag=""
+                tal:define="error python:errors.get(fieldName)">
+            <div tal:condition="error_id"
+                 tal:content="error_id" i18n:translate="">Validation Error</div>
+            <div metal:define-slot="widget_body"></div>
+          </span>
         </div>
       </tal:condition>
 

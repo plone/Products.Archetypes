@@ -1,8 +1,5 @@
 __metaclass__ = type
 
-from zope.component import queryUtility
-from Products.CMFCore.interfaces import IMetadataTool
-
 from Products.Archetypes.Schema import BasicSchema
 from Products.Archetypes.Field import *
 from Products.Archetypes.interfaces.schema import IBindableSchema
@@ -10,9 +7,10 @@ from Products.Archetypes.Storage.Facade import FacadeMetadataStorage
 from Products.Archetypes.ClassGen import generateMethods
 
 from AccessControl import ClassSecurityInfo
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 
-# Crude mapping for now. We should instantiate
+# XXX Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields
 # that map better.
 _field_mapping = {'CheckBoxField':BooleanField,
@@ -69,12 +67,12 @@ class CMFMetadataFieldsDescriptor:
     fields from a CMFMetadata Set (Formulator-based)"""
 
     def __get__(self, obj, objtype=None):
-        pm = queryUtility(IMetadataTool)
+        pm = getToolByName(obj.context, 'portal_metadata', None)
         if pm is None:
             return {}
         set = pm.getMetadataSet(obj.set_id)
         fields = fieldsFromSet(set, obj)
-        # TODO This would *really* benefit from some
+        # XXX This would *really* benefit from some
         # caching/timestamp checking.
         # Calling generateMethods and reconstructing
         # the fields each time may actually be
@@ -88,7 +86,7 @@ class CMFMetadataFieldNamesDescriptor:
     fields from a CMFMetadata Set (Formulator-based)"""
 
     def __get__(self, obj, objtype=None):
-        pm = queryUtility(IMetadataTool)
+        pm = getToolByName(obj.context, 'portal_metadata', None)
         if pm is None:
             return []
         set = pm.getMetadataSet(obj.set_id)
@@ -174,7 +172,7 @@ class FacadeMetadataSchema(BasicSchema):
                 value = result[0]
             field_data[name] = value
 
-        pm = queryUtility(IMetadataTool)
+        pm = getToolByName(self.context, 'portal_metadata', None)
         set = pm.getMetadataSet(self.set_id)
         set.validate(self.set_id, field_data, errors)
         return errors

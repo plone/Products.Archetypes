@@ -1,15 +1,13 @@
 import tempfile
 import posixpath
-from zope.component import getUtility
-
 from zExceptions import MethodNotAllowed
-from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr, mapply
 # Recent enough Zopes will have this. Do we care about older ones?
 from ZPublisher.Iterators import IStreamIterator
 
 from zope import event
-from zope.lifecycleevent import ObjectModifiedEvent
+from zope.app.event import objectevent
 
 class PdataStreamIterator(object):
 
@@ -92,7 +90,18 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         mimetype = str(mimetype).split(';')[0].strip()
 
     filename = posixpath.basename(REQUEST.get('PATH_INFO', self.getId()))
-    context = getUtility(ISiteRoot)
+
+    # XXX remove after we are using global services
+    # use the request to find an object in the traversal hierachy that is
+    # able to acquire a mimetypes_registry instance
+    # This is a hack to avoid the acquisition problem on FTP/WebDAV object
+    # creation
+    parents = (self,) + tuple(REQUEST.get('PARENTS', ()))
+    context = None
+    for parent in parents:
+        if getToolByName(parent, 'mimetypes_registry', None) is not None:
+            context = parent
+            break
 
     # Marshall the data
     marshaller = self.Schema().getLayerImpl('marshall')
@@ -110,7 +119,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         self.demarshall_hook(ddata)
     self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
     self.reindexObject()
-    event.notify(ObjectModifiedEvent(self))
+    event.notify(objectevent.ObjectModifiedEvent(self))
     
     RESPONSE.setStatus(204)
     return RESPONSE

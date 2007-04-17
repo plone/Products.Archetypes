@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,12 +26,11 @@
 """
 """
 
-import os
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from zope.interface import implements
-from zope.component import getSiteManager
-from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleVocabulary
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import portal_name
@@ -38,10 +38,10 @@ from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.interfaces import IFieldDefaultProvider
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
-from Products.Archetypes.Field import ScalableImage
+from Products.Archetypes.Field import ScalableImage, Image
 from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime
@@ -131,16 +131,6 @@ class Dummy(BaseContentMixin):
     def aMethod(self):
         return sampleDisplayList
 
-    def default_val(self):
-        return "World"
-
-class DummyVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary.fromItems([("title1", "value1"), ("t2", "v2")])
-
-DummyVocabFactory = DummyVocabulary()
 
 class FakeRequest:
 
@@ -285,54 +275,6 @@ class ProcessingTest(ATSiteTestCase):
         field.vocabulary = sampleInterfaceVocabulary()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
 
-    def test_factory_vocabulary(self):
-        dummy = self.makeDummy()
-        request = FakeRequest()
-        field = dummy.Schema().fields()[0]
-
-        # Default
-        self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
-        
-        expected = DisplayList([('value1', 'title1'), ('v2', 't2')])
-        
-        # # Vocabulary factory
-        field.vocabulary = ()
-        field.vocabulary_factory = 'archetypes.tests.dummyvocab'
-        getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
-        self.failUnlessEqual(field.Vocabulary(dummy), expected)
-        getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
-
-    def test_defaults(self):
-        dummy = self.makeDummy()
-        request = FakeRequest()
-        field = dummy.Schema().fields()[0]
-
-        # Default
-        self.failUnlessEqual(field.getDefault(dummy), None)
-        
-        # Value
-        field.default = "Hello"
-        self.failUnlessEqual(field.getDefault(dummy), 'Hello')
-        
-        # Method
-        field.default = None
-        field.default_method = 'default_val'
-        self.failUnlessEqual(field.getDefault(dummy), 'World')
-
-        # Adapter
-        field.default_method = None
-        
-        class DefaultFor(object):
-            implements(IFieldDefaultProvider)
-            def __init__(self, context):
-                self.context = context
-            def __call__(self):
-                return "Adapted"
-        
-        getSiteManager().registerAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
-        self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
-        getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
-
     def test_download_from_textfield(self):
         # make sure field data doesn't get transformed when using the
         # download method
@@ -352,3 +294,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(ProcessingTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

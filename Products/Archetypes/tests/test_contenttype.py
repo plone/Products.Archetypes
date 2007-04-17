@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,10 +26,15 @@
 """
 """
 
-import os
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Testing import ZopeTestCase
+
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
+from Products.Archetypes.tests.utils import gen_class
 
 # this trigger zope imports
 from Products.Archetypes.tests.test_classgen import Dummy
@@ -38,7 +44,7 @@ from Products.Archetypes.tests.test_classgen import default_text
 from Products.Archetypes.atapi import *
 
 
-class GetContentTypeTest(ATSiteTestCase):
+class GetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -106,7 +112,7 @@ class GetContentTypeTest(ATSiteTestCase):
         self.assertEqual(field.getContentType(obj), 'application/x-tar')
 
 
-class SetContentTypeTest(ATSiteTestCase):
+class SetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -167,3 +173,6 @@ def test_suite():
     suite.addTest(makeSuite(GetContentTypeTest))
     suite.addTest(makeSuite(SetContentTypeTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

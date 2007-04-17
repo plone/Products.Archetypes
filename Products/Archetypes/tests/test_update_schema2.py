@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,21 +26,25 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import os
+
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-import shutil
-from zope.component import getUtility
+from Products.Archetypes.Extensions.Install import install as install_archetypes
+from Products.CMFCore.utils import getToolByName
 
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from Products.Archetypes.Extensions.utils import installTypes
+from Products.Archetypes.atapi import listTypes, registerType
+import shutil
 
 try:
-    from Products.ArchetypesTestUpdateSchema.Extensions.Install import \
-         install as install_test
+    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
     hasATTUS = False
 else:
@@ -52,7 +57,7 @@ else:
 class TestUpdateSchema2(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
-        qi = getUtility(IQuickInstallerTool)
+        qi = getToolByName(self.portal, 'portal_quickinstaller')
         qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):
@@ -112,3 +117,6 @@ def test_suite():
     if hasATTUS:
         suite.addTest(makeSuite(TestUpdateSchema2))
     return suite
+
+if __name__ == '__main__':
+    framework()

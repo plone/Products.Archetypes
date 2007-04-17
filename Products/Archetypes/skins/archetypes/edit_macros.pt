@@ -24,8 +24,14 @@
         </span>
       </h1>
 
-      <div id="archetypes-schemata-links"
-           tal:condition="python: fieldsets and not allow_tabbing">
+      <tal:has_document_byline tal:condition="exists:here/document_byline">
+        <div metal:use-macro="here/document_byline/macros/byline">
+          Get the byline - contains details about author and modification date.
+        </div>
+      </tal:has_document_byline>
+
+      <div id="archetypes-schemata-links" 
+           tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
@@ -38,20 +44,28 @@
       </div>
       <metal:block define-slot="extra_info" />
 
+      <p class="portalMessage"
+         tal:condition="isLocked"
+         i18n:translate="description_webdav_locked">
+        This item is in use by someone else and cannot be modified
+      </p>
+
     </div>
 
     <div metal:define-macro="typedescription">
-        <tal:description tal:define="fti python:here.portal_types.getTypeInfo(here);
-                                     desc fti/Description;"
-                         tal:condition="desc">
-            <p class="discreet" i18n:translate="" tal:content="desc">
-                type description
-            </p>
+        <tal:description tal:define="msgid here/typeDescMsgId | nothing;
+                                     default here/typeDescription| nothing;
+                                     default_translated python:here.translate(default);"
+                         tal:condition="default">
+
+          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default_translated)">
+            type description
+          </p>
+
         </tal:description>
     </div>
 
     <div metal:define-macro="body"
-         tal:condition="not:isLocked"
          tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
             method="post"
@@ -60,28 +74,14 @@
             action=""
             id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
-                            id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
+                            id string:${portal_type}-base-edit">
 
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-            <tal:tabbed tal:condition="allow_tabbing | nothing">
-              <fieldset tal:repeat="fieldset fieldsets"
-                        tal:attributes="id string:fieldset-${fieldset}">
-                <legend id=""
-                        tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
-                        tal:attributes="id string:fieldsetlegend-${fieldset}" />
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-              </fieldset>
-            </tal:tabbed>
-            <tal:nottabbed tal:condition="not: allow_tabbing | nothing">
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-            </tal:nottabbed>
+            <tal:fields repeat="field fields">
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+            </tal:fields>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />

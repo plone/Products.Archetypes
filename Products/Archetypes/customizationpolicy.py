@@ -6,28 +6,26 @@ Based on the multilingual policy from Plone Solutions
 __author__  = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
 
-from zope.component import getUtility
 from StringIO import StringIO
-
-from logging import getLogger
-logger = getLogger('Archetypes')
 
 try:
     import Products.CMFPlone
-except ImportError:
-    class DefaultCustomizationPolicy:
-        pass
-    def addPolicy(*args, **kwargs):
-        raise ValueError('CustomizationPolicies not available.')
-        
+except:
+    class DefaultCustomizationPolicy: pass
+    def addPolicy(*args, **kwargs): pass
 else:
     from Products.CMFPlone.Portal import addPolicy
     from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
-
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr
 
-HAS_PLONE21 = True
+# Check for Plone 2.1
+try:
+    from Products.CMFPlone.migrations import v2_1
+except ImportError:
+    HAS_PLONE21 = False
+else:
+    HAS_PLONE21 = True
 
 PRODUCTS = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )
 
@@ -45,7 +43,7 @@ class ArchetypesSitePolicy(DefaultCustomizationPolicy):
         """Install Archetypes with all dependencies
         """
         print >>out, 'Installing Archetypes ...'
-        qi = getUtility(IQuickInstallerTool)
+        qi = getToolByName(portal, 'portal_quickinstaller')
         for product in PRODUCTS:
             if not qi.isProductInstalled(product):
                 qi.installProduct(product)

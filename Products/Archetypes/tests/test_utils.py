@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,6 +26,12 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.utils import DisplayList
@@ -182,3 +189,6 @@ def test_suite():
     suite.addTest(makeSuite(DisplayListTest))
     suite.addTest(makeSuite(UidGeneratorTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

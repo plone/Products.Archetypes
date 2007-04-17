@@ -230,11 +230,11 @@ class RemainingState(RemainingBase):
                 if os.environ.get('APE_TRACE_UNPICKLEABLE'):
                     # Provide an opportunity to examine
                     # the "attrvalue" attribute.
-                    raise RuntimeError(
-                        'Unable to pickle the %s attribute, %s, '
-                        'of %s at %s.  %s.' % (
-                        repr(attrname), repr(attrvalue), repr(event.obj),
-                        repr(event.oid), str(exc)))
+                raise RuntimeError(
+                    'Unable to pickle the %s attribute, %s, '
+                    'of %s at %s.  %s.' % (
+                    repr(attrname), repr(attrvalue), repr(event.obj),
+                    repr(event.oid), str(exc)))
             else:
                 # Couldn't help.
                 raise

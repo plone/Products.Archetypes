@@ -8,19 +8,10 @@
 ##bind subpath=traverse_subpath
 ##parameters=
 ##
-
-from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.utils import addStatusMessage
-
-request = context.REQUEST
 errors = {}
-errors = context.validate(REQUEST=request, errors=errors, data=1, metadata=0)
+errors = context.validate(REQUEST=context.REQUEST, errors=errors, data=1, metadata=0)
 
 if errors:
-    message = _(u'Please correct the indicated errors.')
-    addStatusMessage(request, message, type='warn')
-    return state.set(status='failure', errors=errors)
+    return state.set(status='failure', errors=errors, portal_status_message='Please correct the indicated errors.')
 else:
-    message = _(u'Changes saved.')
-    addStatusMessage(request, message)
-    return state.set(status='success')
+    return state.set(status='success', portal_status_message='Changes saved.')

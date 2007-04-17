@@ -3,22 +3,11 @@ from __future__ import nested_scopes
 import os.path
 import sys
 from copy import deepcopy
+from types import StringType, StringTypes
 from DateTime import DateTime
 from StringIO import StringIO
 from debug import deprecated
 
-from zope.interface import implements
-from zope.component import getUtility
-from zope.component import queryUtility
-
-from Products.CMFCore.interfaces import ICatalogTool as z3ICatalogTool
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFCore.interfaces import IURLTool
-
-from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -28,6 +17,7 @@ from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict
@@ -38,11 +28,10 @@ from Products.Archetypes.Renderer import renderer
 from Products.CMFCore import permissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
-from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import registerToolInterface
-from Products.CMFCore.utils import UniqueObject
+from Products.CMFCore.utils import UniqueObject, getToolByName
 from Products.CMFCore.interfaces.portal_catalog \
      import portal_catalog as ICatalogTool
+from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -73,7 +62,7 @@ class BoundPageTemplateFile(PageTemplateFile):
 try:
     from Products.CMFPlone.Configuration import getCMFVersion
 except ImportError:
-    # Configuration and getCMFVersion come with Plone
+    # Configuration and getCMFVersion come with Plone 2.0
     def getCMFVersion():
         from os.path import join
         from Globals import package_home
@@ -91,6 +80,7 @@ document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
 folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
+# Never actually used
 base_factory_type_information = (
     { 'id': 'Archetype'
       , 'content_icon': 'document_icon.gif'
@@ -103,73 +93,66 @@ base_factory_type_information = (
       , 'filter_content_types': False
       , 'allow_discussion': False
       , 'fti_meta_type' : FactoryTypeInformation.meta_type
-      , 'aliases' : {'(Default)' : 'base_view',
-                     'view' : '(Default)',
-                     'index.html' : '(Default)',
+      , 'aliases' : {'(Default)' : '',
+                     'view' : '',
+                     'index.html' : '',
                      'edit' : 'base_edit',
-                     'properties' : 'base_metadata',
                      'gethtml' : '',
                      'mkdir' : '',
                      }
       , 'actions': (
                      { 'id': 'view',
-                       'title': 'View',
-                       'action': Expression('string:${object_url}/view'),
+                       'name': 'View',
+                       'action': 'string:${object_url}/base_view',
                        'permissions': (permissions.View,),
                        },
 
                      { 'id': 'edit',
-                       'title': 'Edit',
-                       'action': Expression('string:${object_url}/edit'),
+                       'name': 'Edit',
+                       'action': 'string:${object_url}/base_edit',
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'metadata',
-                       'title': 'Properties',
-                       'action': Expression('string:${object_url}/properties'),
+                       'name': 'Properties',
+                       'action': 'string:${object_url}/base_metadata',
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
                      { 'id': 'references',
-                       'title': 'References',
-                       'action': Expression('string:${object_url}/reference_graph'),
-                       'condition': Expression('object/archetype_tool/has_graphviz'),
+                       'name': 'References',
+                       'action': 'string:${object_url}/reference_graph',
+                       'condition': 'object/archetype_tool/has_graphviz',
                        'permissions': (permissions.ModifyPortalContent,
                                        permissions.ReviewPortalContent,),
                        'visible' : True,
+                       },
+
+                     { 'id': 'folderlisting',
+                       'name': 'Folder Listing',
+                       'action': 'string:${folder_url}/folder_listing',
+                       'condition': 'object/isPrincipiaFolderish',
+                       'permissions': (permissions.View,),
+                       'category': 'folder',
+                       'visible' : False,
                        },
                      )
       }, )
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.portal_type, None)
-        if typeInfo is None:
-            return
+        typeInfo = getattr(typesTool, portal_type.portal_type)
         if hasattr(portal_type, 'actions'):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            ## rr: this is now trial-and-error programming
-            ## I really don't know what's going on here
-            ## most importantly I don't know why the default
-            ## actions are not set in some cases :-(
-            ## (maybe they are removed afterwards sometimes???)
-            ## if getattr(portal_type,'include_default_actions', True):
-            if True:
-                default = [ActionInformation(**action) for action in
-                           base_factory_type_information[0]['actions']]
-                next = list(typeInfo._actions)
-                all = next + default
-                new = [a.clone() for a in all]
+            if getattr(portal_type,'include_default_actions', True):
+                new = list(typeInfo._actions)
             else:
                 # If no standard actions are wished don't display them
                 new = []
-            try:
-                cmfver = getCMFVersion()
-            except ImportError:
-                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
-                                     ## need to know here for now
+
+            cmfver = getCMFVersion()
 
             for action in portal_type.actions:
                 # DM: "Expression" derives from "Persistent" and
@@ -393,7 +376,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     If you like to swallow the error please use a try/except block in your own
     code and do NOT 'fix' this method.
     """
-    at_tool = getUtility(IArchetypeTool)
+    at_tool = getToolByName(context, TOOL_NAME)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in _types.values()])
     # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
@@ -499,9 +482,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     """Archetypes tool, manage aspects of Archetype instances.
     """
     id = TOOL_NAME
-    meta_type = TOOL_NAME.title().replace('_', ' ')
 
-    implements(IArchetypeTool)
+    meta_type = TOOL_NAME.title().replace('_', ' ')
 
     isPrincipiaFolderish = True # Show up in the ZMI
 
@@ -616,7 +598,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         Returns a DisplayList.
         """
         results = []
-        if not isinstance(instance_or_portaltype, basestring):
+        if not type(instance_or_portaltype) in StringTypes:
             portal_type = instance_or_portaltype.getTypeInfo().getId()
         else:
             portal_type = instance_or_portaltype
@@ -693,7 +675,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
-        >>> tool = getUtility(IArchetypeTool)
+        >>> tool = getToolByName(self.portal, TOOL_NAME)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
         
@@ -703,7 +685,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids
         ['ATBIFolder', 'ComplexType', ...]
         """
-        pt = getUtility(ITypesTool)
+        pt = getToolByName(self, 'portal_types')
         value = []
         for data in listTypes():
             klass = data['klass']
@@ -736,8 +718,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
-            ttool = getUtility(ITypesTool)
-            types = [ti.Metatype() for ti in ttool.listTypeInfo()]
+            tt = getToolByName(self, 'portal_types')
+            types = tt.listContentTypes(self, by_metatype=not portalTypes)
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
             else:
@@ -776,13 +758,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 return t
         return None
 
+    # XXX unusable because nothing is writing to _schemas
+    #security.declareProtected(permissions.View,
+    #                          'getSchema')
+    #def getSchema(self, sid):
+    #    return self._schemas[sid]
+
     security.declareProtected(permissions.ManagePortal,
                               'manage_installType')
     def manage_installType(self, typeName, package=None,
                            uninstall=None, REQUEST=None):
         """Un/Install a type TTW.
         """
-        typesTool = getUtility(ITypesTool)
+        typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
         except (ConflictError, KeyboardInterrupt):
@@ -847,8 +835,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             for t in self.listTypes(package, type):
                 instance = t('fake_instance')
                 instance._at_is_fake_instance = True
+                # XXX _is_fake_instance will go away in AT 1.4
+                instance._is_fake_instance = True
                 wrapped = instance.__of__(context)
                 wrapped.initializeArchetype()
+                #if isinstance(wrapped, DefaultDublinCoreImpl):
+                #    DefaultDublinCoreImpl.__init__(wrapped)
                 instances.append(wrapped)
         for instance in instances:
             if schemata is not None:
@@ -879,7 +871,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
-                        field.vocabulary = DisplayList([('', _(u'at_search_any', default=u'<any>'))]) + \
+                        field.vocabulary = DisplayList([('', '<any>', 'at_search_any')]) + \
                                            field.vocabulary
                     widget.populate = False
                     field_name = field.accessor
@@ -903,7 +895,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'.
         """
-        catalog = getUtility(z3ICatalogTool)
+        catalog = getToolByName(self, 'portal_catalog')
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
@@ -916,7 +908,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
-        catalog = getUtility(IUIDCatalog)
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         for uid in keys:
             o = self.getObject(uid)
@@ -930,7 +922,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def Content(self):
         """Return a list of all the content ids.
         """
-        catalog = getUtility(IUIDCatalog)
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(UID=keys)
         return results
@@ -1045,8 +1037,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # relying on the catalog to find objects, because an object
             # may be uncatalogable because of its schema, and then you
             # can't update it if you require that it be in the catalog.
-            catalog = getUtility(z3ICatalogTool)
-            portal = getUtility(IURLTool).getPortalObject()
+            catalog = getToolByName(self, 'portal_catalog')
+            portal = getToolByName(self, 'portal_url').getPortalObject()
             meta_types = [_types[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
@@ -1133,11 +1125,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
-        
-        portal = queryUtility(ISiteRoot)
         for name in names:
             try:
-                catalogs.append(getToolByName(portal, name))
+                catalogs.append(getToolByName(self, name))
             except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, E:
@@ -1149,9 +1139,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-        portal = getUtility(IURLTool).getPortalObject()
+        root_objects = self.portal_url.getPortalObject().objectValues()
         res = []
-        for object in portal.objectValues():
+        for object in root_objects:
             if ICatalogTool.isImplementedBy(object):
                 res.append(object.getId())
                 continue
@@ -1192,4 +1182,3 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return HAS_GRAPHVIZ
 
 InitializeClass(ArchetypeTool)
-registerToolInterface('archetype_tool', IArchetypeTool)

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,19 +26,29 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 import unittest
+from Testing import ZopeTestCase
+
+from copy import deepcopy
 
 from DateTime import DateTime
+
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC, ACCESS_PRIVATE
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.ClassGen import generateMethods
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
 from Products.PortalTransforms.TransformTool import TransformTool
+from Products.CMFCore.DiscussionTool import DiscussionTool
 
 
 default_text = """
@@ -95,9 +106,6 @@ class SiteProperties:
     default_charset = 'UTF-8'
     def getProperty(self, name, default=None):
         return getattr(self, name, default)
-
-    def hasProperty(self, name):
-        return hasattr(self, name)
 
 class PortalProperties:
     site_properties = SiteProperties()
@@ -315,3 +323,6 @@ def test_suite():
     for t in tests:
         suite.addTest(makeSuite(t))
     return suite
+
+if __name__ == '__main__':
+    framework()

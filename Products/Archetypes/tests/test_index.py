@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,15 +26,17 @@
 """
 """
 
-import time
+import os, sys, time
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 from Testing import ZopeTestCase
-
-from zope.component import getUtility
-
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.tests.utils import makeContent
-from Products.CMFCore.interfaces import ICatalogTool
+from Products.CMFCore.utils import getToolByName
 
 class ETagTest(ATSiteTestCase):
 
@@ -81,7 +84,7 @@ class ReindexTest(ATSiteTestCase):
         self.inst = makeContent(self.portal,
                                 portal_type='SimpleType',
                                 id='simple_type')
-        self.ct = getUtility(ICatalogTool)
+        self.ct = getToolByName(self.portal, 'portal_catalog')
 
     def test_reindex_unindexes_old(self):
         ct = self.ct
@@ -97,3 +100,6 @@ def test_suite():
     suite.addTest(makeSuite(ETagTest))
     suite.addTest(makeSuite(ReindexTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

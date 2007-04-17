@@ -1,32 +1,36 @@
-from zope.component import getUtility
-
-from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Widget import SelectionWidget
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
 from Products.CMFCore import permissions
+from Products.CMFCore.utils import getToolByName
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import aq_inner
+from Acquisition import aq_parent
 from ExtensionClass import Base
 
 TemplateMixinSchema = Schema((
     # TemplateMixin
     StringField('layout',
-        write_permission=permissions.ModifyPortalContent,
-        default_method="getDefaultLayout",
-        vocabulary="_voc_templates",
-        widget=SelectionWidget(label = _(u'label_template_mixin',
-                                         default=u'View template'),
-                               description=_(u'help_template_mixin',
-                                             default=u'Choose a template that will be used for viewing this item.'),
-                               visible={'view' : 'hidden',
-                                        'edit' : 'visible'},)
-               ),
+                write_permission=permissions.ModifyPortalContent,
+                default_method="getDefaultLayout",
+                vocabulary="_voc_templates",
+                # we can't use enforce because we may use the view name from the
+                # type information
+                #enforceVocabulary=1,
+                widget=SelectionWidget(description="Choose a template that will be used for viewing this item.",
+                                       description_msgid = "help_template_mixin",
+                                       label = "View template",
+                                       label_msgid = "label_template_mixin",
+                                       i18n_domain = "plone",
+                                       visible={'view' : 'hidden',
+                                                'edit' : 'visible'
+                                               },
+                                       )),
     ))
 
 
@@ -68,10 +72,10 @@ class TemplateMixin(Base):
         return v(context, context.REQUEST)
 
     def _voc_templates(self):
-        at = getUtility(IArchetypeTool)
+        at = getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
-    # BBB backward compatibility
+    # XXX backward compatibility
     templates = _voc_templates
 
     security.declareProtected(permissions.View, 'getLayout')
@@ -121,9 +125,10 @@ class TemplateMixin(Base):
         else:
             return pt
 
+
 InitializeClass(TemplateMixin)
 
-# BBB backward compatibility
+# XXX backward compatibility
 schema = TemplateMixinSchema
 getTemplateFor = TemplateMixin.getTemplateFor
 

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,7 +26,12 @@
 """
 """
 
-import operator
+import os, sys, operator
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import *
@@ -34,6 +40,9 @@ from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.exceptions import SchemaException
+
+from DateTime import DateTime
+import unittest
 
 schema = BaseSchema
 
@@ -72,7 +81,7 @@ class SchemataTest( ATTestCase ):
         schemata = dummy.Schemata()
         meta_names = getNames(schemata['metadata'])
         self.assertEqual(meta_names, ['allowDiscussion', 'subject',
-                                      'description', 'location', 'contributors',
+                                      'description', 'contributors',
                                       'creators', 'effectiveDate',
                                       'expirationDate', 'language',
                                       'rights', 'creation_date',
@@ -171,3 +180,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(SchemataTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

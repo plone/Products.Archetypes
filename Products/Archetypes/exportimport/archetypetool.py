@@ -1,11 +1,9 @@
-from sets import Set
-from zope.component import getUtility
-from zope.component import queryUtility
-
 from Products.Archetypes.interfaces import IArchetypeTool
 from Products.GenericSetup.utils import XMLAdapterBase
 from Products.GenericSetup.utils import exportObjects
 from Products.GenericSetup.utils import importObjects
+from Products.CMFCore.utils import getToolByName
+from sets import Set
 
 
 class ArchetypeToolXMLAdapter(XMLAdapterBase):
@@ -68,7 +66,7 @@ def importArchetypeTool(context):
     """Import Archetype Tool configuration.
     """
     site = context.getSite()
-    tool = getUtility(IArchetypeTool)
+    tool = getToolByName(site, 'archetype_tool')
 
     importObjects(tool, '', context)
 
@@ -77,7 +75,7 @@ def exportArchetypeTool(context):
     """Export Archetype Tool configuration.
     """
     site = context.getSite()
-    tool = queryUtility(IArchetypeTool)
+    tool = getToolByName(site, 'archetype_tool', None)
     if tool is None:
         logger = context.getLogger("archetypestool")
         logger.info("Nothing to export.")
