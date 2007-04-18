@@ -58,7 +58,7 @@ else:
     ZOPE28 = True
 
 try:
-    import OFS.subscribers
+    from OFS import subscribers
 except ImportError:
     ZOPE29 = False
 else:
