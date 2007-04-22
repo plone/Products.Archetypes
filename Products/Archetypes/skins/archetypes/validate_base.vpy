@@ -17,7 +17,7 @@ errors = context.validate(REQUEST=request, errors=errors, data=1, metadata=0)
 
 if errors:
     message = _(u'Please correct the indicated errors.')
-    addStatusMessage(request, message, type='warn')
+    addStatusMessage(request, message, type='error')
     return state.set(status='failure', errors=errors)
 else:
     message = _(u'Changes saved.')
