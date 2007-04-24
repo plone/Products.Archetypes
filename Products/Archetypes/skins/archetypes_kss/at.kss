@@ -1,8 +1,17 @@
 
 /* Base kss resource for Archetypes */
 
-input.blurrable:blur,
-select.blurrable:blur,
+/* XXX Note you can't use comma separation for selectors! */
+input.blurrable:blur {
+    action-server:                kssValidateField;
+    kssValidateField-fieldname:   kssAttr('atfieldname', true);
+    kssValidateField-value:       currentFormVar();
+}
+select.blurrable:blur {
+    action-server:                kssValidateField;
+    kssValidateField-fieldname:   kssAttr('atfieldname', true);
+    kssValidateField-value:       currentFormVar();
+}
 textarea.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
@@ -33,8 +42,23 @@ form.inlineForm input[name=kss-save]:click {
     saveField-templateId: kssAttr('templateId', true);
 }
 
-form.inlineForm input.blurrable:blur,
-form.inlineForm select.blurrable:blur,
+/* XXX Note you can't use comma separation for selectors! */
+form.inlineForm input.blurrable:blur {
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    action-cancel: kssValidateField;
+}
+form.inlineForm select.blurrable:blur {
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-value: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    action-cancel: kssValidateField;
+}
 form.inlineForm textarea.blurrable:blur {
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
@@ -52,8 +76,21 @@ form.inlineForm input[name=kss-cancel]:click {
     replaceWithView-templateId: kssAttr('templateId', true);
 }
 
-form.inlineForm input.blurrable:keypress(inlineescape),
-form.inlineForm select.blurrable:keypress(inlineescape),
+/* XXX Note you can't use comma separation for selectors! */
+form.inlineForm input.blurrable:keypress(inlineescape) {
+    evt-keypress-keycodes: '27';
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+}
+form.inlineForm select.blurrable:keypress(inlineescape) {
+    evt-keypress-keycodes: '27';
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+}
 form.inlineForm textarea.blurrable:keypress(inlineescape) {
     evt-keypress-keycodes: '27';
     action-server: replaceWithView;
