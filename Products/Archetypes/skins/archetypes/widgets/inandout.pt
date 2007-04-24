@@ -62,6 +62,7 @@
                   <tr>
                     <td style="padding-left:0em;padding-top:0em;">
                       <select
+                        class="firstToFocus"
                         multiple="multiple"
                         tal:attributes="name string:${fieldName}_options;
                                         id string:${fieldName}_options;
