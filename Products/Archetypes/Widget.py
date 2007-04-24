@@ -162,6 +162,7 @@ class DecimalWidget(TypesWidget):
         'dollars_and_cents' : False,
         'whole_dollars' : False,
         'thousands_commas' : False,
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -172,6 +173,7 @@ class IntegerWidget(TypesWidget):
         'macro' : "widgets/integer",
         'size' : '5',
         'maxlength' : '255',
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -331,7 +333,6 @@ class TextAreaWidget(TypesWidget):
         'timestamp': False,
         'maxlength' : False,
         'helper_js': ('widgets/js/textcount.js',),        
-        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
