@@ -78,12 +78,12 @@
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection atBaseEditForm"
+            class="enableUnloadProtection enableAutoFocus atBaseEditForm"
             action=""
             id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
                             id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableFormTabbing', 'enableUnloadProtection');">
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing', 'enableUnloadProtection enableAutoFocus');">
 
           <metal:block define-slot="extra_top" />
 
