@@ -43,30 +43,6 @@ form.inlineForm input[name=kss-save]:click {
 }
 
 /* XXX Note you can't use comma separation for selectors! */
-form.inlineForm input.blurrable:blur {
-    action-server: saveField;
-    saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-value: currentForm();
-    saveField-macro: kssAttr('macro', true);
-    saveField-templateId: kssAttr('templateId', true);
-    action-cancel: kssValidateField;
-}
-form.inlineForm select.blurrable:blur {
-    action-server: saveField;
-    saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-value: currentForm();
-    saveField-macro: kssAttr('macro', true);
-    saveField-templateId: kssAttr('templateId', true);
-    action-cancel: kssValidateField;
-}
-form.inlineForm textarea.blurrable:blur {
-    action-server: saveField;
-    saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-value: currentForm();
-    saveField-macro: kssAttr('macro', true);
-    saveField-templateId: kssAttr('templateId', true);
-    action-cancel: kssValidateField;
-}
 
 form.inlineForm input[name=kss-cancel]:click {
     evt-click-preventdefault: true;
