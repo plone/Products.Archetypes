@@ -1,3 +1,10 @@
+1.4.4-final - unreleased
+========================
+
+  * Fix http://dev.plone.org/archetypes/ticket/719: Check for correct
+    DateTime input when validating.
+    [mj]
+
 1.4.3-final - 2007-04-17
 ========================
 
