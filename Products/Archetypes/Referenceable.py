@@ -245,29 +245,29 @@ class Referenceable(CopySource):
         Remove self from the catalog.
         (Called when the object is deleted or moved.)
         """
+
         # Change this to be "item", this is the root of this recursive
         # chain and it will be flagged in the correct mode
         storeRefs = getattr(item, '_v_cp_refs', None)
         if storeRefs is None:
             # The object is really going away, we want to remove
             # its references
-            rc = queryUtility(IReferenceCatalog)
-            if rc is not None:
-                references = rc.getReferences(self)
-                back_references = rc.getBackReferences(self)
-                try:
-                    #First check the 'delete cascade' case
-                    if references:
-                        for ref in references:
-                            ref.beforeSourceDeleteInformTarget()
-                    #Then check the 'holding/ref count' case
-                    if back_references:
-                        for ref in back_references:
-                            ref.beforeTargetDeleteInformSource()
-                    # If nothing prevented it, remove all the refs
-                    self.deleteReferences()
-                except ReferenceException, E:
-                    raise BeforeDeleteException(E)
+            rc = getUtility(IReferenceCatalog)
+            references = rc.getReferences(self)
+            back_references = rc.getBackReferences(self)
+            try:
+                #First check the 'delete cascade' case
+                if references:
+                    for ref in references:
+                        ref.beforeSourceDeleteInformTarget()
+                #Then check the 'holding/ref count' case
+                if back_references:
+                    for ref in back_references:
+                        ref.beforeTargetDeleteInformSource()
+                # If nothing prevented it, remove all the refs
+                self.deleteReferences()
+            except ReferenceException, E:
+                raise BeforeDeleteException(E)
 
         self._referenceApply('manage_beforeDelete', item, container)
 
@@ -276,6 +276,8 @@ class Referenceable(CopySource):
         # renamed, we still need to remove all UID/child refs
         self._uncatalogUID(container)
         self._uncatalogRefs(container)
+
+
 
     ## Catalog Helper methods
     def _catalogUID(self, aq, uc=None):

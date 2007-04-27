@@ -1,5 +1,3 @@
-from zope.component import getUtility
-from Products.CMFCore.interfaces import IPropertiesTool
 from Products.PortalTransforms.interfaces import IPortalTransformsTool
 
 #
@@ -7,13 +5,13 @@ from Products.PortalTransforms.interfaces import IPortalTransformsTool
 #
 
 def getDefaultContentType(context):
-    portal_properties = getUtility(IPropertiesTool)
+    portal_properties = getToolByName(context, 'portal_properties', None)
     site_properties = getattr(portal_properties, 'site_properties', None)
     return site_properties.getProperty('default_contenttype')
 
 def setDefaultContentType(context, value):
-    portal_properties = getUtility(IPropertiesTool)
-    site_properties = portal_properties.site_properties
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    site_properties = getattr(portal_properties, 'site_properties', None)
     site_properties.manage_changeProperties(default_contenttype=value)
         
 def getAllowedContentTypes(context):
@@ -32,14 +30,14 @@ def getAllowableContentTypes(context):
 
 def setForbiddenContentTypes(context, forbidden_contenttypes=[]):
     """ Convenience method for settng the site property 'forbidden_contenttypes'."""
-    portal_properties = getUtility(IPropertiesTool)
-    site_properties = portal_properties.site_properties
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    site_properties = getattr(portal_properties, 'site_properties', None)
     site_properties.manage_changeProperties(forbidden_contenttypes=tuple(forbidden_contenttypes))
 
 def getForbiddenContentTypes(context):
     """ Convenence method for retrevng the site property 'forbidden_contenttypes'."""
-    portal_properties = getUtility(IPropertiesTool)
-    site_properties = portal_properties.site_properties
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    site_properties = getattr(portal_properties, 'site_properties', None)
     if site_properties.hasProperty('forbidden_contenttypes'):
         return list(site_properties.getProperty('forbidden_contenttypes'))
     else:

@@ -105,7 +105,7 @@ class SQLStorageConfig (SimpleItem):
         """ Return the default conn, if applicable, for ob.
         """
     
-        types_tool = queryUtility(ITypesTool)
+        types_tool = getToolByName( self, 'portal_types', None )
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
             return self._default_conn
@@ -128,7 +128,7 @@ class SQLStorageConfig (SimpleItem):
 
     security.declareProtected( ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
-        pt = queryUtility(ITypesTool)
+        pt = getToolByName(self, 'portal_types', None)
         at = queryUtility(IArchetypeTool)
         if pt is None:
             return ()

@@ -11,14 +11,8 @@ from zope.interface import implements
 from zope.component import getUtility
 from zope.component import queryUtility
 
-from Products.CMFCore.interfaces import ICatalogTool as z3ICatalogTool
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFCore.interfaces import IURLTool
-
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
@@ -28,6 +22,7 @@ from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
 from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import findDict
@@ -393,7 +388,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     If you like to swallow the error please use a try/except block in your own
     code and do NOT 'fix' this method.
     """
-    at_tool = getUtility(IArchetypeTool)
+    at_tool = getToolByName(context, TOOL_NAME)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in _types.values()])
     # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
@@ -693,7 +688,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
-        >>> tool = getUtility(IArchetypeTool)
+        >>> tool = getToolByName(self.portal, TOOL_NAME)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
         
@@ -703,7 +698,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> type_ids
         ['ATBIFolder', 'ComplexType', ...]
         """
-        pt = getUtility(ITypesTool)
+        pt = getToolByName(self, 'portal_types')
         value = []
         for data in listTypes():
             klass = data['klass']
@@ -736,7 +731,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if inProject:
             # portal_type can change (as it does after ATCT-migration), so we
             # need to check against the content_meta_type of each type-info
-            ttool = getUtility(ITypesTool)
+            tt = getToolByName(self, 'portal_types')
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
 	    if portalTypes:
                 values = [v for v in values if v['portal_type'] in types]
@@ -782,7 +777,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                            uninstall=None, REQUEST=None):
         """Un/Install a type TTW.
         """
-        typesTool = getUtility(ITypesTool)
+        typesTool = getToolByName(self, 'portal_types')
         try:
             typesTool._delObject(typeName)
         except (ConflictError, KeyboardInterrupt):
@@ -903,7 +898,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'.
         """
-        catalog = getUtility(z3ICatalogTool)
+        catalog = getToolByName(self, 'portal_catalog')
         brains = catalog(id=[])
         for b in brains:
             o = b.getObject()
@@ -916,7 +911,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
-        catalog = getUtility(IUIDCatalog)
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         for uid in keys:
             o = self.getObject(uid)
@@ -930,7 +925,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def Content(self):
         """Return a list of all the content ids.
         """
-        catalog = getUtility(IUIDCatalog)
+        catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(UID=keys)
         return results
@@ -1045,8 +1040,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # relying on the catalog to find objects, because an object
             # may be uncatalogable because of its schema, and then you
             # can't update it if you require that it be in the catalog.
-            catalog = getUtility(z3ICatalogTool)
-            portal = getUtility(IURLTool).getPortalObject()
+            catalog = getToolByName(self, 'portal_catalog')
+            portal = getToolByName(self, 'portal_url').getPortalObject()
             meta_types = [_types[t]['meta_type'] for t in update_types]
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
@@ -1133,8 +1128,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             names = self.catalog_map.get(portal_type, ['portal_catalog'])
         else:
             names = ['portal_catalog']
-        
-        portal = queryUtility(ISiteRoot)
+        portal = getToolByName(self, 'portal_url').getPortalObject()
         for name in names:
             try:
                 catalogs.append(getToolByName(portal, name))
@@ -1149,7 +1143,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-        portal = getUtility(IURLTool).getPortalObject()
+        portal = getToolByName(self, 'portal_url').getPortalObject()
         res = []
         for object in portal.objectValues():
             if ICatalogTool.isImplementedBy(object):

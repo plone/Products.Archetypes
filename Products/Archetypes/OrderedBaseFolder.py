@@ -11,8 +11,7 @@ from DocumentTemplate import sequence
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
-from zope.component import getUtility
-from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
 #from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore import permissions
@@ -108,7 +107,7 @@ class OrderedContainer:
     def getCMFObjectsSubsetIds(self, objs):
         """Get the ids of only cmf objects (used for moveObjectsByDelta)
         """
-        ttool = getUtility(ITypesTool)
+        ttool = getToolByName(self, 'portal_types')
         cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 

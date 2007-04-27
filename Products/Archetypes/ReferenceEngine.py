@@ -3,7 +3,6 @@ from types import StringType, UnicodeType
 import time
 import urllib
 from zope.interface import implements
-from zope.component import getUtility
 from zope.component import queryUtility
 
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -27,13 +26,12 @@ from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import registerToolInterface
+from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products import CMFCore
 
-from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFCore.interfaces import IURLTool
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -188,7 +186,7 @@ class ContentReference(ObjectManager, Reference):
         # creates the content instance
         if type(self.contentType) in (type(''),type(u'')):
             # type given as string
-            tt=getUtility(ITypesTool)
+            tt=getToolByName(self,'portal_types')
             tt.constructContent(self.contentType, self,
                                 REFERENCE_CONTENT_INSTANCE_NAME)
         else:
@@ -568,7 +566,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
            can be used to specify the tree that has to be searched for references '''
 
         if not root:
-            root=getUtility(IURLTool).getPortalObject()
+            root=getToolByName(self,'portal_url').getPortalObject()
 
         path = '/'.join(root.getPhysicalPath())
 
