@@ -1,6 +1,5 @@
 import os.path
 from types import StringType
-from zope.component import getUtility
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
@@ -17,9 +16,7 @@ from OFS.Image import File
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetype
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
 from Products.PortalTransforms.interfaces import idatastream
-from Products.PortalTransforms.interfaces import IPortalTransformsTool
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []

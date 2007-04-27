@@ -25,7 +25,6 @@ else:
     from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
 from Products.Archetypes.utils import shasattr
 
 HAS_PLONE21 = True

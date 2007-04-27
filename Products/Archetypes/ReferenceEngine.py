@@ -3,20 +3,17 @@ from types import StringType, UnicodeType
 import time
 import urllib
 from zope.interface import implements
-from zope.component import queryUtility
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
     IContentReference, IReference as Z2IReference
 
 from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
 from Products.Archetypes.config import (
-    UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
+    TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent
@@ -28,7 +25,6 @@ from Globals import InitializeClass, DTMLFile, PersistentMapping
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import registerToolInterface
-from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog

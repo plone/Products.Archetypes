@@ -17,6 +17,7 @@ class IObjectValidation(Interface):
         """Validate the context object. Return a dict with keys of fieldnames
         and values of error strings.
         """
+
 class IObjectPreValidation(IObjectValidation):
     """Validate before schema validation
     """

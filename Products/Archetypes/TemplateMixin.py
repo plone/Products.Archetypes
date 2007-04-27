@@ -1,7 +1,4 @@
-from zope.component import getUtility
-
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Widget import SelectionWidget
@@ -13,7 +10,6 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import aq_inner
-from Acquisition import aq_parent
 from ExtensionClass import Base
 
 TemplateMixinSchema = Schema((

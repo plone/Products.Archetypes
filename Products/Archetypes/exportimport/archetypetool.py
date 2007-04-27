@@ -1,6 +1,4 @@
 from sets import Set
-from zope.component import getUtility
-from zope.component import queryUtility
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IArchetypeTool

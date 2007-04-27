@@ -1,6 +1,5 @@
 import tempfile
 import posixpath
-from zope.component import getUtility
 
 from zExceptions import MethodNotAllowed
 from Products.CMFCore.utils import getToolByName

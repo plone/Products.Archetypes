@@ -3,7 +3,6 @@ import sys
 import time
 import urllib
 import traceback
-from zope.component import getUtility
 from zope.interface import implements
 
 from Globals import InitializeClass

@@ -1,25 +1,19 @@
-from zope.component import getUtility
-from zope.component import queryUtility
 from zope.interface import implements
 
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
-from AccessControl import getSecurityManager, Unauthorized
-from ExtensionClass import Base
+from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
+from utils import getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo

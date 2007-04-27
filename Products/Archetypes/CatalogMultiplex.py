@@ -1,6 +1,5 @@
 from debug import log
 from logging import WARNING
-from zope.component import queryUtility
 
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -8,7 +7,6 @@ from Globals import InitializeClass
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr

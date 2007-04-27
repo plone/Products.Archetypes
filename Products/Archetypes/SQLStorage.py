@@ -1,7 +1,4 @@
-from zope.component import getUtility
-
 from Products.Archetypes.SQLMethod import SQLMethod
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
@@ -10,7 +7,6 @@ from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.Storage import StorageLayer, type_map
 from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.interfaces import IFactoryTool
 from ZODB.POSException import ConflictError
 from OFS.ObjectManager import BeforeDeleteException
 

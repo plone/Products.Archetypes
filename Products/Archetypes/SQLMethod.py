@@ -197,7 +197,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             query = apply(self.template, (p,), argdata)
         except TypeError, msg:
             msg = str(msg)
-            if find(msg,'client'):
+            if 'client' in msg:
                 raise NameError("'client' may not be used as an " +
                                 "argument name in this context")
             else: raise

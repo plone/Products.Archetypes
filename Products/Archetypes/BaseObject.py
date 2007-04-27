@@ -60,14 +60,8 @@ from webdav.NullResource import NullResource
 from zope import event
 from zope.interface import implements, Interface
 from zope.component import subscribers
-from zope.component import getUtility, queryUtility
 from zope.component import queryMultiAdapter
-from zope import lifecycleevent
-
-from Products.CMFCore.interfaces import IMetadataTool
-from Products.CMFCore.interfaces import IPropertiesTool
-from Products.CMFCore.interfaces import IURLTool
-from Products.CMFPlone.interfaces import IPloneTool
+from zope.component import queryUtility
 
 # Import conditionally, so we don't introduce a hard depdendency
 try:
@@ -77,9 +71,6 @@ try:
 except ImportError:
     URL_NORMALIZER = False
 
-from zope.interface import implements, Interface
-from zope.component import queryMultiAdapter, queryUtility
-from zope import event
 
 _marker = []
 

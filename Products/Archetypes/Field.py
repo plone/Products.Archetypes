@@ -9,7 +9,6 @@ from types import StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
-from zope.component import queryUtility
 from zope import schema
 from zope import component
 
@@ -35,14 +34,10 @@ from ZODB.POSException import ConflictError
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import permissions
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
-from Products.PortalTransforms.interfaces import IPortalTransformsTool
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
-from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField

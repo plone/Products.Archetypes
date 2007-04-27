@@ -8,8 +8,6 @@ from StringIO import StringIO
 from debug import deprecated
 
 from zope.interface import implements
-from zope.component import getUtility
-from zope.component import queryUtility
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool

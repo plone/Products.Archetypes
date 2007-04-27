@@ -23,12 +23,9 @@
 #
 ###############################################################################
 
-from Interface import Implements
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.atapi import BaseFolder
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.ArchetypeTool import listTypes
-from Products.CMFCore.utils import getToolByName
 
 class AllowedTypesByIfaceMixin:
     """An approach to restrict allowed content types in a container by

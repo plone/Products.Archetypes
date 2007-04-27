@@ -2,15 +2,8 @@
 Archetypes setup handlers.
 """
 
-from zope.component import getUtility
-from zope.component import queryUtility
-
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG, UID_CATALOG
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
-
 
 def install_uidcatalog(out, site, rebuild=False):
     catalog = getToolByName(site, UID_CATALOG)

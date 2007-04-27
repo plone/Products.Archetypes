@@ -1,4 +1,3 @@
-from zope.component import queryUtility
 from zope.interface import implements
 
 from Acquisition import aq_inner
