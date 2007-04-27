@@ -10,13 +10,16 @@ from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base, aq_parent, aq_inner
+from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
+from AccessControl import getSecurityManager, Unauthorized
+from ExtensionClass import Base
 from OFS.ObjectManager import BeforeDeleteException
 
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from utils import getRelURL
+from utils import getRelPath, getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -46,46 +49,45 @@ class Referenceable(CopySource):
 
     def reference_url(self):
         """like absoluteURL, but return a link to the object with this UID"""
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.reference_url(self)
 
     def hasRelationshipTo(self, target, relationship=None):
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.hasRelationshipTo(self, target, relationship)
 
     def addReference(self, object, relationship=None, referenceClass=None,
                      updateReferences=True, **kwargs):
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.addReference(self, object, relationship, referenceClass,
                                  updateReferences, **kwargs)
 
     def deleteReference(self, target, relationship=None):
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.deleteReference(self, target, relationship)
 
     def deleteReferences(self, relationship=None):
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.deleteReferences(self, relationship)
 
     def getRelationships(self):
         """What kinds of relationships does this object have"""
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getRelationships(self)
 
     def getBRelationships(self):
         """
         What kinds of relationships does this object have from others
         """
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getBackRelationships(self)
 
     def getRefs(self, relationship=None, targetObject=None):
         """get all the referenced objects for this object"""
-        tool = queryUtility(IReferenceCatalog)
-        if tool is not None:
-            refs = tool.getReferences(self, relationship, targetObject=targetObject)
-            if refs:
-                return [ref.getTargetObject() for ref in refs]
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
+        refs = tool.getReferences(self, relationship, targetObject=targetObject)
+        if refs:
+            return [ref.getTargetObject() for ref in refs]
         return []
 
     def _getURL(self):
@@ -94,7 +96,7 @@ class Referenceable(CopySource):
 
     def getBRefs(self, relationship=None, targetObject=None):
         """get all the back referenced objects for this object"""
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
             return [ref.getSourceObject() for ref in refs]
@@ -106,7 +108,7 @@ class Referenceable(CopySource):
 
     def getReferenceImpl(self, relationship=None, targetObject=None):
         """get all the reference objects for this object    """
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getReferences(self, relationship, targetObject=targetObject)
         if refs:
             return refs
@@ -114,7 +116,7 @@ class Referenceable(CopySource):
 
     def getBackReferenceImpl(self, relationship=None, targetObject=None):
         """get all the back reference objects for this object"""
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
             return refs
@@ -126,13 +128,13 @@ class Referenceable(CopySource):
             return
 
         if reference_manager is None:
-            reference_manager = queryUtility(IReferenceCatalog)
-        if reference_manager is not None:
-            reference_manager.registerObject(self)
+            reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
+        reference_manager.registerObject(self)
+
 
     def _unregister(self):
         """unregister with the archetype tool, remove all references"""
-        reference_manager = getUtility(IReferenceCatalog)
+        reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.unregisterObject(self)
 
     def _getReferenceAnnotations(self):
@@ -190,13 +192,19 @@ class Referenceable(CopySource):
         """
         # the UID index needs to be updated for any annotations we
         # carry
-        uc = queryUtility(IUIDCatalog)
-        rc = queryUtility(IReferenceCatalog)
+        try:
+            uc = getToolByName(container, config.UID_CATALOG)
+        except AttributeError:
+            # TODO when trying to rename or copy a whole site than
+            # container is the object "under" the portal so we can
+            # NEVER ever find the catalog which is bad ...
+            container = aq_parent(self)
+            uc = getToolByName(container, config.UID_CATALOG)
 
-        if uc is not None:
-            self._catalogUID(container, uc=uc)
-            if rc is not None:
-                self._catalogRefs(container, uc=uc, rc=rc)
+        rc = getToolByName(uc, config.REFERENCE_CATALOG)
+
+        self._catalogUID(container, uc=uc)
+        self._catalogRefs(container, uc=uc, rc=rc)
 
     ## OFS Hooks
     def manage_afterAdd(self, item, container):
@@ -212,7 +220,7 @@ class Referenceable(CopySource):
             setattr(self, config.UUID_ATTR, None)
             self._delReferenceAnnotations()
 
-        ct = queryUtility(IReferenceCatalog)
+        ct = getToolByName(container, config.REFERENCE_CATALOG, None)
         self._register(reference_manager=ct)
         self._updateCatalog(container)
         self._referenceApply('manage_afterAdd', item, container)
@@ -222,7 +230,7 @@ class Referenceable(CopySource):
         Get a new UID (effectivly dropping reference)
         (Called when the object is cloned.)
         """
-        uc = getUtility(IUIDCatalog)
+        uc = getToolByName(self, config.UID_CATALOG)
 
         isCopy = getattr(item, '_v_is_cp', None)
         if isCopy:
@@ -252,7 +260,7 @@ class Referenceable(CopySource):
         if storeRefs is None:
             # The object is really going away, we want to remove
             # its references
-            rc = getUtility(IReferenceCatalog)
+            rc = getToolByName(self, config.REFERENCE_CATALOG)
             references = rc.getReferences(self)
             back_references = rc.getBackReferences(self)
             try:
@@ -282,55 +290,52 @@ class Referenceable(CopySource):
     ## Catalog Helper methods
     def _catalogUID(self, aq, uc=None):
         if not uc:
-            uc = getUtility(IUIDCatalog)
+            uc = getToolByName(aq, config.UID_CATALOG)
         url = self._getURL()
         uc.catalog_object(self, url)
 
     def _uncatalogUID(self, aq, uc=None):
-        if uc is None:
-            uc = queryUtility(IUIDCatalog)
-        if uc is not None:
-            url = self._getURL()
-            # XXX This is an ugly workaround. This method shouldn't be called
-            # twice for an object in the first place, so we don't have to check
-            # if it is still cataloged. 
-            rid = uc.getrid(url)
-            if rid is not None:
-                uc.uncatalog_object(url)
+        if not uc:
+            uc = getToolByName(self, config.UID_CATALOG)
+        url = self._getURL()
+        # XXX This is an ugly workaround. This method shouldn't be called
+        # twice for an object in the first place, so we don't have to check
+        # if it is still cataloged. 
+        rid = uc.getrid(url)
+        if rid is not None:
+            uc.uncatalog_object(url)
 
     def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            if uc is None:
-                uc = queryUtility(IUIDCatalog)
-            if rc is None:
-                rc = queryUtility(IReferenceCatalog)
-            if uc is not None and rc is not None:
-                for ref in annotations.objectValues():
-                    url = getRelURL(uc, ref.getPhysicalPath())
-                    uc.catalog_object(ref, url)
-                    rc.catalog_object(ref, url)
-                    ref._catalogRefs(uc, uc, rc)
+            if not uc:
+                uc = getToolByName(aq, config.UID_CATALOG)
+            if not rc:
+                rc = getToolByName(aq, config.REFERENCE_CATALOG)
+            for ref in annotations.objectValues():
+                url = getRelURL(uc, ref.getPhysicalPath())
+                uc.catalog_object(ref, url)
+                rc.catalog_object(ref, url)
+                ref._catalogRefs(uc, uc, rc)
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
         if annotations:
-            if uc is None:
-                uc = queryUtility(IUIDCatalog)
-            if rc is None:
-                rc = queryUtility(IReferenceCatalog)
-            if uc is not None and rc is not None:
-                for ref in annotations.objectValues():
-                    url = getRelURL(uc, ref.getPhysicalPath())
-                    # XXX This is an ugly workaround. This method shouldn't be
-                    # called twice for an object in the first place, so we don't
-                    # have to check if it is still cataloged. 
-                    uc_rid = uc.getrid(url)
-                    if uc_rid is not None:
-                        uc.uncatalog_object(url)
-                    rc_rid = rc.getrid(url)
-                    if rc_rid is not None:
-                        rc.uncatalog_object(url)
+            if not uc:
+                uc = getToolByName(self, config.UID_CATALOG)
+            if not rc:
+                rc = getToolByName(self, config.REFERENCE_CATALOG)
+            for ref in annotations.objectValues():
+                url = getRelURL(uc, ref.getPhysicalPath())
+                # XXX This is an ugly workaround. This method shouldn't be
+                # called twice for an object in the first place, so we don't
+                # have to check if it is still cataloged. 
+                uc_rid = uc.getrid(url)
+                if uc_rid is not None:
+                    uc.uncatalog_object(url)
+                rc_rid = rc.getrid(url)
+                if rc_rid is not None:
+                    rc.uncatalog_object(url)
 
     def _getCopy(self, container):
         # We only set the '_v_is_cp' flag here if it was already set.

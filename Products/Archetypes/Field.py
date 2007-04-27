@@ -32,12 +32,14 @@ from OFS.Cache import ChangeCacheSettingsPermission
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.POSException import ConflictError
 
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import _getAuthenticatedUser
 from Products.CMFCore import permissions
 from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
 from Products.PortalTransforms.interfaces import IPortalTransformsTool
 
 from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces import IUIDCatalog
@@ -925,7 +927,7 @@ class FileField(ObjectField):
             body = file.data
             if not isinstance(body, basestring):
                 body = body.data
-            mtr = queryUtility(IMimetypesRegistryTool)
+            mtr = getToolByName(instance, 'mimetypes_registry', None)
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
@@ -1166,7 +1168,7 @@ class FileField(ObjectField):
         # memory.  To have this not happening set your field to not
         # 'searchable' (the default) or define your own 'index_method'
         # property.
-        transforms = getUtility(IPortalTransformsTool)
+        transforms = getToolByName(instance, 'portal_transforms')
         f = self.get(instance)
         
         try:
@@ -1303,7 +1305,7 @@ class TextField(FileField):
         if mimetype is None or mimetype == 'text/x-unknown-content-type':
             if body is None:
                 body = value[:CHUNK]
-            mtr = queryUtility(IMimetypesRegistryTool)
+            mtr = getToolByName(instance, 'mimetypes_registry', None)
             if mtr is not None:
                 kw = {'mimetype':None,
                       'filename':filename}
@@ -1718,7 +1720,7 @@ class ReferenceField(ObjectField):
         >>> nodes[2].getLink()
         <SimpleBTreeFolder...>
         """
-        tool = getUtility(IReferenceCatalog)
+        tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in
                       tool.getReferences(instance, self.relationship)]
 
@@ -1766,7 +1768,7 @@ class ReferenceField(ObjectField):
         """Return the list of UIDs referenced under this fields
         relationship
         """
-        rc = getUtility(IReferenceCatalog)
+        rc = getToolByName(instance, REFERENCE_CATALOG)
         brains = rc(sourceUID=instance.UID(),
                     relationship=self.relationship)
         res = [b.targetUID for b in brains]
@@ -1801,7 +1803,7 @@ class ReferenceField(ObjectField):
     def _Vocabulary(self, content_instance):
         pairs = []
         pc = getToolByName(content_instance, 'portal_catalog')
-        uc = getUtility(IUIDCatalog)
+        uc = getToolByName(content_instance, config.UID_CATALOG)
         purl = getToolByName(content_instance, 'portal_url')
 
         allowed_types = self.allowed_types

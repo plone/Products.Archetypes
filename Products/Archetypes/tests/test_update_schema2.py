@@ -33,10 +33,7 @@ from Testing import ZopeTestCase
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
-
-
 
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import \

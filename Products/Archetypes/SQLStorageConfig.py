@@ -12,6 +12,7 @@ from Globals import InitializeClass, PersistentMapping, DTMLFile
 from OFS.SimpleItem import SimpleItem
 from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFCore.permissions import ManagePortal
+from Products.CMFCore.utils import getToolByName
 
 class SQLStorageConfig (SimpleItem):
 
@@ -129,7 +130,7 @@ class SQLStorageConfig (SimpleItem):
     security.declareProtected( ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
         pt = getToolByName(self, 'portal_types', None)
-        at = queryUtility(IArchetypeTool)
+        at = getToolByName(self, TOOL_NAME, None)
         if pt is None:
             return ()
         if at is None:

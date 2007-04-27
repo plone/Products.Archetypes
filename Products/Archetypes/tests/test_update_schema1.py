@@ -34,7 +34,6 @@ from Products.Archetypes.tests.utils import makeContent
 
 import shutil
 
-from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
 try:
