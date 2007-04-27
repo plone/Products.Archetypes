@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<export-steps>
+  <export-step id="archetypetool"
+    handler="Products.Archetypes.exportimport.archetypetool.exportArchetypeTool"
+    title="Archetype Tool">
+    Export Archetype type specific configuration.
+  </export-step>
+</export-steps>
