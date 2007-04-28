@@ -35,6 +35,8 @@
       <div tal:define="purl nocall:here/portal_url;
                        portal purl/getPortalObject;
                        errors options/state/getErrors | python:{};
+                       Iterator python:modules['Products.Archetypes'].IndexIterator;
+                       tabindex python:Iterator();
                        widgets python:here.archetype_tool.getWidgets(instance=context, mode='edit', schemata='default', context=container, package=options['package'], type=options['type'])">
         <tal:fields repeat="widget widgets">
           <metal:fieldMacro use-macro="widget" />
