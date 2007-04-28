@@ -386,7 +386,7 @@ ArchetypeTool.py)::
         if not uid:
             return None
         object = None
-        catalog = getUtility(ICatalogTool)
+        catalog = getToolByName(self, 'portal_catalog')
         result  = catalog({'UID' : uid})
         if result:
             #This is an awful workaround for the UID under containment

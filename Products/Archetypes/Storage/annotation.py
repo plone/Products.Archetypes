@@ -37,9 +37,7 @@ from Products.Archetypes.annotations import getAnnotation
 from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerStorage
 from Products.Archetypes.utils import shasattr
-
-from zope.component import getUtility
-from Products.CMFCore.interfaces import ICatalogTool
+from Products.CMFCore.utils import getToolByName
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
@@ -187,7 +185,7 @@ def migrateStorageOfType(portal, portal_type, schema):
     The schema is used to detect annotation and metadata annotation stored field for
     migration.
     """
-    catalog = getUtility(ICatalogTool)
+    catalog = getToolByName(portal, 'portal_catalog')
     brains = catalog(Type = portal_type)
     
     fields = [ field.getName()

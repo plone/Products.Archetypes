@@ -15,13 +15,11 @@ from AccessControl.SecurityInfo import ACCESS_PUBLIC
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
-
-from zope.component import queryUtility
-from Products.CMFCore.interfaces import ISiteRoot
 
 # BBB, this can be removed once we do not support PTS anymore
 from Products.PageTemplates.GlobalTranslationService \
@@ -747,10 +745,9 @@ InitializeClass(OrderedDict)
 def getRelPath(self, ppath):
     """take something with context (self) and a physical path as a
     tuple, return the relative path for the portal"""
-    portal = queryUtility(ISiteRoot)
-    if portal is not None:
-        portal_path = portal.getPhysicalPath()
-        ppath = ppath[len(portal_path):]
+    urlTool = getToolByName(self, 'portal_url')
+    portal_path = urlTool.getPortalObject().getPhysicalPath()
+    ppath = ppath[len(portal_path):]
     return ppath
 
 def getRelURL(self, ppath):

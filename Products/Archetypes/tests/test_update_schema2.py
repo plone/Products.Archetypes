@@ -27,15 +27,13 @@
 
 
 import os
+import shutil
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-import shutil
-from zope.component import getUtility
-
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from Products.CMFCore.utils import getToolByName
 
 try:
     from Products.ArchetypesTestUpdateSchema.Extensions.Install import \
@@ -52,7 +50,7 @@ else:
 class TestUpdateSchema2(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
-        qi = getUtility(IQuickInstallerTool)
+        qi = getToolByName(self.portal, 'portal_quickinstaller')
         qi.installProduct('ArchetypesTestUpdateSchema')
 
     def _setClass(self, version):

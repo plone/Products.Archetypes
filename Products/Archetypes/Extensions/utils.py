@@ -1,7 +1,5 @@
 import os
 from os.path import isdir, join
-from zope.component import getUtility
-from zope.component import queryUtility
 
 from Globals import package_home
 from OFS.ObjectManager import BadRequestException
@@ -9,21 +7,14 @@ from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, getPackageName
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.ArchetypeTool import process_types
 from Products.Archetypes.ArchetypeTool import base_factory_type_information
 from Products.Archetypes import types_globals
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
-
-from Products.CMFCore.interfaces import ICatalogTool
-from Products.CMFCore.interfaces import IPropertiesTool
-from Products.CMFCore.interfaces import ISkinsTool
-from Products.CMFCore.interfaces import ITypesTool
 
 
 class Extra:
@@ -32,7 +23,7 @@ class Extra:
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
-    at = getUtility(IArchetypeTool)
+    at = getToolByName(self, 'archetype_tool')
     
     for t in types:
         klass = t['klass']
@@ -55,7 +46,7 @@ def install_additional_templates(self, out, types):
             at.bindTemplate(portal_type, views)
 
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
-    skinstool=getUtility(ISkinsTool)
+    skinstool=getToolByName(self, 'portal_skins')
 
     product = getPackageName(globals)
     registry_key = "%s:%s" % (product, product_skins_dir)
@@ -102,7 +93,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
                 skinstool.addSkinSelection(skinName, path)
 
 def install_types(self, out, types, package_name):
-    typesTool = getUtility(ITypesTool)
+    typesTool = getToolByName(self, 'portal_types')
     folderish = []
     for klass in types:
         try:
@@ -148,7 +139,7 @@ def install_types(self, out, types, package_name):
         if use_folder_tabs:
             folderish.append(klass.portal_type)
     if folderish:
-        pt = queryUtility(IPropertiesTool)
+        pt = getToolByName(self, 'portal_properties', None)
         if pt is None:
             return
         sp = getattr(pt, 'site_properties', None)
@@ -182,14 +173,14 @@ def _getFtiAndDataFor(tool, typename, package_name):
     
 
 def install_actions(self, out, types):
-    typesTool = getUtility(ITypesTool)
+    typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
         ## rr: XXX TODO somehow the following doesn't do anymore what
         ## it used to do :-(
         fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
-    portal_catalog = catalog = getUtility(ICatalogTool)
+    portal_catalog = catalog = getToolByName(self, 'portal_catalog')
     for cls in types:
         if 'indexes' not in cls.installMode:
             continue
@@ -298,7 +289,7 @@ def isPloneSite(self):
 
 
 def filterTypes(self, out, types, package_name):
-    typesTool = getUtility(ITypesTool)
+    typesTool = getToolByName(self, 'portal_types')
 
     filtered_types = []
 
@@ -335,7 +326,7 @@ def setupEnvironment(self, out, types,
                      install_deps=1):
 
     if install_deps:
-        qi = queryUtility(IQuickInstallerTool)
+        qi=getToolByName(self, 'portal_quickinstaller', None)
         if require_dependencies:
             if not qi.isProductInstalled('CMFFormController'):
                 qi.installProduct('CMFFormController',locked=1)
@@ -365,7 +356,7 @@ def doubleCheckDefaultTypeActions(self, ftypes):
     # Instead of trying to resurect the old way (which I tried but couldn't)
     # I make it brute force here
 
-    typesTool = getUtility(ITypesTool)
+    typesTool = getToolByName(self, 'portal_types')
     defaultTypeActions = [ActionInformation(**action) for action in
                           base_factory_type_information[0]['actions']]
 
@@ -399,7 +390,7 @@ def installTypes(self, out, types, package_name,
     ## rr: sometimes the default actions are still missing
     doubleCheckDefaultTypeActions(self, ftypes)
     if refresh_references and ftypes:
-        rc = getUtility(IReferenceCatalog)
+        rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()
 
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
@@ -418,7 +409,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
         # no types to install
         return
 
-    rc = getUtility(IReferenceCatalog)
+    rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
     
     # because manage_catalogFoundItems sucks we have to do it on our own ...

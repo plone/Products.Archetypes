@@ -24,7 +24,7 @@ else:
     from Products.CMFPlone.Portal import addPolicy
     from Products.CMFPlone.CustomizationPolicy import DefaultCustomizationPolicy
 
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr
 
 HAS_PLONE21 = True
@@ -45,7 +45,7 @@ class ArchetypesSitePolicy(DefaultCustomizationPolicy):
         """Install Archetypes with all dependencies
         """
         print >>out, 'Installing Archetypes ...'
-        qi = getUtility(IQuickInstallerTool)
+        qi = getToolByName(portal, 'portal_quickinstaller')
         for product in PRODUCTS:
             if not qi.isProductInstalled(product):
                 qi.installProduct(product)

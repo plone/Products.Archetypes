@@ -3,19 +3,17 @@ from types import StringType, UnicodeType
 import time
 import urllib
 from zope.interface import implements
-from zope.component import getUtility
-from zope.component import queryUtility
 
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.interfaces.referenceengine import \
     IContentReference, IReference as Z2IReference
 
 from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
-from Products.Archetypes.config import REFERENCE_CATALOG,UUID_ATTR
+from Products.Archetypes.config import (
+    TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent
@@ -32,8 +30,6 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products import CMFCore
 
-from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFCore.interfaces import IURLTool
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -93,9 +89,8 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Convenience methods
     def getSourceObject(self):
-        tool = queryUtility(IUIDCatalog)
-        if tool is None:
-            return ''
+        tool = getToolByName(self, UID_CATALOG, None)
+        if tool is None: return ''
         brains = tool(UID=self.sourceUID)
         for brain in brains:
             obj = brain.getObject()
@@ -103,9 +98,8 @@ class Reference(Referenceable, SimpleItem):
                 return obj
 
     def getTargetObject(self):
-        tool = queryUtility(IUIDCatalog)
-        if tool is None:
-            return ''
+        tool = getToolByName(self, UID_CATALOG, None)
+        if tool is None: return ''
         brains = tool(UID=self.targetUID)
         for brain in brains:
             obj = brain.getObject()
@@ -158,13 +152,13 @@ class Reference(Referenceable, SimpleItem):
         # when copying a full site containe is the container of the plone site
         # and item is the plone site (at least for objects in portal root)
         base = container
-        rc = getUtility(IReferenceCatalog)
+        rc = getToolByName(container, REFERENCE_CATALOG)
         url = getRelURL(base, self.getPhysicalPath())
         rc.catalog_object(self, url)
 
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
-        rc  = getUtility(IReferenceCatalog)
+        rc  = getToolByName(container, REFERENCE_CATALOG)
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
@@ -188,7 +182,7 @@ class ContentReference(ObjectManager, Reference):
         # creates the content instance
         if type(self.contentType) in (type(''),type(u'')):
             # type given as string
-            tt=getUtility(ITypesTool)
+            tt=getToolByName(self,'portal_types')
             tt.constructContent(self.contentType, self,
                                 REFERENCE_CONTENT_INSTANCE_NAME)
         else:
@@ -464,14 +458,14 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
     def unregisterObject(self, object):
         self.deleteReferences(object)
-        uc = getUtility(IUIDCatalog)
+        uc = getToolByName(self, UID_CATALOG)
         uc.uncatalog_object(object._getURL())
 
 
     ######
     ## Private/Internal
     def _objectByUUID(self, uuid):
-        tool = getUtility(IUIDCatalog)
+        tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=uuid)
         for brain in brains:
             obj = brain.getObject()
@@ -515,7 +509,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             uuid = obj
             obj = None
             #and we look up the object
-            uid_catalog = getUtility(IUIDCatalog)
+            uid_catalog = getToolByName(self, UID_CATALOG)
             brains = uid_catalog(UID=uuid)
             for brain in brains:
                 res = brain.getObject()
@@ -568,7 +562,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
            can be used to specify the tree that has to be searched for references '''
 
         if not root:
-            root=getUtility(IURLTool).getPortalObject()
+            root=getToolByName(self,'portal_url').getPortalObject()
 
         path = '/'.join(root.getPhysicalPath())
 
@@ -621,7 +615,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool = getUtility(IArchetypeTool)
+        atool = getToolByName(self, TOOL_NAME)
         obj = aq_parent(self)
         if not REQUEST:
             REQUEST = self.REQUEST

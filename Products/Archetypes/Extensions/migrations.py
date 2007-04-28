@@ -1,17 +1,12 @@
 import sys
 import transaction
-from zope.component import getUtility
 
 from Acquisition import aq_base
 from Globals import PersistentMapping
 from StringIO import StringIO
-from Products.CMFCore.interfaces import IURLTool
-from Products.CMFQuickInstallerTool.interfaces import IQuickInstallerTool
-from Products.Archetypes.config import *
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces import IUIDCatalog
+from Products.Archetypes.config import *
 from Products.Archetypes.interfaces.base import IBaseObject
 
 # WARNING!
@@ -33,7 +28,7 @@ class StdoutStringIO(StringIO):
 def reinstallArchetypes(portal, out):
     """let's quickinstaller (re)install Archetypes and it's dependencies
     """
-    qi = getUtility(IQuickInstallerTool)
+    qi = getToolByName(portal, 'portal_quickinstaller')
     products = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )
     print >>out, 'Reinstalling Archetypes and it\'s dependencies'
     for product in products:
@@ -63,9 +58,9 @@ def migrateReferences(portal, out):
     # FIRST
     # a 1.2 -> 1.3 (new annotation style) migration path
     
-    at = getUtility(IArchetypeTool)
-    rc = getUtility(IReferenceCatalog)
-    uc = getUtility(IUIDCatalog)
+    at = getToolByName(portal, TOOL_NAME)
+    rc = getToolByName(portal, REFERENCE_CATALOG)
+    uc = getToolByName(portal, UID_CATALOG)
 
     count=0
     
@@ -159,7 +154,7 @@ olduididx = 'old_tmp_at_uid'
 
 def migrateUIDs(portal, out):
     count=0
-    uc = getUtility(IUIDCatalog)
+    uc = getToolByName(portal, UID_CATALOG)    
     print >>out, 'Migrating uids\n'
     
     # temporary add a new index    
@@ -203,7 +198,7 @@ def migrateUIDs(portal, out):
 
 def removeOldUIDs(portal, out):
     # remove temporary needed index 
-    uc = getUtility(IUIDCatalog)
+    uc = getToolByName(portal, UID_CATALOG)    
     print >>out, 'Removing old uids\n'
     if olduididx in uc.indexes():
         uc.delIndex(olduididx)
@@ -235,7 +230,7 @@ def removeOldUIDs(portal, out):
     print >>out, 'Done\n'
 
 def migrateSchemas(portal, out):
-    at = getUtility(IArchetypeTool)
+    at = getToolByName(portal, TOOL_NAME)
     msg = at.manage_updateSchema(update_all=1)
     if USE_FULL_TRANSACTIONS:
         transaction.commit()
@@ -256,13 +251,13 @@ def migrateCatalogIndexes(portal, out):
         except:
             pass
     
-    rc = getUtility(IReferenceCatalog)
+    rc = getToolByName(portal, REFERENCE_CATALOG)
     add_indexes = ('targetId', 'FieldIndex'),
     [addIndex(rc, n, t) for n, t in add_indexes]
     
 def refreshCatalogs(portal, out):
-    uc = getUtility(IUIDCatalog)
-    rc = getUtility(IReferenceCatalog)
+    uc = getToolByName(portal, UID_CATALOG)
+    rc = getToolByName(portal, REFERENCE_CATALOG)
     print >>out, 'Refreshing uid catalog'
     uc.refreshCatalog(clear=1)
     print >>out, 'Refreshing reference catalog'
@@ -277,7 +272,7 @@ def refreshCatalogs(portal, out):
 def migrate(self):
     """migrate an AT site"""
     out = StdoutStringIO()
-    portal = getUtility(IURLTool).getPortalObject()
+    portal = getToolByName(self,'portal_url').getPortalObject()
 
     print >>out, "Begin Migration"
 

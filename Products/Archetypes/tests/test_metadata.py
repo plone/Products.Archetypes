@@ -32,12 +32,15 @@ from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import schema
 
-from types import FunctionType
+from types import FunctionType, ListType, TupleType
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes import config
+from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.config import PKG_NAME
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from Products.CMFCore.utils import getToolByName
 
 fieldList = [
     # (accessor, mutator, field),

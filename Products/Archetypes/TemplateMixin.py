@@ -1,13 +1,11 @@
-from zope.component import getUtility
-
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Widget import SelectionWidget
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
-from Products.CMFCore import permissions
+from Products.CMFCore import permissions, utils
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
@@ -68,7 +66,7 @@ class TemplateMixin(Base):
         return v(context, context.REQUEST)
 
     def _voc_templates(self):
-        at = getUtility(IArchetypeTool)
+        at = utils.getToolByName(self, TOOL_NAME)
         return at.lookupTemplates(self)
 
     # BBB backward compatibility

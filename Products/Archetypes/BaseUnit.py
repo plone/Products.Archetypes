@@ -1,6 +1,5 @@
 import os.path
 from types import StringType
-from zope.component import getUtility
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
@@ -15,10 +14,9 @@ from Acquisition import aq_base
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
+from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetype
-from Products.MimetypesRegistry.interfaces import IMimetypesRegistryTool
 from Products.PortalTransforms.interfaces import idatastream
-from Products.PortalTransforms.interfaces import IPortalTransformsTool
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []
@@ -50,7 +48,7 @@ class BaseUnit(File):
         encoding = kw.get('encoding', None)
         context  = kw.get('context', instance)
 
-        adapter = getUtility(IMimetypesRegistryTool)
+        adapter = getToolByName(context, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -95,7 +93,7 @@ class BaseUnit(File):
         if not hasattr(instance, 'aq_parent'):
             return orig
 
-        transformer = getUtility(IPortalTransformsTool)
+        transformer = getToolByName(instance, 'portal_transforms')
         data = transformer.convertTo(mt, orig, object=self, usedby=self.id,
                                      context=instance,
                                      mimetype=self.mimetype,
@@ -199,7 +197,7 @@ class BaseUnit(File):
     def setContentType(self, instance, value):
         """Set the file mimetype string.
         """
-        mtr = getUtility(IMimetypesRegistryTool)
+        mtr = getToolByName(instance, 'mimetypes_registry')
         result = mtr.lookup(value)
         if not result:
             raise ValueError('Unknown mime type %s' % value)

@@ -5,14 +5,13 @@ Those tests make sure that the catalog is only called as necessary.
 
   >>> import sys
   >>> from os.path import sep
-  >>> from zope.component import queryUtility
   >>> from Products.ZCatalog.ZCatalog import ZCatalog
+  >>> from Products.CMFCore.utils import getToolByName
   >>> from Products.Archetypes.utils import wrap_method
   >>> from Products.Archetypes.utils import unwrap_method
   >>> from Products.Archetypes.utils import call_original as call
   >>> from Products.Archetypes.tests.attestcase import default_user
   >>> from Products.Archetypes.tests.atsitetestcase import portal_owner
-  >>> from Products.CMFPlone.interfaces import IFactoryTool
   >>> import transaction
 
   >>> self.setRoles(['Manager'])
@@ -77,7 +76,7 @@ Wrap ZCatalog methods to let us know about why and when they were called:
 
 Disable Portal Factory:
 
-  >>> pf = queryUtility(IFactoryTool)
+  >>> pf = getToolByName(self.portal, 'portal_factory', None)
   >>> if pf is not None:
   ...    pf.manage_setPortalFactoryTypes(listOfTypeIds=[])
 

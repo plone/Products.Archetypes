@@ -2,6 +2,7 @@
 import textwrap
 from AccessControl import Unauthorized
 
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
