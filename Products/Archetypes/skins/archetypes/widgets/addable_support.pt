@@ -33,7 +33,7 @@
             <input type="button" class="context"
               tal:attributes="id string:${field/getName}_link;
                               onclick string:${field/getName}_show();;return false;
-                              value string:Add New ${widget/label}; />
+                              value string:Add New ${widget/label};" />
 
             <div tal:attributes="id string:${field/getName}_fieldset"
                i18n:domain="archetypes"
