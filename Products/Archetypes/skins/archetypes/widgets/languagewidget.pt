@@ -27,14 +27,11 @@
                     <!-- Radio when the vocab is short < 4 -->
                     <tal:radios repeat="item vocab">
                         <input class="noborder blurrable"
-                               tabindex=""
                                type="radio"
-                               tal:define="tabindex tabindex/next"
                                tal:attributes="name fieldName;
                                                id string:${fieldName}_${repeat/item/number};
                                                checked python:item in selection and 'checked' or None;
-                                               value item;
-                                               tabindex tabindex;"/>
+                                               value item;" />
                         <label tal:content="python:vocab.getValue(item)"
                                tal:attributes="for string:${fieldName}_${repeat/item/number}" />
                         <br />
@@ -43,8 +40,7 @@
                 <tal:longVocab condition="python:(vlen >= 4 and format == 'flex') or (format in ('select', 'pulldown'))">
                     <!-- Pulldown when longer -->
                     <select tal:attributes="name fieldName;
-                                            id fieldName;
-                                            tabindex tabindex/next;">
+                                            id fieldName;">
                         <option tal:repeat="item vocab"
                                 tal:attributes="value item;
                                                 selected python:item in selection and 'selected' or None"

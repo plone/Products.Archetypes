@@ -24,13 +24,11 @@
                   keypress string:textCounter(this, this.form.textCounter_${fieldName}, ${maxlength});">
 
         <textarea
-            tabindex="#"
             class="blurrable firstToFocus"
             tal:attributes="name fieldName;
                             id fieldName;
                             cols widget/cols;
                             rows widget/rows;
-                            tabindex tabindex/next;
                             onkeydown python:test(maxlength, keypress, None);
                             onkeyup python:test(maxlength, keypress, None);"                            
             tal:define="content python:not append_only and content or '';"
@@ -44,7 +42,6 @@
                        maxlength="4"
                        size="4"
                        value=""
-                       tabindex="-1"
                        i18n:name="count"
                        tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
                                    inputsize string:4"
@@ -91,8 +88,7 @@
           <select tal:define="textareaview context/@@at_textarea_widget;
                               selection python:textareaview.getSelected(mimetypes, contenttype)"
                   tal:attributes="id string:${fieldName}_text_format;
-                                  name string:${fieldName}_text_format;
-                                  tabindex tabindex/next">
+                                  name string:${fieldName}_text_format;">
             <option selected="selected"
                     value=""
                     tal:attributes="value contentType"

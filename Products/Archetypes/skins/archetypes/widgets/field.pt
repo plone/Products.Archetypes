@@ -131,10 +131,8 @@
       <input type="hidden"
              name=""
              value=""
-             tabindex="#"
              tal:attributes="name fieldName;
-                             value value;
-                             tabindex tabindex/next;" />
+                             value value;" />
     </metal:hidden_macro>
 
   </body>

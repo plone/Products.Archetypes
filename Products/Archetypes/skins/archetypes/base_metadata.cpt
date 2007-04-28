@@ -2,7 +2,6 @@
            define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
                    rejection here/rejectAnonymous;
-                   tabindex tabindex|python:Iterator();
                    type_name here/getPortalTypeName|here/archetype_name;
                    fti here/getTypeInfo;
                    type_title fti/Title|type_name;
@@ -93,12 +92,10 @@
       <div class="field">
         <label>&nbsp;</label>
         <input class="context"
-         tabindex=""
          type="submit"
          name="Change"
          i18n:attributes="value label_save;"
-         value="Save"
-         tal:attributes="tabindex tabindex/next;" />
+         value="Save" />
       </div>
   </form>
       </div>

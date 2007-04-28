@@ -29,10 +29,8 @@
             rows="11"
             cols="15"
             wrap="off"
-            tabindex=""
             tal:attributes="id string:${fieldName}_keywords;
-            name string:${fieldName}_keywords:lines;
-            tabindex tabindex/next;"
+                            name string:${fieldName}_keywords:lines;"
             tal:define="subject python:[item for item in value if item not in allowedKeywords]"
             tal:content="python:'\n'.join(subject)">
         selected categories
@@ -48,10 +46,8 @@
             name="predefined_subjects:list"
             size="14"
             multiple="multiple"
-            tabindex=""
             tal:attributes="id string:${fieldName}_existing_keywords;
-            name string:${fieldName}_existing_keywords:list;
-            tabindex tabindex/next;">
+                            name string:${fieldName}_existing_keywords:list;">
           <option value="#" tal:repeat="keyword allowedKeywords"
               tal:content="keyword" tal:attributes="value keyword;
               selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">

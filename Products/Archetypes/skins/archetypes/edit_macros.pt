@@ -192,40 +192,32 @@
 
                 <input tal:condition="python:fieldset_index &gt; 0"
                        class="context"
-                       tabindex=""
                        type="submit"
                        name="form_previous"
                        value="Previous"
                        i18n:attributes="value label_previous;"
-                       tal:attributes="tabindex tabindex/next;
-                                       disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1"
                        class="context"
-                       tabindex=""
                        type="submit"
                        name="form_next"
                        value="Next"
                        i18n:attributes="value label_next;"
-                       tal:attributes="tabindex tabindex/next;
-                                       disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input class="context"
-                       tabindex=""
                        type="submit"
                        name="form_submit"
                        value="Save"
                        i18n:attributes="value label_save;"
-                       tal:attributes="tabindex tabindex/next;
-                                       disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input class="standalone"
-                       tabindex=""
                        type="submit"
                        name="form.button.cancel"
                        value="Cancel"
                        i18n:attributes="value label_cancel;"
-                       tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>
 
