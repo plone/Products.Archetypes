@@ -1,4 +1,7 @@
-1.5.0-b4 - unreleased
+trunk - unreleased
+==================
+
+1.5.0-b4 - 2007-04-28
 =====================
 
   * Added an ATDateTimeFieldProperty version of the ATFieldProperty mentioned
