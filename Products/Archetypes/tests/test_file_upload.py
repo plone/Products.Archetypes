@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,20 +22,14 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-import os, sys
-
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
 
 # Load fixture
+import os
 import unittest
 from Testing import ZopeTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from OFS.Image import File
-from Globals import package_home
 
-ZopeTestCase.installProduct('Archetypes')
 from Products.Archetypes.atapi import MetadataStorage, BaseContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -66,7 +59,7 @@ class FileLike:
         return self.pos
 
 
-class FileFieldTest(ZopeTestCase.ZopeTestCase):
+class FileFieldTest(ATSiteTestCase):
 
     def afterSetUp(self):
         from Products.Archetypes import Field
@@ -383,6 +376,3 @@ def test_suite():
     for t in tests:
         suite.addTest(t)
     return suite
-
-if __name__ == '__main__':
-    framework(descriptions=0, verbosity=1)

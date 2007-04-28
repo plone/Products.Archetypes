@@ -52,12 +52,10 @@
             <input class="noborder"
                    type="radio"
                    value="nochange"
-                   tabindex=""
-                   tal:attributes="tabindex tabindex/next;
-                       checked python:test(size!=0, 'checked', None);
-                       name string:${fieldName}_delete;
-                       id string:${fieldName}_nochange;
-                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+                   tal:attributes="checked python:test(size!=0, 'checked', None);
+                                   name string:${fieldName}_delete;
+                                   id string:${fieldName}_nochange;
+                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_nochange;
                                     "
@@ -69,11 +67,9 @@
                 <input class="noborder"
                        type="radio"
                        value="delete"
-                       tabindex=""
-                       tal:attributes="tabindex tabindex/next;
-                           name string:${fieldName}_delete;
-                           id string:${fieldName}_delete;
-                           onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+                       tal:attributes="name string:${fieldName}_delete;
+                                       id string:${fieldName}_delete;
+                                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
                  />
                  <label for=""
                         tal:attributes="for string:${fieldName}_delete;
@@ -85,13 +81,11 @@
               <input class="noborder"
                      type="radio"
                      value=""
-                     tabindex=""
                      onclick=""
-                     tal:attributes="tabindex tabindex/next;
-                         checked python:test(size==0, 'checked', None);
-                         name string:${fieldName}_delete;
-                         id string:${fieldName}_upload;
-                         onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+                     tal:attributes="checked python:test(size==0, 'checked', None);
+                                     name string:${fieldName}_delete;
+                                     id string:${fieldName}_upload;
+                                     onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
 
            <label for=""
                   tal:attributes="for string:${fieldName}_upload;"
@@ -115,10 +109,8 @@
                        size unit/get_size | python:unit and len(unit) or 0;">
         <input type="file"
                size="30"
-               tabindex=""
                tal:attributes="name string:${fieldName}_file;
-                               id string:${fieldName}_file;
-                               tabindex tabindex/next;" />
+                               id string:${fieldName}_file;" />
         <script type="text/javascript" 
 	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
                 tal:content="string: document.getElementById('${fieldName}_file').disabled=$isDisabled;">

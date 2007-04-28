@@ -15,7 +15,6 @@
           <div tal:condition="not:thereAreMoreThanOneDestination">
             <tal:block repeat="content types">
               <input class="context"
-                     tabindex=""
                      type="submit"
                      value="Add"
                      name="form.button.form_add"
@@ -23,8 +22,7 @@
                                  cdestination python:content['destinations'][0];"
                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value='${cid}';;this.form['add_reference.destination:record'].value='${cdestination}';
                                      id string:${field/getName}_link;
-                                     value string:Add ${content/name};
-                                     tabindex tabindex/next;"
+                                     value string:Add ${content/name};"
                      i18n:attributes="value"
                      />
             </tal:block>
@@ -35,8 +33,7 @@
             <input type="button" class="context"
               tal:attributes="id string:${field/getName}_link;
                               onclick string:${field/getName}_show();;return false;
-                              value string:Add New ${widget/label};
-                              tabindex tabindex/next" />
+                              value string:Add New ${widget/label};" />
 
             <div tal:attributes="id string:${field/getName}_fieldset"
                i18n:domain="archetypes"
@@ -53,7 +50,6 @@
                   <div>
                     <select tal:define="id string:${field/getName}_types"
                             tal:attributes="id id;
-                                            tabindex tabindex/next;
                                             onchange string:${field/getName}_update(this)" >
                       <option tal:repeat="type types"
                               tal:attributes="value type/id"
@@ -70,8 +66,7 @@
                   <div>
                     <select name="add_reference.destination:record"
                             tal:attributes="id string:${field/getName}_destinations;
-                                            name string:${field/getName}_destination;
-                                            tabindex tabindex/next"></select>
+                                            name string:${field/getName}_destination;"></select>
                   </div>
                 </div>
                 <div class="field">
@@ -79,18 +74,16 @@
                   <div class="formHelp"></div>
                   <div>
                     <input class="context"
-                      tabindex=""
                       type="submit"
                       value="Add"
                       name="form.button.form_add"
-                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};
-                                      tabindex tabindex/next;"
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};"
                       i18n:attributes="value"
                       />
                   </div>
                 </div>
               </fieldset>
-              <script tal:content="structure here/reference_js"></script>
+              <!--script tal:content="structure here/reference_js"></script-->
             </div>
           </div>
         </tal:block>

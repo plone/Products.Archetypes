@@ -13,11 +13,17 @@
 
       <metal:main_macro define-macro="main">
 
-        <metal:header_macro define-macro="header">
+        <metal:header_macro define-macro="header"
+                            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                       getKssClasses nocall:kssClassesView/getKssClassesInlineEditable">
           <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
           </div>
-          <h1 tal:content="title_string | here/title_or_id" />
+          
+          <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
+              Title or id
+          </h1>
+    
           <tal:has_document_byline tal:condition="exists:here/document_byline">
             <div metal:use-macro="here/document_byline/macros/byline">
               Get the byline - contains details about author and modification date.
@@ -26,7 +32,7 @@
         </metal:header_macro>
 
         <metal:body_macro metal:define-macro="body"
-                          tal:define="field_macro field_macro | here/widgets/field/macros/view;"
+                          tal:define="field_macro field_macro | here/widgets/field/macros/view"
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
           <tal:if_visible define="mode string:view;
                                   visState python:field.widget.isVisible(here, mode);

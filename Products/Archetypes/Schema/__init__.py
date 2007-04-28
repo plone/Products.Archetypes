@@ -5,11 +5,11 @@ from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
      ILayerRuntime, ILayer
-from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
-from Products.Archetypes.debug import log, warn
+from Products.Archetypes.mimetype_utils import getDefaultContentType
+from Products.Archetypes.debug import warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
 
@@ -471,7 +471,7 @@ class BasicSchema(Schemata):
         """Only call during object initialization. Sets fields to
         schema defaults
         """
-        ## XXX think about layout/vs dyn defaults
+        ## TODO think about layout/vs dyn defaults
         for field in self.values():
             if field.getName().lower() == 'id': continue
             if field.type == "reference": continue
@@ -488,7 +488,12 @@ class BasicSchema(Schemata):
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
-                kw['mimetype'] = field.default_content_type
+                # if the schema supplies a default, we honour that, 
+                # otherwise we use the site property
+                default_content_type = field.default_content_type
+                if default_content_type is None:
+                    default_content_type = getDefaultContentType(instance)
+                kw['mimetype'] = default_content_type
             mapply(mutator, *args, **kw)
 
     security.declareProtected(permissions.ModifyPortalContent,
@@ -591,7 +596,7 @@ class BasicSchema(Schemata):
     # purpose of comparing schema.  This comparison is used for
     # determining whether a schema has changed in the auto update
     # function.  Right now it's pretty crude.
-    # XXX FIXME!
+    # TODO FIXME!
     security.declareProtected(permissions.View,
                               'toString')
     def toString(self):

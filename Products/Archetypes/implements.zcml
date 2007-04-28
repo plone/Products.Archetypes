@@ -17,6 +17,12 @@
       interface=".interfaces.IArchetypeTool"
       />
       
+  <!-- Make all AT objects lockable by default -->
+  <implements 
+      class=".BaseObject.BaseObject"
+      interface="plone.locking.interfaces.ITTWLockable"
+      />
+      
   <!-- TODO: more -->
 
 </configure>

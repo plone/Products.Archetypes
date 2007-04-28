@@ -18,7 +18,6 @@ from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import aq_base
-from Acquisition import Implicit
 
 _marker = []
 
@@ -32,6 +31,7 @@ class TypesWidget(macrowidget, Base):
         'show_content_type' : False,
         'helper_js': (),
         'helper_css': (),
+        'blurrable': False,
         })
 
     security = ClassSecurityInfo()
@@ -90,12 +90,8 @@ class TypesWidget(macrowidget, Base):
             state = 'invisible'
         elif vis_dic < 0:
             state = 'hidden'
-        #assert(state in ('visible', 'hidden', 'invisible',),
-        #      'Invalid view state %s' % state
-        #      )
         return state
 
-    # XXX
     security.declarePublic('setCondition')
     def setCondition(self, condition):
         """Set the widget expression condition."""
@@ -119,7 +115,6 @@ class TypesWidget(macrowidget, Base):
         except AttributeError:
             return True
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -149,6 +144,7 @@ class StringWidget(TypesWidget):
         'macro' : "widgets/string",
         'size' : '30',
         'maxlength' : '255',
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -162,6 +158,7 @@ class DecimalWidget(TypesWidget):
         'dollars_and_cents' : False,
         'whole_dollars' : False,
         'thousands_commas' : False,
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -172,6 +169,7 @@ class IntegerWidget(TypesWidget):
         'macro' : "widgets/integer",
         'size' : '5',
         'maxlength' : '255',
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -302,7 +300,7 @@ class ReferenceWidget(TypesWidget):
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:
-                        #XXX Might as well check for type, doing it everywhere else
+                        #TODO Might as well check for type, doing it everywhere else
                         value['destinations'].append(place)
 
             if value['destinations']:
@@ -326,6 +324,7 @@ class TextAreaWidget(TypesWidget):
         'cols'  : 40,
         'format': 0,
         'append_only': False,
+        'timestamp' : False,        
         'divider':"\n\n========================\n\n",
         'timestamp': False,
         'maxlength' : False,
@@ -334,7 +333,6 @@ class TextAreaWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -350,16 +348,14 @@ class TextAreaWidget(TypesWidget):
         if emptyReturnsMarker and value == '':
             return empty_marker
 
-        if hasattr(field, 'allowable_content_types') and \
-               field.allowable_content_types:
-            format_field = "%s_text_format" % field.getName()
-            text_format = form.get(format_field, empty_marker)
+        format_field = "%s_text_format" % field.getName()
+        text_format = form.get(format_field, empty_marker)
         kwargs = {}
 
         if text_format is not empty_marker and text_format:
             kwargs['mimetype'] = text_format
 
-        """ handle append_only  """
+        """ handle append_only """
         # Don't append if the existing data is empty or nothing was passed in
         if getattr(field.widget, 'append_only', None):
             if field.getEditAccessor(instance)():
@@ -405,10 +401,10 @@ class CalendarWidget(TypesWidget):
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
         'show_hm' : True, 
-        'show_ymd' : True, # False not supported by the plone templates yet
-        'starting_year' : 1999, # not supported by the plone templates yet
-        'ending_year' : None, # not supported by the plone templates yet
-        'future_years' : 5, # not supported by the plone templates yet
+        'show_ymd' : True,
+        'starting_year' : None,
+        'ending_year' : None,
+        'future_years' : None,
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
@@ -421,6 +417,17 @@ class SelectionWidget(TypesWidget):
     _properties.update({
         'format': "flex", # possible values: flex, select, radio
         'macro' : "widgets/selection",
+        'blurrable' : True,
+        })
+
+    security = ClassSecurityInfo()
+
+class LanguageWidget(TypesWidget):
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'format': "flex", # possible values: flex, select, radio
+        'macro' : "widgets/languagewidget",
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -431,6 +438,7 @@ class MultiSelectionWidget(TypesWidget):
         'format': "select", # possible values: select, checkbox
         'macro' : "widgets/multiselection",
         'size'  : 5,
+        'blurrable' : True,
         })
 
     security = ClassSecurityInfo()
@@ -463,7 +471,6 @@ class KeywordWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -494,7 +501,6 @@ class FileWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -534,7 +540,6 @@ class RichWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -545,12 +550,9 @@ class RichWidget(TypesWidget):
         isFile = False
         value = None
 
-        # text field with formatting
-        if hasattr(field, 'allowable_content_types') and \
-           field.allowable_content_types:
-            # was a mimetype specified
-            format_field = "%s_text_format" % field.getName()
-            text_format = form.get(format_field, empty_marker)
+        # was a mimetype specified
+        format_field = "%s_text_format" % field.getName()
+        text_format = form.get(format_field, empty_marker)
 
         # or a file?
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
@@ -597,7 +599,6 @@ class IdWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -614,7 +615,6 @@ class RequiredIdWidget(IdWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None):
         """Override IdWidget.process_form to require id."""
@@ -631,7 +631,6 @@ class ImageWidget(FileWidget):
 
     security = ClassSecurityInfo()
 
-    # XXX
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
                      emptyReturnsMarker=False):
@@ -731,6 +730,7 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
+           'LanguageWidget',
            )
 
 registerWidget(StringWidget,
@@ -803,6 +803,15 @@ registerWidget(SelectionWidget,
                used_for=('Products.Archetypes.Field.StringField',
                          'Products.Archetypes.Field.LinesField',)
                )
+
+registerWidget(LanguageWidget,
+              title='Language',
+              description=('Renders a HTML selection widget for choosing '
+                           'a language from a vocabulary. The widget can be '
+                           'represented as a dropdown, or as a group of'
+                           'of radio buttons'),
+              used_for=('Products.Archetypes.Field.StringField')
+              )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',

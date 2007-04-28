@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,24 +22,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.Schema import Schemata
-from Products.Archetypes.Schema import getNames
 from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
-
-from DateTime import DateTime
 
 schema = BaseSchema
 schema1= BaseSchema + Schema((StringField('additionalField'),))
@@ -75,6 +61,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(VarSchemataTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

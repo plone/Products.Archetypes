@@ -188,26 +188,6 @@ Lets make sure zope3 view lookup takes precedence over acquired views.
   HTTP/1.0 200 OK
   ...SimpleView simple output...
 
-Views should not trump subitem access though::
-
-  >>> print http(r"""
-  ... GET /%s/simple_btree_folder/document_view HTTP/1.0
-  ... Authorization: Basic %s:%s
-  ... """ % (portal_name, user_name, user_password))
-  HTTP/1.0 200 OK
-  ...SimpleView simple output...
-
-  >>> self.portal.simple_btree_folder.invokeFactory('DDocument', 'document_view', title='Dummy Document')
-  'document_view'
-  
-  >>> print http(r"""
-  ... GET /%s/simple_btree_folder/document_view HTTP/1.0
-  ... Authorization: Basic %s:%s
-  ... """ % (portal_name, user_name, user_password))
-  HTTP/1.0 200 OK
-  ...Dummy Document...
-
-
 WebDAV
 ------
 

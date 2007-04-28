@@ -24,12 +24,11 @@
                   keypress string:textCounter(this, this.form.textCounter_${fieldName}, ${maxlength});">
 
         <textarea
-            tabindex="#"
+            class="blurrable firstToFocus"
             tal:attributes="name fieldName;
                             id fieldName;
                             cols widget/cols;
                             rows widget/rows;
-                            tabindex tabindex/next;
                             onkeydown python:test(maxlength, keypress, None);
                             onkeyup python:test(maxlength, keypress, None);"                            
             tal:define="content python:not append_only and content or '';"
@@ -43,9 +42,9 @@
                        maxlength="4"
                        size="4"
                        value=""
-                       tabindex="-1"
+                       i18n:name="count"
                        tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
-                                   inputsize python:len(maxlength)"
+                                   inputsize string:4"
                        tal:attributes="name string:textCounter_${fieldName};
                                        value remaining;
                                        maxlength inputsize;
@@ -79,16 +78,17 @@
       <tal:define
           define="field_text_format string:${fieldName}_text_format;
                   contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                  allowable_ct python:getattr(field, 'allowable_content_types', ());
+                  allowable_ct python:field.getAllowedContentTypes(here);
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
                   contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
 
-        <tal:condition condition="python:len(mimetypes) &gt; 1">
+        <tal:condition condition="python:len(mimetypes) > 1">
         <div style="text-align: right; margin-right: 0.75em;">
           <label i18n:translate="label_format">Format</label>
-          <select tal:attributes="id string:${fieldName}_text_format;
-                                  name string:${fieldName}_text_format;
-                                  tabindex tabindex/next">
+          <select tal:define="textareaview context/@@at_textarea_widget;
+                              selection python:textareaview.getSelected(mimetypes, contenttype)"
+                  tal:attributes="id string:${fieldName}_text_format;
+                                  name string:${fieldName}_text_format;">
             <option selected="selected"
                     value=""
                     tal:attributes="value contentType"
@@ -96,9 +96,9 @@
               (no change)
             </option>
             <option tal:repeat="item mimetypes"
-                    tal:content="python:here.lookupMime(item)"
+                    tal:content="python:textareaview.lookupMime(item)"
                     tal:attributes="value item;
-                                    selected python:test(here.checkSelected(item, contenttype, contenttypes=1), 'selected', None);"
+                                    selected python:item in selection and 'selected' or None;"
                     />
           </select>
         </div>

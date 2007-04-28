@@ -8,6 +8,8 @@
 ##parameters=state, id=''
 ##
 
+from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
 
 REQUEST = context.REQUEST
@@ -25,13 +27,7 @@ form = REQUEST.form
 if form.has_key('current_lang'):
     form['language'] = form.get('current_lang')
 
-portal_status_message = context.translate(
-    msgid='message_content_changes_saved',
-    domain='archetypes',
-    default='Content changes saved.')
-
-portal_status_message = REQUEST.get('portal_status_message',
-                                    portal_status_message)
+portal_status_message = _(u'Changes saved.')
 
 # handle navigation for multi-page edit forms
 next = not REQUEST.get('form_next', None) is None
@@ -54,16 +50,16 @@ if next or previous:
         index += 1
         if index < len(s_names):
             next_schemata = s_names[index]
+            addStatusMessage(REQUEST, portal_status_message)
             return state.set(status='next_schemata',
                              context=new_context,
-                             fieldset=next_schemata,
-                             portal_status_message=portal_status_message)
+                             fieldset=next_schemata)
 
     if next_schemata != None:
-        return state.set(status='next_schemata', \
-                 context=new_context, \
-                 fieldset=next_schemata, \
-                 portal_status_message=portal_status_message)
+        addStatusMessage(REQUEST, portal_status_message)
+        return state.set(status='next_schemata',
+                 context=new_context,
+                 fieldset=next_schemata)
     else:
         raise 'Unable to find next field set after %s' % fieldset
 
@@ -75,15 +71,11 @@ if reference_source_url is not None:
     reference_source_fieldset = env['reference_source_fieldset'].pop()
     portal = context.portal_url.getPortalObject()
     reference_obj = portal.restrictedTraverse(reference_source_url)
-    portal_status_message = context.translate(
-        msgid='message_reference_added',
-        domain='archetypes',
-        default='Reference Added.')
+    portal_status_message = _(u'message_reference_added',
+                              default=u'Reference added.')
 
-    edited_reference_message = context.translate(
-        msgid='message_reference_edited',
-        domain='archetypes',
-        default='Reference Edited.')
+    edited_reference_message = _(u'message_reference_edited',
+                                 default=u'Reference edited.')
 
     # Avoid implicitly creating a session if one doesn't exists
     session = None
@@ -111,17 +103,14 @@ if reference_source_url is not None:
             saved_dic[reference_source_field] = saved_value
             session.set(reference_obj.getId(), saved_dic)
 
-    # XXX disabled mark creation flag
-    ## context.remove_creation_mark(old_id)
-
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
-        'portal_status_message':portal_status_message,
         'fieldset':reference_source_fieldset,
         'field':reference_source_field,
         'reference_focus':reference_source_field,
         }
+    addStatusMessage(REQUEST, portal_status_message)
     return state.set(**kwargs)
 
 if state.errors:
@@ -134,13 +123,10 @@ if state.errors:
     for s_name, f_name in fields:
         if errors.has_key(f_name):
             REQUEST.set('fieldset', s_name)
+            addStatusMessage(REQUEST, portal_status_message)
             return state.set(
                 status='failure',
-                context=new_context,
-                portal_status_message=portal_status_message)
-
-# XXX disabled mark creation flag
-## context.remove_creation_mark(old_id)
+                context=new_context)
 
 if not state.errors:
     from Products.Archetypes import transaction_note
@@ -148,6 +134,6 @@ if not state.errors:
                                              new_context.title_or_id(),
                                              new_context.absolute_url()))
 
+addStatusMessage(REQUEST, portal_status_message)
 return state.set(status='success',
-                 context=new_context,
-                 portal_status_message=portal_status_message)
+                 context=new_context)

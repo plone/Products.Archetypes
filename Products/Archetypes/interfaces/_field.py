@@ -5,7 +5,10 @@ class IField(Interface):
 
 #     required = Attribute('required', 'Require a value to be present when submitting the field')
 #     default = Attribute('default', 'Default value for a field')
+#     default_method = Attribute('default_method', 'Name of a method on the field ' + 
+#                                                  'or an actual function instance to return the default')
 #     vocabulary = Attribute('vocabulary', 'List of suggested values for the field')
+#     vocabulary_factory = Attribute('vocabulary_factory', 'Name of Zope 3 vocabulary factory')
 #     enforceVocabulary = Attribute('enforceVocabulary', \
 #                                   'Restrict the allowed values to the ones in the vocabulary')
 #     multiValued = Attribute('multiValued', 'Allow the field to have multiple values')
@@ -56,6 +59,15 @@ class IField(Interface):
             * is a list of 2-tuples with strings (see above)
             * is a list of strings (in this case a DisplayList with key=value
               will be created)
+
+        3) Zope 3 vocabulary factory vocabulary
+        
+            - precondition: a content_instance is given
+            
+            - self.vocabulary_factory is given
+            
+            - a named utility providing zope.schema.interfaces.IVocbularyFactory 
+              exists for the name self.vocabulary_factory.     
 
         """
 
@@ -238,3 +250,14 @@ class IFileField(IObjectField):
 
 class IImageField(IFileField):
     """ Marker interface for detecting an image field """
+
+class IFieldDefaultProvider(Interface):
+    """Register a named adapter for your content type providing
+    this interface, with a name that is equal to the name of a
+    field. If no default or default_method is set on that field
+    explicitly, Archetypes will find and call this adapter.
+    """
+    
+    def __call__():
+        """Get the default value.
+        """
