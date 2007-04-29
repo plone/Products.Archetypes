@@ -2,8 +2,8 @@
 """
 
 from DateTime import DateTime
-from time import mktime
 from datetime import datetime
+from zope.datetime import parseDatetimetz
 
 class ATFieldProperty(object):
     """Field properties based on Archetypes schema
@@ -132,14 +132,14 @@ class ATDateTimeFieldProperty(ATFieldProperty):
         >>> foo = MyContent('foo')
         >>> foo.date_field = target_date
         >>> foo.date_field
-        datetime.datetime(2007, 4, 9, 12, 3, 12)
+        datetime.datetime(2007, 4, 9, 12, 3, 12, ...)
         
         >>> foo.getDate_field().ISO()
         '2007-04-09 12:03:12'
         
         >>> foo.setDate_field(DateTime('2007-04-10 13:11:01'))
         >>> foo.date_field
-        datetime.datetime(2007, 4, 10, 13, 11, 1)
+        datetime.datetime(2007, 4, 10, 13, 11, 1, ...)
     """
     
     def __init__(self, name):
@@ -148,9 +148,9 @@ class ATDateTimeFieldProperty(ATFieldProperty):
     def _zope2python_dt(self, zope_dt):
         if zope_dt is None:
             return None
-        return datetime.fromtimestamp(zope_dt.timeTime())
+        return parseDatetimetz(zope_dt.ISO8601())
 
     def _python2zope_dt(self, python_dt):
         if python_dt is None:
             return None
-        return DateTime(mktime(python_dt.timetuple()))
+        return DateTime(python_dt.isoformat())
