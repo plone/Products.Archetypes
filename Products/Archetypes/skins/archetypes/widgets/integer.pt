@@ -21,7 +21,7 @@
              id fieldName;
              value value;
              size widget/size;
-             maxlength widget/maxlength|nothing;""
+             maxlength widget/maxlength|nothing;"
              />
       </metal:use>
     </metal:define>
