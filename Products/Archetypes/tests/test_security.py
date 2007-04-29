@@ -19,6 +19,7 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.portal.invokeFactory('Folder', 'test_folder_')
         self.folder = self.portal.test_folder_
         t = self._type
+        self.portal.portal_workflow.setChainForPortalTypes((t,), ('plone_workflow',))
         self.inst = inst = makeContent(self.folder, portal_type=t, id=t)
         self.object_id = t
         self.attrs = [f.getName() for f in inst.Schema().fields()
