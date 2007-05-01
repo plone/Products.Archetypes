@@ -36,7 +36,6 @@
                               value string:Add New ${widget/label};" />
 
             <div tal:attributes="id string:${field/getName}_fieldset"
-               i18n:domain="archetypes"
                style="display:none">
 
               <fieldset>
