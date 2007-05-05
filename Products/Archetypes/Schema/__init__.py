@@ -564,10 +564,17 @@ class BasicSchema(Schemata):
             form = REQUEST.form
         else:
             form = None
+            
         for name, field in fields:
+            
+            # Should not validate something we can't write to anyway
+            if not field.writeable(instance):
+                continue
+            
             error = 0
             value = None
             widget = field.widget
+            
             if form:
                 result = widget.process_form(instance, field, form,
                                              empty_marker=_marker)
