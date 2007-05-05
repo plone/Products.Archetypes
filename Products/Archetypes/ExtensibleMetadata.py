@@ -134,7 +134,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             mutator='setEffectiveDate',
             languageIndependent = True,
             widget=CalendarWidget(
-                label=_(u'label_effective_date', u'Publication Date'),
+                label=_(u'label_effective_date', u'Publishing Date'),
                 description=_(u'help_effective_date',
                               default=u"If this date is in the future, the content will "
                                        "not show up in listings and searches until this date."),
