@@ -437,7 +437,7 @@ class Field(DefaultLayerContainer):
         # Attempt to get the value from a a vocabulary factory if one was given
         # and no explicit vocabulary was set
         if not isinstance(value, DisplayList) and not value:
-            factory_name = self.vocabulary_factory
+            factory_name = getattr(self, 'vocabulary_factory', None)
             if factory_name is not None:
                 factory = component.getUtility(schema.interfaces.IVocabularyFactory, name=factory_name)
                 factory_context = content_instance
@@ -1777,7 +1777,7 @@ class ReferenceField(ObjectField):
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
-        if self.vocabulary or self.vocabulary_factory:
+        if self.vocabulary or getattr(self, 'vocabulary_factory', None):
             return ObjectField.Vocabulary(self, content_instance)
         else:
             return self._Vocabulary(content_instance).sortedByValue()
