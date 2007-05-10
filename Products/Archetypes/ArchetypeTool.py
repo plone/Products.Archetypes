@@ -115,6 +115,7 @@ base_factory_type_information = (
                        'title': 'Edit',
                        'action': Expression('string:${object_url}/edit'),
                        'permissions': (permissions.ModifyPortalContent,),
+                       'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
                        },
 
                      { 'id': 'metadata',

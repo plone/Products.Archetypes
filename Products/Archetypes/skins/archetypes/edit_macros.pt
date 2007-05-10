@@ -83,8 +83,7 @@
             id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
                             id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing', 'enableUnloadProtection enableAutoFocus');">
-
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing enableUnlockProtection', 'enableUnloadProtection enableAutoFocus enableUnlockProtection');">
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
