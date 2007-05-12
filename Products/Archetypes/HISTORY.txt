@@ -1,13 +1,16 @@
 trunk - unreleased
 ==================
 
+  * Updated keywords related i18n messages to reflect their new name.
+    [hannosch]
+
 1.5.0-b5 - 2007-05-05
 =====================
 
   * Never validate fields that are not writeable.
     [optilude]
 
-  * Remove colours from log entries.
+  * Remove colors from log entries.
     [wichert]
 
 1.5.0-b4 - 2007-04-28
@@ -19,7 +22,7 @@ trunk - unreleased
     [optilude]
 
   * Convert filename to ASCII in Content-Disposition header on
-    download.  This fixes #620.
+    download. This fixes #620.
     [nouri]
 
   * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be

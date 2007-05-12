@@ -39,7 +39,7 @@
                style="display:none">
 
               <fieldset>
-                <legend i18n:translate="legend_add_new">add new</legend>
+                <legend i18n:translate="legend_add_new">Add new</legend>
                 <div class="field">
                   <label i18n:translate="label_what">What</label>
                   <div class="formHelp"

@@ -22,7 +22,7 @@
 
       <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
         <div style="width: 45%; float: right;">
-          <span i18n:translate="label_new_keywords">New categories</span>
+          <span i18n:translate="label_new_categories">New categories</span>
           <br />
           <textarea id="entered_subjects"
             name="subject:lines"
@@ -33,14 +33,16 @@
                             name string:${fieldName}_keywords:lines;"
             tal:define="subject python:[item for item in value if item not in allowedKeywords]"
             tal:content="python:'\n'.join(subject)">
-        selected categories
+              Selected categories
           </textarea>
 
         </div>
       </tal:condition>
 
       <div style="width: 45%">
-        <span i18n:translate="label_existing_keywords">Existing categories</span>
+        <span i18n:translate="label_existing_categories">
+            Existing categories
+        </span>
         <br />
         <select id="predefined_subjects"
             name="predefined_subjects:list"
@@ -51,7 +53,7 @@
           <option value="#" tal:repeat="keyword allowedKeywords"
               tal:content="keyword" tal:attributes="value keyword;
               selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
-        an existing category
+              An existing category
           </option>
         </select>
 

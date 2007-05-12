@@ -76,7 +76,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Subject",
             searchable=True,
             widget=KeywordWidget(
-                label=_(u'label_keywords', default=u'Categories'),
+                label=_(u'label_categories', default=u'Categories'),
                 description=_(u'help_categories',
                               default=u'Also known as keywords, tags or labels, '
                                        'these help you categorize your content.'),
