@@ -47,8 +47,6 @@
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
-                                selectionview context/@@at_selection_widget;
-                                selection python:selectionview.getSelected(vocab, value);
                                 vlen python:len(vocab)">
 
           <input type="hidden"
@@ -62,20 +60,19 @@
                   <tr>
                     <td style="padding-left:0em;padding-top:0em;">
                       <select
-                        class="firstToFocus"
                         multiple="multiple"
                         tal:attributes="name string:${fieldName}_options;
                                         id string:${fieldName}_options;
                                         size widget/size;
+                                        tabindex tabindex/next;
                                         onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
       
                         <tal:block tal:repeat="vocab_item vocab">
                           <option
-                            tal:define="label python:vocab.getValue(vocab_item)"
-                            tal:condition="python:not vocab_item in selection"
+                            tal:define="label python:here.translate(vocab.getMsgId(vocab_item), default=vocab.getValue(vocab_item))"
+                            tal:condition="python:test(here.unicodeTestIn(vocab_item, value), 0, 1)"
                             tal:attributes="value vocab_item;"
-                            tal:content="label"
-                            i18n:translate="">
+                            tal:content="label">
                             option
                           </option>
                         </tal:block>
@@ -101,15 +98,16 @@
                   tal:attributes="name string:${fieldName}:list;
                                   id string:${fieldName};
                                   size widget/size;
+                                  tabindex tabindex/next;
                                   onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
   
-                  <tal:block tal:repeat="single_value selection">
+                  <tal:block tal:repeat="single_value value">
                     <option
+                      tal:condition="python:test(here.unicodeTestIn(single_value, vocab), 1, 0)"
                       tal:attributes="value single_value;"
-                      tal:content="python:vocab.getValue(single_value)"
-                      selected="selected"
-                      i18n:translate="">
-                       option
+                      tal:content="python:here.translate(vocab.getMsgId(single_value), default=vocab.getValue(single_value))"
+                       selected="selected">
+                      option
                     </option>
                   </tal:block>
                   </select>

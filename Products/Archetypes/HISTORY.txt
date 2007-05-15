@@ -1,280 +1,15 @@
-1.5.0-b5 - 2007-05-05
-=====================
+1.4.4-final - 2007-05-15
+========================
 
-  * Never validate fields that are not writeable.
-    [optilude]
-
-  * Remove colours from log entries.
-    [wichert]
-
-1.5.0-b4 - 2007-04-28
-=====================
-
-  * Added an ATDateTimeFieldProperty version of the ATFieldProperty mentioned
-    below. This takes care of conversion between Zope 2 DateTime's and Python
-    datetime objects.
-    [optilude]
-
-  * Convert filename to ASCII in Content-Disposition header on
-    download.  This fixes #620.
-    [nouri]
-
-  * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be
-    used analogously to zope.schema.fieldproperty.FieldProperty for Archetypes
-    fields. See the doctest in that module for details.
-    [optilude]
-
-  * Added an at_textarea_widget view and used it instead of the checkSelected,
-    unicodeEncode and lookupMime scripts on the textarea and visual widgets.
+  * Fixed small i18n bug in the textarea widget.
     [hannosch]
 
-  * Replaced the getSelectionWidgetSelected script introduced in beta2 with the
-    at_selection_widget browser view. This allows us to use a Python generator
-    and safes us from iterating over all values in the vocabulary, when the
-    first value is already the selected one.
-    [hannosch]
+  * Fix http://dev.plone.org/archetypes/ticket/719: Check for correct
+    DateTime input when validating.
+    [mj]
 
-  * Make the boolean widget work correctly with or without javascript.
-    [elvix]
-
-  * Removed the default value for starting_year from the CalendarWidget. This
-    ensures the value can be looked up dynamically from the properties.
-    [hannosch]
-
-  * Disable the content border when an object is being added using
-    portal_factory. These tabs don't make sense in an "add form" scenario,
-    and were causing errors.
-    [optilude]
-
-1.5.0-b3 - 2007-03-20
-=====================
-
-  * Refactored installation code. This is now based on a GenericSetup extension
-    profile instead of the old Extensions/Install.py way.
-    [hannosch]
-
-  * Removed tests/runalltests.py and tests/framework.py as they have
-    outlived their usefulness. To run tests use Zope's testrunner:
-    ./bin/zopectl test --nowarn -s Products.Archetypes
-    [stefan]
-
-  * Added the Location element (also known as Coverage in Dublin Core) to the
-    standard metadata set. This allows lots of interesting things like
-    geotagging of images, location notices on news items, etc.
-    [limi]
-
-1.5.0-b2 - 2007-03-05
-=====================
-
-  * Added a new LanguageWidget that does the same as the SelectionWidget but
-    does not try to translate the vocabulary using the normal translation
-    machinery. It should use the Zope 3 locales information instead.
-    [hannosch]
-
-  * Speed up the selection widget considerably by calculating the selected
-    values ones and not for every value in the selection using a new
-    getSelectionWidgetSelected script.
-    [hannosch]
-
-  * Modernized some code in checkSelected and unicodeEncode scripts.
-    [hannosch]
-
-  * Removed explicit invocations of the translate script from various
-    vocabulary widgets. The getValue method of a vocabulary returns a Message
-    which can be translated by the usual TAL engine.
-    [hannosch]
-
-  * Allow field defaults to be looked up using an adapter of the instance
-    to IFieldDefaultProvider, with a name that is the same as the field name
-    in question (only if no default or default_method was set for that 
-    field). This allows dynamically determined, context-sensitive defaults 
-    without having to add a method into the class itself.
-    [optilude]
-
-  * Make it possible to use vocabulary_factory for fields, giving the name
-    of a Zope 3 style named IVocabularyFactory utility. This means that
-    Archetypes fields can use more general Zope 3 vocabularies, and share them
-    with e.g. formlib forms.
-    [optilude]
-
-1.5.0-b1 - 2007-02-27
-=====================
-
-  * Fixed deprecation warnings for minimalpath in skins install code.
-    [hannosch]
-
-  * Updated error message handling in validation to use Zope3-style translation,
-    which is available in the latest PTS.
-    [hannosch]
-
-  * FileField is now a bit cleverer about indexing.  If you set a file
-    field to be 'searchable' it will now per default attempt to
-    convert it to plain text on indexing.
-    [nouri]
-
-  * Replaced status message handling with new approach based on
-    Products.statusmessages. This refs http://dev.plone.org/plone/ticket/6131.
-    [hannosch]
-
-  * Automatic title to id generation is now optionally based on the plone.i18n
-    package instead of requiring the plone_tool.
-    [hannosch]
-
-  * Merged the plip174-reusable-i18n branch. This adds the optional ability to
-    control the language metadata on objects by an utility approach based on
-    plone.i18n.
-    [hannosch]
-
-1.5.0-a2 - 2007-02-06
-=====================
-
-  * Removed the typeDescription and typeDescMsgId attributes from all content
-    classes. These were only used on the edit form which has been altered to
-    use the Description method from the type information instead.
-    [hannosch]
-
-  * Removed some BBB code in generator/i18n.py.
-    [hannosch]
-
-  * Adjusted some code to work better with the CMF 2.1 tools as utilities work.
-    [hannosch]
-
-  * Fix failing test in traversal.txt:184, where an acquired template
-    overrode a view.  Added logic to BaseObject.__bobo_traverse__ to
-    make sure the right order is respected.
-    [nouri]
-
-  * Turned off debug mode for writeable checks on fields per default, as this
-    caused a major performance problem with KSS.
-    [hannosch]
-
-  * Made it work with the kss merge in. Some templates are modified,
-    extra markup is added and a kss decorator view is defined that is
-    overwritten if kss is loaded. Currently the addability support in
-    the reference and inandout widgets has its javasacript commented
-    out, this needs to get fixed asap.
-    [ree]
-
-  * By default base_edit will show all fields of all schemas on one page now.
-    The old behaviour can be kept by marking a content type with the
-    IMultiPageSchema interface.
-    [fschulze]
-
-  * Made ATSiteTestCase inherit its layer from PloneTestCase.
-    [stefan]
-
-  * Fixed a DeprecationWarning for listContentTypes(by_metatype=1).
-    [hannosch]
-
-1.5.0-a1 - 2006-10-25
-=====================
-
-  * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
-    constructor, and two custom events are fired during processForm() - 
-    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from 
-    IObjectModifiedEvent, and the Initialized event is fired on the first
-    save, whereas the Edited event is fired on subsequent saves.
-    [optilude]
-
-  * Applied patch from George Lee and modernised code a bit for Zope 2.10,
-    to support event-based pre- and post-validation. See interfaces/_event.py
-    [optilude]
-
-  * Cleaned up VarClassGen a bit to make it potentially useful for people
-    needing it as part of a custom ISchema adapter.
-    [optilude]
-
-  * Made it possible to look up AT schema using an adapter from self
-    to ISchema. See note in Schema/factory.py.
-    [whit, optilude]
-
-  * Fix #585 by providing the right arguments for testCondition in templates.
-    [nouri]
-
-  * Added small optimizations for DisplayLists to not translate values of type
-    Message by itself, added some tests.
-    [hannosch]
-
-  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
-    directly as values instead to get the same behavior.
-    [hannosch]
-
-  * Deprecated the generator.i18n module. We use the translate method of the
-    GlobalTranslationService directly for now, as long as we support
-    PlacelessTranslationService. Ultimately this should be replaced by calls
-    to 'from zope.i18n import translate'
-    [hannosch]
-
-  * Removed outdated message catalogs and changed the few remaining texts in the
-    'archetypes' domain to use the 'plone' domain instead. The translation
-    files can be found as usual as part of the PloneTranslations product.
-    [hannosch]
-
-  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
-    internationalization of labels and descriptions.
-    [hannosch]
-
-  * Optimized the basic widget for the new default case of labels and
-    descriptions as Messages. These are not translated automatically anymore
-    but this is delayed to be triggered by the time they are rendered in a TAL
-    context. This will ultimately safe quite some translation machinery hackery.
-    [hannosch]
-
-  * Modernized DisplayLists to use isinstance instead of type checking. Now
-    derived string types like Messages are allowed as keys and values as well.
-    [hannosch]
-
-  * Removed last bits of dependency version checks from __init__.py as well as
-    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
-    live site but only serve as code examples and are used during test runs.
-    [hannosch]
-
-  * Renamed sample_content profile to sample_types as it only includes types
-    but no content ;) This profile is not registered globally anymore but only
-    during test runs, as these types aren't meant to be used for anything else.
-    [hannosch]
-
-  * Marked Base* as implementing their Z3 interfaces.
-    [hannosch]
-
-  * Based tests on PloneTestCase with extension profile support for site setup.
-    [hannosch]
-
-  * Added (Default) alias to base_view to all sample types, so calling them will
-    still work in CMF >= 2.0.
-    [hannosch]
-
-  * Removed deprecated spec argument from listFolderContents and
-    folderlistingFolderContents of BaseFolderMixin.
-    [hannosch]
-
-  * Changed import of TAL.ndiff to zope.tal.ndiff.
-    [hannosch]
-
-  * Cleaned up XXX comments, converted non-critical ones to TODO.
-    [hannosch]
-
-  * Removed five:traversable from configure.zcml as it is not needed anymore for
-    Zope 2.10, which we require now.
-    [hannosch]
-
-  * Cleaned up some comments, removed a pdb and an unused zLOG import.
-    [hannosch]
-
-  * Removed some more BBB code.
-    [hannosch]
-
-  * Removed deprecated ArchetypesTestCase.py.
-    [hannosch]
-
-  * Adjusted rest tests to Zope2.10 output.
-    [hannosch]
-
-  * Remove BBB code for calendar_macros.
-    [hannosch]
-
-1.4.3 - Unreleased
-==================
+1.4.3-final - 2007-04-17
+========================
 
   * Add an ObjectModifiedEvent right after `initializeArchetype`,
     since that modifies the object with default values defined in the
@@ -764,7 +499,7 @@
     with len(data). Yuck.
     [dreamcatcher]
 
-  * Fixed http://dev.plone.org/plone/ticket/4768 - wrong status message.
+  * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
     [hannosch]
 
   * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
@@ -1880,6 +1615,8 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
+   XXX: Add a comment to the documentation that users should take care when
+   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature

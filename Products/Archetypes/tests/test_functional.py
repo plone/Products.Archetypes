@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,11 +26,18 @@
 """
 """
 
+import os, sys
 import time
+
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.attestcase import default_user
+from Products.Archetypes.tests.attestcase import HAS_PLONE
 from Products.Archetypes.tests.atsitetestcase import portal_owner
 from Products.Archetypes.tests.utils import DummySessionDataManager
 
@@ -48,11 +56,9 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     def afterSetUp(self):
         # basic data
         # Put dummy sdm and dummy SESSION object into REQUEST
-        if 'session_data_manager' in self.app.objectIds():
-            self.app._delObject('session_data_manager')
+        request = self.app.REQUEST
         self.app._setObject('session_data_manager', DummySessionDataManager())
         sdm = self.app.session_data_manager
-        request = self.app.REQUEST
         request.set('SESSION', sdm.getSessionData())
 
         self.folder_url = self.folder.absolute_url()
@@ -69,7 +75,7 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
         # error log
         from Products.SiteErrorLog.SiteErrorLog import temp_logs
-        temp_logs.clear() # clean up log
+        temp_logs = {} # clean up log
         self.error_log = self.portal.error_log
         self.error_log._ignored_exceptions = ()
 
@@ -360,11 +366,15 @@ def test_suite():
         'traversal.txt',
         'traversal_4981.txt',
         'folder_marshall.txt',
-        'reindex_sanity_plone21.txt',
         'webdav_operations.txt',
         )
+    if HAS_PLONE:
+        files += ('reindex_sanity_plone21.txt',)
     for file in files:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
                                 test_class=ATFunctionalSiteTestCase)
                      )
     return suite
+
+if __name__ == '__main__':
+    framework()

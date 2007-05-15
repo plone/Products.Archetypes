@@ -19,22 +19,42 @@
     </metal:view_macro>
 
     <metal:define define-macro="edit">
+	  <script>
+	    // this function turns a checkbox into a radio button... sort of
+	    function toggle_boolean(visibleCheckbox, hiddenBoolean) {
+	    vis = document.getElementById(visibleCheckbox);
+	    hidden = document.getElementById(hiddenBoolean);
+	    if (vis.checked) {
+	    hidden.value = 1;
+	    } else {
+	    hidden.value = 0;
+	    }
+	    return true;
+	    }
+	  </script>
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
-      <metal:fill fill-slot="widget_body_label_prefix"
-                  tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
+	<metal:fill metal:fill-slot="widget_body_label_prefix"
+           tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
+	  
 
-        <input class="noborder"
-               type="checkbox"
-               value="on"
-               tal:attributes="name string:${fieldName}:boolean;
-               id fieldName;
-               checked python:value;"
-               />
-        <input type="hidden"
-               value=""
-               tal:attributes="name string:${fieldName}:boolean:default;"
-               />
-      </metal:fill>
+	  <input class="noborder"
+		 type="checkbox"
+		 value="on"
+		 tabindex=""
+		 tal:attributes="tabindex tabindex/next;
+		 name string:${fieldName}_visible;
+		 onClick string:toggle_boolean('${fieldName}', '${fieldName}_hidden');; return true;
+		 id fieldName;
+		 checked python:value;"
+		 />
+	  <input type="hidden"
+		 tal:attributes="name fieldName;
+		 id string:${fieldName}_hidden;
+		 value value;"
+		 />
+
+
+	</metal:fill>
       </metal:use>
     </metal:define>
 
@@ -43,8 +63,10 @@
              tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)"
              name=""
              value=""
+             tabindex="#"
              tal:attributes="name fieldName;
-                             value python:value or '';" />
+                             value python:value or '';
+                             tabindex tabindex/next;" />
     </metal:hidden_macro>
 
     <div metal:define-macro="search">

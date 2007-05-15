@@ -6,6 +6,8 @@ from Products.Archetypes.utils import shasattr
 from Acquisition import aq_base
 from Globals import PersistentMapping
 
+from Globals import InitializeClass
+from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
 

@@ -7,10 +7,24 @@ from types import StringType
 import warnings
 import logging
 
-from Products.Archetypes.config import DEBUG
+from Products.Archetypes.config import PKG_NAME, DEBUG
 
+if os.name == 'posix':
+    COLOR = 1
+else:
+    COLOR = 0
+
+COLORS = {
+        'green' : "\033[00m\033[01;32m",
+        'red'   : "\033[00m\033[01;31m",
+        'blue'  : "\033[00m\033[01;34m",
+        'magenta': "\033[00m\033[01;35m",
+        'cyan' :"\033[00m\033[01;36m",
+        'norm'  : "\033[00m",
+        }
 
 logger = logging.getLogger('Archetypes')
+norm  = "\033[00m"
 
 class SafeFileWrapper:
     def __init__(self, fp):
@@ -67,7 +81,7 @@ class Log:
         self._close()
 
     def log_exc(self, msg=None, *args, **kwargs):
-        self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1)
+        self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1, color="red")
         if msg: self.log(msg, collapse=0, deep=0, *args, **kwargs)
 
 
@@ -83,13 +97,15 @@ class NullLog(Log):
 class ClassLog(Log):
     last_frame_msg = None
 
-    def _process_frame(self, frame):
+    def _process_frame(self, frame, color=COLORS['green']):
         path = frame[1] or '<string>'
         index = path.find("Products")
         if index != -1:
             path = path[index:]
 
         frame = "%s[%s]:%s\n" % (path, frame[2], frame[3])
+        if COLOR:
+            frame = "%s%s%s" %(color, frame, norm)
 
         return frame
 
@@ -108,13 +124,14 @@ class ClassLog(Log):
         deep = kwargs.get("deep", 1)
         collapse = kwargs.get("collapse", 1)
         offset   = kwargs.get("offset", 0) + 3
+        color    = COLORS[kwargs.get("color", 'green')]
 
         frame = ''
         try:
             frames = self.generateFrames(offset, offset+deep)
             res = []
             for f in frames:
-                res.insert(0, self._process_frame(f))
+                res.insert(0, self._process_frame(f, color=color))
             frame = ''.join(res)
         finally:
             try:

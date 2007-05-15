@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,13 +26,19 @@
 """
 """
 
-import os
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
 from Products.Archetypes.atapi import *
+from OFS.Image import File
 from DateTime import DateTime
 
 stub_text_file = None
@@ -205,7 +212,7 @@ class WidgetTests(ATSiteTestCase):
         expected = 'The little black dog', {}
         result = widget.process_form(doc, field, form)
         #self.assertEqual(expected, result)
-
+        
 
     def test_rich_text_widget(self):
         request = FakeRequest()
@@ -258,12 +265,11 @@ class WidgetTests(ATSiteTestCase):
         doc.processForm(REQUEST=request)
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
 
-        # XXX: This makes wv-1.0.3 spin.
-        #form = {'richtextfield_file':stub_bin_file}
-        #request.form.update(form)
-        #doc.processForm(REQUEST=request)
-        #self.assertEqual(field.getContentType(doc), 'application/msword')
-        #self.assertEqual(str(doc[field.getName()]), stub_bin_content)
+        form = {'richtextfield_file':stub_bin_file}
+        request.form.update(form)
+        doc.processForm(REQUEST=request)
+        self.assertEqual(field.getContentType(doc), 'application/msword')
+        self.assertEqual(str(doc[field.getName()]), stub_bin_content)
 
         form = {'richtextfield_text_format':'text/x-rst',
                 'richtextfield_file':'',
@@ -299,3 +305,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(WidgetTests))
     return suite
+
+if __name__ == '__main__':
+    framework()

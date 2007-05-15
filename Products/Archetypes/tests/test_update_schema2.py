@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,19 +26,25 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
-import os
-import shutil
+
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
+from Products.Archetypes.Extensions.Install import install as install_archetypes
 from Products.CMFCore.utils import getToolByName
 
+from Products.Archetypes.Extensions.utils import installTypes
+from Products.Archetypes.atapi import listTypes, registerType
+import shutil
+
 try:
-    from Products.ArchetypesTestUpdateSchema.Extensions.Install import \
-         install as install_test
+    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
 except ImportError:
     hasATTUS = False
 else:
@@ -110,3 +117,6 @@ def test_suite():
     if hasATTUS:
         suite.addTest(makeSuite(TestUpdateSchema2))
     return suite
+
+if __name__ == '__main__':
+    framework()

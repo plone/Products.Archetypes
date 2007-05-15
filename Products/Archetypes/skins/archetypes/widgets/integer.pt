@@ -11,18 +11,19 @@
 
     <metal:define metal:define-macro="edit">
       <metal:use metal:use-macro="field_macro | here/widgets/field/macros/edit">
-      <input metal:fill-slot="widget_body"
-             class="blurrable firstToFocus"
-             type="text"
-             name=""
-             value=""
-             size="30"
-             tal:attributes="name fieldName;
-             id fieldName;
-             value value;
-             size widget/size;
-             maxlength widget/maxlength|nothing;"
-             />
+	<input metal:fill-slot="widget_body"
+	       type="text"
+	       name=""
+	       value=""
+	       size="30"
+	       tabindex="#"
+	       tal:attributes="name fieldName;
+	       id fieldName;
+	       value value;
+	       size widget/size;
+	       maxlength widget/maxlength|nothing;
+	       tabindex tabindex/next;"
+	       />
       </metal:use>
     </metal:define>
 
