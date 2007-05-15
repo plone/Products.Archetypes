@@ -1,4 +1,4 @@
-1.4.4-final - unreleased
+1.4.4-final - 2007-05-15
 ========================
 
   * Fixed small i18n bug in the textarea widget.
