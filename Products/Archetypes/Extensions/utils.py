@@ -121,7 +121,7 @@ def install_types(self, out, types, package_name):
             print "fti_meta_type = %s" % fti_meta_type
         ## rr: from CMF-2.0 onward typeinfo_name from the call above
         ## is ignored and we have to do some more work
-        t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, package_name)
+        t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, klass.__name__, package_name)
         if t and fti:
             t.manage_changeProperties(**fti)
             if fti.has_key('aliases'):
@@ -155,7 +155,7 @@ def install_types(self, out, types, package_name):
             folders = tuple(dict(zip(folders, folders)).keys())
             sp._updateProperty(prop, folders)
 
-def _getFtiAndDataFor(tool, typename, package_name):
+def _getFtiAndDataFor(tool, typename, klassname, package_name):
     """helper method for type info setting
        returns fti object from the types tool and the data created
        by process_types for the fti
@@ -166,7 +166,7 @@ def _getFtiAndDataFor(tool, typename, package_name):
     all_ftis = process_types(listTypes(package_name),
                              package_name)[2]
     for fti in all_ftis:
-        if fti['id'] == typename:
+        if fti['id'] == klassname:
             fti['content_meta_type'] = fti['meta_type']
             return t, fti
     return t, None
