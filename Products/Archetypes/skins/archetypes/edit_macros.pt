@@ -36,10 +36,11 @@
     <dt i18n:translate="">
         Info
     </dt>
-    <dd i18n:translate="enable_cookies_message">
+    <dd i18n:translate="label_edit_default_view_container">
         You are editing the default view of a container. If you wanted to edit the container itself,
-       <a href="" 
-          title="sharing contents" 
+       <a href=""
+          i18n:name="go_here"
+          i18n:translate="label_edit_default_view_container_go_here"
           tal:attributes="href python:'/'.join(here.aq_inner.aq_parent.getPhysicalPath()) + '/edit'">go here</a>.
     </dd>
 </dl>

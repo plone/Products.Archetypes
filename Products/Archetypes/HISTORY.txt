@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Corrected wrong i18n markup in edit_macros. This closes
+    http://dev.plone.org/plone/ticket/6583.
+    [hannosch]
+
   * Updated keywords related i18n messages to reflect their new name.
     [hannosch]
 
