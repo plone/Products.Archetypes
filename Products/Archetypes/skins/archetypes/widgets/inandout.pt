@@ -64,6 +64,7 @@
                       <select
                         class="firstToFocus"
                         multiple="multiple"
+                        tal:condition="vocab"
                         tal:attributes="name string:${fieldName}_options;
                                         id string:${fieldName}_options;
                                         size widget/size;
@@ -98,6 +99,7 @@
             <div style="float:left">
               <select
                   multiple="multiple"
+                  tal:condition="single_value"
                   tal:attributes="name string:${fieldName}:list;
                                   id string:${fieldName};
                                   size widget/size;
