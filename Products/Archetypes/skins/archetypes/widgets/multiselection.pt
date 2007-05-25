@@ -46,7 +46,7 @@
 
       <select multiple="multiple"
               class="blurrable"
-              tal:condition="python:format=='select'"
+              tal:condition="python:format=='select' and vocab"
               tal:attributes="name string:${fieldName}:list;
                               id fieldName;
                               size widget/size;">
