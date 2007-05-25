@@ -54,7 +54,7 @@
   <h1 tal:content="here/title_or_id"
       metal:use-macro="metadata_macros/header|default" />
 
-  <form name="edit_form"
+  <form
         method="post"
         enctype="multipart/form-data"
         class="enableUnloadProtection"
