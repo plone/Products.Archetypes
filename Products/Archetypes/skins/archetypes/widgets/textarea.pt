@@ -87,6 +87,7 @@
           <label i18n:translate="label_format">Format</label>
           <select tal:define="textareaview context/@@at_textarea_widget;
                               selection python:textareaview.getSelected(mimetypes, contenttype)"
+                  tal:condition="python:mimetypes or (contenttype not in mimetypes)"
                   tal:attributes="id string:${fieldName}_text_format;
                                   name string:${fieldName}_text_format;">
             <option selected="selected"
