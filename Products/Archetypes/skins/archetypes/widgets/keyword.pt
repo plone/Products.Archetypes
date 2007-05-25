@@ -47,6 +47,7 @@
             name="predefined_subjects:list"
             size="14"
             multiple="multiple"
+            tal:condition="allowedKeywords"
             tal:attributes="id string:${fieldName}_existing_keywords;
                             name string:${fieldName}_existing_keywords:list;">
           <option value="#" tal:repeat="keyword allowedKeywords"
