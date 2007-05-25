@@ -64,9 +64,11 @@
                     Select where you want to create that.
                   </div>
                   <div>
+                    <!-- Why an empty select? Check if this select is filled by js or if something goes wrong...
                     <select name="add_reference.destination:record"
                             tal:attributes="id string:${field/getName}_destinations;
                                             name string:${field/getName}_destination;"></select>
+                    -->
                   </div>
                 </div>
                 <div class="field">
