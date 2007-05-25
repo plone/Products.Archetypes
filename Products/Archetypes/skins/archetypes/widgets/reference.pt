@@ -101,7 +101,8 @@
 
           <div tal:condition="python:vlen &gt; widget.checkbox_bound">
             <!-- pulldown for longer vocabs -->
-            <select tal:attributes="name fieldName;
+            <select tal:condition="vocab"
+                    tal:attributes="name fieldName;
                                     id fieldName;
                                     multiple python:multiVal and 'multiple' or None;">
 
