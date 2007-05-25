@@ -56,7 +56,8 @@
                 <tal:longVocab condition="python:(vlen >= 4 and format == 'flex') or (format in ('select', 'pulldown'))">
 
                     <!-- Pulldown when longer -->
-                    <select tal:attributes="name fieldName;
+                    <select tal:condition="vocab"
+                            tal:attributes="name fieldName;
                                             id fieldName;">
 
                         <option tal:repeat="item vocab"
