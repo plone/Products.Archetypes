@@ -36,6 +36,7 @@
 
     <select tal:define="textareaview context/@@at_textarea_widget;
                         selection python:textareaview.getSelected(mimetypes, contentType)"
+            tal:condition="mimetypes"
             tal:attributes="id string:${fieldName}_text_format;
                             name string:${fieldName}_text_format;">
       <option selected=""
