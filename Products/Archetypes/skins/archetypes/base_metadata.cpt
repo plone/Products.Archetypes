@@ -60,6 +60,7 @@
         class="enableUnloadProtection"
         tal:attributes="action python:here.absolute_url()+'/'+template.id">
 
+    <div>
       <tal:fields repeat="field fields">
         <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
       </tal:fields>
@@ -97,6 +98,7 @@
          i18n:attributes="value label_save;"
          value="Save" />
       </div>
+   </div>
   </form>
       </div>
     </div>
