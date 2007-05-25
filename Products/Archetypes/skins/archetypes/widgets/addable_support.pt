@@ -26,7 +26,7 @@
                      i18n:attributes="value"
                      />
             </tal:block>
-            <script tal:content="structure here/reference_focus_js"></script>
+            <script type="text/javascript" tal:content="structure here/reference_focus_js"></script>
           </div>
 
           <div tal:condition="thereAreMoreThanOneDestination">
@@ -82,7 +82,7 @@
                   </div>
                 </div>
               </fieldset>
-              <!--script tal:content="structure here/reference_js"></script-->
+              <!--script type="text/javascript" tal:content="structure here/reference_js"></script-->
             </div>
           </div>
         </tal:block>
