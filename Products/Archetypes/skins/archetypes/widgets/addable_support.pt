@@ -48,6 +48,7 @@
                   </div>
                   <div>
                     <select tal:define="id string:${field/getName}_types"
+                            tal:condition="types"
                             tal:attributes="id id;
                                             onchange string:${field/getName}_update(this)" >
                       <option tal:repeat="type types"
