@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
+	   xmlns:metal="http://xml.zope.org/namespaces/metal"
+	   tal:define="type options/type;
+	   schemata type/schemata">
+  <metal:block define-macro="body">
+    <type id="Products.Archetypes.example.SimpleType"
+	  tal:attributes="id type/id">
+      <basetypes tal:condition="type/basetypes">
+	<tal:block repeat="base type/basetypes">
+	  <basetype tal:content="base">base</basetype>
+	</tal:block>
+      </basetypes>
+      <package tal:content="type/package">ArchExample</package>
+      <portaltype tal:content="type/portal_type">SimpleType</portaltype>
+      <readonly tal:content="type/read_only"></readonly>
+      <schema>
+	<schemata tal:repeat="subschemata schemata/values"
+		  tal:attributes="id
+		  string:${type/id}.${subschemata/getName}">
+	  <name tal:content="subschemata/getName">default</name>
+	  <tal:block repeat="field subschemata/fields">
+	    <field tal:attributes="id
+		   string:${type/id}.${subschemata/getName}.${field/getName}">
+	      <name tal:content="field/getName">fieldname</name>
+	      <type tal:content="field/getType">
+		Products.Archetypes.Fields.StringField
+	      </type>
+	      <properties>
+		<widget tal:define="widget nocall:field/widget">
+		  <type tal:content="widget/getType">
+		    Products.Archetypes.Widgets.StringWidget
+		  </type>
+		  <label xml:lang="en"
+			 tal:content="widget/label"
+			 tal:condition="widget/label">
+		    Content
+		  </label>
+		  <description xml:lang="en"
+			       tal:content="widget/description"
+			       tal:condition="widget/description">
+		    Fill the article's content
+		  </description>
+		</widget>
+		<required tal:condition="field/required|nothing"
+			  tal:content="field/required">
+		  0
+		</required>
+		<default tal:condition="field/default|nothing"
+			 tal:content="field/default">
+		  bla
+		</default>
+		<vocabulary tal:condition="field/vocabulary|nothing"
+			    tal:content="field/vocabulary">
+		</vocabulary>
+		<enforceVocabulary
+		 tal:condition="field/enforceVocabulary|nothing"
+		 tal:content="field/enforceVocabulary">
+		  0
+		</enforceVocabulary>
+		<multiValued tal:condition="field/multiValued|nothing"
+			     tal:content="field/multiValued">
+		  0
+		</multiValued>
+		<searchable tal:condition="field/searchable|nothing"
+			    tal:content="field/searchable">
+		  0
+		</searchable>
+		<isMetadata tal:condition="field/isMetadata"
+			    tal:content="field/isMetadata">
+		  0
+		</isMetadata>
+		<accessor tal:condition="field/accessor|nothing"
+			  tal:content="field/accessor">
+		  accessor
+		</accessor>
+		<mutator tal:condition="field/mutator|nothing"
+			 tal:content="field/mutator">
+		  mutator
+		</mutator>
+		<mode tal:condition="field/mode|nothing"
+		      tal:content="field/mode">
+		  mode
+		</mode>
+		<read_permission tal:condition="field/read_permission|nothing"
+				 tal:content="field/read_permission">
+		  read_permission
+		</read_permission>
+		<write_permission tal:condition="field/write_permission|nothing"
+				  tal:content="field/write_permission">
+		  write_permission
+		</write_permission>
+		<storage>
+		  <type tal:content="field/getStorageType">
+		    storage
+		  </type>
+		</storage>
+		<generateMode tal:condition="field/generateMode|nothing"
+			      tal:content="field/generateMode">
+		  generateMode
+		</generateMode>
+		<force tal:condition="field/force|nothing"
+		       tal:content="field/force">
+		  force
+		</force>
+		<type tal:condition="field/type|nothing"
+		      tal:content="field/type">
+		  type
+		</type>
+		<validators tal:condition="field/validators|nothing">
+		  <tal:block repeat="validator field/validators">
+		    <validator tal:content="validator">validator</validator>
+		  </tal:block>
+		</validators>
+		<index tal:condition="field/index|nothing"
+		       tal:content="field/index">
+		  index
+		</index>
+		<addable tal:condition="field/addable|nothing"
+			 tal:content="field/addable">
+		  addable
+		</addable>
+		<destination tal:condition="field/destination|nothing"
+			     tal:content="field/destination">
+		  destination
+		</destination>
+		<expression tal:condition="field/expression|nothing"
+			    tal:content="field/expression">
+		  expression
+		</expression>
+		<workflowable tal:condition="field/workflowable|nothing"
+			      tal:content="field/workflowable">
+		  workflowable
+		</workflowable>
+	      </properties>
+	    </field>
+	  </tal:block>
+	</schemata>
+      </schema>
+    </type>
+  </metal:block>
+</tal:block>

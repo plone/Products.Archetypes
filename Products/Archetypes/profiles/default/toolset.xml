@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<tool-setup>
+  <required tool_id="archetype_tool"
+    class="Products.Archetypes.ArchetypeTool"/>
+  <required tool_id="reference_catalog"
+    class="Products.Archetypes.ReferenceEngine.ReferenceCatalog"/>
+  <required tool_id="uid_catalog"
+    class="Products.Archetypes.UIDCatalog.UIDCatalog"/>
+</tool-setup>

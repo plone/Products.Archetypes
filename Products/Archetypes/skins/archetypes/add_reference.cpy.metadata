@@ -1,0 +1,10 @@
+[default]
+title = Add Reference
+
+[validators]
+validators =
+
+[actions]
+action.created = redirect_to:string:add_reference
+action.success = traverse_to_action:string:edit
+action.failure = traverse_to_action:string:edit

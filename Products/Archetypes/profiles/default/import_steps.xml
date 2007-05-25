@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<import-steps>
+  <import-step id="archetypetool"
+    version="20070318-01"
+    handler="Products.Archetypes.exportimport.archetypetool.importArchetypeTool"
+    title="Archetype Tool">
+    <dependency step="archetypes-various"/>
+    Import Archetype type specific configuration.
+  </import-step>
+  <import-step id="archetypes-various" version="20070318-01"
+               handler="Products.Archetypes.setuphandlers.setupArchetypes"
+               title="Archetypes setup">
+   <dependency step="componentregistry"/>
+     Archetypes installation step.
+  </import-step>
+</import-steps>
