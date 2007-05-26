@@ -3,5 +3,9 @@
  * It comes disabled by default.
  */
 
-
+input[name="form_submit"]:click {
+    evt-click-preventdefault:     true;
+    action-server:                kssValidateForm;
+    kssValidateForm-data:         currentForm();
+}
 

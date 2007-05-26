@@ -18,12 +18,6 @@ textarea.blurrable:blur {
     kssValidateField-value:       currentFormVar();
 }
 
-input[name="form_submit"]:click {
-    evt-click-preventdefault:     true;
-    action-server:                kssValidateForm;
-    kssValidateForm-data:         currentForm();
-}
-
 .inlineEditable:click {
     evt-click-allowbubbling: true;
     action-server: replaceField;
