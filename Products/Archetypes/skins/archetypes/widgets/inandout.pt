@@ -99,7 +99,7 @@
             <div style="float:left">
               <select
                   multiple="multiple"
-                  tal:condition="single_value"
+                  tal:condition="selection"
                   tal:attributes="name string:${fieldName}:list;
                                   id string:${fieldName};
                                   size widget/size;
