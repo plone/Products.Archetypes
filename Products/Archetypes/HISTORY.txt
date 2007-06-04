@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Fix incorrect test for value added to a display list. This fixes
+    http://dev.plone.org/plone/ticket/6634
+    [wichert]
+
   * Corrected wrong i18n markup in edit_macros. This closes
     http://dev.plone.org/plone/ticket/6583.
     [hannosch]
