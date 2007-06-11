@@ -21,7 +21,7 @@
 
           <tal:link condition="showLink">
               <a href="" tal:attributes="href string:${here/absolute_url}/at_download/$fieldName">
-                <img tal:condition="icon" src="" alt=""
+                <img tal:condition="icon" src=""
                      tal:attributes="src string:${here/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
                 (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
@@ -29,7 +29,7 @@
               </a>
           </tal:link>
           <span tal:condition="not:showLink">
-              <img tal:condition="icon" src="" alt=""
+              <img tal:condition="icon" src=""
                    tal:attributes="src string:${here/portal_url}/$icon"/>
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">

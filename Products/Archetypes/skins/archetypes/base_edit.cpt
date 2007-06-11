@@ -79,11 +79,16 @@
   <body>
 
     <metal:fill fill-slot="main">
-      <metal:main define-macro="main">
-        <metal:use_header use-macro="header_macro" />
-        <metal:use_typedescription use-macro="typedescription_macro" />
-        <metal:use_body use-macro="body_macro" />
-        <metal:use_footer use-macro="footer_macro" />
+      <metal:main define-macro="main"
+		  tal:define="kssClassesView context/@@kss_field_decorator_view;
+			      kssInstanceUID kssClassesView/getKssUIDClass">
+
+	<div tal:attributes="class kssInstanceUID">
+          <metal:use_header use-macro="header_macro" />
+          <metal:use_typedescription use-macro="typedescription_macro" />
+          <metal:use_body use-macro="body_macro" />
+          <metal:use_footer use-macro="footer_macro" />
+	</div>
       </metal:main>
     </metal:fill>
 

@@ -383,7 +383,7 @@ class DisplayList:
         if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if not isinstance(value, basestring) and not isinstance(value, basestring):
+        if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
         if msgid is not None:

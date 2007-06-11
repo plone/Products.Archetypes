@@ -26,7 +26,7 @@
                      i18n:attributes="value"
                      />
             </tal:block>
-            <script type="text/javascript" tal:content="structure here/reference_focus_js"></script>
+            <script tal:content="structure here/reference_focus_js"></script>
           </div>
 
           <div tal:condition="thereAreMoreThanOneDestination">
@@ -48,7 +48,6 @@
                   </div>
                   <div>
                     <select tal:define="id string:${field/getName}_types"
-                            tal:condition="types"
                             tal:attributes="id id;
                                             onchange string:${field/getName}_update(this)" >
                       <option tal:repeat="type types"
@@ -64,11 +63,9 @@
                     Select where you want to create that.
                   </div>
                   <div>
-                    <!-- Why an empty select? Check if this select is filled by js or if something goes wrong...
                     <select name="add_reference.destination:record"
                             tal:attributes="id string:${field/getName}_destinations;
                                             name string:${field/getName}_destination;"></select>
-                    -->
                   </div>
                 </div>
                 <div class="field">
@@ -85,7 +82,7 @@
                   </div>
                 </div>
               </fieldset>
-              <!--script type="text/javascript" tal:content="structure here/reference_js"></script-->
+              <!--script tal:content="structure here/reference_js"></script-->
             </div>
           </div>
         </tal:block>

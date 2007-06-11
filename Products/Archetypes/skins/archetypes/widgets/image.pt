@@ -32,7 +32,7 @@
                            filename unit/filename | nothing"
                    condition="python:size &gt; 0">
 
-            <img tal:condition="icon" src="" alt=""
+            <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
               <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
 

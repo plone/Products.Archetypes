@@ -7,6 +7,9 @@ class DefaultFieldDecoratorView(BrowserView):
     kss is not loaded.
     '''
 
+    def getKssUIDClass(self):
+        return ''
+
     def getKssClasses(self, fieldname, templateId=None, macro=None):
         return ''
     
