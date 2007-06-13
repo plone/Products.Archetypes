@@ -5,29 +5,29 @@
 input.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
-    kssValidateField-uid:         kssAttr('atuid', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 select.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
-    kssValidateField-uid:         kssAttr('atuid', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 textarea.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
-    kssValidateField-uid:         kssAttr('atuid', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 
 .inlineEditable:click {
     evt-click-allowbubbling: true;
     action-server: replaceField;
     replaceField-fieldname: kssAttr('atfieldname', true);
-    replaceField-uid: kssAttr('atuid', true);
     replaceField-macro: kssAttr('macro', true);
     replaceField-templateId: kssAttr('templateId', true);
+    replaceField-uid: kssAttr('atuid', true);
     replaceField-edit: true;
     action-client: log;
 }
@@ -36,10 +36,10 @@ form.inlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-uid: kssAttr('atuid', true);
     saveField-value: currentForm();
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
 }
 
 /* XXX Note you can't use comma separation for selectors! */
@@ -97,10 +97,10 @@ form.inlineForm input[type="text"].blurrable:keyup {
     action-client: log;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-uid: kssAttr('atuid', true);
     saveField-value: currentForm();
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
 }
 
 .inlineEditable a:click {
