@@ -1,4 +1,3 @@
-
 from Products.Five.browser import BrowserView
 
 class DefaultFieldDecoratorView(BrowserView):
@@ -6,6 +5,9 @@ class DefaultFieldDecoratorView(BrowserView):
     meanwhile, allow it to be used from the templates if
     kss is not loaded.
     '''
+
+    def getKssUIDClass(self):
+        return ''
 
     def getKssClasses(self, fieldname, templateId=None, macro=None):
         return ''
