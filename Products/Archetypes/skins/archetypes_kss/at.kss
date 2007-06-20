@@ -6,16 +6,19 @@ input.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 select.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 textarea.blurrable:blur {
     action-server:                kssValidateField;
     kssValidateField-fieldname:   kssAttr('atfieldname', true);
     kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
 }
 
 .inlineEditable:click {
@@ -24,6 +27,7 @@ textarea.blurrable:blur {
     replaceField-fieldname: kssAttr('atfieldname', true);
     replaceField-macro: kssAttr('macro', true);
     replaceField-templateId: kssAttr('templateId', true);
+    replaceField-uid: kssAttr('atuid', true);
     replaceField-edit: true;
     action-client: log;
 }
@@ -35,6 +39,7 @@ form.inlineForm input[name=kss-save]:click {
     saveField-value: currentForm();
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
 }
 
 /* XXX Note you can't use comma separation for selectors! */
@@ -95,6 +100,7 @@ form.inlineForm input[type="text"].blurrable:keyup {
     saveField-value: currentForm();
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
 }
 
 .inlineEditable a:click {
