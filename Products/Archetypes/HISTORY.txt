@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Removed utility registrations for the uid and reference catalogs.
+    [hannosch]
+
   * Fix incorrect test for value added to a display list. This fixes
     http://dev.plone.org/plone/ticket/6634
     [wichert]

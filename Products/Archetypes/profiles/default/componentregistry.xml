@@ -4,11 +4,5 @@
   <utility
      interface="Products.Archetypes.interfaces.IArchetypeTool"
      object="/archetype_tool"/>
-  <utility
-     interface="Products.Archetypes.interfaces.IReferenceCatalog"
-     object="/reference_catalog"/>
-  <utility
-     interface="Products.Archetypes.interfaces.IUIDCatalog"
-     object="/uid_catalog"/>
  </utilities>
 </componentregistry>
