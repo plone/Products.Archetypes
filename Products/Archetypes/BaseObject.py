@@ -9,7 +9,6 @@ from Products.Archetypes.utils import fixSchema
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.Field import TextField
-from Products.Archetypes.Field import STRING_TYPES
 from Products.Archetypes.Renderer import renderer
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import getSchemata
@@ -52,7 +51,6 @@ from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 
 from Referenceable import Referenceable
-from types import TupleType, ListType, UnicodeType
 
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
@@ -539,8 +537,6 @@ class BaseObject(Referenceable):
                 # handle the mimetype argument
                 try:
                     datum =  method()
-
-
                 except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
@@ -548,20 +544,21 @@ class BaseObject(Referenceable):
             if datum:
                 type_datum = type(datum)
                 vocab = field.Vocabulary(self)
-                if type_datum is ListType or type_datum is TupleType:
+                if isinstance(datum, list) or isinstance(datum, tuple):
                     # Unmangle vocabulary: we index key AND value
                     vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
                     datum = list(datum)
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
-                elif type_datum in STRING_TYPES:
-                    if type_datum is UnicodeType:
+                elif isinstance(datum, basestring):
+                    if isinstance(datum, unicode):
                         datum = datum.encode(charset)
-                    datum = "%s %s" % (datum, vocab.getValue(datum, ''), )
+                    value = vocab.getValue(datum, '')
+                    if isinstance(value, unicode):
+                        value = value.encode(charset)
+                    datum = "%s %s" % (datum, value, )
 
-                # XXX: We really need an unicode policy !
-                type_datum = type(datum)
-                if type_datum is UnicodeType:
+                if isinstance(datum, unicode):
                     datum = datum.encode(charset)
                 data.append(str(datum))
 

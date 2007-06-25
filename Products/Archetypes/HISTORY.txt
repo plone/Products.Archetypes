@@ -290,6 +290,13 @@ trunk - unreleased
   * Remove BBB code for calendar_macros.
     [hannosch]
 
+1.4.5 unreleased
+========================
+
+  * Fixed possible Unicode problem in BaseObject's SearchableText. This
+    closes http://dev.plone.org/archetypes/ticket/720.
+    [hannosch]
+
 1.4.3 - Unreleased
 ==================
 
