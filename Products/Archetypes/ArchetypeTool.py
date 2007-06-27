@@ -1185,4 +1185,3 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return HAS_GRAPHVIZ
 
 InitializeClass(ArchetypeTool)
-registerToolInterface('archetype_tool', IArchetypeTool)

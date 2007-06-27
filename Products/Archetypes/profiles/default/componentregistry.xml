@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<componentregistry>
- <utilities>
-  <utility
-     interface="Products.Archetypes.interfaces.IArchetypeTool"
-     object="/archetype_tool"/>
- </utilities>
-</componentregistry>
