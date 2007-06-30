@@ -78,7 +78,8 @@
       <tal:define
           define="field_text_format string:${fieldName}_text_format;
                   contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                  allowable_ct python:field.getAllowedContentTypes(here);
+                  get_act python:getattr(field, 'getAllowedContentTypes', False);
+                  allowable_ct python:get_act and get_act(here) or ('text/plain',);
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
                   contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
 
