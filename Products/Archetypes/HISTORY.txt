@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+1.5.0-rc1 - 2007-07-04
+======================
+
   * Removed all utility registrations.
     [hannosch, wichert]
 
