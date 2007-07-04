@@ -1,21 +1,19 @@
 from zope.interface import implements
+
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
-from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
-from Acquisition import aq_base, aq_chain, aq_parent, aq_inner
-from AccessControl import getSecurityManager, Unauthorized
-from ExtensionClass import Base
+from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
-from utils import getRelPath, getRelURL
+from utils import getRelURL
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -191,7 +189,7 @@ class Referenceable(CopySource):
         try:
             uc = getToolByName(container, config.UID_CATALOG)
         except AttributeError:
-            # XXX when trying to rename or copy a whole site than
+            # TODO when trying to rename or copy a whole site than
             # container is the object "under" the portal so we can
             # NEVER ever find the catalog which is bad ...
             container = aq_parent(self)
@@ -234,7 +232,7 @@ class Referenceable(CopySource):
             # UID already.  Don't mess with UID anymore.
             return
 
-        # XXX Should we ever get here after the isCopy flag addition??
+        # TODO Should we ever get here after the isCopy flag addition??
         # If the object has no UID or the UID already exists, then
         # we should get a new one
         if (not shasattr(self,config.UUID_ATTR) or
@@ -323,8 +321,15 @@ class Referenceable(CopySource):
                 rc = getToolByName(self, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
                 url = getRelURL(uc, ref.getPhysicalPath())
-                uc.uncatalog_object(url)
-                rc.uncatalog_object(url)
+                # XXX This is an ugly workaround. This method shouldn't be
+                # called twice for an object in the first place, so we don't
+                # have to check if it is still cataloged. 
+                uc_rid = uc.getrid(url)
+                if uc_rid is not None:
+                    uc.uncatalog_object(url)
+                rc_rid = rc.getrid(url)
+                if rc_rid is not None:
+                    rc.uncatalog_object(url)
 
     def _getCopy(self, container):
         # We only set the '_v_is_cp' flag here if it was already set.
@@ -377,14 +382,12 @@ class Referenceable(CopySource):
                     method(*((child,) + args), **kwargs)
 
     # graph hooks
-    security.declareProtected(View,
-                              'getReferenceMap')
+    security.declareProtected(View, 'getReferenceMap')
     def getReferenceMap(self):
         """The client side map for this objects references"""
         return get_cmapx(self)
 
-    security.declareProtected(View,
-                              'getReferencePng')
+    security.declareProtected(View, 'getReferencePng')
     def getReferencePng(self, REQUEST=None):
         """A png of the references for this object"""
         if REQUEST:
@@ -392,5 +395,3 @@ class Referenceable(CopySource):
         return get_png(self)
 
 InitializeClass(Referenceable)
-
-

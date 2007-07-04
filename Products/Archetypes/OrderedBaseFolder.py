@@ -5,14 +5,7 @@ OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 from types import StringType
 
 from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from Products.Archetypes.BaseObject import BaseObject
-from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
-from Products.Archetypes.interfaces.base import IBaseFolder
-from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
-from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo
@@ -31,7 +24,7 @@ from zExceptions import NotFound
 # OrderedBaseFolder work without Plone 2.0
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
-except:
+except ImportError:
     from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
 
 
@@ -115,7 +108,7 @@ class OrderedContainer:
         """Get the ids of only cmf objects (used for moveObjectsByDelta)
         """
         ttool = getToolByName(self, 'portal_types')
-        cmf_meta_types = ttool.listContentTypes(by_metatype=1)
+        cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
     security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')

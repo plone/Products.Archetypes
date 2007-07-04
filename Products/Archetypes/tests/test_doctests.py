@@ -28,18 +28,7 @@
 __author__ = 'Christian Heimes'
 __docformat__ = 'restructuredtext'
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-import unittest
-from Products.Archetypes.tests.utils import ZOPE29
-
-# XXX: I believe this can go away with Zope 2.9
-from zope.testing import doctest
-OPTIONFLAGS = doctest.ELLIPSIS
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
@@ -49,27 +38,23 @@ DOCTEST_MODULES = (
     'Products.Archetypes.AllowedTypesByIface',
     'Products.Archetypes.Field',
     'Products.Archetypes.Marshall',
+    'Products.Archetypes.fieldproperty',
+    'Products.Archetypes.browser.widgets',
     )
 
-DOCTEST_FILES = ()
-if ZOPE29:
-    DOCTEST_FILES += ('events.txt',)
+DOCTEST_FILES = ('events.txt',)
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
 def test_suite():
     suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
                              extraglobs={},
-                             optionflags=OPTIONFLAGS,
                              *DOCTEST_MODULES
                              )
-    
     for file in DOCTEST_FILES:
         suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
-                                test_class=ATSiteTestCase)
+                                test_class=ATFunctionalSiteTestCase)
                      )
     return suite
-
-if __name__ == '__main__':
-    framework()

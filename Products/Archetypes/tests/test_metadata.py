@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,14 +22,6 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 from Acquisition import aq_parent
@@ -393,6 +384,3 @@ def test_suite():
     suite.addTest(makeSuite(ExtMetadataSetFormatTest))
     suite.addTest(makeSuite(TimeZoneTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

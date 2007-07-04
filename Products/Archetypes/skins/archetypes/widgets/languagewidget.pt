@@ -1,0 +1,57 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+<head>
+    <title></title>
+</head>
+<body>
+
+    <!-- Language Widget -->
+    <metal:view_macro define-macro="view"
+                      tal:define="vocab python:field.Vocabulary(context);
+                                  value python:accessor();
+                                  display python:context.displayValue(vocab, value)"
+                      tal:replace="structure display" />
+
+    <metal:define define-macro="edit">
+        <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
+            <metal:fill fill-slot="widget_body"
+                        tal:define="vocab python:field.Vocabulary(context);
+                                    vlen python:len(vocab);
+                                    selectionview context/@@at_selection_widget;
+                                    selection python:selectionview.getSelected(vocab, value);
+                                    format python:widget.format">
+                <tal:shortVocab condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')">
+                    <!-- Radio when the vocab is short < 4 -->
+                    <tal:radios repeat="item vocab">
+                        <input class="noborder blurrable"
+                               type="radio"
+                               tal:attributes="name fieldName;
+                                               id string:${fieldName}_${repeat/item/number};
+                                               checked python:item in selection and 'checked' or None;
+                                               value item;" />
+                        <label tal:content="python:vocab.getValue(item)"
+                               tal:attributes="for string:${fieldName}_${repeat/item/number}" />
+                        <br />
+                    </tal:radios>
+                </tal:shortVocab>
+                <tal:longVocab condition="python:(vlen >= 4 and format == 'flex') or (format in ('select', 'pulldown'))">
+                    <!-- Pulldown when longer -->
+                    <select tal:attributes="name fieldName;
+                                            id fieldName;">
+                        <option tal:repeat="item vocab"
+                                tal:attributes="value item;
+                                                selected python:item in selection and 'selected' or None"
+                                tal:content="python:vocab.getValue(item)"/>
+                    </select>
+                </tal:longVocab>
+            </metal:fill>
+        </metal:use>
+    </metal:define>
+    <div metal:define-macro="search">
+        <div metal:use-macro="context/widgets/selection/macros/edit" />
+    </div>
+</body>
+</html>

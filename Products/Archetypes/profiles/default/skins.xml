@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<object name="portal_skins">
+ <object name="archetypes" meta_type="Filesystem Directory View"
+    directory="Products.Archetypes:skins/archetypes"/>
+ <object name="archetypes_kss" meta_type="Filesystem Directory View"
+    directory="Products.Archetypes:skins/archetypes_kss"/>
+  <skin-path name="*">
+  <layer name="archetypes" insert-after="custom"/>
+  <layer name="archetypes_kss" insert-after="archetypes"/>
+ </skin-path>
+</object>

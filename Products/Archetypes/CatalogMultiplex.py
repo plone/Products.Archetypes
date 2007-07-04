@@ -1,16 +1,15 @@
 from debug import log
 from logging import WARNING
-from Globals import InitializeClass
+
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
+from Globals import InitializeClass
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE
-
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -40,11 +39,7 @@ class CatalogMultiplex(CMFCatalogAware):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
-            # XXX This is an ugly workaround. This method shouldn't be called
-            # twice for an object in the first place, so we don't have to check
-            # if it is still cataloged. 
-            rid = c.getrid(url)
-            if rid is not None:
+            if c._catalog.uids.get(url, None) is not None:
                 c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
@@ -126,9 +121,8 @@ class CatalogMultiplex(CMFCatalogAware):
         # TODO: fix this so we can remove the following lines.
         if not idxs:
             if isinstance(self, Referenceable):
-                self._catalogUID(self)
-                # _catalogRefs used to be called here, but all possible
-                # occurrences should be handled by
-                # manage_afterAdd/manage_beforeDelete from Referenceable now.
+                isCopy = getattr(self, '_v_is_cp', None)
+                if isCopy is None:
+                    self._catalogUID(self)
 
 InitializeClass(CatalogMultiplex)
