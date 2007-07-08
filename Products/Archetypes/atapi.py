@@ -88,6 +88,7 @@ from Products.Archetypes.debug import log_exc
 from Products.Archetypes.BaseObject import AttributeValidator
 from Products.Archetypes.athistoryaware import ATHistoryAwareMixin
 from Products.Archetypes.fieldproperty import ATFieldProperty
+from Products.Archetypes.fieldproperty import ATReferenceFieldProperty
 from Products.Archetypes.fieldproperty import ATDateTimeFieldProperty
 
 # dynamicly calculate which modules should be exported
