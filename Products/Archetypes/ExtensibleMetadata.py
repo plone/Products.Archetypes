@@ -62,8 +62,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             enforceVocabulary=1,
             vocabulary=DisplayList((
                 ('None', _(u'label_discussion_default', default=u'Default')),
-                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
-                ('0', _(u'label_discussion_disabled', default=u'Disabled')),
+                ('True', _(u'label_discussion_enabled', default=u'Enabled')),
+                ('False', _(u'label_discussion_disabled', default=u'Disabled')),
                 )),
             widget=SelectionWidget(
                 label=_(u'label_allow_discussion',
@@ -224,54 +224,25 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
     def editIsDiscussable(self, encoding=None):
-        # XXX this method highly depends on the current implementation
-        # it's a quick hacky fix
         result = getattr(aq_base(self), 'allow_discussion', None)
         if result is not None:
-            try:
-                # deal with booleans
-                result = int(result)
-            except (TypeError, ValueError):
-                pass
-        return str(result)
+            result = bool(result)
+        return result
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
     def allowDiscussion(self, allowDiscussion=None, **kw):
-        if allowDiscussion is not None:
-            try:
-                allowDiscussion = int(allowDiscussion)
-            except (TypeError, ValueError):
-                allowDiscussion = allowDiscussion.lower().strip()
-                d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
-                allowDiscussion = d.get(allowDiscussion, None)
         dtool = getToolByName(self, 'portal_discussion')
         try:
             dtool.overrideDiscussionFor(self, allowDiscussion)
-        except (KeyError, AttributeError), err:
-            if allowDiscussion is None:
-                # work around a bug in CMFDefault.DiscussionTool. It's using
-                # an unsafe hasattr() instead of a more secure getattr() on an
-                # unwrapped object
-                # XXX CMF 2.1 fixes this bug, check if we can remove this code
-                msg = "Unable to set discussion on %s to None. Already " \
-                      "deleted allow_discussion attribute? Message: %s" % (
-                       self.getPhysicalPath(), str(err))
-                log(msg, level=DEBUG)
-            else:
-                raise
         except ("Unauthorized", Unauthorized):
             # Catch Unauthorized exception that could be raised by the
             # discussion tool when the authenticated users hasn't
-            # ModifyPortalContent permissions. IMO this behavior is safe because
-            # this method is protected, too.
+            # ModifyPortalContent permissions.
             # Explanation:
             # A user might have CreatePortalContent but not ModifyPortalContent
             # so allowDiscussion could raise a Unauthorized error although it's
             # called from trusted code. That is VERY bad inside setDefault()!
-            #
-            # XXX: Should we have our own implementation of
-            #      overrideDiscussionFor?
             log('Catched Unauthorized on discussiontool.' \
                 'overrideDiscussionFor(%s)' % self.absolute_url(1),
                 level=DEBUG)

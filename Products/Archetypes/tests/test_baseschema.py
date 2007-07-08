@@ -125,8 +125,8 @@ class BaseSchemaTest(ATSiteTestCase):
         
         vocabulary=DisplayList((
                 ('None', _(u'label_discussion_default', default=u'Default')),
-                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
-                ('0', _(u'label_discussion_disabled', default=u'Disabled'))))
+                ('True', _(u'label_discussion_enabled', default=u'Enabled')),
+                ('False', _(u'label_discussion_disabled', default=u'Disabled'))))
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)

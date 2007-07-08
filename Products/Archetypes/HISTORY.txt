@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Cleaned up allowDiscussion handling in ExtensibleMetadata.
+    This refs http://dev.plone.org/plone/ticket/5977.
+    [hannosch]
+
 1.5.0-rc1 - 2007-07-04
 ======================
 
