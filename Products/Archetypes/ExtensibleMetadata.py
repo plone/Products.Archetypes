@@ -64,8 +64,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_allow_comments',
                         default=u'Allow comments'),
                 description=_(u'help_allow_comments',
-                              default=u'If selected, users will be able to '
-                                       'comment this item.')
+                              default=u'If selected, users can add comments '
+                                       'to this item.')
                 ),
         ),
         LinesField(
