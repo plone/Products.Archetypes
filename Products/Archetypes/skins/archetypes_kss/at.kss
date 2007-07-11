@@ -50,6 +50,8 @@ form.inlineForm input[name=kss-cancel]:click {
     replaceWithView-fieldname: kssAttr('atfieldname', true);
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-edit: true;
 }
 
 /* XXX Note you can't use comma separation for selectors! */
@@ -59,6 +61,8 @@ form.inlineForm input.blurrable:keypress(inlineescape) {
     replaceWithView-fieldname: kssAttr('atfieldname', true);
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-edit: true;
 }
 form.inlineForm select.blurrable:keypress(inlineescape) {
     evt-keypress-keycodes: '27';
@@ -66,6 +70,8 @@ form.inlineForm select.blurrable:keypress(inlineescape) {
     replaceWithView-fieldname: kssAttr('atfieldname', true);
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-edit: true;
 }
 form.inlineForm textarea.blurrable:keypress(inlineescape) {
     evt-keypress-keycodes: '27';
@@ -73,6 +79,8 @@ form.inlineForm textarea.blurrable:keypress(inlineescape) {
     replaceWithView-fieldname: kssAttr('atfieldname', true);
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-edit: true;
 }
 
 form.inlineForm input[type="text"].blurrable:keydown {
