@@ -1,5 +1,5 @@
-trunk - unreleased
-==================
+1.5.0-rc2 - 2007-07-13
+======================
 
   * Added a special fieldproperty type for reference fields, with a more
     generic base class for any field accessors/mutators that need to acquire
