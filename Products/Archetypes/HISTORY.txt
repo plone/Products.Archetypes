@@ -1,3 +1,17 @@
+trunk - unreleased
+==================
+
+  * Added a special fieldproperty type for reference fields, with a more
+    generic base class for any field accessors/mutators that need to acquire
+    tools. This uses a workaround for the fact that not all tools are 
+    utilities (yet) and acquisition doesn't work properly in property
+    descriptors.
+    [optilude]
+
+  * Fixed allowDiscussion handling in ExtensibleMetadata.
+    This closes http://dev.plone.org/plone/ticket/5977.
+    [hannosch]
+
 1.5.0-rc1 - 2007-07-04
 ======================
 

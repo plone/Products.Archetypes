@@ -5,6 +5,8 @@ from DateTime import DateTime
 from datetime import datetime
 from zope.datetime import parseDatetimetz
 
+from zope.app.component.hooks import getSite
+
 class ATFieldProperty(object):
     """Field properties based on Archetypes schema
 
@@ -108,6 +110,65 @@ class ATFieldProperty(object):
         if self._set_transform is not None:
             value = self._set_transform(value)
         field.set(inst, value)
+        
+class ATToolDependentFieldProperty(ATFieldProperty):
+    """A version of the field property type which is able to acquire
+    tools. This uses a not-very-nice acquisition hack, and is not 
+    generalisable to all acquisition-dependent operations, but should work
+    for tools in the portal root.
+    
+        >>> from Products.Archetypes.atapi import *
+        >>> class MyContent(BaseContent):
+        ...     portal_type = meta_type = 'MyContent'
+        ...     schema = Schema((
+        ...         ReferenceField('some_field', multiValued=True, 
+        ...                        relationship='foo', storage=AnnotationStorage()),
+        ...         ))
+        ...
+        ...     some_field = ATToolDependentFieldProperty('some_field')
+        
+        >>> registerType(MyContent, 'Archetypes')
+    
+        >>> self.portal._setOb('foo', MyContent('foo'))
+        >>> foo = getattr(self.portal, 'foo')
+    
+    These lines would fail with AttributeError: reference_catalog if it used 
+    the standard accessor.
+    
+        >>> foo.some_field
+        []
+        >>> foo.some_field = [self.folder.UID()]
+        >>> foo.some_field
+        [<ATFolder at /plone/Members/test_user_1_>]
+    """
+
+    def __init__(self, name, get_transform=None, set_transform=None):
+        self._name = name
+        self._get_transform = get_transform
+        self._set_transform = set_transform
+        
+    def __get__(self, inst, klass):
+        if inst is None:
+            return self
+        field = inst.getField(self._name)
+        if field is None:
+            raise KeyError("Cannot find field with name %s" % self._name)
+        value = field.get(inst.__of__(getSite()))
+        if self._get_transform is not None:
+            value = self._get_transform(value)
+        return value
+
+    def __set__(self, inst, value):
+        field = inst.getField(self._name)
+        if field is None:
+            raise KeyError("Cannot find field with name %s" % self._name)
+        if self._set_transform is not None:
+            value = self._set_transform(value)
+        field.set(inst.__of__(getSite()), value)
+        
+class ATReferenceFieldProperty(ATToolDependentFieldProperty):
+    """A more friendly/use-case-specific name for ATReferenceFieldProperty.
+    """
         
 class ATDateTimeFieldProperty(ATFieldProperty):
     """A field property for DateTime fields. This takes care of converting
