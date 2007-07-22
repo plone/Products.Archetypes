@@ -11,12 +11,22 @@
     <!-- Calendar Widgets -->
 
     <metal:view_macro define-macro="view"
-       tal:define="d accessor;
-                   d python:test(d and d=='None','',d);
-                   format widget/format;
-                   formatted python:format and d and d.strftime(format);
-                   result python:(format and formatted) or (d and here.toLocalizedTime(d, long_format=1));"
-       tal:replace="structure python:result" />
+            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="calendar-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/calendar', macro='calendar-field-view');
+                       d accessor;
+                       d python:test(d and d=='None','',d);
+                       format widget/format;
+                       formatted python:format and d and d.strftime(format);
+                       result python:(format and formatted) or (d and here.toLocalizedTime(d, long_format=1));"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:replace="structure result">calendar</span>
+        </div>
+    </metal:view_macro>
 
     <metal:define define-macro="edit"
        tal:define="format widget/format">
