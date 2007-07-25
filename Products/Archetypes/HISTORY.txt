@@ -1,5 +1,9 @@
 1.4.5 unreleased
-========================
+==================
+
+  * Encode values in Field.toString so we do not fall over fields with
+    unicode default values that contain non-ASCII text.
+    [wichert]
 
   * Fixed possible Unicode problem in BaseObject's SearchableText. This
     closes http://dev.plone.org/archetypes/ticket/720.
