@@ -100,7 +100,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             searchable=True,
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
-                description=_(u'help_description',
+                description=_(u'help_location_dc',
                               default=u'The geographical location associated with the item, if applicable.'),
                 ),
         ),

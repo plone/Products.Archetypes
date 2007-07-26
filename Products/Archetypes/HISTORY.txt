@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Fixed the msgid for the description of the location field. This closes
+    http://dev.plone.org/plone/ticket/6797.
+    [hannosch]
+
 1.5.0-rc2 - 2007-07-13
 ======================
 
