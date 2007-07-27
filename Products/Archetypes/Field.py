@@ -648,6 +648,8 @@ class Field(DefaultLayerContainer):
             value = getattr( self, k, self._properties[k] )
             if k == 'widget':
                 value = value.__class__.__name__
+            if type(value) is UnicodeType:
+                value = value.encode('utf-8')
             s = s + '%s:%s,' % (k, value )
         s = s + '}'
         return s

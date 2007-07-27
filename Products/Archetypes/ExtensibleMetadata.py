@@ -100,7 +100,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             searchable=True,
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
-                description=_(u'help_description',
+                description=_(u'help_location_dc',
                               default=u'The geographical location associated with the item, if applicable.'),
                 ),
         ),
@@ -257,9 +257,10 @@ class ExtensibleMetadata(Persistence.Persistent):
         # not the default we change it. Otherwise we keep what's there.
         if (current is not None or
             (current is None and default != allowDiscussion)):
-            dtool = getToolByName(self, 'portal_discussion')
+            dtool = getToolByName(self, 'portal_discussion', None)
             try:
-                dtool.overrideDiscussionFor(self, allowDiscussion)
+                if dtool is not None:
+                    dtool.overrideDiscussionFor(self, allowDiscussion)
             except ("Unauthorized", Unauthorized):
                 # Catch Unauthorized exception that could be raised by the
                 # discussion tool when the authenticated users hasn't
