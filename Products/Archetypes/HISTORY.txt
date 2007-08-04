@@ -1,6 +1,12 @@
 trunk - unreleased
 ==================
 
+  * Don't attempt to convert to 'text/plain' in
+    Archetypes.Field.FileField.getIndexable if there's no path to it.
+    This avoids loading the whole file contents into memory for these
+    cases.
+    [nouri, drjnut]
+
 1.5.0-rc3 - 2007-07-27
 ======================
 

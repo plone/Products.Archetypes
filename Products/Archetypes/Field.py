@@ -1165,14 +1165,20 @@ class FileField(ObjectField):
         # memory.  To have this not happening set your field to not
         # 'searchable' (the default) or define your own 'index_method'
         # property.
+        orig_mt = self.getContentType(instance)
+
+        # If there's no path to text/plain, don't do anything
         transforms = getToolByName(instance, 'portal_transforms')
+        if transforms._findPath(orig_mt, 'text/plain') is None:
+            return ''
+
         f = self.get(instance)
         
         try:
             datastream = transforms.convertTo(
                 "text/plain",
-                str(f), # 666
-                mimetype = self.getContentType(instance),
+                str(f),
+                mimetype = orig_mt,
                 filename = self.getFilename(instance, 0),
                 )
         except (ConflictError, KeyboardInterrupt):
@@ -1181,7 +1187,8 @@ class FileField(ObjectField):
             log("Error while trying to convert file contents to 'text/plain' "
                 "in %r.getIndexable() of %r: %s" % (self, instance, e))
 
-        return str(datastream)
+        value = str(datastream)
+        return value
 
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
