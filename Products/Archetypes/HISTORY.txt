@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Cache transformed content of FileField.getIndexable so it's recomputed only
+    when the file itself really changes.
+    [drjnut, nouri]
+
   * Don't attempt to convert to 'text/plain' in
     Archetypes.Field.FileField.getIndexable if there's no path to it.
     This avoids loading the whole file contents into memory for these

@@ -10,6 +10,7 @@ from types import StringType, UnicodeType
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
 from zope import schema
+from zope import interface
 from zope import component
 
 from AccessControl import ClassSecurityInfo
@@ -38,6 +39,7 @@ from Products.CMFCore import permissions
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.Layer import DefaultLayerContainer
+from Products.Archetypes import interfaces
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
@@ -45,6 +47,7 @@ from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
+from Products.Archetypes.interfaces import ITransformCache
 from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
@@ -86,6 +89,7 @@ from Products.validation.interfaces.IValidator import IValidator, IValidationCha
 
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
+from plone.memoize.volatile import cache
 
 try:
     import PIL.Image
@@ -146,7 +150,7 @@ class Field(DefaultLayerContainer):
     Class attribute _properties is a dictionary containing all of a
     field's property values.
     """
-
+    interface.implements(interfaces.IField)
     __implements__ = IField, ILayerContainer
 
     security = ClassSecurityInfo()
@@ -991,6 +995,8 @@ class FileField(ObjectField):
         pass to processing method without one and add mimetype returned
         to kwargs. Assign kwargs to instance.
         """
+        component.getMultiAdapter((self, instance), ITransformCache).clear()
+
         if value == "DELETE_FILE":
             if shasattr(instance, '_FileField_types'):
                 delattr(aq_base(instance), '_FileField_types')
@@ -1161,34 +1167,74 @@ class FileField(ObjectField):
 
     security.declarePrivate('getIndexable')
     def getIndexable(self, instance):
-        # XXX Naive implementation that loads all data contents into
-        # memory.  To have this not happening set your field to not
-        # 'searchable' (the default) or define your own 'index_method'
-        # property.
-        orig_mt = self.getContentType(instance)
-
-        # If there's no path to text/plain, don't do anything
-        transforms = getToolByName(instance, 'portal_transforms')
-        if transforms._findPath(orig_mt, 'text/plain') is None:
-            return ''
-
-        f = self.get(instance)
+        """
+        This converts file contents if it's possible and not cached.
         
-        try:
-            datastream = transforms.convertTo(
-                "text/plain",
-                str(f),
-                mimetype = orig_mt,
-                filename = self.getFilename(instance, 0),
-                )
-        except (ConflictError, KeyboardInterrupt):
-            raise
-        except Exception, e:
-            log("Error while trying to convert file contents to 'text/plain' "
-                "in %r.getIndexable() of %r: %s" % (self, instance, e))
+        Test if the transform result is really cached.
+        
+        >>> from Products.Archetypes.examples.SimpleFile import SimpleFile
+        >>> objid = self.folder.invokeFactory('SimpleFile','myFile')
+        >>> obj = self.folder['myFile']
+        >>> field = obj.getField('body')
+        >>> field.set(obj, "<html><body>File content</body></html>")
+        >>> oldGet = field.get
+        >>> def myGet(instance, **kwargs):
+        ...     print "Getting the field's value"
+        ...     return field.__class__.get(field, instance, **kwargs)
+        
+        To find out if a cached value is used or if the method actually does the
+        transform we'll monkey patch the get.
+        
+        >>> field.get = myGet
+        
+        The get method of the FileField is actually ran 3 times because of the
+        getContentType and getFilename calls in the transform function.
+        
+        >>> firstrun = field.getIndexable(obj)
+        Getting the field's value
+        Getting the field's value
+        Getting the field's value
+        >>> secondrun = field.getIndexable(obj)
+        >>> firstrun == secondrun
+        True
+        >>> field.get = oldGet
+        """
+        # The cache storage itself discriminates by fieldname and
+        # instance already, so we don't need to add these to the cache
+        # key:
+        text_plain = lambda fun: 'text/plain'
+        def cache_storage(fun):
+            return component.getMultiAdapter((self, instance), ITransformCache)
 
-        value = str(datastream)
-        return value
+        @cache(text_plain, cache_storage)
+        def transform():
+            orig_mt = self.getContentType(instance)
+
+            # If there's no path to text/plain, don't do anything
+            transforms = getToolByName(instance, 'portal_transforms')
+            if transforms._findPath(orig_mt, 'text/plain') is None:
+                return ''
+
+            f = self.get(instance)
+
+            try:
+                datastream = transforms.convertTo(
+                    "text/plain",
+                    str(f),
+                    mimetype = orig_mt,
+                    filename = self.getFilename(instance, 0),
+                    )
+            except (ConflictError, KeyboardInterrupt):
+                raise
+            except Exception, e:
+                log("Error while trying to convert file contents to "
+                    "'text/plain' in %r.getIndexable() of %r: %s" %
+                    (self, instance, e))
+
+            value = str(datastream)
+            return value
+
+        return transform()
 
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
