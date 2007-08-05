@@ -40,7 +40,6 @@ DOCTEST_MODULES = (
     'Products.Archetypes.Marshall',
     'Products.Archetypes.fieldproperty',
     'Products.Archetypes.browser.widgets',
-    'Products.Archetypes.cache',
     )
 
 DOCTEST_FILES = ('events.txt',)
