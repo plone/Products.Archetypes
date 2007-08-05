@@ -13,7 +13,8 @@
   <include package=".Schema" />
   <include package=".browser" />
 
-  <adapter factory=".cache.transform_cache" />
+  <adapter for=".interfaces.IField .interfaces.IBaseObject"
+           factory=".cache.TransformCache" />
 
   <cmf:registerDirectory
       name="skins"
