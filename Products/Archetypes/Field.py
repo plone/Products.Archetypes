@@ -1213,7 +1213,7 @@ class FileField(ObjectField):
             # If there's no path to text/plain, don't do anything
             transforms = getToolByName(instance, 'portal_transforms')
             if transforms._findPath(orig_mt, 'text/plain') is None:
-                return ''
+                return None
 
             f = self.get(instance)
 
@@ -1235,7 +1235,7 @@ class FileField(ObjectField):
                 value = None
             else:
                 value = str(datastream)
-            return value
+            return value or None
 
         return transform()
 
