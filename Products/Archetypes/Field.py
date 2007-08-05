@@ -89,7 +89,7 @@ from Products.validation.interfaces.IValidator import IValidator, IValidationCha
 
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
-from plone.memoize.volatile import cache
+from plone.memoize.volatile import cache, DontCache
 
 try:
     import PIL.Image
@@ -1172,32 +1172,32 @@ class FileField(ObjectField):
         
         Test if the transform result is really cached.
         
-        >>> from Products.Archetypes.examples.SimpleFile import SimpleFile
-        >>> objid = self.folder.invokeFactory('SimpleFile','myFile')
-        >>> obj = self.folder['myFile']
-        >>> field = obj.getField('body')
-        >>> field.set(obj, "<html><body>File content</body></html>")
-        >>> oldGet = field.get
-        >>> def myGet(instance, **kwargs):
-        ...     print "Getting the field's value"
-        ...     return field.__class__.get(field, instance, **kwargs)
+          >>> from Products.Archetypes.examples.SimpleFile import SimpleFile
+          >>> objid = self.folder.invokeFactory('SimpleFile','myFile')
+          >>> obj = self.folder['myFile']
+          >>> field = obj.getField('body')
+          >>> field.set(obj, '<html><body>File content</body></html>')
+          >>> oldGet = field.get
+          >>> def myGet(instance, **kwargs):
+          ...     print 'Getting the field value'
+          ...     return field.__class__.get(field, instance, **kwargs)
         
         To find out if a cached value is used or if the method actually does the
         transform we'll monkey patch the get.
         
-        >>> field.get = myGet
+          >>> field.get = myGet
         
         The get method of the FileField is actually ran 3 times because of the
         getContentType and getFilename calls in the transform function.
         
-        >>> firstrun = field.getIndexable(obj)
-        Getting the field's value
-        Getting the field's value
-        Getting the field's value
-        >>> secondrun = field.getIndexable(obj)
-        >>> firstrun == secondrun
-        True
-        >>> field.get = oldGet
+          >>> firstrun = field.getIndexable(obj)
+          Getting the field value
+          Getting the field value
+          Getting the field value
+          >>> secondrun = field.getIndexable(obj)
+          >>> firstrun == secondrun
+          True
+          >>> field.get = oldGet
         """
         # The cache storage itself discriminates by fieldname and
         # instance already, so we don't need to add these to the cache
@@ -1231,7 +1231,10 @@ class FileField(ObjectField):
                     "'text/plain' in %r.getIndexable() of %r: %s" %
                     (self, instance, e))
 
-            value = str(datastream)
+            if datastream is None:
+                value = None
+            else:
+                value = str(datastream)
             return value
 
         return transform()
