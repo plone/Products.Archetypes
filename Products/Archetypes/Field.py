@@ -1,5 +1,6 @@
 import sys
 
+import logging
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
@@ -90,6 +91,8 @@ from Products.validation.interfaces.IValidator import IValidator, IValidationCha
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
 from plone.memoize.volatile import cache, DontCache
+
+logger = logging.getLogger('Archetypes')
 
 try:
     import PIL.Image
@@ -1227,9 +1230,9 @@ class FileField(ObjectField):
             except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, e:
-                log("Error while trying to convert file contents to "
-                    "'text/plain' in %r.getIndexable() of %r: %s" %
-                    (self, instance, e))
+                logger.exception(
+                    "Error while trying to index %r contents for %r" %
+                    (self.getName(), instance))
 
             if datastream is None:
                 value = None
