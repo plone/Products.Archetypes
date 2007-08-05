@@ -138,6 +138,7 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         self.folder._setObject('dummy', ob)
+        ob = self.folder.dummy
         
         ob._initializedCaught = False
         ob._editedCaught = False

@@ -13,6 +13,8 @@
   <include package=".Schema" />
   <include package=".browser" />
 
+  <adapter factory=".cache.transform_cache" />
+
   <cmf:registerDirectory
       name="skins"
       directory="skins"

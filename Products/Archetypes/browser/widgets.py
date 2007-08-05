@@ -11,7 +11,61 @@ MIMETYPES_MAPPING = {
 
 
 class SelectionWidget(BrowserView):
-    """View used in Archetypes language and selection widget."""
+    """View used in Archetypes language and selection widget.
+
+    We start with a browser view for this widget.  We use a test
+    request and some very simple content to initialize it.
+
+    >>> from zope.publisher.browser import TestRequest
+    >>> class SimpleContent(object):
+    ...     def getCharset(self):
+    ...         return 'utf-8'
+    >>> widget = SelectionWidget(SimpleContent(), TestRequest())
+
+    Test with a simple vocabulary
+
+    >>> vocab = ('a', 'b', 'c')
+    >>> widget.getSelected(vocab, 'a')
+    ['a']
+    >>> widget.getSelected(vocab, 'A')
+    []
+    >>> widget.getSelected(vocab, 'd')
+    []
+
+    Test with a DisplayList
+
+    >>> from Products.Archetypes.utils import DisplayList
+    >>> friends = DisplayList([('Monty Python', u'monty'), (u'Guido van Rossum', u'guido')])
+    >>> widget.getSelected(friends, 'monty')
+    []
+    >>> widget.getSelected(friends, u'guido')
+    []
+    >>> widget.getSelected(friends, 'Spanish Inquisition')
+    []
+
+    We always return the same encoding as was passed in with the value.
+
+    >>> widget.getSelected(friends, u'Monty Python')
+    [u'Monty Python']
+    >>> widget.getSelected(friends, 'Monty Python')
+    ['Monty Python']
+    >>> widget.getSelected(friends, u'Guido van Rossum')
+    [u'Guido van Rossum']
+    >>> widget.getSelected(friends, 'Guido van Rossum')
+    ['Guido van Rossum']
+
+    Test with an IntDisplayList:
+
+    >>> from Products.Archetypes.utils import IntDisplayList
+    >>> quarter_vocabulary = IntDisplayList([(0, '0'), (15, '15'), (30, '30'), (45, '45')])
+    >>> widget.getSelected(quarter_vocabulary, 5)
+    []
+    >>> widget.getSelected(quarter_vocabulary, 15)
+    [15]
+    >>> widget.getSelected(quarter_vocabulary, '15')
+    []
+
+    """
 
     def getSelected(self, vocab, value):
         context = aq_inner(self.context)
@@ -40,6 +94,8 @@ class SelectionWidget(BrowserView):
         else:
             if isinstance(value, str):
                 new = value.decode(site_charset)
+            elif isinstance(value, int):
+                new = value
             else:
                 new = str(value)
             values[new] = value

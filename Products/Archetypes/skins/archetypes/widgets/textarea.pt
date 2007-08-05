@@ -10,7 +10,18 @@
 
     <!-- TextArea Widgets -->
 
-    <metal:view_macro define-macro="view" tal:replace="structure accessor" />
+    <metal:view_macro define-macro="view"
+            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="textarea-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/textarea', macro='textarea-field-view');"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:replace="structure accessor">textarea</span>
+        </div>
+    </metal:view_macro>
 
     <metal:define define-macro="area_edit">
       <tal:define
@@ -78,7 +89,8 @@
       <tal:define
           define="field_text_format string:${fieldName}_text_format;
                   contentType python:request.get(field_text_format, here.getContentType(fieldName));
-                  allowable_ct python:field.getAllowedContentTypes(here);
+                  get_act python:getattr(field, 'getAllowedContentTypes', False);
+                  allowable_ct python:get_act and get_act(here) or ('text/plain',);
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
                   contenttype python:hasattr(field, 'getContentType') and field.getContentType(here) or ''">
 

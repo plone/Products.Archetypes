@@ -53,21 +53,19 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     schema = type = MetadataSchema(
         (
-        StringField(
+        BooleanField(
             'allowDiscussion',
             accessor="isDiscussable",
             mutator="allowDiscussion",
             edit_accessor="editIsDiscussable",
             default=None,
             enforceVocabulary=1,
-            vocabulary=DisplayList((
-                ('None', _(u'label_discussion_default', default=u'Default')),
-                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
-                ('0', _(u'label_discussion_disabled', default=u'Disabled')),
-                )),
-            widget=SelectionWidget(
-                label=_(u'label_allow_discussion',
-                        default=u'Allow comments on this item')
+            widget=BooleanWidget(
+                label=_(u'label_allow_comments',
+                        default=u'Allow comments'),
+                description=_(u'help_allow_comments',
+                              default=u'If selected, users can add comments '
+                                       'to this item.')
                 ),
         ),
         LinesField(
@@ -102,7 +100,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             searchable=True,
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
-                description=_(u'help_description',
+                description=_(u'help_location_dc',
                               default=u'The geographical location associated with the item, if applicable.'),
                 ),
         ),
@@ -219,62 +217,61 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
+        # Returns either True or False
         dtool = getToolByName(self, 'portal_discussion')
         return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
     def editIsDiscussable(self, encoding=None):
-        # XXX this method highly depends on the current implementation
-        # it's a quick hacky fix
+        # Returns True, False or if None the default value
+        result = self.rawIsDiscussable()
+        if result is not None:
+            return result
+        default = self.defaultIsDiscussable()
+        return default
+
+    security.declareProtected(permissions.View, 'rawIsDiscussable')
+    def rawIsDiscussable(self):
+        # Returns True, False or None where None means use the default
         result = getattr(aq_base(self), 'allow_discussion', None)
         if result is not None:
-            try:
-                # deal with booleans
-                result = int(result)
-            except (TypeError, ValueError):
-                pass
-        return str(result)
+            result = bool(result)
+        return result
+
+    security.declareProtected(permissions.View, 'defaultIsDiscussable')
+    def defaultIsDiscussable(self):
+        # Returns the default value, either True or False
+        default = None
+        typeInfo = self.getTypeInfo()
+        if typeInfo:
+            default = typeInfo.allowDiscussion()
+        return default
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
     def allowDiscussion(self, allowDiscussion=None, **kw):
-        if allowDiscussion is not None:
+        default = self.defaultIsDiscussable()
+        current = self.rawIsDiscussable()
+
+        # If we already overwrote the default or the value we try to set is
+        # not the default we change it. Otherwise we keep what's there.
+        if (current is not None or
+            (current is None and default != allowDiscussion)):
+            dtool = getToolByName(self, 'portal_discussion', None)
             try:
-                allowDiscussion = int(allowDiscussion)
-            except (TypeError, ValueError):
-                allowDiscussion = allowDiscussion.lower().strip()
-                d = {'on' : 1, 'off': 0, 'none':None, '':None, 'None':None}
-                allowDiscussion = d.get(allowDiscussion, None)
-        dtool = getToolByName(self, 'portal_discussion')
-        try:
-            dtool.overrideDiscussionFor(self, allowDiscussion)
-        except (KeyError, AttributeError), err:
-            if allowDiscussion is None:
-                # work around a bug in CMFDefault.DiscussionTool. It's using
-                # an unsafe hasattr() instead of a more secure getattr() on an
-                # unwrapped object
-                # XXX CMF 2.1 fixes this bug, check if we can remove this code
-                msg = "Unable to set discussion on %s to None. Already " \
-                      "deleted allow_discussion attribute? Message: %s" % (
-                       self.getPhysicalPath(), str(err))
-                log(msg, level=DEBUG)
-            else:
-                raise
-        except ("Unauthorized", Unauthorized):
-            # Catch Unauthorized exception that could be raised by the
-            # discussion tool when the authenticated users hasn't
-            # ModifyPortalContent permissions. IMO this behavior is safe because
-            # this method is protected, too.
-            # Explanation:
-            # A user might have CreatePortalContent but not ModifyPortalContent
-            # so allowDiscussion could raise a Unauthorized error although it's
-            # called from trusted code. That is VERY bad inside setDefault()!
-            #
-            # XXX: Should we have our own implementation of
-            #      overrideDiscussionFor?
-            log('Catched Unauthorized on discussiontool.' \
-                'overrideDiscussionFor(%s)' % self.absolute_url(1),
-                level=DEBUG)
+                if dtool is not None:
+                    dtool.overrideDiscussionFor(self, allowDiscussion)
+            except ("Unauthorized", Unauthorized):
+                # Catch Unauthorized exception that could be raised by the
+                # discussion tool when the authenticated users hasn't
+                # ModifyPortalContent permissions.
+                # Explanation:
+                # A user might have CreatePortalContent but not ModifyPortalContent
+                # so allowDiscussion could raise a Unauthorized error although it's
+                # called from trusted code. That is VERY bad inside setDefault()!
+                log('Catched Unauthorized on discussiontool.' \
+                    'overrideDiscussionFor(%s)' % self.absolute_url(1),
+                    level=DEBUG)
 
     # Vocabulary methods ######################################################
 

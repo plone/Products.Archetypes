@@ -122,18 +122,11 @@ class BaseSchemaTest(ATSiteTestCase):
     def test_allowdiscussion(self):
         dummy = self._dummy
         field = dummy.getField('allowDiscussion')
-        
-        vocabulary=DisplayList((
-                ('None', _(u'label_discussion_default', default=u'Default')),
-                ('1', _(u'label_discussion_enabled', default=u'Enabled')),
-                ('0', _(u'label_discussion_disabled', default=u'Disabled'))))
 
         self.failUnless(ILayerContainer.isImplementedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
-        self.failUnless(field.vocabulary == vocabulary)
-        self.failUnless(field.enforceVocabulary == 1)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'isDiscussable')
@@ -144,14 +137,11 @@ class BaseSchemaTest(ATSiteTestCase):
                         permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'string')
+        self.failUnless(field.type == 'boolean')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == EmptyValidator)
-        self.failUnless(isinstance(field.widget, SelectionWidget))
-        vocab = field.Vocabulary(dummy)
-        self.failUnless(isinstance(vocab, DisplayList))
-        self.failUnless(field.vocabulary == vocabulary)
+        self.failUnless(isinstance(field.widget, BooleanWidget))
 
     def test_subject(self):
         dummy = self._dummy
