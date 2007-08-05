@@ -56,3 +56,10 @@ class TransformCache(DictMixin):
             return ()
         else:
             return field_cache.keys()
+
+    def get(self, key, default=None):
+        value = self[key]
+        if value is None:
+            return default
+        else:
+            return value
