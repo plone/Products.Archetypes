@@ -1,8 +1,9 @@
 trunk - unreleased
 ==================
 
-  * Cache transformed content of FileField.getIndexable so it's recomputed only
-    when the file itself really changes.
+  * Cache transformed content of FileField.getIndexable so it's
+    recomputed only when the file itself really changes.  Also add
+    function to Archetype tool to clear transform caches.
     [drjnut, nouri]
 
   * Don't attempt to convert to 'text/plain' in

@@ -8,6 +8,8 @@ from StringIO import StringIO
 from debug import deprecated
 
 from zope.interface import implements
+from zope import component
+from zope.annotation import IAnnotations
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
@@ -15,6 +17,7 @@ from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
+from Products.Archetypes.interfaces import ITransformCache
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
@@ -41,6 +44,7 @@ from Products.CMFCore.Expression import Expression
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
+from Acquisition import aq_parent, aq_inner
 from Globals import InitializeClass
 from Globals import PersistentMapping
 from OFS.Folder import Folder
@@ -525,7 +529,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_updateSchemaForm',
           },
 
-        { 'label'  : 'Migration',
+        { 'label'  : 'Cache and Migration',
           'action' : 'manage_migrationForm',
           },
 
@@ -1073,7 +1077,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self._updateObject(o, path)
 
     security.declareProtected(permissions.ManagePortal,
-                              'manage_updateSchema')
+                              'manage_migrate')
     def manage_migrate(self, REQUEST=None):
         """Run Extensions.migrations.migrate.
         """
@@ -1183,5 +1187,26 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Runtime check for graphviz, used in condition on tab.
         """
         return HAS_GRAPHVIZ
+
+    security.declarePrivate('clear_cache')
+    def clear_transforms_cache(self, obj, path=None):
+        ann = component.queryAdapter(obj, IAnnotations)
+        if ann is not None:
+            cache = ann.get('Products.Archetypes:transforms-cache')
+            if cache is not None:
+                cache.clear()
+
+    security.declareProtected(permissions.ManagePortal,
+                              'manage_clear_cache_all')
+    def manage_clear_transforms_cache_all(self, REQUEST=None):
+        """Clear transforms cache for all objects."""
+        portal = aq_parent(aq_inner(self))
+        portal.ZopeFindAndApply(
+            portal, search_sub=True, apply_func=self.clear_transforms_cache)
+        if REQUEST:
+            return REQUEST.RESPONSE.redirect(self.absolute_url() +
+                                             '/manage_migrationForm')
+
+        
 
 InitializeClass(ArchetypeTool)
