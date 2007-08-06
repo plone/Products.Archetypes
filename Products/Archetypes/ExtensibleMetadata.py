@@ -28,7 +28,7 @@ _marker=[]
 # http://www.zope.org/Collectors/CMF/476
 _zone = DateTime().timezone()
 
-FLOOR_DATE = DateTime(1000, 0) # always effective
+FLOOR_DATE = DateTime(1000, 1) # always effective
 CEILING_DATE = DateTime(2500, 0) # never expires
 
 # We import this conditionally, in order not to introduce a hard dependency
