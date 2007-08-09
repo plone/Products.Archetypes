@@ -46,6 +46,7 @@ since the default edit view now includes fields from all schematas and
 we want to make sure all of them are validated.
 
   >>> schema = document.__class__.schema
+  >>> previous_schemata = schema['title'].schemata
   >>> schema['title'].schemata = 'categorization'
 
   >>> document.Schema().getField('title').schemata
@@ -56,4 +57,7 @@ we want to make sure all of them are validated.
   >>> document.title_or_id()
   'Test document'
 
+  >>> schema['title'].schemata = previous_schemata
+
+  
 TODO: Add more general editing testing!
