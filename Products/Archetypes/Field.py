@@ -5,7 +5,7 @@ from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType
-from types import StringType, UnicodeType
+from types import StringType, UnicodeType, BooleanType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
@@ -358,6 +358,8 @@ class Field(DefaultLayerContainer):
             values = value
             if type(value) in STRING_TYPES:
                 values = [value]
+            elif type(value) == BooleanType:
+                values = [str(value)]
             elif type(value) not in (TupleType, ListType):
                 raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
