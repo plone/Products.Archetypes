@@ -45,7 +45,7 @@ class CacheTest(ATSiteTestCase):
         self.dummy.setAfilefield('', mimetype='text/html')
         self.assertEquals(ffield.getIndexable(self.dummy), None)
         
-    def test_clear_cache(self):
+    def test_clear_transforms_cache(self):
         self.dummy.setAfilefield('Text', mimetype='text/html')
         ffield = self.dummy.getField('afilefield')
         self.assertEquals(ffield.getIndexable(self.dummy), 'Text')
@@ -54,7 +54,7 @@ class CacheTest(ATSiteTestCase):
         self.assertEquals(cache.keys(), ['afilefield'])
 
         attool = self.portal.archetype_tool
-        attool.clear_cache(self.dummy)
+        attool.clear_transforms_cache(self.dummy)
         self.assertEquals(cache.keys(), [])
 
     def test_clear_cache_all(self):
@@ -70,7 +70,7 @@ class CacheTest(ATSiteTestCase):
             self.assertEquals(cache.keys(), ['afilefield'])
 
         attool = self.portal.archetype_tool
-        attool.manage_clear_cache_all()
+        attool.manage_clear_transforms_cache_all()
 
         for d in (dummy1, dummy2):
             self.assertEquals(cache.keys(), [])
