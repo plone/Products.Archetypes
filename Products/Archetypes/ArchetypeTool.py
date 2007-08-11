@@ -799,7 +799,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         
         # get the meta type of the FTI from the class, use the default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
-        if not fti_meta_type:
+        if fti_meta_type in (None, 'simple item'):
             fti_meta_type = FactoryTypeInformation.meta_type
 
         typesTool.manage_addTypeInformation(fti_meta_type,
