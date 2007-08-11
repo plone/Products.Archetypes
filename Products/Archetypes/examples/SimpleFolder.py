@@ -6,7 +6,6 @@ schema = BaseSchema
 class SimpleFolder(BaseFolder):
     """A simple folderish archetype"""
     schema = schema
-    portal_tye = "SimpleFolder"
 
     def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
         """For unit tests
