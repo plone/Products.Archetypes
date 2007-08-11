@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Removed hard dependency on the plone.locking package.
+    [hannosch]
+
   * Removed a hard dependency on the plone.i18n package in Field.py.
     [hannosch]
 

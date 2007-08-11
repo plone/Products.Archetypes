@@ -1,8 +1,10 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:cmf="http://namespaces.zope.org/cmf"
-           xmlns:five="http://namespaces.zope.org/five">
+           xmlns:five="http://namespaces.zope.org/five"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
 
-  <include package="plone.locking" />
+  <include zcml:condition="installed plone.locking"
+      package="plone.locking" />
   
   <include file="bridge.zcml"/>
   <include file="implements.zcml"/>
