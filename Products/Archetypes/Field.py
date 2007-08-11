@@ -85,7 +85,13 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 from Products.Archetypes.interfaces import IFieldDefaultProvider
-from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
+
+# Import conditionally, so we don't introduce a hard depdendency
+try:
+    from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
+    FILE_NORMALIZER = True
+except ImportError:
+    FILE_NORMALIZER = False
 
 try:
     import PIL.Image
@@ -1133,8 +1139,11 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
         if filename is not None:
-            filename = IUserPreferredFileNameNormalizer(REQUEST).normalize(
-                unicode(filename, instance.getCharset()))
+            if FILE_NORMALIZER:
+                filename = IUserPreferredFileNameNormalizer(REQUEST).normalize(
+                    unicode(filename, instance.getCharset()))
+            else:
+                filename = unicode(filename, instance.getCharset())
             header_value = contentDispositionHeader(
                 disposition='attachment',
                 filename=filename)

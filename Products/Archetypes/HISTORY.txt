@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Removed a hard dependency on the plone.i18n package in Field.py.
+    [hannosch]
+
   * Don't attempt to convert to 'text/plain' in
     Archetypes.Field.FileField.getIndexable if there's no path to it.
     This avoids loading the whole file contents into memory for these
