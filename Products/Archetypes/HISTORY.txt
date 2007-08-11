@@ -1,6 +1,11 @@
 trunk - unreleased
 ==================
 
+  * added support for default DCMI "Right" using the portal_metadata
+    tool. This closes https://dev.plone.org/plone/ticket/5831.
+    Remark: overall support of portal_metadata is very poor.
+    [jensens]
+
   * Removed hard dependency on the plone.locking package.
     [hannosch]
 
