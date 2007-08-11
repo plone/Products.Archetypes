@@ -2165,8 +2165,8 @@ class ImageField(FileField):
                                                         instance=instance, **kwargs)
         # value is an OFS.Image.File based instance
         # don't store empty images
-        size = getattr(value, 'size', None)
-        if size == 0:
+        get_size = getattr(value, 'get_size', None)
+        if get_size is not None and get_size() == 0:
             return
         
         kwargs['mimetype'] = mimetype
