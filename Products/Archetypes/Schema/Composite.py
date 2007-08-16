@@ -56,7 +56,7 @@ class CompositeSchema(Implicit):
         c.addSchemas((self, other))
         return c
 
-    security.declareProtected(View, 'getName')
+    security.declareProtected(View, 'copy')
     def copy(self):
         """Return a deep copy"""
         c = CompositeSchema()

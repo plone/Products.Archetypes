@@ -5,7 +5,7 @@ from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
 from types import ListType, TupleType, ClassType, FileType
-from types import StringType, UnicodeType
+from types import StringType, UnicodeType, BooleanType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
@@ -85,7 +85,13 @@ from Products.validation import FalseValidatorError
 from Products.validation.interfaces.IValidator import IValidator, IValidationChain
 
 from Products.Archetypes.interfaces import IFieldDefaultProvider
-from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
+
+# Import conditionally, so we don't introduce a hard depdendency
+try:
+    from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
+    FILE_NORMALIZER = True
+except ImportError:
+    FILE_NORMALIZER = False
 
 try:
     import PIL.Image
@@ -358,6 +364,8 @@ class Field(DefaultLayerContainer):
             values = value
             if type(value) in STRING_TYPES:
                 values = [value]
+            elif type(value) == BooleanType:
+                values = [str(value)]
             elif type(value) not in (TupleType, ListType):
                 raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
@@ -1131,8 +1139,11 @@ class FileField(ObjectField):
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
         if filename is not None:
-            filename = IUserPreferredFileNameNormalizer(REQUEST).normalize(
-                unicode(filename, instance.getCharset()))
+            if FILE_NORMALIZER:
+                filename = IUserPreferredFileNameNormalizer(REQUEST).normalize(
+                    unicode(filename, instance.getCharset()))
+            else:
+                filename = unicode(filename, instance.getCharset())
             header_value = contentDispositionHeader(
                 disposition='attachment',
                 filename=filename)
@@ -1165,14 +1176,20 @@ class FileField(ObjectField):
         # memory.  To have this not happening set your field to not
         # 'searchable' (the default) or define your own 'index_method'
         # property.
+        orig_mt = self.getContentType(instance)
+
+        # If there's no path to text/plain, don't do anything
         transforms = getToolByName(instance, 'portal_transforms')
+        if transforms._findPath(orig_mt, 'text/plain') is None:
+            return ''
+
         f = self.get(instance)
         
         try:
             datastream = transforms.convertTo(
                 "text/plain",
-                str(f), # 666
-                mimetype = self.getContentType(instance),
+                str(f),
+                mimetype = orig_mt,
                 filename = self.getFilename(instance, 0),
                 )
         except (ConflictError, KeyboardInterrupt):
@@ -1181,7 +1198,8 @@ class FileField(ObjectField):
             log("Error while trying to convert file contents to 'text/plain' "
                 "in %r.getIndexable() of %r: %s" % (self, instance, e))
 
-        return str(datastream)
+        value = str(datastream)
+        return value
 
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
@@ -2147,8 +2165,8 @@ class ImageField(FileField):
                                                         instance=instance, **kwargs)
         # value is an OFS.Image.File based instance
         # don't store empty images
-        size = getattr(value, 'size', None)
-        if size == 0:
+        get_size = getattr(value, 'get_size', None)
+        if get_size is not None and get_size() == 0:
             return
         
         kwargs['mimetype'] = mimetype

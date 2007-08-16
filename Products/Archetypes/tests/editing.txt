@@ -1,0 +1,63 @@
+Archetypes edit forms
+---------------------
+
+Here we want to test the standard edit view for Archetypes objects.
+
+Let's set up a test browser:
+
+  >>> from Products.Five.testbrowser import Browser
+  >>> browser = Browser()
+  >>> browser.handleErrors = False
+  >>> browser.open('http://nohost/plone/login_form')
+
+First, we need to log in.
+
+  >>> browser.getControl('Login Name').value = 'test_user_1_'
+  >>> browser.getControl('Password').value = 'secret'
+  >>> browser.getControl('Log in').click()
+
+Field validation
+----------------
+
+Let's add a new document and verify that required fields are actually
+required -- across schemata.
+
+  >>> id = folder.invokeFactory(id='document', type_name='Document')
+  >>> document = folder[id]
+  >>> document.setTitle('Test document')
+  
+  >>> url = document.absolute_url()
+
+We'll try and set the title (a required field) to the empty string:
+  
+  >>> document.Schema().getField('title').required
+  1
+  >>> browser.open(url+'/edit')
+  >>> browser.getControl('Title').value = ''
+  >>> browser.getControl('Save').click()
+
+We're not allowed to do so:
+  
+  >>> document.title_or_id()
+  'Test document'
+
+What if title was in a different schemata? This is interesting to examine
+since the default edit view now includes fields from all schematas and
+we want to make sure all of them are validated.
+
+  >>> schema = document.__class__.schema
+  >>> previous_schemata = schema['title'].schemata
+  >>> schema['title'].schemata = 'categorization'
+
+  >>> document.Schema().getField('title').schemata
+  'categorization'
+  >>> browser.open(url+'/edit')
+  >>> browser.getControl('Title').value = ''
+  >>> browser.getControl('Save').click()
+  >>> document.title_or_id()
+  'Test document'
+
+  >>> schema['title'].schemata = previous_schemata
+
+  
+TODO: Add more general editing testing!

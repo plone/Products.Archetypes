@@ -69,10 +69,13 @@ try:
 except ImportError:
     URL_NORMALIZER = False
 
+try:
+    from plone.locking.interfaces import ILockable
+    HAS_LOCKING = True
+except ImportError:
+    HAS_LOCKING = False
 
 _marker = []
-
-from plone.locking.interfaces import ILockable
 
 content_type = Schema((
 
@@ -206,14 +209,17 @@ class BaseObject(Referenceable):
                 # See Referenceable, keep refs on what is a move/rename
                 self._v_cp_refs = 1
                 # We can't rename if the object is locked
-                lockable = ILockable(self)
-                was_locked = False
-                if lockable.locked():
-                    was_locked = True
-                    lockable.unlock()
-                parent.manage_renameObject(self.id, value)
-                if was_locked:
-                    lockable.lock()
+                if HAS_LOCKING:
+                    lockable = ILockable(self)
+                    was_locked = False
+                    if lockable.locked():
+                        was_locked = True
+                        lockable.unlock()
+                    parent.manage_renameObject(self.id, value)
+                    if was_locked:
+                        lockable.lock()
+                else:
+                    parent.manage_renameObject(self.id, value)
             self._setId(value)
 
     security.declareProtected(permissions.View, 'Type')
