@@ -109,12 +109,14 @@
           <metal:block define-slot="extra_bottom" />
 
           <div class="formControls">
-
-            <input type="hidden"
-                   name="fieldset"
-                   value="default"
-                   tal:attributes="value fieldset"
+	    <tal:fieldsets repeat="fieldset fieldsets">
+              <input type="hidden"
+                     name="fieldsets:list"
+                     value="default"
+                     tal:attributes="value fieldset"
                    />
+	    </tal:fieldsets>
+	    
             <input type="hidden"
                    name="form.submitted"
                    value="1"

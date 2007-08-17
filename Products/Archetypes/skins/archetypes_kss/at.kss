@@ -21,6 +21,18 @@ textarea.blurrable:blur {
     kssValidateField-uid:         kssAttr('atuid', true);
 }
 
+form[action=criterion_edit_form] input.blurrable:blur {
+    action-cancel: kssValidateField;
+}
+
+form[action=criterion_edit_form] select.blurrable:blur {
+    action-cancel: kssValidateField;
+}
+
+form[action=criterion_edit_form] textarea.blurrable:blur {
+    action-cancel: kssValidateField;
+}
+
 .inlineEditable:click {
     evt-click-allowbubbling: true;
     action-server: replaceField;

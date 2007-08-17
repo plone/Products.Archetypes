@@ -28,7 +28,7 @@ _marker=[]
 # http://www.zope.org/Collectors/CMF/476
 _zone = DateTime().timezone()
 
-FLOOR_DATE = DateTime(1000, 0) # always effective
+FLOOR_DATE = DateTime(1000, 1) # always effective
 CEILING_DATE = DateTime(2500, 0) # never expires
 
 # We import this conditionally, in order not to introduce a hard dependency
@@ -161,6 +161,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         TextField(
             'rights',
             accessor="Rights",
+            default_method='defaultRights',
             widget=TextAreaWidget(
                 label=_(u'label_copyrights', default=u'Rights'),
                 description=_(u'help_copyrights',
@@ -214,6 +215,19 @@ class ExtensibleMetadata(Persistence.Persistent):
         log('defaultLanguage is deprecated and will be removed in AT 1.6',
             level=INFO)
         return config.LANGUAGE_DEFAULT
+    
+    security.declarePrivate('defaultRights')
+    def defaultRights(self):
+        """Retrieve the default rights"""
+        mdtool = getToolByName(self, 'portal_metadata', None)
+        if mdtool is None:
+            return ''
+        for sid, schema in mdtool.listSchemas():
+            for pid, policy in schema.listPolicies(typ=self.Type()):
+                if pid != 'Rights' and not policy.supply_default:
+                    continue
+                return policy.default_value                    
+        return ''
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):

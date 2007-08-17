@@ -42,7 +42,8 @@ DOCTEST_MODULES = (
     'Products.Archetypes.browser.widgets',
     )
 
-DOCTEST_FILES = ('events.txt',)
+DOCTEST_FILES = ('events.txt',
+                 'editing.txt')
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase

@@ -1,10 +1,21 @@
 trunk - unreleased
 ==================
 
-  * Cache transformed content of FileField.getIndexable so it's
-    recomputed only when the file itself really changes.  Also add
-    function to Archetype tool to clear transform caches.
-    [drjnut, nouri]
+1.5.0 - 2007-08-16
+==================
+
+  * ImageField.set used 'size' attribute instead of 'get_size' API.
+
+  * added support for default DCMI "Right" using the portal_metadata
+    tool. This closes https://dev.plone.org/plone/ticket/5831.
+    Remark: overall support of portal_metadata is very poor.
+    [jensens]
+
+  * Removed hard dependency on the plone.locking package.
+    [hannosch]
+
+  * Removed a hard dependency on the plone.i18n package in Field.py.
+    [hannosch]
 
   * Don't attempt to convert to 'text/plain' in
     Archetypes.Field.FileField.getIndexable if there's no path to it.

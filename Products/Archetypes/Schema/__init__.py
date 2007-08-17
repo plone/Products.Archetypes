@@ -544,14 +544,20 @@ class BasicSchema(Schemata):
         """
         if REQUEST:
             fieldset = REQUEST.form.get('fieldset', None)
+            fieldsets = REQUEST.form.get('fieldsets', None)
         else:
-            fieldset = None
+            fieldset = fieldsets = None
         fields = []
 
-        if fieldset is not None:
+        if fieldsets is not None:
+            schemata = instance.Schemata()
+            for fieldset in fieldsets:
+                fields += [(field.getName(), field)
+                           for field in schemata[fieldset].fields()]            
+        elif fieldset is not None:
             schemata = instance.Schemata()
             fields = [(field.getName(), field)
-                      for field in schemata[fieldset].fields()]
+                      for field in schemata[fieldset].fields()]            
         else:
             if data:
                 fields.extend([(field.getName(), field)
