@@ -208,14 +208,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     def __init__(self):
         pass
 
-    security.declarePrivate('defaultLanguage')
-    def defaultLanguage(self):
-        """Retrieve the default language"""
-        # This method is kept around for backward compatibility only
-        log('defaultLanguage is deprecated and will be removed in AT 1.6',
-            level=INFO)
-        return config.LANGUAGE_DEFAULT
-    
     security.declarePrivate('defaultRights')
     def defaultRights(self):
         """Retrieve the default rights"""

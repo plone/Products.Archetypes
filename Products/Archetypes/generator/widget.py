@@ -3,10 +3,7 @@ from AccessControl.unauthorized import Unauthorized
 from Acquisition import aq_inner
 from Globals import InitializeClass
 
-# BBB, this can be removed once we do not support PTS anymore
-from Products.PageTemplates.GlobalTranslationService \
-     import getGlobalTranslationService as getGTS
-
+from zope.i18n import translate
 from zope.i18nmessageid import Message
 
 class iwidget:
@@ -83,8 +80,7 @@ class widget:
         if domain is None:
             return value
 
-        return getGTS().translate(domain, msgid, mapping=instance.REQUEST,
-                                  context=instance, default=value)
+        return translate(msgid, domain, context=instance.REQUEST, default=value)
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated."""

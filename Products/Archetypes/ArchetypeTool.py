@@ -5,7 +5,6 @@ import sys
 from copy import deepcopy
 from DateTime import DateTime
 from StringIO import StringIO
-from debug import deprecated
 
 from zope.interface import implements
 
@@ -346,12 +345,6 @@ def _guessPackage(base):
     return base
 
 def registerType(klass, package=None):
-    if not package:
-        deprecated("registerType without a package name is deprecated. "
-                   "Please apply a package name for class %s" % repr(klass),
-                   level=2)
-        package = _guessPackage(klass.__module__)
-
     # Registering a class results in classgen doing its thing
     # Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)
@@ -1172,12 +1165,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return True
         else:
             return False
-
-    def lookupObject(self,uid):
-        deprecated('ArchetypeTool.lookupObject is deprecated')
-        return self.reference_catalog.lookupObject(uid)
-
-    getObject = lookupObject
 
     def has_graphviz(self):
         """Runtime check for graphviz, used in condition on tab.

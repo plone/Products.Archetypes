@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Removed deprecated code.
+    [hannosch]
+
   * Moved rejectAnonymous script from CMFPlone over, as it is still used
     inside base_metadata.cpt.
     [hannosch]
