@@ -979,6 +979,7 @@ class FileField(ObjectField):
         return '', mimetype, filename
 
     def _make_file(self, id, title='', file='', instance=None):
+        """File content factory"""
         return self.content_class(id, title, file)
 
     security.declarePrivate('get')
@@ -2318,10 +2319,8 @@ class ImageField(FileField):
                     continue
 
             mimetype = 'image/%s' % format.lower()
-            image = self.content_class(id, self.getName(),
-                                     imgdata,
-                                     mimetype
-                                     )
+            image = self._make_image(id, title=self.getName(), file=imgdata,
+                                     content_type=mimetype, instance=instance)
             # nice filename: filename_sizename.ext
             #fname = "%s_%s%s" % (filename, n, ext)
             #image.filename = fname
@@ -2330,6 +2329,10 @@ class ImageField(FileField):
             delattr(image, 'title')
             self.getStorage(instance).set(id, instance, image,
                                           mimetype=mimetype, filename=filename)
+
+    def _make_image(self, id, title='', file='', content_type='', instance=None):
+        """Image content factory"""
+        return self.content_class(id, title, file, content_type)
 
     security.declarePrivate('scale')
     def scale(self, data, w, h, default_format = 'PNG'):
