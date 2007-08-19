@@ -228,13 +228,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         self.app.REQUEST.set('REQUEST_METHOD','GET')
 
 
-HAS_PLONE = True
-try:
-    from Products.CMFPlone.tests.PloneTestCase import FunctionalTestCase
-except ImportError:
-    HAS_PLONE = False
-
-
 from zope.testing import doctest
 OPTIONFLAGS = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
@@ -249,20 +242,12 @@ def test_suite():
         'traversal_4981.txt',
         'folder_marshall.txt',
         'webdav_operations.txt',
-        )
-    plonetestfiles = (
         'traversal.txt',
-        'reindex_sanity_plone21.txt',
+        'reindex_sanity.txt',
     )
     for testfile in testfiles:
         suite.addTest(FileSuite(testfile, package="Products.Archetypes.tests",
                                 optionflags=OPTIONFLAGS,
                                 test_class=ATFunctionalSiteTestCase)
                      )
-    if HAS_PLONE:
-        for testfile in plonetestfiles:
-            suite.addTest(FileSuite(testfile, package="Products.Archetypes.tests",
-                                    optionflags=OPTIONFLAGS,
-                                    test_class=FunctionalTestCase)
-                         )
     return suite

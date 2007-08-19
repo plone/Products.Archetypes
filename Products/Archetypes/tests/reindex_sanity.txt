@@ -92,16 +92,16 @@ setting:
   Indexing: Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc1 []
+  Indexing: /cmf/Members/test_user_1_/new_doc1 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc1 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc1 []
+  Indexing: /cmf/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc1 []
@@ -123,16 +123,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 []
+  Indexing: /cmf/Members/test_user_1_/new_doc2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 []
+  Indexing: /cmf/Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc2 []
@@ -157,22 +157,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_doc1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_doc1
+  UnIndexing: /cmf/Members/test_user_1_/new_doc1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc11 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc11 ['getObjPositionInParent']
+  Indexing: /cmf/Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
 
 Copy and paste:
@@ -183,13 +174,13 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_doc2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_doc2 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_doc2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
 Cut and paste:
@@ -200,13 +191,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_doc11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_doc11
+  UnIndexing: /cmf/Members/test_user_1_/new_doc11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_doc11 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
 
 Tests for SimpleFolder
@@ -221,16 +212,16 @@ setting:
   Indexing: Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder1 []
+  Indexing: /cmf/Members/test_user_1_/new_folder1 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder1 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder1 []
+  Indexing: /cmf/Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder1 []
@@ -252,16 +243,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 []
+  Indexing: /cmf/Members/test_user_1_/new_folder2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 []
+  Indexing: /cmf/Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder2 []
@@ -287,25 +278,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_folder1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_folder1
+  UnIndexing: /cmf/Members/test_user_1_/new_folder1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder11 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder11 ['getObjPositionInParent']
+  Indexing: /cmf/Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
 
 Copy and paste:
@@ -316,13 +295,13 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_folder2 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_folder2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_folder2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/sub/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
 Cut and paste:
@@ -333,13 +312,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_folder11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_folder11
+  UnIndexing: /cmf/Members/test_user_1_/new_folder11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_folder11 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
 
 Tests for SimpleBTreeFolder
@@ -354,16 +333,16 @@ setting:
   Indexing: Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder1 []
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder1 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder1 []
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder1 []
@@ -385,16 +364,16 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder2 []
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder2 []
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder2 []
@@ -419,28 +398,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_btree_folder1
+  UnIndexing: /cmf/Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder11 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_doc2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder2 ['getObjPositionInParent']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/new_btree_folder11 ['getObjPositionInParent']
+  Indexing: /cmf/Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
 
 Copy and paste:
@@ -451,13 +415,13 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_btree_folder2 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_btree_folder2 ['review_state']
+  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']
+  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
 Cut and paste:
@@ -468,13 +432,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /.../Members/test_user_1_/new_btree_folder11
+  UnIndexing: /cmf/Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /.../Members/test_user_1_/sub/new_btree_folder11 []
+  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
 
 Restore ZCatalog methods:
