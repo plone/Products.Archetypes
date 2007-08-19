@@ -3,30 +3,29 @@
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from unittest import TestSuite, makeSuite
 
+from Products.Archetypes.mimetype_utils import getDefaultContentType
+from Products.Archetypes.mimetype_utils import setDefaultContentType
+
+
 class TestDefaultMimeTypes(ATSiteTestCase):
 
     def test_ATDocumentDefaultType(self):
         self.loginAsPortalOwner()
         # we create a new document: 
-        self.portal.invokeFactory('Document', id='testdoc', title='TestDocument')
+        self.portal.invokeFactory('DDocument', id='testdoc', title='TestDocument')
         obj = self.portal.testdoc
-        # its text field should have the site wide default 'text/html'
-        textfield = obj.getField('text')
-        self.assertEqual(textfield.getContentType(obj), 'text/html')
-        # but not the description field:
-        descriptionfield = obj.getField('description')
-        self.assertEqual(descriptionfield.getContentType(obj), 'text/plain')
-        
-        # then we change the sitewide default: 
-        from Products.Archetypes.mimetype_utils import setDefaultContentType
+        # its text field should have the site wide default 'text/plain'
+        textfield = obj.getField('body')
+        self.assertEqual(textfield.getContentType(obj), 'text/plain')
+        # and so has the teaser field:
+        teaserfield = obj.getField('teaser')
+        self.assertEqual(teaserfield.getContentType(obj), 'text/plain')
+
+        # then we try to change the sitewide default: 
         setDefaultContentType(self.portal, "text/x-web-markdown")
-        self.assertEqual(textfield.getContentType(obj), 'text/html')
-        # this should only affect new objects:
-        self.failIf(textfield.getContentType(obj) == 'text/x-web-markdown')
-        self.portal.invokeFactory('Document', id='testdoc2', title='TestDocument with new default')
-        second_object = self.portal.testdoc2
-        second_field = second_object.getField('text')
-        self.failUnless(second_field.getContentType(second_object) == 'text/x-web-markdown')
+        # while this raises no error it won't change the default, as we have
+        # no properties tool nor properties sheet
+        self.assertEqual(getDefaultContentType(self.portal), 'text/plain')
 
 def test_suite():
     suite = TestSuite()

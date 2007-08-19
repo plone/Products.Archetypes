@@ -188,7 +188,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
                                   context=portal, schema=None)
         self._parent = parent
 
-        # create dummy in context of a plone folder
+        # create dummy
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=parent, schema=None)
 
@@ -241,7 +241,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         parent = mkDummyInContext(DummyFolder, oid='parent', context=portal, schema=None)
         self._parent = parent
 
-        # create dummy in context of a plone folder
+        # create dummy
         dummy = mkDummyInContext(Dummy, oid='dummy', context=parent, schema=None)
         self._dummy = dummy
 

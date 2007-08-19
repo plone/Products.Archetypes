@@ -13,7 +13,6 @@ from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
-#from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
@@ -47,9 +46,9 @@ class OrderedContainer:
         metadata.insert(position, obj_meta)
         self._objects = tuple(metadata)
 
-    # here the implementing of IOrderedContainer starts
-    # if plone sometime depends on zope 2.7 it should be replaced by mixing in
-    # the 2.7 specific class OSF.OrderedContainer.OrderedContainer
+    # TODO here the implementing of IOrderedContainer starts
+    # this should be replaced by mixing in the 2.7 specific class
+    # OSF.OrderedContainer.OrderedContainer
 
     security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsByDelta')
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):

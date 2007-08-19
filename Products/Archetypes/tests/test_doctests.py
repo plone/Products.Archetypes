@@ -42,8 +42,15 @@ DOCTEST_MODULES = (
     'Products.Archetypes.browser.widgets',
     )
 
-DOCTEST_FILES = ('events.txt',
-                 'editing.txt')
+PLONE_DOCTEST_FILES = ('events.txt',
+                       'editing.txt')
+
+HAS_PLONE = True
+try:
+    from Products.CMFPlone.tests.PloneTestCase import FunctionalTestCase
+except ImportError:
+    HAS_PLONE = False
+
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
@@ -54,8 +61,10 @@ def test_suite():
                              extraglobs={},
                              *DOCTEST_MODULES
                              )
-    for file in DOCTEST_FILES:
-        suite.addTest(FileSuite(file, package="Products.Archetypes.tests",
-                                test_class=ATFunctionalSiteTestCase)
-                     )
+    if HAS_PLONE:
+        for testfile in PLONE_DOCTEST_FILES:
+            suite.addTest(FileSuite(testfile,
+                                    package="Products.Archetypes.tests",
+                                    test_class=FunctionalTestCase)
+                         )
     return suite

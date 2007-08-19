@@ -32,7 +32,7 @@
         </h1>
 
 <dl class="portalMessage info"
-    tal:condition="here/@@plone/isDefaultPageInFolder">
+    tal:condition="here/@@plone/isDefaultPageInFolder|nothing">
     <dt i18n:translate="">
         Info
     </dt>

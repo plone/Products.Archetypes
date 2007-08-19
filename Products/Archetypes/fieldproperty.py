@@ -128,18 +128,25 @@ class ATToolDependentFieldProperty(ATFieldProperty):
         ...     some_field = ATToolDependentFieldProperty('some_field')
         
         >>> registerType(MyContent, 'Archetypes')
-    
+
         >>> self.portal._setOb('foo', MyContent('foo'))
         >>> foo = getattr(self.portal, 'foo')
-    
-    These lines would fail with AttributeError: reference_catalog if it used 
+
+        >>> self.portal._setOb('bar', MyContent('bar'))
+        >>> bar = getattr(self.portal, 'bar')
+        >>> bar._at_uid = 123456
+
+    These lines would fail with AttributeError: reference_catalog if it used
     the standard accessor.
-    
+
         >>> foo.some_field
         []
-        >>> foo.some_field = [self.folder.UID()]
+        >>> foo.some_field = [bar]
+        Traceback (most recent call last):
+        ...
+        ReferenceException: 123456 not referenceable
         >>> foo.some_field
-        [<ATFolder at /plone/Members/test_user_1_>]
+        []
     """
 
     def __init__(self, name, get_transform=None, set_transform=None):

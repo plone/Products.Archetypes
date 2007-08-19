@@ -8,7 +8,7 @@ Let's set up a test browser:
   >>> from Products.Five.testbrowser import Browser
   >>> browser = Browser()
   >>> browser.handleErrors = False
-  >>> browser.open('http://nohost/plone/login_form')
+  >>> browser.open('http://nohost/.../login_form')
 
 First, we need to log in.
 
