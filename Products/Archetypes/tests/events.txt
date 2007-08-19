@@ -29,14 +29,12 @@ Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  7 events:
+  6 events:
   [(<DDocument at a>,
     <zope.app.event.objectevent.ObjectCreatedEvent object at ...>),
    (<DDocument at a>, <OFS.event.ObjectWillBeAddedEvent object at ...>),
    (<DDocument at /.../Members/test_user_1_/a>,
     <zope.app.container.contained.ObjectAddedEvent object at ...>),
-   (<ATFolder at /.../Members/test_user_1_>,
-    <zope.app.container.contained.ContainerModifiedEvent object at ...>),
    (<DDocument at /.../Members/test_user_1_/a>,
     <zope.app.event.objectevent.ObjectModifiedEvent object at ...),
    (<DDocument at /.../Members/test_user_1_/a>,
