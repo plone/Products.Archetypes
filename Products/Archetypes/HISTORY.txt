@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Removed Archetypes Site customization policy.
+    [hannosch]
+
   * Removed deprecated code.
     [hannosch]
 
