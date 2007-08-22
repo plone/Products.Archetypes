@@ -2315,8 +2315,11 @@ class ImageField(FileField):
             #fname = "%s_%s%s" % (filename, n, ext)
             #image.filename = fname
             image.filename = filename
+            try:
+                delattr(image, 'title')
+            except (KeyError, AttributeError):
+                pass
             # manually use storage
-            delattr(image, 'title')
             self.getStorage(instance).set(id, instance, image,
                                           mimetype=mimetype, filename=filename)
 
