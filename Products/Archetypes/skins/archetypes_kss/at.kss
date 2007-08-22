@@ -40,6 +40,7 @@ form[action=criterion_edit_form] textarea.blurrable:blur {
     replaceField-macro: kssAttr('macro', true);
     replaceField-templateId: kssAttr('templateId', true);
     replaceField-uid: kssAttr('atuid', true);
+    replaceField-target: kssAttr('target', true);
     replaceField-edit: true;
     action-client: log;
 }
@@ -52,6 +53,7 @@ form.inlineForm input[name=kss-save]:click {
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
     saveField-uid: kssAttr('atuid', true);
+    saveField-target: kssAttr('target', true);
 }
 
 /* XXX Note you can't use comma separation for selectors! */
@@ -63,6 +65,7 @@ form.inlineForm input[name=kss-cancel]:click {
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
     replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
     replaceWithView-edit: true;
 }
 
@@ -74,6 +77,7 @@ form.inlineForm input.blurrable:keypress(inlineescape) {
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
     replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
     replaceWithView-edit: true;
 }
 form.inlineForm select.blurrable:keypress(inlineescape) {
@@ -83,6 +87,7 @@ form.inlineForm select.blurrable:keypress(inlineescape) {
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
     replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
     replaceWithView-edit: true;
 }
 form.inlineForm textarea.blurrable:keypress(inlineescape) {
@@ -92,6 +97,7 @@ form.inlineForm textarea.blurrable:keypress(inlineescape) {
     replaceWithView-macro: kssAttr('macro', true);
     replaceWithView-templateId: kssAttr('templateId', true);
     replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
     replaceWithView-edit: true;
 }
 
@@ -121,6 +127,7 @@ form.inlineForm input[type="text"].blurrable:keyup {
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
     saveField-uid: kssAttr('atuid', true);
+    saveField-target: kssAttr('target', true);
 }
 
 .inlineEditable a:click {
