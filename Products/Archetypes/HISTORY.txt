@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Minor tweak in the calendar widget.
+    [deo, hannosch]
+
   * Converted Archetypes tests to use CMFTestCase as a base again, instead of
     PloneTestCase. Fixed all tests / code to actually work without Plone
     installed.

@@ -20,8 +20,8 @@
                        d python:test(d and d=='None','',d);
                        format widget/format;
                        formatted python:format and d and d.strftime(format);
-                       tlt here/toLocalizedTime|nothing;
-                       result python:(format and formatted) or (d and tlt and here.toLocalizedTime(d, long_format=1)) or None;"
+                       tlt nocall:here/toLocalizedTime|nothing;
+                       result python:(format and formatted) or (d and tlt and tlt(d, long_format=1)) or None;"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
             <span metal:define-slot="inside" 
