@@ -2434,8 +2434,7 @@ class ImageField(FileField):
         """
         image = self.getScale(instance, scale=scale)
         if image:
-            img_height=image.height
-            img_width=image.width
+            img_width, img_height = self.getSize(instance, scale=scale)
         else:
             img_height=0
             img_width=0
