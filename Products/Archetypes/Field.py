@@ -881,7 +881,7 @@ class FileField(ObjectField):
             value = value.data
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
-        elif isinstance(value, file) or shasattr(value, 'name'):
+        elif isinstance(value, FileType) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
             if not filename:
@@ -1963,7 +1963,7 @@ class CMFObjectField(ObjectField):
         __traceback_info__ = (value, type(value))
         if not isinstance(value, basestring):
             if ((isinstance(value, FileUpload) and value.filename != '') or \
-                (isinstance(value, file) and value.name != '')):
+                (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
                 value.seek(-1, 2)
                 size = value.tell()
