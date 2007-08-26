@@ -10,7 +10,6 @@ from Products.Archetypes.debug import log
 from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
@@ -90,7 +89,7 @@ class BaseUnit(File):
         #being used with APE
         # Also don't break if transform was applied with a stale instance
         # from the catalog while rebuilding the catalog
-        if not hasattr(instance, 'aq_parent'):
+        if not getattr(instance, 'aq_parent', None) is not None:
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')
@@ -155,20 +154,11 @@ class BaseUnit(File):
     def getRaw(self, encoding=None, instance=None):
         """Return the file encoded raw value.
         """
-        # fix AT 1.0 backward problems
-        if not hasattr(aq_base(self),'raw'):
-            self.raw = self.data
-            self.size = len(self.raw)
-
-        if self.isBinary():
-            return self.raw
-        # FIXME: backward compat, non binary data
-        # should always be stored as unicode
-        if not type(self.raw) is type(u''):
+        if self.isBinary() or not isinstance(self.raw, unicode):
             return self.raw
         if encoding is None:
             if instance is None:
-                encoding ='UTF-8'
+                encoding ='utf-8'
             else:
                 # FIXME: fallback to portal encoding or original encoding ?
                 encoding = self.portalEncoding(instance)
@@ -184,7 +174,7 @@ class BaseUnit(File):
         except AttributeError:
             # that occurs during object initialization
             # (no acquisition wrapper)
-            return 'UTF8'
+            return 'utf-8'
 
     def getContentType(self):
         """Return the file mimetype string.
