@@ -2,8 +2,7 @@ from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
-from types import ListType, TupleType, ClassType, FileType
-from types import StringType, UnicodeType, BooleanType
+from types import ClassType, StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
@@ -98,7 +97,6 @@ else:
     PIL_ALGO = PIL.Image.ANTIALIAS
 
 STRING_TYPES = [StringType, UnicodeType]
-"""String-types currently supported"""
 
 _marker = []
 CHUNK = 1 << 14
@@ -257,7 +255,7 @@ class Field(DefaultLayerContainer):
             validators = self.validators
         elif IValidator.isImplementedBy(self.validators):
             validators = ValidationChain(chainname, validators=self.validators)
-        elif type(self.validators) in (TupleType, ListType, StringType):
+        elif isinstance(self.validators, (tuple, list, basestring)):
             if len(self.validators):
                 # got a non empty list or string - create a chain
                 try:
@@ -354,11 +352,11 @@ class Field(DefaultLayerContainer):
         if value:
             # coerce value into a list called values
             values = value
-            if type(value) in STRING_TYPES:
+            if isinstance(value, basestring):
                 values = [value]
-            elif type(value) == BooleanType:
+            elif isinstance(value, bool):
                 values = [str(value)]
-            elif type(value) not in (TupleType, ListType):
+            elif not isinstance(value, (tuple, list)):
                 raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
             # filter empty
@@ -367,9 +365,9 @@ class Field(DefaultLayerContainer):
             # extract valid values from vocabulary
             valids = []
             for v in vocab:
-                if type(v) in (TupleType, ListType):
+                if isinstance(v, (tuple, list)):
                     v = v[0]
-                if not type(v) in STRING_TYPES:
+                if not isinstance(v, basestring):
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -508,7 +506,6 @@ class Field(DefaultLayerContainer):
             return None
         return getSecurityManager().checkPermission( perm, instance )
 
-
     security.declarePublic('writeable')
     def writeable(self, instance, debug=False):
         if 'w' not in self.mode:
@@ -576,7 +573,6 @@ class Field(DefaultLayerContainer):
                 raise ValueError('%s.default_method is neither a method of %s'
                                  ' nor a callable' % (self.getName(),
                                                       instance.__class__))
-        
         if not self.default:
             default_adapter = component.queryAdapter(instance, IFieldDefaultProvider, name=self.__name__)
             if default_adapter is not None:
@@ -648,7 +644,7 @@ class Field(DefaultLayerContainer):
             value = getattr( self, k, self._properties[k] )
             if k == 'widget':
                 value = value.__class__.__name__
-            if type(value) is UnicodeType:
+            if isinstance(value, unicode):
                 value = value.encode('utf-8')
             s = s + '%s:%s,' % (k, value )
         s = s + '}'
@@ -888,7 +884,7 @@ class FileField(ObjectField):
             value = value.data
         elif isinstance(value, FileUpload) or shasattr(value, 'filename'):
             filename = value.filename
-        elif isinstance(value, FileType) or shasattr(value, 'name'):
+        elif isinstance(value, file) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
             if not filename:
@@ -1270,7 +1266,7 @@ class TextField(FileField):
             # TODO Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
-        elif isinstance(value, FileType) or shasattr(value, 'name'):
+        elif isinstance(value, file) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
             if not filename:
@@ -1451,7 +1447,7 @@ class LinesField(ObjectField):
         with rest of properties.
         """
         __traceback_info__ = value, type(value)
-        if type(value) in STRING_TYPES:
+        if isinstance(value, basestring):
             value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v and v.strip()]
@@ -1733,7 +1729,7 @@ class ReferenceField(ObjectField):
         if value is None:
             value = ()
 
-        if not isinstance(value, (ListType, TupleType)):
+        if not isinstance(value, (list, tuple)):
             value = value,
         elif not self.multiValued and len(value) > 1:
             raise ValueError, \
@@ -1742,7 +1738,7 @@ class ReferenceField(ObjectField):
         #convert objects to uids if necessary
         uids = []
         for v in value:
-            if type(v) in STRING_TYPES:
+            if isinstance(v, basestring):
                 uids.append(v)
             else:
                 uids.append(v.UID())
@@ -1969,7 +1965,7 @@ class CMFObjectField(ObjectField):
         __traceback_info__ = (value, type(value))
         if not isinstance(value, basestring):
             if ((isinstance(value, FileUpload) and value.filename != '') or \
-                (isinstance(value, FileType) and value.name != '')):
+                (isinstance(value, file) and value.name != '')):
                 # OK, its a file, is it empty?
                 value.seek(-1, 2)
                 size = value.tell()

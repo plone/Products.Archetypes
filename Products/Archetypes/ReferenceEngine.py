@@ -494,7 +494,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def _uidFor(self, obj):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
-        if type(obj) not in STRING_TYPES:
+        if not isinstance(obj, basestring):
             uobject = aq_base(obj)
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject
