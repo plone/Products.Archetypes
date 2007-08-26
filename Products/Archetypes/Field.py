@@ -2,7 +2,7 @@ from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
-from types import ClassType, StringType, UnicodeType
+from types import ClassType, FileType, StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
@@ -815,10 +815,7 @@ class StringField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs)
-        if getattr(self, 'raw', False):
-            return value
-        return encode(value, instance, **kwargs)
+        return ObjectField.get(self, instance, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1266,7 +1263,7 @@ class TextField(FileField):
             # TODO Should be fixed eventually
             body = value.read(CHUNK)
             value.seek(0)
-        elif isinstance(value, file) or shasattr(value, 'name'):
+        elif isinstance(value, FileType) or shasattr(value, 'name'):
             # In this case, give preference to a filename that has
             # been detected before. Usually happens when coming from PUT().
             if not filename:
@@ -1458,7 +1455,7 @@ class LinesField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs) or ()
-        data = [encode(v, instance, **kwargs) for v in value]
+        data = [v for v in value]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
             return tuple(data)
         else:
@@ -1600,7 +1597,8 @@ class FixedPointField(ObjectField):
         template = '%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
-        if value is None: return self.getDefault(instance)
+        if value is None:
+            return self.getDefault(instance)
         if isinstance(value, basestring):
             value = self._to_tuple(instance, value)
         return template % value
