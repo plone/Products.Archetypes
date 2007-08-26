@@ -95,6 +95,7 @@ class TestFTICopy(ATFunctionalSiteTestCase):
         browser.addHeader('Authorization',
                           'Basic %s:%s' % ('portal_owner', user_password))
         browser.open(self.folder.absolute_url())
+        # XXX This doesn't work when CMFPlone is present in the instance
         browser.getLink('Folder contents').click()
         browser.getControl('New...').click()
         browser.getControl('MySimpleFolder').click()

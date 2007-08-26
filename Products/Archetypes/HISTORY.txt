@@ -1,6 +1,11 @@
 trunk - unreleased
 ==================
 
+  * Changed the default return type of StringField and LinesField. These return
+    Unicode now per default. You can still query them for an explicit encoding
+    and their set methods still accept both Unicode and encoded strings.
+    [hannosch]
+
   * Minor tweak in the calendar widget.
     [deo, hannosch]
 
