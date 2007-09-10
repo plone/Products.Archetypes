@@ -10,7 +10,7 @@
 
     <!-- File Widgets -->
 
-    <div metal:define-macro="file_view">
+    <span metal:define-macro="file_view">
       <metal:label define-slot="widget_label" />
       <tal:define define="unit accessor;
                           showLink showLink|python:1">
@@ -24,9 +24,12 @@
                 <img tal:condition="icon" src=""
                      tal:attributes="src string:${here/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
-                (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
-                <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
               </a>
+              <span class="discreet">
+                  &mdash;
+                  <span tal:replace="python:here.lookupMime(field.getContentType(here))">ContentType</span>,
+                  <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
+              </span>
           </tal:link>
           <span tal:condition="not:showLink">
               <img tal:condition="icon" src=""
@@ -40,7 +43,7 @@
 
         </tal:block>
       </tal:define>
-    </div>
+    </span>
 
     <metal:define define-macro="file_edit" tal:define="showLink python:0">
       <metal:block use-macro="here/widgets/file/macros/file_view" />

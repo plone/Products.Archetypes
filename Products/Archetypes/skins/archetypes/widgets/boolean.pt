@@ -12,7 +12,7 @@
     <metal:view_macro define-macro="view"
             tal:define="kssClassesView context/@@kss_field_decorator_view;
                         getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
-        <div metal:define-macro="boolean-field-view"
+        <span metal:define-macro="boolean-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/boolean', macro='boolean-field-view');"
             tal:attributes="class kss_class;
@@ -22,7 +22,7 @@
                               value python:voc and voc.getValue(str(key)) or key"
                   tal:replace="structure value"
                   i18n:translate="">Yes No</span>
-        </div>
+        </span>
     </metal:view_macro>
 
     <metal:define define-macro="edit">

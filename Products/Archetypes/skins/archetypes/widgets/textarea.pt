@@ -13,14 +13,14 @@
     <metal:view_macro define-macro="view"
             tal:define="kssClassesView context/@@kss_field_decorator_view;
                         getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
-        <div metal:define-macro="textarea-field-view"
+        <span metal:define-macro="textarea-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/textarea', macro='textarea-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
             <span metal:define-slot="inside" 
                   tal:replace="structure accessor">textarea</span>
-        </div>
+        </span>
     </metal:view_macro>
 
     <metal:define define-macro="area_edit">
