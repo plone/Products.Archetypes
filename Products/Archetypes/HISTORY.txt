@@ -1,3 +1,14 @@
+trunk - unreleased
+==================
+
+1.5.1 - 2007-09-10
+==================
+
+  * Updating the AT widget views to be rendered inline, so they can be
+    invoked in View mode by KSS without any special magic. This is a
+    prerequisite for bug #6705 in the Plone issue tracker.
+    [limi]
+
 1.5.0 - 2007-08-16
 ==================
 
