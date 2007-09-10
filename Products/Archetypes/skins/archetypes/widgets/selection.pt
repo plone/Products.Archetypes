@@ -15,7 +15,7 @@
     <metal:view_macro define-macro="view"
             tal:define="kssClassesView context/@@kss_field_decorator_view;
                         getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
-        <div metal:define-macro="selection-field-view"
+        <span metal:define-macro="selection-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/selection', macro='selection-field-view');"
             tal:attributes="class kss_class;
@@ -25,7 +25,7 @@
                             value python:accessor();
                             display python:context.displayValue(vocab, value)"
                 tal:replace="structure display" />
-        </div>
+        </span>
     </metal:view_macro>
 
     <metal:define define-macro="edit">
