@@ -30,7 +30,7 @@
       for="*"
       name="at_selection_widget"
       class=".widgets.SelectionWidget"
-      permission="cmf.ModifyPortalContent"
+      permission="zope.Public"
       allowed_attributes="getSelected"
       />
 
@@ -38,7 +38,7 @@
       for="*"
       name="at_textarea_widget"
       class=".widgets.TextareaWidget"
-      permission="cmf.ModifyPortalContent"
+      permission="zope2.View"
       allowed_attributes="getSelected lookupMime"
       />
 
