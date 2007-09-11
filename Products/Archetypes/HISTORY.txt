@@ -1,6 +1,16 @@
 trunk - unreleased
 ==================
 
+1.5.2 - Unreleased
+==================
+
+  * Update schema handling code to always use self.Schema() to get the current
+    schema and never (re)set self.schema.
+    [wichert]
+
+  * Fix the change made in 1.5.1 which produced invalid XHTML
+    [limi]
+
 1.5.1 - 2007-09-10
 ==================
 
