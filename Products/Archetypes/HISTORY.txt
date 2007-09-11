@@ -4,6 +4,12 @@ trunk - unreleased
 1.5.2 - Unreleased
 ==================
 
+  * Changed browser/configure.zcml to update unnecessarily restrictive
+    permissions for two widget views. These were requiring ModifyPortalContent
+    even though they exposed no private information, thus making the widgets
+    less useful outside Archetypes.
+    [smcmahon]]
+
   * Made OrderedContainer implement OFS.interfaces.IOrderedContainer.  Fixes
     bug #7084 in Plone issue tracker.
     [rocky]
