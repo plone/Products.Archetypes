@@ -1,6 +1,12 @@
 trunk - unreleased
 ==================
 
+  * Changed browser/configure.zcml to update unnecessarily restrictive
+    permissions for two widget views. These were requiring ModifyPortalContent
+    even though they exposed no private information, thus making the widgets
+    less useful outside Archetypes.
+    [smcmahon]]
+
   * Changed the default return type of StringField and LinesField. These return
     Unicode now per default. You can still query them for an explicit encoding
     and their set methods still accept both Unicode and encoded strings.
