@@ -4,6 +4,10 @@ trunk - unreleased
 1.5.2 - Unreleased
 ==================
 
+  * Made OrderedContainer implement OFS.interfaces.IOrderedContainer.  Fixes
+    bug #7084 in Plone issue tracker.
+    [rocky]
+
   * Update schema handling code to always use self.Schema() to get the current
     schema and never (re)set self.schema.
     [wichert]
