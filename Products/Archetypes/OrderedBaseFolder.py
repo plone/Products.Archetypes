@@ -3,6 +3,7 @@ OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
 from types import StringType
+from zope.interface import implements
 
 from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
@@ -16,7 +17,8 @@ from Products.CMFCore.interfaces.Dynamic import DynamicType
 from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-    
+from OFS.interfaces import IOrderedContainer as IZ3OrderedContainer
+
 from zExceptions import NotFound
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
@@ -30,6 +32,7 @@ except ImportError:
 class OrderedContainer:
 
     __implements__  = (IOrderedContainer, IZopeOrderedContainer)
+    implements(IZ3OrderedContainer)
 
     security = ClassSecurityInfo()
 
