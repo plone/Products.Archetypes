@@ -11,7 +11,7 @@
     <metal:view_macro define-macro="view"
                       tal:define="kssClassesView context/@@kss_field_decorator_view;
                                   getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
-        <span metal:define-macro="rich-field-view"
+        <div metal:define-macro="rich-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/rich', macro='rich-field-view');"
             tal:attributes="class kss_class;
@@ -28,7 +28,7 @@
                     <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
                   </tal:download>
             </tal:comment>
-        </span>
+        </div>
     </metal:view_macro>
  
     <metal:define define-macro="edit">

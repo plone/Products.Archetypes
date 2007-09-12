@@ -1,3 +1,26 @@
+trunk - unreleased
+==================
+
+1.5.2 - 2007-09-12
+==================
+
+  * Changed browser/configure.zcml to update unnecessarily restrictive
+    permissions for two widget views. These were requiring ModifyPortalContent
+    even though they exposed no private information, thus making the widgets
+    less useful outside Archetypes.
+    [smcmahon]
+
+  * Made OrderedContainer implement OFS.interfaces.IOrderedContainer.  Fixes
+    bug #7084 in Plone issue tracker.
+    [rocky]
+
+  * Update schema handling code to always use self.Schema() to get the current
+    schema and never (re)set self.schema.
+    [wichert]
+
+  * Fix the change made in 1.5.1 which produced invalid XHTML
+    [limi]
+
 1.5.1 - 2007-09-10
 ==================
 
