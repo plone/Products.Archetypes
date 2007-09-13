@@ -72,6 +72,7 @@
                     Keep existing image
              </label>
              <br />
+            <tal:notrequired condition="not:field/required">
             <input class="noborder"
                    type="radio"
                    value="delete"
@@ -84,6 +85,7 @@
                     i18n:translate="delete_image">
                     Delete current image
              </label><br />
+            </tal:notrequired>
             <input class="noborder"
                    type="radio"
                    value=""
