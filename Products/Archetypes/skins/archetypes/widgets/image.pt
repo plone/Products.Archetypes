@@ -55,41 +55,49 @@
           <div>
             <metal:display use-macro="here/widgets/image/macros/image_display">
               <br />
-            </metal:display>
-          </div>
-        <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
+	        </metal:display>
+	      </div>
+	      <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
           <div tal:condition="accessor" class="field">
             <input class="noborder"
                    type="radio"
                    value="nochange"
+                   tabindex=""
                    checked="checked"
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_nochange;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_nochange;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_nochange;"
                     i18n:translate="nochange_image">
                     Keep existing image
              </label>
              <br />
+            <tal:notrequired condition="not:field/required">
             <input class="noborder"
                    type="radio"
                    value="delete"
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_delete;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"
-                   />
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_delete;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+		     />
              <label for=""
                     tal:attributes="for string:${fieldName}_delete;"
                     i18n:translate="delete_image">
                     Delete current image
              </label><br />
+            </tal:notrequired>
             <input class="noborder"
                    type="radio"
                    value=""
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_upload;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_upload;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_upload;
                                     "
