@@ -5,6 +5,10 @@
     widgets from 1.4.
     [mj]
 
+  * Re-added UIDCatalog import to ReferenceEngine for sites migrating from
+    Plone 2.1 (where the UIDCatalog is a class in that module).
+    [mj]
+
 1.5.2 - 2007-09-12
 ==================
 

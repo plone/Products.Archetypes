@@ -36,6 +36,7 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
+from UIDCatalog import UIDCatalog # Required for migrations from Plone 2.1
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
