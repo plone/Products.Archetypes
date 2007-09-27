@@ -1,6 +1,10 @@
 1.5.3 - unreleased
 ==================
 
+  * Fix clicking on the "next" or "previous" button raises 'Non-existing fieldset: None'
+    https://dev.plone.org/archetypes/ticket/754
+    [encolpe]
+
   * Forward-ported the disable-delete-option-when-required feature of image
     widgets from 1.4.
     [mj]
