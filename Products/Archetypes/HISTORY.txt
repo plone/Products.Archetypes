@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Fix clicking on the "next" or "previous" button raises 'Non-existing fieldset: None'
+    https://dev.plone.org/archetypes/ticket/754
+    [encolpe]
+
   * Changed browser/configure.zcml to update unnecessarily restrictive
     permissions for two widget views. These were requiring ModifyPortalContent
     even though they exposed no private information, thus making the widgets
