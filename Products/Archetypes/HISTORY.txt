@@ -1,6 +1,12 @@
 1.5.3 - unreleased
 ==================
 
+  * Restore use of the defaultLanguage method for the language field and
+    undeprecate it. This is done for two reasons: there is no alternative
+    to this feature, which LinguaPlone requires, and there never was a
+    deprecation warning.
+    [wichert]
+
   * Fix clicking on the "next" or "previous" button raises 'Non-existing fieldset: None'
     https://dev.plone.org/archetypes/ticket/754
     [encolpe]

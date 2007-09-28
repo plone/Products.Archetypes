@@ -153,6 +153,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'language',
             accessor="Language",
             default = config.LANGUAGE_DEFAULT,
+            default_method = 'defaultLanguage',
             vocabulary='languages',
             widget=LanguageWidget(
                 label=_(u'label_language', default=u'Language'),
@@ -211,9 +212,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
         """Retrieve the default language"""
-        # This method is kept around for backward compatibility only
-        log('defaultLanguage is deprecated and will be removed in AT 1.6',
-            level=INFO)
         return config.LANGUAGE_DEFAULT
     
     security.declarePrivate('defaultRights')
