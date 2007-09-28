@@ -301,7 +301,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                      ('pt','Portuguese'), ('ru','Russian')))
         else:
             languages = util.getLanguageListing()
-            languages.sort(lambda x,y:cmp(x[1], y[1]))
+            languages.sort(key=lambda x:x[1])
             # Put language neutral at the top.
             languages.insert(0,(u'',_(u'Language neutral (site default)')))
         return DisplayList(languages)
