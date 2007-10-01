@@ -1,6 +1,10 @@
 trunk - unreleased
 ==================
 
+  * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
+    http://dev.plone.org/plone/ticket/6507.
+    [hannosch, naro]
+
   * Fix clicking on the "next" or "previous" button raises
     'Non-existing fieldset: None'.
     http://dev.plone.org/archetypes/ticket/754
