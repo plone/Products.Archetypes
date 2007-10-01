@@ -1,6 +1,10 @@
 1.5.3 - unreleased
 ==================
 
+  * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
+    http://dev.plone.org/plone/ticket/6507.
+    [hannosch, naro]
+
   * Restore use of the defaultLanguage method for the language field and
     undeprecate it. This is done for two reasons: there is no alternative
     to this feature, which LinguaPlone requires, and there never was a
