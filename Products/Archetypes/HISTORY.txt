@@ -1,21 +1,6 @@
 trunk - unreleased
 ==================
 
-  * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
-    http://dev.plone.org/plone/ticket/6507.
-    [hannosch, naro]
-
-  * Fix clicking on the "next" or "previous" button raises
-    'Non-existing fieldset: None'.
-    http://dev.plone.org/archetypes/ticket/754
-    [encolpe]
-
-  * Changed browser/configure.zcml to update unnecessarily restrictive
-    permissions for two widget views. These were requiring ModifyPortalContent
-    even though they exposed no private information, thus making the widgets
-    less useful outside Archetypes.
-    [smcmahon]]
-
   * Changed the default return type of StringField and LinesField. These return
     Unicode now per default. You can still query them for an explicit encoding
     and their set methods still accept both Unicode and encoded strings.
@@ -38,6 +23,60 @@ trunk - unreleased
   * Moved rejectAnonymous script from CMFPlone over, as it is still used
     inside base_metadata.cpt.
     [hannosch]
+
+1.5.3 - unreleased
+==================
+
+  * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
+    http://dev.plone.org/plone/ticket/6507.
+    [hannosch, naro]
+
+  * Restore use of the defaultLanguage method for the language field and
+    undeprecate it. This is done for two reasons: there is no alternative
+    to this feature, which LinguaPlone requires, and there never was a
+    deprecation warning.
+    [wichert]
+
+  * Fix clicking on the "next" or "previous" button raises
+    'Non-existing fieldset: None'.
+    http://dev.plone.org/archetypes/ticket/754
+    [encolpe]
+
+  * Forward-ported the disable-delete-option-when-required feature of image
+    widgets from 1.4.
+    [mj]
+
+  * Re-added UIDCatalog import to ReferenceEngine for sites migrating from
+    Plone 2.1 (where the UIDCatalog is a class in that module).
+    [mj]
+
+1.5.2 - 2007-09-12
+==================
+
+  * Changed browser/configure.zcml to update unnecessarily restrictive
+    permissions for two widget views. These were requiring ModifyPortalContent
+    even though they exposed no private information, thus making the widgets
+    less useful outside Archetypes.
+    [smcmahon]
+
+  * Made OrderedContainer implement OFS.interfaces.IOrderedContainer.  Fixes
+    bug #7084 in Plone issue tracker.
+    [rocky]
+
+  * Update schema handling code to always use self.Schema() to get the current
+    schema and never (re)set self.schema.
+    [wichert]
+
+  * Fix the change made in 1.5.1 which produced invalid XHTML
+    [limi]
+
+1.5.1 - 2007-09-10
+==================
+
+  * Updating the AT widget views to be rendered inline, so they can be
+    invoked in View mode by KSS without any special magic. This is a
+    prerequisite for bug #6705 in the Plone issue tracker.
+    [limi]
 
 1.5.0 - 2007-08-16
 ==================
