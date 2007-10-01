@@ -1,8 +1,9 @@
 trunk - unreleased
 ==================
 
-  * Fix clicking on the "next" or "previous" button raises 'Non-existing fieldset: None'
-    https://dev.plone.org/archetypes/ticket/754
+  * Fix clicking on the "next" or "previous" button raises
+    'Non-existing fieldset: None'.
+    http://dev.plone.org/archetypes/ticket/754
     [encolpe]
 
   * Changed browser/configure.zcml to update unnecessarily restrictive
