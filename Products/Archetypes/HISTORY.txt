@@ -7,8 +7,9 @@
     deprecation warning.
     [wichert]
 
-  * Fix clicking on the "next" or "previous" button raises 'Non-existing fieldset: None'
-    https://dev.plone.org/archetypes/ticket/754
+  * Fix clicking on the "next" or "previous" button raises
+    'Non-existing fieldset: None'.
+    http://dev.plone.org/archetypes/ticket/754
     [encolpe]
 
   * Forward-ported the disable-delete-option-when-required feature of image
