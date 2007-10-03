@@ -21,7 +21,7 @@
                   tal:define="voc field/Vocabulary; key accessor;
                               value python:voc and voc.getValue(str(key)) or key;
                               msgid python:voc and voc.getMsgId(str(key)) or ''"
-                  tal:replace="structure value"
+                  tal:replace="value"
                   i18n:translate="">Yes No</span>
         </span>
     </metal:view_macro>

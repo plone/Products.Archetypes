@@ -19,7 +19,7 @@
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
             <span metal:define-slot="inside" 
-                  tal:replace="structure accessor">textarea</span>
+                  tal:replace="accessor">textarea</span>
         </span>
     </metal:view_macro>
 
@@ -72,7 +72,7 @@
               </legend>
               <span i18n:translate=""
                     tal:condition="python:(content_length &lt; 333)"
-                    tal:content="structure accessor">content</span>
+                    tal:content="accessor">content</span>
                     <textarea readonly="readonly" i18n:translate=""
                               tal:condition="python:(content_length &gt;= 333)"
                               tal:content="content"
