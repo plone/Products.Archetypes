@@ -1,6 +1,9 @@
 trunk - unreleased
 ==================
 
+  * Fixed to zope.i18n.translate calls, which didn't pass in the request.
+    [hannosch]
+
   * Changed the default return type of StringField and LinesField. These return
     Unicode now per default. You can still query them for an explicit encoding
     and their set methods still accept both Unicode and encoded strings.

@@ -339,7 +339,7 @@ class Field(DefaultLayerContainer):
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            error = translate(error, context=instance)
+            error = translate(error, context=instance.REQUEST)
             errors[name] = error
             return error
         return None
@@ -383,7 +383,7 @@ class Field(DefaultLayerContainer):
             error = _( u'error_vocabulary',
                 default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
                 mapping={'val': val, 'name': label})
-            error = translate(error, context=instance)
+            error = translate(error, context=instance.REQUEST)
             errors[self.getName()] = error
         return error
 
