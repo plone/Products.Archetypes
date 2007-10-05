@@ -70,6 +70,8 @@ form.inlineForm textarea.blurrable:keypress(inlineescape) {
    default on all of them */
 form.inlineForm input[type="text"].blurrable:keydown,
 form.inlineForm input[type="text"].blurrable:keypress {
+    evt-keydown-preventdefault: true;
+    evt-keydown-keycodes: 13;
     evt-keypress-preventdefault: true;
     evt-keypress-keycodes: 13;
 }
