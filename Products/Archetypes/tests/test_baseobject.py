@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,12 +23,21 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 
-from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+
+from types import StringType
 
 class DummyDiscussionTool:
     def isDiscussionAllowedFor( self, content ):
@@ -37,11 +47,12 @@ class DummyDiscussionTool:
 
 MULTIPLEFIELD_LIST = DisplayList(
     (
-    ('1', _(u'Option 1 : printemps')),
-    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')), # e-acute t e-acute
-    ('3', u'Option 3 : automne'),
-    ('4', _(u'option3', default=u'Option 3 : hiver')),
+    ('1', 'Option 1 : printemps'),
+    ('2', 'Option 2 : \xc3\xa9t\xc3\xa9'), # e-acute t e-acute
+    ('3', 'Option 3 : automne'),
+    ('4', 'Option 3 : hiver'),
     ))
+
 
 schema = BaseSchema + Schema((
     LinesField(
@@ -52,18 +63,20 @@ schema = BaseSchema + Schema((
             i18n_domain = 'plone',
             ),
         ), 
+    
     TextField(
         'TEXTFIELD',
         primary=True,
         ),
-))
+            ))
+
 
 class Dummy(BaseContent):
    
     portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
-         return 'utf-8'
+         return 'iso-8859-1'
          
 class BaseObjectTest(ATSiteTestCase):
 
@@ -77,21 +90,22 @@ class BaseObjectTest(ATSiteTestCase):
         Fix bug [ 951955 ] BaseObject/SearchableText and list of Unicode stuffs
         """
         dummy = self._dummy
-
+        
+        
         # Set a multiple field
         dummy.setMULTIPLEFIELD(['1','2'])
+        
+        # Get searchableText
         searchable = dummy.SearchableText()
-
-        self.failUnless(isinstance(searchable, basestring))
+        
+        # Test searchable type
+        self.assertEquals(type(searchable), StringType)
+        
+        # Test searchable value
         self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
-        dummy.setMULTIPLEFIELD(['3','4'])
-        searchable = dummy.SearchableText()
-
-        self.assertEquals(searchable, '3 4 Option 3 : automne option3')
-
     def test_searchableTextUsesIndexMethod(self):
-        """See http://dev.plone.org/archetypes/ticket/645
+        """See https://dev.plone.org/archetypes/ticket/645
 
         We want SearchableText to use the ``index_method`` attribute
         of fields to determine which is the accessor it should use
@@ -135,7 +149,7 @@ class BaseObjectTest(ATSiteTestCase):
         
         self.setRoles(('Manager',))
         # dummy.content_type in a Python Script
-        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/html')
+        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
         
 
 def test_suite():
@@ -143,3 +157,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(BaseObjectTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

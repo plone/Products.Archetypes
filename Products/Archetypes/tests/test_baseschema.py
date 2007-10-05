@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,13 +23,20 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 # need this to initialize new BU for tests
 from Products.Archetypes.tests.test_classgen import Dummy
 
-from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
 from Products.Archetypes.interfaces.layer import ILayerContainer
@@ -127,6 +135,10 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
+        self.failUnless(field.vocabulary == DisplayList((('0', 'Disabled'),
+                                                         ('1', 'Enabled'),
+                                                         ('None', 'Default'))))
+        self.failUnless(field.enforceVocabulary == 1)
         self.failUnless(field.multiValued == 0)
         self.failUnless(field.isMetadata == 1)
         self.failUnless(field.accessor == 'isDiscussable')
@@ -137,11 +149,16 @@ class BaseSchemaTest(ATSiteTestCase):
                         permissions.ModifyPortalContent)
         self.failUnless(field.generateMode == 'mVc')
         self.failUnless(field.force == '')
-        self.failUnless(field.type == 'boolean')
+        self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == EmptyValidator)
-        self.failUnless(isinstance(field.widget, BooleanWidget))
+        self.failUnless(isinstance(field.widget, SelectionWidget))
+        vocab = field.Vocabulary(dummy)
+        self.failUnless(isinstance(vocab, DisplayList))
+        self.failUnless(vocab == DisplayList((('0', 'Disabled'),
+                                              ('1', 'Enabled'),
+                                              ('None', 'Default'))))
 
     def test_subject(self):
         dummy = self._dummy
@@ -313,7 +330,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(isinstance(field.storage, MetadataStorage))
         self.failUnless(field.getLayerImpl('storage') == MetadataStorage())
         self.failUnless(field.validators == EmptyValidator)
-        self.failUnless(isinstance(field.widget, LanguageWidget))
+        self.failUnless(isinstance(field.widget, SelectionWidget))
         vocab = field.Vocabulary(dummy)
         self.failUnless(isinstance(vocab, DisplayList))
         self.failUnless(vocab == dummy.languages())
@@ -396,3 +413,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(BaseSchemaTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

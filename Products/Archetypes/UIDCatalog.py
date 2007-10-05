@@ -3,8 +3,6 @@ import sys
 import time
 import urllib
 import traceback
-from zope.interface import implements
-
 from Globals import InitializeClass
 from Globals import DTMLFile
 from ExtensionClass import Base
@@ -22,7 +20,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.debug import log
-from Products.Archetypes.interfaces import IUIDCatalog
+from Products.Archetypes.interfaces.referenceengine import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -126,8 +124,6 @@ class IndexableObjectWrapper(object):
         # Title is used for sorting only, maybe we could replace it by a better
         # version
         title = self._obj.Title()
-        if isinstance(title, unicode):
-            return title.encode('utf-8')
         try:
             return str(title)
         except UnicodeDecodeError:
@@ -145,7 +141,13 @@ class UIDResolver(Base):
         the default brains.getObject model and allows and fakes the
         ZCatalog protocol for traversal
         """
+        parts = path.split('/')
+        # XXX REF_PREFIX is undefined
+        #if parts[-1].find(REF_PREFIX) == 0:
+        #    path = '/'.join(parts[:-1])
+
         portal_object = self.portal_url.getPortalObject()
+
         try:
             return portal_object.unrestrictedTraverse(path)
         except (KeyError, AttributeError, NotFound):
@@ -188,7 +190,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     id = UID_CATALOG
     security = ClassSecurityInfo()
-    implements(IUIDCatalog)
+    __implements__ = IUIDCatalog
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
 
@@ -265,4 +267,3 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
                          % (`elapse`, `c_elapse`))
             )
 
-InitializeClass(UIDCatalog)

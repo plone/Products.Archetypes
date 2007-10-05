@@ -14,7 +14,7 @@
                       tal:define="voc python:field.Vocabulary(here);
                                   key accessor;
                                   value python:voc and voc.getValue(key) or key"
-                      tal:replace="structure value" />
+		      tal:replace="structure value" />
 
     <metal:define define-macro="edit">
         <div class="field"
@@ -38,7 +38,7 @@
 
     <div metal:define-macro="search">
       <div metal:use-macro="here/widgets/string/macros/edit">
-          It does make sense to "search" a computed field
+	It does make sense to "search" a computed field
       </div>
     </div>
 

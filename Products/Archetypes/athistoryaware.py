@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -245,3 +246,16 @@ class ATHistoryAwareMixin:
                    revision['user_name'])
 
 InitializeClass(ATHistoryAwareMixin)
+
+
+# BBB: Python 2.3
+try:
+    sorted
+except NameError:
+    def sorted(seq, reverse=False):
+        l = list(seq)
+        l.sort()
+        if reverse:
+            l.reverse()
+        return l
+

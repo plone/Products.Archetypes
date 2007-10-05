@@ -7,33 +7,23 @@
   <body>
 
     <!-- Integer Widgets -->
-    <metal:view_macro define-macro="view"
-            tal:define="kssClassesView context/@@kss_field_decorator_view;
-                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
-        <div metal:define-macro="integer-field-view"
-             tal:define="kss_class python:getKssClasses(fieldName,
-                         templateId='widgets/integer', macro='integer-field-view');"
-             tal:attributes="class kss_class;
-                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside"
-                  tal:replace="structure accessor">string</span>
-        </div>
-    </metal:view_macro>
+    <metal:view_macro define-macro="view" tal:replace="structure accessor" />
 
     <metal:define metal:define-macro="edit">
       <metal:use metal:use-macro="field_macro | here/widgets/field/macros/edit">
-      <input metal:fill-slot="widget_body"
-             class="blurrable firstToFocus"
-             type="text"
-             name=""
-             value=""
-             size="30"
-             tal:attributes="name fieldName;
-             id fieldName;
-             value value;
-             size widget/size;
-             maxlength widget/maxlength|nothing;"
-             />
+	<input metal:fill-slot="widget_body"
+	       type="text"
+	       name=""
+	       value=""
+	       size="30"
+	       tabindex="#"
+	       tal:attributes="name fieldName;
+	       id fieldName;
+	       value value;
+	       size widget/size;
+	       maxlength widget/maxlength|nothing;
+	       tabindex tabindex/next;"
+	       />
       </metal:use>
     </metal:define>
 

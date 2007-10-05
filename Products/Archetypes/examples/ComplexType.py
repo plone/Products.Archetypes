@@ -40,7 +40,7 @@ schema = Schema(tuple(field_instances) + (
     TextField('textarea_maxlength',
               widget=TextAreaWidget( label='TextArea',
                                      maxlength=20,),
-              ),                                          
+              ),                                                        
     TextField('richtextfield',
               allowable_content_types=('text/plain',
                                        'text/structured',

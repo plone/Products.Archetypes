@@ -27,12 +27,17 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from test_classgen import Dummy
 
 from Products.Archetypes.atapi import *
+from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
 from Products.PortalTransforms.data import datastream
 
 
@@ -48,7 +53,7 @@ class FakeTransformer:
         return data
 
 
-class UnicodeStringFieldTest(ATSiteTestCase):
+class UnicodeStringFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
@@ -64,7 +69,7 @@ class UnicodeStringFieldTest(ATSiteTestCase):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeLinesFieldTest(ATSiteTestCase):
+class UnicodeLinesFieldTest(ATTestCase):
 
     def test_set1(self):
         instance = Dummy()
@@ -97,7 +102,7 @@ class UnicodeLinesFieldTest(ATSiteTestCase):
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
-class UnicodeTextFieldTest(ATSiteTestCase):
+class UnicodeTextFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
@@ -113,7 +118,7 @@ class UnicodeTextFieldTest(ATSiteTestCase):
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeBaseUnitTest(ATSiteTestCase):
+class UnicodeBaseUnitTest(ATTestCase):
 
     def afterSetUp(self):
         self.instance = Dummy()
@@ -149,3 +154,6 @@ def test_suite():
     suite.addTest(makeSuite(UnicodeTextFieldTest))
     suite.addTest(makeSuite(UnicodeBaseUnitTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

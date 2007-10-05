@@ -76,22 +76,22 @@
           <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
             <!-- checkbox or radio for short vocabs -->
             <tal:item repeat="item vocab">
-              <tal:block tal:define="item_id string:${fieldName}_${repeat/item/number};
-                                     no_ref python: value is None and item == ''">
+              <tal:block tal:define="item_tabindex tabindex/next;
+                                   item_id string:${fieldName}_${repeat/item/number};
+                                   no_ref python: value is None and item == ''">
                 <input class="noborder"
+                       tabindex=""
                        type="radio"
                        tal:attributes="name fieldName;
                                        checked python:test((item in uids) or no_ref, 'checked', nothing);
+                                       tabindex item_tabindex;
                                        value item;
                                        id item_id;
                                        type python:multiVal and 'checkbox' or 'radio'"
                        />
 
                 <label tal:attributes="for item_id"
-                       tal:content="python:vocab.getValue(item)"
-                       i18n:translate="">
-                    label
-                </label>
+                       tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))" />
 
 
                 <br />
@@ -103,15 +103,15 @@
             <!-- pulldown for longer vocabs -->
             <select tal:attributes="name fieldName;
                                     id fieldName;
-                                    multiple python:multiVal and 'multiple' or None;">
+                                    multiple python:multiVal and 'multiple' or None;
+                                    tabindex tabindex/next;">
 
              <tal:item tal:repeat="item vocab">
               <option selected="selected"
                       tal:define="no_ref python: value is None and item == '';"
                       tal:attributes="value item;
                                       selected python:test((item in uids) or no_ref, 'selected', '')"
-                      tal:content="python:vocab.getValue(item)"
-                      i18n:translate=""></option>
+                      tal:content="python:here.translate(vocab.getMsgId(item), default=vocab.getValue(item))"></option>
              </tal:item>
             </select>
           </div>

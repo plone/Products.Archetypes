@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,11 +23,20 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.examples import ComplexType as complextype
 from Products.Archetypes.ClassGen import generateCtor
+import Products.Archetypes.tests.test_classgen
 
 from DateTime import DateTime
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
@@ -110,3 +120,6 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(SitePolicyTests))
     return suite
+
+if __name__ == '__main__':
+    framework()

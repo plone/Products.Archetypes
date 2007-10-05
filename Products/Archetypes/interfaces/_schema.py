@@ -190,10 +190,3 @@ class IManagedSchema(ISchema):
         (direction=1)
         """
 
-class IMultiPageSchema(Interface):
-    """A marker interface for schemas which have to be loaded on seperate
-    HTML pages instead of beeing displayed on one page. This should only be
-    used in wizard like cases where one schema depends on the values in a
-    previous one.
-    """
-    pass

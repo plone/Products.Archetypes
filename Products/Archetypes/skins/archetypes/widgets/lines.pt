@@ -14,13 +14,16 @@
 
     <div metal:define-macro="edit">
       <div metal:use-macro="field_macro | here/widgets/field/macros/edit">
-          <div metal:fill-slot="widget_body">
-              <textarea tal:attributes="name string:$fieldName:lines;
-                                        id fieldName;
-                                        cols widget/cols;
-                                        rows widget/rows;"
-                        tal:content="python:value and '\n'.join(value) or ''"></textarea>
-          </div>
+	<div metal:fill-slot="widget_body">
+	  <textarea
+	   tabindex="#"
+	   tal:attributes="name string:$fieldName:lines;
+           id fieldName;
+           cols widget/cols;
+           rows widget/rows;
+           tabindex tabindex/next;"
+       tal:content="python:value and '\n'.join(value) or ''"></textarea>
+	</div>
       </div>
     </div>
 
@@ -33,8 +36,10 @@
       <input type="hidden"
              name=""
              value=""
+             tabindex="#"
              tal:attributes="name string:${fieldName}:lines;
-                             value python:'\n'.join(value);" />
+                             value python:'\n'.join(value);
+                             tabindex tabindex/next;" />
 
     </div>
 

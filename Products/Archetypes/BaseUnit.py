@@ -1,9 +1,8 @@
 import os.path
-from types import StringType
-from zope.interface import implements
 
-from Products.Archetypes.interfaces import IBaseUnit
-from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
+from types import StringType
+
+from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.config import *
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.debug import log
@@ -11,20 +10,21 @@ from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
+from Acquisition import aq_parent
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
-from Products.MimetypesRegistry.interfaces import IMimetype
+from Products.MimetypesRegistry.interfaces import IMimetypesRegistry, IMimetype
 from Products.PortalTransforms.interfaces import idatastream
+#from Products.MimetypesRegistry.mime_types import text_plain, \
+#     application_octet_stream
 from webdav.WriteLockInterface import WriteLockInterface
 
 _marker = []
 
 class BaseUnit(File):
-    __implements__ = WriteLockInterface, z2IBaseUnit
-    implements(IBaseUnit)
-
+    __implements__ = WriteLockInterface, IBaseUnit
     isUnit = 1
 
     security = ClassSecurityInfo()
@@ -49,6 +49,10 @@ class BaseUnit(File):
         context  = kw.get('context', instance)
 
         adapter = getToolByName(context, 'mimetypes_registry')
+        if not IMimetypesRegistry.isImplementedBy(adapter):
+            raise RuntimeError, \
+                '%s(%s) is not a valid mimetype registry: %s(%s)' % \
+                (repr(adapter), adapter.__class__, repr(instance), aq_parent(instance))
         data, filename, mimetype = adapter(data, **kw)
 
         assert mimetype
@@ -198,6 +202,9 @@ class BaseUnit(File):
         """Set the file mimetype string.
         """
         mtr = getToolByName(instance, 'mimetypes_registry')
+        if not IMimetypesRegistry.isImplementedBy(mtr):
+            raise RuntimeError('%s(%s) is not a valid mimetype registry' % \
+                               (repr(mtr), repr(mtr.__class__)))
         result = mtr.lookup(value)
         if not result:
             raise ValueError('Unknown mime type %s' % value)
@@ -272,3 +279,6 @@ class BaseUnit(File):
         return self.getRaw(encoding=self.original_encoding)
 
 InitializeClass(BaseUnit)
+
+# XXX Should go away after 1.3-final
+newBaseUnit = BaseUnit
