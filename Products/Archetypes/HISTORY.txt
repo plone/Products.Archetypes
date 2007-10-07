@@ -1,4 +1,7 @@
-1.5.3 - unreleased
+1.5.4 - unreleased
+==================
+
+1.5.3 - 2007-10-07
 ==================
 
   * Skip the 'metadata' schema in base_edit, like we used to do it
