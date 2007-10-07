@@ -30,6 +30,11 @@ trunk - unreleased
 1.5.3 - unreleased
 ==================
 
+  * Skip the 'metadata' schema in base_edit, like we used to do it
+    pre-1.5.  Also, do not render fieldset and legend elements when
+    we're only displaying one fieldset, i.e. the 'default' one.
+    [nouri]
+
   * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
     http://dev.plone.org/plone/ticket/6507.
     [hannosch, naro]
