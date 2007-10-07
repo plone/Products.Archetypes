@@ -1,76 +1,19 @@
-################################################################################
-#
-# Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
-#                              the respective authors. All rights reserved.
-# For a list of Archetypes contributors see docs/CREDITS.txt.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of the author nor the names of its contributors may be used
-#   to endorse or promote products derived from this software without specific
-#   prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-################################################################################
-"""
-"""
-__author__ = "Christian Heimes"
-
-from Testing import ZopeTestCase
-
 from Testing.ZopeTestCase import Functional
-from Testing.ZopeTestCase import utils
 from Products.Archetypes.tests import attestcase
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-from Acquisition import aq_base
-import transaction
+from Products.PloneTestCase.setup import portal_name
+from Products.PloneTestCase.setup import portal_owner
 import sys, code
 
-if not attestcase.USE_PLONETESTCASE:
-    from Products.CMFTestCase import CMFTestCase
-    from Products.CMFTestCase.setup import portal_name
-    from Products.CMFTestCase.setup import portal_owner
-    from Products.CMFTestCase.setup import USELAYER
-    # setup a CMF site 
-    CMFTestCase.setupCMFSite()
-    PortalTestClass = CMFTestCase.CMFTestCase
-else:
-    from Products.PloneTestCase import PloneTestCase
-    from Products.PloneTestCase.setup import portal_name
-    from Products.PloneTestCase.setup import portal_owner
-    from Products.PloneTestCase.setup import USELAYER
-    # setup a Plone site 
-    PloneTestCase.setupPloneSite()
-    PortalTestClass = PloneTestCase.PloneTestCase
+from Products.PloneTestCase import PloneTestCase
 
-
-class ATSiteTestCase(PortalTestClass, attestcase.ATTestCase):
-    """AT test case inside a CMF site
+class ATSiteTestCase(PloneTestCase.PloneTestCase, attestcase.ATTestCase):
+    """AT test case with Plone site
     """
-    
-    __implements__ = PortalTestClass.__implements__ + \
-                     attestcase.ATTestCase.__implements__
-
-    if USELAYER:
-        import layer
-        layer = layer.ATSite
 
 
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
-    """AT test case for functional tests inside a CMF site
+    """AT test case for functional tests with Plone site
     """
-    __implements__ = Functional.__implements__ + ATSiteTestCase.__implements__ 
     
     def interact(self, locals=None):
         """Provides an interactive shell aka console inside your testcase.
@@ -98,81 +41,6 @@ Ctrl-D ends session and continues testing.
         sys.stdout.write('\nend of DocTest Interactive Console session\n')
         sys.stdout.write('='*70+'\n')
         sys.stdout = savestdout
-
-
-###
-# Setup an archetypes site
-###
-
-import time
-from StringIO import StringIO
-
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.atapi import listTypes
-from Products.Archetypes.Extensions.utils import installTypes
-from Products.Archetypes.Extensions.Install import install as installArchetypes
-
-
-def setupArchetypes(app, id=portal_name, quiet=0):
-    '''Installs the Archetypes product into the portal.'''
-    portal = app[id]
-    user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
-    qi = getToolByName(portal, 'portal_quickinstaller', default=None)
-    # install quick installer
-    if qi is None:
-        start = time.time()
-        if not quiet: ZopeTestCase._print('Adding Quickinstaller Tool ... ')
-        factory = portal.manage_addProduct['CMFQuickInstallerTool']
-        newSecurityManager(None, user)
-        factory.manage_addTool('CMF QuickInstaller Tool')
-        noSecurityManager()
-        transaction.commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-
-    qi = getToolByName(portal, 'portal_quickinstaller')
-    installed = qi.listInstallableProducts(skipInstalled=True)
-    if 'CMFFormController' not in installed:
-        start = time.time()
-        if not quiet: ZopeTestCase._print('Adding CMFFormController ... ')
-        # Login as portal owner
-        newSecurityManager(None, user)
-        # Install Archetypes
-        qi.installProduct('CMFFormController')
-        # Log out
-        noSecurityManager()
-        transaction.commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-
-    if 'Archetypes' not in installed:
-        start = time.time()
-        if not quiet: ZopeTestCase._print('Adding Archetypes ... ')
-        # Login as portal owner
-        newSecurityManager(None, user)
-        # Install Archetypes
-        installArchetypes(portal, include_demo=1)
-        # Log out
-        noSecurityManager()
-        transaction.commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-start,))
-
-    if not hasattr(aq_base(portal.portal_types), 'SimpleBTreeFolder'):
-        _start = time.time()
-        if not quiet: ZopeTestCase._print('Adding Archetypes demo types ... ')
-        # Login as portal owner
-        newSecurityManager(None, user)
-        # Install Archetypes
-        out = StringIO()
-        installTypes(portal, out, listTypes(PKG_NAME), PKG_NAME)
-        # Log out
-        noSecurityManager()
-        transaction.commit()
-        if not quiet: ZopeTestCase._print('done (%.3fs)\n' % (time.time()-_start,))
-
-
-if not USELAYER:
-    # Install Archetypes
-    utils.appcall(setupArchetypes)
 
 
 __all__ = ('ATSiteTestCase', 'ATFunctionalSiteTestCase', 'portal_name',

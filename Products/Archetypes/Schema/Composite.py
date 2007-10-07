@@ -56,7 +56,7 @@ class CompositeSchema(Implicit):
         c.addSchemas((self, other))
         return c
 
-    security.declareProtected(View, 'getName')
+    security.declareProtected(View, 'copy')
     def copy(self):
         """Return a deep copy"""
         c = CompositeSchema()
@@ -263,7 +263,7 @@ class CompositeSchema(Implicit):
     def changeSchemataForField(self, fieldname, schemataname):
         """Change the schemata for a field """
         for s in self.getSchemas():
-            if s.has_key(name):
+            if s.has_key(fieldname):
                 s.changeSchemataForField(fieldname, schemataname)
 
     security.declarePrivate('replaceField')

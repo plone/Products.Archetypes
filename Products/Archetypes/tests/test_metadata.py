@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,14 +22,6 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 from Acquisition import aq_parent
@@ -334,20 +325,19 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
 
     def testDiscussionEditAccessorDoesConversions(self):
-        # CMF 1.5 uses bools as internal storage for allow_discussion
-        # Need to make sure we convert properly
-        #Use a DDocument because the dummy is too dumb for this
+        # Use a DDocument because the dummy is too dumb for this
         self.folder.invokeFactory('DDocument','bogus_item')
         dummy = self.folder.bogus_item
         # Set Allow discussion
-        dummy.allowDiscussion('1')
+        dummy.allowDiscussion(True)
         self.failUnless(dummy.isDiscussable())
-        self.assertEqual(dummy.editIsDiscussable(), '1')
-        dummy.allowDiscussion('None')
-        self.assertEqual(dummy.editIsDiscussable(), 'None')
-        dummy.allowDiscussion('0')
+        self.assertEqual(dummy.editIsDiscussable(), True)
+        dummy.allowDiscussion(None)
+        self.assertEqual(dummy.editIsDiscussable(), False)
+        self.assertEqual(dummy.rawIsDiscussable(), None)
+        dummy.allowDiscussion(False)
         self.failIf(dummy.isDiscussable())
-        self.assertEqual(dummy.editIsDiscussable(), '0')
+        self.assertEqual(dummy.editIsDiscussable(), False)
         
 class TimeZoneTest(ATSiteTestCase):
     def _makeDummyContent(self, name):
@@ -393,6 +383,3 @@ def test_suite():
     suite.addTest(makeSuite(ExtMetadataSetFormatTest))
     suite.addTest(makeSuite(TimeZoneTest))
     return suite
-
-if __name__ == '__main__':
-    framework()
