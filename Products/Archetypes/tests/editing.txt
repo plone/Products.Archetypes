@@ -8,13 +8,11 @@ Let's set up a test browser:
   >>> from Products.Five.testbrowser import Browser
   >>> browser = Browser()
   >>> browser.handleErrors = False
-  >>> browser.open('http://nohost/plone/login_form')
 
-First, we need to log in.
+Set the authorization headers:
 
-  >>> browser.getControl('Login Name').value = 'test_user_1_'
-  >>> browser.getControl('Password').value = 'secret'
-  >>> browser.getControl('Log in').click()
+  >>> browser.addHeader('Authorization',
+  ...                   'Basic %s:%s' % ('test_user_1_', 'secret'))
 
 Field validation
 ----------------
