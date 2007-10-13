@@ -1,6 +1,14 @@
 1.5.4 - unreleased
 ==================
 
+  * revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the 
+    'metadata' schema in base_edit. Wichert and I agreed thats this is
+    wrong. Specially inside a bug-fix release. If theres a good reason to
+    remove the metadata from fieldsets, we can do it in the next release.
+    The UI was broken as well, btw.
+    [jensens, wiggy]
+
+
 1.5.3 - 2007-10-07
 ==================
 
