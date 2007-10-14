@@ -1,5 +1,11 @@
-trunk - unreleased
+1.6 - trunk - unreleased
 ==================
+
+  * revert http://dev.plone.org/archetypes/changeset/8684 - Dont skip the
+    'metadata' schema in base_edit. Wichert and I agreed thats this is
+    wrong. This is a forward port from 1.5. We do not found a good reason to
+    remove the metadata from fieldsets, so we keep it in the this release.
+    [jensens, wiggy]
 
   * Fixed to zope.i18n.translate calls, which didn't pass in the request.
     [hannosch]
