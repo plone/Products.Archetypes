@@ -819,7 +819,7 @@ class BaseObject(Referenceable):
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determines whether the current object's schema is up to date."""
-        return self._signatore == self.Schema().signature()
+        return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
