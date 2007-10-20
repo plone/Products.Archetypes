@@ -1,5 +1,9 @@
 1.6 - trunk - unreleased
-==================
+========================
+
+  * Removed five:implements statements from ZCML, which are already done in the
+    classes themselves.
+    [hannosch]
 
   * revert http://dev.plone.org/archetypes/changeset/8684 - Dont skip the
     'metadata' schema in base_edit. Wichert and I agreed thats this is
