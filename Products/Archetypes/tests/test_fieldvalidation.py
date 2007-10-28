@@ -25,6 +25,8 @@
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 
+from Acquisition import Explicit
+
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
 from Products.Archetypes.BaseObject import BaseObject
@@ -94,14 +96,15 @@ for req in 0,1: # 0 == not required, 1 == required
         )
 
 
-class FakeType(BaseObject):
+class FakeType(Explicit, BaseObject):
     def unicodeEncode(self, v): return v # don't
 
 
 class TestSettings(ATTestCase):
 
     def afterSetUp(self):
-        self.instance = FakeType('fake')
+        instance = FakeType('fake')
+        self.instance = instance.__of__(self.folder)
 
     def testSettings(self):
         # tests every setting in global "settings"

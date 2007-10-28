@@ -12,6 +12,7 @@ from zope import component
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
+from Acquisition import aq_get
 from Acquisition import aq_parent
 from Acquisition import aq_inner
 from ComputedAttribute import ComputedAttribute
@@ -339,7 +340,7 @@ class Field(DefaultLayerContainer):
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            error = translate(error, context=instance.REQUEST)
+            error = translate(error, context=aq_get(instance, 'REQUEST'))
             errors[name] = error
             return error
         return None
@@ -383,7 +384,7 @@ class Field(DefaultLayerContainer):
             error = _( u'error_vocabulary',
                 default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
                 mapping={'val': val, 'name': label})
-            error = translate(error, context=instance.REQUEST)
+            error = translate(error, context=aq_get(instance, 'REQUEST'))
             errors[self.getName()] = error
         return error
 
@@ -1124,7 +1125,7 @@ class FileField(ObjectField):
         """
         file = self.get(instance, raw=True)
         if not REQUEST:
-            REQUEST = instance.REQUEST
+            REQUEST = aq_get(instance, 'REQUEST')
         if not RESPONSE:
             RESPONSE = REQUEST.RESPONSE
         filename = self.getFilename(instance)
