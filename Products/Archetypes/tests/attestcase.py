@@ -1,11 +1,11 @@
 from Testing import ZopeTestCase
 
 from Testing.ZopeTestCase.functional import Functional
-from Products.PloneTestCase import PloneTestCase
+from Products.CMFTestCase import CMFTestCase
 
 # setup test content types
 from Products.GenericSetup import EXTENSION, profile_registry
-from Products.PloneTestCase.layer import ZCMLLayer
+from Products.CMFTestCase.layer import ZCMLLayer
 
 profile_registry.registerProfile('Archetypes_sampletypes',
     'Archetypes Sample Content Types',
@@ -14,10 +14,23 @@ profile_registry.registerProfile('Archetypes_sampletypes',
     'Products.Archetypes',
     EXTENSION)
 
-# setup a Plone site
-from Products.PloneTestCase.ptc import setupPloneSite
-setupPloneSite(extension_profiles=['Products.Archetypes:Archetypes_sampletypes'
-                                  ])
+# setup a CMF site
+ZopeTestCase.installProduct('PythonScripts')
+ZopeTestCase.installProduct('SiteErrorLog')
+ZopeTestCase.installProduct('CMFFormController')
+ZopeTestCase.installProduct('CMFQuickInstallerTool')
+ZopeTestCase.installProduct('MimetypesRegistry')
+ZopeTestCase.installProduct('PortalTransforms')
+ZopeTestCase.installProduct('Archetypes')
+
+from Products.CMFTestCase.ctc import setupCMFSite
+setupCMFSite(
+    extension_profiles=['Products.CMFFormController:CMFFormController',
+                        'Products.CMFQuickInstallerTool:CMFQuickInstallerTool',
+                        'Products.MimetypesRegistry:MimetypesRegistry',
+                        'Products.PortalTransforms:PortalTransforms',
+                        'Products.Archetypes:Archetypes',
+                        'Products.Archetypes:Archetypes_sampletypes'])
 
 # Fixup zope 2.7+ configuration
 from App import config

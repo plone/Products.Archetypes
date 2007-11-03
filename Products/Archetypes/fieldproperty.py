@@ -42,19 +42,19 @@ class ATFieldProperty(object):
         ''
         >>> foo.some_field = "Bar"
         >>> foo.some_field
-        'Bar'
+        u'Bar'
         >>> foo.getField('some_field').get(foo)
-        'Bar'
+        u'Bar'
     
     The old-style mutator and accessors still work, of course
     
         >>> foo.getSome_field()
-        'Bar'
+        u'Bar'
         
         >>> foo.setSome_field("Baz")
         >>> foo.some_field
-        'Baz'
-        
+        u'Baz'
+
     Here is an example using the default AttributeStorage. In this case, we
     need different names for the AT field name and the properity, because
     AttributeStorage will use the field name as the attribute name. If
@@ -62,13 +62,13 @@ class ATFieldProperty(object):
     
         >>> foo.other_field = "Hello"
         >>> foo.other_field
-        'Hello'
+        u'Hello'
         >>> foo.get_other_field()
-        'Hello'
+        u'Hello'
         >>> foo.set_other_field("Good bye")
         >>> foo.other_field
-        'Good bye'
-        
+        u'Good bye'
+
     Finally, the get_transform and set_transform arguments can be used to
     perform transformations on the retrieved value and the value before it
     is set, respectively. The field upper_lower uses string.upper() on the
@@ -76,13 +76,13 @@ class ATFieldProperty(object):
     
         >>> foo.upper_lower = "MiXeD"
         >>> foo.upper_lower
-        'MIXED'
+        u'MIXED'
         >>> foo.get_other_field()
-        'mixed'
+        u'mixed'
         >>> foo.set_other_field('UpPeRaNdLoWeR')
         >>> foo.upper_lower
-        'UPPERANDLOWER'
-        
+        u'UPPERANDLOWER'
+
     A less frivolous example of this functionality can be seen in the
     ATDateTimeFieldProperty class below.
     """
@@ -128,18 +128,25 @@ class ATToolDependentFieldProperty(ATFieldProperty):
         ...     some_field = ATToolDependentFieldProperty('some_field')
         
         >>> registerType(MyContent, 'Archetypes')
-    
+
         >>> self.portal._setOb('foo', MyContent('foo'))
         >>> foo = getattr(self.portal, 'foo')
-    
-    These lines would fail with AttributeError: reference_catalog if it used 
+
+        >>> self.portal._setOb('bar', MyContent('bar'))
+        >>> bar = getattr(self.portal, 'bar')
+        >>> bar._at_uid = 123456
+
+    These lines would fail with AttributeError: reference_catalog if it used
     the standard accessor.
-    
+
         >>> foo.some_field
         []
-        >>> foo.some_field = [self.folder.UID()]
+        >>> foo.some_field = [bar]
+        Traceback (most recent call last):
+        ...
+        ReferenceException: 123456 not referenceable
         >>> foo.some_field
-        [<ATFolder at /plone/Members/test_user_1_>]
+        []
     """
 
     def __init__(self, name, get_transform=None, set_transform=None):

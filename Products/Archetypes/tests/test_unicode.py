@@ -53,15 +53,17 @@ class UnicodeStringFieldTest(ATSiteTestCase):
     def test_set(self):
         instance = Dummy()
         f = StringField('test')
+        out = u'héhéhé'
+        iso = 'héhéhé'
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
+        self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, 'héhéhé', encoding='ISO-8859-1')
-        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
-        f.set(instance, u'héhéhé')
-        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
+        self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
+        f.set(instance, out)
+        self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
 class UnicodeLinesFieldTest(ATSiteTestCase):
@@ -70,7 +72,7 @@ class UnicodeLinesFieldTest(ATSiteTestCase):
         instance = Dummy()
         f = LinesField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
+        out = (u'héhéhé',)
         iso = ('héhéhé',)
         self.failUnlessEqual(f.get(instance), out)
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
@@ -85,16 +87,12 @@ class UnicodeLinesFieldTest(ATSiteTestCase):
         instance = Dummy()
         f = LinesField('test')
         f.set(instance, ['h\xc3\xa9h\xc3\xa9h\xc3\xa9'])
-        out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
-        iso = ('héhéhé',)
+        out = (u'héhéhé',)
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, ['héhéhé'], encoding='ISO-8859-1')
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, [u'héhéhé'])
         self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
 class UnicodeTextFieldTest(ATSiteTestCase):
@@ -138,7 +136,7 @@ class UnicodeBaseUnitTest(ATSiteTestCase):
         self.instance.aq_parent = None
         self.instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(self.instance, 'text/plain')
-        self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        self.failUnlessEqual(transformed, 'h\xe9h\xe9h\xe9')
 
 
 def test_suite():

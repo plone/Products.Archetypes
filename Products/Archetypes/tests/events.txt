@@ -29,19 +29,17 @@ Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  7 events:
+  6 events:
   [(<DDocument at a>,
     <zope.app.event.objectevent.ObjectCreatedEvent object at ...>),
    (<DDocument at a>, <OFS.event.ObjectWillBeAddedEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /.../Members/test_user_1_/a>,
     <zope.app.container.contained.ObjectAddedEvent object at ...>),
-   (<ATFolder at /plone/Members/test_user_1_>,
-    <zope.app.container.contained.ContainerModifiedEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /.../Members/test_user_1_/a>,
     <zope.app.event.objectevent.ObjectModifiedEvent object at ...),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /.../Members/test_user_1_/a>,
     <Products.DCWorkflow.events.BeforeTransitionEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /.../Members/test_user_1_/a>,
     <Products.DCWorkflow.events.AfterTransitionEvent object at ...>)]
 
 
@@ -51,7 +49,7 @@ will fire the modified event:
   >>> d.processForm()
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/a>,
+  [(<DDocument at /.../Members/test_user_1_/a>,
     <Products.Archetypes.event.ObjectInitializedEvent object at ...>)]
 
 Doing a `PUT` request will also fire the modified event:
@@ -62,5 +60,5 @@ Doing a `PUT` request will also fire the modified event:
   >>> ignore = d.PUT(request, request.RESPONSE)
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/a>,
+  [(<DDocument at /.../Members/test_user_1_/a>,
     <zope.app.event.objectevent.ObjectModifiedEvent object at ...>)]

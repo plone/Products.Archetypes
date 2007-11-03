@@ -36,7 +36,6 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
-from UIDCatalog import UIDCatalog # Required for migrations from Plone 2.1
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
@@ -495,7 +494,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def _uidFor(self, obj):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
-        if type(obj) not in STRING_TYPES:
+        if not isinstance(obj, basestring):
             uobject = aq_base(obj)
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject

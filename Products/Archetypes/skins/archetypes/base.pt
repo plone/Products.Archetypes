@@ -17,22 +17,29 @@
                             tal:define="kssClassesView context/@@kss_field_decorator_view;
                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable">
 
-          <div tal:replace="structure provider:plone.abovecontenttitle" />
-          
-          <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
-              Title or id
+          <div tal:replace="structure provider:plone.abovecontenttitle"
+               tal:on-error="nothing"/>
+
+          <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view|default">
+              <tal:title tal:replace="here/title_or_id">
+                  Title or id
+              </tal:title>
           </h1>
     
-          <div tal:replace="structure provider:plone.belowcontenttitle" />
+          <div tal:replace="structure provider:plone.belowcontenttitle"
+               tal:on-error="nothing"/>
         </metal:header_macro>
 
         <metal:body_macro metal:define-macro="body"
                           tal:define="field_macro field_macro | here/widgets/field/macros/view"
                           tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
 
-          <div tal:replace="structure provider:plone.abovecontentbody" />
+          <div tal:replace="structure provider:plone.abovecontentbody"
+               tal:on-error="nothing"/>
 
-          <tal:if_visible define="mode string:view;
+          <tal:if_visible define="purl nocall:here/portal_url;
+                                  portal purl/getPortalObject;
+                                  mode string:view;
                                   visState python:field.widget.isVisible(here, mode);
                                   visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
                           condition="python:visState == 'visible' and visCondition">
@@ -50,11 +57,12 @@
         </metal:folderlisting_macro>
 
         <metal:footer_macro define-macro="footer">
-            <div metal:use-macro="here/document_relateditems/macros/relatedItems">
-                show related items if they exist
+            <div metal:use-macro="here/document_relateditems/macros/relatedItems|default">
+                <!-- show related items if they exist -->
             </div>
     
-            <div tal:replace="structure provider:plone.belowcontentbody" />
+            <div tal:replace="structure provider:plone.belowcontentbody"
+                 tal:on-error="nothing"/>
         </metal:footer_macro>
 
       </metal:main_macro>

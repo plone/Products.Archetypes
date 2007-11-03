@@ -120,13 +120,11 @@
                    />
 	    </tal:fieldsets>
 
-	    <input type="hidden"
-		   name="fieldset"
-		   tal:attributes="value fieldset"
-		   tal:condition="python: fieldsets and not allow_tabbing"
-		   />
-
-	    
+	         <input type="hidden"
+		              name="fieldset"
+	                tal:attributes="value fieldset"
+		              tal:condition="python: fieldsets and not allow_tabbing"
+		              />
             <input type="hidden"
                    name="form.submitted"
                    value="1"

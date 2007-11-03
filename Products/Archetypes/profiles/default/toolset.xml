@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <tool-setup>
+  <required tool_id="error_log"
+    class="Products.SiteErrorLog.SiteErrorLog.SiteErrorLog"/>
   <required tool_id="archetype_tool"
     class="Products.Archetypes.ArchetypeTool"/>
   <required tool_id="reference_catalog"

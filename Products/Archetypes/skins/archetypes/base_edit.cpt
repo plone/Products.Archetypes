@@ -2,7 +2,7 @@
            define="view context/@@at_base_edit_view;
                    dummy python:view.isTemporaryObject() and request.set('disable_border', True);
                    lifecycle context/@@at_lifecycle_view;
-                   lock_info context/@@plone_lock_info;
+                   lock_info context/@@plone_lock_info|nothing;
                    dummy lifecycle/begin_edit;
                    errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
@@ -14,6 +14,8 @@
                    fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
                    dummy python:here.at_isEditable(fields);
                    portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
+                   portal_url nocall:here/portal_url;
+                   portal portal_url/getPortalObject;
                    type_name here/getPortalTypeName|here/archetype_name;
                    base_macros here/edit_macros/macros;
                    edit_template python:'%s_edit' % portal_type;
@@ -22,7 +24,7 @@
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
-                   isLocked isLocked | lock_info/is_locked_for_current_user;
+                   isLocked isLocked | lock_info/is_locked_for_current_user | nothing;
                    css python:here.getUniqueWidgetAttr(fields, 'helper_css');
                    js python:here.getUniqueWidgetAttr(fields, 'helper_js');">
 

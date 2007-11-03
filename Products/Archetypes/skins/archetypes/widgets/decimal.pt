@@ -21,7 +21,7 @@
                        formatted python:(whole_dollars and pps.whole_dollars(formatted)) or formatted;
                        formatted python:(thousands_commas and pps.thousands_commas(formatted)) or formatted;
                        result python:(if_format and formatted) or result;"
-                       tal:replace="result"/>
+                       tal:replace="structure result"/>
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | here/widgets/field/macros/edit">

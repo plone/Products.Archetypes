@@ -1,18 +1,19 @@
 from Testing.ZopeTestCase import Functional
 from Products.Archetypes.tests import attestcase
-from Products.PloneTestCase.setup import portal_name
-from Products.PloneTestCase.setup import portal_owner
+from Products.CMFTestCase.setup import portal_name
+from Products.CMFTestCase.setup import portal_owner
+from Products.CMFTestCase.setup import default_user
 import sys, code
 
-from Products.PloneTestCase import PloneTestCase
+from Products.CMFTestCase import CMFTestCase
 
-class ATSiteTestCase(PloneTestCase.PloneTestCase, attestcase.ATTestCase):
-    """AT test case with Plone site
+class ATSiteTestCase(CMFTestCase.CMFTestCase, attestcase.ATTestCase):
+    """AT test case with CMF site
     """
 
 
 class ATFunctionalSiteTestCase(Functional, ATSiteTestCase):
-    """AT test case for functional tests with Plone site
+    """AT test case for functional tests with CMF site
     """
     
     def interact(self, locals=None):

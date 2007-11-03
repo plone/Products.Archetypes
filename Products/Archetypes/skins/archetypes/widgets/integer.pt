@@ -16,7 +16,7 @@
              tal:attributes="class kss_class;
                              id string:parent-fieldname-$fieldName">
             <span metal:define-slot="inside"
-                  tal:replace="accessor">string</span>
+                  tal:replace="structure accessor">string</span>
         </div>
     </metal:view_macro>
 

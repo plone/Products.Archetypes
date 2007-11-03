@@ -153,7 +153,6 @@ class ExtensibleMetadata(Persistence.Persistent):
             'language',
             accessor="Language",
             default = config.LANGUAGE_DEFAULT,
-            default_method = 'defaultLanguage',
             vocabulary='languages',
             widget=LanguageWidget(
                 label=_(u'label_language', default=u'Language'),
@@ -209,11 +208,6 @@ class ExtensibleMetadata(Persistence.Persistent):
     def __init__(self):
         pass
 
-    security.declarePrivate('defaultLanguage')
-    def defaultLanguage(self):
-        """Retrieve the default language"""
-        return config.LANGUAGE_DEFAULT
-    
     security.declarePrivate('defaultRights')
     def defaultRights(self):
         """Retrieve the default rights"""
@@ -307,7 +301,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                      ('pt','Portuguese'), ('ru','Russian')))
         else:
             languages = util.getLanguageListing()
-            languages.sort(lambda x,y:cmp(x[1], y[1]))
+            languages.sort(key=lambda x:x[1])
             # Put language neutral at the top.
             languages.insert(0,(u'',_(u'Language neutral (site default)')))
         return DisplayList(languages)
