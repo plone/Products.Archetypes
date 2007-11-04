@@ -2,10 +2,10 @@ from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes.interfaces import IBaseFolder
 from Products.CMFCore import permissions
-from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from zope.interface import implements
+from plone.folder.ordered import OrderedBTreeFolderBase
 
 # to keep backward compatibility
 has_btree = 1
@@ -14,12 +14,12 @@ from webdav.NullResource import NullResource
 from OFS.ObjectManager import REPLACEABLE
 from ComputedAttribute import ComputedAttribute
 
-class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
+class BaseBTreeFolder(OrderedBTreeFolderBase, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
     security = ClassSecurityInfo()
 
-    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
+    __implements__ = BaseFolder.__implements__
     implements(IBaseFolder)
 
     # Fix permissions set by CopySupport.py
@@ -31,12 +31,12 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected('Copy or Move', 'manage_copyObjects')
 
     def __init__(self, oid, **kwargs):
-        CMFBTreeFolder.__init__(self, oid)
+        OrderedBTreeFolderBase.__init__(self, oid)
         BaseFolder.__init__(self, oid, **kwargs)
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # OrderedBTreeFolderBase inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
@@ -44,7 +44,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_afterClone')
     def manage_afterClone(self, item):
-        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # OrderedBTreeFolderBase inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
@@ -52,7 +52,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security.declarePrivate('manage_beforeDelete')
     def manage_beforeDelete(self, item, container):
-        # CMFBTreeFolder inherits from PortalFolder, which has the same
+        # OrderedBTreeFolderBase inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
         # override any of those methods, so just calling
         # BaseFolder.manage* should do it.
@@ -76,7 +76,7 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
             accessor = self.Schema()[key].getAccessor(self)
             if accessor is not None:
                 return accessor()
-        return CMFBTreeFolder.__getitem__(self, key)
+        return OrderedBTreeFolderBase.__getitem__(self, key)
 
     security.declareProtected(permissions.ModifyPortalContent, 'indexObject')
     indexObject = BaseFolder.indexObject.im_func
