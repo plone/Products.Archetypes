@@ -1,6 +1,12 @@
 1.6 - trunk - unreleased
 ========================
 
+  * CalendarWidget would not return a value without JavaScript support from
+    calendar_formfield.js. This is disabled for unauthenticated users in
+    Plone 3. Added a process_form override method to CalendarWidget to
+    assemble the input components.
+    [smcmahon]
+
   * Removed five:implements statements from ZCML, which are already done in the
     classes themselves.
     [hannosch]
