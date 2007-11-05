@@ -41,6 +41,7 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
+from Products.Archetypes.Field import ScalableImage
 from Products.Archetypes import config
 from Products import PortalTransforms
 from OFS.Image import File, Image
@@ -60,6 +61,8 @@ test_fields = [
           ('FixedPointField', 'fixedpointfield2'),
           ('BooleanField', 'booleanfield'),
           ('ImageField', 'imagefield'),
+          ('PhotoField', 'photofield'),
+          # 'ReferenceField', 'ComputedField', 'CMFObjectField',
           ]
 
 field_instances = []
@@ -75,27 +78,34 @@ field_values = {'objectfield':'objectfield',
                 'stringfield':'stringfield',
                 'filefield_file':txt_file,
                 'textfield':'textfield',
-                'datetimefield':'2003-01-01',
+                'datetimefield':'',
+                'datetimefield_year':'2003',
+                'datetimefield_month':'01',
+                'datetimefield_day':'01',
+                'datetimefield_hour':'03',
+                'datetimefield_minute':'04',
                 'linesfield':'bla\nbla',
                 'integerfield':'1',
                 'floatfield':'1.5',
                 'fixedpointfield1': '1.5',
                 'fixedpointfield2': '1,5',
                 'booleanfield':'1',
-                'imagefield_file':img_file}
+                'imagefield_file':img_file,
+                'photofield_file':img_file}
 
 expected_values = {'objectfield':'objectfield',
                    'stringfield':'stringfield',
                    'filefield':txt_content,
                    'textfield':'textfield',
-                   'datetimefield':DateTime('2003-01-01'),
+                   'datetimefield':DateTime('2003-01-01 03:04'),
                    'linesfield':('bla', 'bla'),
                    'integerfield': 1,
                    'floatfield': 1.5,
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name, 
+                   'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name
                    }
 
 empty_values = {'objectfield':None,
@@ -180,7 +190,7 @@ class ProcessingTest(ATSiteTestCase):
         dummy.processForm()
         for k, v in expected_values.items():
             got = dummy.getField(k).get(dummy)
-            if isinstance(got, (File, Image)):
+            if isinstance(got, (File, ScalableImage, Image)):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
@@ -351,8 +361,7 @@ class DownloadTest(ATSiteTestCase):
         value = self.field.download(self.dummy, no_output=True)
         self.failIf(isinstance(value, str))
 
-    # XXX This test produces an UnicodeEncodeError in default Archetypes
-    def DISABLED_test_download_filename_encoding(self):
+    def test_download_filename_encoding(self):
         # When downloading, the filename is converted to ASCII:
         self.field.setFilename(self.dummy, '\xc3\xbcberzeugen')
         self.field.download(self.dummy, no_output=True)
