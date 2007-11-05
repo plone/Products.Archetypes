@@ -1,44 +1,19 @@
-1.6 - trunk - unreleased
-========================
-
-  * Removed five:implements statements from ZCML, which are already done in the
-    classes themselves.
-    [hannosch]
-
-  * revert http://dev.plone.org/archetypes/changeset/8684 - Dont skip the
-    'metadata' schema in base_edit. Wichert and I agreed thats this is
-    wrong. This is a forward port from 1.5. We do not found a good reason to
-    remove the metadata from fieldsets, so we keep it in the this release.
-    [jensens, wiggy]
-
-  * Fixed to zope.i18n.translate calls, which didn't pass in the request.
-    [hannosch]
-
-  * Changed the default return type of StringField and LinesField. These return
-    Unicode now per default. You can still query them for an explicit encoding
-    and their set methods still accept both Unicode and encoded strings.
-    [hannosch]
-
-  * Minor tweak in the calendar widget.
-    [deo, hannosch]
-
-  * Converted Archetypes tests to use CMFTestCase as a base again, instead of
-    PloneTestCase. Fixed all tests / code to actually work without Plone
-    installed.
-    [hannosch]
-
-  * Removed Archetypes Site customization policy.
-    [hannosch]
-
-  * Removed deprecated code.
-    [hannosch]
-
-  * Moved rejectAnonymous script from CMFPlone over, as it is still used
-    inside base_metadata.cpt.
-    [hannosch]
-
 1.5.4 - unreleased
 ==================
+
+  * CalendarWidget would not return a value without JavaScript support from
+    calendar_formfield.js. This is disabled for unauthenticated users in
+    Plone 3. Added a process_form override method to CalendarWidget to
+    assemble the input components.
+    [smcmahon]
+
+  * revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the 
+    'metadata' schema in base_edit. Wichert and I agreed thats this is
+    wrong. Specially inside a bug-fix release. If theres a good reason to
+    remove the metadata from fieldsets, we can do it in the next release.
+    The UI was broken as well, btw.
+    [jensens, wiggy]
+
 
 1.5.3 - 2007-10-07
 ==================
