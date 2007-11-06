@@ -43,16 +43,19 @@ class SelectionWidget(BrowserView):
     >>> widget.getSelected(friends, 'Spanish Inquisition')
     []
 
-    We always return the same encoding as was passed in with the value.
+    getSelected is used to get a list of selected vocabulary items.
+    In the widget, we repeat on the vocabulary, comparing
+    its values with those returned by getSelected. So,    
+    we always return the same encoding as in the vocabulary.
 
     >>> widget.getSelected(friends, u'Monty Python')
-    [u'Monty Python']
+    ['Monty Python']
     >>> widget.getSelected(friends, 'Monty Python')
     ['Monty Python']
     >>> widget.getSelected(friends, u'Guido van Rossum')
     [u'Guido van Rossum']
     >>> widget.getSelected(friends, 'Guido van Rossum')
-    ['Guido van Rossum']
+    [u'Guido van Rossum']
 
     Test with an IntDisplayList:
 
@@ -68,21 +71,24 @@ class SelectionWidget(BrowserView):
     """
 
     def getSelected(self, vocab, value):
+        
         context = aq_inner(self.context)
 
         site_charset = context.getCharset()
 
-        def lazyVocab(vocab):
-            for key in vocab:
-                # vocabulary keys can only be strings or integers
-                if isinstance(key, str):
-                    key = key.decode(site_charset)
-                yield key
-
+        # compile a dictionary from the vocabulary of
+        # items in {encodedvalue : originalvalue} format
+        vocabKeys = {}
+        for key in vocab:
+            # vocabulary keys can only be strings or integers
+            if isinstance(key, str):
+                vocabKeys[key.decode(site_charset)] = key
+            else:
+                vocabKeys[key] = key
+        
+        # compile a dictonary of {encodedvalue : oldvalue} items
+        # from value -- which may be a sequence, string or integer.
         values = {}
-        # we compute a dictonary of {oldvalue : encodedvalue} items, so we can
-        # return the exact oldvalue we got for comparision in the template but can
-        # compare the unicode values against the vocabulary
         if isinstance(value, tuple) or isinstance(value, list):
             for v in value:
                 new = v
@@ -100,10 +106,13 @@ class SelectionWidget(BrowserView):
                 new = str(value)
             values[new] = value
 
+        # now, build a list of the vocabulary keys
+        # in their original charsets.
         selected = []
         for v in values:
-            if v in lazyVocab(vocab):
-                selected.append(values[v])
+            ov = vocabKeys.get(v)
+            if ov:
+                selected.append(ov)
 
         return selected
 
