@@ -1,0 +1,85 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- Calendar Widgets -->
+
+    <metal:view_macro define-macro="view"
+            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="calendar-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/calendar', macro='calendar-field-view');
+                       d accessor;
+                       d python:test(d and d=='None','',d);
+                       format widget/format;
+                       formatted python:format and d and d.strftime(format);
+                       result python:(format and formatted) or (d and here.toLocalizedTime(d, long_format=1));"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:replace="structure result">calendar</span>
+        </div>
+    </metal:view_macro>
+
+    <metal:define define-macro="edit"
+       tal:define="format widget/format">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body">
+          <tal:define define="id fieldName;
+                              show_hm widget/show_hm|nothing;
+                              show_ymd widget/show_ymd|nothing;
+                              starting_year widget/starting_year|nothing;
+                              ending_year widget/ending_year|nothing;
+                              future_years widget/future_years|nothing;
+                              inputname fieldName;
+                              formname string:edit_form;
+                              inputvalue python:test(value!='None', value, '');">
+            <metal:box use-macro="here/calendar_macros/macros/calendarDatePickerBox">
+              a calendar, hopefully
+            </metal:box>
+          </tal:define>
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <metal:define define-macro="search">
+      <metal:field use-macro="here/widgets/field/macros/edit">
+        <metal:slot fill-slot="widget_body">
+          <tal:from define="id fieldName;
+                            show_hm widget/show_hm|nothing;
+                            show_ymd widget/show_ymd|nothing;
+                            inputname fieldName;
+                            formname string:search_form;
+                            inputvalue python:min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();">
+            <metal:box use-macro="here/calendar_macros/macros/calendarDatePickerBox">
+              a calendar, hopefully
+            </metal:box>
+          </tal:from>
+          -
+          <tal:to define="id fieldName;
+                          inputname fieldName;
+                          formname string:search_form;
+                          inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();">
+            <metal:box use-macro="here/calendar_macros/macros/calendarDatePickerBox">
+              a calendar, hopefully
+            </metal:box>
+          </tal:to>
+          <input type="hidden"
+                 name="field_usage"
+                 value="range:min:max"
+                 tal:attributes="name string:${fieldName}_usage"
+                 />
+        </metal:slot>
+      </metal:field>
+    </metal:define>
+
+  </body>
+
+</html>

@@ -1,0 +1,45 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <div metal:define-macro="header">
+
+    <div metal:use-macro="here/document_actions/macros/document_actions">
+        Document actions (print, sendto etc)
+    </div>
+
+    <h1 tal:define="fti here/getTypeInfo;
+                    type_title fti/Title|type_name;">
+
+        <span i18n:translate="heading_edit_item">Edit
+            <span i18n:name="itemtype">
+                <span i18n:translate=""
+                      tal:content="type_title"
+                      tal:omit-tag="">Item type</span>
+            </span>
+        </span>
+
+        <span tal:condition="python:fieldset and fieldset != 'metadata'">
+          [<span i18n:translate=""
+                tal:content="fieldset"
+                tal:omit-tag="">fieldset</span>]
+        </span>
+    </h1>
+
+      <p class="discreet"
+         i18n:translate="description_edit_properties">
+          This information, also referred to as <em>metadata</em> is the
+          collection of information that is used to categorize an object, assign
+          effective dates and expiration dates, language, and keywords.
+      </p>
+
+    </div>
+
+  </body>
+</html>

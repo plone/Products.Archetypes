@@ -1,0 +1,539 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+	  charset=utf-8">
+    <title></title>
+    <style>
+      <!--
+      @page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+      P { 
+      margin-bottom: 0.21cm;
+      font-family: "Verdana", "Arial";
+      width: 75%;
+      }
+      
+      span.title { font-size: xx-large; }
+      span.subtitle {font-size: large; font-weight: bold; }
+      
+      div.author { font-size: small;}
+
+      div.code  { background-color: #c0c0c0; 
+      font-family: monospace, "fixed"; 
+      width: 65%;
+      position: relative;
+      left: 40px;
+      border: 1px solid black;
+      white-space: pre;
+      }
+      
+      div.links { position: relative;
+      left: 40px;
+      }
+
+      -->
+    </style>
+  </head>
+  <body>
+    <span class="title"><b>Archetypes</b></span><br />
+    <span class="subtitle">    Next Generation Content Type
+      Development for Zope 2</span>
+    <p><br>
+    </p>
+    <div class="author">
+    <p>Benjamin Saller</p>
+    <p>Abstract Edge</p>
+    <em>&lt;bcsaller@ideasuite.com&gt;</em>
+
+
+    <p>Archetypes (formerly known as CMFTypes) is Zope Product which
+      simplifys the creation of new content types under Zope 2 and the
+      Content Management Framework (CMF). Many content management projects
+      involve introducing new types of content, which in the non-trivial
+      case requires an informed understanding of how Zope and the CMF work.
+      Archetypes provides a simple, extensible framework that can ease both
+      the development and maintenance costs of CMF content types while
+      reducing the learning curve for the simpler cases.</p>
+    <p><br>
+    </p>
+    <p>The Zope/CMF world is populated with many projects that deal with
+      multiple content types. Most of these deal with one or two aspects of
+      content management, mainly specifying what kinds of data constitute a
+      type and what might serve as an acceptable source of data for
+      populating a content object. By these I mean defining what fields
+      constitute a type (body, teaser, etc) and products that deal with
+      converting rich original content (Office Products, PDF, Docbook, etc)
+      into web ready forms.</p>
+    <p><br>
+    </p>
+    <p>Archetypes introduces a framework that provides some layering
+      between concerns and provide a reasonable set of default policy and
+      integration with Zope’s leading CMF implementation, Plone
+      (<a href="http://www.plone.org/">www.plone.org</a>).</p>
+    <p><br>
+    </p>
+    <span class="title">OVERVIEW</span><br />
+
+    <p>Archetypes works by declaring data about the object using its
+    custom schema definition format. A schema is simply a list of
+    Field objects that describe the data and specify the various
+    concerns that should be implemented/generated/dealt-with on behalf
+    of the content objects. At its most basic a schema is very
+    simple</p> 
+
+  <div class="code">
+    Schema((TextField('teaser'),
+	TextField('body'),
+    	))
+  </div>
+    <p>This
+      declares a schema with two fields, teaser and body. When
+      inserted into a class this would cause each Field to be
+      associated with accessors and mutators, generate edit and view
+      forms, validation scripts, a unique ID for the object, the
+      ability to handle references between objects and a host of other
+      features.
+    </p>
+    <p><br>
+    </p>
+    <p>While its interesting that little else is required you are also
+      capable of defining a variety of policy in the schema and in the
+      Python code referred to by the schema. Below is the same example with
+      a bit more detail and policy.</p>
+    <p><br>
+    </p>
+  
+  <div class="code">
+  Schema((
+	TextField(
+		'teaser',
+    		searchable=1,
+    		widget=TextAreaWidget(
+    			label=&quot;Teaser&quot;,
+    			description=&quot;A lead in for the article&quot;,
+    			)
+    		),
+    	TextField(
+    		'body',
+    		required=1,
+    		searchable=1,
+    		allowable_content_types=('text/plain',
+	                                 'text/structured',
+	                                 'text/html',
+                                	 'application/msword'),
+    		widget=RichWidget(
+    			label=&quot;Article Body&quot;,
+    			description=&quot;The main content of the article&quot;,
+    			)
+    		),
+    ))
+  </div>
+    <p><br>
+    </p>
+    <p>By providing a bit more information we are able to make forms that
+      indicate that body is required (with supporting validation), that
+      both Fields contribute to the SearchableText (a way of saying what
+      parts of a content object are “full text searchable” in CMF
+      terms) and providing some descriptive labels for the generated forms.
+      What is also interesting is that we have specified information for
+      the body field that deals with content transformation, we have
+      indicated that the Archetypes runtime should deal with content
+      originating in all of the listed mime-types (which results in the
+      automatic generation of an HTML version of the content as well as
+      keeping the original). By requesting that the ‘RichWidget’ be
+      used on the form we are given the chance to enter text into a
+      textarea or upload a file in one of the know mime-types. It also
+      exposes the field for use with External Editor allowing content
+      authors to edit the Field locally using a content editor of their
+      choosing and save updates directly to the resulting content object
+      (with all of the transformation and cataloging concerns automatically
+      addressed).</p>
+    <p><br>
+    </p>
+    <p>Archetypes continues by  providing a set of abstractions of things
+      like data type mapping and data storage. It is my hope that projects
+      can provide custom implementations of Field for new data types, new
+      types of transformations, new storage models and that these will be
+      largely interchangeable and useful on other projects. The project
+      provides simpler ways to set things like icons, actions and other
+      elements associated with content types in the CMF.</p>
+    <p><br>
+    </p>
+    <span class="title">
+      Details</span><br />
+
+    <span class="subtitle">Generation</span>
+    <p>Archetypes
+      defines <i>active schemas</i> when creating new types. Rather
+      than just defining the properties and policies of a new type the
+      schema definition implements policy and binds it to different
+      concerns.  This has many interesting implications. Projects can
+      define custom Field types that introduce policy for new Field
+      types. This means that developers can build collections of
+      policy that are useful in a variety of new and different types,
+      something that is not as simple when writing custom accessors
+      and mutators for each field by hand.  It is an important goal of
+      the Archetypes project that all of the inner-workings of the
+      project become exposed at the programmatic level for adaptation
+      to individual projects needs while not requiring changes to the
+      core.</span></p>
+    <p>
+      <br>
+    </p>
+    <p>
+      At the same time its quite possible for developers to implement their
+      own policy and ignore most of the inner workings of the runtime
+      system.  The Archetypes framework carries a rich set of configurable
+      behaviors but if the existing framework is not sufficient or cannot
+      be extended then it makes every effort to stay out of the developers
+      way. Standard Object Oriented techniques like using subclassing to
+      specialize content types still works normally and developers can
+      choose to provide their own implementation of almost any behavior. To
+      facilitate this (and to ease the common case where the developer does
+      wish to depend on the Archetypes system) a class generation layer is
+      employed when ever a change to the schema is detected. 
+    </p>
+    <p>
+      <br>
+    </p>
+    <p>
+      The Class Generator will inspect the schema, attempt to figure out
+      names for accessors and mutators (either registered names or via a
+      default naming convention) and then figure out if the methods need to
+      be generated or not. This point is important, if methods with the
+      expected names of the accessor and mutator exist on the class then
+      nothing further is done, but if not the field is bound to the active
+      schema using a generated method.</p>
+    <p>
+      <br>
+    </p>
+    <p>
+      In Archetypes the default is that each class retains a pointer
+      to the schema accessible though the<i> Schema()</i> method
+      call. The schema grants runtime access to the names of the
+      accessors and mutators as well as containing the field objects
+      which hold the actual implementation.
+    </p>
+    <p>
+      <br>
+    </p>
+    <p>
+      The following shows access to the attributes at runtime and getting a
+      handle to the accessor.</p>
+    <p>
+      <br>
+    </p>
+  <div class="code">
+    self.Schema()[field.getName()].accessor
+    self.Schema()[field.getName()].mutator
+
+    accessor = getattr(self, self.Schema()[field.getName()].accessor)
+  </div>
+  <p>
+      <br>
+    </p>
+    <p>
+      Field objects implement a get/set protocol which is what the
+      automatically generated methods delegate to.   Examples of what these
+      generated method might look like follow: 
+    </p>
+    <p>
+      <br>
+    </p>
+  <div class="code">
+      def accessor(self): return self.Schema()[field.getName()].get(self)
+      def mutator(self, value): self.Schema()[field.getName()].set(self, value)
+  </div>
+    <p>
+      <br>
+    </p>
+    <p>
+      A very simple Field level implementation of<i> get </i>is shown
+      below.</p>
+    <p>
+      <br>
+    </p>
+
+  <div class="code">
+    def get(self, instance): return self.storage.get(self.getName(), instance)  
+  </div>
+
+    <p>
+      Where <i>self.getName()</i> is the name of that field as it was registered
+      in the schema. Here we delegate to the storage concern which can be
+      defined/overridden in the schema again. A sample of what a storage
+      <i>get</i> method might look like is shown below.</p>
+    <p>
+      <br>
+    </p>
+
+  <div class="code">
+      def get(self, name, instance): return getattr(self, instance, name)
+  </div>
+    <p>
+      <br>
+    </p>
+    <p>
+      This simple layering allows for fields that might store their field
+      level data in different ways or that require different data mapping
+      before storage can be done (for example converting the field to an
+      different data type, i.e. DateTime objects). It is possible then to
+      use as little or much of the layering machinery as needed by a
+      particular project or simply provide your own implementation.  
+    </p>
+    <p>
+      <br />
+    </p> <p>As an example if you require a Field that normalizes it's
+    data you could define your own field implementation that mapped
+    the value before calling the storage layer, or simply write your
+    own custom mutator. The example below might be the mutator for a
+    field named 'foo', that converts its argument to a lowercased
+    string.</p>
+    <p>
+      <br />
+    </p>
+
+   <div class="code">
+    def setFoo(self, value): self._foo = str(value).lower()
+    </div>
+      <br />
+    </p>
+    <p><Storage implementations exist for attributes, folderish (object
+      managed), and special metadata storage, but could easily be extended
+      so that certain fields (such as large Office documents) could be kept
+      on the file-system or in a database.</p>
+    <p>
+      <br>
+    </p>
+    <p>
+    <br />
+    </p>
+    <span class="subtitle">References</span><br /> 
+     <p>Within a given/particular site, Archetypes based objects each
+     register with the ArchetypeTool and are assigned a unique
+     Id. This UID should remain consistent in the face of rename and
+     move operations.  References to other Archetypes based objects
+     are possible and back-references are maintained.
+    </p>
+    <p><br>
+    </p>
+    <span class="subtitle">Validation</span><br />
+    <p>Archetypes
+      has a built in notion of validation for the object. Two forms of
+      validation exist, the first and simplest is to delegate to the
+      validation service that resides in the Archetypes CVS repository.
+      Using this tool reusable elements of validation can be referred to in
+      the schema. Using this tool is as simple as defining a tuple of named
+      validators. For example to indicate that the field 'url' should
+      validate as a URL we specify the following in the schema.</p>
+    <p><br>
+    </p>
+  <div class="code">
+    StringField('url',
+	  validators=('isURL',))
+  </div>
+    <p>In
+      many cases this is enough, but in cases where more complex validation
+      is required (or is needed to suppliment the validators list) custom
+      validators can easily be written. The API exposed is very simple and
+      is automatically invoked during form submission. If we need  to
+      validate that the field 'number' were in some range we could easily
+      write a method with the name validate_number.</p>
+    <p><br>
+    </p>
+  
+  <div class="code">
+    def validate_foo(self, new_value):
+	ival = int(new_value)
+    	if not (10 &lt; ival &lt; 20):
+    	    return "The value for number is out of range"
+    	return None
+  </div>
+  
+    <p><br>
+    </p>
+
+    <p>If
+      and when errors are returned they are automatically encoded for use
+      in form level error reporting.</p>
+    <p><br>
+    </p>
+    <span class="title">
+    Example</span>
+    <p><br>
+    </p>
+    <p>As
+      an example I include a complete, but simple, example of using
+      Archetypes from a new project. The project is available in the
+      Archetypes CVS repository as ArchExample. I encourage you to
+      look in CVS for versions of this example that track changes to
+      the framework over time.</p>
+    <p><br>
+    </p>
+    <p>The
+      following files are required to make a project function.</p>
+    <p><br>
+    </p>
+<div class="code">
+    ArchExample/
+	  __init__.py   ## Register Content Globally
+	  Article.py    ## Our new content type
+	  Extensions/
+        	  Install.py ## Script to bind our content 
+                             ## type to a given site
+</div>
+    <p>The complete code for Article follows:</p>
+    <p><br>
+    </p>
+<div class="code">
+    from Products.Archetypes.atapi import *
+    
+    schema = BaseSchema +  Schema((
+	  StringField('blurb',
+	      searchable=1,
+      	      widget=TextAreaWidget(),
+	  ),
+    
+	  TextField('body',
+	      searchable=1,
+	      required=1,
+       	      allowable_content_types=('text/plain',
+ 	                               'text/structured',
+     	                               'text/html',),
+	      widget=RichWidget(),
+	     ),
+	  ))
+    
+    
+    class Article(BaseContent):
+	  schema = schema
+    
+    registerType(Article)
+</div>
+<br />
+    <p>Article
+      uses the public API file and requires very little code to get going.
+      This will create a type with a blurb and a TextArea widget, and a
+      body field that allows for file uploads and a richer set of content
+      types.</p>
+    <p><br>
+    </p>
+    <p>The
+      __init__ file is equally simple.</p>
+    <p><br>
+    </p>
+<div class="code">
+    from Globals import package_home
+    from Products.CMFCore import utils
+    from Products.Archetypes.atapi import *
+    from Products.Archetypes import listTypes
+    
+    ADD_CONTENTS_PERMISSION = 'Add example content'
+    PROJECTNAME = &quot;ArchExample&quot;
+    
+    def initialize(context):
+	  import Article
+
+	  content_types, constructors, ftis = process_types(
+	          listTypes(PROJECTNAME),
+	          PROJECTNAME)
+    
+	
+	  utils.ContentInit(
+        	  PROJECTNAME + ' Content',
+	          content_types      = content_types,
+	          permission         = ADD_CONTENTS_PERMISSION,
+	          extra_constructors = constructors,
+	          fti                = ftis,
+	  ).initialize(context)
+</div>
+    <p><br>
+    </p>
+    <p>This
+      simply makes the type available to the CMF machinery in the normal
+      way.</p>
+    <p><br>
+    </p>
+    <p>The
+      external method, Install in the Extensions directory is also quite
+      simple and uses utilities in the Archetypes project to do all the
+      heavy lifting.</p>
+    <p><br>
+    </p>
+<div class="code">
+    from Products.Archetypes.Extensions.utils import installTypes
+    from Products.Archetypes import listTypes
+    from Products.ArchExample import PROJECTNAME
+    from StringIO import StringIO
+    
+    def install(self):
+	  out = StringIO()
+	  installTypes(self, out,
+	  listTypes(PROJECTNAME),
+	  PROJECTNAME)
+    
+	  print &gt;&gt; out, &quot;Successfully installed %s.&quot; %
+	        PROJECTNAME
+	  return out.getvalue()
+</div>
+    <p><br>
+    </p>
+    <p>At
+      the end of this you are left with a new type inside your Plone site.
+      All the forms are dynamically rendered and are seamless to use. The
+      new type can use references, transformations, and can easily be
+      updated and extended with schema changes. The more complex a project
+      and the more types it has the greater the gain. When requirements are
+      volatile the cost of having to update multiple forms and code files
+      can be quite costly. Hopefully this example shows just how little (in
+      this case just the schema in Article) needs to be changed and
+      updated.</p>
+    <p><br>
+    </p>
+    <span class="subtitle">Conclusion</span><br />
+    <p><br>
+    </p>
+    <p>Archetypes
+      addresses with some success the creation of new content types in Zope
+      2, CMF and Plone. It has been met with an enthusiastic response
+      within the Plone development community and offers a powerful set of
+      features with out having to expressly deal with all the concerns that
+      might be involved in dealing with large complex objects. There is
+      currently talk about rebuilding the content elements of Plone to use
+      all Archetypes based content types in its next release. 
+    </p>
+    <p><br>
+    </p>
+    <p>There
+      are some powerful abstractions such as delegating access and mutation
+      through the Fields. Data mapping and storage layers operate in a way
+      that is seamless to the developer except when they explicitly need to
+      address those concerns. There are a number of lessons learned for
+      both the Zope 2 and Zope 3 development communities.</p>
+    <p><br>
+    </p>
+    <span class="subtitle">
+      AVAILABILITY</span><br />
+    <p><br>
+    </p>
+    <p>Archetypes
+      is currently available as a released package in a CMF/Plone project
+      on SourceForge known as the collective (which hosts a number of
+      wonderful CMF/Plone products).</p>
+    <p><br>
+    </p>
+
+<div class="links">
+    <p>Archetypes
+      <a href="http://sf.net/projects/archetypes">http://sf.net/projects/archetypes</a></p>
+    <p>Plone
+      <a href="http://plone.org/">http://plone.org/</a></p>
+    <p>CMF 
+      <a href="http://cmf.zope.org/">http://cmf.zope.org/</a></p>
+    <p>Zope
+      <a href="http://www.zope.org/">http://zope.org/</a></p>
+    <p>Python
+      <a href="http://python.org">http://python.org/</a></p>
+</div>
+  </body>
+</html>

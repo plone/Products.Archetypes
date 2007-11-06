@@ -1,0 +1,131 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <metal:view_macro define-macro="view">
+
+     <tal:block tal:condition="python:hasattr(field, 'relationship')">
+        
+      <tal:block  tal:define="targets python:here.getRefs(field.relationship)"
+                  tal:condition="targets">
+
+        <a href="#"
+           tal:define="obj python:targets[0]"
+           tal:condition="not:field/multiValued"
+           tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+           tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+          Sole target object's title
+        </a>
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="obj targets">
+            <a href="#"
+               tal:attributes="href obj/absolute_url; class python:obj.portal_type.replace(' ', '_')"
+               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Target Title
+            </a>
+          </li>
+        </ul>
+
+      </tal:block>
+     </tal:block>
+
+      <tal:block 
+            tal:condition="not:python:hasattr(field, 'relationship')"
+            tal:define="vocab python:field.Vocabulary(here);
+                        value python:accessor();
+                        display python:here.displayValue(vocab, value);"
+            tal:replace="structure display" />
+
+    </metal:view_macro>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body"
+                    tal:define="vocab python:field.Vocabulary(here);
+                                selectionview context/@@at_selection_widget;
+                                selection python:selectionview.getSelected(vocab, value);
+                                vlen python:len(vocab)">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="not:field/required|nothing"
+                 tal:attributes="name string:$fieldName:default:list;" />
+
+          <div>
+            <div style="float:left">
+                <table style="border:none;margin:0em;padding:0em;margin-right:0.5em;" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding-left:0em;padding-top:0em;">
+                      <select
+                        class="firstToFocus"
+                        multiple="multiple"
+                        tal:attributes="name string:${fieldName}_options;
+                                        id string:${fieldName}_options;
+                                        size widget/size;
+                                        onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
+      
+                        <tal:block tal:repeat="vocab_item vocab">
+                          <option
+                            tal:define="label python:vocab.getValue(vocab_item)"
+                            tal:condition="python:not vocab_item in selection"
+                            tal:attributes="value vocab_item;"
+                            tal:content="label"
+                            i18n:translate="">
+                            option
+                          </option>
+                        </tal:block>
+      
+                      </select>
+                    </td>
+      
+                    <td style="vertical-align:middle">
+                      <input type="button" class="context" value="&gt;&gt;"
+                             tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')"
+                             />
+                      <br />
+                      <input type="button" class="context" value="&lt;&lt;"
+                             tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')"
+                             />
+                    </td>
+                  </tr>
+                </table>
+            </div>
+            <div style="float:left">
+              <select
+                  multiple="multiple"
+                  tal:attributes="name string:${fieldName}:list;
+                                  id string:${fieldName};
+                                  size widget/size;
+                                  onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
+  
+                  <tal:block tal:repeat="single_value selection">
+                    <option
+                      tal:attributes="value single_value;"
+                      tal:content="python:vocab.getValue(single_value)"
+                      selected="selected"
+                      i18n:translate="">
+                       option
+                    </option>
+                  </tal:block>
+                  </select>
+             </div>
+             <div style="clear:both">&nbsp;</div>
+          </div>
+          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/multiselection/macros/edit">
+      </div>
+    </div>
+
+  </body>
+</html>

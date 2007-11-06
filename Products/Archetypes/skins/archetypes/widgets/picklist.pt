@@ -1,0 +1,92 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+<!-- Picklist Widgets -->
+
+    <metal:view_macro define-macro="view"
+        tal:define="vocab python:field.Vocabulary(here);
+                    value python:accessor();
+                    display python:here.displayValue(vocab, value);"
+        tal:replace="structure display" />
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body"
+                    tal:define="vocab python:field.Vocabulary(here);
+                                selectionview context/@@at_selection_widget;
+                                selection python:selectionview.getSelected(vocab, value);
+                                vlen python:len(vocab)">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="not:field/required|nothing"
+                 tal:attributes="name string:$fieldName:default:list;"
+                 />
+
+          <table>
+            <tr>
+              <td>
+                <select
+                  multiple="multiple"
+                  tal:attributes="name string:${fieldName}_options;
+                                  id string:${fieldName}_options;
+                                  size widget/size;
+                                  onDblClick string:javascript:pick_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
+                  <option
+                    tal:repeat="item vocab"
+                    tal:attributes="value item;"
+                    tal:content="python:vocab.getValue(item)"
+                    i18n:translate="">
+                    option
+                  </option>
+                </select>
+              </td>
+
+              <td>
+                <input type="button" class="context" value=">>"
+                       tal:attributes="onClick string:javascript:pick_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')"
+                       />
+                <br />
+                <input type="button" class="context" value="&lt;&lt;"
+                       tal:attributes="onClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')"
+                       />
+              </td>
+
+              <td>
+                <select
+                  multiple="multiple"
+                  tal:attributes="name string:${fieldName}:list;
+                                  id string:${fieldName};
+                                  size widget/size;
+                                  onDblClick string:javascript:pick_removeKeywords('${fieldName}','${fieldName}')">
+
+                  <tal:block tal:repeat="single_value selection">
+                    <option
+                      tal:attributes="value single_value;"
+                      tal:content="python:vocab.getValue(single_value)"
+                      selected="selected"
+                      i18n:translate="">
+                       option
+                    </option>
+                  </tal:block>
+                </select>
+              </td>
+            </tr>
+          </table>
+
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/multiselection/macros/edit">
+      </div>
+    </div>
+
+  </body>
+</html>
