@@ -412,6 +412,38 @@ class CalendarWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+    security.declarePublic('process_form')
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False):
+        """Basic impl for form processing in a widget"""
+
+        fname = field.getName()
+        value = form.get(fname, empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        # If JS support is unavailable, the value
+        # in the request may be missing or incorrect
+        # since it won't have been assembled from the
+        # input components. Instead of relying on it,
+        # assemble the date/time from its input components.
+        year = form.get('%s_year' % fname, '0000')
+        month = form.get('%s_month' % fname, '00')
+        day = form.get('%s_day' % fname, '00')
+        hour = form.get('%s_hour' % fname, '00')
+        minute = form.get('%s_minute' % fname, '00')
+        ampm = form.get('%s_ampm' % fname, '')
+        if (year != '0000') and (day != '00') and (month != '00'):
+            value = "%s-%s-%s %s:%s" % (year, month, day, hour, minute)
+            if ampm:
+                value = '%s %s' % (value, ampm)
+        else:
+            value = ''
+        if emptyReturnsMarker and value == '':
+            return empty_marker
+        # stick it back in request.form
+        form[fname] = value
+        return value, {}
+
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({

@@ -1,3 +1,26 @@
+1.5.4 - unreleased
+==================
+
+  * Made the getSelection method in browser/widgets.py return the selection
+    in the character set of the vocabulary -- not the input value.
+    Fixes issue #759, UnicodeDecodeError with selection/multiselection
+    widgets.
+    [smcmahon]
+
+  * CalendarWidget would not return a value without JavaScript support from
+    calendar_formfield.js. This is disabled for unauthenticated users in
+    Plone 3. Added a process_form override method to CalendarWidget to
+    assemble the input components.
+    [smcmahon]
+
+  * revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the 
+    'metadata' schema in base_edit. Wichert and I agreed thats this is
+    wrong. Specially inside a bug-fix release. If theres a good reason to
+    remove the metadata from fieldsets, we can do it in the next release.
+    The UI was broken as well, btw.
+    [jensens, wiggy]
+
+
 1.5.3 - 2007-10-07
 ==================
 
