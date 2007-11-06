@@ -1,6 +1,12 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Made the getSelection method in browser/widgets.py return the selection
+    in the character set of the vocabulary -- not the input value.
+    Fixes issue #759, UnicodeDecodeError with selection/multiselection
+    widgets.
+    [smcmahon]]
+
   * CalendarWidget would not return a value without JavaScript support from
     calendar_formfield.js. This is disabled for unauthenticated users in
     Plone 3. Added a process_form override method to CalendarWidget to
