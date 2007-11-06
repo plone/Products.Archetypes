@@ -1,4 +1,7 @@
-1.5.4 - unreleased
+1.5.5 - unreleased
+==================
+
+1.5.4 - 2007-11-07
 ==================
 
   * Made the getSelection method in browser/widgets.py return the selection
