@@ -1,6 +1,11 @@
 1.5.5 - unreleased
 ==================
 
+  * Archetypes should inform the widgets when processing the form in the
+    validation phase.
+    This closes http://dev.plone.org/archetypes/ticket/760
+    [deo]
+
 1.5.4 - 2007-11-07
 ==================
 
@@ -16,13 +21,12 @@
     assemble the input components.
     [smcmahon]
 
-  * revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the 
+  * Revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the
     'metadata' schema in base_edit. Wichert and I agreed thats this is
     wrong. Specially inside a bug-fix release. If theres a good reason to
     remove the metadata from fieldsets, we can do it in the next release.
     The UI was broken as well, btw.
     [jensens, wiggy]
-
 
 1.5.3 - 2007-10-07
 ==================
@@ -117,7 +121,7 @@
 
   * Added a special fieldproperty type for reference fields, with a more
     generic base class for any field accessors/mutators that need to acquire
-    tools. This uses a workaround for the fact that not all tools are 
+    tools. This uses a workaround for the fact that not all tools are
     utilities (yet) and acquisition doesn't work properly in property
     descriptors.
     [optilude]
@@ -231,8 +235,8 @@
 
   * Allow field defaults to be looked up using an adapter of the instance
     to IFieldDefaultProvider, with a name that is the same as the field name
-    in question (only if no default or default_method was set for that 
-    field). This allows dynamically determined, context-sensitive defaults 
+    in question (only if no default or default_method was set for that
+    field). This allows dynamically determined, context-sensitive defaults
     without having to add a method into the class itself.
     [optilude]
 
@@ -315,8 +319,8 @@
 =====================
 
   * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
-    constructor, and two custom events are fired during processForm() - 
-    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from 
+    constructor, and two custom events are fired during processForm() -
+    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from
     IObjectModifiedEvent, and the Initialized event is fired on the first
     save, whereas the Edited event is fired on subsequent saves.
     [optilude]
@@ -448,8 +452,8 @@
     [jensens]
 
   * BooleanWidget offers to show something different than True/ False in view
-    macro using a vocabulary. Unfortunally it passed a boolean to the 
-    DisplayList, which raised a TypeError. Now we pass the string 
+    macro using a vocabulary. Unfortunally it passed a boolean to the
+    DisplayList, which raised a TypeError. Now we pass the string
     representations 'True' and 'False using 'str(key)', so one can define
     a vocabulary like [('True', 'Yes'), ('False', 'No')].
     [jensens]
@@ -459,20 +463,20 @@
     [nouri]
 
   * The last change expected portal_type global available. This is true for all
-    good archetypes products ;-) but failed with CacheSetup, where editmacros 
+    good archetypes products ;-) but failed with CacheSetup, where editmacros
     was called w/o setting it. Archetypes now ignores this missing global and
-    inititalize it to 'unknowntype'. 
+    inititalize it to 'unknowntype'.
     [jensens]
 
   * for better css styling hpeter added a class and a id to edit_macros form
-    element, which enables per-type styling of base_edit. 
+    element, which enables per-type styling of base_edit.
     [jensens]
 
   * Fix unicodeEncode skin method to deal with sequences; fixes SelectionWidget
     with underlying LinesField case where the current value was not reflected
     in the edit widget. Fixes issue #705.
     [mj]
-  
+
   * BaseContent.PUT will now also fire the object modified event.
     [nouri]
 
@@ -503,7 +507,7 @@
     This closes http://dev.plone.org/archetypes/ticket/687.
     [hannosch]
 
-  * Fixed a minor issue of FixedPointField: It now works with integer default 
+  * Fixed a minor issue of FixedPointField: It now works with integer default
     value.
     [jensens]
 
@@ -523,7 +527,7 @@
     an object exists in the catalog before uncataloging.
     [rocky]
 
-  * Fixed #5963. Now all the first headers of the page have 
+  * Fixed #5963. Now all the first headers of the page have
     "documentFirstHeading" class applied.
     http://dev.plone.org/plone/ticket/5963
     [spliter]
@@ -772,10 +776,10 @@
 1.3.9-final - 2006-05-16
 ========================
 
-  * Add a new generateNewId method to BaseObject which is used to suggest 
-    a new id when automatically renaming an object after creation. This makes 
-    it easier to used custom naming in derived types. 
-    [wichert] 
+  * Add a new generateNewId method to BaseObject which is used to suggest
+    a new id when automatically renaming an object after creation. This makes
+    it easier to used custom naming in derived types.
+    [wichert]
 
   * Fix visual widget to not lose formatting if there's only one allowed
     content type - without passing this variable along, the field will revert
