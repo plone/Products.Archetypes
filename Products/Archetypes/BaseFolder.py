@@ -5,7 +5,7 @@ from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.interfaces import IBaseFolder
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces. IExtensibleMetadata
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
 
