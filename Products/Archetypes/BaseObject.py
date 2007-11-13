@@ -155,8 +155,6 @@ class BaseObject(Referenceable):
             raise
         except:
             log_exc()
-            #_default_logger.log_exc()
-            #raise
 
     security.declarePrivate('manage_afterAdd')
     def manage_afterAdd(self, item, container):
@@ -322,7 +320,7 @@ class BaseObject(Referenceable):
         return value
 
     # Backward compatibility
-    # Note: ComputedAttribute should never be protected by a security 
+    # Note: ComputedAttribute should never be protected by a security
     # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
@@ -344,8 +342,7 @@ class BaseObject(Referenceable):
         if field and IFileField.isImplementedBy(field):
             field.setContentType(self, value)
 
-    security.declareProtected(permissions.ModifyPortalContent,
-                              'setFilename')
+    security.declareProtected(permissions.ModifyPortalContent, 'setFilename')
     def setFilename(self, value, key=None):
         """Sets the filename of a field.
         """
@@ -495,9 +492,9 @@ class BaseObject(Referenceable):
         """
         if errors is None:
             errors = {}
-            
+
         self.pre_validate(REQUEST, errors)
-        
+
         for pre_validator in subscribers((self,), IObjectPreValidation):
             pre_errors = pre_validator(REQUEST)
             if pre_errors is not None:
@@ -506,14 +503,14 @@ class BaseObject(Referenceable):
                         errors[field_name] += " %s" % error_message
                     else:
                         errors[field_name] = error_message
-            
+
         if errors:
             return errors
         self.Schema().validate(instance=self, REQUEST=REQUEST,
                                errors=errors, data=data, metadata=metadata)
-        
+
         self.post_validate(REQUEST, errors)
-        
+
         for post_validator in subscribers((self,), IObjectPostValidation):
             post_errors = post_validator(REQUEST)
             if post_errors is not None:
@@ -522,7 +519,7 @@ class BaseObject(Referenceable):
                         errors[field_name] += " %s" % error_message
                     else:
                         errors[field_name] = error_message
-        
+
         return errors
 
     security.declareProtected(permissions.View, 'SearchableText')
@@ -631,10 +628,11 @@ class BaseObject(Referenceable):
                 # exist just bail out.
                 continue
 
-            widget = field.widget
-            result = widget.process_form(self, field, form,
-                                         empty_marker=_marker)
-            if result is _marker or result is None: continue
+            result = field.widget.process_form(self, field, form,
+                                               empty_marker=_marker)
+
+            if result is _marker or result is None:
+                continue
 
             # Set things by calling the mutator
             mutator = field.getMutator(self)
@@ -644,8 +642,7 @@ class BaseObject(Referenceable):
 
         self.reindexObject()
 
-    security.declareProtected(permissions.ModifyPortalContent,
-                              'processForm')
+    security.declareProtected(permissions.ModifyPortalContent, 'processForm')
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
         """Processes the schema looking for data in the form.
         """
@@ -818,7 +815,8 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
-        """Determines whether the current object's schema is up to date."""
+        """Determines whether the current object's schema is up to date.
+        """
         return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
@@ -838,7 +836,7 @@ class BaseObject(Referenceable):
         if out:
             print >> out, 'Updating %s' % (self.getId())
 
-        new_schema = self.Schema() 
+        new_schema = self.Schema()
 
         # Read all the old values into a dict
         values = {}
@@ -1023,8 +1021,7 @@ class BaseObject(Referenceable):
         return shasattr(parent, 'meta_type') and \
                parent.meta_type == 'TempFolder'
 
-    security.declareProtected(permissions.View,
-                              'getFolderWhenPortalFactory')
+    security.declareProtected(permissions.View, 'getFolderWhenPortalFactory')
     def getFolderWhenPortalFactory(self):
         """Returns the folder where this object was created temporarily.
         """
