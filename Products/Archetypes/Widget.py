@@ -117,7 +117,7 @@ class TypesWidget(macrowidget, Base):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
         if value is empty_marker:
@@ -335,7 +335,7 @@ class TextAreaWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """handle text formatting"""
         text_format = None
         value = None
@@ -414,7 +414,7 @@ class CalendarWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """Basic impl for form processing in a widget"""
 
         fname = field.getName()
@@ -477,7 +477,7 @@ class MultiSelectionWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """Basic impl for form processing in a widget"""
         value = form.get(field.getName(), empty_marker)
         if value is empty_marker:
@@ -505,7 +505,7 @@ class KeywordWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
         name = field.getName()
@@ -535,7 +535,7 @@ class FileWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
@@ -574,7 +574,7 @@ class RichWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """complex form processing, includes handling for text
         formatting and file objects"""
         # This is basically the old processing chain from base object
@@ -633,7 +633,7 @@ class IdWidget(TypesWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """the id might be hidden by the widget and not submitted"""
         value = form.get('id', empty_marker)
         if not value or value is empty_marker or not value.strip():
@@ -648,7 +648,8 @@ class RequiredIdWidget(IdWidget):
     security = ClassSecurityInfo()
 
     security.declarePublic('process_form')
-    def process_form(self, instance, field, form, empty_marker=None):
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False, validating=True):
         """Override IdWidget.process_form to require id."""
         return TypesWidget.process_form(self, instance, field, form, empty_marker)
 
@@ -665,7 +666,7 @@ class ImageWidget(FileWidget):
 
     security.declarePublic('process_form')
     def process_form(self, instance, field, form, empty_marker=None,
-                     emptyReturnsMarker=False):
+                     emptyReturnsMarker=False, validating=True):
         """form processing that deals with image data (and its delete case)"""
         value = None
         ## check to see if the delete hidden was selected

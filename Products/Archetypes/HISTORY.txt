@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Archetypes should inform the widgets when processing the form in the
+    validation phase.
+    This closes http://dev.plone.org/archetypes/ticket/760
+    [deo]
+
   * Made the getSelection method in browser/widgets.py return the selection
     in the character set of the vocabulary -- not the input value.
     Fixes issue #759, UnicodeDecodeError with selection/multiselection
