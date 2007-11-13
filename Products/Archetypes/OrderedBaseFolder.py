@@ -13,7 +13,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.interfaces.Dynamic import DynamicType
+from Products.CMFCore.interfaces import IDynamicType
 from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
@@ -187,7 +187,8 @@ class OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
     __implements__ = OrderedContainer.__implements__,\
-                     BaseFolder.__implements__, DynamicType
+                     BaseFolder.__implements__
+    implements(IDynamicType)
 
     security = ClassSecurityInfo()
 
