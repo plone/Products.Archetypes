@@ -335,7 +335,7 @@ class BaseObject(Referenceable):
         return value
 
     # Backward compatibility
-    # Note: ComputedAttribute should never be protected by a security 
+    # Note: ComputedAttribute should never be protected by a security
     # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
@@ -622,6 +622,17 @@ class BaseObject(Referenceable):
 
             result = field.widget.process_form(self, field, form,
                                                empty_marker=_marker)
+            try:
+                # Pass validating=False to inform the widget that we
+                # aren't in the validation phase, IOW, the returned
+                # data will be forwarded to the storage
+                result = field.widget.process_form(self, field, form,
+                                                   empty_marker=_marker,
+                                                   validating=False)
+            except TypeError:
+                # Support for old-style process_form methods
+                result = field.widget.process_form(self, field, form,
+                                                   empty_marker=_marker)
 
             if result is _marker or result is None:
                 continue
