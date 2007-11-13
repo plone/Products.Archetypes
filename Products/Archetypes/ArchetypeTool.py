@@ -10,9 +10,9 @@ from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
@@ -33,8 +33,7 @@ from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore.interfaces.portal_catalog \
-     import portal_catalog as ICatalogTool
+from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -236,7 +235,7 @@ def modify_fti(fti, klass, pkg_name):
         refs = findDict(fti[0]['actions'], 'id', 'references')
         refs['visible'] = False
 
-    if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
+    if not IExtensibleMetadata.implementedBy(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = False
 
@@ -1138,7 +1137,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         portal = getToolByName(self, 'portal_url').getPortalObject()
         res = []
         for object in portal.objectValues():
-            if ICatalogTool.isImplementedBy(object):
+            if ICatalogTool.providedBy(object):
                 res.append(object.getId())
                 continue
             if IZCatalog.isImplementedBy(object):

@@ -5,9 +5,9 @@ from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.interfaces import IBaseFolder
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces. IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -233,8 +233,8 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
 
-    __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
+    __implements__ = BaseFolderMixin.__implements__
+    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish, IExtensibleMetadata)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 

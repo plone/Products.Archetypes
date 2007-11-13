@@ -1,13 +1,14 @@
 import string
 from logging import INFO, DEBUG
 from zope.component import queryUtility
+from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes import config
@@ -47,7 +48,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     # Just so you know, the problem here is that Title
     # is on BaseObject.schema, so it does implement IExtensibleMetadata
     # as long as both are used together.
-    __implements__ = IExtensibleMetadata
+    implements(IExtensibleMetadata)
 
     security = ClassSecurityInfo()
 
