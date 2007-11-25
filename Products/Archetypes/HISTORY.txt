@@ -1,6 +1,9 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Added dependencies to GenericSetup profile.
+    [hannosch]
+
   * Added metadata.xml to GenericSetup profile.
     [hannosch]
 
