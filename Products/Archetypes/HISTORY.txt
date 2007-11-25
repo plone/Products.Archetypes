@@ -1,6 +1,9 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Added metadata.xml to GenericSetup profile.
+    [hannosch]
+
   * Archetypes should inform the widgets when processing the form in the
     validation phase.
     This closes http://dev.plone.org/archetypes/ticket/760
