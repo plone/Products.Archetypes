@@ -188,7 +188,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
                                   context=portal, schema=None)
         self._parent = parent
 
-        # create dummy
+        # create dummy in context of a plone folder
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=parent, schema=None)
 
@@ -241,7 +241,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         parent = mkDummyInContext(DummyFolder, oid='parent', context=portal, schema=None)
         self._parent = parent
 
-        # create dummy
+        # create dummy in context of a plone folder
         dummy = mkDummyInContext(Dummy, oid='dummy', context=parent, schema=None)
         self._dummy = dummy
 
@@ -339,6 +339,21 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.failIf(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), False)
         
+    def testDiscussionOverride(self):
+        # Make sure that if allowed_discussion is set on the class
+        # we can still use allowDiscussion to override it.
+        #
+        # Use a DDocument because the dummy is too dumb for this
+        # but temporarily set an allow_discussion attribute on the class.
+        from Products.Archetypes.examples.DDocument import DDocument
+        DDocument.allow_discussion = True
+        self.folder.invokeFactory('DDocument','bogus_item')
+        dummy = self.folder.bogus_item
+        dummy.allowDiscussion(None)
+        # clear our bogus attribute
+        del DDocument.allow_discussion
+
+
 class TimeZoneTest(ATSiteTestCase):
     def _makeDummyContent(self, name):
         return mkDummyInContext(

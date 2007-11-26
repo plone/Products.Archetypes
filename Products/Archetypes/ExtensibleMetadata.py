@@ -153,6 +153,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'language',
             accessor="Language",
             default = config.LANGUAGE_DEFAULT,
+            default_method = 'defaultLanguage',
             vocabulary='languages',
             widget=LanguageWidget(
                 label=_(u'label_language', default=u'Language'),
@@ -208,6 +209,11 @@ class ExtensibleMetadata(Persistence.Persistent):
     def __init__(self):
         pass
 
+    security.declarePrivate('defaultLanguage')
+    def defaultLanguage(self):
+        """Retrieve the default language"""
+        return config.LANGUAGE_DEFAULT
+    
     security.declarePrivate('defaultRights')
     def defaultRights(self):
         """Retrieve the default rights"""
@@ -266,7 +272,14 @@ class ExtensibleMetadata(Persistence.Persistent):
             dtool = getToolByName(self, 'portal_discussion', None)
             try:
                 if dtool is not None:
-                    dtool.overrideDiscussionFor(self, allowDiscussion)
+                    try:
+                        dtool.overrideDiscussionFor(self, allowDiscussion)
+                    except AttributeError:
+                        # CMF 2.1.0's CMFDefault.DiscussionTool
+                        # has tried to delete the class attribute.
+                        # TODO: remove this when we move to a later
+                        # CMF.
+                        pass
             except ("Unauthorized", Unauthorized):
                 # Catch Unauthorized exception that could be raised by the
                 # discussion tool when the authenticated users hasn't
@@ -301,7 +314,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                      ('pt','Portuguese'), ('ru','Russian')))
         else:
             languages = util.getLanguageListing()
-            languages.sort(key=lambda x:x[1])
+            languages.sort(lambda x,y:cmp(x[1], y[1]))
             # Put language neutral at the top.
             languages.insert(0,(u'',_(u'Language neutral (site default)')))
         return DisplayList(languages)
