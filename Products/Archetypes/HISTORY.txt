@@ -7,7 +7,7 @@
     a missing attribute, causing an AttributeError. This may be avoided by
     using GS instead of a class attribute to control discussion on the
     type, but there's no reason I can see to break old code. Fixed by
-    catching exception. Closes https://dev.plone.org/archetypes/ticket/761
+    catching exception. Closes http://dev.plone.org/archetypes/ticket/761
     [smcmahon]
 
   * Archetypes should inform the widgets when processing the form in the
