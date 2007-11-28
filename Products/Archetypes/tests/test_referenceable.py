@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,6 +23,14 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Acquisition import aq_base
 import transaction
@@ -545,26 +554,28 @@ class BaseReferenceableTests(ATSiteTestCase):
         field.multiValued = 0
 
         expected = DisplayList([
+            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
-            ('', u'label_no_reference'),
             ])
         self.assertEquals(field.Vocabulary(dummy), expected)
 
         field = field.copy()
         field.vocabulary_display_path_bound = 1
         expected = DisplayList([
+            ('', '<no reference>'),
             (test123.UID(), test123.getId()),
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
-            ('', u'label_no_reference'),
             ])
         self.failIfEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
+
+
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference
@@ -738,3 +749,6 @@ def test_suite():
     suite.addTest(makeSuite(SimpleFolderReferenceableTests))
     suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
     return suite
+
+if __name__ == '__main__':
+    framework()

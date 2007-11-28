@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -28,7 +29,13 @@ Unittests for marshaller
 $Id$
 """
 
-import os
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
+
+import urllib
 from unittest import TestCase
 from OFS.Image import Pdata
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -36,8 +43,13 @@ from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import aputrequest
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.atapi import *
+from Products.Archetypes import config
 from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
+
+from ZPublisher.HTTPRequest import FileUpload
+from ZPublisher.BaseRequest import RequestContainer
+from Testing.makerequest import makerequest
 
 class MarshallerTests(ATSiteTestCase):
 
@@ -160,3 +172,6 @@ def test_suite():
     suite.addTest(makeSuite(MarshallerTests))
     suite.addTest(makeSuite(PdataStreamTests))
     return suite
+
+if __name__ == '__main__':
+    framework()

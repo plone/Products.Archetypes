@@ -9,46 +9,29 @@
   <body>
 
     <div metal:define-macro="header">
-      <metal:block define-slot="title">
-        <h1 i18n:translate="heading_add_item" class="documentFirstHeading"
-            tal:condition="python:context.checkCreationFlag()">
-          Add
-          <span i18n:name="itemtype"
-                tal:define="fti python:here.portal_types.getTypeInfo(here)">
-            <span i18n:translate=""
-                  tal:content="fti/title_or_id"
-                  tal:omit-tag="">Item type</span>
-          </span>
-        </h1>
-        <h1 i18n:translate="heading_edit_item" class="documentFirstHeading"
-            tal:condition="python: not context.checkCreationFlag()">
-          Edit
-          <span i18n:name="itemtype"
-                tal:define="fti python:here.portal_types.getTypeInfo(here)">
-             <span i18n:translate=""
-                   tal:content="fti/title_or_id"
-                   tal:omit-tag="">Item type</span>
-          </span>
-        </h1>
+      <div metal:use-macro="here/document_actions/macros/document_actions">
+        Document actions (print, sendto etc)
+      </div>
 
-<dl class="portalMessage info"
-    tal:condition="here/@@plone/isDefaultPageInFolder">
-    <dt i18n:translate="">
-        Info
-    </dt>
-    <dd i18n:translate="label_edit_default_view_container">
-        You are editing the default view of a container. If you wanted to edit the container itself,
-       <a href=""
-          i18n:name="go_here"
-          i18n:translate="label_edit_default_view_container_go_here"
-          tal:attributes="href python:'/'.join(here.aq_inner.aq_parent.getPhysicalPath()) + '/edit'">go here</a>.
-    </dd>
-</dl>
+      <h1 i18n:translate="heading_edit_item" class="documentFirstHeading"
+          metal:define-slot="title">
+        Edit
+        <span i18n:name="itemtype"
+              tal:define="fti python:here.portal_types.getTypeInfo(here)">
+          <span i18n:translate=""
+                tal:content="fti/title_or_id"
+                tal:omit-tag="">Item type</span>
+        </span>
+      </h1>
 
-       </metal:block>
+      <tal:has_document_byline tal:condition="exists:here/document_byline">
+        <div metal:use-macro="here/document_byline/macros/byline">
+          Get the byline - contains details about author and modification date.
+        </div>
+      </tal:has_document_byline>
 
-      <div id="archetypes-schemata-links"
-           tal:condition="python: fieldsets and not allow_tabbing">
+      <div id="archetypes-schemata-links" 
+           tal:condition="fieldsets">
         <tal:block repeat="set fieldsets">
           <tal:current condition="python:set == fieldset and fieldsets != ['default']">
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
@@ -61,72 +44,55 @@
       </div>
       <metal:block define-slot="extra_info" />
 
+      <p class="portalMessage"
+         tal:condition="isLocked"
+         i18n:translate="description_webdav_locked">
+        This item is in use by someone else and cannot be modified
+      </p>
+
     </div>
 
     <div metal:define-macro="typedescription">
-        <tal:description tal:define="fti python:here.portal_types.getTypeInfo(here);
-                                     desc fti/Description;"
-                         tal:condition="desc">
-            <p class="discreet" i18n:translate="" tal:content="desc">
-                type description
-            </p>
+        <tal:description tal:define="msgid here/typeDescMsgId | nothing;
+                                     default here/typeDescription| nothing;
+                                     default_translated python:here.translate(default);"
+                         tal:condition="default">
+
+          <p class="discreet" tal:content="python:here.translate(msgid=msgid, default=default_translated)">
+            type description
+          </p>
+
         </tal:description>
     </div>
 
     <div metal:define-macro="body"
-         tal:condition="not:isLocked"
          tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection enableAutoFocus atBaseEditForm"
+            class="enableUnloadProtection atBaseEditForm"
             action=""
             id=""
             tal:attributes="action python:here.absolute_url()+'/'+template.id;
-                            id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing enableUnlockProtection', 'enableUnloadProtection enableAutoFocus enableUnlockProtection');">
+                            id string:${portal_type}-base-edit">
+
           <metal:block define-slot="extra_top" />
 
           <metal:block define-slot="widgets">
-            <tal:tabbed tal:condition="allow_tabbing | nothing">
-              <fieldset tal:define="sole_fieldset python:len(fieldsets) == 1"
-                        tal:repeat="fieldset fieldsets"
-                        tal:attributes="id string:fieldset-${fieldset}"
-                        tal:omit-tag="sole_fieldset">
-                <legend id=""
-                        tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
-                        tal:attributes="id string:fieldsetlegend-${fieldset}"
-                        tal:condition="not:sole_fieldset" />
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-              </fieldset>
-            </tal:tabbed>
-            <tal:nottabbed tal:condition="not: allow_tabbing | nothing">
-                <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
-                </tal:fields>
-            </tal:nottabbed>
+            <tal:fields repeat="field fields">
+              <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+            </tal:fields>
           </metal:block>
 
           <metal:block define-slot="extra_bottom" />
 
           <div class="formControls">
-	    <tal:fieldsets repeat="fieldset fieldsets">
-              <input type="hidden"
-                     name="fieldsets:list"
-                     value="default"
-                     tal:attributes="value fieldset"
+
+            <input type="hidden"
+                   name="fieldset"
+                   value="default"
+                   tal:attributes="value fieldset"
                    />
-	    </tal:fieldsets>
-
-	    <input type="hidden"
-		   name="fieldset"
-		   tal:attributes="value fieldset"
-		   tal:condition="python: fieldsets and not allow_tabbing"
-		   />
-
-	    
             <input type="hidden"
                    name="form.submitted"
                    value="1"
@@ -204,32 +170,40 @@
 
                 <input tal:condition="python:fieldset_index &gt; 0"
                        class="context"
+                       tabindex=""
                        type="submit"
                        name="form_previous"
                        value="Previous"
                        i18n:attributes="value label_previous;"
-                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input tal:condition="python:fieldset_index &lt; n_fieldsets - 1"
                        class="context"
+                       tabindex=""
                        type="submit"
                        name="form_next"
                        value="Next"
                        i18n:attributes="value label_next;"
-                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input class="context"
+                       tabindex=""
                        type="submit"
                        name="form_submit"
                        value="Save"
                        i18n:attributes="value label_save;"
-                       tal:attributes="disabled python:test(isLocked, 'disabled', None);"
+                       tal:attributes="tabindex tabindex/next;
+                                       disabled python:test(isLocked, 'disabled', None);"
                        />
                 <input class="standalone"
+                       tabindex=""
                        type="submit"
                        name="form.button.cancel"
                        value="Cancel"
                        i18n:attributes="value label_cancel;"
+                       tal:attributes="tabindex tabindex/next"
                        />
             </metal:block>
 

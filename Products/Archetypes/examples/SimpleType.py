@@ -14,9 +14,6 @@ schema = BaseSchema + Schema((
                                        'application/msword'),
               widget  = RichWidget(description="""Enter or upload text for the Body of the document"""),
               ),
-    StringField('ptype',
-              default_method='Type'
-              ),
     ))
 
 

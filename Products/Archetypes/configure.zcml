@@ -1,24 +1,14 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:cmf="http://namespaces.zope.org/cmf"
-           xmlns:five="http://namespaces.zope.org/five"
-           xmlns:zcml="http://namespaces.zope.org/zcml">
+           xmlns:five="http://namespaces.zope.org/five">
 
-  <include zcml:condition="installed plone.locking"
-      package="plone.locking" />
-  
   <include file="bridge.zcml"/>
-  <include file="implements.zcml"/>
-  <include file="profiles.zcml"/>
-  <include file="events.zcml" />
-  
-  <include package=".exportimport" />
-  <include package=".Schema" />
-  <include package=".browser" />
 
-  <cmf:registerDirectory
-      name="skins"
-      directory="skins"
-      recursive="True"
+  <include file="implements.zcml"/>
+
+  <include package=".exportimport" />
+
+  <five:traversable
+      class=".atapi.BaseObject"
       />
 
   <five:deprecatedManageAddDelete
@@ -58,3 +48,4 @@
       class=".examples.SimpleType.SimpleType" />
 
 </configure>
+

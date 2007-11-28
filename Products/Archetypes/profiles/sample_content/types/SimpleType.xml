@@ -1,18 +1,17 @@
 <?xml version="1.0"?>
-<object name="SimpleBTreeFolder" meta_type="Factory-based Type Information"
+<object name="SimpleType" meta_type="Factory-based Type Information"
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
- <property name="title">Simple BTree Folder</property>
- <property name="description">A simple folderish archetype</property>
- <property name="content_icon">folder_icon.gif</property>
- <property name="content_meta_type">SimpleBTreeFolder</property>
+ <property name="title">Simple Type</property>
+ <property name="description">A simple archetype</property>
+ <property name="content_icon">document_icon.gif</property>
+ <property name="content_meta_type">SimpleType</property>
  <property name="product">Archetypes</property>
- <property name="factory">addSimpleBTreeFolder</property>
+ <property name="factory">addSimpleType</property>
  <property name="immediate_view">base_edit</property>
  <property name="global_allow">True</property>
  <property name="filter_content_types">False</property>
  <property name="allowed_content_types"/>
  <property name="allow_discussion">False</property>
- <alias from="(Default)" to="base_view"/>
  <alias from="edit" to="base_edit"/>
  <action title="View" action_id="view" category="object" condition_expr=""
     url_expr="string:${object_url}/base_view" visible="True">
@@ -32,10 +31,5 @@
     url_expr="string:${object_url}/reference_graph" visible="True">
   <permission value="Modify portal content"/>
   <permission value="Review portal content"/>
- </action>
- <action title="Folder Listing" action_id="folderlisting" category="folder"
-    condition_expr="object/isPrincipiaFolderish"
-    url_expr="string:${folder_url}/view" visible="False">
-  <permission value="View"/>
  </action>
 </object>

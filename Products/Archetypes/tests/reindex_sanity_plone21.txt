@@ -42,7 +42,7 @@ Wrap ZCatalog methods to let us know about why and when they were called:
 
   >>> def catalog_object(self, *args, **kw):
   ...     rv = call(self, 'catalog_object', pattern, *args, **kw)
-  ...     print 'Catalog: ', self.getId()
+  ...     print 'Catalog: ', '/'.join(self.getPhysicalPath())
   ...     uid = kw.get('uid', None)
   ...     if not uid:
   ...         if len(args) > 1:
@@ -61,7 +61,7 @@ Wrap ZCatalog methods to let us know about why and when they were called:
 
   >>> def uncatalog_object(self, *args, **kw):
   ...     rv = call(self, 'uncatalog_object', pattern, *args, **kw)
-  ...     print 'Catalog:   ', self.getId()
+  ...     print 'Catalog:   ', '/'.join(self.getPhysicalPath())
   ...     print 'UnIndexing:', kw.get('uid', None) or args[0]
   ...     # The next line is usefuld for debugging.
   ...     # print 'Callers:   ', '\n            '.join(callers(15))
@@ -88,22 +88,22 @@ setting:
 
   >>> _ = self.folder.invokeFactory(type_name='DDocument',
   ...                               id='new_doc1')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
 
@@ -119,22 +119,22 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_doc2',
   ...                               title='Title',
   ...                               description='Description')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
 
@@ -153,25 +153,25 @@ Rename:
 
   >>> self.folder.manage_renameObjects(ids=['new_doc1'],
   ...                                  new_ids=['new_doc11'])
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_doc1
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_doc1
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc11 ['getObjPositionInParent']
   ------------------------------------------------------------
 
@@ -179,16 +179,16 @@ Copy and paste:
 
   >>> cp = self.folder.manage_copyObjects(ids=['new_doc2'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_doc2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
@@ -196,16 +196,16 @@ Cut and paste:
 
   >>> cp = self.folder.manage_cutObjects(ids=['new_doc11'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_doc11
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_doc11
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
 
@@ -217,22 +217,22 @@ setting:
 
   >>> _ = self.folder.invokeFactory(type_name='SimpleFolder',
   ...                               id='new_folder1')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
 
@@ -248,22 +248,22 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_folder2',
   ...                               title='Title',
   ...                               description='Description')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
 
@@ -283,28 +283,28 @@ Rename:
 
   >>> self.folder.manage_renameObjects(ids=['new_folder1'],
   ...                                  new_ids=['new_folder11'])
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_folder1
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_folder1
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder11 ['getObjPositionInParent']
   ------------------------------------------------------------
 
@@ -312,16 +312,16 @@ Copy and paste:
 
   >>> cp = self.folder.manage_copyObjects(ids=['new_folder2'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
@@ -329,16 +329,16 @@ Cut and paste:
 
   >>> cp = self.folder.manage_cutObjects(ids=['new_folder11'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_folder11
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_folder11
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
 
@@ -350,22 +350,22 @@ setting:
 
   >>> _ = self.folder.invokeFactory(type_name='SimpleBTreeFolder',
   ...                               id='new_btree_folder1')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
 
@@ -381,22 +381,22 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_btree_folder2',
   ...                               title='Title',
   ...                               description='Description')
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
 
@@ -415,31 +415,31 @@ Rename:
 
   >>> self.folder.manage_renameObjects(ids=['new_btree_folder1'],
   ...                                  new_ids=['new_btree_folder11'])
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['getObjPositionInParent']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/new_btree_folder11 ['getObjPositionInParent']
   ------------------------------------------------------------
 
@@ -447,16 +447,16 @@ Copy and paste:
 
   >>> cp = self.folder.manage_copyObjects(ids=['new_btree_folder2'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_btree_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
 
@@ -464,16 +464,16 @@ Cut and paste:
 
   >>> cp = self.folder.manage_cutObjects(ids=['new_btree_folder11'])
   >>> _ = self.folder.sub.manage_pasteObjects(cp)
-  Catalog:    uid_catalog
+  Catalog:    /plone/uid_catalog
   UnIndexing: Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
-  Catalog:    portal_catalog
+  Catalog:    /plone/portal_catalog
   UnIndexing: /plone/Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
-  Catalog:  uid_catalog
+  Catalog:  /plone/uid_catalog
   Indexing: Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
-  Catalog:  portal_catalog
+  Catalog:  /plone/portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
 

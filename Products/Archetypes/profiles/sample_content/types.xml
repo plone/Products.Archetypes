@@ -11,5 +11,4 @@
  <object name="SimpleProtectedType"
     meta_type="Factory-based Type Information"/>
  <object name="SimpleType" meta_type="Factory-based Type Information"/>
- <object name="MySimpleType" meta_type="Factory-based Type Information"/>
 </object>

@@ -197,7 +197,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             query = apply(self.template, (p,), argdata)
         except TypeError, msg:
             msg = str(msg)
-            if 'client' in msg:
+            if find(msg,'client'):
                 raise NameError("'client' may not be used as an " +
                                 "argument name in this context")
             else: raise
@@ -224,7 +224,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             else:
                 try:
                     query = query.encode(site_encoding)
-                except UnicodeEncodeError:
+                except UnicodeEncodingError:
                     query = query.encode('UTF-8')
 
 

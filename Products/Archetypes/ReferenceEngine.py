@@ -1,34 +1,39 @@
 import os
+import sys
 from types import StringType, UnicodeType
 import time
 import urllib
-from zope.interface import implements
 
-from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.debug import log, log_exc
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces import IReference
-from Products.Archetypes.interfaces import IReferenceCatalog
 from Products.Archetypes.interfaces.referenceengine import \
-    IContentReference, IReference as Z2IReference
+    IReference, IContentReference, IReferenceCatalog
 
-from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
-from Products.Archetypes.config import (
-    TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
+from Products.Archetypes.utils import unique, make_uuid, getRelURL, \
+    getRelPath, shasattr
+from Products.Archetypes.config import UID_CATALOG, \
+     REFERENCE_CATALOG,UUID_ATTR, REFERENCE_ANNOTATION, TOOL_NAME
 from Products.Archetypes.exceptions import ReferenceException
 
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base, aq_parent, aq_inner
 from AccessControl import ClassSecurityInfo
+from ExtensionClass import Base
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
 from Globals import InitializeClass, DTMLFile, PersistentMapping
+from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
+from Products.BTreeFolder2.BTreeFolder2 import BTreeFolder2
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
+from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
 from Products import CMFCore
-
+from zExceptions import NotFound
+import zLOG
+from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -36,7 +41,7 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
-from UIDCatalog import UIDCatalog # Required for migrations from Plone 2.1
+from UIDCatalog import UIDCatalog
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
@@ -48,8 +53,7 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (Z2IReference,)
-    implements(IReference)
+    __implements__ = Referenceable.__implements__ + (IReference,)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
@@ -152,9 +156,14 @@ class Reference(Referenceable, SimpleItem):
         # when copying a full site containe is the container of the plone site
         # and item is the plone site (at least for objects in portal root)
         base = container
-        rc = getToolByName(container, REFERENCE_CATALOG)
+        try:
+            rc = getToolByName(base, REFERENCE_CATALOG)
+        except:
+            base = item
+            rc = getToolByName(base, REFERENCE_CATALOG)
         url = getRelURL(base, self.getPhysicalPath())
         rc.catalog_object(self, url)
+
 
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
@@ -296,7 +305,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    implements(IReferenceCatalog)
+    __implements__ = IReferenceCatalog
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
@@ -329,6 +338,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                 self._queryFor(sID, tID, relationship))
             if objects:
                 #we want to update the existing reference
+                #XXX we might need to being a subtransaction here to
+                #    do this properly, and close it later
                 existing = objects[0]
                 if existing:
                     # We can't del off self, we now need to remove it
@@ -615,8 +626,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool = getToolByName(self, TOOL_NAME)
-        obj = aq_parent(self)
+        atool   = getToolByName(self, TOOL_NAME)
+        obj     = aq_parent(self)
         if not REQUEST:
             REQUEST = self.REQUEST
 
