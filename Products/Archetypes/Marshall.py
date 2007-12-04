@@ -3,8 +3,6 @@ from types import ListType, TupleType
 from cStringIO import StringIO
 from rfc822 import Message
 
-from zope.contenttype import guess_content_type
-
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from Globals import InitializeClass
@@ -16,6 +14,14 @@ from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
+
+try:
+    from zope.contenttype import guess_content_type
+except ImportError: # BBB: Zope < 2.10
+    try:
+        from zope.app.content_types import guess_content_type
+    except ImportError: # BBB: Zope < 2.9
+        from OFS.content_types import guess_content_type
 
 sample_data = r"""title: a title
 content-type: text/plain
@@ -150,7 +156,7 @@ class PrimaryFieldMarshaller(Marshaller):
     def demarshall(self, instance, data, **kwargs):
         p = instance.getPrimaryField()
         file = kwargs.get('file')
-        # TODO Hardcoding field types is bad. :(
+        # XXX Hardcoding field types is bad. :(
         if isinstance(p, (FileField, TextField)) and file:
             data = file
             del kwargs['file']
@@ -214,7 +220,7 @@ class RFC822Marshaller(Marshaller):
         # We don't want to pass file forward.
         if kwargs.has_key('file'):
             if not data:
-                # TODO Yuck! Shouldn't read the whole file, never.
+                # XXX Yuck! Shouldn't read the whole file, never.
                 # OTOH, if you care about large files, you should be
                 # using the PrimaryFieldMarshaller or something
                 # similar.

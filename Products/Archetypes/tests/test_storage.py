@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,18 +26,24 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.atapi import *
+from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.tests.test_classgen import ClassGenTest
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 
 from DateTime import DateTime
 
 
-class ChangeStorageTest(ATSiteTestCase):
+class ChangeStorageTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -85,7 +92,7 @@ class ChangeStorageTest(ATSiteTestCase):
         self.failUnless(hasattr(dummy, 'atextfield'))
 
 
-class MetadataStorageTest(ATTestCase):
+class MetadataStorageTest( ATTestCase ):
 
     def afterSetUp(self):
         gen_dummy()
@@ -96,7 +103,7 @@ class MetadataStorageTest(ATTestCase):
                 field.setStorage(dummy, MetadataStorage())
 
 
-class AttributeStorageTest(ATTestCase):
+class AttributeStorageTest( ATTestCase ):
 
     def afterSetUp(self):
         gen_dummy()
@@ -114,3 +121,6 @@ def test_suite():
     suite.addTest(makeSuite(MetadataStorageTest))
     suite.addTest(makeSuite(AttributeStorageTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

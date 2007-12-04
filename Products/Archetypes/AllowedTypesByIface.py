@@ -1,3 +1,4 @@
+# -*-  coding: utf-8 -*-
 ###############################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,6 +24,7 @@
 #
 ###############################################################################
 
+from Interface import Implements
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes.ArchetypeTool import listTypes

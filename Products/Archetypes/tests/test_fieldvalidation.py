@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -22,10 +23,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+"""
+"""
+
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.attestcase import ATTestCase
-
-from Acquisition import Explicit
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import *
@@ -96,15 +103,14 @@ for req in 0,1: # 0 == not required, 1 == required
         )
 
 
-class FakeType(Explicit, BaseObject):
+class FakeType(BaseObject):
     def unicodeEncode(self, v): return v # don't
 
 
 class TestSettings(ATTestCase):
 
     def afterSetUp(self):
-        instance = FakeType('fake')
-        self.instance = instance.__of__(self.folder)
+        self.instance = FakeType('fake')
 
     def testSettings(self):
         # tests every setting in global "settings"
@@ -137,3 +143,6 @@ def test_suite():
     suite.addTest(makeSuite(TestSettings))
     suite.addTest(makeSuite(TestValidation))
     return suite
+
+if __name__ == '__main__':
+    framework()

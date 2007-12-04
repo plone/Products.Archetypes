@@ -27,12 +27,17 @@
 """
 """
 
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
+
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from test_classgen import Dummy
 
 from Products.Archetypes.atapi import *
+from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
 from Products.PortalTransforms.data import datastream
 
 
@@ -48,31 +53,29 @@ class FakeTransformer:
         return data
 
 
-class UnicodeStringFieldTest(ATSiteTestCase):
+class UnicodeStringFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
         f = StringField('test')
-        out = u'héhéhé'
-        iso = 'héhéhé'
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
+        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
         f.set(instance, 'héhéhé', encoding='ISO-8859-1')
-        self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
-        f.set(instance, out)
-        self.failUnlessEqual(f.get(instance), out)
-        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
+        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
+        f.set(instance, u'héhéhé')
+        self.failUnlessEqual(f.get(instance), 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeLinesFieldTest(ATSiteTestCase):
+class UnicodeLinesFieldTest(ATTestCase):
 
     def test_set1(self):
         instance = Dummy()
         f = LinesField('test')
         f.set(instance, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-        out = (u'héhéhé',)
+        out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
         iso = ('héhéhé',)
         self.failUnlessEqual(f.get(instance), out)
         self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
@@ -87,15 +90,19 @@ class UnicodeLinesFieldTest(ATSiteTestCase):
         instance = Dummy()
         f = LinesField('test')
         f.set(instance, ['h\xc3\xa9h\xc3\xa9h\xc3\xa9'])
-        out = (u'héhéhé',)
+        out = ('h\xc3\xa9h\xc3\xa9h\xc3\xa9',)
+        iso = ('héhéhé',)
         self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, ['héhéhé'], encoding='ISO-8859-1')
         self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
         f.set(instance, [u'héhéhé'])
         self.failUnlessEqual(f.get(instance), out)
+        self.failUnlessEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
-class UnicodeTextFieldTest(ATSiteTestCase):
+class UnicodeTextFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
@@ -111,7 +118,7 @@ class UnicodeTextFieldTest(ATSiteTestCase):
         self.failUnlessEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeBaseUnitTest(ATSiteTestCase):
+class UnicodeBaseUnitTest(ATTestCase):
 
     def afterSetUp(self):
         self.instance = Dummy()
@@ -136,7 +143,7 @@ class UnicodeBaseUnitTest(ATSiteTestCase):
         self.instance.aq_parent = None
         self.instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(self.instance, 'text/plain')
-        self.failUnlessEqual(transformed, 'h\xe9h\xe9h\xe9')
+        self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
 
 
 def test_suite():
@@ -147,3 +154,6 @@ def test_suite():
     suite.addTest(makeSuite(UnicodeTextFieldTest))
     suite.addTest(makeSuite(UnicodeBaseUnitTest))
     return suite
+
+if __name__ == '__main__':
+    framework()

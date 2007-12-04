@@ -15,10 +15,10 @@ First, setup some content with references:
   >>> _ = b.addReference(a, "KnowsAbout")
 
   >>> a.getRefs()
-  [<DDocument at /.../b>]
+  [<DDocument at /plone/.../b>]
 
   >>> b.getRefs()
-  [<DDocument at /.../a>]
+  [<DDocument at /plone/.../a>]
 
 Now do a WebDAV COPY and check that the references were removed from
 the copy:
@@ -35,10 +35,10 @@ the copy:
   ...
 
   >>> a.getRefs()
-  [<DDocument at /.../b>]
+  [<DDocument at /plone/.../b>]
 
   >>> b.getRefs()
-  [<DDocument at /.../a>]
+  [<DDocument at /plone/.../a>]
 
   >>> f['a'].getRefs()
   []
@@ -57,10 +57,10 @@ Do a WebDAV move with 'b' and make sure it keeps the references:
   ...
 
   >>> a.getRefs()
-  [<DDocument at /.../b>]
+  [<DDocument at /plone/.../b>]
 
   >>> f['a'].getRefs()
   []
 
   >>> f['b'].getRefs()
-  [<DDocument at /.../a>]
+  [<DDocument at /plone/.../a>]

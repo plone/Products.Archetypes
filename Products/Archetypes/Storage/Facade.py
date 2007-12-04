@@ -45,7 +45,7 @@ class FacadeMetadataStorage(StorageLayer):
         field = kwargs['field']
         tool = self.getTool(instance)
         mdata = tool.getMetadata(instance)
-        if isinstance(value, unicode):
+        if type(value) == type(u''):
             value = encode(value, instance)
         data = {field.metadata_name:value}
         # Calling _setData directly, because there's

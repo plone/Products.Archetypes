@@ -10,7 +10,7 @@
 
     <!-- File Widgets -->
 
-    <span metal:define-macro="file_view">
+    <div metal:define-macro="file_view">
       <metal:label define-slot="widget_label" />
       <tal:define define="unit accessor;
                           showLink showLink|python:1">
@@ -24,12 +24,9 @@
                 <img tal:condition="icon" src=""
                      tal:attributes="src string:${here/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
+                (<span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span>
+                <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>)
               </a>
-              <span class="discreet">
-                  &mdash;
-                  <span tal:replace="python:here.lookupMime(field.getContentType(here))">ContentType</span>,
-                  <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
-              </span>
           </tal:link>
           <span tal:condition="not:showLink">
               <img tal:condition="icon" src=""
@@ -43,7 +40,7 @@
 
         </tal:block>
       </tal:define>
-    </span>
+    </div>
 
     <metal:define define-macro="file_edit" tal:define="showLink python:0">
       <metal:block use-macro="here/widgets/file/macros/file_view" />
@@ -55,10 +52,12 @@
             <input class="noborder"
                    type="radio"
                    value="nochange"
-                   tal:attributes="checked python:test(size!=0, 'checked', None);
-                                   name string:${fieldName}_delete;
-                                   id string:${fieldName}_nochange;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       checked python:test(size!=0, 'checked', None);
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_nochange;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_nochange;
                                     "
@@ -70,9 +69,11 @@
                 <input class="noborder"
                        type="radio"
                        value="delete"
-                       tal:attributes="name string:${fieldName}_delete;
-                                       id string:${fieldName}_delete;
-                                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+                       tabindex=""
+                       tal:attributes="tabindex tabindex/next;
+                           name string:${fieldName}_delete;
+                           id string:${fieldName}_delete;
+                           onclick string:document.getElementById('${fieldName}_file').disabled=true;"
                  />
                  <label for=""
                         tal:attributes="for string:${fieldName}_delete;
@@ -84,11 +85,13 @@
               <input class="noborder"
                      type="radio"
                      value=""
+                     tabindex=""
                      onclick=""
-                     tal:attributes="checked python:test(size==0, 'checked', None);
-                                     name string:${fieldName}_delete;
-                                     id string:${fieldName}_upload;
-                                     onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+                     tal:attributes="tabindex tabindex/next;
+                         checked python:test(size==0, 'checked', None);
+                         name string:${fieldName}_delete;
+                         id string:${fieldName}_upload;
+                         onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
 
            <label for=""
                   tal:attributes="for string:${fieldName}_upload;"
@@ -112,8 +115,10 @@
                        size unit/get_size | python:unit and len(unit) or 0;">
         <input type="file"
                size="30"
+               tabindex=""
                tal:attributes="name string:${fieldName}_file;
-                               id string:${fieldName}_file;" />
+                               id string:${fieldName}_file;
+                               tabindex tabindex/next;" />
         <script type="text/javascript" 
 	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
                 tal:content="string: document.getElementById('${fieldName}_file').disabled=$isDisabled;">

@@ -3,10 +3,16 @@ OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
 from types import StringType
-from zope.interface import implements
 
 from Products.Archetypes.BaseFolder import BaseFolder
+from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
+from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
+from Products.Archetypes.interfaces.base import IBaseFolder
+from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces.orderedfolder import IOrderedFolder
 from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo
@@ -14,25 +20,24 @@ from Globals import InitializeClass
 
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces.Dynamic import DynamicType
+#from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore import permissions
 
 from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-from OFS.interfaces import IOrderedContainer as IZ3OrderedContainer
-
+    
 from zExceptions import NotFound
 
 # atm its safer defining an own so we need an ugly hack to make Archetypes
 # OrderedBaseFolder work without Plone 2.0
 try:
     from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
-except ImportError:
+except:
     from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
 
 
 class OrderedContainer:
 
     __implements__  = (IOrderedContainer, IZopeOrderedContainer)
-    implements(IZ3OrderedContainer)
 
     security = ClassSecurityInfo()
 
@@ -49,9 +54,9 @@ class OrderedContainer:
         metadata.insert(position, obj_meta)
         self._objects = tuple(metadata)
 
-    # TODO here the implementing of IOrderedContainer starts
-    # this should be replaced by mixing in the 2.7 specific class
-    # OSF.OrderedContainer.OrderedContainer
+    # here the implementing of IOrderedContainer starts
+    # if plone sometime depends on zope 2.7 it should be replaced by mixing in
+    # the 2.7 specific class OSF.OrderedContainer.OrderedContainer
 
     security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsByDelta')
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):
@@ -110,7 +115,7 @@ class OrderedContainer:
         """Get the ids of only cmf objects (used for moveObjectsByDelta)
         """
         ttool = getToolByName(self, 'portal_types')
-        cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
+        cmf_meta_types = ttool.listContentTypes(by_metatype=1)
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
     security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')

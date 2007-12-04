@@ -8,13 +8,10 @@
 ##bind subpath=traverse_subpath
 ##parameters=id='', add_reference=None
 ##
-
-from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.utils import addStatusMessage
-
 REQUEST = context.REQUEST
-message = _(u'New reference created.')
-addStatusMessage(REQUEST, message, type='info')
+
+portal_status_message = REQUEST.get('portal_status_message',
+                                    'New Reference Created.')
 
 req_get = REQUEST.get
 
@@ -34,7 +31,8 @@ if (not state.kwargs.get('reference_source_url') and
             env[name] = req_get(name)
     return state.set(
         status='success',
-        context=context)
+        context=context,
+        portal_status_message=portal_status_message)
 
 context.session_save_form()
 
@@ -85,4 +83,5 @@ for k, v in info.items():
 
 return state.set(
     status='created',
-    context=reference_object)
+    context=reference_object,
+    portal_status_message=portal_status_message)

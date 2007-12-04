@@ -1,15 +1,13 @@
 import sys
-import os
+import os, os.path
 import socket
-from random import random
+from random import random, randint
 from time import time
 from inspect import getargs, getmro
 from md5 import md5
-from types import ClassType, MethodType
+from types import TupleType, ListType, ClassType, IntType, NoneType
+from types import UnicodeType, StringType, MethodType
 from UserDict import UserDict as BaseDict
-
-from zope.i18n import translate
-from zope.i18nmessageid import Message
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
@@ -19,8 +17,9 @@ from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
-from Products.statusmessages.interfaces import IStatusMessage
+from Products.Archetypes.generator import i18n
 
 from Interface.bridge import createZope3Bridge
 from Products.Five.fiveconfigure import createZope2Bridge
@@ -29,7 +28,10 @@ def makeBridgeMaker(func):
         module=args[0]
         ifaces = args[1:]
         for iface in ifaces:
-            func(iface, module, iface.__name__)
+            try:
+                func(iface, module, iface.__name__)
+            except ValueError:
+                import pdb; pdb.set_trace()
     return makeBridge
 
 makeZ2Bridges=makeBridgeMaker(createZope2Bridge)
@@ -82,7 +84,7 @@ _marker = []
 def mapply(method, *args, **kw):
     """ Inspect function and apply positional and keyword arguments as possible.
 
-    Add more examples.
+    XXX Add more examples.
 
     >>> def f(a, b, c=2, d=3):
     ...     print a, b, c, d
@@ -111,7 +113,7 @@ def mapply(method, *args, **kw):
     >>> mapply(f, *(1,), **{'j':3})
     1 2
 
-    TODO Should raise an exception 'Multiple values for argument' here.
+    XXX Should raise an exception 'Multiple values for argument' here.
 
     >>> mapply(f, *(1,), **{'a':3})
     1 2
@@ -293,7 +295,7 @@ class DisplayList:
     You can't use e.g. objects as keys or values
     >>> dl.add(object(), 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be strings, got <type 'object'>
+    TypeError: DisplayList keys must be strings or ints, got <type 'object'>
 
     >>> dl.add('error', object())
     Traceback (most recent call last):
@@ -307,6 +309,27 @@ class DisplayList:
 
     >>> dl.items()
     (('foo', 'bar'), ('fobar', 'spam'))
+
+    Install warning hook for the next tests since they will raise a warning
+    and I don't want to spoil the logs.
+    >>> from Testing.ZopeTestCase import WarningsHook
+    >>> w = WarningsHook(); w.install()
+
+    Using ints as DisplayList keys works but will raise an deprecation warning
+    You should use IntDisplayList for int keys
+
+    >>> idl = DisplayList()
+    >>> idl.add(1, 'number one')
+    >>> idl.add(2, 'just the second')
+
+    >>> idl.items()
+    ((1, 'number one'), (2, 'just the second'))
+
+    >>> idl.getMsgId(1)
+    'number one'
+
+    Remove warning hook
+    >>> w.uninstall(); del w
     """
 
     security = ClassSecurityInfo()
@@ -332,7 +355,7 @@ class DisplayList:
 
     def fromList(self, lst):
         for item in lst:
-            if isinstance(item, list):
+            if isinstance(item, ListType):
                 item = tuple(item)
             self.add(*item)
 
@@ -357,12 +380,17 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if not isinstance(key, basestring):
-            raise TypeError('DisplayList keys must be strings, got %s' %
+        if type(key) is IntType:
+            deprecated('Using ints as DisplayList keys is deprecated (add)')
+        if type(key) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
-        if not isinstance(value, basestring) and not isinstance(value, int):
+        if type(value) not in (StringType, IntType) and not isinstance(value, unicode):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
+        if type(msgid) not in (StringType, NoneType):
+            raise TypeError('DisplayList msg ids must be strings, got %s' %
+                            type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -370,6 +398,8 @@ class DisplayList:
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
+        if msgid: self._i18n_msgids[key] = msgid
+
 
     def getKey(self, value, default=None):
         """get key"""
@@ -382,8 +412,10 @@ class DisplayList:
 
     def getValue(self, key, default=None):
         "get value"
-        if not isinstance(key, basestring):
-            raise TypeError('DisplayList keys must be strings, got %s' %
+        if type(key) is IntType:
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
+        if type(key) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
         if v: return v[1]
@@ -391,6 +423,18 @@ class DisplayList:
             if repr(key) == repr(k):
                 return v[1]
         return default
+
+    def getMsgId(self, key):
+        "get i18n msgid"
+        if type(key) is IntType:
+            deprecated('Using ints as DisplayList keys is deprecated (msgid)')
+        if type(key) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+                            type(key))
+        if self._i18n_msgids.has_key(key):
+            return self._i18n_msgids[key]
+        else:
+            return self._keys[key][1]
 
     def keys(self):
         "keys"
@@ -508,18 +552,23 @@ class IntDisplayList(DisplayList):
     'number one'
     >>> idl.getValue(u"1")
     'number one'
+    >>> idl.getMsgId(1)
+    'number one'
     """
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
     def add(self, key, value, msgid=None):
-        if not isinstance(key, int):
+        if type(key) is not IntType:
             raise TypeError('DisplayList keys must be ints, got %s' %
                             type(key))
-        if not isinstance(value, basestring) and not isinstance(value, int):
+        if type(value) not in (StringType, UnicodeType, IntType):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
+        if type(msgid) not in (StringType, NoneType):
+            raise TypeError('DisplayList msg ids must be strings, got %s' %
+                            type(msgid))
         self.index +=1
         k = (self.index, key)
         v = (self.index, value)
@@ -527,12 +576,13 @@ class IntDisplayList(DisplayList):
         self._keys[key] = v
         self._values[value] = k
         self._itor.append(key)
+        if msgid: self._i18n_msgids[key] = msgid
 
     def getValue(self, key, default=None):
         """get value"""
-        if isinstance(key, basestring):
+        if type(key) in (StringType, UnicodeType):
             key = int(key)
-        elif isinstance(key, int):
+        elif type(key) is IntType:
             pass
         else:
             raise TypeError("Key must be string or int")
@@ -542,6 +592,19 @@ class IntDisplayList(DisplayList):
             if repr(key) == repr(k):
                 return v[1]
         return default
+
+    def getMsgId(self, key):
+        "get i18n msgid"
+        if type(key) in (StringType, UnicodeType):
+            key = int(key)
+        elif type(key) is IntType:
+            pass
+        else:
+            raise TypeError("Key must be string or int")
+        if self._i18n_msgids.has_key(key):
+            return self._i18n_msgids[key]
+        else:
+            return self._keys[key][1]
 
 class Vocabulary(DisplayList):
     """
@@ -564,8 +627,10 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if not isinstance(key, basestring):
-            raise TypeError('DisplayList keys must be strings, got %s' %
+        if type(key) is IntType:
+            deprecated('Using ints as DisplayList keys is deprecated (getValue)')
+        if type(key) not in (StringType, UnicodeType, IntType):
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
         value = default
@@ -580,14 +645,8 @@ class Vocabulary(DisplayList):
         if self._i18n_domain and self._instance:
             msg = self._i18n_msgids.get(key, None) or value
 
-            if isinstance(msg, Message):
-                return msg
-
-            if not msg:
-                return ''
-
-            return translate(msg, self._i18n_domain,
-                             context=self._instance.REQUEST, default=value)
+            return i18n.translate(self._i18n_domain, msg,
+                                  context=self._instance, default=value)
         else:
             return value
 
@@ -705,7 +764,7 @@ def shasattr(obj, attr, acquire=False):
       using hasattr it's comparing the output of getattr with a special marker
       object.
 
-    TODO the getattr() trick can be removed when Python's hasattr() is fixed to
+    XXX the getattr() trick can be removed when Python's hasattr() is fixed to
     catch only AttributeErrors.
 
     Quoting Shane Hathaway:
@@ -877,7 +936,8 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     charset default changed to utf-8 for consistency with the rest of Archetypes.
     """
 
-    from email.Message import Message as emailMessage
+    from email.Message import Message
+    from email import Utils
 
     for key, value in kw.items():
         # stringify the value
@@ -895,11 +955,6 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
         except UnicodeDecodeError:
             value = (charset, language, value)
 
-    m = emailMessage()
+    m = Message()
     m.add_header('content-disposition', disposition, **kw)
     return m['content-disposition']
-
-def addStatusMessage(request, message, type='info'):
-    """Add a status message to the request.
-    """
-    IStatusMessage(request).addStatusMessage(message, type=type)

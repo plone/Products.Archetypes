@@ -8,10 +8,10 @@ Archetypes Unit Testing Suite
       "collective SVN":https://svn.plone.org/svn/collective/ZopeTestCase/trunk/
 
 
-    CMFTestCase
+    PloneTestCase
 
       download and install latest from 
-      "collective SVN":https://svn.plone.org/svn/collective/CMFTestCase/trunk/
+      "collective SVN":https://svn.plone.org/svn/collective/PloneTestCase/trunk/
 
       
     ArchetypesTestUpdateSchema 
@@ -33,3 +33,5 @@ Archetypes Unit Testing Suite
     Using a testrunner, e.g.::
 
       python /path/to/Zope/bin/testrunner.py -qid .
+    
+    See CMFPlone/tests/README.txt for more information.

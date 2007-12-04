@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,8 +24,9 @@
 #
 ################################################################################
 
-# @@ auto generating tests is bullshit. this should go somewhere more
-# easily auditable, like doctests.  DWM
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
 from Testing import ZopeTestCase
 
@@ -60,8 +62,8 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
     MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.atapi import registerType
-from Products.CMFTestCase.layer import ZCMLLayer
 
 def className(klass):
     """ get the short class name """
@@ -86,7 +88,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         setattr(MyClass, MyMethodName, lambda self: self._testStuff())
 
     """
-    layer = ZCMLLayer
+
     klass = None    # test this class
     instance = None # test this instance
     forcedImpl = () # class must implement this tuple of interfaces
@@ -207,17 +209,12 @@ registerType(OBF, PROJECTNAME)
 
 # format: (instance object, (list interface objects))
 # take care: you must provide an instance, not a class!
-def make_test_instances():
-    return [
-        # (EM(), ()), XXX See comment on ExtensibleMetadata
-        (BC('test'), ()),
-        (BF('test'), ()),
-        (OBF('test'), ()),
-        ]
-
-# @@ so inefficient
-from Products.CMFTestCase.five import safe_load_site_wrapper
-testInstances = safe_load_site_wrapper(make_test_instances)()
+testInstances = [
+    # (EM(), ()), XXX See comment on ExtensibleMetadata
+    (BC('test'), ()),
+    (BF('test'), ()),
+    (OBF('test'), ()),
+]
 
 for testClass in testClasses:
     klass, forcedImpl = testClass
@@ -228,7 +225,6 @@ for testClass in testClasses:
         """ implementation for %s """ % name
         klass      = klass
         forcedImpl = forcedImpl
-        layer = ZCMLLayer
 
     # add the testing method to the class to get a nice name
     setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())
@@ -243,7 +239,6 @@ for testInstance in testInstances:
         """ implementation for %s """ % name
         instance   = instance
         forcedImpl = forcedImpl
-        layer = ZCMLLayer
 
     # add the testing method to the class to get a nice name
     setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())
@@ -256,3 +251,6 @@ def test_suite():
     for test in tests:
         suite.addTest(makeSuite(test))
     return suite
+
+if __name__ == '__main__':
+    framework()

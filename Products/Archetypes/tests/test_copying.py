@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -28,8 +29,13 @@ Unittests for a copying/cutting and pasting archetypes objects.
 $Id$
 """
 
-import os
+import os, sys
+if __name__ == '__main__':
+    execfile(os.path.join(sys.path[0], 'framework.py'))
 
+from Testing import ZopeTestCase
+
+import types
 import transaction
 from Acquisition import aq_base
 
@@ -40,8 +46,6 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.atsitetestcase import portal_owner
 from Products.Archetypes.tests.atsitetestcase import portal_name
-from Products.Archetypes.tests.atsitetestcase import default_user
-
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 class CutPasteCopyPasteTests(ATSiteTestCase):
@@ -71,6 +75,8 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         fto.manage_pasteObjects(cb)
         self.failIf('tourist' in ffrom.contentIds())
         self.failIf('tourist' not in fto.contentIds())
+
+from Testing.ZopeTestCase.ZopeTestCase import user_name
 
 class PortalCopyTests(ATSiteTestCase):
 
@@ -164,12 +170,21 @@ class PortalCopyTests(ATSiteTestCase):
         # Copy/pasting a File should set new ownership including local roles
         # borrowed from CMFCore tests
 
-        # First, create a new manager user
+        # BBB this test will fail with CMF 1.4 as CMF 1.4 does not set local
+        # roles on copy, so let's not bother
+        qi = self.portal.portal_quickinstaller
+        if 'CMF-1.4' in qi.getProductVersion('CMFCore'):
+            return
+
+        # First, add two users to the user folder, a member and a manager
+        # and create a member area for the member
         uf = self.portal.acl_users
+        uf._doAddUser('member', 'secret', ['Member'], [])
         uf._doAddUser('manager1', 'secret', ['Manager'], [])
-        member = uf.getUser(default_user).__of__(uf)
+        member = uf.getUser('member').__of__(uf)
         manager1 = uf.getUser('manager1').__of__(uf)
-        member_area = self.portal.Members[default_user]
+        self.portal.portal_membership.createMemberArea('member')
+        member_area = self.portal.Members.member
 
         # Switch to the manager user context and plant a content item into
         # the member user's member area
@@ -178,7 +193,7 @@ class PortalCopyTests(ATSiteTestCase):
 
         # Switch to "member" context now and try to copy and paste the
         # content item created by "manager1"
-        self.login(default_user)
+        self.login('member')
         cb = member_area.manage_copyObjects(['test_file'])
         member_area.manage_pasteObjects(cb)
 
@@ -187,7 +202,7 @@ class PortalCopyTests(ATSiteTestCase):
         file_ob = member_area.copy_of_test_file
         self.assertEqual(aq_base(file_ob.getOwner().getId()), aq_base(member).getId())
         self.failUnless('Owner' in
-                            file_ob.get_local_roles_for_userid(default_user))
+                            file_ob.get_local_roles_for_userid('member'))
 
     def test_copy_paste_resets_workflow(self):
         # Copy/pasting a File should reset workflow to the default state
@@ -305,3 +320,6 @@ def test_suite():
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
     suite.addTest(makeSuite(PortalCopyTests))
     return suite
+
+if __name__ == '__main__':
+    framework()
