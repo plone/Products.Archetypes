@@ -55,7 +55,7 @@ from types import TupleType, ListType, UnicodeType
 from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
-from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.interfaces import IBaseObject, ISchema
 from zope.interface import implements, Interface
 from zope import event
 from zope.app.event import objectevent
@@ -812,7 +812,7 @@ class BaseObject(Referenceable):
     def Schema(self):
         """Return a (wrapped) schema instance for this object instance.
         """
-        schema = self.schema
+        schema = ISchema(self)
         return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')

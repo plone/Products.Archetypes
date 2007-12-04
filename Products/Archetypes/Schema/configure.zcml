@@ -1,0 +1,5 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <adapter factory=".factory.instanceSchemaFactory" for="Products.Archetypes.interfaces.IBaseObject" provides="Products.Archetypes.interfaces.ISchema" />
+
+</configure>
