@@ -38,14 +38,15 @@ from Interface.Exceptions import BrokenImplementation
 from Interface.Exceptions import DoesNotImplement
 from Interface.Exceptions import BrokenMethodImplementation
 
-from Products.Archetypes.interfaces.base import *
-from Products.Archetypes.interfaces.field import *
-from Products.Archetypes.interfaces.layer import *
-from Products.Archetypes.interfaces.marshall import *
-from Products.Archetypes.interfaces.metadata import *
-from Products.Archetypes.interfaces.orderedfolder import *
-from Products.Archetypes.interfaces.referenceable import *
-from Products.Archetypes.interfaces.storage import *
+#from Products.Archetypes.interfaces.base import *
+#from Products.Archetypes.interfaces.field import *
+#from Products.Archetypes.interfaces.layer import *
+#from Products.Archetypes.interfaces.marshall import *
+#from Products.Archetypes.interfaces.metadata import *
+#from Products.Archetypes.interfaces.orderedfolder import *
+#from Products.Archetypes.interfaces.referenceable import *
+#from Products.Archetypes.interfaces.storage import *
+from Products.Archetypes.interfaces import *
 
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
