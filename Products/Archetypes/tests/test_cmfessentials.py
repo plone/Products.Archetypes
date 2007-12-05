@@ -92,6 +92,7 @@ class TestFTICopy(ATFunctionalSiteTestCase):
         my_type.__dict__.update(attrs)
 
         browser = Browser()
+        browser.handleErrors = False
         browser.addHeader('Authorization',
                           'Basic %s:%s' % ('portal_owner', user_password))
         browser.open(self.folder.absolute_url())
