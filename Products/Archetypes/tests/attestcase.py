@@ -30,6 +30,13 @@ __author__ = "Christian Heimes"
 from Testing import ZopeTestCase
 from Testing.ZopeTestCase.functional import Functional
 
+# I would much rather the testcases load this adapter declaration from ZCML, but
+# I haven't had any luck with that, so here it is. Better factorings welcome.
+from zope.component import provideAdapter
+from Products.Archetypes.Schema.factory import instanceSchemaFactory
+from Products.Archetypes.interfaces import IBaseObject, ISchema
+provideAdapter(instanceSchemaFactory, adapts=(IBaseObject,), provides=ISchema)
+
 # the output of some tests may differ when CMFPlone is installed
 try:
     import Products.CMFPlone
