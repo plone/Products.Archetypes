@@ -65,7 +65,7 @@ class ChangeStorageTest(ATTestCase):
         self.failUnlessEqual(dummy.getAlinesfield(), out)
         self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
-        for field in dummy.schema.fields():
+        for field in dummy.Schema().fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
@@ -98,7 +98,7 @@ class MetadataStorageTest( ATTestCase ):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
-        for field in dummy.schema.fields():
+        for field in dummy.Schema().fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, MetadataStorage())
 
@@ -109,7 +109,7 @@ class AttributeStorageTest( ATTestCase ):
         gen_dummy()
         self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
-        for field in dummy.schema.fields():
+        for field in dummy.Schema().fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
 

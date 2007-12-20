@@ -818,8 +818,7 @@ class BaseObject(Referenceable):
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determines whether the current object's schema is up to date."""
-        package = _guessPackage(self.__module__)
-        return getType(self.meta_type, package)['signature'] == self._signature
+        return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None):
@@ -839,7 +838,7 @@ class BaseObject(Referenceable):
             print >> out, 'Updating %s' % (self.getId())
 
         package = _guessPackage(self.__module__)
-        new_schema = getType(self.meta_type, package)['schema']
+        new_schema = self.Schema()
 
         # Read all the old values into a dict
         values = {}
