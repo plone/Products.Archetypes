@@ -4,15 +4,16 @@ version = '1.6'
 
 setup(name='Products.Archetypes',
       version=version,
-      description="The Plone Content Management System",
+      description="Archetypes is a developers framework for rapidly "
+                  "developing and deploying rich, full featured content "
+                  "types within the context of Zope/CMF and Plone.",
       long_description=open("README.txt").read(),
       classifiers=[
         "Framework :: Plone",
         "Framework :: Zope2",
         "Programming Language :: Python",
-        "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-      keywords='Archetypes Plone CMF python Zope',
+      keywords='Archetypes Plone CMF Zope',
       author='Benjamin Saller and others',
       author_email='plone-developers@lists.sourceforge.net',
       url='http://plone.org/',

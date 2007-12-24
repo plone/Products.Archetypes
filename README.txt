@@ -4,7 +4,7 @@ Introduction
 Archetypes is a developers framework for rapidly developing and deploying
 rich, full featured content types within the context of Zope/CMF and Plone.
 
-Archetypes is based around the idea of an _Active Schema_. Rather than
+Archetypes is based around the idea of an `Active Schema`. Rather than
 provide a simple description of a new data type, Archetype schemas do the
 actual work and heavy lifting involved in using the new type. Archetype
 Schemas serve as easy extension points for other developers as project
@@ -17,8 +17,6 @@ Features
 * Simple schemas with working default policy.
 
 * Power and flexibility with lowered incidental complexity.
-
-* Integration with rich content sources such as Office Product Suites.
 
 * Full automatic form generation
 
@@ -35,39 +33,27 @@ Requirements
 
 * Zope 2.10.0+
 
-* Plone 3.0.0+
-
 * statusmessages 3.0+
 
 Recommended
 -----------
-
-Archetypes do not work without the following closely related products. You
-get them with the Archetypes release bundle tarball. You can also fetch them
-also from the plone.org subversion repository .
-  
+ 
 * docutils > 0.3.3 (shipped with Zope)
 
-* Python Imgaging Library 1.1.5+
+* Python Imgaging Library 1.1.6+
 
 Unit testing
 ------------
 
-* Install ZopeTestCase into ZOPE_HOME/lib/python/Testing
-
-* Install the PloneTestCase product
+* Install the `CMFTestCase`_ product.
 
 * Go into the root of your instance and run 
-  ZOPE_HOME/bin/test.py -v -C etc/zope.conf --libdir Products/Archetypes/
-
-You can find ZopeTestCase and PloneTestCase at http://svn.plone.org/collective/
-For now you have to get the svn versions!
+  INSTANCE_HOME/bin/zopectl test --s Products.Archetypes
 
 Documentation
 -------------
 
-Major resource for documentation is located at 
-`plone.org`_.
+Major resource for documentation is located at `plone.org`_.
 
+.. _CMFTestCase: http://plone.org/products/cmftestcase
 .. _plone.org: http://plone.org/products/archetypes/documentation
-
