@@ -21,7 +21,6 @@
                   content python: not binary and content or '';
                   inputname fieldName;
                   inputvalue content;
-                  tabindex tabindex/next;
                   rows widget/rows;
                   cols widget/cols;
                   ">

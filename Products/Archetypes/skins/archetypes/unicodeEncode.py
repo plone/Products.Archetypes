@@ -7,30 +7,22 @@
 ##bind subpath=traverse_subpath
 ##parameters=value, site_charset=None
 
-if site_charset is None:
-    site_charset = context.getCharset()
-
 # Recursively deal with sequences
-if (same_type(value, ()) or same_type(value, [])):
+tuplevalue = same_type(value, ())
+if (tuplevalue or same_type(value, [])):
     encoded = [context.unicodeEncode(v) for v in value]
-    if same_type(value, ()):
+    if tuplevalue:
         encoded = tuple(encoded)
     return encoded
 
-if not (same_type(value, '') or same_type(value, u'')):
+if not isinstance(value, basestring):
     value = str(value)
 
+if site_charset is None:
+    site_charset = context.getCharset()
+
 if same_type(value, ''):
-    for charset in [site_charset, 'latin-1', 'utf-8']:
-        try:
-            value = unicode(value, charset)
-            break
-        except UnicodeError:
-            pass
-    # that should help debugging unicode problem
-    # remove it if you feel not
-    else:
-        raise UnicodeError('Unable to decode %s' % value)
+    value = unicode(value, site_charset)
 
 # don't try to catch unicode error here
 # if one occurs, that means the site charset must be changed !

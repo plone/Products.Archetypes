@@ -21,21 +21,22 @@ mapping = {
 if contenttypes:
     item = mapping.get(item, item)
 
+uitem = unicode(repr(item))
+
 if value is not None and \
    value == item or \
-   unicode(repr(value)) == unicode(repr(item)):
+   unicode(repr(value)) == uitem:
     return 1
 
-try:
-    # Maybe string?
+if isinstance(value, basestring):
     value.capitalize()
-except AttributeError:
-    # Maybe list?
-    try:
-        for v in value:
-            if unicode(repr(item)) == unicode(repr(v)):
-                return 1
-    except TypeError:
-        pass
 
-return not not unicode(repr(value)) == unicode(repr(item))
+# Maybe list?
+try:
+    for v in value:
+        if uitem == unicode(repr(v)):
+            return 1
+except TypeError:
+    pass
+
+return unicode(repr(value)) == uitem

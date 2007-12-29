@@ -1,8 +1,7 @@
-# -*- coding: latin-1 -*-
 """
 AggregatedStorage for Archetypes
 
-(C) 2004, Andreas Jung & Econtec GmbH, D-90492 Nürnberg, Germany
+(C) 2004, Andreas Jung & Econtec GmbH, D-90492 Nuernberg, Germany
 
 Released as open-source under the current Archetypes license
 

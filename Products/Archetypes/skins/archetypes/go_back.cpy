@@ -7,41 +7,40 @@
 ##bind subpath=traverse_subpath
 ##parameters=last_referer=None
 ##title=Go Back
-##
-from Products.CMFCore.utils import getToolByName
-##SESSION = context.REQUEST.SESSION
-##old_id = context.getId()
-##cflag = SESSION.get('__creation_flag__', {})
 
-#utool = getToolByName(context, 'portal_url')
-#portal_object = utool.getPortalObject()
+#SESSION = context.REQUEST.SESSION
+#old_id = context.getId()
+#cflag = SESSION.get('__creation_flag__', {})
+
+from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.utils import addStatusMessage
+from Products.CMFCore.utils import getToolByName
+
+
+REQUEST = context.REQUEST
+
+# Tell the world that we cancelled
+lifecycle_view = context.restrictedTraverse('@@at_lifecycle_view')
+lifecycle_view.cancel_edit()
 
 if context.isTemporary():
     # object was created using portal factory and it's just a temporary object
-    # XXX disabled mark creation flag
-    ##context.remove_creation_mark()
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
-    portal_status_message=context.translate(
-        msgid='message_add_new_item_cancelled',
-        domain='plone',
+    message=_(u'message_add_new_item_cancelled',
         default='Add New Item operation was cancelled.')
 ##elif old_id in cflag.keys():
 ##    redirect_to = last_referer
 ##    context.remove_creation_mark()
 ##    context.aq_parent.manage_delObjects([old_id])
-##    portal_status_message=context.translate(
-##        msgid='message_edit_item_cancelled',
+##    message=_(u'message_edit_item_cancelled',
 ##        default='Add new item operation was cancelled, object was removed.')
 else:
     redirect_to = last_referer
-    portal_status_message=context.translate(
-        msgid='message_edit_item_cancelled',
-        domain='plone',
+    message=_(u'message_edit_item_cancelled',
         default='Edit cancelled.')
 
 kwargs = {
     'next_action':'redirect_to:string:%s' % redirect_to,
-    'portal_status_message':portal_status_message,
     }
 
 env = state.kwargs
@@ -56,4 +55,5 @@ if reference_source_url is not None:
         'reference_focus':reference_source_field,
         })
 
+addStatusMessage(REQUEST, message)
 return state.set(**kwargs)

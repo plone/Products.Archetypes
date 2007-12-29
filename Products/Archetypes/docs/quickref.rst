@@ -56,11 +56,12 @@ using the following combination:
 
 - Plone 2.x
 
-- CMF 1.4.x
+- CMF 1.x
 
-You should install the *PortalTransforms*, *MimetypeRegistry*, *validation* 
-and *generator* packages available in the archetypes repository (see above) 
-before installing Archetypes itself. 
+You should install the *PortalTransforms*, *MimetypeRegistry* and *validation* 
+packages available in the archetypes repository (see above) before installing
+Archetypes itself.
+ 
 The easiest way to get all the necessary packages is to download the tarball 
 made available upon release or check out the *bundle* from the repository to 
 fetch the latest development release. For example, this is tarball containing 
@@ -73,8 +74,7 @@ Using the tarball
 
 2. Decompress it --- it should contain the following directories::
 
-    Archetypes  generator  MimetypesRegistry  PortalTransforms
-    validation
+    Archetypes  MimetypesRegistry  PortalTransforms  validation
 
 3. Copy these into the ``Products`` directory of your Zope installation.
 
@@ -324,7 +324,6 @@ BaseValidators
 inNumericRange
   The argument must be numeric. The validator should be called with the
   minimum and maximum values as second and third arguments. 
-  XXX: example in practice?
 
 isDecimal
   The argument must be decimal, may be positive or
@@ -375,7 +374,6 @@ isEmpty
 isEmptyNoError
   ``isEmpty`` fails with an error message, but ``isEmptyNoError`` just
   fails.
-  XXX: illustrative use case?
 
 
 SupplValidators
@@ -430,7 +428,7 @@ Writing a custom validator
 
 If you need custom validation, you can write a new validator in your product.::
 
-    from validation.interfaces import ivalidator
+    from Products.validation.interfaces import ivalidator
     class FooValidator:
         __implements__ = (ivalidator,)
         def __init__(self, name):
@@ -441,14 +439,22 @@ If you need custom validation, you can write a new validator in your product.::
                     repr(value)))
             return 1
 
-Then you need to register it in the ``initialize`` method
+Then you need to register it, for example in the ``initialize`` method
 ``FooProduct/__init__.py``::
 
-    from validation import validation
+    from Products.validation import validation
     from validator import FooValidator
     validation.register(FooValidator('isFoo'))
 
 The validator is now registered, and can be used in the schema of your type.
+
+Note: make sure that your validator is registered before any code is
+called that wants to use this validator, most likely in the schema of
+a content type.  If you see this when Zope starts up::
+
+    WARNING: Disabling validation for <field name>: <your validator>
+
+then you are registering your validator too late.
 
 
 Widgets
@@ -466,14 +472,8 @@ description
   Some documentation for this field. It's rendered as a ``div`` with the
   CSS class ``formHelp``.
 
-description_msgid
-  i18n id for the description.
-
 label
   Is used as the label for the field when rendering the form.
-
-label_msgid
-  i18n id for the label.
 
 visible
   Defaults to ``{'edit':'visible', 'view':'visible'}``, which signifies
@@ -590,7 +590,6 @@ Additional notes about Factory Type Information
   actions **extend** or **replace** any existing actions for your type.
   If you want to delete or rearange actions, you need to manipulate
   ``fti['actions']`` in the ``modify_fti`` method of your module. 
-  XXX: When is ArchetypeTool.fixActionsForType used?
 
   This means that if you want custom views or something you only need to
   say something like::

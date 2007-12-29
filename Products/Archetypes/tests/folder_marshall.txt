@@ -98,9 +98,10 @@ like a normal resource:
   ...
   id: simple_folder
   title:
-  allowDiscussion: None
+  allowDiscussion: False
   subject:
   description: Simple Folder Content
+  location:
   contributors:
   creators: test_user_1_
   effectiveDate: None
@@ -175,9 +176,10 @@ like a normal resource:
   ...
   id: simple_btree_folder
   title:
-  allowDiscussion: None
+  allowDiscussion: False
   subject:
   description: BTree Folder Content
+  location:
   contributors:
   creators: test_user_1_
   effectiveDate: None

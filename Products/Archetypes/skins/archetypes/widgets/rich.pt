@@ -9,17 +9,26 @@
     <!-- Rich Widgets -->
 
     <metal:view_macro define-macro="view"
-                      tal:define="transformable python: here.isTransformable(fieldName);">
-      <span tal:condition="transformable"
-            tal:replace="structure accessor"/>
-<tal:comment replace="nothing">
-Commented out the View/Edit links for ordinary display - feel free to
-enable these in your site, but they should definitely not be there by
-default.
-      <tal:download tal:condition="widget/allow_file_upload | python:1">
-        <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
-      </tal:download>
-</tal:comment>
+                      tal:define="kssClassesView context/@@kss_field_decorator_view;
+                                  getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="rich-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/rich', macro='rich-field-view');"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:define="transformable python: here.isTransformable(fieldName);"
+                  tal:condition="transformable"
+                  tal:replace="structure accessor">rich</span>
+            <tal:comment replace="nothing">
+            Commented out the View/Edit links for ordinary display - feel free to
+            enable these in your site, but they should definitely not be there by
+            default.
+                  <tal:download tal:condition="widget/allow_file_upload | python:1">
+                    <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
+                  </tal:download>
+            </tal:comment>
+        </div>
     </metal:view_macro>
  
     <metal:define define-macro="edit">
@@ -38,10 +47,8 @@ default.
                     i18n:translate="or_upload_a_file">or upload a file (existing content will be replaced)</span>
               <input type="file"
                      size="30"
-                     tabindex="" 
                      tal:attributes="name string:${fieldName}_file;
                                      id string:${fieldName}_file;
-                                     tabindex tabindex/next;
                                      "/>
           </div>
         </metal:fill>
