@@ -1,6 +1,5 @@
 Archetypes https://svn.plone.org/svn/archetypes/Archetypes/trunk
 PortalTransforms https://svn.plone.org/svn/archetypes/PortalTransforms/trunk
-MimetypesRegistry https://svn.plone.org/svn/archetypes/MimetypesRegistry/trunk
 validation https://svn.plone.org/svn/archetypes/validation/trunk
 Marshall https://svn.plone.org/svn/archetypes/Marshall/trunk
 
