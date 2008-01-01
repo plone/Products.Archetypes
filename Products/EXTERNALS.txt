@@ -1,4 +1,2 @@
 Archetypes https://svn.plone.org/svn/archetypes/Archetypes/trunk
-validation https://svn.plone.org/svn/archetypes/validation/trunk
 Marshall https://svn.plone.org/svn/archetypes/Marshall/trunk
-
