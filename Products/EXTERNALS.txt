@@ -1,2 +1,1 @@
 Archetypes https://svn.plone.org/svn/archetypes/Archetypes/trunk
-Marshall https://svn.plone.org/svn/archetypes/Marshall/trunk
