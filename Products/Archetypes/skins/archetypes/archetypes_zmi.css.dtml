@@ -1,0 +1,47 @@
+label {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 10pt;
+  color: #333333;
+}
+
+.field {
+  margin: .3em 0em;
+}
+
+div.formHelp {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #999999;
+}
+
+div.formHelp:hover {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #666666;
+  cursor: default;
+}
+
+.fieldRequired {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 8pt;
+  color: #666666;
+ }
+
+input,
+select,
+option {
+  font-family: Verdana, Helvetica, aans-serif;
+  font-size: 10pt;
+  color: #000000;
+  margin: .2em 0em;
+}
+
+.form-element {
+   margin: .5em 0em;
+
+}
+
+form {
+  margin: 0em .8em;
+}

@@ -9,7 +9,6 @@
 
 # Setup.
 db_version 2.0
-db_capb backup
 
 # Prompt the question to the user.
 db_input low "$(basename $0 .config)/postinst" || true

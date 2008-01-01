@@ -1,4 +1,4 @@
-Template: zope-generator/postinst
+Template: zope-cmfarchetypes/postinst
 Type: boolean
 Default: true
 Description: Do you want me to restart Zope?
