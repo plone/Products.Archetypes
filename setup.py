@@ -24,5 +24,7 @@ setup(name='Archetypes',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'Products.MimetypeRegistry',
+          'Products.PortalTransforms',
       ],
       )
