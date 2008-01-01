@@ -28,5 +28,7 @@ setup(name='Archetypes',
           'Products.MimetypesRegistry',
           'Products.PortalTransforms',
           'Products.validation',
+          'plone.i18n',
+          'plone.locking',
       ],
       )
