@@ -1,6 +1,12 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
+    'kssSubmitForm' intead of simply 'currentForm'. This is needed
+    to support multi-valued form variables in inline editing.
+    This is dependent on http://dev.plone.org/archetypes/changeset/9200
+    [raphael]
+
   * Calling `getDefault` twice is unnecessarily slow and could potentially
     cause bugs when a `default_method` returning an object is used for the
     field.  In that case the field would get initialized with one instance,
