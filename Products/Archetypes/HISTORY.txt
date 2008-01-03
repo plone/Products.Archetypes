@@ -1,6 +1,12 @@
 1.5.6 - unreleased
 ==================
 
+  * Calling `getDefault` twice is unnecessarily slow and could potentially
+    cause bugs when a `default_method` returning an object is used for the
+    field.  In that case the field would get initialized with one instance,
+    but a second, different instance would be returned from the call to `get`.
+    [witsch]
+
 1.5.5 - 2007-12-29
 ==================
 
