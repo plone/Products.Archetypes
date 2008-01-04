@@ -42,4 +42,11 @@
       allowed_attributes="getSelected lookupMime"
       />
 
+  <browser:page
+      for="*"
+      name="at_remove_schema_attributes"
+      class=".fix.RemoveSchemaAttributes"
+      permission="cmf.ManagePortal"
+      />
+
 </configure>

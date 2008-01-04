@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <title>
+      Remove Archetypes schema attributes.
+    </title>
+  </head>
+  <body>
+    <h1>Remove Archetypes schema attributes.</h1>
+    <p>
+      This page has been deliberately kept simple: no Plone user
+      interface, as in some cases you may not be able to <em>see</em>
+      the Plone user interface before using the form on this page.  In
+      fact, that is exactly the sort of situation that this page has
+      been made for.
+    </p>
+    <h2>Symptoms</h2>
+    <p>
+      You have tried:
+    </p>
+    <ul>
+      <li>running the <a href="portal_migration/manage_migrate">Plone migration</a>,</li>
+      <li>updating the <a href="archetype_tool/manage_updateSchemaForm">Archetypes schemas</a>,</li>
+      <li>reinstalling <a href="portal_quickinstaller/manage_installProductsForm">products</a>.</li>
+    </ul>
+    <p>
+      But during or after those steps you have run into strange
+      AttributeErrors.  Those errors make you think that you need to
+      update some <a
+      href="archetype_tool/manage_updateSchemaForm">Archetypes
+      schemas</a>.  But, like mentioned above, when trying that it
+      does not help.  Or the updating itself throws an AttributeError.
+    </p>
+    <p>
+      Or: the schema of a content type (in core Plone, an external
+      add-on product or an own product) has been changed, you have
+      updated the schema in the archetype_tool, but you do not see it
+      appearing in existing objects in the web site.
+    </p>
+    <h2>Cause</h2>
+    <p>
+      This is caused by some versions of Archetypes that add
+      <code>schema</code> as attribute to objects during a schema
+      update.  This has the effect that future schema updates have no
+      effect.
+    </p>
+    <p>
+      This has been fixed in Archetypes 1.5.2 (and 1.6 and higher),
+      which is shipped with Plone 3.0.1.  Archetypes 1.4 still has
+      this problem (last version checked: 1.4.6).
+    </p>
+    <h2>Solution</h2>
+    <p>
+      Remove <code>schema</code> from the <code>__dict__</code> of all
+      Archetypes objects in your web site.  That is what pressing the
+      next button will do for you.  Notes:
+    </p>
+    <ul>
+      <li>This can take a <strong>long</strong> time as it checks all
+      objects in your web site.</li>
+      <li>This should be a safe operation, recommended for everyone.  <strong>BUT</strong>:</li>
+      <li>Be safe: make a backup of your data before doing this.</li>
+    </ul>
+    <form method="post">
+      <input type="submit" name="at_remove_schema_attributes"
+             value="Fix the schemas." />
+    </form>
+  </body>
+</html>
