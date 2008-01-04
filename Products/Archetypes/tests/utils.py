@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -28,7 +27,9 @@
 
 import re
 import sys
-from TAL import ndiff
+import logging
+
+from zope.tal import ndiff
 from Globals import InitializeClass, package_home
 from UserDict import UserDict
 import ExtensionClass
@@ -44,6 +45,8 @@ from Products.Archetypes.atapi import process_types
 from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import PKG_NAME
+
+logger = logging.getLogger('Archetypes')
 
 PACKAGE_HOME = package_home(globals())
 
@@ -108,47 +111,6 @@ def showdiff(a, b):
             print '---'
         ndiff.dump('>', b, blo, bhi)
 
-def start_http(address, port):
-    import sys
-    from ZServer import asyncore
-    from ZServer import zhttp_server, zhttp_handler
-    import socket
-
-    import Zope # Sigh, make product initialization happen
-
-    from ZServer import setNumberOfThreads
-    setNumberOfThreads(4)
-
-    try:
-        hs = zhttp_server(
-            ip=address,
-            port=port,
-            resolver=None,
-            logger_object=None)
-    except socket.error, why:
-        if why[0] == 98: # address in use
-            raise port_err % {'port':port,
-                              'socktype':'TCP',
-                              'protocol':'HTTP',
-                              'switch':'-w'}
-        raise
-    # Handler for a published module. zhttp_handler takes 3 arguments:
-    # The name of the module to publish, and optionally the URI base
-    # which is basically the SCRIPT_NAME, and optionally a dictionary
-    # with CGI environment variables which override default
-    # settings. The URI base setting is useful when you want to
-    # publish more than one module with the same HTTP server. The CGI
-    # environment setting is useful when you want to proxy requests
-    # from another web server to ZServer, and would like the CGI
-    # environment to reflect the CGI environment of the other web
-    # server.
-    zh = zhttp_handler('Zope', '', {})
-    zh._force_connection_close = 1
-    hs.install_handler(zh)
-    sys.ZServerExitCode=0
-    asyncore.loop()
-    sys.exit(sys.ZServerExitCode)
-
 def populateFolder(folder, folder_type, doc_type):
     """ Creates a structure like:
 
@@ -208,8 +170,8 @@ def isWrapperMethod(meth):
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
     if isWrapperMethod(old_method):
-        log('Wrapping already wrapped method at %s.%s' %
-            (klass.__name__, name))
+        logger.warning('Wrapping already wrapped method at %s.%s' %
+                       (klass.__name__, name))
     new_name = pattern % name
     setattr(klass, new_name, old_method)
     setattr(method, ORIG_NAME, new_name)

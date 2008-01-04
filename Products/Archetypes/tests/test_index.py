@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -26,15 +25,10 @@
 """
 """
 
-import os, sys, time
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
+import time
 from Testing import ZopeTestCase
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.tests.utils import makeContent
 from Products.CMFCore.utils import getToolByName
 
@@ -100,6 +94,3 @@ def test_suite():
     suite.addTest(makeSuite(ETagTest))
     suite.addTest(makeSuite(ReindexTest))
     return suite
-
-if __name__ == '__main__':
-    framework()

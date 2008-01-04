@@ -1,9 +1,11 @@
+from sets import Set
+
+from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.config import TOOL_NAME
 from Products.GenericSetup.utils import XMLAdapterBase
 from Products.GenericSetup.utils import exportObjects
 from Products.GenericSetup.utils import importObjects
-from Products.CMFCore.utils import getToolByName
-from sets import Set
 
 
 class ArchetypeToolXMLAdapter(XMLAdapterBase):
@@ -66,8 +68,7 @@ def importArchetypeTool(context):
     """Import Archetype Tool configuration.
     """
     site = context.getSite()
-    tool = getToolByName(site, 'archetype_tool')
-
+    tool = getToolByName(site, TOOL_NAME)
     importObjects(tool, '', context)
 
 
@@ -75,7 +76,7 @@ def exportArchetypeTool(context):
     """Export Archetype Tool configuration.
     """
     site = context.getSite()
-    tool = getToolByName(site, 'archetype_tool', None)
+    tool = getToolByName(site, TOOL_NAME, None)
     if tool is None:
         logger = context.getLogger("archetypestool")
         logger.info("Nothing to export.")

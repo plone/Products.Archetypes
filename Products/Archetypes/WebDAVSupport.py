@@ -1,5 +1,6 @@
 import tempfile
 import posixpath
+
 from zExceptions import MethodNotAllowed
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.utils import shasattr, mapply
@@ -7,7 +8,7 @@ from Products.Archetypes.utils import shasattr, mapply
 from ZPublisher.Iterators import IStreamIterator
 
 from zope import event
-from zope.app.event import objectevent
+from zope.lifecycleevent import ObjectModifiedEvent
 
 class PdataStreamIterator(object):
 
@@ -90,7 +91,6 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         mimetype = str(mimetype).split(';')[0].strip()
 
     filename = posixpath.basename(REQUEST.get('PATH_INFO', self.getId()))
-
     # XXX remove after we are using global services
     # use the request to find an object in the traversal hierachy that is
     # able to acquire a mimetypes_registry instance
@@ -119,7 +119,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         self.demarshall_hook(ddata)
     self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
     self.reindexObject()
-    event.notify(objectevent.ObjectModifiedEvent(self))
+    event.notify(ObjectModifiedEvent(self))
     
     RESPONSE.setStatus(204)
     return RESPONSE

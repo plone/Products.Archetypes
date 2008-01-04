@@ -6,7 +6,7 @@ import unittest
 import Acquisition
 import BTrees
 import transaction
-import OFS.Application
+import OFS
 import persistent
 import ZODB
 from ZODB.FileStorage import FileStorage
@@ -105,26 +105,26 @@ class ATHistoryAwareTests(unittest.TestCase):
         
     def test_simpleAttributes(self):
         """Simple, non-persistent attributes are tracked"""
-        foo_history = [e[0].foo for e in self.object.getHistories()]
+        foo_history = (e[0].foo for e in self.object.getHistories())
         expected = ('mit', 'baz', 'baz', 'baz', 'bar')
         self.assertEqual(tuple(foo_history), expected)
         
     def test_annotation(self):
         """Persistent subkeys of the __annotations__ object"""
-        key1_history = [e[0].__annotations__[KEY1].spam
-                        for e in self.object.getHistories()]
+        key1_history = (e[0].__annotations__[KEY1].spam
+                        for e in self.object.getHistories())
         expected = ('trout', 'python', 'python', 'python', 'eggs')
         self.assertEqual(tuple(key1_history), expected)
         
-        key2_history = [e[0].__annotations__[KEY2].spam
-                        for e in self.object.getHistories()]
+        key2_history = (e[0].__annotations__[KEY2].spam
+                        for e in self.object.getHistories())
         expected = ('lumberjack', 'lumberjack', 'eggs', 'eggs', 'eggs')
         self.assertEqual(tuple(key2_history), expected)
         
     def test_annotationlifetime(self):
         """Addition and deletion of subkeys is tracked"""
-        key3_history = [bool(e[0].__annotations__.has_key(KEY3))
-                        for e in self.object.getHistories()]
+        key3_history = (bool(e[0].__annotations__.has_key(KEY3))
+                        for e in self.object.getHistories())
         expected = (False, False, True, False, False)
         self.assertEqual(tuple(key3_history), expected)
         

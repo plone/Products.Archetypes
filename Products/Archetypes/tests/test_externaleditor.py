@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -23,20 +22,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
-
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.atapi import *
-from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.interfaces.base import IBaseUnit
 
 
@@ -54,6 +44,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(ExternalEditorTest))
     return suite
-
-if __name__ == '__main__':
-    framework()
