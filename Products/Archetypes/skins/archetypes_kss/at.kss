@@ -49,7 +49,7 @@ form.inlineForm input[name=kss-save]:click {
     evt-click-preventdefault: true;
     action-server: saveField;
     saveField-fieldname: kssAttr('atfieldname', true);
-    saveField-value: currentForm();
+    saveField-kssSubmitForm: currentForm();
     saveField-macro: kssAttr('macro', true);
     saveField-templateId: kssAttr('templateId', true);
     saveField-uid: kssAttr('atuid', true);
