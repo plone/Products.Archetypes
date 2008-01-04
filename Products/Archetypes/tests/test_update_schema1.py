@@ -37,13 +37,15 @@ import shutil
 from Products.CMFCore.utils import getToolByName
 
 try:
-    from Products.ArchetypesTestUpdateSchema.Extensions.Install import install as install_test
+    from Products.ArchetypesTestUpdateSchema.Extensions.Install import \
+         install as install_test
 except ImportError:
+    print >> sys.stderr, "Failed to import ArchetypesTestUpdateSchema. " \
+          "Some tests will not be executed."
     hasATTUS = False
 else:
+    ZopeTestCase.installProduct('ArchetypesTestUpdateSchema', 0)
     hasATTUS = True
-
-
 
 # We are breaking up the update schema test into 2 separate parts, since
 # the product refresh appears to cause strange things to happen when we
