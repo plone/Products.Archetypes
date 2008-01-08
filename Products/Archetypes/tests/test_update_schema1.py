@@ -31,59 +31,128 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
+from Products.Archetypes.tests.utils import mkDummyInContext
+from Products.Archetypes.atapi import *
 
 import shutil
 
 from Products.CMFCore.utils import getToolByName
+#from Products.Archetypes.BaseObject import BaseObject
 
-# ArchetypesTestUpdateSchema does not work on Zope 2.8 or higher
-hasATTUS = False
+textfield1 = TextField('TEXTFIELD1', primary=True, default='A')
 
-# We are breaking up the update schema test into 2 separate parts, since
-# the product refresh appears to cause strange things to happen when we
-# run multiple tests in the same test suite.
+textfield2 = TextField('TEXTFIELD2', primary=False, default='B')
 
-class TestUpdateSchema1(ZopeTestCase.Sandboxed, ATSiteTestCase):
+textfield3 = TextField('TEXTFIELD3', primary=False, default='C')
+
+schema1 = BaseSchema + Schema((
+        textfield1,
+        ))
+
+schema2 = BaseSchema + Schema((
+        textfield1,
+        textfield2,
+        ))
+
+schema3 = BaseSchema + Schema((
+        textfield1,
+        textfield3,
+        ))
+
+class Dummy1(BaseContent):
+    pass
+
+
+class Dummy2(BaseContent):
+    pass
+
+
+class Dummy3(BaseContent):
+    pass
+
+
+class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
-        qi = getToolByName(self.portal, 'portal_quickinstaller')
-        qi.installProduct('ArchetypesTestUpdateSchema')
+        ATSiteTestCase.afterSetUp(self)
+        # Calling mkDummyInContext adds content, but also registers
+        # our classes and adds a copy of the schema.
+        self._dummy1 = mkDummyInContext(
+            Dummy1, oid='dummy', context=self.portal, schema=schema1)
+        self._dummy2 = mkDummyInContext(
+            Dummy2, oid='dummy', context=self.portal, schema=schema2)
+        self._dummy3 = mkDummyInContext(
+            Dummy3, oid='dummy', context=self.portal, schema=schema3)
 
-    def _setClass(self, version):
-        import Products.ArchetypesTestUpdateSchema
-        classdir = Products.ArchetypesTestUpdateSchema.getDir()
-        dest = os.path.join(classdir, 'TestClass.py')
-        pyc = os.path.join(classdir, 'TestClass.pyc')
-        src = os.path.join(classdir, 'TestClass%d.py' % version)
-        shutil.copyfile(src, dest)
-        os.utime(dest,None)
-        try:
-            os.remove(pyc)
-        except:
-            pass
+    def test_instance_schema_is_harmful(self):
+        """Show that having a schema in the instance is harmful.
 
-        self.app.Control_Panel.Products.ArchetypesTestUpdateSchema.manage_performRefresh()
+        schema should be a class attribute, not an instance attribute.
+        """
+        dummy = self._dummy1
+        self.failUnless(dummy._isSchemaCurrent())
 
+        # You can make schema an instance attribute if you want (or if
+        # you are not careful).
+        self.failIf('schema' in dummy.__dict__)
+        dummy.schema = dummy.__class__.schema
+        self.failUnless('schema' in dummy.__dict__)
+        # The schema has not *really* changed:
+        self.failUnless(dummy._isSchemaCurrent())
+        # But the damage has been done, as we will show soon.
+
+        # We give the class of our content a different schema.  The
+        # only sane/working way is to actually change the class.
+        dummy.__class__ = Dummy2
+        # Naturally, the schema of our content is not current anymore.
+        # XXX Ehm, actually... this fails:
+        #self.failIf(dummy._isSchemaCurrent())
+
+        # Our class has a TEXTFIELD2, but our content does not now it
+        # yet.  It *does* already have the getter for that field.
+        dummy.getTEXTFIELD2
+        self.assertRaises(KeyError, dummy.getTEXTFIELD2)
+
+        # No problem, we just need to update the schema of the
+        # content.
+        dummy._updateSchema()
+
+        # And now we can get our text field, right?  Wrong.
+        # Only the getter is there and it does not work.
+        self.failUnless(hasattr(dummy, 'getTEXTFIELD2'))
+        self.assertRaises(KeyError, dummy.getTEXTFIELD2)
+        self.failIf(hasattr(dummy, 'TEXTFIELD2'))
+
+        # This can be fixed by deleting the schema attribute of the
+        # instance.
+        del dummy.schema
+
+        # At first, direct attribute access still does not work:
+        self.failIf(hasattr(dummy, 'TEXTFIELD2'))
+        # But calling the getter works.
+        self.assertEqual(dummy.getTEXTFIELD2(), 'B')
+        # And after that call, direct attribute access works too.
+        self.assertEqual(dummy.TEXTFIELD2(), 'B')
+        # Note: TEXTFIELD is a BaseUnit, which means you need to call
+        # it to get its value.
+        
+    def test_no_schema_attribute_added(self):
+        """Does updating the schema mess things up?
+
+        Updating the schema should not add the schema as instance
+        attribute, unless you *really* know what you are doing.
+        """
+        dummy = self._dummy1
+        dummy._updateSchema()
+        self.failIf('schema' in dummy.__dict__)
 
     def test_detect_schema_change(self):
-        self._setClass(1)
-
-        t1 = makeContent(self.folder, portal_type='TestClass', id='t1')
-        self.failUnless(t1._isSchemaCurrent())
-
-        self.portal.archetype_tool.manage_updateSchema()
-        self.failUnless(t1._isSchemaCurrent())
-
-        self._setClass(2)
-
-        t1 = self.folder.t1
-        self.failIf(t1._isSchemaCurrent())
-
-        t2 = makeContent(self.folder, portal_type='TestClass', id='t2')
-        self.failUnless(t2._isSchemaCurrent())
-
-        self.portal.archetype_tool.manage_updateSchema()
-        self.failUnless(t1._isSchemaCurrent())
+        dummy = self._dummy1
+        self.failUnless(dummy._isSchemaCurrent())
+        dummy.__class__.schema = schema2.copy()
+        self.failIf(dummy._isSchemaCurrent())
+        dummy._updateSchema()
+        self.failUnless(dummy._isSchemaCurrent())
 
 
 class TestBasicSchemaUpdate(ATSiteTestCase):
@@ -129,7 +198,6 @@ An rst Document
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    if hasATTUS:
-        suite.addTest(makeSuite(TestUpdateSchema1))
+    suite.addTest(makeSuite(TestUpdateSchema))
     suite.addTest(makeSuite(TestBasicSchemaUpdate))
     return suite
