@@ -37,7 +37,7 @@ from Products.Archetypes.atapi import *
 import shutil
 
 from Products.CMFCore.utils import getToolByName
-#from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.ArchetypeTool import registerType
 
 textfield1 = TextField('TEXTFIELD1', primary=True, default='A')
 
@@ -88,6 +88,16 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         """Show that having a schema in the instance is harmful.
 
         schema should be a class attribute, not an instance attribute.
+
+        The only thing this really tests is that for AT >= 1.5.2,
+        having a schema attribute on the instance is bad.  In earlier
+        ATs this is no problem.  Nothing bad happens due to the
+        earlier AT code.  But the newer ATs cannot handle older
+        content that has had a schema update already.
+
+        So: if this test fails, that is okay really.  But if it does
+        *not* fail, this means that some code needs be added to
+        migrate old content.
         """
         dummy = self._dummy1
         self.failUnless(dummy._isSchemaCurrent())
@@ -120,6 +130,8 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         # And now we can get our text field, right?  Wrong.
         # Only the getter is there and it does not work.
         self.failUnless(hasattr(dummy, 'getTEXTFIELD2'))
+        # Actually, the next two tests fail for AT <= 1.5.1, which is
+        # actually good.
         self.assertRaises(KeyError, dummy.getTEXTFIELD2)
         self.failIf(hasattr(dummy, 'TEXTFIELD2'))
 
@@ -150,6 +162,8 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         dummy = self._dummy1
         self.failUnless(dummy._isSchemaCurrent())
         dummy.__class__.schema = schema2.copy()
+        # Reregister the type.  (Not needed in AT <= 1.5.1)
+        registerType(Dummy1, 'Archetypes')
         self.failIf(dummy._isSchemaCurrent())
         dummy._updateSchema()
         self.failUnless(dummy._isSchemaCurrent())
