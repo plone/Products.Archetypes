@@ -1,14 +1,16 @@
+branches/maurits-schema-removal
+===============================
+
+  * Remove test dependency on ArchetypesTestUpdateSchema as this does
+    not work on Zope > 2.7.  Those tests are not even tried now.
+
+  * Add browser view @@at_remove_schema_attributes with explanation
+    and a button to click for removing the schema attribute from
+    __dict__.
+
+
 1.5.6 - unreleased
 ==================
-
-  * Removed bogus ``get_content_type`` method from BaseObject.
-    [deo]
-
-  * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
-    'kssSubmitForm' instead of simply 'currentForm'. This is needed
-    to support multi-valued form variables in inline editing.
-    This is dependent on http://dev.plone.org/archetypes/changeset/9200
-    [raphael]
 
   * Calling `getDefault` twice is unnecessarily slow and could potentially
     cause bugs when a `default_method` returning an object is used for the

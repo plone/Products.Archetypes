@@ -14,11 +14,6 @@ Archetypes Unit Testing Suite
       "collective SVN":https://svn.plone.org/svn/collective/PloneTestCase/trunk/
 
       
-    ArchetypesTestUpdateSchema 
-    
-      "Archetypes CVS":https://svn.plone.org/svn/archetypes/ArchetypesTestUpdateSchema/
-      This package is required for some tests.
-      
   How to run the unit tests
 
     Very simple (unix-like OS only)::
