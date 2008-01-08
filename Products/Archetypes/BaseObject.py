@@ -324,6 +324,11 @@ class BaseObject(Referenceable):
     # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
+    # XXX Where's get_content_type comes from??? There's no trace at both
+    # Zope and CMF. It should be removed ASAP!
+    security.declareProtected(permissions.View, 'get_content_type')
+    get_content_type = getContentType
+
     security.declareProtected(permissions.ModifyPortalContent,
                               'setContentType')
     def setContentType(self, value, key=None):
@@ -830,7 +835,8 @@ class BaseObject(Referenceable):
         return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
-    def _updateSchema(self, excluded_fields=[], out=None):
+    def _updateSchema(self, excluded_fields=[], out=None,
+                      remove_instance_schemas=False):
         """Updates an object's schema when the class schema changes.
 
         For each field we use the existing accessor to get its value,
@@ -846,6 +852,9 @@ class BaseObject(Referenceable):
         if out:
             print >> out, 'Updating %s' % (self.getId())
 
+        if remove_instance_schemas and 'schema' in self.__dict__:
+            print >> out, 'Removing schema from instance dict.'
+            del self.schema
         new_schema = self.Schema()
 
         # Read all the old values into a dict

@@ -168,6 +168,15 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         dummy._updateSchema()
         self.failUnless(dummy._isSchemaCurrent())
 
+    def test_remove_instance_schemas(self):
+        dummy = self._dummy1
+        dummy.schema = schema2.copy()
+        self.failUnless('schema' in dummy.__dict__)
+        dummy._updateSchema()
+        self.failUnless('schema' in dummy.__dict__)
+        dummy._updateSchema(remove_instance_schemas=True)
+        self.failIf('schema' in dummy.__dict__)
+
 
 class TestBasicSchemaUpdate(ATSiteTestCase):
     """Tests for update schema behavior which depend only on the basic
