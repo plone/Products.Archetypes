@@ -91,7 +91,7 @@ class TestBasicSchemaUpdate(ATSiteTestCase):
        types, and examine baseline behavior when no real schema changes have
        happened."""
 
-    def test_update_preserves_tyoe(self):
+    def test_update_preserves_mimetype(self):
         self.folder.invokeFactory('DDocument', 'mydoc', title="My Doc")
         doc = self.folder.mydoc
         doc.setBody("""
