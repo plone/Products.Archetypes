@@ -19,9 +19,6 @@ class RemoveSchemaAttributes(BrowserView):
                 if isinstance(obj, BaseObject) and 'schema' in obj.__dict__:
                     print >> out, path
                     delattr(obj, 'schema')
-                    # Now seems a good time to actually update the
-                    # schema.
-                    obj._updateSchema(out=out)
 
             try:
                 result = context.ZopeFindAndApply(context,
