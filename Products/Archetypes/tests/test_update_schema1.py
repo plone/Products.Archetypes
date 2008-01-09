@@ -39,25 +39,21 @@ import shutil
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.ArchetypeTool import registerType
 
-textfield1 = TextField('TEXTFIELD1', primary=True, default='A')
+textfield1 = TextField('TEXTFIELD1', required=True, default='A')
 
-textfield2 = TextField('TEXTFIELD2', primary=False, default='B')
+textfield1b = TextField('TEXTFIELD1', required=False, default='A')
 
-textfield3 = TextField('TEXTFIELD3', primary=False, default='C')
+textfield2 = TextField('TEXTFIELD2', default='B')
 
 schema1 = BaseSchema + Schema((
         textfield1,
         ))
 
 schema2 = BaseSchema + Schema((
-        textfield1,
+        textfield1b,
         textfield2,
         ))
 
-schema3 = BaseSchema + Schema((
-        textfield1,
-        textfield3,
-        ))
 
 class Dummy1(BaseContent):
     pass
@@ -81,8 +77,6 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
             Dummy1, oid='dummy', context=self.portal, schema=schema1)
         self._dummy2 = mkDummyInContext(
             Dummy2, oid='dummy', context=self.portal, schema=schema2)
-        self._dummy3 = mkDummyInContext(
-            Dummy3, oid='dummy', context=self.portal, schema=schema3)
 
     def test_instance_schema_is_harmful(self):
         """Show that having a schema in the instance is harmful.
@@ -95,9 +89,10 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         earlier AT code.  But the newer ATs cannot handle older
         content that has had a schema update already.
 
-        So: if this test fails, that is okay really.  But if it does
-        *not* fail, this means that some code needs be added to
-        migrate old content.
+        So: if you copy this test to an earlier Archetypes and it
+        fails, that is okay really.  But in AT >= 1.5.2 it does *not*
+        fail and this means that some code needs be added to migrate
+        old content.
         """
         dummy = self._dummy1
         self.failUnless(dummy._isSchemaCurrent())
@@ -111,12 +106,15 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.failUnless(dummy._isSchemaCurrent())
         # But the damage has been done, as we will show soon.
 
-        # We give the class of our content a different schema.  The
-        # only sane/working way is to actually change the class.
-        dummy.__class__ = Dummy2
-        # Naturally, the schema of our content is not current anymore.
-        # XXX Ehm, actually... this fails:
-        #self.failIf(dummy._isSchemaCurrent())
+        # We give the class of our content a different schema.
+        dummy.__class__.schema = schema2.copy()
+        # Reregister the type.  (Not needed in AT <= 1.5.1)
+        registerType(Dummy1, 'Archetypes')
+        # We are not testing the _isSchemaCurrent method here, so we
+        # can simply cheat to let the object know that its schema is
+        # not current anymore.
+        dummy._signature = 'bogus'
+        self.failIf(dummy._isSchemaCurrent())
 
         # Our class has a TEXTFIELD2, but our content does not now it
         # yet.  It *does* already have the getter for that field.
