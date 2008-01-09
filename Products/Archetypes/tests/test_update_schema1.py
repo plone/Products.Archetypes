@@ -186,20 +186,6 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.attool._types['Archetypes.Dummy1'] = 'cheat'
         self.assertEqual(self.types_to_update(), ['Archetypes.Dummy1'])
 
-        # Hm, our test classes are not in the objectIds of the portal,
-        # which poses a problem.  Fix it rather brutally.
-        # Alternatively, we may want to mess with
-        # self.portal['front-page'] or so.
-        self.failIf('dummy1' in self.portal.objectIds())
-        #self.portal.objectIds = lambda x: ['dummy1', 'dummy2']
-        def dummyObjectIds(*args, **kwargs):
-            return ['dummy1', 'dummy2']
-        self.portal.objectIds = dummyObjectIds
-        self.failUnless('dummy1' in self.portal.objectIds())
-        self.assertEqual(len(self.portal.objectIds()), 2)
-        # We also need to check that objectItems keeps functioning:
-        self.assertEqual(len(self.portal.objectItems()), 2)
-
         # Now we are ready to call manage_updateSchema
         self.attool.manage_updateSchema()
         # This will have no effect on the schema attribute:

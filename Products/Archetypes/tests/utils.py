@@ -76,7 +76,7 @@ def gen_class(klass, schema=None):
 def mkDummyInContext(klass, oid, context, schema=None):
     gen_class(klass, schema)
     dummy = klass(oid=oid).__of__(context)
-    setattr(context, oid, dummy)
+    context._setObject(oid, dummy, suppress_events=True)
     dummy.initializeArchetype()
     return dummy
 
