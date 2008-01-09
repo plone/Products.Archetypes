@@ -1068,8 +1068,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # commit is done.
     subtransactioncounter = 0
 
-    def _updateObject(self, o, path):
-        o._updateSchema()
+    def _updateObject(self, o, path, remove_instance_schemas=None):
+        o._updateSchema(remove_instance_schemas=remove_instance_schemas)
         # Subtransactions to avoid eating up RAM when used inside a
         # 'ZopeFindAndApply' like in manage_updateSchema
         self.subtransactioncounter += 1
@@ -1082,9 +1082,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self._updateObject(o, path)
 
     def _removeSchemaAndUpdateObject(self, o, path):
-        if 'schema' in o.__dict__:
-            delattr(o, 'schema')
-        self._updateObject(o, path)
+        self._updateObject(o, path, remove_instance_schemas=True)
 
     def _removeSchemaAndUpdateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
