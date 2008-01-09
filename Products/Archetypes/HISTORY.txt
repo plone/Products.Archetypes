@@ -1,9 +1,6 @@
 1.6 - trunk - unreleased
 ========================
 
-  * Removed bogus ``get_content_type`` method from BaseObject.
-    [deo]
-
   * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
     'kssSubmitForm' intead of simply 'currentForm'. This is needed
     to support multi-valued form variables in inline editing.

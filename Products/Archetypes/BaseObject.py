@@ -324,6 +324,11 @@ class BaseObject(Referenceable):
     # declaration! See http://dev.plone.org/archetypes/ticket/712
     content_type = ComputedAttribute(getContentType, 1)
 
+    # XXX Where's get_content_type comes from??? There's no trace at both
+    # Zope and CMF. It should be removed ASAP!
+    security.declareProtected(permissions.View, 'get_content_type')
+    get_content_type = getContentType
+
     security.declareProtected(permissions.ModifyPortalContent,
                               'setContentType')
     def setContentType(self, value, key=None):
