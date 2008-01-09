@@ -63,20 +63,17 @@ class Dummy2(BaseContent):
     pass
 
 
-class Dummy3(BaseContent):
-    pass
-
-
 class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
+        self.attool = self.portal.archetype_tool
         # Calling mkDummyInContext adds content, but also registers
         # our classes and adds a copy of the schema.
         self._dummy1 = mkDummyInContext(
-            Dummy1, oid='dummy', context=self.portal, schema=schema1)
+            Dummy1, oid='dummy1', context=self.portal, schema=schema1)
         self._dummy2 = mkDummyInContext(
-            Dummy2, oid='dummy', context=self.portal, schema=schema2)
+            Dummy2, oid='dummy2', context=self.portal, schema=schema2)
 
     def test_instance_schema_is_harmful(self):
         """Show that having a schema in the instance is harmful.
@@ -122,7 +119,8 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.assertRaises(KeyError, dummy.getTEXTFIELD2)
 
         # No problem, we just need to update the schema of the
-        # content.
+        # content.  Might as well do that for all objects, as that is
+        # what the user will do in practice.
         dummy._updateSchema()
 
         # And now we can get our text field, right?  Wrong.
@@ -175,6 +173,56 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         dummy._updateSchema(remove_instance_schemas=True)
         self.failIf('schema' in dummy.__dict__)
 
+    def test_manage_update_schema(self):
+        dummy = self._dummy1
+        dummy.schema = schema2.copy()
+        self.failUnless('schema' in dummy.__dict__)
+        self.failIf(dummy._isSchemaCurrent())
+
+        # Now we want to update all schemas, but first archetype_tool
+        # needs to know that our class needs updating.  The easiest of
+        # course is to cheat.
+        self.assertEqual(self.types_to_update(), [])
+        self.attool._types['Archetypes.Dummy1'] = 'cheat'
+        self.assertEqual(self.types_to_update(), ['Archetypes.Dummy1'])
+
+        # Hm, our test classes are not in the objectIds of the portal,
+        # which poses a problem.  Fix it rather brutally.
+        # Alternatively, we may want to mess with
+        # self.portal['front-page'] or so.
+        self.failIf('dummy1' in self.portal.objectIds())
+        #self.portal.objectIds = lambda x: ['dummy1', 'dummy2']
+        def dummyObjectIds(*args, **kwargs):
+            return ['dummy1', 'dummy2']
+        self.portal.objectIds = dummyObjectIds
+        self.failUnless('dummy1' in self.portal.objectIds())
+        self.assertEqual(len(self.portal.objectIds()), 2)
+        # We also need to check that objectItems keeps functioning:
+        self.assertEqual(len(self.portal.objectItems()), 2)
+
+        # Now we are ready to call manage_updateSchema
+        self.attool.manage_updateSchema()
+        # This will have no effect on the schema attribute:
+        self.failUnless('schema' in dummy.__dict__)
+        # It *does* wrongly mark the schema as current.
+        self.failUnless(dummy._isSchemaCurrent())
+        # So we cheat again and then it works.
+        dummy._signature = 'bogus'
+        self.failIf(dummy._isSchemaCurrent())
+
+        # Let's try again.  But first we cheat again.
+        self.assertEqual(self.types_to_update(), [])
+        self.attool._types['Archetypes.Dummy1'] = 'cheat'
+        self.assertEqual(self.types_to_update(), ['Archetypes.Dummy1'])
+
+        # We need to call manage_updateSchema with an extra option.
+        self.attool.manage_updateSchema(remove_instance_schemas=True)
+        self.failIf('schema' in dummy.__dict__)
+
+    def types_to_update(self):
+        """Which types have a changed schema?
+        """
+        return [ti[0] for ti in self.attool.getChangedSchema() if ti[1]]
 
 class TestBasicSchemaUpdate(ATSiteTestCase):
     """Tests for update schema behavior which depend only on the basic
