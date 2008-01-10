@@ -123,7 +123,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         # what the user will do in practice.
         dummy._updateSchema()
 
-        # And now we can get our text field, right?  Wrong.
+        # And now we can get our second text field, right?  Wrong.
         # Only the getter is there and it does not work.
         self.failUnless(hasattr(dummy, 'getTEXTFIELD2'))
         # Actually, the next two tests fail for AT <= 1.5.1, which is
@@ -131,11 +131,17 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.assertRaises(KeyError, dummy.getTEXTFIELD2)
         self.failIf(hasattr(dummy, 'TEXTFIELD2'))
 
+        # And the first field was required in the first schema but not
+        # in the second.  This does not show yet.
+        self.failUnless(dummy.getField('TEXTFIELD1').required)
+
         # This can be fixed by deleting the schema attribute of the
         # instance.
         del dummy.schema
+        self.failIf(dummy.getField('TEXTFIELD1').required)
 
-        # At first, direct attribute access still does not work:
+        # At first, direct attribute access for the second field still
+        # does not work:
         self.failIf(hasattr(dummy, 'TEXTFIELD2'))
         # But calling the getter works.
         self.assertEqual(dummy.getTEXTFIELD2(), 'B')
