@@ -1,22 +1,20 @@
-branches/maurits-schema-removal
-===============================
+1.5.6 - unreleased
+==================
 
-  * Add checkbox in updateSchemaForm to remove the instance schemas. 
+  * Add checkbox in updateSchemaForm to remove the instance schemas.
+    This is possibly needed when going from Archetypes 1.5.1 or
+    earlier to a newer version.  Should be safe unless you know that
+    you have content items with local schemata that you need to keep.
+    [maurits]
 
   * In mkDummyInContext use _setObject instead of setattr.  This means
     dummy content in the tests shows up when using
     context.objectIds().
+    [maurits]
 
   * Remove test dependency on ArchetypesTestUpdateSchema as this does
-    not work on Zope > 2.7.  Those tests are not even tried now.
-
-  * Add browser view @@at_remove_schema_attributes with explanation
-    and a button to click for removing the schema attribute from
-    __dict__.
-
-
-1.5.6 - unreleased
-==================
+    not work on Zope > 2.7.  Unused tests removed.
+    [maurits]
 
   * Calling `getDefault` twice is unnecessarily slow and could potentially
     cause bugs when a `default_method` returning an object is used for the
