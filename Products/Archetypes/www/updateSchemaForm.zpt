@@ -1,0 +1,44 @@
+<h1 tal:replace="structure here/manage_page_header|nothing">Header</h1>
+<h2 tal:define="manage_tabs_message options/manage_tabs_message | nothing"
+    tal:replace="structure here/manage_tabs">Tabs</h2>
+
+<p>This is an experimental mechanism for updating your existing objects when
+you update an Archetypes class's schema.  It rebuilds all your objects using
+a simple migration mechanism: it gathers all your object's values using the
+existing field accessors, updates the schema, re-initializes the object, and
+finally resets the values using the new field mutators.  It should be fairly
+smart about detecting schema changes in your objects.  Use at your own risk.
+</p>
+
+<form method="PUT" action="manage_updateSchema">
+
+  <b>Update the following classes:</b>
+  <table border="0">
+    <tr tal:repeat="klass python:here.getChangedSchema()">
+      <td>
+        <input type="checkbox" 
+               tal:attributes="name python:klass[0];
+                               checked python:klass[1];" />
+        <span tal:replace="python:klass[0]" />
+      </td>
+    </tr>
+  </table>
+
+  <p>Update 
+  <select name="update_all:int">
+    <option value="0">Objects with old schemas</option>
+    <option value="1">All objects</option>
+  </select></p>
+
+  <p>
+    <input type="checkbox" name="remove_instance_schemas:int" value="1" />
+    Remove schema attributes from instances.  Possibly needed when
+    going from Archetypes 1.5.1 or earlier to a newer version.  Should
+    be safe unless you know that you have content items with local
+    schemata that you need to keep.
+  </p>
+
+   <input type="submit" name="submit" value="Update schema"/>
+</form>
+    
+<tal:footer tal:replace="structure here/manage_page_footer|nothing">footer</tal:footer>

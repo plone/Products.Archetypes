@@ -829,7 +829,8 @@ class BaseObject(Referenceable):
         return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
-    def _updateSchema(self, excluded_fields=[], out=None):
+    def _updateSchema(self, excluded_fields=[], out=None,
+                      remove_instance_schemas=False):
         """Updates an object's schema when the class schema changes.
 
         For each field we use the existing accessor to get its value,
@@ -842,9 +843,13 @@ class BaseObject(Referenceable):
         at the same time -- you really should restart zope after doing
         a schema update).
         """
-        if out:
+        if out is not None:
             print >> out, 'Updating %s' % (self.getId())
 
+        if remove_instance_schemas and 'schema' in self.__dict__:
+            if out is not None:
+                print >> out, 'Removing schema from instance dict.'
+            del self.schema
         new_schema = self.Schema()
 
         # Read all the old values into a dict
@@ -893,13 +898,13 @@ class BaseObject(Referenceable):
                 try:
                     self._migrateSetValue(name, values[name], **kw)
                 except ValueError:
-                    if out != None:
+                    if out is not None:
                         print >> out, ('Unable to set %s.%s to '
                                        '%s' % (str(self.getId()),
                                                name, str(values[name])))
         # Make sure the changes are persisted
         self._p_changed = 1
-        if out:
+        if out is not None:
             return out
 
     security.declarePrivate('_migrateGetValue')
