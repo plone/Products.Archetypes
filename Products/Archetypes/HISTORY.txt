@@ -1,6 +1,10 @@
 1.5.6 - unreleased
 ==================
 
+  * Show the plone.abovecontentbody viewlets once per body instead
+    of once per field.
+    [wichert]
+
   * Add checkbox in updateSchemaForm to remove the instance schemas.
     This is possibly needed when going from Archetypes 1.5.1 or
     earlier to a newer version.  Should be safe unless you know that
