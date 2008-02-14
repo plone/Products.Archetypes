@@ -26,4 +26,11 @@
         handler="plone.locking.events.unlockAfterModification"
         />
 
+	<subscriber 
+        zcml:condition="installed plone.locking"
+        for="plone.locking.interfaces.ITTWLockable
+             .interfaces.IObjectInitializedEvent"
+        handler="plone.locking.events.unlockAfterModification"
+        />
+
 </configure>
