@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
+    ensures non portal_factory (and LinguaPlone translations) are unlocked
+    after creation. (forward port r9306.)
+    [ldr]
+
   * Show the plone.abovecontentbody viewlets once per body instead of once per
     field.
     [wichert]
