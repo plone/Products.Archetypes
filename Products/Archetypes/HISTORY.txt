@@ -1,4 +1,7 @@
-1.5.6 - unreleased
+1.5.7 - unreleased
+==================
+
+1.5.6 - 2008-02-15
 ==================
 
   * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
