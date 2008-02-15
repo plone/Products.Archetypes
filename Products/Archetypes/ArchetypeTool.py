@@ -1015,7 +1015,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchema')
-    def manage_updateSchema(self, REQUEST=None, update_all=None):
+    def manage_updateSchema(self, REQUEST=None, update_all=None,
+                            remove_instance_schemas=None):
         """Make sure all objects' schema are up to date.
         """
         out = StringIO()
@@ -1031,6 +1032,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 if REQUEST.form.get(t, False):
                     update_types.append(t)
             update_all = REQUEST.form.get('update_all', False)
+            remove_instance_schemas = REQUEST.form.get(
+                'remove_instance_schemas', False)
 
         # XXX: Enter this block only when there are types to update!
         if update_types:
@@ -1042,12 +1045,18 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             catalog = getToolByName(self, 'portal_catalog')
             portal = getToolByName(self, 'portal_url').getPortalObject()
             meta_types = [_types[t]['meta_type'] for t in update_types]
+            if remove_instance_schemas:
+                func_update_changed = self._removeSchemaAndUpdateChangedObject
+                func_update_all = self._removeSchemaAndUpdateObject
+            else:
+                func_update_changed = self._updateChangedObject
+                func_update_all = self._updateObject
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=True, apply_func=self._updateObject)
+                    search_sub=True, apply_func=func_update_all)
             else:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=True, apply_func=self._updateChangedObject)
+                    search_sub=True, apply_func=func_update_changed)
             for t in update_types:
                 self._types[t] = _types[t]['signature']
             self._p_changed = True
@@ -1059,8 +1068,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # commit is done.
     subtransactioncounter = 0
 
-    def _updateObject(self, o, path):
-        o._updateSchema()
+    def _updateObject(self, o, path, remove_instance_schemas=None):
+        o._updateSchema(remove_instance_schemas=remove_instance_schemas)
         # Subtransactions to avoid eating up RAM when used inside a
         # 'ZopeFindAndApply' like in manage_updateSchema
         self.subtransactioncounter += 1
@@ -1071,6 +1080,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _updateChangedObject(self, o, path):
         if not o._isSchemaCurrent():
             self._updateObject(o, path)
+
+    def _removeSchemaAndUpdateObject(self, o, path):
+        self._updateObject(o, path, remove_instance_schemas=True)
+
+    def _removeSchemaAndUpdateChangedObject(self, o, path):
+        if not o._isSchemaCurrent():
+            self._removeSchemaAndUpdateObject(o, path)
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchema')

@@ -97,9 +97,7 @@ class BaseObjectTest(ATSiteTestCase):
         of fields to determine which is the accessor it should use
         while gathering values.
         """
-        ATSiteTestCase.afterSetUp(self)
-        dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
-                                 schema=schema.copy())
+        dummy = self._dummy
         
         # This is where we left off in the previous test
         dummy.setMULTIPLEFIELD(['1','2'])

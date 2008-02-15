@@ -1,3 +1,45 @@
+1.5.7 - unreleased
+==================
+
+1.5.6 - 2008-02-15
+==================
+
+  * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
+    ensures non portal_factory (and LinguaPlone translations) are unlocked
+    after creation.
+    [ldr]
+
+  * Show the plone.abovecontentbody viewlets once per body instead
+    of once per field.
+    [wichert]
+
+  * Add checkbox in updateSchemaForm to remove the instance schemas.
+    This is possibly needed when going from Archetypes 1.5.1 or
+    earlier to a newer version.  Should be safe unless you know that
+    you have content items with local schemata that you need to keep.
+    [maurits]
+
+  * In mkDummyInContext use _setObject instead of setattr.  This means
+    dummy content in the tests shows up when using
+    context.objectIds().
+    [maurits]
+
+  * Remove test dependency on ArchetypesTestUpdateSchema as this does
+    not work on Zope > 2.7.  Unused tests removed.
+    [maurits]
+
+  * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
+    'kssSubmitForm' instead of simply 'currentForm'. This is needed
+    to support multi-valued form variables in inline editing.
+    This is dependent on http://dev.plone.org/archetypes/changeset/9200 
+    [raphael]
+
+  * Calling `getDefault` twice is unnecessarily slow and could potentially
+    cause bugs when a `default_method` returning an object is used for the
+    field.  In that case the field would get initialized with one instance,
+    but a second, different instance would be returned from the call to `get`.
+    [witsch]
+
 1.5.5 - 2007-12-29
 ==================
 

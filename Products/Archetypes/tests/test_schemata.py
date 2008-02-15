@@ -34,6 +34,8 @@ from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.exceptions import SchemaException
+from Testing.ZopeTestCase import user_role
+from Products.CMFCore.permissions import ModifyPortalContent
 
 schema = BaseSchema
 
@@ -165,6 +167,45 @@ class SchemataTest( ATTestCase ):
         a = Schemata(fields=(StringField('foo', primary=True),))
         field = StringField('bar', primary=True)
         self.assertRaises(SchemaException, a.addField, field)
+
+    def test_editableFields(self):
+        # Not a security test, but this is here because 'editableFields'
+        # will return only fields the user is allowed to write.
+        dummy = self._dummy.__of__(self.folder)
+        dummy.manage_permission(ModifyPortalContent, (user_role,))
+
+        # add test fields to schema
+        fields = (
+            StringField(
+                'f1',
+                mutator='setF1',
+                write_permission = ModifyPortalContent,
+                widget=StringWidget(visible={'edit': 'invisible'}),
+            ),
+            StringField('f2', 
+                mutator='setF2',
+                write_permission = ModifyPortalContent,
+                widget=StringWidget(visible={'edit': 'hidden'}),
+            ),
+        )
+
+        for f in fields:
+            dummy.schema.addField(f)
+
+        # add dummy mutators to pass the test in 'editableFields'
+        def dummy_mutator(instance, value):
+            pass
+
+        dummy.setF1 = dummy_mutator
+        dummy.setF2 = dummy_mutator
+
+        # get editable fields
+        schemata = dummy.Schemata()['default']
+        editable_field_ids = [f.getName() for f in \
+            schemata.editableFields(dummy, visible_only=True)]
+
+        self.failUnless('f1' not in editable_field_ids)
+        self.failUnless('f2' in editable_field_ids)
 
 def test_suite():
     from unittest import TestSuite, makeSuite

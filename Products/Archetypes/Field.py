@@ -702,9 +702,10 @@ class ObjectField(Field):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             # @@ and at every other possible occurence of an AttributeError?!!
+            default = self.getDefault(instance)
             if not kwargs.get('_initializing_', False):
-                self.set(instance, self.getDefault(instance), _initializing_=True, **kwargs)
-            return self.getDefault(instance)
+                self.set(instance, default, _initializing_=True, **kwargs)
+            return default
 
     security.declarePrivate('getRaw')
     def getRaw(self, instance, **kwargs):

@@ -111,7 +111,7 @@ class Schemata(Base):
         for field in self.fields():
             if field.writeable(instance, debug=False) and    \
                    (not visible_only or
-                    field.widget.isVisible(instance, 'edit')):
+                    field.widget.isVisible(instance, 'edit') != 'invisible'):
                 ret.append(field)
         return ret
 
