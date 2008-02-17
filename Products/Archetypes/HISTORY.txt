@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Move export/import step registrations to exportimport/configure.zcml. This
+    change requires CMF trunk.
+    [stefan]
+
   * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
     ensures non portal_factory (and LinguaPlone translations) are unlocked
     after creation. (forward port r9306.)
