@@ -2,11 +2,12 @@ from zope.interface import Interface
 from zope.component import adapts
 from Products.Archetypes.interfaces import IBaseObject
 from ZPublisher.BaseRequest import DefaultPublishTraverse
+from zope.publisher.interfaces import IRequest
 
 class Fallback(Exception): pass
 
 class ImageTraverser(DefaultPublishTraverse):
-    adapts(IBaseObject, Interface)
+    adapts(IBaseObject, IRequest)
 
     def publishTraverse(self, request, name):
         schema=self.context.Schema()
