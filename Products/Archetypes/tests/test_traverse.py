@@ -1,7 +1,8 @@
 from unittest import TestCase
 from unittest import TestSuite
 from unittest import makeSuite
-from zope.interface.verify import verifyObject
+from zope.interface.verify import verifyClass
+from zope.publisher.interfaces import IPublishTraverse
 from elkjop.intranet.navigation.traverse import ImageTraverser
 
 data_marker = []
@@ -35,6 +36,10 @@ class TraverseTests(TestCase):
     def tearDown(self):
         ImageTraverser.fallback=ImageTraverser.org_fallback
         del ImageTraverser.org_fallback
+
+
+    def testInterface(self):
+        self.failUnless(verifyClass(IPublishTraverse, ImageTraverser))
 
 
     def testUnknownField(self):
