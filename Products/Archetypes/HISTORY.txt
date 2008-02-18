@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Add a new publish traverse that exposes image fields and their scales.
+    This removes the need for content types to have a __bobo_traverse__ method.
+    [wichert]
+
   * Move export/import step registrations to exportimport/configure.zcml. This
     change requires CMF trunk.
     [stefan]
