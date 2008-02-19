@@ -3,7 +3,7 @@ from unittest import TestSuite
 from unittest import makeSuite
 from zope.interface.verify import verifyClass
 from zope.publisher.interfaces import IPublishTraverse
-from elkjop.intranet.navigation.traverse import ImageTraverser
+from Products.Archetypes.traverse import ImageTraverser
 
 data_marker = []
 fallback_marker = []
