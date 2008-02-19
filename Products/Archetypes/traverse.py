@@ -2,6 +2,7 @@ from zope.interface import Interface
 from zope.component import adapts
 from zope.publisher.interfaces import IRequest
 from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.atapi import ImageField
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 class Fallback(Exception): pass
@@ -26,7 +27,7 @@ class ImageTraverser(DefaultPublishTraverse):
             if field is None:
                 raise Fallback
 
-            if field.getType()!="Products.Archetypes.Field.ImageField":
+            if not isinstance(field, ImageField):
                 raise Fallback
 
             if scale is not None and scale not in field.getAvailableSizes(self.context):

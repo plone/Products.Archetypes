@@ -4,11 +4,12 @@ from unittest import makeSuite
 from zope.interface.verify import verifyClass
 from zope.publisher.interfaces import IPublishTraverse
 from Products.Archetypes.traverse import ImageTraverser
+from Products.Archetypes.atapi import ImageField
 
 data_marker = []
 fallback_marker = []
 
-class MockField:
+class BaseMockField:
     def __init__(self, type):
         self.type=type
     def getType(self):
@@ -17,6 +18,11 @@ class MockField:
         return dict(mini=1, maxi=2)
     def getScale(self, context, scale):
         return data_marker
+
+
+class MockField(BaseMockField, ImageField):
+    pass
+
 
 class MockContext:
     def Schema(self):
@@ -49,9 +55,16 @@ class TraverseTests(TestCase):
 
     def testWrongFieldType(self):
         context=MockContext()
-        context.field=MockField("Other.Type")
+        context.field=BaseMockField("Other.Type")
         traverser=ImageTraverser(context, None)
         self.failUnless(traverser.publishTraverse(None, "field") is fallback_marker)
+
+
+    def testCorrectFieldType(self):
+        context=MockContext()
+        context.field=MockField("Other.Type")
+        traverser=ImageTraverser(context, None)
+        self.failUnless(traverser.publishTraverse(None, "field") is data_marker)
 
 
     def testFullImage(self):
