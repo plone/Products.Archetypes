@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Fixed calculation of default fieldset when the "default" schemata only
+    contains invisible fields.
+    [witsch]
+
   * Add a new publish traverse that exposes image fields and their scales.
     This removes the need for content types to have a __bobo_traverse__ method.
     [wichert]
