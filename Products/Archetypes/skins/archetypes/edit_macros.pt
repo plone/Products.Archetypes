@@ -41,7 +41,7 @@
        <a href=""
           i18n:name="go_here"
           i18n:translate="label_edit_default_view_container_go_here"
-          tal:attributes="href python:'/'.join(here.aq_inner.aq_parent.getPhysicalPath()) + '/edit'">go here</a>.
+          tal:attributes="href string:${context/aq_inner/aq_parent/absolute_url}/edit">go here</a>.
     </dd>
 </dl>
 

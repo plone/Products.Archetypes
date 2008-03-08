@@ -1,3 +1,16 @@
+1.5.8 - unreleased
+==================
+
+1.5.7 - 2008-03-08
+==================
+
+  * Apply patch in http://dev.plone.org/plone/ticket/7777
+    [nouri]
+
+  * Fixed calculation of default fieldset when the "default" schemata only
+    contains invisible fields.
+    [witsch]
+
 1.5.6 - 2008-02-15
 ==================
 
