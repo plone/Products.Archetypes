@@ -1,6 +1,11 @@
 1.5.8 - unreleased
 ==================
 
+  * Don't show the 'next' button if we allow tabbing, i.e. we're
+    displaying all schematas on the same page.
+    Fixes http://dev.plone.org/plone/ticket/6936
+    [nouri]
+
 1.5.7 - 2008-03-08
 ==================
 
