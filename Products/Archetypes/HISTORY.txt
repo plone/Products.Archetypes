@@ -1,6 +1,20 @@
 1.6 - trunk - unreleased
 ========================
 
+1.5.8 - unreleased
+==================
+
+  * Don't show the 'next' button if we allow tabbing, i.e. we're
+    displaying all schematas on the same page.
+    Fixes http://dev.plone.org/plone/ticket/6936
+    [nouri]
+
+1.5.7 - 2008-03-08
+==================
+
+  * Apply patch in http://dev.plone.org/plone/ticket/7777
+    [nouri]
+
   * Fixed calculation of default fieldset when the "default" schemata only
     contains invisible fields.
     [witsch]
