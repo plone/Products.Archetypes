@@ -4,6 +4,14 @@
 1.5.8 - unreleased
 ==================
 
+  * Add a new preview_scale property to ImageWidget. This is used by the edit
+    view when showing the image. If the scale is not present the previous
+    logic (only show if the image is <100kB in size) is used.
+    [wichert]
+
+  * Add a new formQuestion class to field labels.
+    [dannyb]
+
   * Don't show the 'next' button if we allow tabbing, i.e. we're
     displaying all schematas on the same page.
     Fixes http://dev.plone.org/plone/ticket/6936

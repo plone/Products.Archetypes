@@ -694,7 +694,18 @@ class ImageWidget(FileWidget):
 
     security.declarePublic('preview_tag')
     def preview_tag(self, instance, field):
-        pass # todo
+        """Return a tag for a preview image, or None if no preview is found."""
+        img=field.get(instance)
+        if not img:
+            return None
+
+        if self.preview_scale in field.sizes:
+            return field.tag(instance, scale=self.preview_scale)
+
+        if img.getSize()<=self.display_threshold:
+            return field.tag(instance)
+
+        return None
 
 # LabelWidgets are used to display instructions on a form.  The widget only
 # displays the label for a value -- no values and no form elements.

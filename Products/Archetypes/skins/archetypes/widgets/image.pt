@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <div class="field" metal:define-macro="image_display">
+      <metal:block define-slot="widget_label">
+      </metal:block>
+      <tal:def define="img accessor;
+                       htacpt python: request.get('HTTP_ACCEPT', '');
+                       preview_tag python:widget.preview_tag(context, field);
+                       inline python: preview_tag is not None and ((htacpt.find(img.getContentType()) &gt;= 0) or (htacpt.find('*/*') &gt;= 0))"
+      >
+          <img tal:replace="structure preview_tag"
+               tal:condition="inline"
+               src="foo.png"
+               alt="image" />
+      </tal:def>
+    </div>
+
+
+    <!-- Image Widgets -->
+
+    <div class="field" metal:define-macro="image_view">
+      <metal:label define-slot="widget_label" />
+      <tal:define define="unit accessor">
+        <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
+                           icon unit/getBestIcon | nothing;
+                           content_type unit/content_type | nothing;
+                           filename unit/filename | nothing"
+                   condition="python:size &gt; 0">
+
+            <img tal:condition="icon" src=""
+                 tal:attributes="src string:${here/portal_url}/$icon"/>
+              <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
+
+        <span class="discreet">
+          <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
+          <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
+        </span>
+        </tal:block>
+      </tal:define>
+    </div>
+
+    <metal:define define-macro="view">
+      <metal:display use-macro="here/widgets/image/macros/image_display" />
+      <metal:file use-macro="here/widgets/image/macros/image_view">download link</metal:file>
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body">
+          <div>
+            <metal:display use-macro="here/widgets/image/macros/image_display">
+              <br />
+            </metal:display>
+          </div>
+        <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
+          <div tal:condition="accessor" class="field">
+            <input class="noborder"
+                   type="radio"
+                   value="nochange"
+                   checked="checked"
+                   tal:attributes="name string:${fieldName}_delete;
+                                   id string:${fieldName}_nochange;
+                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+             <label for=""
+                    tal:attributes="for string:${fieldName}_nochange;"
+                    i18n:translate="nochange_image">
+                    Keep existing image
+             </label>
+             <br />
+            <tal:notrequired condition="not:field/required">
+            <input class="noborder"
+                   type="radio"
+                   value="delete"
+                   tal:attributes="name string:${fieldName}_delete;
+                                   id string:${fieldName}_delete;
+                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+                   />
+             <label for=""
+                    tal:attributes="for string:${fieldName}_delete;"
+                    i18n:translate="delete_image">
+                    Delete current image
+             </label><br />
+            </tal:notrequired>
+            <input class="noborder"
+                   type="radio"
+                   value=""
+                   tal:attributes="name string:${fieldName}_delete;
+                                   id string:${fieldName}_upload;
+                                   onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
+             <label for=""
+                    tal:attributes="for string:${fieldName}_upload;
+                                    "
+                    i18n:translate="upload_image">
+                    Replace with new image:
+             </label>
+             <div style="padding-left:1.5em;padding-top:0.5em;">
+                <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+             </div>
+          </div>
+          <div tal:condition="not: accessor">
+            <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+          </div>
+
+	    </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/image/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
