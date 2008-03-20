@@ -18,7 +18,7 @@ smart about detecting schema changes in your objects.  Use at your own risk.
       <td>
         <input type="checkbox" 
                tal:attributes="name python:klass[0];
-                               " />
+                               checked python:klass[1];" />
         <span tal:replace="python:klass[0]" />
       </td>
     </tr>
