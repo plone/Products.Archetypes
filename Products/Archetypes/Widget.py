@@ -628,6 +628,9 @@ class ImageWidget(FileWidget):
         'macro' : "widgets/image",
         # only display if size <= threshold, otherwise show link
         'display_threshold': 102400,
+        # use this scale for the preview in the edit form, default to 'preview'
+        # if this scale isn't available then use the display_threshold
+        'preview_scale': 'preview', 
         })
 
     security = ClassSecurityInfo()
@@ -657,6 +660,9 @@ class ImageWidget(FileWidget):
         if not value: return None
         return value, {}
 
+    security.declarePublic('preview_tag')
+    def preview_tag(self, instance, field):
+        pass # todo
 
 # LabelWidgets are used to display instructions on a form.  The widget only
 # displays the label for a value -- no values and no form elements.
