@@ -1,4 +1,4 @@
-1.4.7 - UNRELEASED
+1.5.8 - unreleased
 ==================
 
   * Add a new preview_scale property to ImageWidget. This is used by the edit
@@ -9,26 +9,499 @@
   * Add a new formQuestion class to field labels.
     [dannyb]
 
+  * Don't show the 'next' button if we allow tabbing, i.e. we're
+    displaying all schematas on the same page.
+    Fixes http://dev.plone.org/plone/ticket/6936
+    [nouri]
 
-1.4.6-final - 2007-11-28
-========================
+1.5.7 - 2008-03-08
+==================
 
-  * Backported the fix from r7801. Do not display the content border when
-    editing a temporary object.
+  * Apply patch in http://dev.plone.org/plone/ticket/7777
+    [nouri]
+
+  * Fixed calculation of default fieldset when the "default" schemata only
+    contains invisible fields.
+    [witsch]
+
+1.5.6 - 2008-02-15
+==================
+
+  * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
+    ensures non portal_factory (and LinguaPlone translations) are unlocked
+    after creation.
+    [ldr]
+
+  * Show the plone.abovecontentbody viewlets once per body instead
+    of once per field.
+    [wichert]
+
+  * Add checkbox in updateSchemaForm to remove the instance schemas.
+    This is possibly needed when going from Archetypes 1.5.1 or
+    earlier to a newer version.  Should be safe unless you know that
+    you have content items with local schemata that you need to keep.
+    [maurits]
+
+  * In mkDummyInContext use _setObject instead of setattr.  This means
+    dummy content in the tests shows up when using
+    context.objectIds().
+    [maurits]
+
+  * Remove test dependency on ArchetypesTestUpdateSchema as this does
+    not work on Zope > 2.7.  Unused tests removed.
+    [maurits]
+
+  * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
+    'kssSubmitForm' instead of simply 'currentForm'. This is needed
+    to support multi-valued form variables in inline editing.
+    This is dependent on http://dev.plone.org/archetypes/changeset/9200 
+    [raphael]
+
+  * Calling `getDefault` twice is unnecessarily slow and could potentially
+    cause bugs when a `default_method` returning an object is used for the
+    field.  In that case the field would get initialized with one instance,
+    but a second, different instance would be returned from the call to `get`.
+    [witsch]
+
+1.5.5 - 2007-12-29
+==================
+
+  * If allow_discussion is set as an attribute on a content type class,
+    ExtensibleMetaData.allowDiscussion() may hit a bug in CMF 2.1.0's
+    CMFDefault.DiscussionTool.overrideDiscussionFor() that tries to delete
+    a missing attribute, causing an AttributeError. This may be avoided by
+    using GS instead of a class attribute to control discussion on the
+    type, but there's no reason I can see to break old code. Fixed by
+    catching exception. Closes http://dev.plone.org/archetypes/ticket/761
+    [smcmahon]
+
+  * Archetypes should inform the widgets when processing the form in the
+    validation phase.
+    This closes http://dev.plone.org/archetypes/ticket/760
     [deo]
 
-  * Backported the fix from r8924. Archetypes should inform the widgets when
-    processing the form in the validation phase.
+  * Backported the fixes from r8665 and r8804: zope.i18n.translate calls
+    should use the request, not the instance itself as the context.
     [deo]
 
-1.4.5-final - 2007-10-05
-========================
+1.5.4 - 2007-11-07
+==================
 
-  * Disable the correct radio button when disabling the 'delete' option in
-    image widgets when the field is required. The 'delete' radio button
-    was shown previously, and the file upload field was never enabled when
-    selected.
+  * Made the getSelection method in browser/widgets.py return the selection
+    in the character set of the vocabulary -- not the input value.
+    Fixes issue #759, UnicodeDecodeError with selection/multiselection
+    widgets.
+    [smcmahon]
+
+  * CalendarWidget would not return a value without JavaScript support from
+    calendar_formfield.js. This is disabled for unauthenticated users in
+    Plone 3. Added a process_form override method to CalendarWidget to
+    assemble the input components.
+    [smcmahon]
+
+  * Revert http://dev.plone.org/archetypes/changeset/8683 - Dont skip the
+    'metadata' schema in base_edit. Wichert and I agreed thats this is
+    wrong. Specially inside a bug-fix release. If theres a good reason to
+    remove the metadata from fieldsets, we can do it in the next release.
+    The UI was broken as well, btw.
+    [jensens, wiggy]
+
+1.5.3 - 2007-10-07
+==================
+
+  * Skip the 'metadata' schema in base_edit, like we used to do it
+    pre-1.5.  Also, do not render fieldset and legend elements when
+    we're only displaying one fieldset, i.e. the 'default' one.
+    [nouri]
+
+  * Provide bbb alias for ReferenceEngine.UIDCatalog. This closes
+    http://dev.plone.org/plone/ticket/6507.
+    [hannosch, naro]
+
+  * Restore use of the defaultLanguage method for the language field and
+    undeprecate it. This is done for two reasons: there is no alternative
+    to this feature, which LinguaPlone requires, and there never was a
+    deprecation warning.
+    [wichert]
+
+  * Fix clicking on the "next" or "previous" button raises
+    'Non-existing fieldset: None'.
+    http://dev.plone.org/archetypes/ticket/754
+    [encolpe]
+
+  * Forward-ported the disable-delete-option-when-required feature of image
+    widgets from 1.4.
     [mj]
+
+  * Re-added UIDCatalog import to ReferenceEngine for sites migrating from
+    Plone 2.1 (where the UIDCatalog is a class in that module).
+    [mj]
+
+1.5.2 - 2007-09-12
+==================
+
+  * Changed browser/configure.zcml to update unnecessarily restrictive
+    permissions for two widget views. These were requiring ModifyPortalContent
+    even though they exposed no private information, thus making the widgets
+    less useful outside Archetypes.
+    [smcmahon]
+
+  * Made OrderedContainer implement OFS.interfaces.IOrderedContainer.  Fixes
+    bug #7084 in Plone issue tracker.
+    [rocky]
+
+  * Update schema handling code to always use self.Schema() to get the current
+    schema and never (re)set self.schema.
+    [wichert]
+
+  * Fix the change made in 1.5.1 which produced invalid XHTML
+    [limi]
+
+1.5.1 - 2007-09-10
+==================
+
+  * Updating the AT widget views to be rendered inline, so they can be
+    invoked in View mode by KSS without any special magic. This is a
+    prerequisite for bug #6705 in the Plone issue tracker.
+    [limi]
+
+1.5.0 - 2007-08-16
+==================
+
+  * ImageField.set used 'size' attribute instead of 'get_size' API.
+
+  * added support for default DCMI "Right" using the portal_metadata
+    tool. This closes https://dev.plone.org/plone/ticket/5831.
+    Remark: overall support of portal_metadata is very poor.
+    [jensens]
+
+  * Removed hard dependency on the plone.locking package.
+    [hannosch]
+
+  * Removed a hard dependency on the plone.i18n package in Field.py.
+    [hannosch]
+
+  * Don't attempt to convert to 'text/plain' in
+    Archetypes.Field.FileField.getIndexable if there's no path to it.
+    This avoids loading the whole file contents into memory for these
+    cases.
+    [nouri, drjnut]
+
+1.5.0-rc3 - 2007-07-27
+======================
+
+  * Fixed the msgid for the description of the location field. This closes
+    http://dev.plone.org/plone/ticket/6797.
+    [hannosch]
+
+1.5.0-rc2 - 2007-07-13
+======================
+
+  * Added a special fieldproperty type for reference fields, with a more
+    generic base class for any field accessors/mutators that need to acquire
+    tools. This uses a workaround for the fact that not all tools are
+    utilities (yet) and acquisition doesn't work properly in property
+    descriptors.
+    [optilude]
+
+  * Fixed allowDiscussion handling in ExtensibleMetadata.
+    This closes http://dev.plone.org/plone/ticket/5977.
+    [hannosch]
+
+1.5.0-rc1 - 2007-07-04
+======================
+
+  * Removed all utility registrations.
+    [hannosch, wichert]
+
+  * Fix incorrect test for value added to a display list. This fixes
+    http://dev.plone.org/plone/ticket/6634
+    [wichert]
+
+  * Corrected wrong i18n markup in edit_macros. This closes
+    http://dev.plone.org/plone/ticket/6583.
+    [hannosch]
+
+  * Updated keywords related i18n messages to reflect their new name.
+    [hannosch]
+
+1.5.0-b5 - 2007-05-05
+=====================
+
+  * Never validate fields that are not writeable.
+    [optilude]
+
+  * Remove colors from log entries.
+    [wichert]
+
+1.5.0-b4 - 2007-04-28
+=====================
+
+  * Added an ATDateTimeFieldProperty version of the ATFieldProperty mentioned
+    below. This takes care of conversion between Zope 2 DateTime's and Python
+    datetime objects.
+    [optilude]
+
+  * Convert filename to ASCII in Content-Disposition header on
+    download. This fixes #620.
+    [nouri]
+
+  * Added Products.Archetypes.fieldproperty.ATFieldProperty, which can be
+    used analogously to zope.schema.fieldproperty.FieldProperty for Archetypes
+    fields. See the doctest in that module for details.
+    [optilude]
+
+  * Added an at_textarea_widget view and used it instead of the checkSelected,
+    unicodeEncode and lookupMime scripts on the textarea and visual widgets.
+    [hannosch]
+
+  * Replaced the getSelectionWidgetSelected script introduced in beta2 with the
+    at_selection_widget browser view. This allows us to use a Python generator
+    and safes us from iterating over all values in the vocabulary, when the
+    first value is already the selected one.
+    [hannosch]
+
+  * Make the boolean widget work correctly with or without javascript.
+    [elvix]
+
+  * Removed the default value for starting_year from the CalendarWidget. This
+    ensures the value can be looked up dynamically from the properties.
+    [hannosch]
+
+  * Disable the content border when an object is being added using
+    portal_factory. These tabs don't make sense in an "add form" scenario,
+    and were causing errors.
+    [optilude]
+
+1.5.0-b3 - 2007-03-20
+=====================
+
+  * Refactored installation code. This is now based on a GenericSetup extension
+    profile instead of the old Extensions/Install.py way.
+    [hannosch]
+
+  * Removed tests/runalltests.py and tests/framework.py as they have
+    outlived their usefulness. To run tests use Zope's testrunner:
+    ./bin/zopectl test --nowarn -s Products.Archetypes
+    [stefan]
+
+  * Added the Location element (also known as Coverage in Dublin Core) to the
+    standard metadata set. This allows lots of interesting things like
+    geotagging of images, location notices on news items, etc.
+    [limi]
+
+1.5.0-b2 - 2007-03-05
+=====================
+
+  * Added a new LanguageWidget that does the same as the SelectionWidget but
+    does not try to translate the vocabulary using the normal translation
+    machinery. It should use the Zope 3 locales information instead.
+    [hannosch]
+
+  * Speed up the selection widget considerably by calculating the selected
+    values ones and not for every value in the selection using a new
+    getSelectionWidgetSelected script.
+    [hannosch]
+
+  * Modernized some code in checkSelected and unicodeEncode scripts.
+    [hannosch]
+
+  * Removed explicit invocations of the translate script from various
+    vocabulary widgets. The getValue method of a vocabulary returns a Message
+    which can be translated by the usual TAL engine.
+    [hannosch]
+
+  * Allow field defaults to be looked up using an adapter of the instance
+    to IFieldDefaultProvider, with a name that is the same as the field name
+    in question (only if no default or default_method was set for that
+    field). This allows dynamically determined, context-sensitive defaults
+    without having to add a method into the class itself.
+    [optilude]
+
+  * Make it possible to use vocabulary_factory for fields, giving the name
+    of a Zope 3 style named IVocabularyFactory utility. This means that
+    Archetypes fields can use more general Zope 3 vocabularies, and share them
+    with e.g. formlib forms.
+    [optilude]
+
+1.5.0-b1 - 2007-02-27
+=====================
+
+  * Fixed deprecation warnings for minimalpath in skins install code.
+    [hannosch]
+
+  * Updated error message handling in validation to use Zope3-style translation,
+    which is available in the latest PTS.
+    [hannosch]
+
+  * FileField is now a bit cleverer about indexing.  If you set a file
+    field to be 'searchable' it will now per default attempt to
+    convert it to plain text on indexing.
+    [nouri]
+
+  * Replaced status message handling with new approach based on
+    Products.statusmessages. This refs http://dev.plone.org/plone/ticket/6131.
+    [hannosch]
+
+  * Automatic title to id generation is now optionally based on the plone.i18n
+    package instead of requiring the plone_tool.
+    [hannosch]
+
+  * Merged the plip174-reusable-i18n branch. This adds the optional ability to
+    control the language metadata on objects by an utility approach based on
+    plone.i18n.
+    [hannosch]
+
+1.5.0-a2 - 2007-02-06
+=====================
+
+  * Removed the typeDescription and typeDescMsgId attributes from all content
+    classes. These were only used on the edit form which has been altered to
+    use the Description method from the type information instead.
+    [hannosch]
+
+  * Removed some BBB code in generator/i18n.py.
+    [hannosch]
+
+  * Adjusted some code to work better with the CMF 2.1 tools as utilities work.
+    [hannosch]
+
+  * Fix failing test in traversal.txt:184, where an acquired template
+    overrode a view.  Added logic to BaseObject.__bobo_traverse__ to
+    make sure the right order is respected.
+    [nouri]
+
+  * Turned off debug mode for writeable checks on fields per default, as this
+    caused a major performance problem with KSS.
+    [hannosch]
+
+  * Made it work with the kss merge in. Some templates are modified,
+    extra markup is added and a kss decorator view is defined that is
+    overwritten if kss is loaded. Currently the addability support in
+    the reference and inandout widgets has its javasacript commented
+    out, this needs to get fixed asap.
+    [ree]
+
+  * By default base_edit will show all fields of all schemas on one page now.
+    The old behaviour can be kept by marking a content type with the
+    IMultiPageSchema interface.
+    [fschulze]
+
+  * Made ATSiteTestCase inherit its layer from PloneTestCase.
+    [stefan]
+
+  * Fixed a DeprecationWarning for listContentTypes(by_metatype=1).
+    [hannosch]
+
+1.5.0-a1 - 2006-10-25
+=====================
+
+  * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
+    constructor, and two custom events are fired during processForm() -
+    IObjectInitializedEvent and IObjectEditedEvent. Both inherit from
+    IObjectModifiedEvent, and the Initialized event is fired on the first
+    save, whereas the Edited event is fired on subsequent saves.
+    [optilude]
+
+  * Applied patch from George Lee and modernised code a bit for Zope 2.10,
+    to support event-based pre- and post-validation. See interfaces/_event.py
+    [optilude]
+
+  * Cleaned up VarClassGen a bit to make it potentially useful for people
+    needing it as part of a custom ISchema adapter.
+    [optilude]
+
+  * Made it possible to look up AT schema using an adapter from self
+    to ISchema. See note in Schema/factory.py.
+    [whit, optilude]
+
+  * Fix #585 by providing the right arguments for testCondition in templates.
+    [nouri]
+
+  * Added small optimizations for DisplayLists to not translate values of type
+    Message by itself, added some tests.
+    [hannosch]
+
+  * Deprecated explicit msgid attributes on DisplayLists. Store Zope3 Messages
+    directly as values instead to get the same behavior.
+    [hannosch]
+
+  * Deprecated the generator.i18n module. We use the translate method of the
+    GlobalTranslationService directly for now, as long as we support
+    PlacelessTranslationService. Ultimately this should be replaced by calls
+    to 'from zope.i18n import translate'
+    [hannosch]
+
+  * Removed outdated message catalogs and changed the few remaining texts in the
+    'archetypes' domain to use the 'plone' domain instead. The translation
+    files can be found as usual as part of the PloneTranslations product.
+    [hannosch]
+
+  * Changed BaseObject and ExtensibleMetadata to use new Message approach for
+    internationalization of labels and descriptions.
+    [hannosch]
+
+  * Optimized the basic widget for the new default case of labels and
+    descriptions as Messages. These are not translated automatically anymore
+    but this is delayed to be triggered by the time they are rendered in a TAL
+    context. This will ultimately safe quite some translation machinery hackery.
+    [hannosch]
+
+  * Modernized DisplayLists to use isinstance instead of type checking. Now
+    derived string types like Messages are allowed as keys and values as well.
+    [hannosch]
+
+  * Removed last bits of dependency version checks from __init__.py as well as
+    support for INSTALL_DEMO_TYPES. These types are not meant to be used in a
+    live site but only serve as code examples and are used during test runs.
+    [hannosch]
+
+  * Renamed sample_content profile to sample_types as it only includes types
+    but no content ;) This profile is not registered globally anymore but only
+    during test runs, as these types aren't meant to be used for anything else.
+    [hannosch]
+
+  * Marked Base* as implementing their Z3 interfaces.
+    [hannosch]
+
+  * Based tests on PloneTestCase with extension profile support for site setup.
+    [hannosch]
+
+  * Added (Default) alias to base_view to all sample types, so calling them will
+    still work in CMF >= 2.0.
+    [hannosch]
+
+  * Removed deprecated spec argument from listFolderContents and
+    folderlistingFolderContents of BaseFolderMixin.
+    [hannosch]
+
+  * Changed import of TAL.ndiff to zope.tal.ndiff.
+    [hannosch]
+
+  * Cleaned up XXX comments, converted non-critical ones to TODO.
+    [hannosch]
+
+  * Removed five:traversable from configure.zcml as it is not needed anymore for
+    Zope 2.10, which we require now.
+    [hannosch]
+
+  * Cleaned up some comments, removed a pdb and an unused zLOG import.
+    [hannosch]
+
+  * Removed some more BBB code.
+    [hannosch]
+
+  * Removed deprecated ArchetypesTestCase.py.
+    [hannosch]
+
+  * Adjusted rest tests to Zope2.10 output.
+    [hannosch]
+
+  * Remove BBB code for calendar_macros.
+    [hannosch]
+
+1.4.5 unreleased
+========================
 
   * Encode values in Field.toString so we do not fall over fields with
     unicode default values that contain non-ASCII text.
@@ -38,18 +511,8 @@
     closes http://dev.plone.org/archetypes/ticket/720.
     [hannosch]
 
-1.4.4-final - 2007-05-15
-========================
-
-  * Fixed small i18n bug in the textarea widget.
-    [hannosch]
-
-  * Fix http://dev.plone.org/archetypes/ticket/719: Check for correct
-    DateTime input when validating.
-    [mj]
-
-1.4.3-final - 2007-04-17
-========================
+1.4.3 - Unreleased
+==================
 
   * Add an ObjectModifiedEvent right after `initializeArchetype`,
     since that modifies the object with default values defined in the
@@ -67,8 +530,8 @@
     [jensens]
 
   * BooleanWidget offers to show something different than True/ False in view
-    macro using a vocabulary. Unfortunally it passed a boolean to the 
-    DisplayList, which raised a TypeError. Now we pass the string 
+    macro using a vocabulary. Unfortunally it passed a boolean to the
+    DisplayList, which raised a TypeError. Now we pass the string
     representations 'True' and 'False using 'str(key)', so one can define
     a vocabulary like [('True', 'Yes'), ('False', 'No')].
     [jensens]
@@ -78,20 +541,20 @@
     [nouri]
 
   * The last change expected portal_type global available. This is true for all
-    good archetypes products ;-) but failed with CacheSetup, where editmacros 
+    good archetypes products ;-) but failed with CacheSetup, where editmacros
     was called w/o setting it. Archetypes now ignores this missing global and
-    inititalize it to 'unknowntype'. 
+    inititalize it to 'unknowntype'.
     [jensens]
 
   * for better css styling hpeter added a class and a id to edit_macros form
-    element, which enables per-type styling of base_edit. 
+    element, which enables per-type styling of base_edit.
     [jensens]
 
   * Fix unicodeEncode skin method to deal with sequences; fixes SelectionWidget
     with underlying LinesField case where the current value was not reflected
     in the edit widget. Fixes issue #705.
     [mj]
-  
+
   * BaseContent.PUT will now also fire the object modified event.
     [nouri]
 
@@ -122,7 +585,7 @@
     This closes http://dev.plone.org/archetypes/ticket/687.
     [hannosch]
 
-  * Fixed a minor issue of FixedPointField: It now works with integer default 
+  * Fixed a minor issue of FixedPointField: It now works with integer default
     value.
     [jensens]
 
@@ -142,7 +605,7 @@
     an object exists in the catalog before uncataloging.
     [rocky]
 
-  * Fixed #5963. Now all the first headers of the page have 
+  * Fixed #5963. Now all the first headers of the page have
     "documentFirstHeading" class applied.
     http://dev.plone.org/plone/ticket/5963
     [spliter]
@@ -391,10 +854,10 @@
 1.3.9-final - 2006-05-16
 ========================
 
-  * Add a new generateNewId method to BaseObject which is used to suggest 
-    a new id when automatically renaming an object after creation. This makes 
-    it easier to used custom naming in derived types. 
-    [wichert] 
+  * Add a new generateNewId method to BaseObject which is used to suggest
+    a new id when automatically renaming an object after creation. This makes
+    it easier to used custom naming in derived types.
+    [wichert]
 
   * Fix visual widget to not lose formatting if there's only one allowed
     content type - without passing this variable along, the field will revert
@@ -539,7 +1002,7 @@
     with len(data). Yuck.
     [dreamcatcher]
 
-  * Fixed http://trac.plone.org/plone/ticket/4768 - wrong status message.
+  * Fixed http://dev.plone.org/plone/ticket/4768 - wrong status message.
     [hannosch]
 
   * Fixed typo in BaseBTreeFolder.__init__. Thanks jenner.
@@ -1655,8 +2118,6 @@
    [tiran]
 
  * Reenabled ints as DisplayList and Vocabulary keys.
-   XXX: Add a comment to the documentation that users should take care when
-   mixing strings and ints!
    [tiran]
 
  * Subclass InAndOutWidget from ReferenceWidget which adds the addable feature
