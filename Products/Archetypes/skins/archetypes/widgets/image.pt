@@ -11,9 +11,10 @@
       </metal:block>
       <tal:def define="img accessor;
                        htacpt python: request.get('HTTP_ACCEPT', '');
-                       inline python: img and (img.getSize() &lt;= widget.display_threshold) and ((htacpt.find(img.getContentType()) &gt;= 0) or (htacpt.find('*/*') &gt;= 0))"
+                       preview_tag python:widget.preview_tag(context, field);
+                       inline python: preview_tag is not None and ((htacpt.find(img.getContentType()) &gt;= 0) or (htacpt.find('*/*') &gt;= 0))"
       >
-          <img tal:replace="structure img/tag"
+          <img tal:replace="structure preview_tag"
                tal:condition="inline"
                src="foo.png"
                alt="image" />
@@ -55,17 +56,19 @@
           <div>
             <metal:display use-macro="here/widgets/image/macros/image_display">
               <br />
-            </metal:display>
-          </div>
-        <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
+	        </metal:display>
+	      </div>
+	      <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
           <div tal:condition="accessor" class="field">
             <input class="noborder"
                    type="radio"
                    value="nochange"
+                   tabindex=""
                    checked="checked"
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_nochange;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_nochange;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_nochange;"
                     i18n:translate="nochange_image">
@@ -76,10 +79,12 @@
             <input class="noborder"
                    type="radio"
                    value="delete"
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_delete;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"
-                   />
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_delete;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+		     />
              <label for=""
                     tal:attributes="for string:${fieldName}_delete;"
                     i18n:translate="delete_image">
@@ -89,9 +94,11 @@
             <input class="noborder"
                    type="radio"
                    value=""
-                   tal:attributes="name string:${fieldName}_delete;
-                                   id string:${fieldName}_upload;
-                                   onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
+                   tabindex=""
+                   tal:attributes="tabindex tabindex/next;
+                       name string:${fieldName}_delete;
+                       id string:${fieldName}_upload;
+                       onclick string:document.getElementById('${fieldName}_file').disabled=false;"/>
              <label for=""
                     tal:attributes="for string:${fieldName}_upload;
                                     "
