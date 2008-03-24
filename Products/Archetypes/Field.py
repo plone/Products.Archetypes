@@ -1176,7 +1176,8 @@ class FileField(ObjectField):
             return ''
 
         f = self.get(instance)
-        
+
+        datastream = ''
         try:
             datastream = transforms.convertTo(
                 "text/plain",
