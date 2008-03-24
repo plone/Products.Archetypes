@@ -1,6 +1,10 @@
 1.5.8 - unreleased
 ==================
 
+  * Fixed NameError in Field.py when an error occurs in a transform. This
+    closes http://dev.plone.org/plone/ticket/7905.
+    [hannosch, sidnei]
+
   * Add a new preview_scale property to ImageWidget. This is used by the edit
     view when showing the image. If the scale is not present the previous
     logic (only show if the image is <100kB in size) is used.
