@@ -1,0 +1,76 @@
+<html>
+  <div tal:replace="structure here/manage_page_header"/>
+  <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
+    <div tal:replace="structure here/manage_tabs"/>
+    <style type="text/css">
+      div.row {
+      padding-top: 2px;
+      }
+
+      .cell {
+      margin-right:1em;
+      width: 33%;
+      }
+
+      .content_type {
+      margin: 4px;
+      }
+
+      td.title {
+      //	    background-color: #ccf;
+      border-bottom: 1px solid #ccf;
+      text-align: left;
+      }
+
+      .detail {
+      background-color: #cdcdcd;
+      width:100%;
+      }
+
+    </style>
+
+    <form action="manage_debug" method="POST"
+          tal:define="gen here/archetype_tool;
+                      types gen/listRegisteredTypes">
+
+      <table class="content_type" width="80%" tal:repeat="type types">
+        <tr>
+          <td class="title"
+              tal:define="typ python: here.portal_types.getTypeInfo(type['meta_type']);
+                          package type/package;
+                          type_name type/meta_type;
+                          inst_val python: typ != None;
+                          installed python: test(typ != None, 'installed', 'not installed');
+                          spec python:here.getTypeSpec(package, type_name)">
+            <a tal:condition="nothing" href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
+              [dump schema]
+            </a>
+            <span tal:replace="string:${package}::${type_name}"/>
+            <a tal:condition="not: inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&package=${package}">Install</a>
+            <a tal:condition="inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&uninstall=1">Uninstall</a>
+          </td>
+        </tr>
+        <tr tal:condition="nothing">
+          <td>
+            <table class="detail">
+              <tr style="background-color:#696969;color: white;">
+                <td>Field (name::type -- schemata)</td>
+                <td>Widget</td>
+                <td>Required</td>
+              </tr>
+              <tr class="row" tal:repeat="field type/type/fields">
+                <tal:define define="widget python:field.widget">
+                  <td tal:content="string:${field/getName}::${field/type} -- ${field/schemata}"/>
+                  <td tal:content="string:${widget/getName}"/>
+                  <td tal:content="field/required"/>
+                </tal:define>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+    </form>
+
+  </body>
+</html>

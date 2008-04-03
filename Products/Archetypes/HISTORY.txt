@@ -12,6 +12,9 @@
 1.5.8 - unreleased
 ==================
 
+  * Remove invalid leading whitespace in hrefs.
+    [wichert]
+
   * Fixed NameError in Field.py when an error occurs in a transform. This
     closes http://dev.plone.org/plone/ticket/7905.
     [hannosch, sidnei]
