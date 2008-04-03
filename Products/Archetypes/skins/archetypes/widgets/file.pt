@@ -116,7 +116,7 @@
                                id string:${fieldName}_file;" />
         <script type="text/javascript" 
 	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
-                tal:content="string: document.getElementById('${fieldName}_file').disabled=$isDisabled;">
+                tal:content="string:document.getElementById('${fieldName}_file').disabled=$isDisabled;">
         </script>
     </metal:define>
 
