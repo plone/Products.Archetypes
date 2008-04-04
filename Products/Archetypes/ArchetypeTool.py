@@ -358,8 +358,6 @@ def registerType(klass, package=None):
         'module' : sys.modules[klass.__module__],
         'schema' : klass.schema,
         'signature' : klass.schema.signature(),
-        # backward compatibility, remove later
-        'type' : klass.schema,
         }
 
     key = '%s.%s' % (package, data['meta_type'])

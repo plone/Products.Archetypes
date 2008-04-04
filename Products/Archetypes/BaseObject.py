@@ -125,7 +125,7 @@ class BaseObject(Referenceable):
         # Delete so it cannot be accessed anymore.
         del attr_security
 
-    schema = type = content_type
+    schema = content_type
     _signature = None
 
     installMode = ['type', 'actions', 'indexes']

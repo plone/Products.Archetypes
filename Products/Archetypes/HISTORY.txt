@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Remove the long long deprecated 'type' class variable, which was
+    replaced with 'schema'.
+    [wichert]
+
   * Allow fields to supply their own PdataStreamIterator. This closes
     http://dev.plone.org/plone/ticket/7572.
     [hannosch]
