@@ -9,6 +9,7 @@ from types import StringType, UnicodeType, BooleanType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
+from zope.i18nmessageid import Message
 from zope import schema
 from zope import component
 
@@ -345,12 +346,15 @@ class Field(DefaultLayerContainer):
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
         if not value:
+            request = aq_get(instance, 'REQUEST')
             label = self.widget.Label(instance)
             name = self.getName()
+            if isinstance(label, Message):
+                label = translate(label, context=request)
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            error = translate(error, context=aq_get(instance, 'REQUEST'))
+            error = translate(error, context=request)
             errors[name] = error
             return error
         return None
@@ -390,11 +394,16 @@ class Field(DefaultLayerContainer):
                         break
 
         if error:
+            request = aq_get(instance, 'REQUEST')
             label = self.widget.Label(instance)
+            if isinstance(label, Message):
+                label = translate(label, context=request)
+            if isinstance(val, Message):
+                val = translate(val, context=request)
             error = _( u'error_vocabulary',
                 default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
                 mapping={'val': val, 'name': label})
-            error = translate(error, context=aq_get(instance, 'REQUEST'))
+            error = translate(error, context=request)
             errors[self.getName()] = error
         return error
 
