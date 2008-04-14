@@ -16,6 +16,11 @@
 1.5.8 - unreleased
 ==================
 
+  * Fixed validation messages to translate the inner parts of the mappings
+    explicitly. This fixes the '${label_foo} is required, please correct.'
+    messages.
+    [hannosch]
+
   * Remove invalid leading whitespace in hrefs.
     [wichert]
 
