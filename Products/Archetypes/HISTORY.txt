@@ -16,6 +16,9 @@
 1.5.8 - unreleased
 ==================
 
+  * Change BooleanField to return actual booleans instead of the raw value.
+    [wichert]
+
   * Fixed validation messages to translate the inner parts of the mappings
     explicitly. This fixes the '${label_foo} is required, please correct.'
     messages.
