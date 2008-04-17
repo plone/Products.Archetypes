@@ -1952,6 +1952,20 @@ class BooleanField(ObjectField):
 
     security  = ClassSecurityInfo()
 
+    security.declarePrivate('get')
+    def get(self, instance, **kwargs):
+        value = super(BooleanField, self).get(instance, **kwargs) 
+        if value is None:
+            return value
+        return bool(value)
+
+    security.declarePrivate('getRaw')
+    def getRaw(self, instance, **kwargs):
+        value = super(BooleanField, self).getRaw(instance, **kwargs) 
+        if value is None:
+            return value
+        return bool(value)
+
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         """If value is not defined or equal to 0, set field to false;
