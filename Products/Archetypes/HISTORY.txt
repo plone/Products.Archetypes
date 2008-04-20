@@ -16,6 +16,12 @@
 1.5.8 - unreleased
 ==================
 
+  * Fix code in 'Field.validate_vocabulary' that would validate a set
+    of values OK if the last element was in the vocabulary, but others
+    weren't.
+    This closes http://dev.plone.org/plone/ticket/7809
+    [nouri]
+
   * Change BooleanField to return actual booleans instead of the raw value.
     [wichert]
 
