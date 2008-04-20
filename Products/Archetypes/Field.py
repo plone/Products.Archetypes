@@ -363,7 +363,7 @@ class Field(DefaultLayerContainer):
     def validate_vocabulary(self, instance, value, errors):
         """Make sure value is inside the allowed values
         for a given vocabulary"""
-        error = None
+        badvalues = []
         if value:
             # coerce value into a list called values
             values = value
@@ -386,14 +386,10 @@ class Field(DefaultLayerContainer):
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
-            for val in values:
-                error = True
-                for v in valids:
-                    if val == v:
-                        error = None
-                        break
+            badvalues = [val for val in values if not val in valids]
 
-        if error:
+        error = None
+        if badvalues:
             request = aq_get(instance, 'REQUEST')
             label = self.widget.Label(instance)
             if isinstance(label, Message):
@@ -401,8 +397,8 @@ class Field(DefaultLayerContainer):
             if isinstance(val, Message):
                 val = translate(val, context=request)
             error = _( u'error_vocabulary',
-                default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
-                mapping={'val': val, 'name': label})
+                default=u'Values ${val} is not allowed for vocabulary of element ${label}.',
+                mapping={'val': unicode(badvalues), 'name': label})
             error = translate(error, context=request)
             errors[self.getName()] = error
         return error
