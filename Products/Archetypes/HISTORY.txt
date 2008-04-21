@@ -1,4 +1,7 @@
-1.5.8 - unreleased
+1.5.9 - unreleased
+==================
+
+1.5.8 - 2008-04-21
 ==================
 
   * Fix code in 'Field.validate_vocabulary' that would validate a set
