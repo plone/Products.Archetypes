@@ -1655,6 +1655,7 @@ class ReferenceField(ObjectField):
                                          # override display_path_bound
         'referenceClass' : Reference,
         'referenceReferences' : False,
+        'keepReferencesOnCopy' : False,
         'callStorageOnSet': False,
         'index_method' : '_at_edit_accessor',
         })
