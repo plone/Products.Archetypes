@@ -1,6 +1,11 @@
 1.5.9 - unreleased
 ==================
 
+  * Add 'keepReferencesOnCopy' option to ReferenceField, which allows
+    control over whether references of that field are copied on copy
+    or not.  This defaults to False.
+    [daftdog, nouri]
+
 1.5.8 - 2008-04-21
 ==================
 
