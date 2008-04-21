@@ -1,5 +1,42 @@
-1.5.8 - unreleased
+1.5.9 - unreleased
 ==================
+
+1.5.8 - 2008-04-21
+==================
+
+  * Fix code in 'Field.validate_vocabulary' that would validate a set
+    of values OK if the last element was in the vocabulary, but others
+    weren't.
+    This closes http://dev.plone.org/plone/ticket/7809
+    [nouri]
+
+  * Change BooleanField to return actual booleans instead of the raw value.
+    [wichert]
+
+  * Fixed validation messages to translate the inner parts of the mappings
+    explicitly. This fixes the '${label_foo} is required, please correct.'
+    messages.
+    [hannosch]
+
+  * Remove invalid leading whitespace in hrefs.
+    [wichert]
+
+  * Fixed NameError in Field.py when an error occurs in a transform. This
+    closes http://dev.plone.org/plone/ticket/7905.
+    [hannosch, sidnei]
+
+  * Add a new preview_scale property to ImageWidget. This is used by the edit
+    view when showing the image. If the scale is not present the previous
+    logic (only show if the image is <100kB in size) is used.
+    [wichert]
+
+  * Add a new formQuestion class to field labels.
+    [dannyb]
+
+  * Don't show the 'next' button if we allow tabbing, i.e. we're
+    displaying all schematas on the same page.
+    Fixes http://dev.plone.org/plone/ticket/6936
+    [nouri]
 
 1.5.7 - 2008-03-08
 ==================

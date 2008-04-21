@@ -30,7 +30,7 @@
     </metal:base_view_macro>
 
     <metal:label_macro define-macro="label">
-      <label><span i18n:translate="" tal:content="python:widget.Label(here)">Field</span>:</label>
+      <label class="formQuestion"><span i18n:translate="" tal:content="python:widget.Label(here)">Field</span>:</label>
       <span tal:condition="field/workflowable | nothing"
             tal:omit-tag="">
         (
@@ -78,7 +78,7 @@
              tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class; 
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
-          <label i18n:translate=""
+          <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"
                  tal:attributes="for python:field.getName()">
           </label>

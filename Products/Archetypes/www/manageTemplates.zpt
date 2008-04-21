@@ -22,8 +22,8 @@
 	<tr tal:repeat="fti python: at.listTemplateEnabledPortalTypes()">
    
 	  <td><h3><img tal:attributes="src fti/content_icon" />
-              <span tal:replace="string: ${fti/product}" />:
-              <span tal:replace="string: ${fti/title_or_id}" /></h3>
+              <span tal:replace="string:${fti/product}" />:
+              <span tal:replace="string:${fti/title_or_id}" /></h3>
           <p tal:condition="python:fti.id != fti.content_meta_type">
             Using meta_type <code tal:replace="string:${fti/content_meta_type}"/></p>
           <tal tal:define="overlaping python:fti.content_meta_type!=fti.getId() and [t for t in at.lookupTemplates(fti.content_meta_type) if t not in at.lookupTemplates(fti.getId())]">

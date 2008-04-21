@@ -45,7 +45,7 @@
             <a tal:condition="nothing" href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
               [dump schema]
             </a>
-            <span tal:replace="string: ${package}::${type_name}"/>
+            <span tal:replace="string:${package}::${type_name}"/>
             <a tal:condition="not: inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&package=${package}">Install</a>
             <a tal:condition="inst_val" tal:attributes="href string:${gen/absolute_url}/manage_installType?typeName=${type_name}&uninstall=1">Uninstall</a>
           </td>
@@ -60,8 +60,8 @@
               </tr>
               <tr class="row" tal:repeat="field type/type/fields">
                 <tal:define define="widget python:field.widget">
-                  <td tal:content="string: ${field/getName}::${field/type} -- ${field/schemata}"/>
-                  <td tal:content="string: ${widget/getName}"/>
+                  <td tal:content="string:${field/getName}::${field/type} -- ${field/schemata}"/>
+                  <td tal:content="string:${widget/getName}"/>
                   <td tal:content="field/required"/>
                 </tal:define>
               </tr>

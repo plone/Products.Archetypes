@@ -9,6 +9,7 @@ from types import StringType, UnicodeType, BooleanType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
+from zope.i18nmessageid import Message
 from zope import schema
 from zope import component
 
@@ -345,12 +346,15 @@ class Field(DefaultLayerContainer):
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
         if not value:
+            request = aq_get(instance, 'REQUEST')
             label = self.widget.Label(instance)
             name = self.getName()
+            if isinstance(label, Message):
+                label = translate(label, context=request)
             error = _(u'error_required',
                       default=u'${name} is required, please correct.',
                       mapping={'name': label})
-            error = translate(error, context=aq_get(instance, 'REQUEST'))
+            error = translate(error, context=request)
             errors[name] = error
             return error
         return None
@@ -359,7 +363,7 @@ class Field(DefaultLayerContainer):
     def validate_vocabulary(self, instance, value, errors):
         """Make sure value is inside the allowed values
         for a given vocabulary"""
-        error = None
+        badvalues = []
         if value:
             # coerce value into a list called values
             values = value
@@ -382,19 +386,20 @@ class Field(DefaultLayerContainer):
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
-            for val in values:
-                error = True
-                for v in valids:
-                    if val == v:
-                        error = None
-                        break
+            badvalues = [val for val in values if not val in valids]
 
-        if error:
+        error = None
+        if badvalues:
+            request = aq_get(instance, 'REQUEST')
             label = self.widget.Label(instance)
+            if isinstance(label, Message):
+                label = translate(label, context=request)
+            if isinstance(val, Message):
+                val = translate(val, context=request)
             error = _( u'error_vocabulary',
-                default=u'Value ${val} is not allowed for vocabulary of element ${label}.',
-                mapping={'val': val, 'name': label})
-            error = translate(error, context=aq_get(instance, 'REQUEST'))
+                default=u'Values ${val} is not allowed for vocabulary of element ${label}.',
+                mapping={'val': unicode(badvalues), 'name': label})
+            error = translate(error, context=request)
             errors[self.getName()] = error
         return error
 
@@ -1187,7 +1192,8 @@ class FileField(ObjectField):
             return ''
 
         f = self.get(instance)
-        
+
+        datastream = ''
         try:
             datastream = transforms.convertTo(
                 "text/plain",
@@ -1941,6 +1947,20 @@ class BooleanField(ObjectField):
         })
 
     security  = ClassSecurityInfo()
+
+    security.declarePrivate('get')
+    def get(self, instance, **kwargs):
+        value = super(BooleanField, self).get(instance, **kwargs) 
+        if value is None:
+            return value
+        return bool(value)
+
+    security.declarePrivate('getRaw')
+    def getRaw(self, instance, **kwargs):
+        value = super(BooleanField, self).getRaw(instance, **kwargs) 
+        if value is None:
+            return value
+        return bool(value)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):

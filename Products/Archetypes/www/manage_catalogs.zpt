@@ -40,7 +40,7 @@
 	
       <table class="main" width="80%">
 	<tr tal:repeat="portal_type python: at.listRegisteredTypes(1, 1)">
-	  <td tal:content="string: ${portal_type/package}:${portal_type/name}">TYPE</td>
+	  <td tal:content="string:${portal_type/package}:${portal_type/name}">TYPE</td>
 	  <td>
 	    <select multiple="multiple"
 	      tal:define="value python:[c.id for c in at.getCatalogsByType(portal_type['name'])];"

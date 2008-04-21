@@ -88,6 +88,15 @@ for req in 0,1: # 0 == not required, 1 == required
          'assertion': lambda result:result is not None}
         )
 
+    # tuba is not in vocabulary, so this must fail
+    settings.append(
+        {'field': {'required': req, 'enforceVocabulary': 1,
+                   'multiValued': 1,
+                   'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
+         'value': ('tuba', 'trombone'),
+         'assertion': lambda result:result is not None}
+        )
+
     # enforceVocabulary, but no vocabulary given
     settings.append(
         {'field': {'required': req, 'enforceVocabulary': 1},
