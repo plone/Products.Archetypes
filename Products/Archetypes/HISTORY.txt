@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Avoid a failure in addCreator when called on an object without an
+    Acquisition chain.
+    [hannosch]
+
   * Remove the long long deprecated 'type' class variable, which was
     replaced with 'schema'.
     [wichert]
