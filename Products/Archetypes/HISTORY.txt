@@ -6,6 +6,9 @@
     or not.  This defaults to False.
     [daftdog, nouri]
 
+  * Backported the fix for the KeywordWidget 'checkbox' format support.
+    [deo]
+
 1.5.8 - 2008-04-21
 ==================
 
@@ -83,7 +86,7 @@
   * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
     'kssSubmitForm' instead of simply 'currentForm'. This is needed
     to support multi-valued form variables in inline editing.
-    This is dependent on http://dev.plone.org/archetypes/changeset/9200 
+    This is dependent on http://dev.plone.org/archetypes/changeset/9200
     [raphael]
 
   * Calling `getDefault` twice is unnecessarily slow and could potentially
