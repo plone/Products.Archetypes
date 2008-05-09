@@ -495,6 +495,7 @@ class MultiSelectionWidget(TypesWidget):
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
+        'format': "select", # possible values: select, checkbox
         'macro' : "widgets/keyword",
         'size'  : 5,
         'vocab_source' : 'portal_catalog',
