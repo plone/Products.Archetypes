@@ -20,6 +20,7 @@ from _athistoryaware import IATHistoryAware
 from _archetypetool import IArchetypeTool
 from _edit import IEditForm
 from _validator import IObjectPreValidation, IObjectPostValidation
+from _viewlet import IEditAfterFieldsets
 
 # BBB
 from Interface.bridge import createZope3Bridge
