@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
+    Consider branching before this revision if release required before Plone 4.
+    [elro]
+
   * Avoid a failure in addCreator when called on an object without an
     Acquisition chain.
     [hannosch]

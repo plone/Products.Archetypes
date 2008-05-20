@@ -18,6 +18,7 @@ from Acquisition import aq_base, Explicit
 from ExtensionClass import Base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
+from zope.interface import implements
 
 __docformat__ = 'reStructuredText'
 _marker = []
@@ -48,7 +49,7 @@ class Schemata(Base):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = ISchemata
+    implements(ISchemata)
 
     def __init__(self, name='default', fields=None):
         """Initialize Schemata and add optional fields."""
@@ -190,7 +191,7 @@ class Schemata(Base):
         """Validates fields on adding and bootstrapping
         """
         # interface test
-        if not IField.isImplementedBy(field):
+        if not IField.providedBy(field):
             raise ValueError, "Object doesn't implement IField: %r" % field
         name = field.getName()
         # two primary fields are forbidden
@@ -321,10 +322,10 @@ class SchemaLayerContainer(DefaultLayerContainer):
         called = lambda x: x in initializedLayers
 
         for field in self.fields():
-            if ILayerContainer.isImplementedBy(field):
+            if ILayerContainer.providedBy(field):
                 layers = field.registeredLayers()
                 for layer, obj in layers:
-                    if ILayer.isImplementedBy(obj):
+                    if ILayer.providedBy(obj):
                         if not called((layer, obj)):
                             obj.initializeInstance(instance, item, container)
                             # Some layers may have the same name, but
@@ -334,10 +335,10 @@ class SchemaLayerContainer(DefaultLayerContainer):
                         obj.initializeField(instance, field)
 
         # Now do the same for objects registered at this level
-        if ILayerContainer.isImplementedBy(self):
+        if ILayerContainer.providedBy(self):
             for layer, obj in self.registeredLayers():
                 if (not called((layer, obj)) and
-                    ILayer.isImplementedBy(obj)):
+                    ILayer.providedBy(obj)):
                     obj.initializeInstance(instance, item, container)
                     initializedLayers.append((layer, obj))
 
@@ -352,24 +353,24 @@ class SchemaLayerContainer(DefaultLayerContainer):
         queued = lambda x: x in queuedLayers
 
         for field in self.fields():
-            if ILayerContainer.isImplementedBy(field):
+            if ILayerContainer.providedBy(field):
                 layers = field.registeredLayers()
                 for layer, obj in layers:
                     if not queued((layer, obj)):
                         queuedLayers.append((layer, obj))
-                    if ILayer.isImplementedBy(obj):
+                    if ILayer.providedBy(obj):
                         obj.cleanupField(instance, field)
 
         for layer, obj in queuedLayers:
-            if ILayer.isImplementedBy(obj):
+            if ILayer.providedBy(obj):
                 obj.cleanupInstance(instance, item, container)
 
         # Now do the same for objects registered at this level
 
-        if ILayerContainer.isImplementedBy(self):
+        if ILayerContainer.providedBy(self):
             for layer, obj in self.registeredLayers():
                 if (not queued((layer, obj)) and
-                    ILayer.isImplementedBy(obj)):
+                    ILayer.providedBy(obj)):
                     obj.cleanupInstance(instance, item, container)
                     queuedLayers.append((layer, obj))
 
@@ -398,7 +399,7 @@ InitializeClass(SchemaLayerContainer)
 class BasicSchema(Schemata):
     """Manage a list of fields and run methods over them."""
 
-    __implements__ = ISchema
+    implements(ISchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -653,7 +654,7 @@ class BasicSchema(Schemata):
     security.declareProtected(permissions.ModifyPortalContent,
                               'replaceField')
     def replaceField(self, name, field):
-        if IField.isImplementedBy(field):
+        if IField.providedBy(field):
             oidx = self._names.index(name)
             new_name = field.getName()
             self._names[oidx] = new_name
@@ -670,7 +671,7 @@ class Schema(BasicSchema, SchemaLayerContainer):
     Schema
     """
 
-    __implements__ = ILayerRuntime, ILayerContainer, ISchema
+    implements(ILayerRuntime, ILayerContainer, ISchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -903,7 +904,7 @@ class ManagedSchema(Schema):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    __implements__ = IManagedSchema, Schema.__implements__
+    implements(IManagedSchema)
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'delSchemata')

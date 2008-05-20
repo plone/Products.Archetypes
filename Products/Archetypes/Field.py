@@ -9,6 +9,7 @@ from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope import schema
 from zope import component
+from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -145,7 +146,7 @@ class Field(DefaultLayerContainer):
     field's property values.
     """
 
-    __implements__ = IField, ILayerContainer
+    implements(IField, ILayerContainer)
 
     security = ClassSecurityInfo()
 
@@ -253,9 +254,9 @@ class Field(DefaultLayerContainer):
 
         if isinstance(self.validators, dict):
             raise NotImplementedError, 'Please use the new syntax with validation chains'
-        elif IValidationChain.isImplementedBy(self.validators):
+        elif IValidationChain.providedBy(self.validators):
             validators = self.validators
-        elif IValidator.isImplementedBy(self.validators):
+        elif IValidator.providedBy(self.validators):
             validators = ValidationChain(chainname, validators=self.validators)
         elif isinstance(self.validators, (tuple, list, basestring)):
             if len(self.validators):
@@ -460,7 +461,7 @@ class Field(DefaultLayerContainer):
                           'field' : self}
                     value = mapply(method, *args, **kw)
             elif content_instance is not None and \
-                 IVocabulary.isImplementedBy(value):
+                 IVocabulary.providedBy(value):
                 # Dynamic vocabulary provided by a class that
                 # implements IVocabulary
                 value = value.getDisplayList(content_instance)
@@ -675,7 +676,7 @@ class ObjectField(Field):
     Field Types should subclass this to delegate through the storage
     layer.
     """
-    __implements__ = IObjectField, ILayerContainer
+    implements(IObjectField, ILayerContainer)
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -731,7 +732,7 @@ class ObjectField(Field):
 
     security.declarePrivate('setStorage')
     def setStorage(self, instance, storage):
-        if not IStorage.isImplementedBy(storage):
+        if not IStorage.providedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
         # raw=1 is required for TextField
         value = self.get(instance, raw=True)
@@ -771,7 +772,7 @@ class ObjectField(Field):
         value = ''
         if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
-            if IBaseUnit.isImplementedBy(bu):
+            if IBaseUnit.providedBy(bu):
                 return str(bu.getContentType())
         raw = self.getRaw(instance)
         mimetype = getattr(aq_base(raw), 'mimetype', None)
@@ -842,7 +843,7 @@ class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
 
-    __implements__ = IFileField, ILayerContainer
+    implements(IFileField, ILayerContainer)
 
     _properties = ObjectField._properties.copy()
     _properties.update({
@@ -879,7 +880,7 @@ class FileField(ObjectField):
         if file is None:
             file = self._make_file(self.getName(), title='',
                                    file='', instance=instance)
-        if IBaseUnit.isImplementedBy(value):
+        if IBaseUnit.providedBy(value):
             mimetype = value.getContentType() or mimetype
             filename = value.getFilename() or filename
             value = value.getRaw()
@@ -957,7 +958,7 @@ class FileField(ObjectField):
             if not value:
                 return default, mimetype, filename
             return value, mimetype, filename
-        elif IBaseUnit.isImplementedBy(value):
+        elif IBaseUnit.providedBy(value):
             return value.getRaw(), value.getContentType(), value.getFilename()
 
         value = aq_base(value)
@@ -1203,8 +1204,6 @@ class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
 
-    __implements__ = FileField.__implements__
-
     _properties = FileField._properties.copy()
     _properties.update({
         'type' : 'text',
@@ -1259,7 +1258,7 @@ class TextField(FileField):
                                    file='', instance=instance)
         filename = kwargs.get('filename') or ''
         body = None
-        if IBaseUnit.isImplementedBy(value):
+        if IBaseUnit.providedBy(value):
             mimetype = value.getContentType() or mimetype
             filename = value.getFilename() or filename
             return value, mimetype, filename
@@ -1339,7 +1338,7 @@ class TextField(FileField):
         If raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=True, **kwargs)
-        if raw or not IBaseUnit.isImplementedBy(value):
+        if raw or not IBaseUnit.providedBy(value):
             return value
         kw = {'encoding':kwargs.get('encoding'),
               'instance':instance}
@@ -1359,7 +1358,7 @@ class TextField(FileField):
             kwargs['field'] = self
             storage = self.getStorage(instance)
             value = storage.get(self.getName(), instance, **kwargs)
-            if not IBaseUnit.isImplementedBy(value):
+            if not IBaseUnit.providedBy(value):
                 value = self._wrapValue(instance, value)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
@@ -1397,7 +1396,6 @@ class TextField(FileField):
 
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1439,7 +1437,6 @@ class DateTimeField(ObjectField):
 
 class LinesField(ObjectField):
     """For creating lines objects"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1495,7 +1492,6 @@ class LinesField(ObjectField):
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1564,7 +1560,6 @@ class FloatField(ObjectField):
 
 class FixedPointField(ObjectField):
     """A field for storing numerical data with fixed points"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1636,8 +1631,6 @@ class ReferenceField(ObjectField):
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
     """
-
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1900,8 +1893,6 @@ class ReferenceField(ObjectField):
 
 class ComputedField(Field):
     """A field that stores a read-only computation."""
-    __implements__ = Field.__implements__
-
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'computed',
@@ -1932,7 +1923,6 @@ class ComputedField(Field):
 
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
-    __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'boolean',
@@ -1978,7 +1968,6 @@ class CMFObjectField(ObjectField):
     """
     COMMENT TODO
     """
-    __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'object',

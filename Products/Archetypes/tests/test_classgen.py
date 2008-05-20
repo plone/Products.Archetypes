@@ -198,7 +198,7 @@ class ClassGenTest(ATSiteTestCase):
             if not hasattr(field, 'getBaseUnit'):
                 continue
             bu = field.getBaseUnit(obj)
-            self.failUnless(IBaseUnit.isImplementedBy(bu),
+            self.failUnless(IBaseUnit.providedBy(bu),
                             ('Return value of %s.getBaseUnit() does not '
                              'implement BaseUnit: %s' %
                              (field.__class__, type(bu))))

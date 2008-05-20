@@ -42,7 +42,7 @@ from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 from Globals import PersistentMapping
 from OFS.Folder import Folder
-from Products.ZCatalog.IZCatalog import IZCatalog
+from Products.ZCatalog.interfaces import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.POSException import ConflictError
 import transaction
@@ -231,7 +231,7 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, 'immediate_view'):
         fti[0]['immediate_view'] = klass.immediate_view
 
-    if not IReferenceable.isImplementedByInstancesOf(klass):
+    if not IReferenceable.implementedBy(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
         refs['visible'] = False
 
@@ -240,7 +240,7 @@ def modify_fti(fti, klass, pkg_name):
         refs['visible'] = False
 
     # Set folder_listing to 'view' if the class implements ITemplateMixin
-    if not ITemplateMixin.isImplementedByInstancesOf(klass):
+    if not ITemplateMixin.implementedBy(klass):
         actions = []
         for action in fti[0]['actions']:
             if action['id'] != 'folderlisting':
@@ -654,7 +654,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if isinstance(type, dict) and type.has_key('klass'):
             type = type['klass']
         for iface in interfaces:
-            res = iface.isImplementedByInstancesOf(type)
+            res = iface.implementedBy(type)
             if res:
                 return True
         return False
@@ -692,7 +692,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for data in listTypes():
             klass = data['klass']
             for iface in ifaces:
-                if iface.isImplementedByInstancesOf(klass):
+                if iface.implementedBy(klass):
                     ti = pt.getTypeInfo(data['portal_type'])
                     if ti is not None:
                         value.append(ti)
@@ -892,7 +892,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for b in brains:
             o = b.getObject()
             if o is not None:
-                if IBaseObject.isImplementedBy(o):
+                if IBaseObject.providedBy(o):
                     callback(o, *args, **kwargs)
             else:
                 log('no object for brain: %s:%s' % (b,b.getURL()))
@@ -1154,7 +1154,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if ICatalogTool.providedBy(object):
                 res.append(object.getId())
                 continue
-            if IZCatalog.isImplementedBy(object):
+            if IZCatalog.providedBy(object):
                 res.append(object.getId())
                 continue
 

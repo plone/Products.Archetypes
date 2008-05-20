@@ -132,7 +132,6 @@ class BaseObject(Referenceable):
 
     _at_rename_after_creation = False # rename object according to title?
 
-    __implements__ = (z2IBaseObject, ) + Referenceable.__implements__
     implements(IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
@@ -260,7 +259,7 @@ class BaseObject(Referenceable):
         """Return wether a field contains binary data.
         """
         field = self.getField(key)
-        if IFileField.isImplementedBy(field):
+        if IFileField.providedBy(field):
             value = field.getBaseUnit(self)
             return value.isBinary()
         mimetype = self.getContentType(key)
@@ -339,7 +338,7 @@ class BaseObject(Referenceable):
         else:
             field = self.getField(key) or getattr(self, key, None)
 
-        if field and IFileField.isImplementedBy(field):
+        if field and IFileField.providedBy(field):
             field.setContentType(self, value)
 
     security.declareProtected(permissions.ModifyPortalContent, 'setFilename')
@@ -351,7 +350,7 @@ class BaseObject(Referenceable):
         else:
             field = self.getField(key) or getattr(self, key, None)
 
-        if field and IFileField.isImplementedBy(field):
+        if field and IFileField.providedBy(field):
             field.setFilename(self, value)
 
     security.declareProtected(permissions.View, 'getPrimaryField')
@@ -918,7 +917,7 @@ class BaseObject(Referenceable):
         if field:
             # At very first try to use the BaseUnit itself
             try:
-                if IFileField.isImplementedBy(field):
+                if IFileField.providedBy(field):
                     return field.getBaseUnit(self)
             except (ConflictError, KeyboardInterrupt):
                 raise

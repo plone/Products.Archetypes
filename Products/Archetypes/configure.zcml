@@ -6,7 +6,6 @@
   <include zcml:condition="installed plone.locking"
       package="plone.locking" />
   
-  <include file="bridge.zcml"/>
   <include file="implements.zcml"/>
   <include file="profiles.zcml"/>
   <include file="events.zcml" />

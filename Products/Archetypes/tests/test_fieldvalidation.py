@@ -32,9 +32,10 @@ from Products.Archetypes.config import *
 from Products.Archetypes.BaseObject import BaseObject
 from Products.validation import validation as validationService
 from Products.validation.interfaces.IValidator import IValidator
+from zope.interface import implements
 
 class MyValidator:
-    __implements__ = (IValidator,)
+    implements(IValidator)
 
     def __init__(self, name, fun):
         self.name = name
