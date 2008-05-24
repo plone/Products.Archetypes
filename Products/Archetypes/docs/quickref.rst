@@ -428,10 +428,9 @@ Writing a custom validator
 
 If you need custom validation, you can write a new validator in your product.::
 
-    from zope.interface import implements
-    from validation.interfaces import ivalidator
+    from Products.validation.interfaces import ivalidator
     class FooValidator:
-        implements(ivalidator)
+        __implements__ = (ivalidator,)
         def __init__(self, name):
             self.name = name
         def __call__(self, value, *args, **kwargs):
@@ -440,14 +439,22 @@ If you need custom validation, you can write a new validator in your product.::
                     repr(value)))
             return 1
 
-Then you need to register it in the ``initialize`` method
+Then you need to register it, for example in the ``initialize`` method
 ``FooProduct/__init__.py``::
 
-    from validation import validation
+    from Products.validation import validation
     from validator import FooValidator
     validation.register(FooValidator('isFoo'))
 
 The validator is now registered, and can be used in the schema of your type.
+
+Note: make sure that your validator is registered before any code is
+called that wants to use this validator, most likely in the schema of
+a content type.  If you see this when Zope starts up::
+
+    WARNING: Disabling validation for <field name>: <your validator>
+
+then you are registering your validator too late.
 
 
 Widgets
