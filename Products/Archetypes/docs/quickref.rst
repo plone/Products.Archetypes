@@ -439,22 +439,24 @@ If you need custom validation, you can write a new validator in your product.::
                     repr(value)))
             return 1
 
-Then you need to register it, for example in the ``initialize`` method
-``FooProduct/__init__.py``::
+Then you need to register it inside ``FooProduct/__init__.py``.  You
+need to make sure that your validator is registered before any code is
+called that wants to use this validator.  That happens mostly in the
+schema of a content type.  If you see this when Zope starts up::
+
+    WARNING: Disabling validation for <field name>: <your validator>
+
+then you are registering your validator too late.  Specifically,
+registering your validator in the ``initialize`` function of your
+product works in some cases, but is too late in other cases.  So the
+best is to register your validator directly in ``__init__.py`` outside
+of any functions.  The code would be this::
 
     from Products.validation import validation
     from validator import FooValidator
     validation.register(FooValidator('isFoo'))
 
 The validator is now registered, and can be used in the schema of your type.
-
-Note: make sure that your validator is registered before any code is
-called that wants to use this validator, most likely in the schema of
-a content type.  If you see this when Zope starts up::
-
-    WARNING: Disabling validation for <field name>: <your validator>
-
-then you are registering your validator too late.
 
 
 Widgets
