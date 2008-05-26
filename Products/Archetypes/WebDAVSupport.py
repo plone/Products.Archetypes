@@ -9,11 +9,14 @@ from ZPublisher.Iterators import IStreamIterator
 
 from zope import event
 from zope.lifecycleevent import ObjectModifiedEvent
-from zope.interface import implements
+from zope.interface import implements, Interface
 
 class PdataStreamIterator(object):
 
-    implements(IStreamIterator)
+    if issubclass(IStreamIterator, Interface):
+        implements(IStreamIterator)
+    else:
+        __implements__ = IStreamIterator
 
     def __init__(self, data, size, streamsize=1<<16):
         # Consume the whole data into a TemporaryFile when
@@ -163,7 +166,8 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     # We assume 'data' is a 'Pdata chain' as used by OFS.File and
     # return a StreamIterator.
     assert length is not None, 'Could not figure out length of Pdata chain'
-    if IStreamIterator.providedBy(data):
+    if (issubclass(IStreamIterator, Interface) and IStreamIterator.providedBy(data)
+        or not issubclass(IStreamIterator, Interface) and IStreamIterator.IsImplementedBy(data)):
         return data
     return PdataStreamIterator(data, length)
 
