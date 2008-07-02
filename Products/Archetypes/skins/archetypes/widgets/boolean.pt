@@ -1,0 +1,66 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+  <body>
+
+    <!-- Boolean Widgets -->
+
+    <metal:view_macro define-macro="view"
+            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <span metal:define-macro="boolean-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/boolean', macro='boolean-field-view');"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:define="voc field/Vocabulary; key accessor;
+                              value python:voc and voc.getValue(str(key)) or key;
+                              msgid python:voc and voc.getMsgId(str(key)) or ''"
+                  tal:replace="value"
+                  i18n:translate="">Yes No</span>
+        </span>
+    </metal:view_macro>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:fill fill-slot="widget_body_label_prefix"
+                  tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
+
+        <input class="noborder"
+               type="checkbox"
+               value="on"
+               tal:attributes="name string:${fieldName}:boolean;
+               id fieldName;
+               checked python:value;"
+               />
+        <input type="hidden"
+               value=""
+               tal:attributes="name string:${fieldName}:boolean:default;"
+               />
+      </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <metal:hidden_macro define-macro="hidden">
+      <input type="hidden"
+             tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)"
+             name=""
+             value=""
+             tal:attributes="name fieldName;
+                             value python:value or '';" />
+    </metal:hidden_macro>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/boolean/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

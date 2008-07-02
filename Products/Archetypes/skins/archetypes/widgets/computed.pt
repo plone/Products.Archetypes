@@ -1,0 +1,48 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- Computed Widgets -->
+
+    <metal:view_macro define-macro="view"
+                      tal:define="voc python:field.Vocabulary(here);
+                                  key accessor;
+                                  value python:voc and voc.getValue(key) or key"
+                      tal:replace="structure value" />
+
+    <metal:define define-macro="edit">
+        <div class="field"
+             tal:define="visState python:widget.isVisible(here, mode);
+                         visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
+             tal:condition="python:visState == 'visible' and visCondition">
+          <label class="formQuestion" i18n:translate=""
+                 tal:content="python:widget.Label(here)"
+                 tal:attributes="for python:field.getName()">
+          </label>
+          <div class="formHelp"
+               tal:define="description python:widget.Description(here)"
+               tal:content="structure description"
+               tal:attributes="id string:${fieldName}_help"
+               i18n:translate="">
+            Help
+          </div>
+          <metal:use use-macro="here/widgets/computed/macros/view" />
+      </div>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/string/macros/edit">
+          It does make sense to "search" a computed field
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

@@ -1,0 +1,190 @@
+Folder Marshalling
+==================
+
+Historically, Archetypes only supported marshalling behaviour on
+BaseContent-based objects. That made creating folderish objects that
+played with WebDAV unnecessarily hard.
+
+The time has come where now the folderish and the non-folderish unite
+under the same banner, and play nicely with WebDAV.
+
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> self.setRoles(['Manager'])
+
+CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
+
+  >>> self.portal.invokeFactory('SimpleFolder', 'simple_folder') in \
+  ...                           (None, 'simple_folder')
+  True
+
+  >>> self.portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
+  ...                           in (None, 'simple_btree_folder')
+  True
+
+Make sure we've got some reasonable marshaller setup over there:
+
+  >>> self.portal.simple_folder.Schema().getLayerImpl('marshall')
+  <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
+
+  >>> self.portal.simple_btree_folder.Schema().getLayerImpl('marshall')
+  <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
+
+The trick here is that, to keep backwards compatibility, we only
+enable the new behaviour on folderish objects that have
+``__dav_marshall__`` set to a valid value.
+
+  >>> folder = self.portal.simple_folder
+
+  >>> print http(r"""
+  ... PUT /%s/simple_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... description: Simple Folder Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 405 Method Not Allowed
+  ...
+
+  >>> folder.called_afterPUT_hook
+  Traceback (most recent call last):
+  ...
+  AttributeError: called_afterPUT_hook
+
+  >>> print folder.Description()
+  <BLANKLINE>
+
+Note that 'GET' will also result in the same response. We simulate a
+WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
+about what the 'WebDAVSrcHandler' does:
+
+  >>> print http(r"""
+  ... GET /%s/simple_folder/manage_DAVget HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 405 Method Not Allowed
+  ...
+
+Then we set ``__dav_marshall__`` to ``True`` and it should behave
+like a normal resource:
+
+  >>> folder.__dav_marshall__ = True
+
+  >>> print http(r"""
+  ... PUT /%s/simple_folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... description: Simple Folder Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 204 No Content
+  ...
+
+  >>> print folder.Description()
+  Simple Folder Content
+  <BLANKLINE>
+
+  >>> folder.called_afterPUT_hook
+  True
+
+  >>> print http(r"""
+  ... GET /%s/simple_folder/manage_DAVget HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 200 OK
+  ...
+  id: simple_folder
+  title:
+  allowDiscussion: False
+  subject:
+  description: Simple Folder Content
+  location:
+  contributors:
+  creators: test_user_1_
+  effectiveDate: None
+  expirationDate: None
+  language:
+  rights:
+  creation_date: ...
+  modification_date: ...
+
+The same for BTreeFolder:
+
+  >>> folder = self.portal.simple_btree_folder
+
+  >>> print http(r"""
+  ... PUT /%s/simple_btree_folder/ HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... description: BTree Folder Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 405 Method Not Allowed
+  ...
+
+  >>> print folder.Description()
+  <BLANKLINE>
+
+  >>> folder.called_afterPUT_hook
+  Traceback (most recent call last):
+  ...
+  AttributeError: called_afterPUT_hook
+
+Note that 'GET' will also result in the same response. We simulate a
+WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
+about what the 'WebDAVSrcHandler' does:
+
+  >>> print http(r"""
+  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 405 Method Not Allowed
+  ...
+
+Then we set ``__dav_marshall__`` to ``True`` and it should behave
+like a normal resource:
+
+  >>> folder.__dav_marshall__ = True
+
+  >>> print http(r"""
+  ... PUT /%s/simple_btree_folder/ HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ... Depth: 0
+  ...
+  ... description: BTree Folder Content
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 204 No Content
+  ...
+
+  >>> print folder.Description()
+  BTree Folder Content
+  <BLANKLINE>
+
+  >>> folder.called_afterPUT_hook
+  True
+
+  >>> print http(r"""
+  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % (portal_name, user_name, user_password))
+  HTTP/1.1 200 OK
+  ...
+  id: simple_btree_folder
+  title:
+  allowDiscussion: False
+  subject:
+  description: BTree Folder Content
+  location:
+  contributors:
+  creators: test_user_1_
+  effectiveDate: None
+  expirationDate: None
+  language:
+  rights:
+  creation_date: ...
+  modification_date: ...

@@ -1,0 +1,52 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- Float Widgets -->
+    <metal:view_macro define-macro="view"
+           tal:define="dollars_and_cents widget/dollars_and_cents;
+                       whole_dollars widget/whole_dollars;
+                       thousands_commas widget/thousands_commas;
+                       if_format python:dollars_and_cents or whole_dollars or thousands_commas;
+                       result accessor;
+                       formatted python:result;
+                       pps modules/Products/PythonScripts/standard;
+                       formatted python:(dollars_and_cents and pps.dollars_and_cents(formatted)) or formatted;
+                       formatted python:(whole_dollars and pps.whole_dollars(formatted)) or formatted;
+                       formatted python:(thousands_commas and pps.thousands_commas(formatted)) or formatted;
+                       result python:(if_format and formatted) or result;"
+                       tal:replace="result"/>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <input metal:fill-slot="widget_body"
+             type="text"
+             class="blurrable firstToFocus"
+             name=""
+             value=""
+             size="30"
+             tal:attributes="name string:${fieldName};
+                             id fieldName;
+                             value value;
+                             size widget/size;
+                             maxlength widget/maxlength|nothing;"
+             />
+      </metal:use>
+    </metal:define>
+
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/decimal/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

@@ -1,0 +1,45 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- Lines Widgets -->
+
+    <metal:view_macro define-macro="view" tal:repeat="item accessor">
+      <span tal:content="item"/><br />
+    </metal:view_macro>
+
+    <div metal:define-macro="edit">
+      <div metal:use-macro="field_macro | here/widgets/field/macros/edit">
+          <div metal:fill-slot="widget_body">
+              <textarea tal:attributes="name string:$fieldName:lines;
+                                        id fieldName;
+                                        cols widget/cols;
+                                        rows widget/rows;"
+                        tal:content="python:value and '\n'.join(value) or ''"></textarea>
+          </div>
+      </div>
+    </div>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/lines/macros/edit">
+      </div>
+    </div>
+
+    <div metal:define-macro="hidden">
+      <input type="hidden"
+             name=""
+             value=""
+             tal:attributes="name string:${fieldName}:lines;
+                             value python:'\n'.join(value);" />
+
+    </div>
+
+
+  </body>
+
+</html>
+

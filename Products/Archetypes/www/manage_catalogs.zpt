@@ -1,0 +1,65 @@
+<html>
+  <div tal:replace="structure here/manage_page_header"/>
+    <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
+      <div tal:replace="structure here/manage_tabs"/>
+	<style type="text/css">
+	  div.row {
+	  padding-top: 2px;
+	  }
+	  
+	  .cell {
+	  margin-right:1em;
+	  width: 33%;
+	  }	    
+	  
+	  .content_type {
+	  border: 1px solid black;
+	  margin: 4px;
+	  }
+	    
+	  .main td {
+	    text-align: left;
+	    }
+
+	  th.title {
+	    background-color: #ccf;
+	    }
+
+	  .detail {
+	  background-color: #cdcdcd;
+	  width:100%;
+	  }
+
+	</style>
+	
+	<form action="manage_updateCatalogs" method="POST" 
+	      tal:define="at here/archetype_tool;
+	                  catalogs at/listCatalogs;
+	                  vocab at/getCatalogsInSite;">
+
+	
+      <table class="main" width="80%">
+	<tr tal:repeat="portal_type python: at.listRegisteredTypes(1, 1)">
+	  <td tal:content="string:${portal_type/package}:${portal_type/name}">TYPE</td>
+	  <td>
+	    <select multiple="multiple"
+	      tal:define="value python:[c.id for c in at.getCatalogsByType(portal_type['name'])];"
+		tal:attributes="name string:catalog_names_${portal_type/name}:list;
+		                size python: len(vocab)">
+	      <option selected=""
+		tal:repeat="item vocab"
+		tal:attributes="value item;
+		selected python:test(item in value, 'selected', None);"
+		tal:content="item"/>
+	    </select>
+
+          </td>
+	</tr>
+      </table>
+      
+      <input type="submit" name="submit" value="Update Catalogs"/>
+      
+    </form>
+      
+    </body>
+  </html>

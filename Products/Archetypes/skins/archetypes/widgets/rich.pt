@@ -1,0 +1,66 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- Rich Widgets -->
+
+    <metal:view_macro define-macro="view"
+                      tal:define="kssClassesView context/@@kss_field_decorator_view;
+                                  getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="rich-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/rich', macro='rich-field-view');"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <span metal:define-slot="inside" 
+                  tal:define="transformable python: here.isTransformable(fieldName);"
+                  tal:condition="transformable"
+                  tal:replace="structure accessor">rich</span>
+            <tal:comment replace="nothing">
+            Commented out the View/Edit links for ordinary display - feel free to
+            enable these in your site, but they should definitely not be there by
+            default.
+                  <tal:download tal:condition="widget/allow_file_upload | python:1">
+                    <metal:block use-macro="here/widgets/file/macros/file_view">download link</metal:block>
+                  </tal:download>
+            </tal:comment>
+        </div>
+    </metal:view_macro>
+ 
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body"
+                    tal:define="binary python: here.isBinary(fieldName)">
+          <tal:area_format tal:condition="widget/allow_format_edit | python:1">
+              <metal:block use-macro="here/widgets/visual/macros/area_format" />
+          </tal:area_format>
+          <metal:use use-macro="here/widgets/epoz/macros/edit_area">
+            <metal:fill fill-slot="text_format"/>
+          </metal:use>
+          <div class="fieldUploadFile"
+               tal:condition="widget/allow_file_upload | python:1">
+              <span class="discreet" 
+                    i18n:translate="or_upload_a_file">or upload a file (existing content will be replaced)</span>
+              <input type="file"
+                     size="30"
+                     tal:attributes="name string:${fieldName}_file;
+                                     id string:${fieldName}_file;
+                                     "/>
+          </div>
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/rich/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

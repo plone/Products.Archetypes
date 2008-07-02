@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <!-- File Widgets -->
+
+    <span metal:define-macro="file_view">
+      <metal:label define-slot="widget_label" />
+      <tal:define define="unit accessor;
+                          showLink showLink|python:1">
+        <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
+                           icon unit/getBestIcon | nothing;
+                           filename unit/filename | nothing"
+                   condition="python:size &gt; 0">
+
+          <tal:link condition="showLink">
+              <a href="" tal:attributes="href string:${here/absolute_url}/at_download/$fieldName">
+                <img tal:condition="icon" src=""
+                     tal:attributes="src string:${here/portal_url}/$icon"/>
+                <tal:filename tal:replace="filename | fieldName"/>
+              </a>
+              <span class="discreet">
+                  &mdash;
+                  <span tal:replace="python:here.lookupMime(field.getContentType(here))">ContentType</span>,
+                  <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
+              </span>
+          </tal:link>
+          <span tal:condition="not:showLink">
+              <img tal:condition="icon" src=""
+                   tal:attributes="src string:${here/portal_url}/$icon"/>
+              <tal:filename tal:replace="filename | fieldName"/>
+              <span class="discreet">
+                  <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
+                  <tal:size content="python:'%s KB' % (size / 1024)">0 KB</tal:size>
+              </span>
+          </span>
+
+        </tal:block>
+      </tal:define>
+    </span>
+
+    <metal:define define-macro="file_edit" tal:define="showLink python:0">
+      <metal:block use-macro="here/widgets/file/macros/file_view" />
+      <div tal:condition="accessor" style="padding-top:1em;"
+           tal:define="unit accessor;
+                       size unit/get_size | python:unit and len(unit) or 0;">
+        <tal:hide_if_no_file condition="size">
+            <!-- these complex buttons have no reson to be here if there is not a file already uploaded -->
+            <input class="noborder"
+                   type="radio"
+                   value="nochange"
+                   tal:attributes="checked python:test(size!=0, 'checked', None);
+                                   name string:${fieldName}_delete;
+                                   id string:${fieldName}_nochange;
+                                   onclick string:document.getElementById('${fieldName}_file').disabled=true;"/>
+             <label for=""
+                    tal:attributes="for string:${fieldName}_nochange;
+                                    "
+                    i18n:translate="nochange_file">
+                    Keep existing file
+             </label>
+             <br />
+             <tal:delete tal:condition="python: not field.required">
+                <input class="noborder"
+                       type="radio"
+                       value="delete"
+                       tal:attributes="name string:${fieldName}_delete;
+                                       id string:${fieldName}_delete;
+                                       onclick string:document.getElementById('${fieldName}_file').disabled=true;"
+                 />
+                 <label for=""
+                        tal:attributes="for string:${fieldName}_delete;
+                                        "
+                        i18n:translate="delete_file">
+                        Delete current file
+                 </label><br />
+             </tal:delete>
+              <input class="noborder"
+                     type="radio"
+                     value=""
+                     onclick=""
+                     tal:attributes="checked python:test(size==0, 'checked', None);
+                                     name string:${fieldName}_delete;
+                                     id string:${fieldName}_upload;
+                                     onclick string:document.getElementById('${fieldName}_file').disabled=false"/>
+
+           <label for=""
+                  tal:attributes="for string:${fieldName}_upload;"
+                  i18n:translate="upload_file">
+                  Replace with new file:
+           </label>
+       </tal:hide_if_no_file>
+       <div style="padding-left:1.5em;padding-top:0.5em;">
+           <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+       </div>
+      </div>
+      <div tal:condition="not: accessor">
+        <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+      </div>
+
+    </metal:define>
+
+
+    <metal:define define-macro="file_upload"
+           tal:define="unit accessor;
+                       size unit/get_size | python:unit and len(unit) or 0;">
+        <input type="file"
+               size="30"
+               tal:attributes="name string:${fieldName}_file;
+                               id string:${fieldName}_file;" />
+        <script type="text/javascript" 
+	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
+                tal:content="string:document.getElementById('${fieldName}_file').disabled=$isDisabled;">
+        </script>
+    </metal:define>
+
+    <metal:define define-macro="view">
+      <metal:use use-macro="here/widgets/file/macros/file_view" />
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+        <metal:fill fill-slot="widget_body">
+          <metal:use use-macro="here/widgets/file/macros/file_edit" />
+        </metal:fill>
+      </metal:use>
+    </metal:define>
+
+    <metal:define define-macro="search">
+      <metal:use use-macro="here/widgets/file/macros/edit" />
+    </metal:define>
+
+  </body>
+
+</html>

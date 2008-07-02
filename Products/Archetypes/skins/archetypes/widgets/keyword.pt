@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- Keyword Widgets -->
+
+    <metal:view_macro define-macro="view"
+            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+        <div metal:define-macro="keyword-field-view"
+            tal:define="kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/keyword', macro='keyword-field-view');"
+            tal:attributes="class kss_class;
+                            id string:parent-fieldname-$fieldName">
+            <ul metal:define-slot="inside">
+                <li tal:repeat="item accessor"
+                    tal:content="item"/>
+            </ul>
+        </div>
+    </metal:view_macro>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+    <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
+            allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
+            site_props here/portal_properties/site_properties;
+            format widget/format | string:select;
+            allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
+
+      <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
+        <div style="width: 45%; float: right;">
+          <span i18n:translate="label_new_categories">New categories</span>
+          <br />
+          <textarea id="entered_subjects"
+            name="subject:lines"
+            rows="11"
+            cols="15"
+            wrap="off"
+            tal:attributes="id string:${fieldName}_keywords;
+                            name string:${fieldName}_keywords:lines;"
+            tal:define="subject python:[item for item in value if item not in allowedKeywords]"
+            tal:content="python:'\n'.join(subject)">
+              Selected categories
+          </textarea>
+
+        </div>
+      </tal:condition>
+
+      <div style="width: 45%">
+        <span i18n:translate="label_existing_categories">
+            Existing categories
+        </span>
+
+        <br />
+
+        <select id="predefined_subjects"
+            name="predefined_subjects:list"
+            size="14"
+            multiple="multiple"
+            tal:condition="python:format!='checkbox'"
+            tal:attributes="id string:${fieldName}_existing_keywords;
+                            name string:${fieldName}_existing_keywords:list;">
+          <option value="#" tal:repeat="keyword allowedKeywords"
+              tal:content="keyword" tal:attributes="value keyword;
+              selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
+              An existing category
+          </option>
+        </select>
+
+        <input type="hidden"
+               value=""
+               tal:condition="not:field/required | nothing"
+               tal:attributes="name string:${fieldName}_existing_keywords:default:list" />
+
+        <tal:loop tal:repeat="keyword allowedKeywords"
+                  tal:condition="python:format=='checkbox'">
+            <div class="ArchetypesKeywordValue" id=""
+                 tal:attributes="id string:archetypes-value-${fieldName}_${repeat/keyword/number}">
+              <input class="blurrable"
+                     tal:attributes="type string:checkbox;
+                                     name string:${fieldName}_existing_keywords:list;
+                                     id string:${fieldName}_${repeat/keyword/number};
+                                     checked python:test(here.unicodeTestIn(keyword, value), 'checked', None);
+                                     value keyword" />
+              <label tal:content="keyword"
+                     tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
+                An existing category
+              </label>
+            </div>
+        </tal:loop>
+
+      </div>
+
+      <div class="visualClear"><!-- --></div>
+
+    </tal:define>
+      </metal:use>
+    </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/keyword/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+

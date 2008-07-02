@@ -1,0 +1,26 @@
+<configure xmlns="http://namespaces.zope.org/five"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <implements
+      class=".Referenceable.Referenceable"
+      interface=".interfaces.IReferenceable"
+      />
+
+  <implements
+      class=".BaseObject.BaseObject"
+      interface=".interfaces.IBaseObject"
+      />
+
+  <implements
+      class=".ArchetypeTool.ArchetypeTool"
+      interface=".interfaces.IArchetypeTool"
+      />
+
+  <!-- Make all AT objects lockable by default -->
+  <implements
+      zcml:condition="installed plone.locking"
+      class=".BaseObject.BaseObject"
+      interface="plone.locking.interfaces.ITTWLockable"
+      />
+
+</configure>

@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+    <!-- TextArea Widgets -->
+
+    <metal:view_macro define-macro="view"
+              tal:replace="structure accessor" />
+
+    <metal:define define-macro="area_edit">
+      <textarea tal:attributes="name fieldName;
+                                id fieldName;
+                                value value;
+                                cols widget/cols;
+                                rows widget/rows;"
+                tal:define="base python: hasattr(value, 'isUnit');
+                            binary python: base and value.isBinary() or 0;
+                            content python: (base == 1) and value.getRaw() or value ;
+                            content python: (binary == 0) and content or '';"
+                tal:content="content" />
+    </metal:define>
+
+    <metal:define define-macro="area_format">
+      <tal:define define="
+                  fieldCType python:here.getContentType(fieldName);
+                  contentType python:request.get('%s_text_format' % fieldName, fieldCType);
+                  mimetypes python:field.getAllowedContentTypes(here);
+                  ">
+
+<div class="fieldTextFormat" tal:condition="python: len(mimetypes) > 1">
+    <label i18n:translate="label_text_format">Text Format</label>
+
+    <select tal:define="textareaview context/@@at_textarea_widget;
+                        selection python:textareaview.getSelected(mimetypes, contentType)"
+            tal:attributes="id string:${fieldName}_text_format;
+                            name string:${fieldName}_text_format;">
+      <option selected=""
+          tal:repeat="item mimetypes"
+          tal:attributes="selected python:item in selection and 'selected' or None;
+                          value item;"
+          tal:content="python:textareaview.lookupMime(item)" />
+    </select>
+</div>
+
+<tal:hidden condition="python: len(mimetypes) == 1">
+        <input type="hidden" tal:attributes="id string:${fieldName}_text_format;
+                                             name string:${fieldName}_text_format;
+                                             value python:mimetypes[0]"/>
+</tal:hidden>
+
+      </tal:define>
+    </metal:define>
+
+    <metal:define define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+    <metal:fill fill-slot="widget_body"
+            tal:define="editor python:here.portal_membership.getAuthenticatedMember().wysiwyg_editor;
+            wysiwyg python:test(editor and (editor!='None'), editor, 'None');
+            use_wysiwyg widget/use_wysiwyg | python:0"
+            >
+
+      <div class="field" >
+        <div tal:define="inputname  fieldName;
+         formname   string:edit_form;
+         inputvalue value;
+         width widget/width;
+         height widget/height;">
+          <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox">
+        The WYSIWYG code
+          </div>
+        </div>
+      </div>
+
+      <tal:area_format tal:condition="widget/allow_format_edit | python:1">
+               <div metal:use-macro="here/widgets/visual/macros/area_format" />
+      </tal:area_format>
+
+    </metal:fill>
+      </metal:use>
+    </metal:define>
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/textarea/macros/edit">
+      </div>
+    </div>
+
+  </body>
+
+</html>
+
