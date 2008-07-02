@@ -109,6 +109,8 @@
             </tal:nottabbed>
           </metal:block>
 
+          <div tal:replace="structure provider:archetypes.edit.afterfieldsets" />
+
           <metal:block define-slot="extra_bottom" />
 
           <div class="formControls">

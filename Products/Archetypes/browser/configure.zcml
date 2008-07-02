@@ -2,6 +2,13 @@
            xmlns:browser="http://namespaces.zope.org/browser"
            xmlns:five="http://namespaces.zope.org/five">
 
+    <browser:viewletManager
+        name="archetypes.edit.afterfieldsets"
+        provides="..interfaces.IEditAfterFieldsets"
+        permission="cmf.ModifyPortalContent"
+        class="plone.app.viewletmanager.manager.OrderedViewletManager"
+        />
+
   <browser:page
       for="..interfaces.IBaseObject"
       name="at_base_edit_view"

@@ -207,10 +207,16 @@ class Referenceable(CopySource):
         (Called when the object is created or moved.)
         """
         isCopy = getattr(item, '_v_is_cp', None)
+        # Before copying we take a copy of the references that are to be copied 
+        # on the new copy
+        rfields=self.Schema().filterFields(type="reference", keepReferencesOnCopy=1) 
+        rrefs={}
         if isCopy:
             # If the object is a copy of a existing object we
             # want to renew the UID, and drop all existing references
             # on the newly-created copy.
+            for r in rfields:
+                rrefs[r.getName()]=r.get(self)
             setattr(self, config.UUID_ATTR, None)
             self._delReferenceAnnotations()
 
@@ -218,6 +224,11 @@ class Referenceable(CopySource):
         self._register(reference_manager=ct)
         self._updateCatalog(container)
         self._referenceApply('manage_afterAdd', item, container)
+        # copy the references 
+        if isCopy:
+            for r in rfields:
+                r.set(self,rrefs[r.getName()])
+                 
 
     def manage_afterClone(self, item):
         """

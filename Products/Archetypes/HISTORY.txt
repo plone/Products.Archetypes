@@ -1,3 +1,22 @@
+1.5.10 - unreleased
+===================
+
+1.5.9 - 2008-07-02
+==================
+
+  * Add a new archetypes.edit.afterfieldsets viewlet manager which
+    can be used as a replacement of the extra_bottom slot on the edit
+    view.
+    [wichert]
+
+  * Add 'keepReferencesOnCopy' option to ReferenceField, which allows
+    control over whether references of that field are copied on copy
+    or not.  This defaults to False.
+    [daftdog, nouri]
+
+  * Backported the fix for the KeywordWidget 'checkbox' format support.
+    [deo]
+
 1.5.8 - 2008-04-21
 ==================
 
@@ -75,7 +94,7 @@
   * Changed 'form.inlineForm' in 'archetypes_kss/at.kss' to use
     'kssSubmitForm' instead of simply 'currentForm'. This is needed
     to support multi-valued form variables in inline editing.
-    This is dependent on http://dev.plone.org/archetypes/changeset/9200 
+    This is dependent on http://dev.plone.org/archetypes/changeset/9200
     [raphael]
 
   * Calling `getDefault` twice is unnecessarily slow and could potentially

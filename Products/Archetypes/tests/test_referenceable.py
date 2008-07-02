@@ -586,6 +586,45 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.failUnlessEqual(b.getBRefs(), [])
 
+    def test_copyKeepsReferences(self):
+        # when copied a pasted object should NOT lose all references
+        # if keepReferencesOnCopy is set
+        # added by DaftDog (for plone tracker issue  #5180)
+        org_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Origin folder',
+                                 id='org_folder')
+        dst_folder = makeContent(self.folder,
+                                 portal_type=self.FOLDER_TYPE,
+                                 title='Destination folder',
+                                 id='dst_folder')
+        a = makeContent(org_folder, portal_type='DDocument', id='a')
+        b = makeContent(org_folder, portal_type='DDocument', id='b')
+        related_field = a.getField('related')
+        related_field.set(a, b.UID())
+
+        self.failUnlessEqual(b.getBRefs(), [a])
+        self.failUnlessEqual(a.getRefs(), [b])
+
+        cb = org_folder.manage_copyObjects(ids=['a'])
+        dst_folder.manage_pasteObjects(cb_copy_data=cb)
+        copy_a = getattr(dst_folder, 'a')
+
+        # The copy should get a new UID
+        a_uid = a.UID()
+        ca_uid = copy_a.UID()
+        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+
+        # The copy should have the same references
+        self.failUnlessEqual(a.getRefs(), copy_a.getRefs())
+        self.failUnless(copy_a in b.getBRefs())
+
+
+        # Original object should keep references
+        self.failUnlessEqual(a.getRefs(), [b])
+        # Original non-copied object should point to both the original and the copied object
+        self.failUnlessEqual(b.getBRefs(), [a, copy_a])
+
     def test_copyPasteSupport(self):
         # copy/paste behaviour test
         # in another folder, pasted object should lose all references

@@ -37,9 +37,15 @@ schema = BaseSchema + Schema((
                default_output_type='image/jpeg',
                allowable_content_types=('image/*',),
                widget=ImageWidget()),
-
+    
+    ReferenceField('related',
+                   relationship = 'related',
+                   multiValued = False,
+                   widget=ReferenceWidget(),
+                   keepReferencesOnCopy = True),
     ),
-      marshall=PrimaryFieldMarshaller()) + TemplateMixin.schema
+
+    marshall=PrimaryFieldMarshaller()) + TemplateMixin.schema
 
 class DDocument(TemplateMixin, BaseContent):
     """An extensible Document (test) type"""
