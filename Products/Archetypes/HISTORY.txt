@@ -1,14 +1,14 @@
 1.5.10 - unreleased
 ===================
 
+1.5.9 - 2008-07-02
+==================
+
   * according to rfc1806 the header is Content-Disposition not 
     Content-disposition. Case matters, at least for IE6 (and results in
     IE6-typical strange effects). 
     [jensens]
     
-1.5.9 - 2008-07-02
-==================
-
   * Add a new archetypes.edit.afterfieldsets viewlet manager which
     can be used as a replacement of the extra_bottom slot on the edit
     view.
