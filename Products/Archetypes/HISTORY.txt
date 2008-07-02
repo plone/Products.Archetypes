@@ -1,6 +1,11 @@
 1.5.10 - unreleased
 ===================
 
+  * according to rfc1806 the header is Content-Disposition not 
+    Content-disposition. Case matters, at least for IE6 (and results in
+    IE6-typical strange effects). 
+    [jensens]
+    
 1.5.9 - 2008-07-02
 ==================
 

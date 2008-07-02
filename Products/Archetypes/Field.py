@@ -1155,7 +1155,7 @@ class FileField(ObjectField):
             header_value = contentDispositionHeader(
                 disposition='attachment',
                 filename=filename)
-            RESPONSE.setHeader("Content-disposition", header_value)
+            RESPONSE.setHeader("Content-Disposition", header_value)
         if no_output:
             return file
         return file.index_html(REQUEST, RESPONSE)
