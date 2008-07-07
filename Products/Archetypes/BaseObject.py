@@ -712,7 +712,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'checkCreationFlag')
     def checkCreationFlag(self):
-        """Returns True if the object has been fully saved, False otherwise.
+        """Returns True if the object has not been fully saved, False otherwise.
         """
         return getattr(aq_base(self), '_at_creation_flag', False)
 
