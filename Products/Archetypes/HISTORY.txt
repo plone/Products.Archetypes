@@ -24,7 +24,13 @@
   * Fixed the KeywordWidget 'checkbox' format support.
     [deo]
 
-1.5.9 - unreleased
+1.5.10 - unreleased
+===================
+
+  * Fixed small grammar error in Field.py validation message.
+    [hannosch]
+
+1.5.9 - 2008-07-02
 ==================
 
   * Add a new archetypes.edit.afterfieldsets viewlet manager which
