@@ -20,7 +20,7 @@ from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
-from Products.CMFCore.interfaces import IDublinCore
+from Products.CMFCore.interfaces import IMutableDublinCore
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
 
