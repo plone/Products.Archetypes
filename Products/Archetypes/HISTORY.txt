@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Fixed a macro expansion error when customizing templates which used
+    the folderlisting macro from base.pt. This closes
+    https://dev.plone.org/plone/ticket/6672.
+    [hannosch]
+
   * According to rfc1806 the header is Content-Disposition not
     Content-disposition. Case matters, at least for IE6 (and results in
     IE6-typical strange effects). 
