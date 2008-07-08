@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Fixed the SelectionWidget view to keep the order of the passed in values
+    on output and not sort after arbitrary Python internal dict order. This
+    closes https://dev.plone.org/plone/ticket/7272.
+    [hannosch]
+
   * Fixed a macro expansion error when customizing templates which used
     the folderlisting macro from base.pt. This closes
     https://dev.plone.org/plone/ticket/6672.
