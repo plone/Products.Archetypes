@@ -1,10 +1,6 @@
 1.6 - trunk - unreleased
 ========================
 
-  * Adjust accessor for location field to ensure the catalog metadata is always
-    populated correctly. This refs https://dev.plone.org/plone/ticket/6424.
-    [hannosch]
-
   * According to rfc1806 the header is Content-Disposition not
     Content-disposition. Case matters, at least for IE6 (and results in
     IE6-typical strange effects). 

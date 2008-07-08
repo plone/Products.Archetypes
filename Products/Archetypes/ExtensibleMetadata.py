@@ -99,7 +99,6 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'location',
             searchable=True,
-            accessor='location',
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
                 description=_(u'help_location_dc',
