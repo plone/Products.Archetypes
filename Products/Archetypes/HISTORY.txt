@@ -1,8 +1,12 @@
 1.5.10 - unreleased
 ===================
 
+  * Make ExtensibleMetadata implement the IMutableDublinCore interface.
+    [wichert]
+
   * Fixed small grammar error in Field.py validation message.
     [hannosch]
+
 
 1.5.9 - 2008-07-02
 ==================

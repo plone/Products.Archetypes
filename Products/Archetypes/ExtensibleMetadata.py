@@ -1,6 +1,7 @@
 import string
 from logging import INFO, DEBUG
 from zope.component import queryUtility
+from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import *
@@ -19,6 +20,7 @@ from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
+from Products.CMFCore.interfaces import IDublinCore
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
 
@@ -48,6 +50,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     # is on BaseObject.schema, so it does implement IExtensibleMetadata
     # as long as both are used together.
     __implements__ = IExtensibleMetadata
+    implements(IMutableDublinCore)
 
     security = ClassSecurityInfo()
 
