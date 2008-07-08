@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * according to rfc1806 the header is Content-Disposition not 
+    Content-disposition. Case matters, at least for IE6 (and results in
+    IE6-typical strange effects). 
+    [jensens]
+    
   * Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
     Consider branching before this revision if release required before Plone 4.
     [elro]
