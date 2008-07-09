@@ -1,21 +1,26 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Fixed CatalogMultiplex.reindexObjectSecurity to check for the specific
+    CMF catalog interface before trying to update the security stuff. This
+    closes http://dev.plone.org/plone/ticket/8271.
+    [deo]
+
   * Fixed the SelectionWidget view to keep the order of the passed in values
     on output and not sort after arbitrary Python internal dict order. This
-    closes https://dev.plone.org/plone/ticket/7272.
+    closes http://dev.plone.org/plone/ticket/7272.
     [hannosch]
 
   * Fixed a macro expansion error when customizing templates which used
     the folderlisting macro from base.pt. This closes
-    https://dev.plone.org/plone/ticket/6672.
+    http://dev.plone.org/plone/ticket/6672.
     [hannosch]
 
   * According to rfc1806 the header is Content-Disposition not
     Content-disposition. Case matters, at least for IE6 (and results in
-    IE6-typical strange effects). 
+    IE6-typical strange effects).
     [jensens]
-    
+
   * Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
     Consider branching before this revision if release required before Plone 4.
     [elro]
@@ -276,7 +281,7 @@
   * ImageField.set used 'size' attribute instead of 'get_size' API.
 
   * added support for default DCMI "Right" using the portal_metadata
-    tool. This closes https://dev.plone.org/plone/ticket/5831.
+    tool. This closes http://dev.plone.org/plone/ticket/5831.
     Remark: overall support of portal_metadata is very poor.
     [jensens]
 
