@@ -4,9 +4,10 @@ from logging import WARNING
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr
@@ -51,7 +52,7 @@ class CatalogMultiplex(CMFCatalogAware):
             return
 
         catalogs = [c for c in at.getCatalogsByType(self.meta_type)
-                                if c is not None]
+                               if ICatalogTool.providedBy(c)]
         path = '/'.join(self.getPhysicalPath())
 
         for catalog in catalogs:
@@ -70,7 +71,7 @@ class CatalogMultiplex(CMFCatalogAware):
                     # BBB: Ignore old references to deleted objects.
                     # Can happen only in Zope 2.7, or when using
                     # catalog-getObject-raises off in Zope 2.8
-                    log("reindexObjectSecurity: Cannot get %s from catalog" % 
+                    log("reindexObjectSecurity: Cannot get %s from catalog" %
                         brain_path, level=WARNING)
                     continue
 

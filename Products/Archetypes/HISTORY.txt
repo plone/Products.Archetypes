@@ -1,6 +1,11 @@
 1.5.10 - unreleased
 ===================
 
+  * Backported the fix for CatalogMultiplex.reindexObjectSecurity to check
+    for the specific CMF catalog interface before trying to update the
+    security stuff. This closes http://dev.plone.org/plone/ticket/8271.
+    [deo]
+
   * Make ExtensibleMetadata implement the IMutableDublinCore interface.
     [wichert]
 
@@ -11,11 +16,11 @@
 1.5.9 - 2008-07-02
 ==================
 
-  * according to rfc1806 the header is Content-Disposition not 
+  * according to rfc1806 the header is Content-Disposition not
     Content-disposition. Case matters, at least for IE6 (and results in
-    IE6-typical strange effects). 
+    IE6-typical strange effects).
     [jensens]
-    
+
   * Add a new archetypes.edit.afterfieldsets viewlet manager which
     can be used as a replacement of the extra_bottom slot on the edit
     view.
@@ -223,7 +228,7 @@
   * ImageField.set used 'size' attribute instead of 'get_size' API.
 
   * added support for default DCMI "Right" using the portal_metadata
-    tool. This closes https://dev.plone.org/plone/ticket/5831.
+    tool. This closes http://dev.plone.org/plone/ticket/5831.
     Remark: overall support of portal_metadata is very poor.
     [jensens]
 

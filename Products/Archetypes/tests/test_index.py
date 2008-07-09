@@ -29,8 +29,9 @@ import time
 from Testing import ZopeTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import makeContent
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.tests.utils import makeContent
+from Products.ZCatalog.ZCatalog import manage_addZCatalog
 
 class ETagTest(ATSiteTestCase):
 
@@ -88,9 +89,70 @@ class ReindexTest(ATSiteTestCase):
         self.inst.edit(title='Libido')
         self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
 
+
+class MultiplexTest(ATSiteTestCase):
+
+    def afterSetUp(self):
+        self.setRoles(['Manager'])
+        manage_addZCatalog(self.portal, 'zope_catalog', 'Zope Catalog')
+        self.portal.zope_catalog.addIndex('getId', 'FieldIndex')
+        self.tool = self.portal.archetype_tool
+        self.pc = getToolByName(self.portal, 'portal_catalog')
+        self.zc = getToolByName(self.portal, 'zope_catalog')
+
+    def test_default_catalog(self):
+        inst = makeContent(self.portal,
+                           portal_type='SimpleType',
+                           id='simple_type')
+
+        # Make sure the object is indexed by portal_catalog...
+        results = self.pc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 1)
+        self.failUnlessEqual(results[0].getObject(), inst)
+
+        # ...but isn't by the zope_catalog
+        results = self.zc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 0)
+
+    def test_new_catalog(self):
+        # Change SimpleType to use only zope_catalog
+        self.tool.setCatalogsByType('SimpleType', ['zope_catalog'])
+        inst = makeContent(self.portal,
+                           portal_type='SimpleType',
+                           id='simple_type')
+
+        # Make sure the object is indexed by the new zope_catalog...
+        results = self.zc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 1)
+        self.failUnlessEqual(results[0].getObject(), inst)
+
+        # ...but isn't indexed anymore by portal_catalog
+        results = self.pc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 0)
+
+    def test_both_catalogs(self):
+        # Change SimpleType to use both catalogs
+        self.tool.setCatalogsByType('SimpleType',
+                                    ['portal_catalog', 'zope_catalog'])
+        inst = makeContent(self.portal,
+                           portal_type='SimpleType',
+                           id='simple_type')
+
+        # Make sure the object is indexed by portal_catalog...
+        results = self.pc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 1)
+        self.failUnlessEqual(results[0].getObject(), inst)
+
+        # ...and also by the zope_catalog
+        results = self.zc.searchResults(getId='simple_type')
+        self.failUnlessEqual(len(results), 1)
+        self.failUnlessEqual(results[0].getObject(), inst)
+
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ETagTest))
     suite.addTest(makeSuite(ReindexTest))
+    suite.addTest(makeSuite(MultiplexTest))
     return suite
