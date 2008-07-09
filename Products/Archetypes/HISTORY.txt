@@ -1,6 +1,13 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed the rebuild catalog tab from the reference and uid catalog. The
+    method is still there and can be accessed via the URL, but you won't
+    accidentally click on a tab in the ZMI anymore and have your catalog be
+    rebuilt without a warning. This closes
+    http://dev.plone.org/plone/ticket/8093.
+    [hannosch]
+
   * Fixed CatalogMultiplex.reindexObjectSecurity to check for the specific
     CMF catalog interface before trying to update the security stuff. This
     closes http://dev.plone.org/plone/ticket/8271.
