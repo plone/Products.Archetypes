@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Added a missing alt tag to the image in the file widget. This closes
+    http://dev.plone.org/plone/ticket/7763.
+    [hannosch]
+
   * Removed the rebuild catalog tab from the reference and uid catalog. The
     method is still there and can be accessed via the URL, but you won't
     accidentally click on a tab in the ZMI anymore and have your catalog be
