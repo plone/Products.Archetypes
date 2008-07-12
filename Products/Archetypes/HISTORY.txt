@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Normalizing the "id" attribute for fieldsets and fieldset legends, so
+    javascript schemata selection works for schematas that have spaces in
+    the title. This closes http://dev.plone.org/plone/ticket/7999.
+    [rsantos]
+
   * Added a missing alt tag to the image in the file widget. This closes
     http://dev.plone.org/plone/ticket/7763.
     [hannosch]
