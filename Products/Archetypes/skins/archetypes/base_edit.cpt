@@ -9,7 +9,7 @@
                    schematas here/Schemata;
                    allow_tabbing python: not view.isMultiPageSchema();
                    fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];
-                   default_fieldset python:(not fieldsets or 'default' in fieldsets) and 'default' or fieldsets[0];
+                   default_fieldset python:'default' in fieldsets and 'default' or fieldsets and fieldsets[0] or None;
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
                    dummy python:here.at_isEditable(fields);
