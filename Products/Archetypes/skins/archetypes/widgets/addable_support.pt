@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+  <head><title></title></head>
+  <body>
+
+<metal:addable_macro metal:define-macro="addable">
+    <tal:addable tal:condition="widget/addable|nothing">
+        <tal:block define="types python:widget.addableTypes(here, field);
+                           thereAreMoreThanOneDestination python:[t for t in types if len(t['destinations'])>1]"
+                   condition="python:types">
+
+          <div tal:condition="not:thereAreMoreThanOneDestination">
+            <tal:block repeat="content types">
+              <input class="context"
+                     type="submit"
+                     value="Add"
+                     name="form.button.form_add"
+                     tal:define="cid content/id;
+                                 cdestination python:content['destinations'][0];"
+                     tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value='${cid}';;this.form['add_reference.destination:record'].value='${cdestination}';
+                                     id string:${field/getName}_link;
+                                     value string:Add ${content/name};"
+                     i18n:attributes="value"
+                     />
+            </tal:block>
+            <script tal:content="structure here/reference_focus_js"></script>
+          </div>
+
+          <div tal:condition="thereAreMoreThanOneDestination">
+            <input type="button" class="context"
+              tal:attributes="id string:${field/getName}_link;
+                              onclick string:${field/getName}_show();;return false;
+                              value string:Add New ${widget/label};" />
+
+            <div tal:attributes="id string:${field/getName}_fieldset"
+               style="display:none">
+
+              <fieldset>
+                <legend i18n:translate="legend_add_new">Add new</legend>
+                <div class="field">
+                  <label i18n:translate="label_what">What</label>
+                  <div class="formHelp"
+                       i18n:translate="help_select_content_to_create">
+                    Select what content type you wish to create.
+                  </div>
+                  <div>
+                    <select tal:define="id string:${field/getName}_types"
+                            tal:attributes="id id;
+                                            onchange string:${field/getName}_update(this)" >
+                      <option tal:repeat="type types"
+                              tal:attributes="value type/id"
+                              tal:content="type/name" />
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label i18n:translate="label_where">Where</label>
+                  <div class="formHelp"
+                       i18n:translate="help_select_where_to_create">
+                    Select where you want to create that.
+                  </div>
+                  <div>
+                    <select name="add_reference.destination:record"
+                            tal:attributes="id string:${field/getName}_destinations;
+                                            name string:${field/getName}_destination;"></select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label></label>
+                  <div class="formHelp"></div>
+                  <div>
+                    <input class="context"
+                      type="submit"
+                      value="Add"
+                      name="form.button.form_add"
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};"
+                      i18n:attributes="value"
+                      />
+                  </div>
+                </div>
+              </fieldset>
+              <!--script tal:content="structure here/reference_js"></script-->
+            </div>
+          </div>
+        </tal:block>
+      </tal:addable>
+</metal:addable_macro>
+
+</body>
+</html>

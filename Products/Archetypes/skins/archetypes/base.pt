@@ -1,0 +1,66 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master">
+
+  <head><title></title></head>
+
+  <body>
+
+    <div metal:fill-slot="main">
+
+      <metal:main_macro define-macro="main">
+
+        <metal:header_macro define-macro="header"
+                            tal:define="kssClassesView context/@@kss_field_decorator_view;
+                       getKssClasses nocall:kssClassesView/getKssClassesInlineEditable">
+
+          <div tal:replace="structure provider:plone.abovecontenttitle" />
+          
+          <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view">
+              Title or id
+          </h1>
+    
+          <div tal:replace="structure provider:plone.belowcontenttitle" />
+        </metal:header_macro>
+
+        <metal:body_macro metal:define-macro="body">
+          <div tal:replace="structure provider:plone.abovecontentbody" />
+
+          <tal:fields tal:define="field_macro field_macro | here/widgets/field/macros/view"
+                      tal:repeat="field python:here.Schema().filterFields(isMetadata=0)">
+
+            <tal:if_visible define="mode string:view;
+                                    visState python:field.widget.isVisible(here, mode);
+                                    visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
+                            condition="python:visState == 'visible' and visCondition">
+              <metal:use_field use-macro="field_macro" />
+            </tal:if_visible>
+          </tal:fields>
+        </metal:body_macro>
+
+        <metal:folderlisting_macro metal:define-macro="folderlisting"
+                                   tal:define="fl_macro here/folder_listing/macros/listing | nothing;
+                                               folderish here/isPrincipiaFolderish | nothing;">
+            <tal:if_folderlisting condition="python:folderish and fl_macro">
+                <metal:use_macro use-macro="fl_macro" />
+            </tal:if_folderlisting>
+        </metal:folderlisting_macro>
+
+        <metal:footer_macro define-macro="footer">
+            <div metal:use-macro="here/document_relateditems/macros/relatedItems">
+                show related items if they exist
+            </div>
+    
+            <div tal:replace="structure provider:plone.belowcontentbody" />
+        </metal:footer_macro>
+
+      </metal:main_macro>
+
+    </div>
+
+  </body>
+
+</html>

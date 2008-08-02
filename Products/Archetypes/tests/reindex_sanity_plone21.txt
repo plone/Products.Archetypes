@@ -1,0 +1,483 @@
+Reindex Sanity
+==============
+
+Those tests make sure that the catalog is only called as necessary.
+
+  >>> import sys
+  >>> from os.path import sep
+  >>> from Products.ZCatalog.ZCatalog import ZCatalog
+  >>> from Products.CMFCore.utils import getToolByName
+  >>> from Products.Archetypes.utils import wrap_method
+  >>> from Products.Archetypes.utils import unwrap_method
+  >>> from Products.Archetypes.utils import call_original as call
+  >>> from Products.Archetypes.tests.attestcase import default_user
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_owner
+  >>> import transaction
+
+  >>> self.setRoles(['Manager'])
+  >>> _ = self.folder.invokeFactory(type_name='Folder', id='sub')
+
+  >>> def callers(n=1):
+  ...     stack = []
+  ...     import inspect
+  ...     frames = inspect.getouterframes(inspect.currentframe())
+  ...     fp = filter(None, sys.path)
+  ...     for i in range(n+1, 1, -1):
+  ...         try:
+  ...             frame = frames[i]
+  ...         except IndexError:
+  ...             continue
+  ...         fname, ln, func = frame[1:4]
+  ...         for p in fp:
+  ...             fname = fname.split(p)[-1]
+  ...         fname = fname.split('Products')[-1]
+  ...         fname = fname.split('.py')[0]
+  ...         fname = '.'.join(fname.strip(sep).split(sep))
+  ...         stack.append(':'.join((fname, str(ln), func)))
+  ...     return stack
+
+Wrap ZCatalog methods to let us know about why and when they were called:
+
+  >>> pattern = '__at_reindex_sanity_%s__'
+
+  >>> def catalog_object(self, *args, **kw):
+  ...     rv = call(self, 'catalog_object', pattern, *args, **kw)
+  ...     print 'Catalog: ', self.getId()
+  ...     uid = kw.get('uid', None)
+  ...     if not uid:
+  ...         if len(args) > 1:
+  ...             uid = args[1]
+  ...         else:
+  ...             uid = '/'.join(args[0].getPhysicalPath())
+  ...     idxs = kw.get('idxs', [])
+  ...     if not idxs:
+  ...         if len(args) > 2:
+  ...             idxs = args[2]
+  ...     print 'Indexing:', uid, idxs
+  ...     # The next line is usefull for debugging.
+  ...     # print 'Callers: ', '\n          '.join(callers(15))
+  ...     print '-' * 60
+  ...     return rv
+
+  >>> def uncatalog_object(self, *args, **kw):
+  ...     rv = call(self, 'uncatalog_object', pattern, *args, **kw)
+  ...     print 'Catalog:   ', self.getId()
+  ...     print 'UnIndexing:', kw.get('uid', None) or args[0]
+  ...     # The next line is usefuld for debugging.
+  ...     # print 'Callers:   ', '\n            '.join(callers(15))
+  ...     print '-' * 60
+  ...     return rv
+
+  >>> wrap_method(ZCatalog, 'catalog_object',
+  ...             catalog_object, pattern=pattern)
+
+  >>> wrap_method(ZCatalog, 'uncatalog_object',
+  ...             uncatalog_object, pattern=pattern)
+
+Disable Portal Factory:
+
+  >>> pf = getToolByName(self.portal, 'portal_factory', None)
+  >>> if pf is not None:
+  ...    pf.manage_setPortalFactoryTypes(listOfTypeIds=[])
+
+Tests for DDocument
+-------------------
+
+Simple invokeFactory call, without renaming or fancy extra field
+setting:
+
+  >>> _ = self.folder.invokeFactory(type_name='DDocument',
+  ...                               id='new_doc1')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc1 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc1 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc1 []
+  ------------------------------------------------------------
+
+  >>> self.folder['new_doc1'].Title()
+  ''
+
+  >>> self.folder['new_doc1'].Description()
+  ''
+
+More complex invokeFactory call, setting title and description:
+
+  >>> _ = self.folder.invokeFactory(type_name='DDocument',
+  ...                               id='new_doc2',
+  ...                               title='Title',
+  ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc2 []
+  ------------------------------------------------------------
+
+  >>> self.folder['new_doc2'].Title()
+  'Title'
+
+  >>> self.folder['new_doc2'].Description()
+  'Description'
+
+Now hold your breath. We are going to rename,
+copy-and-paste and cut-and-paste.
+
+  >>> transaction.savepoint(optimistic=True) and None
+
+Rename:
+
+  >>> self.folder.manage_renameObjects(ids=['new_doc1'],
+  ...                                  new_ids=['new_doc11'])
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_doc1
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_doc1
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc11 ['getObjPositionInParent']
+  ------------------------------------------------------------
+
+Copy and paste:
+
+  >>> cp = self.folder.manage_copyObjects(ids=['new_doc2'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_doc2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+
+Cut and paste:
+
+  >>> cp = self.folder.manage_cutObjects(ids=['new_doc11'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_doc11
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_doc11
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_doc11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_doc11 []
+  ------------------------------------------------------------
+
+Tests for SimpleFolder
+----------------------
+
+Simple invokeFactory call, without renaming or fancy extra field
+setting:
+
+  >>> _ = self.folder.invokeFactory(type_name='SimpleFolder',
+  ...                               id='new_folder1')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder1 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder1 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder1 []
+  ------------------------------------------------------------
+
+  >>> self.folder['new_folder1'].Title()
+  ''
+
+  >>> self.folder['new_folder1'].Description()
+  ''
+
+More complex invokeFactory call, setting title and description:
+
+  >>> _ = self.folder.invokeFactory(type_name='SimpleFolder',
+  ...                               id='new_folder2',
+  ...                               title='Title',
+  ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder2 []
+  ------------------------------------------------------------
+
+
+  >>> self.folder['new_folder2'].Title()
+  'Title'
+
+  >>> self.folder['new_folder2'].Description()
+  'Description'
+
+Now hold your breath. We are going to rename,
+copy-and-paste and cut-and-paste.
+
+  >>> transaction.savepoint(optimistic=True) and None
+
+Rename:
+
+  >>> self.folder.manage_renameObjects(ids=['new_folder1'],
+  ...                                  new_ids=['new_folder11'])
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_folder1
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_folder1
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder11 ['getObjPositionInParent']
+  ------------------------------------------------------------
+
+Copy and paste:
+
+  >>> cp = self.folder.manage_copyObjects(ids=['new_folder2'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+
+Cut and paste:
+
+  >>> cp = self.folder.manage_cutObjects(ids=['new_folder11'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_folder11
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_folder11
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_folder11 []
+  ------------------------------------------------------------
+
+Tests for SimpleBTreeFolder
+---------------------------
+
+Simple invokeFactory call, without renaming or fancy extra field
+setting:
+
+  >>> _ = self.folder.invokeFactory(type_name='SimpleBTreeFolder',
+  ...                               id='new_btree_folder1')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder1 []
+  ------------------------------------------------------------
+
+  >>> self.folder['new_btree_folder1'].Title()
+  ''
+
+  >>> self.folder['new_btree_folder1'].Description()
+  ''
+
+More complex invokeFactory call, setting title and description:
+
+  >>> _ = self.folder.invokeFactory(type_name='SimpleBTreeFolder',
+  ...                               id='new_btree_folder2',
+  ...                               title='Title',
+  ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder2 []
+  ------------------------------------------------------------
+
+  >>> self.folder['new_btree_folder2'].Title()
+  'Title'
+
+  >>> self.folder['new_btree_folder2'].Description()
+  'Description'
+
+Now hold your breath. We are going to rename,
+copy-and-paste and cut-and-paste.
+
+  >>> transaction.savepoint(optimistic=True) and None
+
+Rename:
+
+  >>> self.folder.manage_renameObjects(ids=['new_btree_folder1'],
+  ...                                  new_ids=['new_btree_folder11'])
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_btree_folder1
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_btree_folder1
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['getObjPositionInParent']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder11 ['getObjPositionInParent']
+  ------------------------------------------------------------
+
+Copy and paste:
+
+  >>> cp = self.folder.manage_copyObjects(ids=['new_btree_folder2'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_btree_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['allowedRolesAndUsers']
+  ------------------------------------------------------------
+
+Cut and paste:
+
+  >>> cp = self.folder.manage_cutObjects(ids=['new_btree_folder11'])
+  >>> _ = self.folder.sub.manage_pasteObjects(cp)
+  Catalog:    uid_catalog
+  UnIndexing: Members/test_user_1_/new_btree_folder11
+  ------------------------------------------------------------
+  Catalog:    portal_catalog
+  UnIndexing: /plone/Members/test_user_1_/new_btree_folder11
+  ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/sub/new_btree_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder11 []
+  ------------------------------------------------------------
+
+Restore ZCatalog methods:
+
+  >>> unwrap_method(ZCatalog, 'catalog_object')
+  >>> unwrap_method(ZCatalog, 'uncatalog_object')

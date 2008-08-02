@@ -1,0 +1,36 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
+
+    <!-- Let ITTWLockable objects react to AT specific events. We reuse
+         the generic event handlers in plone.locking for simplicity
+      -->
+
+    <subscriber
+        zcml:condition="installed plone.locking"
+        for="plone.locking.interfaces.ITTWLockable
+             .interfaces.IEditBegunEvent"
+        handler="plone.locking.events.lockOnEditBegins" 
+        />
+
+    <subscriber
+        zcml:condition="installed plone.locking"
+        for="plone.locking.interfaces.ITTWLockable
+             .interfaces.IEditCancelledEvent"
+        handler="plone.locking.events.unlockAfterModification"
+        />
+
+    <subscriber 
+        zcml:condition="installed plone.locking"
+        for="plone.locking.interfaces.ITTWLockable
+             .interfaces.IObjectEditedEvent"
+        handler="plone.locking.events.unlockAfterModification"
+        />
+
+	<subscriber 
+        zcml:condition="installed plone.locking"
+        for="plone.locking.interfaces.ITTWLockable
+             .interfaces.IObjectInitializedEvent"
+        handler="plone.locking.events.unlockAfterModification"
+        />
+
+</configure>

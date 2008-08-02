@@ -1,0 +1,52 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:five="http://namespaces.zope.org/five">
+
+    <browser:viewletManager
+        name="archetypes.edit.afterfieldsets"
+        provides="..interfaces.IEditAfterFieldsets"
+        permission="cmf.ModifyPortalContent"
+        class="plone.app.viewletmanager.manager.OrderedViewletManager"
+        />
+
+  <browser:page
+      for="..interfaces.IBaseObject"
+      name="at_base_edit_view"
+      class=".edit.Edit"
+      permission="cmf.ModifyPortalContent"
+      allowed_attributes="isTemporaryObject isMultiPageSchema getTranslatedSchemaLabel"
+      />
+
+  <browser:page
+      for="..interfaces.IBaseObject"
+      name="at_lifecycle_view"
+      class=".lifecycle.Lifecycle"
+      permission="cmf.ModifyPortalContent"
+      allowed_attributes="begin_edit cancel_edit"
+      />
+
+  <browser:page
+      for="*"
+      name="kss_field_decorator_view"
+      permission="zope2.View"
+      class=".fields.DefaultFieldDecoratorView"
+      allowed_attributes="getKssClassesInlineEditable getKssClasses"
+      />
+
+  <browser:page
+      for="*"
+      name="at_selection_widget"
+      class=".widgets.SelectionWidget"
+      permission="zope.Public"
+      allowed_attributes="getSelected"
+      />
+
+  <browser:page
+      for="*"
+      name="at_textarea_widget"
+      class=".widgets.TextareaWidget"
+      permission="zope2.View"
+      allowed_attributes="getSelected lookupMime"
+      />
+
+</configure>

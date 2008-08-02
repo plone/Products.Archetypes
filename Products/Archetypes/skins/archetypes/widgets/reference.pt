@@ -1,0 +1,130 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+  <head><title></title></head>
+
+  <body>
+
+    <metal:view_macro define-macro="view">
+      <tal:define define="refs python:here.getReferenceImpl(field.relationship)"
+                  condition="refs">
+
+        <tal:block tal:condition="not:field/multiValued"
+               tal:define="ref python:refs[0];
+                           obj ref/getTargetObject">
+
+            <a href="#"
+               tal:attributes="href obj/absolute_url;
+                               class python:obj.portal_type.replace(' ', '_')"
+               tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+              Sole target object's title
+            </a>
+
+            <a href="#"
+               tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+               tal:attributes="href python:ref.getContentObject().absolute_url();
+                               class python:obj.portal_type.replace(' ', '_')"
+               tal:content="field/relationship">
+              reference object link
+            </a>
+
+        </tal:block>
+
+        <ul tal:condition="field/multiValued">
+          <li tal:repeat="ref refs">
+             <tal:block tal:define="obj ref/getTargetObject">
+                <a href="#"
+                   tal:attributes="href obj/absolute_url;
+                                   class python:obj.portal_type.replace(' ', '_')"
+                   tal:content="python:obj.Title() or obj.absolute_url(relative=1)">
+                  Target Title
+                </a>
+
+                <a href="#"
+                   tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+                   tal:attributes="href python:ref.getContentObject().absolute_url();
+                                   class python:obj.portal_type.replace(' ', '_')"
+                   tal:content="field/relationship">
+                  reference object link
+                </a>
+             </tal:block>
+          </li>
+        </ul>
+
+      </tal:define>
+    </metal:view_macro>
+
+    <metal:edit_macro define-macro="edit">
+      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+
+        <div metal:fill-slot="widget_body"
+             tal:define="multiVal field/multiValued;
+                         vocab python:field.Vocabulary(here);
+                         fieldName python:fieldName+':list';
+                         uids python:same_type(value, []) and value or [value];
+                         vlen python:len(vocab);">
+
+          <input type="hidden"
+                 value=""
+                 tal:condition="python:not field.required and multiVal"
+                 tal:attributes="name string:$fieldName:default:list"
+                 />
+
+          <div tal:condition="python:vlen &lt;= widget.checkbox_bound">
+            <!-- checkbox or radio for short vocabs -->
+            <tal:item repeat="item vocab">
+              <tal:block tal:define="item_id string:${fieldName}_${repeat/item/number};
+                                     no_ref python: value is None and item == ''">
+                <input class="noborder"
+                       type="radio"
+                       tal:attributes="name fieldName;
+                                       checked python:test((item in uids) or no_ref, 'checked', nothing);
+                                       value item;
+                                       id item_id;
+                                       type python:multiVal and 'checkbox' or 'radio'"
+                       />
+
+                <label tal:attributes="for item_id"
+                       tal:content="python:vocab.getValue(item)"
+                       i18n:translate="">
+                    label
+                </label>
+
+
+                <br />
+              </tal:block>
+            </tal:item>
+          </div>
+
+          <div tal:condition="python:vlen &gt; widget.checkbox_bound">
+            <!-- pulldown for longer vocabs -->
+            <select tal:attributes="name fieldName;
+                                    id fieldName;
+                                    multiple python:multiVal and 'multiple' or None;">
+
+             <tal:item tal:repeat="item vocab">
+              <option selected="selected"
+                      tal:define="no_ref python: value is None and item == '';"
+                      tal:attributes="value item;
+                                      selected python:test((item in uids) or no_ref, 'selected', '')"
+                      tal:content="python:vocab.getValue(item)"
+                      i18n:translate=""></option>
+             </tal:item>
+            </select>
+          </div>
+
+          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+
+        </div>
+      </metal:use>
+    </metal:edit_macro>
+
+    <metal:search_macro define-macro="search">
+      <div metal:use-macro="here/widgets/reference/macros/edit"></div>
+    </metal:search_macro>
+
+  </body>
+</html>

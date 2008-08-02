@@ -1,0 +1,106 @@
+<tal:block metal:define-macro="master"
+           define="errors options/state/getErrors | nothing;
+                   Iterator python:modules['Products.Archetypes'].IndexIterator;
+                   rejection here/rejectAnonymous;
+                   type_name here/getPortalTypeName|here/archetype_name;
+                   fti here/getTypeInfo;
+                   type_title fti/Title|type_name;
+                   fieldset request/fieldset|options/fieldset|string:metadata;
+                   schematas here/Schemata;
+                   schema python:schematas.get(fieldset, None);
+                   fields python:schema is not None and schema.fields() or [];
+                   metadata_macros python:path('here/metadata_macros/macros|nothing');
+                   css python:here.getUniqueWidgetAttr(fields, 'helper_css');
+                   js python:here.getUniqueWidgetAttr(fields, 'helper_js');"
+                   >
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en-US"
+      lang="en-US"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+
+  <metal:head fill-slot="javascript_head_slot">
+    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+               condition="macro">
+      <metal:block use-macro="macro" />
+    </tal:block>
+    <tal:css condition="css"
+             repeat="item css">
+      <style type="text/css"
+             media="all"
+             tal:condition="python:exists('portal/%s' % item)"
+             tal:content="structure string:<!-- @import url($portal_url/$item); -->">
+      </style>
+    </tal:css>
+    <tal:js condition="js"
+            repeat="item js">
+      <script type="text/javascript"
+              charset="iso-8859-1"
+              tal:condition="python:exists('portal/%s' % item)"
+              tal:attributes="src string:$portal_url/$item">
+      </script>
+    </tal:js>
+  </metal:head>
+
+
+  <body>
+
+    <div metal:fill-slot="main">
+      <div metal:define-macro="main">
+
+  <h1 tal:content="here/title_or_id"
+      metal:use-macro="metadata_macros/header|default" />
+
+  <form name="edit_form"
+        method="post"
+        enctype="multipart/form-data"
+        class="enableUnloadProtection"
+        tal:attributes="action python:here.absolute_url()+'/'+template.id">
+
+      <tal:fields repeat="field fields">
+        <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+      </tal:fields>
+
+      <input type="hidden" name="form.submitted" value="1" />
+
+      <input type="hidden" name="fieldset" value="metadata"
+       tal:attributes="value fieldset|string:metadata" />
+
+      <input type="hidden" name="current_lang" value=""
+       tal:attributes="value request/LANGUAGE|default_language|default" />
+
+        <tal:comment replace="nothing">
+        This comes from edit_macros, which is somehow used by base_edit.  it seems
+        base_metadata and base_edit are NOT generated the same way ;-(
+        </tal:comment>
+            <input type="hidden"
+                   name="add_reference.field:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.type:record"
+                   value=""
+                   />
+            <input type="hidden"
+                   name="add_reference.destination:record"
+                   value=""
+                   />
+       
+      <div class="field">
+        <label>&nbsp;</label>
+        <input class="context"
+         type="submit"
+         name="Change"
+         i18n:attributes="value label_save;"
+         value="Save" />
+      </div>
+  </form>
+      </div>
+    </div>
+
+  </body>
+</html>
+</tal:block>
