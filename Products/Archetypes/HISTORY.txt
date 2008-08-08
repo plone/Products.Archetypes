@@ -1,7 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
-  * Removed deprecated _guessPackage method.  This closes
+  * Do not add empty schemas into a CompositeSchema anymore.
+    This closes http://dev.plone.org/plone/ticket/7584.
+    [hannosch]
+
+  * Removed deprecated _guessPackage method. This closes
     http://dev.plone.org/plone/ticket/7569.
     [davisagli]
 

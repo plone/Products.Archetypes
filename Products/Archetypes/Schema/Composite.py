@@ -27,7 +27,8 @@ class CompositeSchema(Implicit):
 
     def __init__(self, schemas=None):
         self._schemas = [Schema()]
-        self.addSchemas(schemas)
+        if schemas is not None:
+            self.addSchemas(schemas)
 
     def getSchemas(self):
         """Return the underlying schemas"""
