@@ -335,15 +335,7 @@ def process_types(types, pkg_name):
 
 _types = {}
 
-def _guessPackage(base):
-    if base.startswith('Products'):
-        base = base[9:]
-        idx = base.index('.')
-        if idx != -1:
-            base = base[:idx]
-    return base
-
-def registerType(klass, package=None):
+def registerType(klass, package):
     # Registering a class results in classgen doing its thing
     # Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)

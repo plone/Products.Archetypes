@@ -24,7 +24,6 @@ from Products.Archetypes.validator import AttributeValidator
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
 from Products.Archetypes.ArchetypeTool import getType
-from Products.Archetypes.ArchetypeTool import _guessPackage
 
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
