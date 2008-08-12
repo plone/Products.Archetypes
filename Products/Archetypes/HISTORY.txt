@@ -1,6 +1,9 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Traverse to ``plone_utils`` tool instead of relying on it being
+    available in global variable scope. [malthe]
+  
   * Do not add empty schemas into a CompositeSchema anymore.
     This closes http://dev.plone.org/plone/ticket/7584.
     [hannosch]
