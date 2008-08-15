@@ -203,7 +203,7 @@
                    />
 
             <metal:block define-slot="buttons"
-                   tal:define="fieldset_index python:fieldsets.index(fieldset);
+                   tal:define="fieldset_index python:fieldset in fieldsets and fieldsets.index(fieldset);
                                n_fieldsets python:len(fieldsets)">
 
                 <input tal:condition="python:fieldset_index &gt; 0"

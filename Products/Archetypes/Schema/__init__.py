@@ -18,6 +18,7 @@ from Acquisition import aq_base, Explicit
 from ExtensionClass import Base
 from Globals import InitializeClass
 from Products.CMFCore import permissions
+from Products.CMFCore.utils import getToolByName
 
 __docformat__ = 'reStructuredText'
 _marker = []
@@ -108,10 +109,12 @@ class Schemata(Base):
         """Returns a list of editable fields for the given instance
         """
         ret = []
+        portal = getToolByName(self, 'portal_url').getPortalObject()
         for field in self.fields():
             if field.writeable(instance, debug=False) and    \
                    (not visible_only or
-                    field.widget.isVisible(instance, 'edit') != 'invisible'):
+                    field.widget.isVisible(instance, 'edit') != 'invisible') and \
+                  field.widget.testCondition(instance.aq_parent, portal, instance):
                 ret.append(field)
         return ret
 

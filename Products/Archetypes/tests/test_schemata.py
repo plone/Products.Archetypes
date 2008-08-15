@@ -27,14 +27,13 @@
 
 import operator
 
-from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
 from Products.Archetypes.Field import StringField
 from Products.Archetypes.exceptions import SchemaException
-from Testing.ZopeTestCase import user_role
 from Products.CMFCore.permissions import ModifyPortalContent
 
 schema = BaseSchema
@@ -43,7 +42,7 @@ class Dummy(BaseContent):
     schema = schema
 
 
-class SchemataTest( ATTestCase ):
+class SchemataTest( ATSiteTestCase ):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')
@@ -172,7 +171,8 @@ class SchemataTest( ATTestCase ):
         # Not a security test, but this is here because 'editableFields'
         # will return only fields the user is allowed to write.
         dummy = self._dummy.__of__(self.folder)
-        dummy.manage_permission(ModifyPortalContent, (user_role,))
+        self.setRoles(['Manager'])
+        dummy.manage_permission(ModifyPortalContent, roles=['Manager'])
 
         # add test fields to schema
         fields = (
@@ -187,6 +187,11 @@ class SchemataTest( ATTestCase ):
                 write_permission = ModifyPortalContent,
                 widget=StringWidget(visible={'edit': 'hidden'}),
             ),
+            StringField('f3', 
+                mutator='setF3',
+                write_permission = ModifyPortalContent,
+                widget=StringWidget(condition='python:False',),
+            ),
         )
 
         for f in fields:
@@ -198,6 +203,7 @@ class SchemataTest( ATTestCase ):
 
         dummy.setF1 = dummy_mutator
         dummy.setF2 = dummy_mutator
+        dummy.setF3 = dummy_mutator
 
         # get editable fields
         schemata = dummy.Schemata()['default']
@@ -206,6 +212,7 @@ class SchemataTest( ATTestCase ):
 
         self.failUnless('f1' not in editable_field_ids)
         self.failUnless('f2' in editable_field_ids)
+        self.failUnless('f3' not in editable_field_ids)
 
 def test_suite():
     from unittest import TestSuite, makeSuite
