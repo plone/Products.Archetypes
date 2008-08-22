@@ -1,6 +1,9 @@
 1.6 - trunk - unreleased
 ========================
 
+  * 'TextField._process_input doesn't forward **kwargs' this fix
+    https://dev.plone.org/plone/ticket/7597 [garbas]
+
   * Traverse to ``plone_utils`` tool instead of relying on it being
     available in global variable scope. [malthe]
   

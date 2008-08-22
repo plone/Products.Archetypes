@@ -339,7 +339,6 @@ class ProcessingTest(ATSiteTestCase):
         dummy = self.makeDummy()
         request = FakeRequest()
         field = dummy.Schema().fields()[3] # textfield
-
         field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' ) 
         encoding = field.getRaw(self.portal, raw=1).original_encoding
         self.assertEqual(encoding, 'latin')
