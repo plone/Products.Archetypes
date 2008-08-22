@@ -45,6 +45,12 @@
         </tal:block>
       </tal:block>
     </metal:define>
+
+    <div metal:define-macro="search">
+      <div metal:use-macro="here/widgets/zid/macros/edit">
+      </div>
+    </div>
+
   </body>
 
 </html>
