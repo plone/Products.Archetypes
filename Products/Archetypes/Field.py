@@ -1327,7 +1327,7 @@ class TextField(FileField):
         # mimetype, if coming from request can be like:
         # text/plain; charset='utf-8'
         mimetype = str(mimetype).split(';')[0]
-        file.update(value, instance, mimetype=mimetype, filename=filename)
+        file.update(value, instance, mimetype=mimetype, filename=filename, **kwargs)
         file.setContentType(instance, mimetype)
         file.setFilename(filename)
         return file, str(file.getContentType()), file.getFilename()

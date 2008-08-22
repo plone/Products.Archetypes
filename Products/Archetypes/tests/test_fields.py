@@ -334,6 +334,16 @@ class ProcessingTest(ATSiteTestCase):
         self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
 
+    def test_encoding(self):
+        # http://dev.plone.org/plone/ticket/7597
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.Schema().fields()[3] # textfield
+
+        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' ) 
+        encoding = field.getRaw(self.portal, raw=1).original_encoding
+        self.assertEqual(encoding, 'latin')
+
 
 class DownloadTest(ATSiteTestCase):
 
