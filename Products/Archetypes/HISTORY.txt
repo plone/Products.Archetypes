@@ -77,6 +77,10 @@
 1.5.10 - unreleased
 ===================
 
+  * Added search macro to zid.pt. This closes
+    http://dev.plone.org/plone/ticket/7601
+    [dukebody]
+
   * Don't bail if fieldsets is empty in 'base_edit'.  This closes
     http://dev.plone.org/plone/ticket/7858
     [nouri]
