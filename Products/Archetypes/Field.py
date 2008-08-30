@@ -46,7 +46,7 @@ from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.interfaces.layer import ILayerContainer
-from Products.Archetypes.interfaces.vocabulary import IVocabulary
+from Products.Archetypes.interfaces import IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
@@ -470,7 +470,7 @@ class Field(DefaultLayerContainer):
                           'field' : self}
                     value = mapply(method, *args, **kw)
             elif content_instance is not None and \
-                 IVocabulary.isImplementedBy(value):
+                 IVocabulary.providedBy(value):
                 # Dynamic vocabulary provided by a class that
                 # implements IVocabulary
                 value = value.getDisplayList(content_instance)
