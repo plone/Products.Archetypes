@@ -1573,12 +1573,60 @@ class FixedPointField(ObjectField):
     security  = ClassSecurityInfo()
 
     def _to_tuple(self, instance, value):
-        """ COMMENT TO-DO """
+        """Turn the value into a tuple that we will store.
+
+        We will test some inputs.
+
+        >>> f = FixedPointField()
+        >>> instance = object()
+        >>> f._to_tuple(instance, '0')
+        (0, 0)
+        >>> f._to_tuple(instance, '1.0')
+        (1, 0)
+        >>> f._to_tuple(instance, '-1.0')
+        (-1, 0)
+        >>> f._to_tuple(instance, '0.5')
+        (0, 50)
+
+        Negative numbers between -1 and -0 need to be handled
+        differently as there is no difference between +0 and -0.
+
+        >>> f._to_tuple(instance, '-0.5')
+        (0, -50)
+
+        Commas are accepted too:
+
+        >>> f._to_tuple(instance, '1,23')
+        (1, 23)
+
+        You can also start with a dot or comma:
+
+        >>> f._to_tuple(instance, '.23')
+        (0, 23)
+        >>> f._to_tuple(instance, ',23')
+        (0, 23)
+        >>> f._to_tuple(instance, '-.23')
+        (0, -23)
+
+        Now for some precision:
+
+        >>> f._to_tuple(instance, '1,2345')
+        (1, 23)
+        >>> g = FixedPointField(precision=4)
+        >>> g._to_tuple(instance, '1,2345')
+        (1, 2345)
+        >>> g._to_tuple(instance, '10')
+        (10, 0)
+        >>> g._to_tuple(instance, '9.0001')
+        (9, 1)
+
+
+        """
         if not value:
             value = self.getDefault(instance)
 
         # XXX :-(
-        # Dezimal Point is very english. as a first hack
+        # Decimal Point is very english. as a first hack
         # we should allow also the more contintental european comma.
         # The clean solution is to lookup:
         # * the locale settings of the zope-server, Plone, logged in user
@@ -1594,10 +1642,16 @@ class FixedPointField(ObjectField):
         else:
             fra = value[1][:self.precision]
             fra += '0' * (self.precision - len(fra))
-            #handle leading comma e.g. .36
-            if value[0]=='':
-                value[0]='0'
-            value = (int(value[0]), int(fra))
+            # Handle leading comma e.g. .36
+            if value[0] == '' or value[0] == '-':
+                value[0] += '0'
+            front = int(value[0])
+            fra = int(fra)
+            # Handle values between -1 and 0. 
+            if front == 0 and value[0].startswith('-'):
+                fra = -1 * fra
+            value = (front, fra)
+
         return value
 
     security.declarePrivate('set')
@@ -1607,14 +1661,20 @@ class FixedPointField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        template = '%%d.%%0%dd' % self.precision
+        template = '%%s%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
         if value is None:
             return self.getDefault(instance)
         if isinstance(value, basestring):
             value = self._to_tuple(instance, value)
-        return template % value
+        front, fra = value
+        sign = ''
+        # Numbers between -1 and 0 are store with a negative fraction.
+        if fra < 0:
+            sign = '-'
+            fra = abs(fra)
+        return template % (sign, front, fra)
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):

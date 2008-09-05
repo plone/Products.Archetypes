@@ -77,6 +77,11 @@
 1.5.10 - unreleased
 ===================
 
+  * A FixedPointField with a value between -1 and 0 (e.g. 0.5) is now
+    stored as (0, -5) and shown correctly instead of as +0.5.  This
+    closes http://dev.plone.org/plone/ticket/7549
+    [maurits]
+
   * Added search macro to zid.pt. This closes
     http://dev.plone.org/plone/ticket/7601
     [dukebody]
