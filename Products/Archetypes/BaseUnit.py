@@ -100,7 +100,7 @@ class BaseUnit(File):
                                      filename=self.filename)
 
         if data:
-            assert idatastream.isImplementedBy(data)
+            assert idatastream.providedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding',None) or \
