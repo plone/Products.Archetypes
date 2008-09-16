@@ -35,7 +35,7 @@ class BaseUnit(File):
 
     def __setstate__(self, dict):
         mimetype = dict.get('mimetype', None)
-        if IMimetype.isImplementedBy(mimetype):
+        if IMimetype.providedBy(mimetype):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
         assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
