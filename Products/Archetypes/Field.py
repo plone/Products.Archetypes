@@ -2528,10 +2528,17 @@ class ImageField(FileField):
             width=img_width
 
         url = instance.absolute_url()
+        
+        # use the new field traverser instead of old style image access
+        # works with annotation storage
         if scale:
-            url+= '/' + self.getScaleName(scale)
+            #url+= '/' + self.getScaleName(scale)
+            url+= '/' + '++atfield++' + self.getName() + '-' + scale
+            print scale, self.getScaleName(scale)
         else:
-            url+= '/' + self.getName()
+            #url+= '/' + self.getName()
+            url+= '/' + '++atfield++' + self.getName()
+            print self.getName()
 
         values = {'src' : url,
                   'alt' : escape(alt and alt or instance.Title(), 1),

@@ -17,12 +17,17 @@ class FieldView(Item, Implicit):
             raise Unauthorized, \
                   'Your not allowed to access the requested field %s.' % \
                   self.field.getName()
-        value = self.field.getStorage(self.context).get(self.storage, 
-                                                        self.context)
+        
+        try:
+            value = self.field.getStorage(self.context).get(self.storage, 
+                                                            self.context)
+        except AttributeError:
+            return None
+            
         if hasattr(value, 'index_html'):
             # for file- and image object i.e. from OFS.Image
             return value.index_html(self.request, self.request.response)
-        # TODO: check if theres some other special case 
+        # TODO: check if theres some other special cases
         return value
 
 class FieldTraverser(object):

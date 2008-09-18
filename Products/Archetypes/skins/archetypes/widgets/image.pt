@@ -30,17 +30,23 @@
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
                            content_type unit/content_type | nothing;
-                           filename unit/filename | nothing"
+                           filename unit/filename | nothing;
+						   abs_url unit/absolute_url;
+						   idx python:abs_url.rfind(fieldName);
+						   url python:abs_url[:idx] + '++atfield++' + fieldName;
+						   "
                    condition="python:size &gt; 0">
+<tal:test replace="structure context/@@view" />
 
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
-              <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
+                <a tal:attributes="href url" i18n:translate="label_current_image">Current image</a>
 
-        <span class="discreet">
-          <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
-          <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
-        </span>
+            <span class="discreet">
+              <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
+              <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
+            </span>
+
         </tal:block>
       </tal:define>
     </div>
