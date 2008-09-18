@@ -30,9 +30,9 @@
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
                            content_type unit/content_type | nothing;
-                           filename unit/filename | nothing
-						   "
+                           filename unit/filename | nothing"
                    condition="python:size &gt; 0">
+
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
                 <a tal:attributes="href string:${here/absolute_url}/++atfield++$fieldName" i18n:translate="label_current_image">Current image</a>

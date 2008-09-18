@@ -21,7 +21,7 @@
 
           <tal:link condition="showLink">
               <a href="" tal:attributes="href string:${here/absolute_url}/at_download/$fieldName">
-			    <img tal:condition="icon" src=""
+			    <img tal:condition="icon" src="" alt=""
                      tal:attributes="src string:${here/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
               </a>
