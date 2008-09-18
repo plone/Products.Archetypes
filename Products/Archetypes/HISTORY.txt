@@ -1,6 +1,16 @@
 1.5.10 - unreleased
 ===================
 
+  * added FieldTraverser, used to traverse to a Archetypes field and access its 
+    storage. Useful together with AnnotationStorage if you dont want to hack 
+    __bobo__. Usage: in url this traverser can be used to access a fields data 
+    by use of the fieldname and the storage variant if needed (such as image 
+    sizes) in url its: obj/++atfield++FIELDNAME or 
+    obj/++atfield++FIELDNAME-STORAGENAME. Example: to access an original site 
+    image from a field named 'photo': obj/++atfield++photo; to access its 
+    thumbnail with size name thumb: obj/++atfield++photo-thumb
+    [jensens, thet]
+
   * A FixedPointField with a value between -1 and 0 (e.g. 0.5) is now
     stored as (0, -5) and shown correctly instead of as +0.5.  This
     closes http://dev.plone.org/plone/ticket/7549
