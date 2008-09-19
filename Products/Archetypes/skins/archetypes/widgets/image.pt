@@ -5,7 +5,7 @@
       i18n:domain="plone">
   <head><title></title></head>
   <body>
-
+ 
     <div class="field" metal:define-macro="image_display">
       <metal:block define-slot="widget_label">
       </metal:block>
@@ -35,13 +35,12 @@
 
             <img tal:condition="icon" src=""
                  tal:attributes="src string:${here/portal_url}/$icon"/>
-                <a tal:attributes="href string:${here/absolute_url}/++atfield++$fieldName" i18n:translate="label_current_image">Current image</a>
+              <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
 
-            <span class="discreet">
-              <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
-              <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
-            </span>
-
+        <span class="discreet">
+          <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
+          <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
+        </span>
         </tal:block>
       </tal:define>
     </div>

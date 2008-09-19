@@ -1,5 +1,5 @@
 import sys
-
+ 
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
@@ -2528,14 +2528,10 @@ class ImageField(FileField):
             width=img_width
 
         url = instance.absolute_url()
-        
-        # use the new field traverser instead to construct url to images
         if scale:
-            #url+= '/' + self.getScaleName(scale)
-            url+= '/' + '++atfield++' + self.getName() + '-' + scale
+            url+= '/' + self.getScaleName(scale)
         else:
-            #url+= '/' + self.getName()
-            url+= '/' + '++atfield++' + self.getName()
+            url+= '/' + self.getName()
 
         values = {'src' : url,
                   'alt' : escape(alt and alt or instance.Title(), 1),

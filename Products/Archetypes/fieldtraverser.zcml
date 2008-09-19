@@ -1,8 +1,0 @@
-<configure xmlns="http://namespaces.zope.org/zope">
-           
-    <adapter factory=".fieldtraverser.FieldTraverser"
-    		 for=".interfaces.IBaseObject 
-    		      zope.publisher.interfaces.http.IHTTPRequest"
-        	 name="atfield" />
-        	 
-</configure>
