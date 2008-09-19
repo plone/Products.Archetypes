@@ -35,7 +35,7 @@ class BaseUnit(File):
 
     def __setstate__(self, dict):
         mimetype = dict.get('mimetype', None)
-        if IMimetype.providedBy(mimetype):
+        if IMimetype.isImplementedBy(mimetype):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
         assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
@@ -100,7 +100,7 @@ class BaseUnit(File):
                                      filename=self.filename)
 
         if data:
-            assert idatastream.providedBy(data)
+            assert idatastream.isImplementedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding',None) or \
