@@ -5,7 +5,9 @@ import Products.Five
 from Products.Archetypes import utils
 from _annotations import IATAnnotatable, IATAnnotations
 from _base import IBaseObject, IBaseContent, IBaseFolder, IBaseUnit
-from _event import IObjectInitializedEvent, IObjectEditedEvent, IEditBegunEvent, IEditCancelledEvent
+from _event import IObjectInitializedEvent, IObjectEditedEvent
+from _event import IWebDAVObjectInitializedEvent, IWebDAVObjectEditedEvent
+from _event import IEditBegunEvent, IEditCancelledEvent
 from _field import IField, IObjectField, IImageField, IFileField, IFieldDefaultProvider
 from _layer import ILayer, ILayerContainer, ILayerRuntime
 from _marshall import IMarshall

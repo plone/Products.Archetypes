@@ -1,14 +1,15 @@
 import tempfile
 import posixpath
 
+from zope import event
 from zExceptions import MethodNotAllowed
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.utils import shasattr, mapply
 # Recent enough Zopes will have this. Do we care about older ones?
 from ZPublisher.Iterators import IStreamIterator
+from Products.CMFCore.utils import getToolByName
 
-from zope import event
-from zope.lifecycleevent import ObjectModifiedEvent
+from Products.Archetypes.event import WebDAVObjectInitializedEvent
+from Products.Archetypes.event import WebDAVObjectEditedEvent
+from Products.Archetypes.utils import shasattr, mapply
 
 class PdataStreamIterator(object):
 
@@ -71,6 +72,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
     collection_check(self)
 
     self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
+    is_new_object = self.checkCreationFlag()
 
     file = REQUEST.get('BODYFILE', _marker)
     if file is _marker:
@@ -119,7 +121,12 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         self.demarshall_hook(ddata)
     self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
     self.reindexObject()
-    event.notify(ObjectModifiedEvent(self))
+    self.unmarkCreationFlag()
+
+    if is_new_object:
+        event.notify(WebDAVObjectInitializedEvent(self))
+    else:
+        event.notify(WebDAVObjectEditedEvent(self))
     
     RESPONSE.setStatus(204)
     return RESPONSE

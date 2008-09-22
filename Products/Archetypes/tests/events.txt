@@ -12,13 +12,17 @@ that listens for object events for `IBaseObject`:
   >>> from Products.Archetypes.interfaces import IBaseObject
   >>> from zope.app.container.interfaces import IObjectEvent
 
-
   >>> class Handler:
   ...     def __init__(self):
   ...         self.got = []
   ...     def __call__(self, *args):
   ...         self.got.append(args)
   ...     def print_and_flush(self):
+  ...         print "%s events:" % len(self.got)
+  ...         pprint(self.got)
+  ...         self.got = []
+  ...     def print_last_and_flush(self):
+  ...	      self.got = self.got[-1:]
   ...         print "%s events:" % len(self.got)
   ...         pprint(self.got)
   ...         self.got = []
@@ -54,13 +58,69 @@ will fire the modified event:
   [(<DDocument at /plone/Members/test_user_1_/a>,
     <Products.Archetypes.event.ObjectInitializedEvent object at ...>)]
 
-Doing a `PUT` request will also fire the modified event:
+Doing a `PUT` request that creates a brand new object should fire
+IWebDAVObjectInitializedEvent:
 
-  >>> contents = StringIO('some contents')
-  >>> request = aputrequest(contents, 'text/plain')
-  >>> request.processInputs()
-  >>> ignore = d.PUT(request, request.RESPONSE)
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> self.setRoles(['Manager'])
+
+  >>> 'some-document' in self.folder.objectIds()
+  False
+
+  >>> print http(r"""
+  ... PUT /%s/some-document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ...
+  ... Some Content
+  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> 'some-document' in self.folder.objectIds()
+  True
+
+  >>> print str(self.folder['some-document']['text'])
+  Some Content
+
+  >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
+  1 events:
+  [(<ATDocument at /plone/Members/test_user_1_/some-document>,
+    <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)...]
+
+Doing another `PUT` request to update the same object should fire an
+IWebDAVObjectEditedEvent:
+
+  >>> print http(r"""
+  ... PUT /%s/some-document HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... Content-Type: text/plain; charset="utf-8"
+  ...
+  ... Some Other Content
+  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  HTTP/1.1 204 No Content
+  ...
+
+  >>> print str(self.folder['some-document']['text'])
+  Some Other Content
+
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/a>,
-    <zope.app.event.objectevent.ObjectModifiedEvent object at ...>)]
+  [(<ATDocument at /plone/Members/test_user_1_/some-document>,
+    <Products.Archetypes.event.WebDAVObjectEditedEvent object at ...>)]
+
+Test that a MKCOL also fires an IWebDAVObjectInitialized event:
+
+  >>> print http(r"""
+  ... MKCOL /%s/some-folder HTTP/1.1
+  ... Authorization: Basic %s:%s
+  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  HTTP/1.1 201 Created
+  ...
+
+  >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
+  1 events:
+  [(<ATFolder at /plone/Members/test_user_1_/some-folder>,
+    <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)]
