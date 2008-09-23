@@ -2,6 +2,7 @@ from Products.Archetypes import WebDAVSupport
 from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
+from Products.Archetypes.event import WebDAVObjectInitializedEvent
 from Products.Archetypes.interfaces import IBaseFolder
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
@@ -18,6 +19,7 @@ from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import _checkPermission
 
+from zope import event
 from zope.interface import implements
 
 class BaseFolderMixin(CatalogMultiplex,
@@ -206,6 +208,10 @@ class BaseFolderMixin(CatalogMultiplex,
         manage_afterMKCOL.
         """
         result = PortalFolder.MKCOL_handler(self, id, REQUEST, RESPONSE)
+        new_folder = self._getOb(id)
+        if new_folder is not None: # Could it have been renamed?
+            new_folder.unmarkCreationFlag()
+            event.notify(WebDAVObjectInitializedEvent(new_folder))
         self.manage_afterMKCOL(id, result, REQUEST, RESPONSE)
         return result
 

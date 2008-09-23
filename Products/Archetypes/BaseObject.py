@@ -695,7 +695,7 @@ class BaseObject(Referenceable):
             # Ensure that we have an HTTP request, if you're creating an
             # object with something other than a GET or POST, then we assume
             # you are making a complete object.
-            if meth in ('GET', 'POST'):
+            if meth in ('GET', 'POST', 'PUT', 'MKCOL'):
                 self._at_creation_flag = True
 
     security.declareProtected(permissions.ModifyPortalContent,
