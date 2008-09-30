@@ -1,4 +1,7 @@
-1.5.10 - unreleased
+1.5.11 - unreleased
+===================
+
+1.5.10 - 2008-09-30
 ===================
  
   * Fire WebDAVObjectInitializedEvent/WebDAVObjectEditedEvent when
