@@ -47,6 +47,7 @@ from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces import IVocabulary
+from Products.Archetypes.interfaces.vocabulary import IVocabulary as z2IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
@@ -469,11 +470,13 @@ class Field(DefaultLayerContainer):
                     kw = {'content_instance' : content_instance,
                           'field' : self}
                     value = mapply(method, *args, **kw)
-            elif content_instance is not None and \
-                 IVocabulary.providedBy(value):
-                # Dynamic vocabulary provided by a class that
-                # implements IVocabulary
-                value = value.getDisplayList(content_instance)
+            elif content_instance is not None:
+                if IVocabulary.providedBy(value) or \
+                   z2IVocabulary.isImplementedBy(value):
+                    # BBB: z2IVocabulary should be removed in AT 1.6
+                    # Dynamic vocabulary provided by a class that
+                    # implements IVocabulary
+                    value = value.getDisplayList(content_instance)
 
             # Post process value into a DisplayList
             # Templates will use this interface
