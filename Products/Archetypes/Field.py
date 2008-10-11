@@ -536,19 +536,6 @@ class Field(DefaultLayerContainer):
             return False
         return True
 
-    security.declarePublic('checkExternalEditor')
-    def checkExternalEditor(self, instance):
-        """ Checks if the user may edit this field and if
-        external editor is enabled on this instance """
-
-        pp = getToolByName(instance, 'portal_properties')
-        sp = getattr(pp, 'site_properties', None)
-        if sp is not None:
-            if getattr(sp, 'ext_editor', None) \
-                   and self.checkPermission(mode='edit', instance=instance):
-                return True
-        return None
-
     security.declarePublic('getWidgetName')
     def getWidgetName(self):
         """Return the widget name that is configured for this field as

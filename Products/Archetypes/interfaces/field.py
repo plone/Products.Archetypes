@@ -103,11 +103,6 @@ class IField(Interface):
         instance -- The object being accessed according to the permission
         """
 
-    def checkExternalEditor(instance):
-        """ Checks if the user may edit this field and if
-        external editor is enabled on this instance
-        """
-
     def getWidgetName():
         """Return the widget name that is configured for this field as
         a string"""
