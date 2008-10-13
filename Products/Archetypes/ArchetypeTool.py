@@ -17,7 +17,6 @@ from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
 from Products.Archetypes.ClassGen import generateZMICtor
-from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
@@ -31,7 +30,6 @@ from Products.CMFCore import permissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.ActionInformation import ActionInformation
@@ -470,8 +468,7 @@ class WidgetWrapper:
 
 last_load = DateTime()
 
-class ArchetypeTool(UniqueObject, ActionProviderBase, \
-                    SQLStorageConfig, Folder):
+class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
     """Archetypes tool, manage aspects of Archetype instances.
     """
     id = TOOL_NAME
@@ -511,7 +508,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
           'action' : 'manage_migrationForm',
           },
 
-        ) + SQLStorageConfig.manage_options
+        )
         )
 
     security.declareProtected(permissions.ManagePortal,

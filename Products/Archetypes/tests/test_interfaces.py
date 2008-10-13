@@ -35,14 +35,6 @@ from zope.interface.verify import verifyClass, verifyObject
 from zope.interface.exceptions import BrokenImplementation, DoesNotImplement,\
     BrokenMethodImplementation
 
-#from Products.Archetypes.interfaces.base import *
-#from Products.Archetypes.interfaces.field import *
-#from Products.Archetypes.interfaces.layer import *
-#from Products.Archetypes.interfaces.marshall import *
-#from Products.Archetypes.interfaces.metadata import *
-#from Products.Archetypes.interfaces.orderedfolder import *
-#from Products.Archetypes.interfaces.referenceable import *
-#from Products.Archetypes.interfaces.storage import *
 from Products.Archetypes.interfaces import *
 
 from Products.Archetypes.BaseObject import BaseObject
@@ -54,8 +46,6 @@ from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
 from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
 from Products.Archetypes.Schema import Schema
-from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
-    MySQLSQLStorage, PostgreSQLStorage
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.atapi import registerType
@@ -181,8 +171,6 @@ testClasses = [
     (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()),
         (AttributeStorage, ()), (ObjectManagedStorage, ()),
         (MetadataStorage, ()),
-    (BaseSQLStorage, ()), (GadflySQLStorage, ()), (MySQLSQLStorage, ()),
-        (PostgreSQLStorage, ()),
 ]
 
 PROJECTNAME = 'Archetypes.tests'

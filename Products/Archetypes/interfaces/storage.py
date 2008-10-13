@@ -13,12 +13,6 @@ class IStorage(Interface):
         """set a value under the key 'name' for retrevial by/for
         instance"""
 
-    # XXX all implementions have no 'value' argument
-    #def unset(name, instance, value, **kwargs):
     def unset(name, instance, **kwargs):
         """unset a value under the key 'name'.
         used when changing storage for a field."""
-
-class ISQLStorage(IStorage):
-    """ Marker interface for distinguishing ISQLStorages """
-    pass

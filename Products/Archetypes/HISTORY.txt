@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed long unmaintained SQL storage support. See PLIP #8594.
+    http://dev.plone.org/plone/ticket/8594.
+    [hannosch]
+
   * Removed long unmaintained external editor support.
     [hannosch]
 

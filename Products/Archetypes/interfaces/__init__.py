@@ -17,7 +17,7 @@ from referenceengine import IReference, IContentReference
 from referenceengine import IReferenceCatalog, IUIDCatalog
 from schema import ISchema, ISchemata, ICompositeSchema
 from schema import IBindableSchema, IManagedSchema, IMultiPageSchema
-from storage import IStorage, ISQLStorage
+from storage import IStorage
 from templatemixin import ITemplateMixin
 from vocabulary import IVocabulary
 from athistoryaware import IATHistoryAware

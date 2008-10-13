@@ -607,8 +607,7 @@ Additional notes about Factory Type Information
 Storage
 -------
 
-There are a few basic storages available by default on Archetypes,
-including storages that store data using SQL. Here's a listing:
+There are a few basic storages available by default on Archetypes:
 
 AttributeStorage
   Simply stores the attributes right into the instance.
@@ -625,11 +624,6 @@ ObjectManagedStorage
   instance. Allows you to make a folderish content object behave like a
   simple content object.
 
-``*SQLStorage``
-  Experimental storage layer, which puts the data inside an RDBMS using
-  SQL. Available variations are: MySQL and PostgreSQL. There's an initial
-  implementation of an Oracle storage, but it isn't tested at the
-  moment.
 
 Marshall
 --------
