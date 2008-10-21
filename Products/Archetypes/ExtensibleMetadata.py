@@ -21,6 +21,7 @@ from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFCore.interfaces import IMutableDublinCore
+from Products.CMFCore.interfaces import ICatalogableDublinCore
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
 
@@ -50,7 +51,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     # is on BaseObject.schema, so it does implement IExtensibleMetadata
     # as long as both are used together.
     __implements__ = IExtensibleMetadata
-    implements(IMutableDublinCore)
+    implements(IMutableDublinCore, ICatalogableDublinCore)
 
     security = ClassSecurityInfo()
 
