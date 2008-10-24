@@ -30,8 +30,8 @@ if form.has_key('current_lang'):
 portal_status_message = _(u'Changes saved.')
 
 # handle navigation for multi-page edit forms
-next = not REQUEST.get('form_next', None) is None
-previous = not REQUEST.get('form_previous', None) is None
+next = not REQUEST.get('form.button.next', None) is None
+previous = not REQUEST.get('form.button.previous', None) is None
 fieldset = REQUEST.get('fieldset', None)
 schemata = new_context.Schemata()
 

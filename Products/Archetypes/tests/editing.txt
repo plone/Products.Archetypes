@@ -57,5 +57,50 @@ we want to make sure all of them are validated.
 
   >>> schema['title'].schemata = previous_schemata
 
+
+Buttons name verification
+----------------
+
+Let's verify that the buttons have the correct name:
+  
+  >>> browser.open(url+'/edit')
+  >>> browser.getControl('Save').name
+  'form.button.save'
+  
+  >>> browser.getControl('Cancel').name
+  'form.button.cancel'
+  
+Now to see the previous and next buttons, we need to make the
+document provide Products.Archetypes.interfaces.IMultiPageSchema
+and change the schemata of one of its fields
+
+  >>> from Products.Archetypes.interfaces import IMultiPageSchema
+  >>> from Products.Five.utilities import marker
+  >>> from zope import interface
+  >>> IMultiPageSchema.providedBy(document)
+  False
+  >>> interface.alsoProvides(document, IMultiPageSchema)
+
+  >>> schema = document.__class__.schema
+  >>> previous_schemata = schema['text'].schemata
+  >>> schema['text'].schemata = 'someschemata'
+
+  >>> document.Schema().getField('text').schemata
+  'someschemata'
+  
+  >>> browser.open(url+'/edit')
+  >>> browser.getControl('Next').name
+  'form.button.next'
+  
+  >>> browser.getLink('someschemata').click()
+  >>> browser.getControl('Previous').name
+  'form.button.previous'
+
+  >>> marker.erase(document, IMultiPageSchema)
+  >>> IMultiPageSchema.providedBy(document)
+  False
+  >>> schema['text'].schemata = previous_schemata
+  
+
   
 TODO: Add more general editing testing!

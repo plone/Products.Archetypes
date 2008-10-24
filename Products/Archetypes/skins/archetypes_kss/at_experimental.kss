@@ -3,7 +3,7 @@
  * It comes disabled by default.
  */
 
-input[name="form_submit"]:click {
+input[name="form.button.save"]:click {
     evt-click-preventdefault:     true;
     action-server:                kssValidateForm;
     kssValidateForm-data:         currentForm();
