@@ -10,9 +10,7 @@ from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
-from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseObject
-from Products.Archetypes.interfaces.referenceable import IReferenceable
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
@@ -21,7 +19,6 @@ from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
 from Products.Archetypes.debug import log
-from Products.Archetypes.utils import findDict
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.Renderer import renderer
@@ -32,8 +29,6 @@ from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces import ICatalogTool
-from Products.CMFCore.ActionInformation import ActionInformation
-from Products.CMFCore.Expression import Expression
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
@@ -59,228 +54,12 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-try:
-    from Products.CMFPlone.Configuration import getCMFVersion
-except ImportError:
-    # Configuration and getCMFVersion come with Plone
-    def getCMFVersion():
-        from os.path import join
-        from Globals import package_home
-        from Products.CMFCore import cmfcore_globals
-        path = join(package_home(cmfcore_globals),'version.txt')
-        file = open(path, 'r')
-        _version = file.read()
-        file.close()
-        return _version.strip()
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
 _zmi = os.path.join(_www, 'zmi')
 document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')
 folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
-
-# This is the template that we produce our custom types from
-base_factory_type_information = (
-    { 'id': 'Archetype'
-      , 'content_icon': 'document_icon.gif'
-      , 'meta_type': 'Archetype'
-      , 'description': ('Archetype for flexible types')
-      , 'product': 'Unknown Package'
-      , 'factory': 'addContent'
-      , 'immediate_view': 'base_edit'
-      , 'global_allow': True
-      , 'filter_content_types': False
-      , 'allow_discussion': False
-      , 'fti_meta_type' : FactoryTypeInformation.meta_type
-      , 'aliases' : {'(Default)' : 'base_view',
-                     'view' : '(Default)',
-                     'index.html' : '(Default)',
-                     'edit' : 'base_edit',
-                     'properties' : 'base_metadata',
-                     'gethtml' : '',
-                     'mkdir' : '',
-                     }
-      , 'actions': (
-                     { 'id': 'view',
-                       'title': 'View',
-                       'action': Expression('string:${object_url}/view'),
-                       'permissions': (permissions.View,),
-                       },
-
-                     { 'id': 'edit',
-                       'title': 'Edit',
-                       'action': Expression('string:${object_url}/edit'),
-                       'permissions': (permissions.ModifyPortalContent,),
-                       'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
-                       },
-
-                     { 'id': 'metadata',
-                       'title': 'Properties',
-                       'action': Expression('string:${object_url}/properties'),
-                       'permissions': (permissions.ModifyPortalContent,),
-                       },
-
-                     )
-      }, )
-
-def fixActionsForType(portal_type, typesTool):
-    if 'actions' in portal_type.installMode:
-        typeInfo = getattr(typesTool, portal_type.portal_type, None)
-        if typeInfo is None:
-            return
-        if hasattr(portal_type, 'actions'):
-            # Look for each action we define in portal_type.actions in
-            # typeInfo.action replacing it if its there and just
-            # adding it if not
-            ## rr: this is now trial-and-error programming
-            ## I really don't know what's going on here
-            ## most importantly I don't know why the default
-            ## actions are not set in some cases :-(
-            ## (maybe they are removed afterwards sometimes???)
-            ## if getattr(portal_type,'include_default_actions', True):
-            if True:
-                default = [ActionInformation(**action) for action in
-                           base_factory_type_information[0]['actions']]
-                next = list(typeInfo._actions)
-                all = next + default
-                new = [a.clone() for a in all]
-            else:
-                # If no standard actions are wished don't display them
-                new = []
-            try:
-                cmfver = getCMFVersion()
-            except ImportError:
-                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
-                                     ## need to know here for now
-
-            for action in portal_type.actions:
-                # DM: "Expression" derives from "Persistent" and
-                # we must not put persistent objects into class attributes.
-                # Thus, copy "action"
-                action = action.copy()
-
-                if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-                    # Then we know actions are defined new style as
-                    # ActionInformations
-                    hits = [a for a in new if a.id == action['id']]
-
-                    # Change action and condition into expressions, if
-                    # they are still strings
-                    if action.has_key('action') and \
-                           type(action['action']) in (type(''), type(u'')):
-                        action['action'] = Expression(action['action'])
-                    if action.has_key('condition') and \
-                           type(action['condition']) in (type(''), type(u'')):
-                        action['condition'] = Expression(action['condition'])
-                    if action.has_key('name'):
-                        action['title'] = action['name']
-                        del action['name']
-                    if hits:
-                        hits[0].__dict__.update(action)
-                    else:
-                        new.append(ActionInformation(**action))
-                else:
-                    hit = findDict(new, 'id', action['id'])
-                    if hit:
-                        hit.update(action)
-                    else:
-                        new.append(action)
-
-            typeInfo._actions = tuple(new)
-            typeInfo._p_changed = True
-
-        if hasattr(portal_type, 'factory_type_information'):
-            typeInfo.__dict__.update(portal_type.factory_type_information)
-            typeInfo._p_changed = True
-
-
-def modify_fti(fti, klass, pkg_name):
-    fti[0]['id'] = klass.__name__
-    fti[0]['meta_type'] = klass.meta_type
-    fti[0]['description'] = klass.__doc__
-    fti[0]['factory'] = 'add%s' % klass.__name__
-    fti[0]['product'] = pkg_name
-
-    if hasattr(klass, 'content_icon'):
-        fti[0]['content_icon'] = klass.content_icon
-
-    if hasattr(klass, 'global_allow'):
-        fti[0]['global_allow'] = klass.global_allow
-
-    if hasattr(klass, 'allow_discussion'):
-        fti[0]['allow_discussion'] = klass.allow_discussion
-
-    if hasattr(klass, 'allowed_content_types'):
-        allowed = klass.allowed_content_types
-        fti[0]['allowed_content_types'] = allowed
-        fti[0]['filter_content_types'] = allowed and True or False
-
-    if hasattr(klass, 'filter_content_types'):
-        fti[0]['filter_content_types'] = klass.filter_content_types
-
-    if hasattr(klass, 'immediate_view'):
-        fti[0]['immediate_view'] = klass.immediate_view
-
-    if not IReferenceable.implementedBy(klass):
-        refs = findDict(fti[0]['actions'], 'id', 'references')
-        refs['visible'] = False
-
-    if not IExtensibleMetadata.implementedBy(klass):
-        refs = findDict(fti[0]['actions'], 'id', 'metadata')
-        refs['visible'] = False
-
-    # Set folder_listing to 'view' if the class implements ITemplateMixin
-    if not ITemplateMixin.implementedBy(klass):
-        actions = []
-        for action in fti[0]['actions']:
-            if action['id'] != 'folderlisting':
-                actions.append(action)
-            else:
-                action['action'] = 'string:${folder_url}/view'
-                actions.append(action)
-        fti[0]['actions'] = tuple(actions)
-
-    # Remove folderlisting action from non folderish content types
-    if not getattr(klass,'isPrincipiaFolderish', None):
-        actions = []
-        for action in fti[0]['actions']:
-            if action['id'] != 'folderlisting':
-                actions.append(action)
-        fti[0]['actions'] = tuple(actions)
-        
-    # CMF 1.5 method aliases
-    if getattr(klass, 'aliases', None):
-        aliases = klass.aliases
-        if not isinstance(aliases, dict):
-            raise TypeError, "Invalid type for method aliases in class %s" % klass
-        for required in ('(Default)', 'view',):
-            if required not in aliases:
-                raise ValueError, "Alias %s is required but not provied by %s" % (
-                                  required, klass)
-        fti[0]['aliases'] = aliases 
-        
-    # Dynamic View FTI support
-    if getattr(klass, 'default_view', False):
-        default_view = klass.default_view
-        if not isinstance(default_view, basestring):
-            raise TypeError, "Invalid type for default view in class %s" % klass
-        fti[0]['default_view'] = default_view
-        fti[0]['view_methods'] = (default_view, )
-        
-        if getattr(klass, 'suppl_views', False):
-            suppl_views = klass.suppl_views
-            if not isinstance(suppl_views, (list, tuple)):
-                raise TypeError, "Invalid type for suppl views in class %s" % klass
-            if not default_view in suppl_views:
-                suppl_views = suppl_views + (default_view, )
-            fti[0]['view_methods'] = suppl_views
-    if getattr(klass, '_at_fti_meta_type', False):
-        fti[0]['fti_meta_type'] = klass._at_fti_meta_type
-    else:
-        if fti[0].get('fti_meta_type', False):
-            klass._at_fti_meta_type = fti[0]['fti_meta_type']
-        else:
-            fti[0]['fti_meta_type'] = FactoryTypeInformation.meta_type
 
 
 def process_types(types, pkg_name):
@@ -293,32 +72,12 @@ def process_types(types, pkg_name):
         klass = rti['klass']
         module = rti['module']
 
-        if hasattr(module, 'factory_type_information'):
-            fti = module.factory_type_information
-        else:
-            fti = deepcopy(base_factory_type_information)
-            modify_fti(fti, klass, pkg_name)
-
-        # Add a callback to modifty the fti
-        if hasattr(module, 'modify_fti'):
-            module.modify_fti(fti[0])
-        else:
-            m = None
-            for k in klass.__bases__:
-                base_module = sys.modules[k.__module__]
-                if hasattr(base_module, 'modify_fti'):
-                    m = base_module
-                    break
-            if m is not None:
-                m.modify_fti(fti[0])
-
         ctor = getattr(module, 'add%s' % typeName, None)
         if ctor is None:
             ctor = generateCtor(typeName, module)
 
         content_types += (klass,)
         constructors += (ctor,)
-        ftis += fti
 
     return content_types, constructors, ftis
 
@@ -762,8 +521,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
 
         typeinfo_name = '%s: %s' % (package, typeName)
 
-        # We want to run the process/modify_fti code which might not
-        # have been called
+        # We want to run the process code which might not have been called
         typeDesc = getType(typeName, package)
         process_types([typeDesc], package)
         klass = typeDesc['klass']
@@ -780,9 +538,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         if t:
             t.title = getattr(klass, 'archetype_name',
                               typeDesc['portal_type'])
-
-        # and update the actions as needed
-        fixActionsForType(klass, typesTool)
 
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url() +

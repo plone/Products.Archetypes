@@ -3,15 +3,12 @@ from os.path import isdir, join
 
 from Globals import package_home
 from OFS.ObjectManager import BadRequestException
-from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, getPackageName
 from Products.Archetypes.config import REFERENCE_CATALOG
-from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.ArchetypeTool import process_types
-from Products.Archetypes.ArchetypeTool import base_factory_type_information
 from Products.Archetypes import types_globals
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
@@ -170,14 +167,7 @@ def _getFtiAndDataFor(tool, typename, klassname, package_name):
             fti['content_meta_type'] = fti['meta_type']
             return t, fti
     return t, None
-    
 
-def install_actions(self, out, types):
-    typesTool = getToolByName(self, 'portal_types')
-    for portal_type in types:
-        ## rr: XXX TODO somehow the following doesn't do anymore what
-        ## it used to do :-(
-        fixActionsForType(portal_type, typesTool)
 
 def install_indexes(self, out, types):
     portal_catalog = catalog = getToolByName(self, 'portal_catalog')
@@ -348,32 +338,7 @@ def setupEnvironment(self, out, types,
 
     ftypes = filterTypes(self, out, types, package_name)
     install_indexes(self, out, ftypes)
-    install_actions(self, out, ftypes)
 
-def doubleCheckDefaultTypeActions(self, ftypes):
-    # rr: for some reason, AT's magic wrt adding the default type actions
-    # stopped working when moving to CMF-2.0
-    # Instead of trying to resurect the old way (which I tried but couldn't)
-    # I make it brute force here
-
-    typesTool = getToolByName(self, 'portal_types')
-    defaultTypeActions = [ActionInformation(**action) for action in
-                          base_factory_type_information[0]['actions']]
-
-    for ftype in ftypes:
-        portal_type = ftype.portal_type
-        fti = typesTool.get(portal_type, None)
-        if fti is None:
-            continue
-        actions = list(fti._actions)
-        action_ids = [a.id for a in actions]
-        prepend = []
-        for a in defaultTypeActions:
-            if a.id not in action_ids:
-                prepend.append(a.clone())
-        if prepend:
-            fti._actions = tuple(prepend + actions)
-    
 
 ## The master installer
 def installTypes(self, out, types, package_name,
@@ -387,8 +352,6 @@ def installTypes(self, out, types, package_name,
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies,
                      install_deps)
-    ## rr: sometimes the default actions are still missing
-    doubleCheckDefaultTypeActions(self, ftypes)
     if refresh_references and ftypes:
         rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()

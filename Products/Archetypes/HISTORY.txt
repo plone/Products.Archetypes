@@ -1,6 +1,11 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed long-broken Archetypes tool-level actions and fti installation
+    methods. Class level fti and actions information have long been replaced
+    by GenericSetup.
+    [hannosch]
+
   * Removed reference graph visualization based on graphviz. It is
     unmaintained and certainly not a core feature.
     [hannosch]
