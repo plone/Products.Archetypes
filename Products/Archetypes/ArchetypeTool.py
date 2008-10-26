@@ -417,6 +417,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         the given interfaces.  Only returns AT types.
 
         Get a list of FTIs of types implementing IReferenceable:
+        >>> from Products.Archetypes.interfaces import IReferenceable
         >>> tool = getToolByName(self.portal, TOOL_NAME)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
