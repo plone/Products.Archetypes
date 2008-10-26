@@ -29,19 +29,8 @@ ZOPE_LINES_IS_TUPLE_TYPE = True
 DEBUG_SECURITY=False
 #DEBUG_SECURITY=True
 
-## If you have graphviz http://www.research.att.com/sw/tools/graphviz/
-## and its frontend "dot" installed on your system set this to True
-## You need dot version > 1.10 with cmapx support.
-try:
-    GRAPHVIZ_BINARY = transform_utils.bin_search('dot')
-except transform_utils.MissingBinary:
-    # graphviz not found
-    GRAPHVIZ_BINARY = None
-    HAS_GRAPHVIZ = False
-else:
-    HAS_GRAPHVIZ = True
-
-## comment out the following line to enable the reference graph tool
+## BBB constants for removed graphviz suppport
+GRAPHVIZ_BINARY = None
 HAS_GRAPHVIZ = False
 
 ## protect attributes of AttributeStorage from unallowed access?

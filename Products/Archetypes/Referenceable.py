@@ -28,9 +28,6 @@ from AccessControl import ClassSecurityInfo
 ##   * to lose refs
 ####
 
-#include graph supporting methods
-from ref_graph import get_cmapx, get_png
-
 class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
@@ -389,18 +386,5 @@ class Referenceable(CopySource):
                 if shasattr(Referenceable, methodName):
                     method = getattr(Referenceable, methodName)
                     method(*((child,) + args), **kwargs)
-
-    # graph hooks
-    security.declareProtected(View, 'getReferenceMap')
-    def getReferenceMap(self):
-        """The client side map for this objects references"""
-        return get_cmapx(self)
-
-    security.declareProtected(View, 'getReferencePng')
-    def getReferencePng(self, REQUEST=None):
-        """A png of the references for this object"""
-        if REQUEST:
-            REQUEST.RESPONSE.setHeader('content-type', 'image/png')
-        return get_png(self)
 
 InitializeClass(Referenceable)

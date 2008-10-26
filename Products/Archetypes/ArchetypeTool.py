@@ -120,14 +120,6 @@ base_factory_type_information = (
                        'permissions': (permissions.ModifyPortalContent,),
                        },
 
-                     { 'id': 'references',
-                       'title': 'References',
-                       'action': Expression('string:${object_url}/reference_graph'),
-                       'condition': Expression('object/archetype_tool/has_graphviz'),
-                       'permissions': (permissions.ModifyPortalContent,
-                                       permissions.ReviewPortalContent,),
-                       'visible' : True,
-                       },
                      )
       }, )
 

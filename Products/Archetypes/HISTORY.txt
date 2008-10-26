@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed reference graph visualization based on graphviz. It is
+    unmaintained and certainly not a core feature.
+    [hannosch]
+
   * Removed long unmaintained SQL storage support. See PLIP #8594.
     http://dev.plone.org/plone/ticket/8594.
     [hannosch]
