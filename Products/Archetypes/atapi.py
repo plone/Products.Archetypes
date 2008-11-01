@@ -64,7 +64,6 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Storage import *
 from Products.Archetypes.Storage.annotation import AnnotationStorage
 from Products.Archetypes.Storage.annotation import MetadataAnnotationStorage 
-from Products.Archetypes.AggregatedStorage import AggregatedStorage
 # annotation
 from Products.Archetypes.annotations import getAnnotation
 from Products.Archetypes.annotations import AT_ANN_STORAGE

@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed unsupported AggregatedStorage. You can easily convert this into
+    an add-on package if you use this storage.
+    [hannosch]
+
   * Removed long-broken Archetypes tool-level actions and fti installation
     methods. Class level fti and actions information have long been replaced
     by GenericSetup.
