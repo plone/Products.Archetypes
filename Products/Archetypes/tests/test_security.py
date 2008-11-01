@@ -122,10 +122,10 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.failUnlessEqual(p.Title(), 'Bla3')
 
     def test_import_transaction_note(self):
-        self.check('from Products.Archetypes import transaction_note')
+        self.check('from Products.Archetypes.utils import transaction_note')
 
     def test_use_transaction_note(self):
-        self.check('from Products.Archetypes import transaction_note;'
+        self.check('from Products.Archetypes.utils import transaction_note;'
                    'print transaction_note("foo")')
 
     def test_import_DisplayList(self):

@@ -1,6 +1,9 @@
 2.0 - unreleased
 ================
 
+  * Removed PloneCompat module and moved transaction_note to utils.
+    [hannosch]
+
   * Removed tabindex and Iterator from the template scopes. Their use was
     discouraged long ago.
     [hannosch]
