@@ -1,6 +1,10 @@
 1.6 - trunk - unreleased
 ========================
 
+  * Removed utils.getPkgInfo and `__pkginfo__`. We use setuptools as our
+    distribution and package information platform.
+    [hannosch]
+
   * Removed unsupported AggregatedStorage. You can easily convert this into
     an add-on package if you use this storage.
     [hannosch]
