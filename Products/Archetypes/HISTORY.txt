@@ -1,6 +1,10 @@
 2.0 - unreleased
 ================
 
+  * Removed tabindex and Iterator from the template scopes. Their use was
+    discouraged long ago.
+    [hannosch]
+
   * Removed utils.getPkgInfo and `__pkginfo__`. We use setuptools as our
     distribution and package information platform.
     [hannosch]
