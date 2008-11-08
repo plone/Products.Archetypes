@@ -83,12 +83,14 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
 
         self.failUnless(isinstance(searchable, basestring))
-        self.assertEquals(searchable, '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
+        self.assertEquals(searchable,
+            '1 2 Option 1 : printemps [[plone][Option 2 : \xc3\xa9t\xc3\xa9]]')
 
         dummy.setMULTIPLEFIELD(['3','4'])
         searchable = dummy.SearchableText()
 
-        self.assertEquals(searchable, '3 4 Option 3 : automne option3')
+        self.assertEquals(searchable,
+            '3 4 [[plone][Option 3 : automne]] option3')
 
     def test_searchableTextUsesIndexMethod(self):
         """See http://dev.plone.org/archetypes/ticket/645

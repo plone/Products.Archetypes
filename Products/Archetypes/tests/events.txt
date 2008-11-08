@@ -33,7 +33,7 @@ Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  9 events:...
+  10 events:...
 
 Calling `processForm`, which is what happens on submitting a form,
 will fire the modified event:

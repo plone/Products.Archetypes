@@ -1,6 +1,12 @@
 2.0 - unreleased
 ================
 
+  * Created a separate layer for Archetypes, that does not depend on the
+    Five ZCML layer anymore. AT tests can finally be run in isolation of other
+    installed packages. Fixed a couple of test failures which now have a
+    deterministic output.
+    [hannosch]
+
   * Removed PloneCompat module and moved transaction_note to utils.
     [hannosch]
 

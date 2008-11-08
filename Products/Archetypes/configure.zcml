@@ -5,11 +5,20 @@
 
   <include zcml:condition="installed plone.locking"
       package="plone.locking" />
-  
+
+  <include zcml:condition="installed plone.i18n"
+      package="plone.i18n" />
+
+  <include package="Products.CMFFormController" />
+  <include package="Products.CMFQuickInstallerTool" />
+  <include package="Products.MimetypesRegistry" />
+  <include package="Products.PortalTransforms" />
+  <include package="Products.statusmessages" />
+
   <include file="implements.zcml"/>
   <include file="profiles.zcml"/>
   <include file="events.zcml" />
-  
+
   <include package=".exportimport" />
   <include package=".Schema" />
   <include package=".browser" />
