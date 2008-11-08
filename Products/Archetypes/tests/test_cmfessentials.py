@@ -66,5 +66,4 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestPermissions))
-    suite.addTest(makeSuite(TestFTICopy))
     return suite
