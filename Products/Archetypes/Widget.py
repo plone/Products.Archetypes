@@ -509,6 +509,9 @@ class KeywordWidget(TypesWidget):
                      emptyReturnsMarker=False, validating=True):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
+        # process_form should return :
+        # - a tuple value, kwargs when it did find some value
+        # - None or empty_marker when it found nothing
         name = field.getName()
         existing_keywords = form.get('%s_existing_keywords' % name,
             empty_marker)

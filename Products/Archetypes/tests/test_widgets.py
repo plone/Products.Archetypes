@@ -114,15 +114,14 @@ class WidgetTests(ATSiteTestCase):
         field = doc.Schema()['subject']
         widget = field.widget
         empty_marker = object()
+        # test when the widget is rendered and returns empty lists
         form = {'subject_keywords':[''],
                 'subject_existing_keywords':[]
                 }
         expected = []
-        # process_form should return :
-        # - a tuple value, kwargs when it did find some value
-        # - None or empty_marker when it found nothing
         result = widget.process_form(doc, field, form, empty_marker)
         self.assertEqual(expected, result[0])
+        # test when the widget is not rendered
         form = {}
         expected = empty_marker
         result = widget.process_form(doc, field, form, empty_marker)
