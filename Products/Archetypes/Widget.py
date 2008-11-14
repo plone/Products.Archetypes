@@ -73,7 +73,7 @@ class TypesWidget(macrowidget, Base):
             True/1:  'visible'
             False/0: 'invisible'
             -1:      'hidden'
-            
+
         visible: The field is shown in the view/edit screen
         invisible: The field is skipped when rendering the view/edit screen
         hidden: The field is added as <input type="hidden" />
@@ -324,11 +324,11 @@ class TextAreaWidget(TypesWidget):
         'cols'  : 40,
         'format': 0,
         'append_only': False,
-        'timestamp' : False,        
+        'timestamp' : False,
         'divider':"\n\n========================\n\n",
         'timestamp': False,
         'maxlength' : False,
-        'helper_js': ('widgets/js/textcount.js',),        
+        'helper_js': ('widgets/js/textcount.js',),
         })
 
     security = ClassSecurityInfo()
@@ -360,14 +360,14 @@ class TextAreaWidget(TypesWidget):
         if getattr(field.widget, 'append_only', None):
             if field.getEditAccessor(instance)():
                 if (value and not value.isspace()):
-                    
+
                     divider = field.widget.divider
-                    
+
                     # Add a datestamp along with divider if desired.
                     if getattr(field.widget, 'timestamp', None):
 
                         divider = "\n\n" + str(DateTime()) + divider
-                        
+
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
                     value = value + divider + \
@@ -400,7 +400,7 @@ class CalendarWidget(TypesWidget):
     _properties.update({
         'macro' : "widgets/calendar",
         'format' : '', # time.strftime string
-        'show_hm' : True, 
+        'show_hm' : True,
         'show_ymd' : True,
         'starting_year' : None,
         'ending_year' : None,
@@ -510,12 +510,16 @@ class KeywordWidget(TypesWidget):
         """process keywords from form where this widget has a list of
         available keywords and any new ones"""
         name = field.getName()
-        existing_keywords = form.get('%s_existing_keywords' % name, empty_marker)
-        if existing_keywords is empty_marker:
-            existing_keywords = []
+        existing_keywords = form.get('%s_existing_keywords' % name,
+            empty_marker)
         new_keywords = form.get('%s_keywords' % name, empty_marker)
+        if (new_keywords is empty_marker) and (
+            existing_keywords is empty_marker):
+            return empty_marker
         if new_keywords is empty_marker:
             new_keywords = []
+        if existing_keywords is empty_marker:
+            existing_keywords = []
 
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
@@ -663,7 +667,7 @@ class ImageWidget(FileWidget):
         'display_threshold': 102400,
         # use this scale for the preview in the edit form, default to 'preview'
         # if this scale isn't available then use the display_threshold
-        'preview_scale': 'preview', 
+        'preview_scale': 'preview',
         })
 
     security = ClassSecurityInfo()
@@ -677,7 +681,7 @@ class ImageWidget(FileWidget):
         delete = form.get('%s_delete' % field.getName(), empty_marker)
         if delete=='delete': return "DELETE_IMAGE", {}
         if delete=='nochange' : return empty_marker
-        
+
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 

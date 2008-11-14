@@ -109,6 +109,25 @@ class WidgetTests(ATSiteTestCase):
         result[0].sort()
         self.assertEqual(expected, result[0])
 
+    def test_subject_keyword_widget_empty(self):
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field = doc.Schema()['subject']
+        widget = field.widget
+        empty_marker = object()
+        form = {'subject_keywords':[''],
+                'subject_existing_keywords':[]
+                }
+        expected = []
+        # process_form should return :
+        # - a tuple value, kwargs when it did find some value
+        # - None or empty_marker when it found nothing
+        result = widget.process_form(doc, field, form, empty_marker)
+        self.assertEqual(expected, result[0])
+        form = {}
+        expected = empty_marker
+        result = widget.process_form(doc, field, form, empty_marker)
+        self.assertEqual(expected, result)
+
     def _test_widgets(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
 
@@ -123,16 +142,16 @@ class WidgetTests(ATSiteTestCase):
     def test_appendtextarea_widget(self):
         request = FakeRequest()
         mystring = str('<<<<this is a test string>>>>')
-        
+
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
-        
+
         form = {'textarea_appendonly':''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
-        
+
         form = {'textarea_appendonly': mystring}
         expected = mystring, {}
         result = widget.process_form(doc, field, form)
@@ -148,16 +167,16 @@ class WidgetTests(ATSiteTestCase):
         """ This is a test I can write """
         request = FakeRequest()
         mystring = str('<<<<this is a test string>>>>')
-        
+
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_appendonly_timestamp']
         widget = field.widget
-        
+
         form = {'textarea_appendonly_timestamp':''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
-        
+
         form = {'textarea_appendonly_timestamp': mystring}
         expected = mystring, {}
         result = widget.process_form(doc, field, form)
@@ -167,34 +186,34 @@ class WidgetTests(ATSiteTestCase):
         form = {'textarea_appendonly_timestamp': mystring}
         expectation = mystring + '\n\n' + str(DateTime()) + widget.divider + mystring, {}
         results = widget.process_form(doc, field, form)
-        
-        # some magic (nightmares?) here for rectifying DateTime delay        
+
+        # some magic (nightmares?) here for rectifying DateTime delay
         result = results[0].split('\n\n')
         expected = expectation[0].split('\n\n')
-        
+
         result[1] = result[1].split(' ')
         expected[1] = expected[1].split(' ')
-        
+
         result[1][1] = expected[1][1][:-3]
         expected[1][1] = expected[1][1][:-3]
-        
+
         self.assertEqual(expected, result)
 
     def test_maxlength_textarea_widget(self):
         """ Show me HOW to write this test and I will ~Spanky """
-        
+
         request = FakeRequest()
         mystring = str('The little black dog jumped over the sleeping Moose')
-        
+
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['textarea_maxlength']
         widget = field.widget
-        
+
         form = {'textarea_maxlength':''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
-        
+
         form = {'textarea_maxlength': mystring}
         expected = mystring, {}
         result = widget.process_form(doc, field, form)
