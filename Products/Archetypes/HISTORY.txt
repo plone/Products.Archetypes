@@ -1,6 +1,10 @@
 1.5.11 - unreleased
 ===================
 
+  * check unrendered widget in KeywordWidget process_form.
+    Fix for http://dev.plone.org/plone/ticket/8738
+    [gotcha]
+
   * Add implements-flag for ICatalogableDublinCore to ExtensibleMetadata.
     [wichert]
 
