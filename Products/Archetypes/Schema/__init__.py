@@ -109,7 +109,7 @@ class Schemata(Base):
         """Returns a list of editable fields for the given instance
         """
         ret = []
-        portal = getToolByName(self, 'portal_url').getPortalObject()
+        portal = getToolByName(instance, 'portal_url').getPortalObject()
         for field in self.fields():
             if field.writeable(instance, debug=False) and    \
                    (not visible_only or
