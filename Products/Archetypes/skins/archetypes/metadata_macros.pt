@@ -10,7 +10,8 @@
 
     <div metal:define-macro="header">
 
-    <h1 tal:define="fti here/getTypeInfo;
+    <h1 class="documentFirstHeading"
+        tal:define="fti here/getTypeInfo;
                     type_title fti/Title|type_name;">
 
         <span i18n:translate="heading_edit_item">Edit
