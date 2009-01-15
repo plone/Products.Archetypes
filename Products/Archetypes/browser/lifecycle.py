@@ -12,7 +12,7 @@ class Lifecycle(BrowserView):
     """
 
     def begin_edit(self):
-        """Cancel an edit operation
+        """Begin an edit operation
         """
         notify(EditBegunEvent(aq_inner(self.context)))
 
