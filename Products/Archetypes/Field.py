@@ -1968,7 +1968,7 @@ class ReferenceField(ObjectField):
 
 
 class ComputedField(Field):
-    """A field that stores a read-only computation."""
+    """A field that always returns a computed."""
     __implements__ = Field.__implements__
 
     _properties = Field._properties.copy()
