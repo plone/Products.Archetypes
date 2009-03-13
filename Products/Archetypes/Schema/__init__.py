@@ -584,6 +584,9 @@ class BasicSchema(Schemata):
             value = None
             widget = field.widget
             
+            if widget.isVisible(widget, 'edit') != 'visible':
+                continue
+            
             if form:
                 result = widget.process_form(instance, field, form,
                                              empty_marker=_marker)

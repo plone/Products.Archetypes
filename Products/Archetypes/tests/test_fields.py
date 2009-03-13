@@ -220,6 +220,45 @@ class ProcessingTest(ATSiteTestCase):
         dummy.validate(errors=errors)
         self.failIf(errors, errors)
 
+    def test_validation_visible_fields(self):
+        """ we assume that every field is visible """
+        
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field_values['fixedpointfield2'] = 'an_error'
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        errors = {}
+        dummy.validate(errors=errors, REQUEST=request)
+        self.failUnless(errors, errors)
+        
+    def test_validation_invisible_fields(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field_values['fixedpointfield2'] = 'an_error'
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+
+        for field in dummy.Schema().filterFields(__name__='fixedpointfield2'):
+            field.widget.visible['edit'] = 'invisible'
+        errors = {}
+        dummy.validate(errors=errors, REQUEST=request)
+        self.failIf(errors, errors)
+        
+    def test_validation_hidden_fields(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field_values['fixedpointfield2'] = 'an_error'
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        for field in dummy.Schema().filterFields(__name__='fixedpointfield2'):
+            field.widget.visible['edit'] = 'hidden'
+        errors = {}
+        dummy.validate(errors=errors, REQUEST=request)
+        self.failIf(errors, errors)
+
+
+
     def test_required(self):
         request = FakeRequest()
         request.form.update(empty_values)
