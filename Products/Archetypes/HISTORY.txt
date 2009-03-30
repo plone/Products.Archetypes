@@ -1,6 +1,18 @@
 1.5.11 - unreleased
 ===================
 
+* When saving an AT object only validate the visible fields in the schema.
+  (avoids hidden and invisible ones). Fixes
+  http://dev.plone.org/plone/ticket/7964
+  [massimo]
+
+* Fix XML validatiy in bae_edit.
+  [mborch]
+
+* Extinguishing last use of document_actions and add missing
+  documentFirstHeading class in the metadata_macros template.
+  [limi]
+
 * check unrendered widget in KeywordWidget process_form.
   Fix for http://dev.plone.org/plone/ticket/8738
   [gotcha]
