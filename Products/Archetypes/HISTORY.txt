@@ -1,4 +1,4 @@
-1.5.11 - unreleased
+1.5.11 - 2009-03-30
 ===================
 
 * When saving an AT object only validate the visible fields in the schema.
