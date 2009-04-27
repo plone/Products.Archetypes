@@ -577,6 +577,8 @@ class BaseObject(Referenceable):
             site_properties = getattr(properties, 'site_properties', None)
             if site_properties is not None:
                 return site_properties.getProperty('default_charset')
+            elif hasattr(properties, 'default_charset'):
+                return properties.getProperty('default_charset') # CMF
         return 'utf-8'
 
     security.declareProtected(permissions.View, 'get_size')

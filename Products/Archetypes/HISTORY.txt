@@ -1,6 +1,9 @@
 1.5.12 - UNRELEASED
 ===================
 
+* BaseObject.getCharset() now supports extraction of the default_charset
+  for plain CMF sites.
+  [ajung]
 
 
 1.5.11 - 2009-03-30
