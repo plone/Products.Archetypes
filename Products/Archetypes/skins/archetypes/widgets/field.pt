@@ -11,8 +11,8 @@
     <!-- Base Field Widgets -->
     <metal:base_view_macro
         define-macro="base_view"
-        tal:define="widget_view python:here.widget(field.getName(), mode=mode, use_label=1);
-                    field_macros here/widgets/field/macros;
+        tal:define="widget_view python:context.widget(field.getName(), mode=mode, use_label=1);
+                    field_macros context/widgets/field/macros;
                     label_macro view_macros/label | label_macro | field_macros/label;
                     data_macro view_macros/data | data_macro | field_macros/data;
                     visState python:widget.isVisible(here, mode);
@@ -35,7 +35,7 @@
             tal:omit-tag="">
         (
         <a href="#"
-           tal:define="wf_tool here/portal_workflow;
+           tal:define="wf_tool context/portal_workflow;
                        obj python:accessor();
                        review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
            tal:attributes="href string:${obj/absolute_url}/content_status_history;
@@ -55,7 +55,7 @@
     <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1];"
         tal:attributes="class string:field ArchetypesField-${fieldtypename};
                         id string:archetypes-fieldname-${field/getName}">
-          <metal:use_base_view use-macro="here/widgets/field/macros/base_view" />
+          <metal:use_base_view use-macro="context/widgets/field/macros/base_view" />
     </div>
 
     <metal:define
@@ -64,7 +64,7 @@
                     edit_accessor python:field.getEditAccessor(here);
                     getMethod python:(widget.populate and (edit_accessor or accessor)) or None;
                     value python:getMethod and getMethod();
-                    value python:widget.postback and request.get(fieldName, here.session_restore_value(fieldName, value)) or value;
+                    value python:widget.postback and request.get(fieldName, context.session_restore_value(fieldName, value)) or value;
                     visCondition python:field.widget.testCondition(context.aq_inner.getParentNode(), portal, context);
                     error_id python:errors.get(fieldName)">
       <tal:condition
@@ -100,7 +100,7 @@
                 tal:omit-tag="">
             State:
             <a href="#"
-               tal:define="wf_tool here/portal_workflow;
+               tal:define="wf_tool context/portal_workflow;
                            obj python:accessor();
                            review_state python:wf_tool.getInfoFor(obj, 'review_state', '')"
                tal:attributes="href string:${obj/absolute_url}/content_status_history;
@@ -117,8 +117,8 @@
 
       <tal:condition condition="python: visState == 'hidden'">
         <metal:hiddenmacro
-            tal:define="widget_macro python:path('here/%s/macros' % widget.macro);
-                        default_hidden_macro here/widgets/field/macros/hidden;
+            tal:define="widget_macro python:path('context/%s/macros' % widget.macro);
+                        default_hidden_macro context/widgets/field/macros/hidden;
                         hidden_macro widget_macro/hidden | default_hidden_macro;
                         ">
           <metal:use use-macro="hidden_macro" />

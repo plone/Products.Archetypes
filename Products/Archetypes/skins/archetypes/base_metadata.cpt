@@ -1,17 +1,17 @@
 <tal:block metal:define-macro="master"
            define="errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
-                   rejection here/rejectAnonymous;
-                   type_name here/getPortalTypeName|here/archetype_name;
-                   fti here/getTypeInfo;
+                   rejection context/rejectAnonymous;
+                   type_name context/getPortalTypeName|context/archetype_name;
+                   fti context/getTypeInfo;
                    type_title fti/Title|type_name;
                    fieldset request/fieldset|options/fieldset|string:metadata;
-                   schematas here/Schemata;
+                   schematas context/Schemata;
                    schema python:schematas.get(fieldset, None);
                    fields python:schema is not None and schema.fields() or [];
-                   metadata_macros python:path('here/metadata_macros/macros|nothing');
-                   css python:here.getUniqueWidgetAttr(fields, 'helper_css');
-                   js python:here.getUniqueWidgetAttr(fields, 'helper_js');"
+                   metadata_macros python:path('context/metadata_macros/macros|nothing');
+                   css python:context.getUniqueWidgetAttr(fields, 'helper_css');
+                   js python:context.getUniqueWidgetAttr(fields, 'helper_js');"
                    >
 <html xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="en-US"
@@ -19,11 +19,11 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-      metal:use-macro="here/main_template/macros/master"
+      metal:use-macro="context/main_template/macros/master"
       i18n:domain="plone">
 
   <metal:head fill-slot="javascript_head_slot">
-    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+    <tal:block define="macro context/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
@@ -51,17 +51,17 @@
     <div metal:fill-slot="main">
       <div metal:define-macro="main">
 
-  <h1 tal:content="here/title_or_id"
+  <h1 tal:content="context/title_or_id"
       metal:use-macro="metadata_macros/header|default" />
 
   <form name="edit_form"
         method="post"
         enctype="multipart/form-data"
         class="enableUnloadProtection"
-        tal:attributes="action python:here.absolute_url()+'/'+template.id">
+        tal:attributes="action python:context.absolute_url()+'/'+template.id">
 
       <tal:fields repeat="field fields">
-        <metal:fieldMacro use-macro="python: here.widget(field.getName(), mode='edit')"/>
+        <metal:fieldMacro use-macro="python: context.widget(field.getName(), mode='edit')"/>
       </tal:fields>
 
       <input type="hidden" name="form.submitted" value="1" />

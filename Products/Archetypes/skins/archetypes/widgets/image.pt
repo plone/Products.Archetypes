@@ -34,11 +34,11 @@
                    condition="python:size &gt; 0">
 
             <img tal:condition="icon" src=""
-                 tal:attributes="src string:${here/portal_url}/$icon"/>
+                 tal:attributes="src string:${context/portal_url}/$icon"/>
               <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
 
         <span class="discreet">
-          <span tal:content="python:here.lookupMime(content_type)">ContentType</span> &mdash;
+          <span tal:content="python:context.lookupMime(content_type)">ContentType</span> &mdash;
           <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
         </span>
         </tal:block>
@@ -46,19 +46,19 @@
     </div>
 
     <metal:define define-macro="view">
-      <metal:display use-macro="here/widgets/image/macros/image_display" />
-      <metal:file use-macro="here/widgets/image/macros/image_view">download link</metal:file>
+      <metal:display use-macro="context/widgets/image/macros/image_display" />
+      <metal:file use-macro="context/widgets/image/macros/image_view">download link</metal:file>
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
           <div>
-            <metal:display use-macro="here/widgets/image/macros/image_display">
+            <metal:display use-macro="context/widgets/image/macros/image_display">
               <br />
             </metal:display>
           </div>
-        <metal:block metal:use-macro="here/widgets/image/macros/image_view"/>
+        <metal:block metal:use-macro="context/widgets/image/macros/image_view"/>
           <div tal:condition="accessor" class="field">
             <input class="noborder"
                    type="radio"
@@ -100,11 +100,11 @@
                     Replace with new image:
              </label>
              <div style="padding-left:1.5em;padding-top:0.5em;">
-                <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+                <metal metal:use-macro="context/widgets/file/macros/file_upload"/>
              </div>
           </div>
           <div tal:condition="not: accessor">
-            <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+            <metal metal:use-macro="context/widgets/file/macros/file_upload"/>
           </div>
 
 	    </metal:fill>
@@ -112,7 +112,7 @@
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/image/macros/edit">
+      <div metal:use-macro="context/widgets/image/macros/edit">
       </div>
     </div>
 

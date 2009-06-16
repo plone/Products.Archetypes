@@ -171,7 +171,7 @@ def migrateUIDs(portal, out):
     for brain in allbrains:
         # get a uid for each thingie
         obj = brain.getObject()
-        if not IBaseObject.isImplementedBy(obj): 
+        if not IBaseObject.providedBy(obj): 
             continue #its no Archetype instance, so leave it
         
         objUID = getattr(aq_base(obj), '_uid', None)        

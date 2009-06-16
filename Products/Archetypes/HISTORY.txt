@@ -1,3 +1,102 @@
+1.6.0 - unreleased
+========================
+
+  * Deprecated our own IOrderedContainer interface in favor of the version
+    from OFS. We do require Zope 2.7 for a while now ;)
+    [hannosch]
+
+  * Changed all references to `here` in all templates to `context`.
+    [hannosch]
+
+  * 'TextField._process_input doesn't forward **kwargs' this fix
+    https://dev.plone.org/plone/ticket/7597 [garbas]
+
+  * Traverse to ``plone_utils`` tool instead of relying on it being
+    available in global variable scope. [malthe]
+  
+  * Do not add empty schemas into a CompositeSchema anymore.
+    This closes http://dev.plone.org/plone/ticket/7584.
+    [hannosch]
+
+  * Removed deprecated _guessPackage method. This closes
+    http://dev.plone.org/plone/ticket/7569.
+    [davisagli]
+
+  * Normalizing the "id" attribute for fieldsets and fieldset legends, so
+    javascript schemata selection works for schematas that have spaces in
+    the title. This closes http://dev.plone.org/plone/ticket/7999.
+    [rsantos]
+
+  * Added a missing alt tag to the image in the file widget. This closes
+    http://dev.plone.org/plone/ticket/7763.
+    [hannosch]
+
+  * Removed the rebuild catalog tab from the reference and uid catalog. The
+    method is still there and can be accessed via the URL, but you won't
+    accidentally click on a tab in the ZMI anymore and have your catalog be
+    rebuilt without a warning. This closes
+    http://dev.plone.org/plone/ticket/8093.
+    [hannosch]
+
+  * Fixed the SelectionWidget view to keep the order of the passed in values
+    on output and not sort after arbitrary Python internal dict order. This
+    closes http://dev.plone.org/plone/ticket/7272.
+    [hannosch]
+
+  * Fixed a macro expansion error when customizing templates which used
+    the folderlisting macro from base.pt. This closes
+    http://dev.plone.org/plone/ticket/6672.
+    [hannosch]
+
+  * Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
+    Consider branching before this revision if release required before Plone 4.
+    [elro]
+
+  * Avoid a failure in addCreator when called on an object without an
+    Acquisition chain.
+    [hannosch]
+
+  * Remove the long long deprecated 'type' class variable, which was
+    replaced with 'schema'.
+    [wichert]
+
+  * Allow fields to supply their own PdataStreamIterator. This closes
+    http://dev.plone.org/plone/ticket/7572.
+    [hannosch]
+
+  * Fixed off-by-two error in transaction_note. This refs
+    http://dev.plone.org/plone/ticket/7610.
+    [hannosch]
+
+  * Add a new publish traverse that exposes image fields and their scales.
+    This removes the need for content types to have a __bobo_traverse__ method.
+    [wichert]
+
+  * Move export/import step registrations to exportimport/configure.zcml. This
+    change requires CMF trunk.
+    [stefan]
+
+  * Added dependencies to GenericSetup profile.
+    [hannosch]
+
+  * Removed five:implements statements from ZCML, which are already done in the
+    classes themselves.
+    [hannosch]
+
+  * Minor tweak in the calendar widget.
+    [deo, hannosch]
+
+  * Removed Archetypes Site customization policy.
+    [hannosch]
+
+  * Removed deprecated code.
+    [hannosch]
+
+  * Moved rejectAnonymous script from CMFPlone over, as it is still used
+    inside base_metadata.cpt.
+    [hannosch]
+
+
 1.5.12 - UNRELEASED
 ===================
 
@@ -274,6 +373,7 @@
   invoked in View mode by KSS without any special magic. This is a
   prerequisite for bug #6705 in the Plone issue tracker.
   [limi]
+
 
 1.5.0 - 2007-08-16
 ==================

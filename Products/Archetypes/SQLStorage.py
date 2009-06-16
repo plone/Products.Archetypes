@@ -9,11 +9,12 @@ from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
 from ZODB.POSException import ConflictError
 from OFS.ObjectManager import BeforeDeleteException
+from zope.interface import implements
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """
 
-    __implements__ = ISQLStorage, ILayer
+    implements(ISQLStorage, ILayer)
 
     query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '
@@ -134,7 +135,7 @@ class BaseSQLStorage(StorageLayer):
           return
               
         fields = instance.Schema().fields()
-        fields = [f for f in fields if IObjectField.isImplementedBy(f) \
+        fields = [f for f in fields if IObjectField.providedBy(f) \
                   and f.getStorage().__class__ is self.__class__]
         columns = []
         args = {}
@@ -238,7 +239,7 @@ class BaseSQLStorage(StorageLayer):
         # first, made a temporary copy of the field values in case we
         # are being moved
         fields = instance.Schema().fields()
-        fields = [f for f in fields if IObjectField.isImplementedBy(f) \
+        fields = [f for f in fields if IObjectField.providedBy(f) \
                   and f.getStorage().__class__ is self.__class__]
         temps = {}
         for f in fields:
@@ -271,8 +272,6 @@ class BaseSQLStorage(StorageLayer):
             pass
 
 class GadflySQLStorage(BaseSQLStorage):
-
-    __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
                     '(UID varchar, PARENTUID varchar <dtml-var columns>)')
@@ -368,8 +367,6 @@ class GadflySQLStorage(BaseSQLStorage):
 
 class MySQLSQLStorage(BaseSQLStorage):
 
-    __implements__ = BaseSQLStorage.__implements__
-
     query_create = ('create table `<dtml-var table>` '
                     '(UID char(50) primary key not null, '
                     'PARENTUID char(50) <dtml-var columns>) TYPE = %s' % MYSQL_SQLSTORAGE_TABLE_TYPE)
@@ -400,8 +397,6 @@ class MySQLSQLStorage(BaseSQLStorage):
         return instance.portal_type.lower() in result
 
 class PostgreSQLStorage(BaseSQLStorage):
-
-    __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
                     '(UID text primary key not null, '
@@ -434,8 +429,6 @@ class PostgreSQLStorage(BaseSQLStorage):
                            {'relname': instance.portal_type.lower()})
 
 class SQLServerStorage(BaseSQLStorage):
-
-    __implements__ = BaseSQLStorage.__implements__
 
     query_create = ('create table <dtml-var table> '
                     '(UID varchar(50) CONSTRAINT pk_uid '

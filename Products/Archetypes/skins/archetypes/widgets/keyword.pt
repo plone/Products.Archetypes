@@ -24,10 +24,10 @@
     </metal:view_macro>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
     <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
-            allowedKeywords python: here.collectKeywords(fieldName, field.accessor, widget.vocab_source);
-            site_props here/portal_properties/site_properties;
+            allowedKeywords python: context.collectKeywords(fieldName, field.accessor, widget.vocab_source);
+            site_props context/portal_properties/site_properties|nothing;
             format widget/format | string:select;
             allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
 
@@ -66,7 +66,7 @@
                             name string:${fieldName}_existing_keywords:list;">
           <option value="#" tal:repeat="keyword allowedKeywords"
               tal:content="keyword" tal:attributes="value keyword;
-              selected python:test(here.unicodeTestIn(keyword, value), 'selected', None)">
+              selected python:test(context.unicodeTestIn(keyword, value), 'selected', None)">
               An existing category
           </option>
         </select>
@@ -84,7 +84,7 @@
                      tal:attributes="type string:checkbox;
                                      name string:${fieldName}_existing_keywords:list;
                                      id string:${fieldName}_${repeat/keyword/number};
-                                     checked python:test(here.unicodeTestIn(keyword, value), 'checked', None);
+                                     checked python:test(context.unicodeTestIn(keyword, value), 'checked', None);
                                      value keyword" />
               <label tal:content="keyword"
                      tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
@@ -102,7 +102,7 @@
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/keyword/macros/edit">
+      <div metal:use-macro="context/widgets/keyword/macros/edit">
       </div>
     </div>
 

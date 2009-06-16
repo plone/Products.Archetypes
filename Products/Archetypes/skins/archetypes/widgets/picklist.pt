@@ -11,11 +11,11 @@
     <metal:view_macro define-macro="view"
         tal:define="vocab python:field.Vocabulary(here);
                     value python:accessor();
-                    display python:here.displayValue(vocab, value);"
+                    display python:context.displayValue(vocab, value);"
         tal:replace="structure display" />
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
                                 selectionview context/@@at_selection_widget;
@@ -84,7 +84,7 @@
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/multiselection/macros/edit">
+      <div metal:use-macro="context/widgets/multiselection/macros/edit">
       </div>
     </div>
 

@@ -37,6 +37,7 @@ from AccessControl import ClassSecurityInfo
 
 from annotations import AT_ANN_KEYS
 from interfaces.athistoryaware import IATHistoryAware
+from zope.interface import implements
 
 # A note about this implementation
 #
@@ -115,7 +116,7 @@ class ATHistoryAwareMixin:
 
     """
 
-    __implements__ = (IATHistoryAware,)
+    implements(IATHistoryAware)
 
     security       = ClassSecurityInfo()
 

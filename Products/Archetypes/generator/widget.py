@@ -3,13 +3,11 @@ from AccessControl.unauthorized import Unauthorized
 from Acquisition import aq_inner
 from Globals import InitializeClass
 
-# BBB, this can be removed once we do not support PTS anymore
-from Products.PageTemplates.GlobalTranslationService \
-     import getGlobalTranslationService as getGTS
-
+from zope.i18n import translate
 from zope.i18nmessageid import Message
+from zope.interface import Interface, implements
 
-class iwidget:
+class iwidget(Interface):
     def __call__(instance, context=None):
         """Returns a rendered fragment that can be included in a larger
         context when called by a renderer.
@@ -39,7 +37,7 @@ class widget:
     condition   -- TALES expression to control the widget display
     """
 
-    __implements__ = (iwidget,)
+    implements(iwidget)
 
     security  = ClassSecurityInfo()
     security.declareObjectPublic()
@@ -83,8 +81,7 @@ class widget:
         if domain is None:
             return value
 
-        return getGTS().translate(domain, msgid, mapping=instance.REQUEST,
-                                  context=instance, default=value)
+        return translate(msgid, domain, context=instance.REQUEST, default=value)
 
     def Label(self, instance, **kwargs):
         """Returns the label, possibly translated."""

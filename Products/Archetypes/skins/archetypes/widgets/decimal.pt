@@ -24,7 +24,7 @@
                        tal:replace="result"/>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
       <input metal:fill-slot="widget_body"
              type="text"
              class="blurrable firstToFocus"
@@ -42,7 +42,7 @@
 
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/decimal/macros/edit">
+      <div metal:use-macro="context/widgets/decimal/macros/edit">
       </div>
     </div>
 

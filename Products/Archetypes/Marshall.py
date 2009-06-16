@@ -4,6 +4,7 @@ from cStringIO import StringIO
 from rfc822 import Message
 
 from zope.contenttype import guess_content_type
+from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -101,7 +102,7 @@ def parseRFC822(body):
     return headers, buffer.read()
 
 class Marshaller:
-    __implements__ = IMarshall, ILayer
+    implements(IMarshall, ILayer)
 
     security = ClassSecurityInfo()
     security.declareObjectPrivate()
@@ -164,7 +165,7 @@ class PrimaryFieldMarshaller(Marshaller):
         data = p and instance[p.getName()] or ''
         content_type = length = None
         # Gather/Guess content type
-        if IBaseUnit.isImplementedBy(data):
+        if IBaseUnit.providedBy(data):
             content_type = data.getContentType()
             length = data.get_size()
             data   = data.getRaw()
@@ -244,7 +245,7 @@ class RFC822Marshaller(Marshaller):
         pname = p and p.getName() or None
         content_type = length = None
         # Gather/Guess content type
-        if IBaseUnit.isImplementedBy(body):
+        if IBaseUnit.providedBy(body):
             content_type = str(body.getContentType())
             body   = body.getRaw()
         else:

@@ -125,7 +125,7 @@ def findBaseTypes(klass):
     bases = []
     if hasattr(klass, '__bases__'):
         for b in klass.__bases__:
-            if IBaseObject.isImplementedByInstancesOf(b):
+            if IBaseObject.providedBy(b):
                 bases.append(className(b))
     return bases
 

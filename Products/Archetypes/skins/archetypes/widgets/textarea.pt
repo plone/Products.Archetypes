@@ -26,7 +26,7 @@
     <metal:define define-macro="area_edit">
       <tal:define
           define="base python:hasattr(value, 'isUnit');
-                  binary python:base and value.isBinary() or here.isBinary(fieldName);
+                  binary python:base and value.isBinary() or context.isBinary(fieldName);
                   content python: not not base and value.getRaw() or value;
                   content python: not binary and content or '';
                   content_length python:len(content);
@@ -88,7 +88,7 @@
     <metal:define define-macro="area_format">
       <tal:define
           define="field_text_format string:${fieldName}_text_format;
-                  contentType python:request.get(field_text_format, here.getContentType(fieldName));
+                  contentType python:request.get(field_text_format, context.getContentType(fieldName));
                   get_act python:getattr(field, 'getAllowedContentTypes', False);
                   allowable_ct python:get_act and get_act(here) or ('text/plain',);
                   mimetypes python:[t for t in allowable_ct if t.startswith('text/')];
@@ -127,19 +127,19 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
-          <metal:block use-macro="here/widgets/textarea/macros/area_edit" />
-          <metal:block use-macro="here/widgets/textarea/macros/area_format" />
+          <metal:block use-macro="context/widgets/textarea/macros/area_edit" />
+          <metal:block use-macro="context/widgets/textarea/macros/area_format" />
         </metal:fill>
       </metal:use>
     </metal:define>
 
     <metal:define define-macro="search">
-      <metal:use use-macro="here/widgets/field/macros/edit">
+      <metal:use use-macro="context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
 
-          <metal:block use-macro="here/widgets/textarea/macros/area_edit" />
+          <metal:block use-macro="context/widgets/textarea/macros/area_edit" />
 
         </metal:fill>
       </metal:use>

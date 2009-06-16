@@ -1,7 +1,7 @@
 <html>
-  <div tal:replace="structure here/manage_page_header"/>
+  <div tal:replace="structure context/manage_page_header"/>
   <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
-    <div tal:replace="structure here/manage_tabs"/>
+    <div tal:replace="structure context/manage_tabs"/>
     <style type="text/css">
       div.row {
       padding-top: 2px;
@@ -30,18 +30,18 @@
     </style>
 
     <form action="manage_debug" method="POST"
-          tal:define="gen here/archetype_tool;
+          tal:define="gen context/archetype_tool;
                       types gen/listRegisteredTypes">
 
       <table class="content_type" width="80%" tal:repeat="type types">
         <tr>
           <td class="title"
-              tal:define="typ python: here.portal_types.getTypeInfo(type['meta_type']);
+              tal:define="typ python: context.portal_types.getTypeInfo(type['meta_type']);
                           package type/package;
                           type_name type/meta_type;
                           inst_val python: typ != None;
                           installed python: test(typ != None, 'installed', 'not installed');
-                          spec python:here.getTypeSpec(package, type_name)">
+                          spec python:context.getTypeSpec(package, type_name)">
             <a tal:condition="nothing" href="#" tal:attributes="href string:${request/URL1}/manage_dumpSchema?package=${package}&type_name=${type_name}">
               [dump schema]
             </a>

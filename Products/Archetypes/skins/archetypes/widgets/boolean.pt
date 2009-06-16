@@ -19,15 +19,14 @@
                             id string:parent-fieldname-$fieldName">
             <span metal:define-slot="inside" 
                   tal:define="voc field/Vocabulary; key accessor;
-                              value python:voc and voc.getValue(str(key)) or key;
-                              msgid python:voc and voc.getMsgId(str(key)) or ''"
+                              value python:voc and voc.getValue(str(key)) or key"
                   tal:replace="value"
                   i18n:translate="">Yes No</span>
         </span>
     </metal:view_macro>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
       <metal:fill fill-slot="widget_body_label_prefix"
                   tal:define="value python:test(not not value and value not in ('0', 'False'), 1, 0)">
 
@@ -56,7 +55,7 @@
     </metal:hidden_macro>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/boolean/macros/edit">
+      <div metal:use-macro="context/widgets/boolean/macros/edit">
       </div>
     </div>
 

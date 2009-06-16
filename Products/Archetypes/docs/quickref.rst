@@ -265,7 +265,7 @@ schemata
    a field called ``fieldname``: 
 
    - accessor: ``getFieldname()`` (when called from a Page Template:
-     ``here/getFieldname``)
+     ``context/getFieldname``)
 
    - mutator: ``setFieldname()``
 
@@ -429,8 +429,9 @@ Writing a custom validator
 If you need custom validation, you can write a new validator in your product.::
 
     from Products.validation.interfaces import ivalidator
+    from zope.interface import implements
     class FooValidator:
-        __implements__ = (ivalidator,)
+        implements(ivalidator)
         def __init__(self, name):
             self.name = name
         def __call__(self, value, *args, **kwargs):

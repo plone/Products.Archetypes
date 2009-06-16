@@ -1,13 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/five"
     >
-  
-  <bridge
-      zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedContainer"
-      package=".interfaces"
-      name="IOrderedContainer"
-      /> 
- 
+
   <bridge
       zope2="Products.Archetypes.interfaces.orderedfolder.IOrderedFolder"
       package=".interfaces"

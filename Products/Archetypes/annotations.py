@@ -34,6 +34,9 @@ from Globals import InitializeClass
 from Products.Archetypes.interfaces.annotations import IATAnnotations
 from Products.Archetypes.interfaces.annotations import IATAnnotatable
 
+from zope.interface import implements
+from zope.component import adapts
+
 # annotation keys
 AT_ANN_STORAGE = 'Archetypes.storage.AnnotationStorage'
 AT_MD_STORAGE  = 'Archetypes.storage.MetadataAnnotationStorage'
@@ -47,8 +50,8 @@ class ATAnnotations(DictMixin, Explicit):
     """Store annotations in the '__annotations__' attribute on a IATAnnotatable
        object.
     """
-    __implements__ = IATAnnotations
-    __used_for__ = IATAnnotatable
+    implements(IATAnnotations)
+    adapts(IATAnnotatable)
 
     security = ClassSecurityInfo()
     security.declareObjectPrivate()

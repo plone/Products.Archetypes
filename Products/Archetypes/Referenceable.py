@@ -3,7 +3,6 @@ from zope.interface import implements
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.interfaces.referenceable import IReferenceable as DEPRECATED
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base, aq_parent, aq_inner
@@ -36,7 +35,6 @@ class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
     implements(IReferenceable)
-    __implements__ = (DEPRECATED,)
 
     security = ClassSecurityInfo()
     # XXX FIXME more security

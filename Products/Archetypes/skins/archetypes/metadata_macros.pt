@@ -11,7 +11,7 @@
     <div metal:define-macro="header">
 
     <h1 class="documentFirstHeading"
-        tal:define="fti here/getTypeInfo;
+        tal:define="fti context/getTypeInfo;
                     type_title fti/Title|type_name;">
 
         <span i18n:translate="heading_edit_item">Edit

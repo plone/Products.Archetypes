@@ -9,6 +9,8 @@ from Products.Archetypes.ClassGen import generateMethods
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
+from zope.interface import implements
+
 
 # Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields
@@ -97,7 +99,7 @@ class FacadeMetadataSchema(BasicSchema):
     to groups of Archetypes fields
     """
 
-    __implements__ = IBindableSchema
+    implements(IBindableSchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

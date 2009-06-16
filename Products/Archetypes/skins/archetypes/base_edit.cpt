@@ -6,25 +6,27 @@
                    dummy lifecycle/begin_edit;
                    errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
-                   schematas here/Schemata;
+                   schematas context/Schemata;
                    allow_tabbing python: not view.isMultiPageSchema();
                    fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];
                    default_fieldset python:'default' in fieldsets and 'default' or fieldsets and fieldsets[0] or None;
                    fieldset request/fieldset|options/fieldset|default_fieldset;
                    fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
-                   dummy python:here.at_isEditable(fields);
-                   portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
-                   type_name here/getPortalTypeName|here/archetype_name;
-                   base_macros here/edit_macros/macros;
+                   dummy python:context.at_isEditable(fields);
+                   portal_type python:context.getPortalTypeName().lower().replace(' ', '_');
+                   portal_url nocall:context/portal_url;
+                   portal portal_url/getPortalObject;
+                   type_name context/getPortalTypeName|context/archetype_name;
+                   base_macros context/edit_macros/macros;
                    edit_template python:'%s_edit' % portal_type;
-                   edit_macros python:path('here/%s/macros | nothing' % edit_template);
+                   edit_macros python:path('context/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
                    isLocked isLocked | lock_info/is_locked_for_current_user;
-                   css python:here.getUniqueWidgetAttr(fields, 'helper_css');
-                   js python:here.getUniqueWidgetAttr(fields, 'helper_js');">
+                   css python:context.getUniqueWidgetAttr(fields, 'helper_css');
+                   js python:context.getUniqueWidgetAttr(fields, 'helper_js');">
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xml:lang="en"
@@ -32,7 +34,7 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-      metal:use-macro="here/main_template/macros/master"
+      metal:use-macro="context/main_template/macros/master"
       i18n:domain="plone">
 
   <metal:head fill-slot="top_slot">
@@ -43,7 +45,7 @@
   </metal:head>
   
   <metal:javascript_head fill-slot="javascript_head_slot">
-    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+    <tal:block define="macro context/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>

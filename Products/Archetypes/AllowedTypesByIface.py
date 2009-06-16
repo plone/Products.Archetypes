@@ -76,7 +76,7 @@ class AllowedTypesByIfaceMixin:
 
     A content object only needs to implement one of allowed_interfaces:
 
-    >>> from Interface import Interface
+    >>> from zope.interface import Interface
     >>> class SomeInterface(Interface): pass
     >>> f.allowed_interfaces = (IBaseFolder, SomeInterface)
     >>> f.invokeFactory('SimpleFolder', 'sf2')

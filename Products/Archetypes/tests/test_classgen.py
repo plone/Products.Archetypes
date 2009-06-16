@@ -198,35 +198,35 @@ class ClassGenTest(ATSiteTestCase):
             if not hasattr(field, 'getBaseUnit'):
                 continue
             bu = field.getBaseUnit(obj)
-            self.failUnless(IBaseUnit.isImplementedBy(bu),
+            self.failUnless(IBaseUnit.providedBy(bu),
                             ('Return value of %s.getBaseUnit() does not '
                              'implement BaseUnit: %s' %
                              (field.__class__, type(bu))))
 
 class SecDummy1:
-    type = {}
+    schema = {}
     sec = ClassSecurityInfo()
     sec.declareProtected('View', 'makeFoo')
     def makeFoo(self):
         return 'foo'
 
 class SecDummy2:
-    type = {}
+    schema = {}
     def makeFoo(self):
         return 'foo'
 
 class SecDummy3:
-    type = {}
+    schema = {}
 
 class SecDummy4:
-    type = {}
+    schema = {}
     sec = ClassSecurityInfo()
     sec.declarePublic('makeFoo')
     def makeFoo(self):
         return 'foo'
 
 class SecDummy5:
-    type = {}
+    schema = {}
     sec = ClassSecurityInfo()
     sec.declarePrivate('makeFoo')
     def makeFoo(self):

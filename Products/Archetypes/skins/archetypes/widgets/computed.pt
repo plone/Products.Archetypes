@@ -32,12 +32,12 @@
                i18n:translate="">
             Help
           </div>
-          <metal:use use-macro="here/widgets/computed/macros/view" />
+          <metal:use use-macro="context/widgets/computed/macros/view" />
       </div>
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/string/macros/edit">
+      <div metal:use-macro="context/widgets/string/macros/edit">
           It does make sense to "search" a computed field
       </div>
     </div>

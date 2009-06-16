@@ -14,7 +14,7 @@
             tal:condition="python:context.checkCreationFlag()">
           Add
           <span i18n:name="itemtype"
-                tal:define="fti python:here.portal_types.getTypeInfo(here)">
+                tal:define="fti python:context.portal_types.getTypeInfo(here)">
             <span i18n:translate=""
                   tal:content="fti/title_or_id"
                   tal:omit-tag="">Item type</span>
@@ -24,7 +24,7 @@
             tal:condition="python: not context.checkCreationFlag()">
           Edit
           <span i18n:name="itemtype"
-                tal:define="fti python:here.portal_types.getTypeInfo(here)">
+                tal:define="fti python:context.portal_types.getTypeInfo(here)">
              <span i18n:translate=""
                    tal:content="fti/title_or_id"
                    tal:omit-tag="">Item type</span>
@@ -54,7 +54,7 @@
             <strong>[<span tal:content="set" i18n:translate="" />]</strong>
           </tal:current>
           <tal:others condition="python:set != fieldset">
-            <a href="#" tal:attributes="href string:${here/absolute_url}/${template/getId}?fieldset=${set}">
+            <a href="#" tal:attributes="href string:${context/absolute_url}/${template/getId}?fieldset=${set}">
             [<span tal:content="set" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
@@ -64,7 +64,7 @@
     </div>
 
     <div metal:define-macro="typedescription">
-        <tal:description tal:define="fti python:here.portal_types.getTypeInfo(here);
+        <tal:description tal:define="fti python:context.portal_types.getTypeInfo(here);
                                      desc fti/Description;"
                          tal:condition="desc">
             <p class="discreet" i18n:translate="" tal:content="desc">
@@ -82,7 +82,7 @@
             class="enableUnloadProtection enableAutoFocus atBaseEditForm"
             action=""
             id=""
-            tal:attributes="action python:here.absolute_url()+'/'+template.id;
+            tal:attributes="action python:context.absolute_url()+'/'+template.id;
                             id string:${portal_type}-base-edit;
                             class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing enableUnlockProtection', 'enableUnloadProtection enableAutoFocus enableUnlockProtection');">
           <metal:block define-slot="extra_top" />
@@ -91,22 +91,23 @@
             <tal:tabbed tal:condition="allow_tabbing | nothing">
               <tal:fieldsets define="sole_fieldset python:len(fieldsets)==1"
                 repeat="fieldset fieldsets">
-                <fieldset tal:define="fieldsetid python:putils.normalizeString(fieldset)"
-                        tal:attributes="id string:fieldset-${fieldsetid}"
-                        tal:omit-tag="sole_fieldset">
+                <fieldset tal:define="putils context/plone_utils;
+                                      fieldsetid python:putils.normalizeString(fieldset)"
+                          tal:attributes="id string:fieldset-${fieldsetid}"
+                          tal:omit-tag="sole_fieldset">
                   <legend id=""
                           tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
                           tal:attributes="id string:fieldsetlegend-${fieldsetid}"
                           tal:condition="not:sole_fieldset" />
                   <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                    <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+                    <metal:fieldMacro use-macro="python:context.widget(field.getName(), mode='edit')" />
                   </tal:fields>
                 </fieldset>
               </tal:fieldsets>
             </tal:tabbed>
             <tal:nottabbed tal:condition="not: allow_tabbing | nothing">
                 <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
-                  <metal:fieldMacro use-macro="python:here.widget(field.getName(), mode='edit')" />
+                  <metal:fieldMacro use-macro="python:context.widget(field.getName(), mode='edit')" />
                 </tal:fields>
             </tal:nottabbed>
           </metal:block>
@@ -198,8 +199,8 @@
             </tal:comment>
             <input type="hidden"
                    name="last_referer"
-                   tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
-                   tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or (here.getParentNode() and here.getParentNode().absolute_url())"
+                   tal:define="last_referer python:context.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
+                   tal:attributes="value python:(last_referer and '%s/%s' % (context.absolute_url(), template.id) not in last_referer) and last_referer or (context.getParentNode() and context.getParentNode().absolute_url())"
                    />
 
             <metal:block define-slot="buttons"

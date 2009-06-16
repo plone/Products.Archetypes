@@ -4,6 +4,7 @@ OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
 from zope.interface import implements
 from types import StringType
+from zope.interface import implements
 
 from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
@@ -11,29 +12,19 @@ from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
+from OFS.interfaces import IOrderedContainer
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.interfaces.Dynamic import DynamicType
+from Products.CMFCore.interfaces import IDynamicType
 #from Products.CMFDefault.SkinnedFolder import SkinnedFolder
 from Products.CMFCore import permissions
 
-from OFS.IOrderSupport import IOrderedContainer as IZopeOrderedContainer
-from OFS.interfaces import IOrderedContainer as IZ3OrderedContainer
-    
 from zExceptions import NotFound
-
-# atm its safer defining an own so we need an ugly hack to make Archetypes
-# OrderedBaseFolder work without Plone 2.0
-try:
-    from Products.CMFPlone.interfaces.OrderedContainer import IOrderedContainer
-except ImportError:
-    from Products.Archetypes.interfaces.orderedfolder import IOrderedContainer
 
 
 class OrderedContainer:
 
-    __implements__  = (IOrderedContainer, IZopeOrderedContainer)
-    implements(IZ3OrderedContainer)
+    implements(IOrderedContainer)
 
     security = ClassSecurityInfo()
 
@@ -187,8 +178,7 @@ InitializeClass(OrderedContainer)
 class OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
 
-    __implements__ = OrderedContainer.__implements__,\
-                     BaseFolder.__implements__, DynamicType
+    implements(IDynamicType)
 
     security = ClassSecurityInfo()
 

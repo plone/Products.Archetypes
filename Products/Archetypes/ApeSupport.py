@@ -50,6 +50,7 @@ from StringIO import StringIO
 from cPickle import Pickler, UnpickleableError
 import os
 
+from zope.interface import implements
 
 #map types between APE and Archetypes Schemas
 
@@ -115,7 +116,7 @@ def constructSerializer(klass):
 class ArcheSerializer:
     """Serializer for OFS.PropertyManager properties."""
 
-    __implements__ = ISerializer
+    implements(ISerializer)
 
     schema = RowSequenceSchema()
 
@@ -169,7 +170,7 @@ class RemainingState(RemainingBase):
 
 
     def serialize(self, event):
-        assert IFullSerializationEvent.isImplementedBy(event)
+        assert IFullSerializationEvent.providedBy(event)
         assert isinstance(event.obj, Persistent)
 
         # Allow pickling of cyclic references to the object.

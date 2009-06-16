@@ -26,7 +26,7 @@
 
     <metal:define define-macro="area_format">
       <tal:define define="
-                  fieldCType python:here.getContentType(fieldName);
+                  fieldCType python:context.getContentType(fieldName);
                   contentType python:request.get('%s_text_format' % fieldName, fieldCType);
                   mimetypes python:field.getAllowedContentTypes(here);
                   ">
@@ -56,9 +56,9 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
     <metal:fill fill-slot="widget_body"
-            tal:define="editor python:here.portal_membership.getAuthenticatedMember().wysiwyg_editor;
+            tal:define="editor python:context.portal_membership.getAuthenticatedMember().wysiwyg_editor;
             wysiwyg python:test(editor and (editor!='None'), editor, 'None');
             use_wysiwyg widget/use_wysiwyg | python:0"
             >
@@ -69,21 +69,21 @@
          inputvalue value;
          width widget/width;
          height widget/height;">
-          <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox">
+          <div metal:use-macro="context/wysiwyg_support/macros/wysiwygEditorBox">
         The WYSIWYG code
           </div>
         </div>
       </div>
 
       <tal:area_format tal:condition="widget/allow_format_edit | python:1">
-               <div metal:use-macro="here/widgets/visual/macros/area_format" />
+               <div metal:use-macro="context/widgets/visual/macros/area_format" />
       </tal:area_format>
 
     </metal:fill>
       </metal:use>
     </metal:define>
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/textarea/macros/edit">
+      <div metal:use-macro="context/widgets/textarea/macros/edit">
       </div>
     </div>
 

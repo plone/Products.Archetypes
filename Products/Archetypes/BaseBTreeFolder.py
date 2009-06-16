@@ -19,7 +19,6 @@ class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     security = ClassSecurityInfo()
 
-    __implements__ = CMFBTreeFolder.__implements__, BaseFolder.__implements__
     implements(IBaseFolder)
 
     # Fix permissions set by CopySupport.py

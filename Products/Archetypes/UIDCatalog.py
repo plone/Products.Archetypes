@@ -192,10 +192,6 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
 
-    manage_options = ZCatalog.manage_options + \
-        ({'label': 'Rebuild catalog',
-         'action': 'manage_rebuildCatalog',}, )
-
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""

@@ -36,7 +36,6 @@ _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 STRING_TYPES = (StringType, UnicodeType)
 
 from Referenceable import Referenceable
-from UIDCatalog import UIDCatalog # Required for migrations from Plone 2.1
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
@@ -48,7 +47,6 @@ class Reference(Referenceable, SimpleItem):
     ## do this anyway. However they should fine the correct
     ## events when they are added/deleted, etc
 
-    __implements__ = Referenceable.__implements__ + (Z2IReference,)
     implements(IReference)
 
     security = ClassSecurityInfo()
@@ -169,7 +167,7 @@ REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 class ContentReference(ObjectManager, Reference):
     '''Subclass of Reference to support contentish objects inside references '''
 
-    __implements__ = Reference.__implements__ + (IContentReference,)
+    implements(IContentReference)
 
     def __init__(self, *args, **kw):
         Reference.__init__(self, *args, **kw)
@@ -301,12 +299,6 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options
 
-    # XXX FIXME more security
-
-    manage_options = ZCatalog.manage_options + \
-        ({'label': 'Rebuild catalog',
-         'action': 'manage_rebuildCatalog',}, )
-
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
         ZCatalog.__init__(self, id, title, vocab_id, container)
@@ -433,7 +425,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
 
     def isReferenceable(self, object):
-        return (IReferenceable.isImplementedBy(object) or
+        return (IReferenceable.providedBy(object) or
                 shasattr(object, 'isReferenceable'))
 
     def reference_url(self, object):
@@ -495,7 +487,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def _uidFor(self, obj):
         # We should really check for the interface but I have an idea
         # about simple annotated objects I want to play out
-        if type(obj) not in STRING_TYPES:
+        if not isinstance(obj, basestring):
             uobject = aq_base(obj)
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject
@@ -554,7 +546,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return 1
 
     def _catalogReferencesFor(self,obj,path):
-        if IReferenceable.isImplementedBy(obj):
+        if IReferenceable.providedBy(obj):
             obj._catalogRefs(self)
 
     def _catalogReferences(self,root=None,**kw):

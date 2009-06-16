@@ -1,1 +1,1 @@
-1.5.12 (svn/unreleased)
+1.6.0-dev

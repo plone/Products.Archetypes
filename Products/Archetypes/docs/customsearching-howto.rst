@@ -60,7 +60,7 @@ Archetypes objects.
 The part of the search skin that calls the Archetypes API we need is::
 
   <div tal:define="errors python: {}">
-    <tal:fields repeat="widget python: here.archetype_tool.getSearchWidgets()">
+    <tal:fields repeat="widget python: context.archetype_tool.getSearchWidgets()">
       <metal:fieldMacro use-macro="widget"/>
     </tal:fields>
   </div>

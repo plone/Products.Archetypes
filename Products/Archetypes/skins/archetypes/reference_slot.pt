@@ -7,7 +7,7 @@
     <div metal:define-macro="referenceBox"
          tal:on-error="nothing"
 	 tal:define="
-	 ct nocall:here/reference_catalog;
+	 ct nocall:context/reference_catalog;
 	 refs python: ct.getReferences(here);
 	 brefs python: ct.getBackReferences(here);
 	 "

@@ -123,12 +123,7 @@ class ClassGenerator:
         return re.sub('([a-z])([A-Z])', '\g<1> \g<2>', klass.__name__)
 
     def checkSchema(self, klass):
-        # backward compatibility, should be removed later on
-        if klass.__dict__.has_key('type') and \
-           not klass.__dict__.has_key('schema'):
-            deprecated('Class %s has type attribute, should be schema' % \
-                       klass.__name__, level = 4)
-            klass.schema = klass.type
+        pass
 
     def generateClass(self, klass):
         # We are going to assert a few things about the class here
@@ -154,7 +149,7 @@ class ClassGenerator:
 
             # Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
-            type = getattr(klass, 'type')
+            type = getattr(klass, 'schema')
             for mode in field.mode: #(r, w)
                 self.handle_mode(klass, generator, type, field, mode)
                 if mode == 'w':

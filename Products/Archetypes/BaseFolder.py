@@ -6,9 +6,9 @@ from Products.Archetypes.event import WebDAVObjectInitializedEvent
 from Products.Archetypes.interfaces import IBaseFolder
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
 from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
@@ -29,8 +29,6 @@ class BaseFolderMixin(CatalogMultiplex,
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
 
-    __implements__ = (z2IBaseFolder, z2IReferenceable, BaseObject.__implements__,
-                      PortalFolder.__implements__)
     implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
 
     security = ClassSecurityInfo()
@@ -239,8 +237,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
 
-    __implements__ = BaseFolderMixin.__implements__, IExtensibleMetadata
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
+    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish, IExtensibleMetadata)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 

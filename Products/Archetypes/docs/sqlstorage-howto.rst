@@ -395,7 +395,7 @@ ArchetypeTool.py)::
             for object in result:
                 o = object.getObject()
                 if o is not None:
-                    if IReferenceable.isImplementedBy(o):
+                    if IReferenceable.providedBy(o):
                         return o
         return None
 

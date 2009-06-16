@@ -16,7 +16,7 @@
         define-macro="edit_area">
       <tal:define
           define="base python:hasattr(value, 'isUnit');
-                  binary python:base and value.isBinary() or here.isBinary(fieldName);
+                  binary python:base and value.isBinary() or context.isBinary(fieldName);
                   content python: not not base and value.getRaw() or value;
                   content python: not binary and content or '';
                   inputname fieldName;
@@ -24,7 +24,7 @@
                   rows widget/rows;
                   cols widget/cols;
                   ">
-        <div metal:use-macro="here/wysiwyg_support/macros/wysiwygEditorBox"/>
+        <div metal:use-macro="context/wysiwyg_support/macros/wysiwygEditorBox"/>
       </tal:define>
       <metal:block define-slot="text_format">
         <input type="hidden"
@@ -34,9 +34,9 @@
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill metal:fill-slot="widget_body">
-          <metal:widget use-macro="here/widgets/epoz/macros/edit_area">
+          <metal:widget use-macro="context/widgets/epoz/macros/edit_area">
             The Widget
           </metal:widget>
         </metal:fill>
@@ -44,7 +44,7 @@
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/string/macros/edit">
+      <div metal:use-macro="context/widgets/string/macros/edit">
       </div>
     </div>
 

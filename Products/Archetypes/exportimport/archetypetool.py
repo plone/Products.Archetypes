@@ -68,18 +68,26 @@ def importArchetypeTool(context):
     """Import Archetype Tool configuration.
     """
     site = context.getSite()
-    tool = getToolByName(site, TOOL_NAME)
+    logger = context.getLogger("archetypetool")
+    tool = getToolByName(site, TOOL_NAME, None)
+    if tool is None:
+        logger.info("Nothing to import.")
+        return
+
     importObjects(tool, '', context)
+    logger.info("Archetype tool imported.")
 
 
 def exportArchetypeTool(context):
     """Export Archetype Tool configuration.
     """
     site = context.getSite()
+    logger = context.getLogger("archetypetool")
     tool = getToolByName(site, TOOL_NAME, None)
     if tool is None:
-        logger = context.getLogger("archetypestool")
         logger.info("Nothing to export.")
         return
 
     exportObjects(tool, '', context)
+    logger.info("Archetype tool exported.")
+

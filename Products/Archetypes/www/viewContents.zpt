@@ -1,6 +1,6 @@
-<h1 tal:replace="structure here/manage_page_header|nothing">Header</h1>
+<h1 tal:replace="structure context/manage_page_header|nothing">Header</h1>
 <h2 tal:define="manage_tabs_message options/manage_tabs_message | nothing"
-    tal:replace="structure here/manage_tabs">Tabs</h2>
+    tal:replace="structure context/manage_tabs">Tabs</h2>
 
 <div class="form-title">
   View Contents
@@ -23,14 +23,14 @@
         <th>Title</th>
         <th>Inspector</th>
         </tr>
-        <tr tal:repeat="object here/Content">
+        <tr tal:repeat="object context/Content">
         <tal:condition condition="object/UID">
           <td tal:define="uid object/UID; url object/absolute_url;">
             <a href="#" tal:attributes="href url" tal:content="uid"/>
           </td>
         <td tal:content="python: object.getObject().title_or_id()"/>
         <td>
-            <a href="#" tal:attributes="href string:${here/absolute_url}/manage_inspect?UID=${object/UID}">Inspect</a>
+            <a href="#" tal:attributes="href string:${context/absolute_url}/manage_inspect?UID=${object/UID}">Inspect</a>
         </td>
         </tal:condition>
         </tr>
@@ -38,4 +38,4 @@
 
         <input type="submit" name="submit" value="Reindex"/>
     </form>
-<tal:footer tal:replace="structure here/manage_page_footer|nothing">footer</tal:footer>
+<tal:footer tal:replace="structure context/manage_page_footer|nothing">footer</tal:footer>

@@ -10,7 +10,7 @@
 
      <tal:block tal:condition="python:hasattr(field, 'relationship')">
         
-      <tal:block  tal:define="targets python:here.getRefs(field.relationship)"
+      <tal:block  tal:define="targets python:context.getRefs(field.relationship)"
                   tal:condition="targets">
 
         <a href="#"
@@ -38,13 +38,13 @@
             tal:condition="not:python:hasattr(field, 'relationship')"
             tal:define="vocab python:field.Vocabulary(here);
                         value python:accessor();
-                        display python:here.displayValue(vocab, value);"
+                        display python:context.displayValue(vocab, value);"
             tal:replace="structure display" />
 
     </metal:view_macro>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
                     tal:define="vocab python:field.Vocabulary(here);
                                 selectionview context/@@at_selection_widget;
@@ -116,14 +116,14 @@
              </div>
              <div style="clear:both">&nbsp;</div>
           </div>
-          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+          <metal:addable metal:use-macro="context/widgets/addable_support/macros/addable"/>
 
         </metal:fill>
       </metal:use>
     </metal:define>
 
     <div metal:define-macro="search">
-      <div metal:use-macro="here/widgets/multiselection/macros/edit">
+      <div metal:use-macro="context/widgets/multiselection/macros/edit">
       </div>
     </div>
 

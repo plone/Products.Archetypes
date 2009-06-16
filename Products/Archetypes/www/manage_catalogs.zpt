@@ -1,7 +1,7 @@
 <html>
-  <div tal:replace="structure here/manage_page_header"/>
+  <div tal:replace="structure context/manage_page_header"/>
     <body bgcolor="#ffffff" link="#000099" alink="#000099" vlink="#000099">
-      <div tal:replace="structure here/manage_tabs"/>
+      <div tal:replace="structure context/manage_tabs"/>
 	<style type="text/css">
 	  div.row {
 	  padding-top: 2px;
@@ -33,7 +33,7 @@
 	</style>
 	
 	<form action="manage_updateCatalogs" method="POST" 
-	      tal:define="at here/archetype_tool;
+	      tal:define="at context/archetype_tool;
 	                  catalogs at/listCatalogs;
 	                  vocab at/getCatalogsInSite;">
 

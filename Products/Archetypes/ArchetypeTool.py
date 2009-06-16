@@ -5,15 +5,14 @@ import sys
 from copy import deepcopy
 from DateTime import DateTime
 from StringIO import StringIO
-from debug import deprecated
 
 from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.interfaces.base import IBaseObject
 from Products.Archetypes.interfaces.referenceable import IReferenceable
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
 from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 from Products.Archetypes.ClassGen import generateClass
 from Products.Archetypes.ClassGen import generateCtor
@@ -34,8 +33,7 @@ from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
-from Products.CMFCore.interfaces.portal_catalog \
-     import portal_catalog as ICatalogTool
+from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.Expression import Expression
 
@@ -44,7 +42,7 @@ from Acquisition import ImplicitAcquisitionWrapper
 from Globals import InitializeClass
 from Globals import PersistentMapping
 from OFS.Folder import Folder
-from Products.ZCatalog.IZCatalog import IZCatalog
+from Products.ZCatalog.interfaces import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.POSException import ConflictError
 import transaction
@@ -233,16 +231,16 @@ def modify_fti(fti, klass, pkg_name):
     if hasattr(klass, 'immediate_view'):
         fti[0]['immediate_view'] = klass.immediate_view
 
-    if not IReferenceable.isImplementedByInstancesOf(klass):
+    if not IReferenceable.implementedBy(klass):
         refs = findDict(fti[0]['actions'], 'id', 'references')
         refs['visible'] = False
 
-    if not IExtensibleMetadata.isImplementedByInstancesOf(klass):
+    if not IExtensibleMetadata.implementedBy(klass):
         refs = findDict(fti[0]['actions'], 'id', 'metadata')
         refs['visible'] = False
 
     # Set folder_listing to 'view' if the class implements ITemplateMixin
-    if not ITemplateMixin.isImplementedByInstancesOf(klass):
+    if not ITemplateMixin.implementedBy(klass):
         actions = []
         for action in fti[0]['actions']:
             if action['id'] != 'folderlisting':
@@ -337,21 +335,7 @@ def process_types(types, pkg_name):
 
 _types = {}
 
-def _guessPackage(base):
-    if base.startswith('Products'):
-        base = base[9:]
-        idx = base.index('.')
-        if idx != -1:
-            base = base[:idx]
-    return base
-
-def registerType(klass, package=None):
-    if not package:
-        deprecated("registerType without a package name is deprecated. "
-                   "Please apply a package name for class %s" % repr(klass),
-                   level=2)
-        package = _guessPackage(klass.__module__)
-
+def registerType(klass, package):
     # Registering a class results in classgen doing its thing
     # Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)
@@ -366,8 +350,6 @@ def registerType(klass, package=None):
         'module' : sys.modules[klass.__module__],
         'schema' : klass.schema,
         'signature' : klass.schema.signature(),
-        # backward compatibility, remove later
-        'type' : klass.schema,
         }
 
     key = '%s.%s' % (package, data['meta_type'])
@@ -664,7 +646,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if isinstance(type, dict) and type.has_key('klass'):
             type = type['klass']
         for iface in interfaces:
-            res = iface.isImplementedByInstancesOf(type)
+            res = iface.implementedBy(type)
             if res:
                 return True
         return False
@@ -702,7 +684,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for data in listTypes():
             klass = data['klass']
             for iface in ifaces:
-                if iface.isImplementedByInstancesOf(klass):
+                if iface.implementedBy(klass):
                     ti = pt.getTypeInfo(data['portal_type'])
                     if ti is not None:
                         value.append(ti)
@@ -902,7 +884,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         for b in brains:
             o = b.getObject()
             if o is not None:
-                if IBaseObject.isImplementedBy(o):
+                if IBaseObject.providedBy(o):
                     callback(o, *args, **kwargs)
             else:
                 log('no object for brain: %s:%s' % (b,b.getURL()))
@@ -1161,10 +1143,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         portal = getToolByName(self, 'portal_url').getPortalObject()
         res = []
         for object in portal.objectValues():
-            if ICatalogTool.isImplementedBy(object):
+            if ICatalogTool.providedBy(object):
                 res.append(object.getId())
                 continue
-            if IZCatalog.isImplementedBy(object):
+            if IZCatalog.providedBy(object):
                 res.append(object.getId())
                 continue
 
@@ -1188,12 +1170,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return True
         else:
             return False
-
-    def lookupObject(self,uid):
-        deprecated('ArchetypeTool.lookupObject is deprecated')
-        return self.reference_catalog.lookupObject(uid)
-
-    getObject = lookupObject
 
     def has_graphviz(self):
         """Runtime check for graphviz, used in condition on tab.

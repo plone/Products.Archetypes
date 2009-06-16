@@ -9,7 +9,7 @@
   <body>
 
     <metal:view_macro define-macro="view">
-      <tal:define define="refs python:here.getReferenceImpl(field.relationship)"
+      <tal:define define="refs python:context.getReferenceImpl(field.relationship)"
                   condition="refs">
 
         <tal:block tal:condition="not:field/multiValued"
@@ -58,7 +58,7 @@
     </metal:view_macro>
 
     <metal:edit_macro define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
 
         <div metal:fill-slot="widget_body"
              tal:define="multiVal field/multiValued;
@@ -116,14 +116,14 @@
             </select>
           </div>
 
-          <metal:addable metal:use-macro="here/widgets/addable_support/macros/addable"/>
+          <metal:addable metal:use-macro="context/widgets/addable_support/macros/addable"/>
 
         </div>
       </metal:use>
     </metal:edit_macro>
 
     <metal:search_macro define-macro="search">
-      <div metal:use-macro="here/widgets/reference/macros/edit"></div>
+      <div metal:use-macro="context/widgets/reference/macros/edit"></div>
     </metal:search_macro>
 
   </body>

@@ -10,6 +10,8 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Acquisition import Implicit, aq_parent, aq_inner
 from Products.CMFCore.permissions import View, ModifyPortalContent
+from zope.interface import implements
+
 
 class CompositeSchema(Implicit):
     """Act on behalf of a set of Schemas, pretending it
@@ -18,21 +20,22 @@ class CompositeSchema(Implicit):
     Note that if field names overlap, they last schema wins.
     """
 
-    __implements__ = ICompositeSchema, ILayerRuntime, ILayerContainer
+    implements(ICompositeSchema, ILayerRuntime, ILayerContainer)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
     def __init__(self, schemas=None):
         self._schemas = [Schema()]
-        self.addSchemas(schemas)
+        if schemas is not None:
+            self.addSchemas(schemas)
 
     def getSchemas(self):
         """Return the underlying schemas"""
         schemas = []
         context = aq_parent(aq_inner(self))
         for s in self._schemas:
-            if IBindableSchema.isImplementedBy(s):
+            if IBindableSchema.providedBy(s):
                 s.bind(context)
             schemas.append(s)
         return schemas
@@ -277,14 +280,14 @@ class CompositeSchema(Implicit):
     def initializeLayers(self, instance, item=None, container=None):
         """Layer initialization"""
         for s in self.getSchemas():
-            if ILayerContainer.isImplementedBy(s):
+            if ILayerContainer.providedBy(s):
                 s.initializeLayers(instance, item, container)
 
     security.declarePrivate('cleanupLayers')
     def cleanupLayers(self, instance, item=None, container=None):
         """Layer cleaning"""
         for s in self.getSchemas():
-            if ILayerContainer.isImplementedBy(s):
+            if ILayerContainer.providedBy(s):
                 s.cleanupLayers(instance, item, container)
 
 InitializeClass(CompositeSchema)

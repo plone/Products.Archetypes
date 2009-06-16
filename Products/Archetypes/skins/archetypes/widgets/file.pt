@@ -20,23 +20,23 @@
                    condition="python:size &gt; 0">
 
           <tal:link condition="showLink">
-              <a href="" tal:attributes="href string:${here/absolute_url}/at_download/$fieldName">
-                <img tal:condition="icon" src=""
-                     tal:attributes="src string:${here/portal_url}/$icon"/>
+              <a href="" tal:attributes="href string:${context/absolute_url}/at_download/$fieldName">
+                <img tal:condition="icon" src="" alt=""
+                     tal:attributes="src string:${context/portal_url}/$icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
               </a>
               <span class="discreet">
                   &mdash;
-                  <span tal:replace="python:here.lookupMime(field.getContentType(here))">ContentType</span>,
+                  <span tal:replace="python:context.lookupMime(field.getContentType(here))">ContentType</span>,
                   <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
               </span>
           </tal:link>
           <span tal:condition="not:showLink">
               <img tal:condition="icon" src=""
-                   tal:attributes="src string:${here/portal_url}/$icon"/>
+                   tal:attributes="src string:${context/portal_url}/$icon"/>
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">
-                  <span tal:content="python:here.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
+                  <span tal:content="python:context.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
                   <tal:size content="python:'%s KB' % (size / 1024)">0 KB</tal:size>
               </span>
           </span>
@@ -46,7 +46,7 @@
     </span>
 
     <metal:define define-macro="file_edit" tal:define="showLink python:0">
-      <metal:block use-macro="here/widgets/file/macros/file_view" />
+      <metal:block use-macro="context/widgets/file/macros/file_view" />
       <div tal:condition="accessor" style="padding-top:1em;"
            tal:define="unit accessor;
                        size unit/get_size | python:unit and len(unit) or 0;">
@@ -97,11 +97,11 @@
            </label>
        </tal:hide_if_no_file>
        <div style="padding-left:1.5em;padding-top:0.5em;">
-           <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+           <metal metal:use-macro="context/widgets/file/macros/file_upload"/>
        </div>
       </div>
       <div tal:condition="not: accessor">
-        <metal metal:use-macro="here/widgets/file/macros/file_upload"/>
+        <metal metal:use-macro="context/widgets/file/macros/file_upload"/>
       </div>
 
     </metal:define>
@@ -121,19 +121,19 @@
     </metal:define>
 
     <metal:define define-macro="view">
-      <metal:use use-macro="here/widgets/file/macros/file_view" />
+      <metal:use use-macro="context/widgets/file/macros/file_view" />
     </metal:define>
 
     <metal:define define-macro="edit">
-      <metal:use use-macro="field_macro | here/widgets/field/macros/edit">
+      <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body">
-          <metal:use use-macro="here/widgets/file/macros/file_edit" />
+          <metal:use use-macro="context/widgets/file/macros/file_edit" />
         </metal:fill>
       </metal:use>
     </metal:define>
 
     <metal:define define-macro="search">
-      <metal:use use-macro="here/widgets/file/macros/edit" />
+      <metal:use use-macro="context/widgets/file/macros/edit" />
     </metal:define>
 
   </body>

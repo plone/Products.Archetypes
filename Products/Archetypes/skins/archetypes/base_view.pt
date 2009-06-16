@@ -4,13 +4,13 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-      metal:use-macro="here/main_template/macros/master"
+      metal:use-macro="context/main_template/macros/master"
       i18n:domain="plone">
 
   <head><title></title></head>
 
   <metal:javascript_head fill-slot="javascript_head_slot">
-    <tal:block define="macro here/archetypes_custom_js/macros/javascript_head | nothing"
+    <tal:block define="macro context/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
@@ -20,8 +20,8 @@
       for the entire document. base_view uses main_template and thus must
       create additional defines for each slot it fills.
     </tal:comment>
-    <tal:js define="fields python:here.Schema().viewableFields(here);
-                    js python:here.getUniqueWidgetAttr(fields, 'helper_js')"
+    <tal:js define="fields python:context.Schema().viewableFields(here);
+                    js python:context.getUniqueWidgetAttr(fields, 'helper_js')"
             condition="js"
             repeat="item js">
       <script type="text/javascript"
@@ -30,9 +30,9 @@
               tal:attributes="src string:$portal_url/$item">
       </script>
     </tal:js>
-    <tal:block define="portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
+    <tal:block define="portal_type python:context.getPortalTypeName().lower().replace(' ', '_');
                        view_template python:'%s_view' % portal_type;
-                       view_macros python:path('here/%s/macros|nothing' % view_template);
+                       view_macros python:path('context/%s/macros|nothing' % view_template);
                        macro view_macros/js | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
@@ -46,8 +46,8 @@
       for the entire document. base_view uses main_template and thus must
       create additional defines for each slot it fills.
     </tal:comment>
-    <tal:css define="fields python:here.Schema().viewableFields(here);
-                     css python:here.getUniqueWidgetAttr(fields, 'helper_css')"
+    <tal:css define="fields python:context.Schema().viewableFields(here);
+                     css python:context.getUniqueWidgetAttr(fields, 'helper_css')"
              condition="css"
              repeat="item css">
       <style type="text/css"
@@ -56,9 +56,9 @@
              tal:content="structure string:<!-- @import url($portal_url/$item); -->">
       </style>
     </tal:css>
-    <tal:block define="portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
+    <tal:block define="portal_type python:context.getPortalTypeName().lower().replace(' ', '_');
                        view_template python:'%s_view' % portal_type;
-                       view_macros python:path('here/%s/macros|nothing' % view_template);
+                       view_macros python:path('context/%s/macros|nothing' % view_template);
                        macro view_macros/css | nothing"
                condition="macro">
       <metal:block use-macro="macro" />
@@ -68,10 +68,10 @@
   <body>
     <metal:fill fill-slot="main">
       <metal:main_macro define-macro="main"
-            tal:define="portal_type python:here.getPortalTypeName().lower().replace(' ', '_');
-            base_macros here/base/macros;
+            tal:define="portal_type python:context.getPortalTypeName().lower().replace(' ', '_');
+            base_macros context/base/macros;
             view_template python:'%s_view' % portal_type;
-            view_macros python:path('here/%s/macros|nothing' % view_template);
+            view_macros python:path('context/%s/macros|nothing' % view_template);
             header_macro view_macros/header | header_macro | base_macros/header;
             body_macro view_macros/body | body_macro | base_macros/body;
             folderlisting_macro view_macros/folderlisting | folderlisting | base_macros/folderlisting;

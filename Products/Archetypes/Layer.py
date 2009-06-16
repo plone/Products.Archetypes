@@ -2,9 +2,10 @@ from Products.Archetypes.interfaces.layer import ILayerContainer
 from ExtensionClass import Base
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
+from zope.interface import implements
 
 class DefaultLayerContainer(Base):
-    __implements__ = ILayerContainer
+    implements(ILayerContainer)
 
     security = ClassSecurityInfo()
 

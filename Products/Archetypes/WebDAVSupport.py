@@ -10,10 +10,14 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.event import WebDAVObjectInitializedEvent
 from Products.Archetypes.event import WebDAVObjectEditedEvent
 from Products.Archetypes.utils import shasattr, mapply
+from zope.interface import implements, Interface
 
 class PdataStreamIterator(object):
 
-    __implements__ = (IStreamIterator,)
+    if issubclass(IStreamIterator, Interface):
+        implements(IStreamIterator)
+    else:
+        __implements__ = IStreamIterator
 
     def __init__(self, data, size, streamsize=1<<16):
         # Consume the whole data into a TemporaryFile when
@@ -169,6 +173,9 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     # We assume 'data' is a 'Pdata chain' as used by OFS.File and
     # return a StreamIterator.
     assert length is not None, 'Could not figure out length of Pdata chain'
+    if (issubclass(IStreamIterator, Interface) and IStreamIterator.providedBy(data)
+        or not issubclass(IStreamIterator, Interface) and IStreamIterator.IsImplementedBy(data)):
+        return data
     return PdataStreamIterator(data, length)
 
 def manage_afterPUT(self, data, marshall_data, file, context, mimetype,

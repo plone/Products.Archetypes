@@ -10,20 +10,18 @@ from Products.Archetypes.debug import log
 from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
-from Acquisition import aq_base
 from Globals import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetype
 from Products.PortalTransforms.interfaces import idatastream
-from webdav.WriteLockInterface import WriteLockInterface
+from webdav.interfaces import IWriteLock
 
 _marker = []
 
 class BaseUnit(File):
-    __implements__ = WriteLockInterface, z2IBaseUnit
-    implements(IBaseUnit)
+    implements(IBaseUnit, IWriteLock)
 
     isUnit = 1
 
@@ -35,7 +33,7 @@ class BaseUnit(File):
 
     def __setstate__(self, dict):
         mimetype = dict.get('mimetype', None)
-        if IMimetype.isImplementedBy(mimetype):
+        if IMimetype.providedBy(mimetype):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
         assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
@@ -90,7 +88,7 @@ class BaseUnit(File):
         #being used with APE
         # Also don't break if transform was applied with a stale instance
         # from the catalog while rebuilding the catalog
-        if not hasattr(instance, 'aq_parent'):
+        if not getattr(instance, 'aq_parent', None) is not None:
             return orig
 
         transformer = getToolByName(instance, 'portal_transforms')
@@ -100,7 +98,7 @@ class BaseUnit(File):
                                      filename=self.filename)
 
         if data:
-            assert idatastream.isImplementedBy(data)
+            assert idatastream.providedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding',None) or \
@@ -155,20 +153,11 @@ class BaseUnit(File):
     def getRaw(self, encoding=None, instance=None):
         """Return the file encoded raw value.
         """
-        # fix AT 1.0 backward problems
-        if not hasattr(aq_base(self),'raw'):
-            self.raw = self.data
-            self.size = len(self.raw)
-
-        if self.isBinary():
-            return self.raw
-        # FIXME: backward compat, non binary data
-        # should always be stored as unicode
-        if not type(self.raw) is type(u''):
+        if self.isBinary() or not isinstance(self.raw, unicode):
             return self.raw
         if encoding is None:
             if instance is None:
-                encoding ='UTF-8'
+                encoding ='utf-8'
             else:
                 # FIXME: fallback to portal encoding or original encoding ?
                 encoding = self.portalEncoding(instance)
@@ -184,7 +173,7 @@ class BaseUnit(File):
         except AttributeError:
             # that occurs during object initialization
             # (no acquisition wrapper)
-            return 'UTF8'
+            return 'utf-8'
 
     def getContentType(self):
         """Return the file mimetype string.

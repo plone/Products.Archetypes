@@ -2,7 +2,7 @@ from Products.Archetypes.atapi import *
 from DateTime import DateTime
 from Products.Archetypes.config import PKG_NAME
 
-schema = BaseSchema + Schema((
+schema = BaseSchema.copy() + Schema((
     TextField('quote',
               searchable=1,
               required=1,
@@ -18,7 +18,7 @@ schema = BaseSchema + Schema((
               ),
 
     DateTimeField('fact_date',
-                  default=DateTime(),
+                  default_method=DateTime,
                   widget=CalendarWidget(label="Date"),
                   ),
 

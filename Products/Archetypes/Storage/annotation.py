@@ -43,8 +43,6 @@ class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
     """
 
-    __implements__ = IStorage
-
     security = ClassSecurityInfo()
 
     _key = None
@@ -123,8 +121,6 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
     _key = AT_MD_STORAGE
 
     security = ClassSecurityInfo()
-
-    __implements__ = (IStorage, ILayer,)
     
     def _migration(self, name, instance, **kwargs):
         """Migrates data from the original storage

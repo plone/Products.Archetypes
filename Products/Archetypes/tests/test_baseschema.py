@@ -64,7 +64,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('id')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
@@ -82,7 +82,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(field.type == 'string')
         self.failUnless(isinstance(field.storage, AttributeStorage))
         self.failUnless(field.getLayerImpl('storage') == AttributeStorage())
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.validators == EmptyValidator)
         self.failUnless(isinstance(field.widget, IdWidget))
         vocab = field.Vocabulary(dummy)
@@ -93,7 +93,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('title')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 1)
         self.failUnless(field.default == '')
         self.failUnless(field.searchable == 1)
@@ -123,7 +123,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('allowDiscussion')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == None)
         self.failUnless(field.searchable == 0)
@@ -147,7 +147,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('subject')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == ())
         self.failUnless(field.searchable == 1)
@@ -176,7 +176,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('description')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == '')
         self.failUnless(field.searchable == 1)
@@ -205,7 +205,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('contributors')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == ())
         self.failUnless(field.searchable == 0)
@@ -234,7 +234,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('effectiveDate')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnlessEqual(field.default, None)
         self.failUnlessEqual(dummy.effective(), FLOOR_DATE)
@@ -263,7 +263,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('expirationDate')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnlessEqual(field.default, None)
         self.failUnlessEqual(dummy.expires(), CEILING_DATE)
@@ -293,7 +293,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('language')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == LANGUAGE_DEFAULT)
         self.failUnless(field.searchable == 0)
@@ -322,7 +322,7 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('rights')
 
-        self.failUnless(ILayerContainer.isImplementedBy(field))
+        self.failUnless(ILayerContainer.providedBy(field))
         self.failUnless(field.required == 0)
         self.failUnless(field.default == '')
         self.failUnless(field.searchable == 0)

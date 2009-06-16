@@ -1,5 +1,7 @@
-from Products.CMFCore.interfaces.DublinCore import DublinCore, CatalogableDublinCore, MutableDublinCore
+from Products.CMFCore.interfaces import ICatalogableDublinCore
+from Products.CMFCore.interfaces import IMutableDublinCore
 
-class IExtensibleMetadata(DublinCore, CatalogableDublinCore, MutableDublinCore):
+class IExtensibleMetadata(ICatalogableDublinCore,IMutableDublinCore):
     """ Archetypes implementation of DublinCore metadata """
-    pass
+
+

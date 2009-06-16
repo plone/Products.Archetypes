@@ -32,6 +32,10 @@ class SelectionWidget(BrowserView):
     >>> widget.getSelected(vocab, 'd')
     []
 
+    >>> vocab = ('b', 'a', 'd', 'c')
+    >>> widget.getSelected(vocab, ('b', 'c'))
+    ['b', 'c']
+
     Test with a DisplayList
 
     >>> from Products.Archetypes.utils import DisplayList
@@ -85,9 +89,10 @@ class SelectionWidget(BrowserView):
                 vocabKeys[key.decode(site_charset)] = key
             else:
                 vocabKeys[key] = key
-        
+
         # compile a dictonary of {encodedvalue : oldvalue} items
         # from value -- which may be a sequence, string or integer.
+        pos = 0
         values = {}
         if isinstance(value, tuple) or isinstance(value, list):
             for v in value:
@@ -96,7 +101,8 @@ class SelectionWidget(BrowserView):
                     v = str(v)
                 elif isinstance(v, str):
                     new = v.decode(site_charset)
-                values[new] = v
+                values[(new, pos)] = v
+                pos += 1
         else:
             if isinstance(value, str):
                 new = value.decode(site_charset)
@@ -104,17 +110,18 @@ class SelectionWidget(BrowserView):
                 new = value
             else:
                 new = str(value)
-            values[new] = value
+            values[(new, pos)] = value
 
         # now, build a list of the vocabulary keys
         # in their original charsets.
         selected = []
-        for v in values:
+        for v, pos in values:
             ov = vocabKeys.get(v)
             if ov:
-                selected.append(ov)
+                selected.append((pos, ov))
 
-        return selected
+        selected.sort()
+        return [v for pos, v in selected]
 
 
 class TextareaWidget(BrowserView):

@@ -1,17 +1,15 @@
-import sys
- 
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
 from logging import ERROR
-from types import ListType, TupleType, ClassType, FileType
-from types import StringType, UnicodeType, BooleanType
+from types import ClassType, FileType, StringType, UnicodeType
 
 from zope.contenttype import guess_content_type
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope import schema
 from zope import component
+from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -19,17 +17,12 @@ from Acquisition import aq_base
 from Acquisition import aq_get
 from Acquisition import aq_parent
 from Acquisition import aq_inner
-from Acquisition import Implicit
-from BTrees.OOBTree import OOBTree
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from ExtensionClass import Base
-from Globals import InitializeClass
 from OFS.Image import File
 from OFS.Image import Pdata
 from OFS.Image import Image as BaseImage
-from OFS.Traversable import Traversable
-from OFS.Cache import ChangeCacheSettingsPermission
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.POSException import ConflictError
 
@@ -47,7 +40,6 @@ from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces import IVocabulary
-from Products.Archetypes.interfaces.vocabulary import IVocabulary as z2IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException
 from Products.Archetypes.exceptions import TextFieldException
 from Products.Archetypes.exceptions import FileFieldException
@@ -73,7 +65,6 @@ from Products.Archetypes.utils import contentDispositionHeader
 from Products.Archetypes.mimetype_utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes.debug import log
 from Products.Archetypes.debug import log_exc
-from Products.Archetypes.debug import deprecated
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -109,7 +100,6 @@ else:
     PIL_ALGO = PIL.Image.ANTIALIAS
 
 STRING_TYPES = [StringType, UnicodeType]
-"""String-types currently supported"""
 
 _marker = []
 CHUNK = 1 << 14
@@ -156,7 +146,7 @@ class Field(DefaultLayerContainer):
     field's property values.
     """
 
-    __implements__ = IField, ILayerContainer
+    implements(IField, ILayerContainer)
 
     security = ClassSecurityInfo()
 
@@ -264,11 +254,11 @@ class Field(DefaultLayerContainer):
 
         if isinstance(self.validators, dict):
             raise NotImplementedError, 'Please use the new syntax with validation chains'
-        elif IValidationChain.isImplementedBy(self.validators):
+        elif IValidationChain.providedBy(self.validators):
             validators = self.validators
-        elif IValidator.isImplementedBy(self.validators):
+        elif IValidator.providedBy(self.validators):
             validators = ValidationChain(chainname, validators=self.validators)
-        elif type(self.validators) in (TupleType, ListType, StringType):
+        elif isinstance(self.validators, (tuple, list, basestring)):
             if len(self.validators):
                 # got a non empty list or string - create a chain
                 try:
@@ -368,11 +358,11 @@ class Field(DefaultLayerContainer):
         if value:
             # coerce value into a list called values
             values = value
-            if type(value) in STRING_TYPES:
+            if isinstance(value, basestring):
                 values = [value]
-            elif type(value) == BooleanType:
+            elif isinstance(value, bool):
                 values = [str(value)]
-            elif type(value) not in (TupleType, ListType):
+            elif not isinstance(value, (tuple, list)):
                 raise TypeError("Field value type error: %s" % type(value))
             vocab = self.Vocabulary(instance)
             # filter empty
@@ -381,9 +371,9 @@ class Field(DefaultLayerContainer):
             # extract valid values from vocabulary
             valids = []
             for v in vocab:
-                if type(v) in (TupleType, ListType):
+                if isinstance(v, (tuple, list)):
                     v = v[0]
-                if not type(v) in STRING_TYPES:
+                if not isinstance(v, basestring):
                     v = str(v)
                 valids.append(instance.unicodeEncode(v))
             # check field values
@@ -470,13 +460,11 @@ class Field(DefaultLayerContainer):
                     kw = {'content_instance' : content_instance,
                           'field' : self}
                     value = mapply(method, *args, **kw)
-            elif content_instance is not None:
-                if IVocabulary.providedBy(value) or \
-                   z2IVocabulary.isImplementedBy(value):
-                    # BBB: z2IVocabulary should be removed in AT 1.6
-                    # Dynamic vocabulary provided by a class that
-                    # implements IVocabulary
-                    value = value.getDisplayList(content_instance)
+            elif content_instance is not None and \
+                 IVocabulary.providedBy(value):
+                # Dynamic vocabulary provided by a class that
+                # implements IVocabulary
+                value = value.getDisplayList(content_instance)
 
             # Post process value into a DisplayList
             # Templates will use this interface
@@ -524,7 +512,6 @@ class Field(DefaultLayerContainer):
         else:
             return None
         return getSecurityManager().checkPermission( perm, instance )
-
 
     security.declarePublic('writeable')
     def writeable(self, instance, debug=False):
@@ -593,7 +580,6 @@ class Field(DefaultLayerContainer):
                 raise ValueError('%s.default_method is neither a method of %s'
                                  ' nor a callable' % (self.getName(),
                                                       instance.__class__))
-        
         if not self.default:
             default_adapter = component.queryAdapter(instance, IFieldDefaultProvider, name=self.__name__)
             if default_adapter is not None:
@@ -665,7 +651,7 @@ class Field(DefaultLayerContainer):
             value = getattr( self, k, self._properties[k] )
             if k == 'widget':
                 value = value.__class__.__name__
-            if type(value) is UnicodeType:
+            if isinstance(value, unicode):
                 value = value.encode('utf-8')
             s = s + '%s:%s,' % (k, value )
         s = s + '}'
@@ -682,7 +668,6 @@ class Field(DefaultLayerContainer):
         """ returns the internationalization domain for translation """
         pass
 
-#InitializeClass(Field)
 setSecurity(Field)
 
 class ObjectField(Field):
@@ -691,7 +676,7 @@ class ObjectField(Field):
     Field Types should subclass this to delegate through the storage
     layer.
     """
-    __implements__ = IObjectField, ILayerContainer
+    implements(IObjectField, ILayerContainer)
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -747,7 +732,7 @@ class ObjectField(Field):
 
     security.declarePrivate('setStorage')
     def setStorage(self, instance, storage):
-        if not IStorage.isImplementedBy(storage):
+        if not IStorage.providedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
         # raw=1 is required for TextField
         value = self.get(instance, raw=True)
@@ -787,7 +772,7 @@ class ObjectField(Field):
         value = ''
         if fromBaseUnit and shasattr(self, 'getBaseUnit'):
             bu = self.getBaseUnit(instance)
-            if IBaseUnit.isImplementedBy(bu):
+            if IBaseUnit.providedBy(bu):
                 return str(bu.getContentType())
         raw = self.getRaw(instance)
         mimetype = getattr(aq_base(raw), 'mimetype', None)
@@ -823,7 +808,6 @@ class ObjectField(Field):
         except (TypeError, AttributeError):
             return len(str(data))
 
-#InitializeClass(ObjectField)
 setSecurity(ObjectField)
 
 class StringField(ObjectField):
@@ -839,10 +823,7 @@ class StringField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs)
-        if getattr(self, 'raw', False):
-            return value
-        return encode(value, instance, **kwargs)
+        return ObjectField.get(self, instance, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -856,7 +837,7 @@ class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
 
-    __implements__ = IFileField, ILayerContainer
+    implements(IFileField, ILayerContainer)
 
     _properties = ObjectField._properties.copy()
     _properties.update({
@@ -893,7 +874,7 @@ class FileField(ObjectField):
         if file is None:
             file = self._make_file(self.getName(), title='',
                                    file='', instance=instance)
-        if IBaseUnit.isImplementedBy(value):
+        if IBaseUnit.providedBy(value):
             mimetype = value.getContentType() or mimetype
             filename = value.getFilename() or filename
             value = value.getRaw()
@@ -971,7 +952,7 @@ class FileField(ObjectField):
             if not value:
                 return default, mimetype, filename
             return value, mimetype, filename
-        elif IBaseUnit.isImplementedBy(value):
+        elif IBaseUnit.providedBy(value):
             return value.getRaw(), value.getContentType(), value.getFilename()
 
         value = aq_base(value)
@@ -1217,8 +1198,6 @@ class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
 
-    __implements__ = FileField.__implements__
-
     _properties = FileField._properties.copy()
     _properties.update({
         'type' : 'text',
@@ -1273,7 +1252,7 @@ class TextField(FileField):
                                    file='', instance=instance)
         filename = kwargs.get('filename') or ''
         body = None
-        if IBaseUnit.isImplementedBy(value):
+        if IBaseUnit.providedBy(value):
             mimetype = value.getContentType() or mimetype
             filename = value.getFilename() or filename
             return value, mimetype, filename
@@ -1342,7 +1321,7 @@ class TextField(FileField):
         # mimetype, if coming from request can be like:
         # text/plain; charset='utf-8'
         mimetype = str(mimetype).split(';')[0]
-        file.update(value, instance, mimetype=mimetype, filename=filename)
+        file.update(value, instance, mimetype=mimetype, **kwargs)
         file.setContentType(instance, mimetype)
         file.setFilename(filename)
         return file, str(file.getContentType()), file.getFilename()
@@ -1353,7 +1332,7 @@ class TextField(FileField):
         If raw, return the base unit object, else return encoded raw data
         """
         value = self.get(instance, raw=True, **kwargs)
-        if raw or not IBaseUnit.isImplementedBy(value):
+        if raw or not IBaseUnit.providedBy(value):
             return value
         kw = {'encoding':kwargs.get('encoding'),
               'instance':instance}
@@ -1373,7 +1352,7 @@ class TextField(FileField):
             kwargs['field'] = self
             storage = self.getStorage(instance)
             value = storage.get(self.getName(), instance, **kwargs)
-            if not IBaseUnit.isImplementedBy(value):
+            if not IBaseUnit.providedBy(value):
                 value = self._wrapValue(instance, value)
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
@@ -1411,7 +1390,6 @@ class TextField(FileField):
 
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1453,7 +1431,6 @@ class DateTimeField(ObjectField):
 
 class LinesField(ObjectField):
     """For creating lines objects"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1472,7 +1449,7 @@ class LinesField(ObjectField):
         with rest of properties.
         """
         __traceback_info__ = value, type(value)
-        if type(value) in STRING_TYPES:
+        if isinstance(value, basestring):
             value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v and v.strip()]
@@ -1483,7 +1460,7 @@ class LinesField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs) or ()
-        data = [encode(v, instance, **kwargs) for v in value]
+        data = [v for v in value]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
             return tuple(data)
         else:
@@ -1505,7 +1482,6 @@ class LinesField(ObjectField):
 
 class IntegerField(ObjectField):
     """A field that stores an integer"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1574,7 +1550,6 @@ class FloatField(ObjectField):
 
 class FixedPointField(ObjectField):
     """A field for storing numerical data with fixed points"""
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1679,7 +1654,8 @@ class FixedPointField(ObjectField):
         template = '%%s%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
         __traceback_info__ = (template, value)
-        if value is None: return self.getDefault(instance)
+        if value is None:
+            return self.getDefault(instance)
         if isinstance(value, basestring):
             value = self._to_tuple(instance, value)
         front, fra = value
@@ -1705,8 +1681,6 @@ class ReferenceField(ObjectField):
     If no vocabulary is provided by you, one will be assembled based on
     allowed_types.
     """
-
-    __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -1815,7 +1789,7 @@ class ReferenceField(ObjectField):
         if value is None:
             value = ()
 
-        if not isinstance(value, (ListType, TupleType)):
+        if not isinstance(value, (list, tuple)):
             value = value,
         elif not self.multiValued and len(value) > 1:
             raise ValueError, \
@@ -1824,7 +1798,7 @@ class ReferenceField(ObjectField):
         #convert objects to uids if necessary
         uids = []
         for v in value:
-            if type(v) in STRING_TYPES:
+            if isinstance(v, basestring):
                 uids.append(v)
             else:
                 uids.append(v.UID())
@@ -1969,8 +1943,6 @@ class ReferenceField(ObjectField):
 
 class ComputedField(Field):
     """A field that always returns a computed."""
-    __implements__ = Field.__implements__
-
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'computed',
@@ -2001,7 +1973,6 @@ class ComputedField(Field):
 
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
-    __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'boolean',
@@ -2047,7 +2018,6 @@ class CMFObjectField(ObjectField):
     """
     COMMENT TODO
     """
-    __implements__ = ObjectField.__implements__
     _properties = Field._properties.copy()
     _properties.update({
         'type' : 'object',
@@ -2555,317 +2525,12 @@ class ImageField(FileField):
 
         return '%s />' % result
 
-# photo field implementation, derived from CMFPhoto by Magnus Heino
-# DEPRECATED
-
-class DynVariantWrapper(Base):
-    """Provide a transparent wrapper from image to dynvariant call it
-    with url ${image_url}/variant/${variant}
-    """
-    
-    def __init__(self):
-        deprecated('DynVariantWrapper (for PhotoField) is deprecated after work '
-                   'done on ImageField and ATImage. It will be removed in '
-                   'Archetypes 1.5. If someone like to keep the code please '
-                   'move it over to an own Product in MoreFieldsAndWidgets '
-                   'repository.'
-        )   
-    def __of__(self, parent):
-        return parent.Variants()
-
-class DynVariant(Implicit, Traversable):
-    """Provide access to the variants."""
-
-    def __init__(self):
-        deprecated('DynVariant (for PhotoField) is deprecated after work '
-                   'done on ImageField and ATImage. It will be removed in '
-                   'Archetypes 1.5. If someone like to keep the code please '
-                   'move it over to an own Product in MoreFieldsAndWidgets '
-                   'repository.'
-        )   
-
-    def __getitem__(self, name):
-        if self.checkForVariant(name):
-            return self.getPhoto(name).__of__(aq_parent(self))
-        else:
-            return aq_parent(self)
-
-class ScalableImage(BaseImage):
-    """A scalable image class."""
-
-    __implements__ = BaseImage.__implements__
-
-    meta_type = 'Scalable Image'
-
-    isBinary = lambda self: True
-
-    security  = ClassSecurityInfo()
-
-    def __init__(self, id, title='', file='', displays={}):
-        deprecated('ScalableImage (for PhotoField) is deprecated after work '
-                   'done on ImageField and ATImage. It will be removed in '
-                   'Archetypes 1.5. If someone like to keep the code please '
-                   'move it over to an own Product in MoreFieldsAndWidgets '
-                   'repository.'
-        )        
-        BaseImage.__init__(self, id, title, file)
-        self._photos = OOBTree()
-        self.displays = displays
-
-    # make image variants accesable via url
-    variant=DynVariantWrapper()
-
-    security.declareProtected(permissions.View, 'Variants')
-    def Variants(self):
-        # Returns a variants wrapper instance
-        return DynVariant().__of__(self)
-
-    security.declareProtected(permissions.View, 'getPhoto')
-    def getPhoto(self,size):
-        '''returns the Photo of the specified size'''
-        return self._photos[size]
-
-    security.declareProtected(permissions.View, 'getDisplays')
-    def getDisplays(self):
-        result = []
-        for name, size in self.displays.items():
-            result.append({'name':name, 'label':'%s (%dx%d)' % (
-                name, size[0], size[1]),'size':size}
-                )
-
-        #sort ascending by size
-        result.sort(lambda d1,d2: cmp(
-            d1['size'][0]*d1['size'][0],
-            d2['size'][1]*d2['size'][1])
-            )
-        return result
-
-    security.declarePrivate('checkForVariant')
-    def checkForVariant(self, size):
-        """Create variant if not there."""
-        if size in self.displays.keys():
-            # Create resized copy, if it doesnt already exist
-            if not self._photos.has_key(size):
-                self._photos[size] = BaseImage(
-                    size, size, self._resize(self.displays.get(size, (0,0)))
-                    )
-            # a copy with a content type other than image/* exists, this
-            # probably means that the last resize process failed. retry
-            elif not self._photos[size].getContentType().startswith('image'):
-                self._photos[size] = BaseImage(
-                    size, size, self._resize(self.displays.get(size, (0,0)))
-                    )
-            return True
-        else:
-            return False
-
-    security.declareProtected(permissions.View, 'index_html')
-    def index_html(self, REQUEST, RESPONSE, size=None):
-        """Return the image data."""
-        if self.checkForVariant(size):
-            return self.getPhoto(size).index_html(REQUEST, RESPONSE)
-        return BaseImage.index_html(self, REQUEST, RESPONSE)
-
-    security.declareProtected(permissions.View, 'tag')
-    def tag(self, height=None, width=None, alt=None,
-            scale=False, xscale=False, yscale=False, css_class=None,
-            title=None, size='original', **args):
-        """Return an HTML img tag (See OFS.Image)"""
-
-        # Default values
-        w=self.width
-        h=self.height
-
-        if height is None or width is None:
-
-            if size in self.displays.keys():
-                if not self._photos.has_key(size):
-                    # This resized image isn't created yet.
-                    # Calculate a size for it
-                    x,y = self.displays.get(size)
-                    try:
-                        if self.width > self.height:
-                            w=x
-                            h=int(round(1.0/(float(self.width)/w/self.height)))
-                        else:
-                            h=y
-                            w=int(round(1.0/(float(self.height)/x/self.width)))
-                    except ValueError:
-                        # OFS.Image only knows about png, jpeg and gif.
-                        # Other images like bmp will not have height and
-                        # width set, and will generate a ValueError here.
-                        # Everything will work, but the image-tag will render
-                        # with height and width attributes.
-                        w=None
-                        h=None
-                else:
-                    # The resized image exist, get it's size
-                    photo = self._photos.get(size)
-                    w=photo.width
-                    h=photo.height
-
-        if height is None: height=h
-        if width is None:  width=w
-
-        # Auto-scaling support
-        xdelta = xscale or scale
-        ydelta = yscale or scale
-
-        if xdelta and width:
-            width =  str(int(round(int(width) * xdelta)))
-        if ydelta and height:
-            height = str(int(round(int(height) * ydelta)))
-
-        result='<img src="%s/variant/%s"' % (self.absolute_url(), escape(size))
-
-        if alt is None:
-            alt=getattr(self, 'title', '')
-        result = '%s alt="%s"' % (result, escape(alt, 1))
-
-        if title is None:
-            title=getattr(self, 'title', '')
-        result = '%s title="%s"' % (result, escape(title, 1))
-
-        if height:
-            result = '%s height="%s"' % (result, height)
-
-        if width:
-            result = '%s width="%s"' % (result, width)
-
-        if not 'border' in [ x.lower() for x in args.keys()]:
-            result = '%s border="0"' % result
-
-        if css_class is not None:
-            result = '%s class="%s"' % (result, css_class)
-
-        for key in args.keys():
-            value = args.get(key)
-            result = '%s %s="%s"' % (result, key, value)
-
-        return '%s />' % result
-
-    security.declarePrivate('update_data')
-    def update_data(self, data, content_type=None, size=None):
-        """
-            Update/upload image -> remove all copies
-        """
-        BaseImage.update_data(self, data, content_type, size)
-        self._photos = OOBTree()
-
-    def _resize(self, size, quality=100):
-        """Resize and resample photo."""
-        image = StringIO()
-
-        width, height = size
-
-        try:
-            if HAS_PIL:
-                img = PIL.Image.open(StringIO(str(self.data)))
-                fmt = img.format
-                # Resize photo
-                img.thumbnail((width, height))
-                # Store copy in image buffer
-                img.save(image, fmt, quality=quality)
-            else:
-                if sys.platform == 'win32':
-                    from win32pipe import popen2
-                    imgin, imgout = popen2(('convert -quality %s '
-                                            '-geometry %sx%s - -'
-                                            % (quality, width, height), 'b'))
-                else:
-                    from popen2 import Popen3
-                    convert=Popen3(('convert -quality %s '
-                                    '-geometry %sx%s - -'
-                                    % (quality, width, height)))
-                    imgout=convert.fromchild
-                    imgin=convert.tochild
-
-                imgin.write(str(self.data))
-                imgin.close()
-                image.write(imgout.read())
-                imgout.close()
-
-                # Wait for process to close if unix.
-                # Should check returnvalue for wait
-                if sys.platform !='win32':
-                    convert.wait()
-
-                image.seek(0)
-
-        except (ConflictError, KeyboardInterrupt):
-            raise
-        except Exception, e:
-            log_exc('Error while resizing image')
-
-        return image
-
-    security.declareProtected(ChangeCacheSettingsPermission,
-                              'ZCacheable_setManagerId')
-    def ZCacheable_setManagerId(self, manager_id, REQUEST=None):
-        '''Changes the manager_id for this object.
-           overridden because we must propagate the change to all variants'''
-        for size in self._photos.keys():
-            variant = self.getPhoto(size).__of__(self)
-            variant.ZCacheable_setManagerId(manager_id)
-        inherited_attr = ScalableImage.inheritedAttribute('ZCacheable_setManagerId')
-        return inherited_attr(self, manager_id, REQUEST)
-
-
-InitializeClass(ScalableImage)
-
-class PhotoField(ObjectField):
-    """A photo field class."""
-
-    _properties = Field._properties.copy()
-    _properties.update({
-        'type' : 'image',
-        'default' : '',
-        'default_content_type' : 'image/gif',
-        'allowable_content_types' : ('image/gif','image/jpeg'),
-        'displays': {
-            'thumbnail': (128,128),
-            'xsmall': (200,200),
-            'small': (320,320),
-            'medium': (480,480),
-            'large': (768,768),
-            'xlarge': (1024,1024)
-            },
-        'widget': ImageWidget,
-        'storage': AttributeStorage(),
-        })
-
-    security  = ClassSecurityInfo()
-
-    default_view = "view"
-    
-    def __init__(self, *args, **kwargs):
-        deprecated('PhotoField is deprecated after work done on ImageField and '
-                   'ATImage. It will be removed in Archetypes 1.5. If someone '
-                   'like to keep the code please move it over to an own '
-                   'Product in MoreFieldsAndWidgets repository.'
-        )
-        super(PhotoField, self).__init__(*args, **kwargs)
-
-    security.declarePrivate('set')
-    def set(self, instance, value, **kw):
-        if isinstance(value, str):
-            value = StringIO(value)
-        image = ScalableImage(self.getName(), file=value,
-                              displays=self.displays)
-        ObjectField.set(self, instance, image, **kw)
-
-    security.declarePrivate('validate_required')
-    def validate_required(self, instance, value, errors):
-        value = getattr(value, 'get_size', lambda: str(value))()
-        return ObjectField.validate_required(self, instance, value, errors)
-    
-# end of DEPRECATED PhotoField code    
 
 __all__ = ('Field', 'ObjectField', 'StringField',
            'FileField', 'TextField', 'DateTimeField', 'LinesField',
            'IntegerField', 'FloatField', 'FixedPointField',
            'ReferenceField', 'ComputedField', 'BooleanField',
-           'CMFObjectField', 'ImageField', 'PhotoField',
+           'CMFObjectField', 'ImageField',
            )
 
 
@@ -2930,11 +2595,6 @@ registerField(ImageField,
                            'Images can then be retrieved in '
                            'different thumbnail sizes'))
 
-registerField(PhotoField,
-              title='Photo',
-              description=('Used for storing images. '
-                           'Based on CMFPhoto. ')
-             )
 
 registerPropertyType('required', 'boolean')
 registerPropertyType('default', 'string')

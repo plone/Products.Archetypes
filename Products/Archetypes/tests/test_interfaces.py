@@ -30,22 +30,20 @@ from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
-from Interface.Implements import getImplementsOfInstances
-from Interface.Implements import getImplements
-from Interface.Implements import flattenInterfaces
-from Interface.Verify import verifyClass, verifyObject
-from Interface.Exceptions import BrokenImplementation
-from Interface.Exceptions import DoesNotImplement
-from Interface.Exceptions import BrokenMethodImplementation
+from zope.interface import providedBy, implementedBy
+from zope.interface.verify import verifyClass, verifyObject
+from zope.interface.exceptions import BrokenImplementation, DoesNotImplement,\
+    BrokenMethodImplementation
 
-from Products.Archetypes.interfaces.base import *
-from Products.Archetypes.interfaces.field import *
-from Products.Archetypes.interfaces.layer import *
-from Products.Archetypes.interfaces.marshall import *
-from Products.Archetypes.interfaces.metadata import *
-from Products.Archetypes.interfaces.orderedfolder import *
-from Products.Archetypes.interfaces.referenceable import *
-from Products.Archetypes.interfaces.storage import *
+#from Products.Archetypes.interfaces.base import *
+#from Products.Archetypes.interfaces.field import *
+#from Products.Archetypes.interfaces.layer import *
+#from Products.Archetypes.interfaces.marshall import *
+#from Products.Archetypes.interfaces.metadata import *
+#from Products.Archetypes.interfaces.orderedfolder import *
+#from Products.Archetypes.interfaces.referenceable import *
+#from Products.Archetypes.interfaces.storage import *
+from Products.Archetypes.interfaces import *
 
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
@@ -94,7 +92,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def interfaceImplementedByInstanceOf(self, klass, interface):
         """ tests if the klass implements the interface in the right way """
         # is the class really implemented by the given interface?
-        self.failUnless(interface.isImplementedByInstancesOf(klass),
+        self.failUnless(interface.implementedBy(klass),
             'The class %s does not implement %s' % (className(klass), className(interface)))
         # verify if the implementation is correct
         try:
@@ -107,7 +105,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def interfaceImplementedBy(self, instance, interface):        
         """ tests if the instance implements the interface in the right way """
         # is the class really implemented by the given interface?
-        self.failUnless(interface.isImplementedBy(instance),
+        self.failUnless(interface.providedBy(instance),
             'The instance of %s does not implement %s' % (className(instance), className(interface)))
         # verify if the implementation is correct
         try:
@@ -119,19 +117,11 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 
     def getImplementsOfInstanceOf(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
-        impl = getImplementsOfInstances(klass)
-        if not isinstance(impl, tuple):
-            impl = (impl,)
-        if impl:
-            return flattenInterfaces(impl)
+        return tuple(implementedBy(klass).flattened())
 
     def getImplementsOf(self, instance):
         """ returns the interfaces implemented by the instance (flat)"""
-        impl = getImplements(instance)
-        if not isinstance(impl, tuple):
-            impl = (impl,)
-        if impl:
-            return flattenInterfaces(impl)
+        return tuple(providedBy(instance).flattened())
 
     def doesImplementByInstanceOf(self, klass, interfaces):
         """ make shure that the klass implements at least these interfaces"""

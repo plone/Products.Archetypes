@@ -27,7 +27,7 @@ def install_additional_templates(self, out, types):
     
     for t in types:
         klass = t['klass']
-        if ITemplateMixin.isImplementedByInstancesOf(klass):
+        if ITemplateMixin.implementedBy(klass):
             portal_type = klass.portal_type
             default_view = getattr(klass, 'default_view', 'base_view')
             suppl_views = getattr(klass, 'suppl_views', ())
@@ -224,7 +224,7 @@ def install_indexes(self, out, types):
                 # add metadata column 
                 
                 # lets see if the catalog is itself an Archetype:
-                isArchetype = IBaseObject.isImplementedBy(catalog)
+                isArchetype = IBaseObject.providedBy(catalog)
                 # archetypes based zcatalogs need to provide a different method 
                 # to list its schema-columns to not conflict with archetypes 
                 # schema                
@@ -299,11 +299,11 @@ def filterTypes(self, out, types, package_name):
         meta_type = rti['meta_type']
 
         isBaseObject = 0
-        if IBaseObject.isImplementedByInstancesOf(t):
+        if IBaseObject.providedBy(t):
             isBaseObject = 1
         else:
             for k in t.__bases__:
-                if IBaseObject.isImplementedByInstancesOf(k):
+                if IBaseObject.providedBy(k):
                     isBaseObject = 1
                     break
 
@@ -313,7 +313,7 @@ def filterTypes(self, out, types, package_name):
             print >> out, ("%s doesnt implements IBaseObject. "
                            "Possible misconfiguration. "
                            "Check if your class has an "
-                           "'__implements__ = IBaseObject' "
+                           "'implements(IBaseObject)' "
                            "(or IBaseContent, or IBaseFolder)" % repr(t))
 
     return filtered_types

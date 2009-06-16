@@ -8,6 +8,7 @@ from Globals import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
+from zope.interface import implements
 
 type_map = {'text':'string',
             'datetime':'date',
@@ -22,7 +23,7 @@ class Storage:
     """Basic, abstract class for Storages. You need to implement
     at least those methods"""
 
-    __implements__ = IStorage
+    implements(IStorage)
 
     security = ClassSecurityInfo()
 
@@ -52,7 +53,6 @@ setSecurity(Storage)
 
 class ReadOnlyStorage(Storage):
     """A marker storage class for used for read-only fields."""
-    __implements__ = IStorage
 
     security = ClassSecurityInfo()
 
@@ -61,7 +61,7 @@ class StorageLayer(Storage):
     how they are initialized per instance and/or per field must
     subclass and implement those methods"""
 
-    __implements__ = IStorage, ILayer
+    implements(IStorage, ILayer)
 
     security = ClassSecurityInfo()
 
@@ -86,8 +86,6 @@ setSecurity(StorageLayer)
 class AttributeStorage(Storage):
     """Stores data as an attribute of the instance. This is the most
     commonly used storage"""
-
-    __implements__ = IStorage
 
     security = ClassSecurityInfo()
 
@@ -115,8 +113,6 @@ class AttributeStorage(Storage):
 class ObjectManagedStorage(Storage):
     """Stores data using the Objectmanager interface. It's usually
     used for BaseFolder-based content"""
-
-    __implements__ = IStorage
 
     security = ClassSecurityInfo()
 
@@ -146,8 +142,6 @@ class ObjectManagedStorage(Storage):
 class MetadataStorage(StorageLayer):
     """Storage used for ExtensibleMetadata. Attributes are stored on
     a persistent mapping named ``_md`` on the instance."""
-
-    __implements__ = IStorage, ILayer
 
     security = ClassSecurityInfo()
 

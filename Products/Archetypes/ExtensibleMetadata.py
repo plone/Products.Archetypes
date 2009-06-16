@@ -1,5 +1,5 @@
 import string
-from logging import INFO, DEBUG
+from logging import DEBUG
 from zope.component import queryUtility
 from zope.interface import implements
 
@@ -8,7 +8,7 @@ from Products.Archetypes.Field import *
 from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
-from Products.Archetypes.interfaces.metadata import IExtensibleMetadata
+from Products.Archetypes.interfaces import IExtensibleMetadata
 from Products.Archetypes.utils import DisplayList, shasattr
 from Products.Archetypes.debug import log
 from Products.Archetypes import config
@@ -20,8 +20,6 @@ from DateTime.DateTime import DateTime
 from Globals import InitializeClass, DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
-from Products.CMFCore.interfaces import IMutableDublinCore
-from Products.CMFCore.interfaces import ICatalogableDublinCore
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
 
@@ -50,8 +48,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     # Just so you know, the problem here is that Title
     # is on BaseObject.schema, so it does implement IExtensibleMetadata
     # as long as both are used together.
-    __implements__ = IExtensibleMetadata
-    implements(IMutableDublinCore, ICatalogableDublinCore)
+    implements(IExtensibleMetadata)
 
     security = ClassSecurityInfo()
 
@@ -213,11 +210,11 @@ class ExtensibleMetadata(Persistence.Persistent):
     def __init__(self):
         pass
 
-    security.declarePrivate('defaultLanguage')
-    def defaultLanguage(self):
-        """Retrieve the default language"""
+    security.declarePrivate('defaultLanguage') 
+    def defaultLanguage(self): 
+        """Retrieve the default language""" 
         return config.LANGUAGE_DEFAULT
-    
+
     security.declarePrivate('defaultRights')
     def defaultRights(self):
         """Retrieve the default rights"""
@@ -318,7 +315,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                      ('pt','Portuguese'), ('ru','Russian')))
         else:
             languages = util.getLanguageListing()
-            languages.sort(lambda x,y:cmp(x[1], y[1]))
+            languages.sort(key=lambda x:x[1])
             # Put language neutral at the top.
             languages.insert(0,(u'',_(u'Language neutral (site default)')))
         return DisplayList(languages)
@@ -575,7 +572,9 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Add creator to Dublin Core creators.
         """
         if creator is None:
-            mtool = getToolByName(self, 'portal_membership')
+            mtool = getToolByName(self, 'portal_membership', None)
+            if mtool is None:
+                return
             creator = mtool.getAuthenticatedMember().getId()
 
         # call self.listCreators() to make sure self.creators exists

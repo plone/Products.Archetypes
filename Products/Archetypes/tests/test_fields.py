@@ -41,7 +41,6 @@ from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
-from Products.Archetypes.Field import ScalableImage
 from Products.Archetypes import config
 from Products import PortalTransforms
 from OFS.Image import File, Image
@@ -61,8 +60,6 @@ test_fields = [
           ('FixedPointField', 'fixedpointfield2'),
           ('BooleanField', 'booleanfield'),
           ('ImageField', 'imagefield'),
-          ('PhotoField', 'photofield'),
-          # 'ReferenceField', 'ComputedField', 'CMFObjectField',
           ]
 
 field_instances = []
@@ -90,8 +87,7 @@ field_values = {'objectfield':'objectfield',
                 'fixedpointfield1': '1.5',
                 'fixedpointfield2': '1,5',
                 'booleanfield':'1',
-                'imagefield_file':img_file,
-                'photofield_file':img_file}
+                'imagefield_file':img_file}
 
 expected_values = {'objectfield':'objectfield',
                    'stringfield':'stringfield',
@@ -104,8 +100,7 @@ expected_values = {'objectfield':'objectfield',
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name, 
-                   'photofield':'<img src="%s/dummy/photofield/variant/original" alt="" title="" height="16" width="16" border="0" />' % portal_name
+                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
                    }
 
 empty_values = {'objectfield':None,
@@ -125,7 +120,7 @@ schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
 class sampleInterfaceVocabulary:
-    __implements__ = IVocabulary
+    implements(IVocabulary)
     def getDisplayList(self, instance):
         return sampleDisplayList
 
@@ -190,7 +185,7 @@ class ProcessingTest(ATSiteTestCase):
         dummy.processForm()
         for k, v in expected_values.items():
             got = dummy.getField(k).get(dummy)
-            if isinstance(got, (File, ScalableImage, Image)):
+            if isinstance(got, (File, Image)):
                 got = str(got)
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
@@ -377,6 +372,15 @@ class ProcessingTest(ATSiteTestCase):
         getSiteManager().registerAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
         self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
+
+    def test_encoding(self):
+        # http://dev.plone.org/plone/ticket/7597
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.Schema().fields()[3] # textfield
+        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' ) 
+        encoding = field.getRaw(self.portal, raw=1).original_encoding
+        self.assertEqual(encoding, 'latin')
 
 
 class DownloadTest(ATSiteTestCase):

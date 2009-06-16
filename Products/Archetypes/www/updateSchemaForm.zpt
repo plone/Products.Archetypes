@@ -1,6 +1,6 @@
-<h1 tal:replace="structure here/manage_page_header|nothing">Header</h1>
+<h1 tal:replace="structure context/manage_page_header|nothing">Header</h1>
 <h2 tal:define="manage_tabs_message options/manage_tabs_message | nothing"
-    tal:replace="structure here/manage_tabs">Tabs</h2>
+    tal:replace="structure context/manage_tabs">Tabs</h2>
 
 <p>This is an experimental mechanism for updating your existing objects when
 you update an Archetypes class's schema.  It rebuilds all your objects using
@@ -14,7 +14,7 @@ smart about detecting schema changes in your objects.  Use at your own risk.
 
   <b>Update the following classes:</b>
   <table border="0">
-    <tr tal:repeat="klass python:here.getChangedSchema()">
+    <tr tal:repeat="klass python:context.getChangedSchema()">
       <td>
         <input type="checkbox" 
                tal:attributes="name python:klass[0];
@@ -41,4 +41,4 @@ smart about detecting schema changes in your objects.  Use at your own risk.
    <input type="submit" name="submit" value="Update schema"/>
 </form>
     
-<tal:footer tal:replace="structure here/manage_page_footer|nothing">footer</tal:footer>
+<tal:footer tal:replace="structure context/manage_page_footer|nothing">footer</tal:footer>

@@ -27,7 +27,7 @@ except ImportError:
     def transaction_note(note):
         """ Write human legible note """
         T=transaction.get()
-        if (len(T.description)+len(note))>=65535:
+        if (len(T.description)+len(note))>=65533:
             logger.warning('Transaction note too large omitting %s' % str(note))
         else:
             T.note(str(note))

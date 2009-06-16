@@ -11,6 +11,7 @@ from Globals import InitializeClass
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from ExtensionClass import Base
+from zope.interface import implements
 
 TemplateMixinSchema = Schema((
     # TemplateMixin
@@ -29,7 +30,7 @@ TemplateMixinSchema = Schema((
 
 
 class TemplateMixin(Base):
-    __implements__ = ITemplateMixin
+    implements(ITemplateMixin)
 
     schema = TemplateMixinSchema
 

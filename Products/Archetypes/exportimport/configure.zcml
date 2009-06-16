@@ -1,7 +1,8 @@
 <configure
    xmlns="http://namespaces.zope.org/zope"
    xmlns:five="http://namespaces.zope.org/five"
-   >
+   xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+   i18n_domain="plone">
 
   <adapter
       factory=".archetypetool.ArchetypeToolXMLAdapter"
@@ -9,4 +10,28 @@
       for="Products.Archetypes.interfaces.IArchetypeTool
            Products.GenericSetup.interfaces.ISetupEnviron"
       />
+
+  <genericsetup:importStep
+      name="archetypes-various"
+      title="Archetypes setup"
+      description="Import various settings for Archetypes."
+      handler="Products.Archetypes.setuphandlers.setupArchetypes">
+     <depends name="componentregistry"/>
+  </genericsetup:importStep>
+
+  <genericsetup:importStep
+      name="archetypetool"
+      title="Archetype Tool"
+      description="Import Archetype Tool."
+      handler="Products.Archetypes.exportimport.archetypetool.importArchetypeTool">
+     <depends name="archetypes-various"/>
+  </genericsetup:importStep>
+
+  <genericsetup:exportStep
+      name="archetypetool"
+      title="Archetype Tool"
+      description="Export Archetype Tool."
+      handler="Products.Archetypes.exportimport.archetypetool.exportArchetypeTool">
+  </genericsetup:exportStep>
+
 </configure>
