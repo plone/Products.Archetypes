@@ -1,6 +1,10 @@
 1.5.12 - UNRELEASED
 ===================
 
+* Fix mapping for an i18n string in Field.validate_vocabulary. This closes
+  http://dev.plone.org/plone/ticket/9287
+  [vincentfretin]
+
 * BaseObject.getCharset() now supports extraction of the default_charset
   for plain CMF sites.
   [ajung]
@@ -14,7 +18,7 @@
   http://dev.plone.org/plone/ticket/7964
   [massimo]
 
-* Fix XML validatiy in bae_edit.
+* Fix XML validity in base_edit.
   [mborch]
 
 * Extinguishing last use of document_actions and add missing
