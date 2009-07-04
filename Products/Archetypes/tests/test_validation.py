@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+from zope.interface import implements
+
 from Products.Five.testbrowser import Browser
 
 from Products.Archetypes.tests.attestcase import ATTestCase
@@ -93,7 +95,7 @@ class TestValidationViaBrowser(ATFunctionalSiteTestCase):
     def test_7580(self):
         """ """
         class DummyValidator:
-            __implements__ = IValidator
+            implements(IValidator)
         
             def __init__(self, name, title='', description=''):
                 self.name = name
