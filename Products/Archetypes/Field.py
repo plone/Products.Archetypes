@@ -823,7 +823,10 @@ class StringField(ObjectField):
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        return ObjectField.get(self, instance, **kwargs)
+        value = ObjectField.get(self, instance, **kwargs) 
+        if getattr(self, 'raw', False): 
+            return value 
+        return encode(value, instance, **kwargs)
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1460,7 +1463,7 @@ class LinesField(ObjectField):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs) or ()
-        data = [v for v in value]
+        data = [encode(v, instance, **kwargs) for v in value]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
             return tuple(data)
         else:
