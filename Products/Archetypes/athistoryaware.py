@@ -99,7 +99,7 @@ def _historicalRevision(self, tid):
 
 def _objectRevisions(obj, limit=10):
     """Iterate over (thread id, persistent object revisions), up to limit"""
-    for rev in obj._p_jar.db().history(obj._p_oid, None, limit):
+    for rev in obj._p_jar.db().history(obj._p_oid, size=limit):
         tid = rev.get('tid', None) or rev.get('serial', None)
         if not tid: # Apparently not all storages provide this?
             return
