@@ -18,13 +18,13 @@ class InstallIndexesTests(ATSiteTestCase):
             pass
         
     def test_base_usage(self):
-        ComplexType.schema['richtextfield'].index = 'TextIndex'
+        ComplexType.schema['richtextfield'].index = 'FieldIndex'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('getRichtextfield' in self.portal.portal_catalog.indexes())
 
         
     def test_index_method(self):
-        ComplexType.schema['richtextfield'].index = 'TextIndex'
+        ComplexType.schema['richtextfield'].index = 'FieldIndex'
         ComplexType.schema['richtextfield'].index_method = 'Whatever'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('Whatever' in self.portal.portal_catalog.indexes())
@@ -39,7 +39,7 @@ class InstallIndexesTests(ATSiteTestCase):
 
         
     def test_bad_index_method(self):
-        ComplexType.schema['richtextfield'].index = 'TextIndex'
+        ComplexType.schema['richtextfield'].index = 'FieldIndex'
         ComplexType.schema['richtextfield'].index_method = lambda x: 'yop'
         self.failUnlessRaises(ValueError,
                               utils.install_indexes, self.portal, StringIO(), (ComplexType,) )
