@@ -116,7 +116,7 @@ class UnicodeTextFieldTest(ATSiteTestCase):
 class UnicodeBaseUnitTest(ATSiteTestCase):
 
     def afterSetUp(self):
-        self.instance = Dummy()
+        self.instance = Dummy().__of__(self.portal)
         self.bu = BaseUnit('test', 'héhéhé', self.instance,
                            mimetype='text/plain', encoding='ISO-8859-1')
 
@@ -135,7 +135,6 @@ class UnicodeBaseUnitTest(ATSiteTestCase):
         """check the string given to the transformer is encoded using its
         original encoding, and finally returned using the default charset
         """
-        self.instance.aq_parent = None
         self.instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(self.instance, 'text/plain')
         self.failUnlessEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
