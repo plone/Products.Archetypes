@@ -64,7 +64,6 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Storage import *
 from Products.Archetypes.Storage.annotation import AnnotationStorage
 from Products.Archetypes.Storage.annotation import MetadataAnnotationStorage 
-from Products.Archetypes.AggregatedStorage import AggregatedStorage
 from Products.Archetypes.SQLStorage import BaseSQLStorage
 from Products.Archetypes.SQLStorage import GadflySQLStorage
 from Products.Archetypes.SQLStorage import MySQLSQLStorage

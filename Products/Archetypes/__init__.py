@@ -26,14 +26,6 @@ ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getDefau
 ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setForbiddenContentTypes')
 ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setDefaultContentType')
 
-# Plone compatibility in plain CMF. Templates should use IndexIterator from
-# Archetypes and not from CMFPlone
-from PloneCompat import IndexIterator
-allow_class(IndexIterator)
-
-from PloneCompat import transaction_note
-ModuleSecurityInfo('Products.Archetypes').declarePublic('transaction_note')
-
 # Import "PloneMessageFactory as _" to create messages in plone domain
 # duplicated here so we don't add a dependency on CMFPlone
 from zope.i18nmessageid import MessageFactory

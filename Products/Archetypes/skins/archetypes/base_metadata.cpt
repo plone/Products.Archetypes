@@ -1,6 +1,5 @@
 <tal:block metal:define-macro="master"
            define="errors options/state/getErrors | nothing;
-                   Iterator python:modules['Products.Archetypes'].IndexIterator;
                    rejection context/rejectAnonymous;
                    type_name context/getPortalTypeName|context/archetype_name;
                    fti context/getTypeInfo;

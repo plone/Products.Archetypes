@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.5.12'
+version = '2.0'
 
 setup(name='Products.Archetypes',
       version=version,
@@ -14,7 +14,7 @@ setup(name='Products.Archetypes',
         "Programming Language :: Python",
         ],
       keywords='Archetypes Plone CMF Zope',
-      author='Benjamin Saller and others',
+      author='Archetypes developement team',
       author_email='plone-developers@lists.sourceforge.net',
       url='http://plone.org/',
       license='BSD',

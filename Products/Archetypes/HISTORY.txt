@@ -1,8 +1,23 @@
-1.6.0 - unreleased
-========================
+2.0 - unreleased
+================
 
   * Deprecated our own IOrderedContainer interface in favor of the version
     from OFS. We do require Zope 2.7 for a while now ;)
+    [hannosch]
+
+  * Removed PloneCompat module and moved transaction_note to utils.
+    [hannosch]
+
+  * Removed tabindex and Iterator from the template scopes. Their use was
+    discouraged long ago.
+    [hannosch]
+
+  * Removed utils.getPkgInfo and `__pkginfo__`. We use setuptools as our
+    distribution and package information platform.
+    [hannosch]
+
+  * Removed unsupported AggregatedStorage. You can easily convert this into
+    an add-on package if you use this storage.
     [hannosch]
 
   * Fixed remaining test failures caused by CMFPlone dependencies. Moved

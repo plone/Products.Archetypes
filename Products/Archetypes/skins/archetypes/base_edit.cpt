@@ -5,7 +5,6 @@
                    lock_info context/@@plone_lock_info|nothing;
                    dummy lifecycle/begin_edit;
                    errors options/state/getErrors | nothing;
-                   Iterator python:modules['Products.Archetypes'].IndexIterator;
                    schematas context/Schemata;
                    allow_tabbing python: not view.isMultiPageSchema();
                    fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];

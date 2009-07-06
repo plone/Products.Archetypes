@@ -1,6 +1,7 @@
-import sys
+import logging
 import os
 import socket
+import sys
 from random import random
 from time import time
 from inspect import getargs, getmro
@@ -8,6 +9,7 @@ from md5 import md5
 from types import ClassType, MethodType
 from UserDict import UserDict as BaseDict
 
+import transaction
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 
@@ -36,6 +38,8 @@ def make_uuid(*args):
 
 # linux kernel uid generator. It's a little bit slower but a little bit better
 KERNEL_UUID = '/proc/sys/kernel/random/uuid'
+
+logger = logging.getLogger('Archetypes')
 
 if os.path.isfile(KERNEL_UUID):
     HAS_KERNEL_UUID = True
@@ -668,19 +672,6 @@ def getRelPath(self, ppath):
 def getRelURL(self, ppath):
     return '/'.join(getRelPath(self, ppath))
 
-def getPkgInfo(product):
-    """Get the __pkginfo__ from a product
-
-    chdir before importing the product
-    """
-    prd_home = product.__path__[0]
-    cur_dir = os.path.abspath(os.curdir)
-    os.chdir(prd_home)
-    pkg = __import__('%s.__pkginfo__' % product.__name__, product, product,
-                      ['__pkginfo__'])
-    os.chdir(cur_dir)
-    return pkg
-
 def shasattr(obj, attr, acquire=False):
     """Safe has attribute method
 
@@ -890,3 +881,11 @@ def addStatusMessage(request, message, type='info'):
     """Add a status message to the request.
     """
     IStatusMessage(request).addStatusMessage(message, type=type)
+
+def transaction_note(note):
+    """ Write human legible note """
+    T=transaction.get()
+    if (len(T.description)+len(note))>=65533:
+        logger.warning('Transaction note too large omitting %s' % str(note))
+    else:
+        T.note(str(note))

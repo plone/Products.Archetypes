@@ -121,18 +121,11 @@ class AttributeProtectionTest(ATSiteTestCase):
         p.processForm(data=True, values={'title':'Bla3'})
         self.failUnlessEqual(p.Title(), 'Bla3')
 
-    def test_import_IndexIterator(self):
-        self.check('from Products.Archetypes import IndexIterator')
-
-    def test_use_IndexIterator(self):
-        self.check('from Products.Archetypes import IndexIterator;'
-                   'print IndexIterator().next()')
-
     def test_import_transaction_note(self):
-        self.check('from Products.Archetypes import transaction_note')
+        self.check('from Products.Archetypes.utils import transaction_note')
 
     def test_use_transaction_note(self):
-        self.check('from Products.Archetypes import transaction_note;'
+        self.check('from Products.Archetypes.utils import transaction_note;'
                    'print transaction_note("foo")')
 
     def test_import_DisplayList(self):

@@ -129,7 +129,7 @@ if state.errors:
                 context=new_context)
 
 if not state.errors:
-    from Products.Archetypes import transaction_note
+    from Products.Archetypes.utils import transaction_note
     transaction_note('Edited %s %s at %s' % (new_context.meta_type,
                                              new_context.title_or_id(),
                                              new_context.absolute_url()))

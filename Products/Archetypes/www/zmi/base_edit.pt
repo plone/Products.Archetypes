@@ -23,20 +23,11 @@
       Form Title
     </h2>
 
-    <!--
-      <p class="form-help">
-      Composites (from the CompositePage product) let you design pages
-      using a drag and drop interface with context menus.
-      </p>
-    -->
-
     <form action="manage_addSomething" method="POST"
           tal:attributes="action options/handler">
       <div tal:define="purl nocall:context/portal_url;
                        portal purl/getPortalObject;
                        errors options/state/getErrors | python:{};
-                       Iterator python:modules['Products.Archetypes'].IndexIterator;
-                       tabindex python:Iterator();
                        widgets python:context.archetype_tool.getWidgets(instance=context, mode='edit', schemata='default', context=container, package=options['package'], type=options['type'])">
         <tal:fields repeat="widget widgets">
           <metal:fieldMacro use-macro="widget" />
