@@ -2,7 +2,7 @@
            define="view context/@@at_base_edit_view;
                    dummy python:view.isTemporaryObject() and request.set('disable_border', True);
                    lifecycle context/@@at_lifecycle_view;
-                   lock_info context/@@plone_lock_info;
+                   lock_info context/@@plone_lock_info|nothing;
                    dummy lifecycle/begin_edit;
                    errors options/state/getErrors | nothing;
                    Iterator python:modules['Products.Archetypes'].IndexIterator;
@@ -24,7 +24,7 @@
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
                    body_macro edit_macros/body | body_macro | base_macros/body;
                    footer_macro edit_macros/footer | footer_macro | base_macros/footer;
-                   isLocked isLocked | lock_info/is_locked_for_current_user;
+                   isLocked isLocked | lock_info/is_locked_for_current_user | nothing;
                    css python:context.getUniqueWidgetAttr(fields, 'helper_css');
                    js python:context.getUniqueWidgetAttr(fields, 'helper_js');">
 

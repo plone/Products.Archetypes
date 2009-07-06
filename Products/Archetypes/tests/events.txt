@@ -33,20 +33,7 @@ Creating an AT object will a couple of events:
 
   >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  7 events:
-  [(<DDocument at a>,
-    <zope.app.event.objectevent.ObjectCreatedEvent object at ...>),
-   (<DDocument at a>, <OFS.event.ObjectWillBeAddedEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
-    <zope.app.container.contained.ObjectAddedEvent object at ...>),
-   (<ATFolder at /plone/Members/test_user_1_>,
-    <zope.app.container.contained.ContainerModifiedEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
-    <zope.app.event.objectevent.ObjectModifiedEvent object at ...),
-   (<DDocument at /plone/Members/test_user_1_/a>,
-    <Products.DCWorkflow.events.BeforeTransitionEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
-    <Products.DCWorkflow.events.AfterTransitionEvent object at ...>)]
+  8 events:...
 
 
 Calling `processForm`, which is what happens on submitting a form,
@@ -55,8 +42,26 @@ will fire the modified event:
   >>> d.processForm()
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/a>,
+  [(<DDocument at /.../Members/test_user_1_/a>,
     <Products.Archetypes.event.ObjectInitializedEvent object at ...>)]
+
+
+Setup Content Type Registry so that a 'DDocument' is created: 
+
+  >>> contents = StringIO('some contents') 
+  >>> request = aputrequest(contents, 'text/plain') 
+  >>> request.processInputs() 
+  >>> ignore = d.PUT(request, request.RESPONSE) 
+  >>> from Products.CMFCore.utils import getToolByName 
+  >>> ctr = getToolByName(self.portal, 'content_type_registry') 
+  >>> p_id = 'at_dav_test' 
+  >>> p_type = 'name_regex' 
+  >>> ctr.addPredicate(p_id, p_type) 
+  >>> class foo: pass 
+  >>> p_dict = foo() 
+  >>> p_dict.pattern = '.*' 
+  >>> ctr.updatePredicate(p_id, p_dict, 'DDocument') 
+  >>> ctr.reorderPredicate(p_id, 0)
 
 Doing a `PUT` request that creates a brand new object should fire
 IWebDAVObjectInitializedEvent:
@@ -82,12 +87,12 @@ IWebDAVObjectInitializedEvent:
   >>> 'some-document' in self.folder.objectIds()
   True
 
-  >>> print str(self.folder['some-document']['text'])
+  >>> print str(self.folder['some-document']['body'])
   Some Content
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<ATDocument at /plone/Members/test_user_1_/some-document>,
+  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)...]
 
 Doing another `PUT` request to update the same object should fire an
@@ -103,24 +108,30 @@ IWebDAVObjectEditedEvent:
   HTTP/1.1 204 No Content
   ...
 
-  >>> print str(self.folder['some-document']['text'])
+  >>> print str(self.folder['some-document']['body'])
   Some Other Content
 
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<ATDocument at /plone/Members/test_user_1_/some-document>,
+  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectEditedEvent object at ...>)]
 
+Finally, cleanup the CTR predicate to not affect other tests: 
+
+  >>> ctr.removePredicate(p_id)
+
 Test that a MKCOL also fires an IWebDAVObjectInitialized event:
+
+  >>> _ = self.folder.invokeFactory('SimpleFolder', 'f1')
 
   >>> print http(r"""
   ... MKCOL /%s/some-folder HTTP/1.1
   ... Authorization: Basic %s:%s
-  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(self.folder.f1.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<ATFolder at /plone/Members/test_user_1_/some-folder>,
+  [(<SimpleFolder at /cmf/Members/test_user_1_/f1/some-folder>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)]

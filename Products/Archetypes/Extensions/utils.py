@@ -144,7 +144,7 @@ def install_types(self, out, types, package_name):
             return
         sp = getattr(pt, 'site_properties', None)
         if sp is None:
-            return
+            return None
         props = ('use_folder_tabs', 'typesLinkToFolderContentsInFC')
         for prop in props:
             folders = sp.getProperty(prop, None)

@@ -5,6 +5,16 @@
     from OFS. We do require Zope 2.7 for a while now ;)
     [hannosch]
 
+  * Fixed remaining test failures caused by CMFPlone dependencies. Moved
+    normalizeString method to the edit view instead of requiring plone_utils.
+    [hannosch]
+
+  * Created a separate layer for Archetypes, that does not depend on the
+    Five ZCML layer anymore. AT tests can finally be run in isolation of other
+    installed packages. Fixed a couple of test failures which now have a
+    deterministic output.
+    [hannosch]
+
   * Changed all references to `here` in all templates to `context`.
     [hannosch]
 
@@ -85,6 +95,11 @@
 
   * Minor tweak in the calendar widget.
     [deo, hannosch]
+
+  * Converted Archetypes tests to use CMFTestCase as a base again, instead of
+    PloneTestCase. Fixed all tests / code to actually work without Plone
+    installed.
+    [hannosch]
 
   * Removed Archetypes Site customization policy.
     [hannosch]

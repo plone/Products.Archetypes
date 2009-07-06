@@ -14,7 +14,10 @@
       name="at_base_edit_view"
       class=".edit.Edit"
       permission="cmf.ModifyPortalContent"
-      allowed_attributes="isTemporaryObject isMultiPageSchema getTranslatedSchemaLabel"
+      allowed_attributes="isTemporaryObject
+                          isMultiPageSchema
+                          getTranslatedSchemaLabel
+                          normalizeString"
       />
 
   <browser:page

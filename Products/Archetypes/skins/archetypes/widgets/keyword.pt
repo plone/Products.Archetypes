@@ -29,9 +29,9 @@
             allowedKeywords python: context.collectKeywords(fieldName, field.accessor, widget.vocab_source);
             site_props context/portal_properties/site_properties|nothing;
             format widget/format | string:select;
-            allowRolesToAddKeywords site_props/allowRolesToAddKeywords;">
+            allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
 
-      <tal:condition condition="python:not widget.roleBasedAdd or [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords]">
+      <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords])">
         <div style="width: 45%; float: right;">
           <span i18n:translate="label_new_categories">New categories</span>
           <br />

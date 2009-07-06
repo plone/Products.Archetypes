@@ -1,3 +1,4 @@
+from zope.component import queryUtility
 from zope.interface import implements
 
 from Acquisition import aq_inner
@@ -8,6 +9,14 @@ from Products.Archetypes.interfaces import IEditForm
 from Products.Archetypes.interfaces import IMultiPageSchema
 
 from Products.Archetypes import PloneMessageFactory as _
+
+# Import conditionally, so we don't introduce a hard depdendency
+try:
+    from plone.i18n.normalizer.interfaces import IIDNormalizer
+    ID_NORMALIZER = True
+except ImportError:
+    ID_NORMALIZER = False
+
 
 class Edit(BrowserView):
     implements(IEditForm)
@@ -27,3 +36,10 @@ class Edit(BrowserView):
         label = u"label_schema_%s" % schema
         default = unicode(schema).capitalize()
         return _(label, default=default)
+
+    def normalizeString(self, text):
+        if ID_NORMALIZER:
+            norm = queryUtility(IIDNormalizer)
+            if norm is not None:
+                return norm.normalize(text)
+        return text

@@ -45,19 +45,11 @@ class TestPermissions(ATSiteTestCase):
         self.login()
         self.demo_instances = []
         for t in self.demo_types:
-            # XXX: Fails with "Unauthorized" exception from
-            #      CMFDefault/DiscussionTool.py:84, in overrideDiscussionFor
-            #
-            #      Note that BaseObject.initializeArchetype has a bare except
-            #      that prints out the error instead of letting it through, so
-            #      that there is no exception when running the test.
             inst = makeContent(self.folder, portal_type=t, id=t)
             self.demo_instances.append(inst)
 
     def testPermissions(self):
         for content in self.demo_instances:
-            # XXX: Strangely enough we have correct permissions here, but not so
-            #      in initializeArchetype
             self.failUnless(checkPerm(permissions.View, content))
             self.failUnless(checkPerm(permissions.AccessContentsInformation, content))
             self.failUnless(checkPerm(permissions.ModifyPortalContent, content))
@@ -70,45 +62,8 @@ class TestPermissions(ATSiteTestCase):
             self.failUnless(content().strip().startswith('<!DOCTYPE'))
 
 
-class TestFTICopy(ATFunctionalSiteTestCase):
-    """Test for http://dev.plone.org/plone/ticket/6734: Cannot filter
-    Addable Types with folderish FTI in portal_types.
-    """
-    
-    def test6734(self):
-        self.loginAsPortalOwner()
-
-        # We start off by copying the existing SimpleFolder type to
-        # our own type 'MySimpleFolder'.  For this type, we set the
-        # SimpleFolder type to be the sole allowed content type.
-        types = self.portal.portal_types
-        types.manage_pasteObjects(types.manage_copyObjects(['SimpleFolder']))
-        types.manage_renameObjects(['copy_of_SimpleFolder'], ['MySimpleFolder'])
-        my_type = types['MySimpleFolder']
-        attrs = dict(allowed_content_types=('SimpleFolder',),
-                     filter_content_types=True,
-                     portal_type='MySimpleFolder',
-                     title='MySimpleFolder')
-        my_type.__dict__.update(attrs)
-
-        browser = Browser()
-        browser.handleErrors = False
-        browser.addHeader('Authorization',
-                          'Basic %s:%s' % ('portal_owner', user_password))
-        browser.open(self.folder.absolute_url())
-        browser.getLink('Add new').click()
-        browser.getControl('MySimpleFolder').click()
-        browser.getControl('Add').click()
-
-        browser.getControl('Title').value = 'My dope folder'
-        browser.getControl('Save').click()
-        self.failUnless('Changes saved.' in browser.contents)
-        self.failUnless('My dope folder' in browser.contents)
-
-
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestPermissions))
-    suite.addTest(makeSuite(TestFTICopy))
     return suite

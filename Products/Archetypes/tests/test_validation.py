@@ -23,18 +23,10 @@
 #
 ################################################################################
 
-from zope.interface import implements
-
-from Products.Five.testbrowser import Browser
-
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 
 from Products.validation import validation as validationService
-from Products.validation.config import validation as validationConfig
-from Products.validation.interfaces.IValidator import IValidator
 
-from Products.ATContentTypes.content.document import ATDocumentSchema
 
 class TestValidation(ATTestCase):
     def test_inNumericRange(self):
@@ -86,62 +78,10 @@ class TestValidation(ATTestCase):
         self.failIfEqual(v('ab,c'),1 )
         self.failIfEqual(v('aaaaaaaab'), 1) # too long
 
-class TestValidationViaBrowser(ATFunctionalSiteTestCase):
-    """
-    Test for http://dev.plone.org/plone/ticket/7580: 
-    validators don't work on reference fields
-    """
 
-    def test_7580(self):
-        """ """
-        class DummyValidator:
-            implements(IValidator)
-        
-            def __init__(self, name, title='', description=''):
-                self.name = name
-                self.title = title or name
-                self.description = description
-
-            def __call__(self, value, *args, **kw):
-                return 'Value is always invalid!'
-
-        validationConfig.register(DummyValidator('runDummy', title='', description=''))
-        
-        ## add dummy validator to ReferenceField
-        ATDocumentSchema['relatedItems'].validators = ('runDummy',)
-        ## validators from tuple must be converted to ValidationChain
-        ## _validationLayer method will do it for us
-        ATDocumentSchema['relatedItems']._validationLayer()
-        
-        ## we must login as Manager
-        self.loginAsPortalOwner() 
-        self.portal.acl_users.userFolderAddUser('root', 'secret', ['Manager'], []) 
-        
-        browser = Browser()
-        browser.open(self.folder.absolute_url())
-        browser.getLink('Log in').click() 
-        browser.getControl('Login Name').value = 'root' 
-        browser.getControl('Password').value = 'secret' 
-        browser.getControl('Log in').click()
-        
-        browser.open(self.folder.absolute_url())
-
-        ## try to add Page
-        browser.getLink('Add new').click()
-        browser.getControl('Page').click()
-        browser.getControl('Add').click()
-
-        browser.getControl('Title').value = 'TEST'
-        browser.getControl('Save').click()
-        
-        ## Page can't be created because DummyValidator reejects value
-        self.failUnless('Please correct the indicated errors.' in browser.contents)
-        self.failUnless('Value is always invalid!' in browser.contents)     
-        
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestValidation))
-    suite.addTest(makeSuite(TestValidationViaBrowser))
     return suite
 

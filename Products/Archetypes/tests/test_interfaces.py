@@ -59,7 +59,7 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.atapi import registerType
-from Products.PloneTestCase.layer import ZCMLLayer
+from Products.CMFTestCase.layer import ZCMLLayer
 
 def className(klass):
     """ get the short class name """
@@ -206,7 +206,7 @@ def make_test_instances():
         ]
 
 # @@ so inefficient
-from Products.PloneTestCase.utils import safe_load_site_wrapper
+from Products.CMFTestCase.five import safe_load_site_wrapper
 testInstances = safe_load_site_wrapper(make_test_instances)()
 
 for testClass in testClasses:

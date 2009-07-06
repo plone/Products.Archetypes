@@ -9,11 +9,12 @@
 ##
 
 from Products.Archetypes import PloneMessageFactory as _
+from Products.Archetypes.utils import addStatusMessage
 
 if context.portal_membership.isAnonymousUser():
 
     url = '%s/login_form' % context.portal_url()
-    context.plone_utils.addPortalMessage(_(u'You must sign in first.'))
+    addStatusMessage(REQUEST, _(u'You must sign in first.'), type='info')
 
     RESPONSE=context.REQUEST.RESPONSE
     return RESPONSE.redirect(url)
