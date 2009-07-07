@@ -1,4 +1,4 @@
-2.0 - unreleased
+1.6 - unreleased
 ================
 
   * Deprecated our own IOrderedContainer interface in favor of the version
