@@ -299,11 +299,11 @@ def filterTypes(self, out, types, package_name):
         meta_type = rti['meta_type']
 
         isBaseObject = 0
-        if IBaseObject.providedBy(t):
+        if IBaseObject.implementedBy(t):
             isBaseObject = 1
         else:
             for k in t.__bases__:
-                if IBaseObject.providedBy(k):
+                if IBaseObject.implementedBy(k):
                     isBaseObject = 1
                     break
 
