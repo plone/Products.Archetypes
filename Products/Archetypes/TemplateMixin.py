@@ -7,7 +7,7 @@ from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 
 from Products.CMFCore import permissions, utils
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from ExtensionClass import Base

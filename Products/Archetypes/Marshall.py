@@ -8,7 +8,7 @@ from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from OFS.Image import File
 from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall

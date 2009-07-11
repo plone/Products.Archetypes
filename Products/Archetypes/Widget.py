@@ -16,7 +16,7 @@ from Products.Archetypes.Registry import registerWidget
 
 from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Acquisition import aq_base
 
 _marker = []

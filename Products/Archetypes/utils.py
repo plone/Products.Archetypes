@@ -5,9 +5,13 @@ import sys
 from random import random
 from time import time
 from inspect import getargs, getmro
-from md5 import md5
 from types import ClassType, MethodType
 from UserDict import UserDict as BaseDict
+
+try:
+    from hashlib import md5
+except:
+    from md5 import md5
 
 import transaction
 from zope.i18n import translate
@@ -18,7 +22,7 @@ from AccessControl.SecurityInfo import ACCESS_PUBLIC
 
 from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
 from Products.Archetypes.config import DEBUG_SECURITY

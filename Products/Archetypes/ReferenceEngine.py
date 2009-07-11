@@ -21,7 +21,9 @@ from AccessControl import ClassSecurityInfo
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 
-from Globals import InitializeClass, DTMLFile, PersistentMapping
+from App.class_init import InitializeClass
+from App.special_dtml import DTMLFile
+from Persistence import PersistentMapping
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore import permissions
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

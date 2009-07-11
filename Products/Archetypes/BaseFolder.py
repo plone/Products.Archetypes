@@ -12,7 +12,7 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IRe
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder

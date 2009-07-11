@@ -7,7 +7,7 @@ from Products.Archetypes.interfaces.schema import ICompositeSchema, \
      IBindableSchema
 
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Acquisition import Implicit, aq_parent, aq_inner
 from Products.CMFCore.permissions import View, ModifyPortalContent
 from zope.interface import implements
@@ -259,7 +259,10 @@ class CompositeSchema(Implicit):
         This is used for determining whether a schema
         has changed in the auto update function.
         """
-        from md5 import md5
+        try:
+            from hashlib import md5
+        except:
+            from md5 import md5
         return md5(self.toString()).digest()
 
     security.declarePrivate('changeSchemataForField')

@@ -11,7 +11,7 @@ from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from DocumentTemplate import sequence
 
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from OFS.interfaces import IOrderedContainer
 
 from Products.CMFCore.utils import getToolByName

@@ -10,7 +10,7 @@ from Products.Archetypes.debug import log
 from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from OFS.Image import File
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName

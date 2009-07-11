@@ -16,7 +16,7 @@ from Products.Archetypes.exceptions import ReferenceException
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base, Explicit
 from ExtensionClass import Base
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from zope.interface import implements
@@ -629,7 +629,10 @@ class BasicSchema(Schemata):
     security.declareProtected(permissions.View,
                               'signature')
     def signature(self):
-        from md5 import md5
+        try:
+            from hashlib import md5
+        except:
+            from md5 import md5
         return md5(self.toString()).digest()
 
     security.declareProtected(permissions.ModifyPortalContent,

@@ -5,8 +5,8 @@ import urllib
 import traceback
 from zope.interface import implements
 
-from Globals import InitializeClass
-from Globals import DTMLFile
+from App.class_init import InitializeClass
+from App.special_dtml import DTMLFile
 from ExtensionClass import Base
 from ZODB.POSException import ConflictError
 from zExceptions import NotFound

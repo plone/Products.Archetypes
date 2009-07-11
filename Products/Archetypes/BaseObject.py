@@ -1,5 +1,5 @@
 import sys
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.debug import log_exc

@@ -1,10 +1,13 @@
-import sha
+try:
+    from hashlib import sha1 as sha
+except:
+    from sha import new as sha
 
 from Products.Archetypes.ClassGen import ClassGenerator
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 
 from Products.CMFCore import permissions
 from ExtensionClass import Base
@@ -61,8 +64,8 @@ class VariableSchemaSupport(Base):
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha.new(str([f.__dict__ for f in s.values()]) +
-                     str(self.__class__)).hexdigest()
+        hash=sha(str([f.__dict__ for f in s.values()]) +
+                 str(self.__class__)).hexdigest()
 
         if schemadict.has_key(hash): #ok we had that schema already, so take it
             schema=schemadict[hash]

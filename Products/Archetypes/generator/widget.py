@@ -1,7 +1,7 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.unauthorized import Unauthorized
 from Acquisition import aq_inner
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 
 from zope.i18n import translate
 from zope.i18nmessageid import Message

@@ -9,7 +9,7 @@ from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IRe
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from OFS.History import Historical
 from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent

@@ -4,7 +4,7 @@ from Products.Archetypes.debug import log
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base
-from Globals import PersistentMapping
+from Persistence import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage

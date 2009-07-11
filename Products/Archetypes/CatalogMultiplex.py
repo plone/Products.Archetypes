@@ -3,7 +3,7 @@ from logging import WARNING
 
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.permissions import ModifyPortalContent

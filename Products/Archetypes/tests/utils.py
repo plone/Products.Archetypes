@@ -30,7 +30,8 @@ import sys
 import logging
 
 from zope.tal import ndiff
-from Globals import InitializeClass, package_home
+from App.class_init import InitializeClass
+from App.Common import package_home
 from UserDict import UserDict
 import ExtensionClass
 from Acquisition import Implicit

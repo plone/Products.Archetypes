@@ -14,7 +14,7 @@ from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelURL
 
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 
 ####

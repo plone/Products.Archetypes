@@ -31,7 +31,7 @@ from DateTime import DateTime
 from OFS.History import HystoryJar
 from Acquisition import aq_parent
 from BTrees.OOBTree import OOBTree
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 
 from AccessControl import ClassSecurityInfo
 

@@ -17,7 +17,8 @@ from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from DateTime.DateTime import DateTime
-from Globals import InitializeClass, DTMLFile
+from App.class_init import InitializeClass
+from App.special_dtml import DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils  import getToolByName
 from Products.CMFDefault.utils import _dtmldir
@@ -281,7 +282,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                         # TODO: remove this when we move to a later
                         # CMF.
                         pass
-            except ("Unauthorized", Unauthorized):
+            except Unauthorized:
                 # Catch Unauthorized exception that could be raised by the
                 # discussion tool when the authenticated users hasn't
                 # ModifyPortalContent permissions.

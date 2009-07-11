@@ -2,7 +2,7 @@ import sys
 import transaction
 
 from Acquisition import aq_base
-from Globals import PersistentMapping
+from Persistence import PersistentMapping
 from StringIO import StringIO
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.Extensions.utils import install_uidcatalog

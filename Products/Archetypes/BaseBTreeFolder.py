@@ -4,7 +4,7 @@ from Products.Archetypes.interfaces import IBaseFolder
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from zope.interface import implements
 
 # to keep backward compatibility

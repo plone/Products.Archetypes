@@ -5,6 +5,10 @@
     from OFS. We do require Zope 2.7 for a while now ;)
     [hannosch]
 
+  * Declare package dependencies and fixed deprecation warnings for use
+    of Globals.
+    [hannosch]
+
   * Removed PloneCompat module and moved transaction_note to utils.
     [hannosch]
 

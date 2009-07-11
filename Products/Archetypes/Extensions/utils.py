@@ -1,7 +1,7 @@
 import os
 from os.path import isdir, join
 
-from Globals import package_home
+from App.Common import package_home
 from OFS.ObjectManager import BadRequestException
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
