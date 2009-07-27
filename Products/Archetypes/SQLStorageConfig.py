@@ -6,8 +6,10 @@ from Products.Archetypes.interfaces.field import IObjectField
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
-from Globals import InitializeClass, PersistentMapping, DTMLFile
+from App.class_init import InitializeClass
+from App.special_dtml import DTMLFile
 from OFS.SimpleItem import SimpleItem
+from Persistence import PersistentMapping
 from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
 
