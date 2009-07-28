@@ -446,24 +446,6 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         # XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
-    def test_graph(self):
-        if not HAS_GRAPHVIZ:
-            return
-
-        # This just asserts that nothing went wrong
-        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
-        c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
-
-        # Two made up kinda refs
-        a.addReference(b, "KnowsAbout")
-        c.addReference(a, "Owns")
-        refmap = a.getReferenceMap()
-        self.failUnless(refmap, refmap)
-        png = a.getReferencePng()
-        self.failUnless(png, png)
-
-
     def test_folderishDeleteCleanup(self):
         self.folder.invokeFactory(type_name="Folder", id="reftest")
         folder = getattr(self.folder, "reftest")

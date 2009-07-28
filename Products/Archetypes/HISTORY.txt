@@ -37,6 +37,10 @@
   * Changed all references to `here` in all templates to `context`.
     [hannosch]
 
+  * Removed reference graph visualization based on graphviz. It is
+    unmaintained and certainly not a core feature.
+    [hannosch]
+
   * 'TextField._process_input doesn't forward **kwargs' this fix
     https://dev.plone.org/plone/ticket/7597 [garbas]
 
