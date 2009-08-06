@@ -34,6 +34,9 @@
     deterministic output.
     [hannosch]
 
+  * Removed a couple of assert statements which wouldn't help in any way.
+    [hannosch]
+
   * Changed all references to `here` in all templates to `context`.
     [hannosch]
 

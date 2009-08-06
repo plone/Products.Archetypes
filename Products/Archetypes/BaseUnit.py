@@ -36,7 +36,6 @@ class BaseUnit(File):
         if IMimetype.providedBy(mimetype):
             dict['mimetype'] = str(mimetype)
             dict['binary'] = not not mimetype.binary
-        assert(dict.has_key('mimetype'), 'no mimetype in setstate dict')
         File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
@@ -49,11 +48,9 @@ class BaseUnit(File):
         adapter = getToolByName(context, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
 
-        assert mimetype
         self.mimetype = str(mimetype)
         self.binary = mimetype.binary
         if not self.isBinary():
-            assert type(data) is type(u'')
             if encoding is None:
                 try:
                     encoding = adapter.guess_encoding(data)
@@ -98,7 +95,6 @@ class BaseUnit(File):
                                      filename=self.filename)
 
         if data:
-            assert idatastream.providedBy(data)
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding',None) or \

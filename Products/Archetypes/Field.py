@@ -2259,10 +2259,8 @@ class ImageField(FileField):
         if isinstance(sizes, dict):
             return sizes
         elif isinstance(sizes, basestring):
-            assert(shasattr(instance, sizes))
             method = getattr(instance, sizes)
             data = method()
-            assert(isinstance(data, dict))
             return data
         elif callable(sizes):
             return sizes()
@@ -2443,8 +2441,6 @@ class ImageField(FileField):
         if scale is None:
             return self.get(instance, **kwargs)
         else:
-            assert(scale in self.getAvailableSizes(instance).keys(),
-                   'Unknown scale %s for %s' % (scale, self.getName()))
             id = self.getScaleName(scale=scale)
             try:
                 image = self.getStorage(instance).get(id, instance, **kwargs)
