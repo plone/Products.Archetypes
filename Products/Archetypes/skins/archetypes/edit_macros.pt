@@ -15,7 +15,8 @@
           Add
           <span i18n:name="itemtype"
                 tal:define="fti python:context.portal_types.getTypeInfo(here)">
-            <span tal:content="fti/Title"
+            <span i18n:translate=""
+                  tal:content="fti/Title"
                   tal:omit-tag="">Item type</span>
           </span>
         </h1>
@@ -24,7 +25,8 @@
           Edit
           <span i18n:name="itemtype"
                 tal:define="fti python:context.portal_types.getTypeInfo(here)">
-             <span tal:content="fti/Title"
+             <span i18n:translate=""
+                   tal:content="fti/Title"
                    tal:omit-tag="">Item type</span>
           </span>
         </h1>
