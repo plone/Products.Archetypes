@@ -389,7 +389,7 @@ class Field(DefaultLayerContainer):
                 val = translate(val, context=request)
             error = _( u'error_vocabulary',
                 default=u'Values ${val} are not allowed for vocabulary of element ${label}.',
-                mapping={'val': unicode(badvalues), 'name': label})
+                mapping={'val': unicode(badvalues), 'label': label})
             error = translate(error, context=request)
             errors[self.getName()] = error
         return error
