@@ -2,7 +2,7 @@
 ================
 
   * Fix for missing short-name field due to removal of globals. 
-    https://dev.plone.org/plone/ticket/9429
+    http://dev.plone.org/plone/ticket/9429
     [esteele]
 
   * Deprecated our own IOrderedContainer interface in favor of the version
