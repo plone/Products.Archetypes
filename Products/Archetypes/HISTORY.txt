@@ -1,6 +1,9 @@
 1.6 - unreleased
 ================
 
+  * Adjust to refactoring of CMFCatalogAware and PortalFolder's use of it.
+    [davisagli]
+
   * Fix for missing short-name field due to removal of globals. 
     http://dev.plone.org/plone/ticket/9429
     [esteele]

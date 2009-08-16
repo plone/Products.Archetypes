@@ -7,14 +7,13 @@ from Products.Archetypes.interfaces import IBaseFolder
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces import IExtensibleMetadata
-from Products.Archetypes.interfaces.base import IBaseFolder as z2IBaseFolder
-from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.interfaces import IContentish
+from Products.CMFCore.CMFCatalogAware import WorkflowAware
 from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import _checkPermission
@@ -41,7 +40,7 @@ class BaseFolderMixin(CatalogMultiplex,
         )
     security.declareProtected('Copy or Move', 'manage_copyObjects')
 
-    manage_options = PortalFolder.manage_options
+    manage_options = PortalFolder.manage_options + WorkflowAware.manage_options
     content_icon = "folder_icon.gif"
     use_folder_tabs = 1
     isPrincipiaFolderish = 1
@@ -58,6 +57,7 @@ class BaseFolderMixin(CatalogMultiplex,
         # Call skinned first cause baseobject will set new defaults on
         # those attributes anyway
         PortalFolder.__init__(self, oid, self.Title())
+        self.reindexObject()
         BaseObject.__init__(self, oid, **kwargs)
 
     def _notifyOfCopyTo(self, container, op=0):

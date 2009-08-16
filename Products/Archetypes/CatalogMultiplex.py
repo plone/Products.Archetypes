@@ -7,12 +7,12 @@ from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.permissions import ModifyPortalContent
-from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
+from Products.CMFCore.CMFCatalogAware import CatalogAware, WorkflowAware, OpaqueItemManager
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr
 
-class CatalogMultiplex(CMFCatalogAware):
+class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
     security = ClassSecurityInfo()
 
     def __url(self):
