@@ -1,6 +1,10 @@
 1.6 - unreleased
 ================
 
+  * Changed the test_metadata tests regarding dates to change reasonable times.
+    Times around the year 1000 had somewhat different timezones.
+    [hannosch]
+
   * Adjust to refactoring of CMFCatalogAware and PortalFolder's use of it.
     [davisagli]
 
