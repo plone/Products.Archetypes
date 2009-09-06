@@ -149,7 +149,7 @@
     [hannosch]
 
 
-1.5.12 - UNRELEASED
+1.5.12 - 2009-09-06
 ===================
 
 * Replaced fti/title_or_id by fti/Title in edit_macros.pt.
@@ -230,7 +230,7 @@
 1.5.9 - 2008-07-02
 ==================
 
-* according to rfc1806 the header is Content-Disposition not
+* According to rfc1806 the header is Content-Disposition not
   Content-disposition. Case matters, at least for IE6 (and results in
   IE6-typical strange effects).
   [jensens]
@@ -435,7 +435,6 @@
   invoked in View mode by KSS without any special magic. This is a
   prerequisite for bug #6705 in the Plone issue tracker.
   [limi]
-
 
 1.5.0 - 2007-08-16
 ==================
