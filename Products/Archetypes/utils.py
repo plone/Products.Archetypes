@@ -25,6 +25,7 @@ from ExtensionClass import ExtensionClass
 from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.debug import log
+from Products.Archetypes.debug import deprecated
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 
@@ -352,7 +353,7 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if not isinstance(key, basestring):
+        if not isinstance(key, basestring): 
             raise TypeError('DisplayList keys must be strings, got %s' %
                             type(key))
         if not isinstance(value, basestring) and not isinstance(value, int):
@@ -559,8 +560,8 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if not isinstance(key, basestring):
-            raise TypeError('DisplayList keys must be strings, got %s' %
+        if not isinstance(key, basestring) and not isinstance(key, int): 
+            raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)
         value = default
