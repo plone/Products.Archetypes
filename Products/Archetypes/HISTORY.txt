@@ -1,7 +1,11 @@
 1.5.13 - unreleased
 ===================
 
-- Nothing changed yet.
+- Under Python 2.4, lists raise OverflowError for indexes > MAXINT32 even
+  on 64-bit systems. Since Schema.moveField says that sys.maxint can be used
+  to move a field to the end, Schema._moveFieldToPosition must be protected
+  against out-of-range indexes.
+  [stefan]
 
 
 1.5.12 - 2009-09-06

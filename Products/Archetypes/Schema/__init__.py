@@ -20,6 +20,10 @@ from Globals import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 
+# Under Python 2.4, lists raise OverflowError for indexes > MAXINT32
+# even on 64-bit systems.
+MAXINT32 = 2**31-1
+
 __docformat__ = 'reStructuredText'
 _marker = []
 
@@ -840,6 +844,7 @@ class Schema(BasicSchema, SchemaLayerContainer):
 
         This method doesn't obey the assignement of fields to a schemata
         """
+        pos = min(pos, MAXINT32) # XXX: Python 2.4 + x86_64
         keys = self._names
         oldpos = keys.index(name)
         keys.remove(name)
