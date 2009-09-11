@@ -69,29 +69,29 @@ class DummyPortalMembership:
     def checkPermission(self, *args, **kwargs):
         return True
 
-def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time=1000):
+def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time=1980):
     """ """
     obj.setTitle(data)
     obj.setSubject([data])
     obj.setDescription(data)
     obj.setContributors([data])
-    obj.setEffectiveDate(DateTime(time, 0))
-    obj.setExpirationDate(DateTime(time, 0))
+    obj.setEffectiveDate(DateTime(time, 1))
+    obj.setExpirationDate(DateTime(time, 1))
     obj.setFormat(mimetype)
     obj.setLanguage(data)
     obj.setRights(data)
 
 def compareMetadataOf(test, obj, data='default',
-                      mimetype='application/octet-stream', time=1000):
+                      mimetype='application/octet-stream', time=1980):
     l_data = (data,)
     test.failUnless(obj.Title() == data, 'Title')
     test.failUnless(obj.Subject() == l_data,
                     'Subject: %s, %s' % (obj.Subject(), l_data))
     test.failUnless(obj.Description() == data, 'Description')
     test.failUnless(obj.Contributors() == l_data, 'Contributors')
-    test.failUnless(obj.EffectiveDate() == DateTime(time, 0).ISO(),
+    test.failUnless(obj.EffectiveDate() == DateTime(time, 1).ISO(),
                     'effective date')
-    test.failUnless(obj.ExpirationDate() == DateTime(time, 0).ISO(),
+    test.failUnless(obj.ExpirationDate() == DateTime(time, 1).ISO(),
                     'expiration date')
     if aq_base(obj) is obj:
         # If the object is not acquisition wrapped, then those
@@ -101,8 +101,8 @@ def compareMetadataOf(test, obj, data='default',
         test.failUnless(isinstance(obj.effective_date, ComputedAttribute))
         test.failUnless(isinstance(obj.expiration_date, ComputedAttribute))
     else:
-        test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 0)))
-        test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 0)))
+        test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 1)))
+        test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 1)))
     # XXX BROKEN! test.failUnless(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
     test.failUnless(obj.Language() == data, 'Language')
@@ -193,18 +193,18 @@ class ExtMetadataContextTest(ATSiteTestCase):
                                        context=parent, schema=None)
 
     def testContext(self):
-        addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent, data='parent', time=1980)
+        addMetadataTo(self._parent.dummy, data='dummy', time=2120)
 
-        compareMetadataOf(self, self._parent, data='parent', time=1001)
-        compareMetadataOf(self, self._parent.dummy, data='dummy', time=9998)
+        compareMetadataOf(self, self._parent, data='parent', time=1980)
+        compareMetadataOf(self, self._parent.dummy, data='dummy', time=2120)
 
     def testUnwrappedContext(self):
-        addMetadataTo(self._parent, data='parent', time=1001)
-        addMetadataTo(self._parent.dummy, data='dummy', time=9998)
+        addMetadataTo(self._parent, data='parent', time=1980)
+        addMetadataTo(self._parent.dummy, data='dummy', time=2120)
 
-        compareMetadataOf(self, aq_base(self._parent), data='parent', time=1001)
-        compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=9998)
+        compareMetadataOf(self, aq_base(self._parent), data='parent', time=1980)
+        compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=2120)
 
     def testIsParent(self):
         portal = self.portal
