@@ -1,6 +1,9 @@
 1.6 - unreleased
 ================
 
+  * "Categories" are now "Tags", in line with common usage and terminology.
+    [limi]
+
   * Changed the test_metadata tests regarding dates to change reasonable times.
     Times around the year 1000 had somewhat different timezones.
     [hannosch]

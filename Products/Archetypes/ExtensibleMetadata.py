@@ -76,10 +76,10 @@ class ExtensibleMetadata(Persistence.Persistent):
             accessor="Subject",
             searchable=True,
             widget=KeywordWidget(
-                label=_(u'label_categories', default=u'Categories'),
-                description=_(u'help_categories',
-                              default=u'Also known as keywords, tags or labels, '
-                                       'these help you categorize your content.'),
+                label=_(u'label_tags', default=u'Tags'),
+                description=_(u'help_tags',
+                              default=u'Tags are commonly used for ad-hoc '
+                                       'organization of content.'),
                 ),
         ),
         TextField(
