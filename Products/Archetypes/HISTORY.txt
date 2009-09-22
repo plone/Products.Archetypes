@@ -1,4 +1,4 @@
-1.5.13 - unreleased
+1.5.13 - 2009-09-22
 ===================
 
 * Under Python 2.4, lists raise OverflowError for indexes > MAXINT32 even
