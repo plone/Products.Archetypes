@@ -3,7 +3,6 @@ import posixpath
 
 from zope import event
 from zExceptions import MethodNotAllowed
-# Recent enough Zopes will have this. Do we care about older ones?
 from ZPublisher.Iterators import IStreamIterator
 from Products.CMFCore.utils import getToolByName
 
@@ -14,10 +13,7 @@ from zope.interface import implements, Interface
 
 class PdataStreamIterator(object):
 
-    if issubclass(IStreamIterator, Interface):
-        implements(IStreamIterator)
-    else:
-        __implements__ = IStreamIterator
+    implements(IStreamIterator)
 
     def __init__(self, data, size, streamsize=1<<16):
         # Consume the whole data into a TemporaryFile when

@@ -2185,8 +2185,6 @@ class ImageField(FileField):
         will be deleted (None is understood as no-op)
         """
 
-    # XXX__implements__ = FileField.__implements__ , IImageField
-
     _properties = FileField._properties.copy()
     _properties.update({
         'type' : 'image',
