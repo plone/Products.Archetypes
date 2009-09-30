@@ -1,4 +1,4 @@
-from types import ListType, TupleType
+from hashlib import md5
 
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
@@ -42,7 +42,7 @@ class CompositeSchema(Implicit):
 
     def addSchemas(self, schemas):
         """Append to the underlying schemas"""
-        if type(schemas) not in [ListType, TupleType]:
+        if isinstance(schemas, (list, tuple)):
             schemas = (schemas, )
 
         for schema in schemas:
@@ -259,10 +259,6 @@ class CompositeSchema(Implicit):
         This is used for determining whether a schema
         has changed in the auto update function.
         """
-        try:
-            from hashlib import md5
-        except:
-            from md5 import md5
         return md5(self.toString()).digest()
 
     security.declarePrivate('changeSchemataForField')
