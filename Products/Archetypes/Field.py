@@ -56,6 +56,7 @@ from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Widget import ReferenceWidget
 from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
@@ -63,8 +64,6 @@ from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
 from Products.Archetypes.mimetype_utils import getAllowedContentTypes as getAllowedContentTypesProperty
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import log_exc
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.Storage import ObjectManagedStorage
@@ -91,7 +90,7 @@ try:
     import PIL.Image
 except ImportError:
     # no PIL, no scaled versions!
-    log("Warning: no Python Imaging Libraries (PIL) found."+\
+    log("Warning: no Python Imaging Libraries (PIL) found. "
         "Archetypes based ImageField's don't scale if neccessary.")
     HAS_PIL=False
     PIL_ALGO = None
@@ -482,8 +481,7 @@ class Field(DefaultLayerContainer):
             elif len(sample) and isinstance(sample[0], basestring):
                 value = DisplayList(zip(value, value))
             else:
-                log('Unhandled type in Vocab')
-                log(value)
+                log('Unhandled type in Vocab: %s' % value)
 
         if content_instance:
             # Translate vocabulary
@@ -2238,7 +2236,6 @@ class ImageField(FileField):
             if not self.swallowResizeExceptions:
                 raise
             else:
-                log_exc()
                 data = str(value.data)
         # TODO add self.ZCacheable_invalidate() later
         self.createOriginal(instance, data, **kwargs)
@@ -2369,7 +2366,6 @@ class ImageField(FileField):
                 if not self.swallowResizeExceptions:
                     raise
                 else:
-                    log_exc()
                     # scaling failed, don't create a scaled version
                     continue
 

@@ -1,8 +1,7 @@
+import logging
 import os
-import sys
 import time
 import urllib
-import traceback
 from zope.interface import implements
 
 from App.class_init import InitializeClass
@@ -21,11 +20,11 @@ from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.debug import log
 from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
+logger = logging.getLogger('Archetypes')
 
 def manage_addUIDCatalog(self, id, title,
                          vocab_id=None, # Deprecated
@@ -105,9 +104,8 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         except (ConflictError, KeyboardInterrupt):
             raise
         except:
-            log('UIDCatalogBrains getObject raised an error:\n %s' %
-                '\n'.join(traceback.format_exception(*sys.exc_info())))
-            pass
+            logger.log(logging.INFO,
+                'UIDCatalogBrains getObject raised an error', exc_info=True)
 
 InitializeClass(UIDCatalogBrains)
 

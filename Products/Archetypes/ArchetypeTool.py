@@ -1,5 +1,3 @@
-from __future__ import nested_scopes
-
 import os.path
 import sys
 from copy import deepcopy
@@ -21,7 +19,7 @@ from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
-from Products.Archetypes.debug import log
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import findDict
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import mapply
@@ -923,7 +921,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Dump some things about an object hook in the debugger for now.
         """
         object = self.getObject(UID)
-        log(object, object.Schema(), dir(object))
+        log("uid: %s, schema: %s" % (object, object.Schema()))
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() +
                                          '/manage_uids')
@@ -1120,7 +1118,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             except (ConflictError, KeyboardInterrupt):
                 raise
             except Exception, E:
-                log('No tool', name, E)
+                log('No tool %s' % name, E)
                 pass
         return catalogs
 

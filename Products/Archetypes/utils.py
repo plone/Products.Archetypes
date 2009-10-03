@@ -24,8 +24,7 @@ from Acquisition import aq_base
 from ExtensionClass import ExtensionClass
 from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.debug import log
-from Products.Archetypes.debug import deprecated
+from Products.Archetypes.log import log
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 

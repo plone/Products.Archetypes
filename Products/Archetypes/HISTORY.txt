@@ -1,6 +1,11 @@
 1.6 - unreleased
 ================
 
+  * Sanitized the log message handling. Added a simple log module based on
+    Python's logging module. The log methods in the debug module calculate
+    the entire stack frame on *every* log call.
+    [hannosch]
+
   * "Categories" are now "Tags", in line with common usage and terminology.
     [limi]
 

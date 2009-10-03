@@ -9,8 +9,8 @@ from Products.Archetypes.Widget import *
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces import IExtensibleMetadata
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import DisplayList, shasattr
-from Products.Archetypes.debug import log
 from Products.Archetypes import config
 import Persistence
 from Acquisition import aq_base

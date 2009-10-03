@@ -1,4 +1,3 @@
-from debug import log
 from logging import WARNING
 
 from Acquisition import aq_base
@@ -9,6 +8,7 @@ from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CatalogAware, WorkflowAware, OpaqueItemManager
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
+from Products.Archetypes.log import log
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr
 

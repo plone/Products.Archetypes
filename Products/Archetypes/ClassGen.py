@@ -1,11 +1,9 @@
-from __future__ import nested_scopes
 import re
 from types import FunctionType as function
+from warnings import warn
 
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.utils import _getSecurity
-from Products.Archetypes.debug import warn
-from Products.Archetypes.debug import deprecated
 from App.class_init import InitializeClass
 
 # marker that AT should generate a method -- used to discard unwanted
@@ -111,7 +109,7 @@ class ClassGenerator:
                  'on the field. Assuming that the explicit '
                  'permission declared is the correct one and '
                  'has preference over the permission declared '
-                 'on the field.' % methodName)
+                 'on the field.' % methodName, UserWarning, 3)
         elif method__roles__ is None:
             security.declarePublic(methodName)
         elif method__roles__ == ():

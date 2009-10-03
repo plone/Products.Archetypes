@@ -14,7 +14,7 @@ from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.debug import log
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import mapply
 

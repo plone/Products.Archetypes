@@ -3,10 +3,9 @@ from types import StringType
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
-from Products.Archetypes.interfaces.base import IBaseUnit as z2IBaseUnit
 from Products.Archetypes.config import *
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import shasattr
-from Products.Archetypes.debug import log
 from logging import ERROR
 
 from AccessControl import ClassSecurityInfo
@@ -15,7 +14,6 @@ from OFS.Image import File
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.MimetypesRegistry.interfaces import IMimetype
-from Products.PortalTransforms.interfaces import idatastream
 from webdav.interfaces import IWriteLock
 
 _marker = []

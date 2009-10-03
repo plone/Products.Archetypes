@@ -1,5 +1,6 @@
-from __future__ import nested_scopes
 from types import ListType, TupleType, StringType
+from warnings import warn
+
 from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
@@ -9,7 +10,6 @@ from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
      IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
 from Products.Archetypes.mimetype_utils import getDefaultContentType
-from Products.Archetypes.debug import warn
 from Products.Archetypes.exceptions import SchemaException
 from Products.Archetypes.exceptions import ReferenceException
 
@@ -436,7 +436,7 @@ class BasicSchema(Schemata):
                 level = 3
                 if self.__class__ is not BasicSchema:
                     level = 4
-                warn(msg, level=level)
+                warn(msg, UserWarning, level=level)
                 for field in args:
                     self.addField(args[0])
 

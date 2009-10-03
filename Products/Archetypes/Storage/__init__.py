@@ -1,6 +1,6 @@
 from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.debug import log
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import shasattr
 
 from Acquisition import aq_base

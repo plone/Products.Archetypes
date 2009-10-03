@@ -10,7 +10,7 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.generator import macrowidget
-from Products.Archetypes.debug import log
+from Products.Archetypes.log import log
 from Products.Archetypes.Registry import registerPropertyType
 from Products.Archetypes.Registry import registerWidget
 
