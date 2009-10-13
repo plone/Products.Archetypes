@@ -136,8 +136,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=CalendarWidget(
                 label=_(u'label_effective_date', u'Publishing Date'),
                 description=_(u'help_effective_date',
-                              default=u"If this date is in the future, the content will "
-                                       "not show up in listings and searches until this date."),
+                              default=u"The date when the item will be published. If no "
+                                       "date is selected the item will be published immediately."),
                 ),
         ),
         DateTimeField(
@@ -147,8 +147,9 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=CalendarWidget(
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
-                              default=u"When this date is reached, the content will no"
-                                       "longer be visible in listings and searches."),
+                              default=u"The date when the item expires. This will automatically "
+                                       "make the item invisible for others at the given date. "
+                                       "If no date is chosen, it will never expire."),
                 ),
         ),
         StringField(
