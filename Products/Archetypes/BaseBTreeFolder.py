@@ -14,7 +14,9 @@ from webdav.NullResource import NullResource
 from OFS.ObjectManager import REPLACEABLE
 from ComputedAttribute import ComputedAttribute
 
-class BaseBTreeFolder(CMFBTreeFolder, BaseFolder):
+from plone.app.folder.base import BaseBTreeFolder
+
+class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
     security = ClassSecurityInfo()
