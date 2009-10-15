@@ -57,8 +57,7 @@
                  tal:attributes="name string:$fieldName:default:list;" />
 
           <div>
-            <div style="float:left">
-                <table style="border:none;margin:0em;padding:0em;margin-right:0.5em;" cellpadding="0" cellspacing="0">
+                <table style="border:none;margin:0em;padding:0em;margin-right:0.5em;width:auto;" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="padding-left:0em;padding-top:0em;">
                       <select
@@ -83,7 +82,7 @@
                       </select>
                     </td>
       
-                    <td style="vertical-align:middle">
+                    <td style="vertical-align:middle;padding-left:0.5em;padding-right:0.5em">
                       <input type="button" class="context" value="&gt;&gt;"
                              tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')"
                              />
@@ -92,29 +91,27 @@
                              tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')"
                              />
                     </td>
+		    <td>
+                      <select
+                          multiple="multiple"
+                          tal:attributes="name string:${fieldName}:list;
+                                          id string:${fieldName};
+                                          size widget/size;
+                                          onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
+  	              
+                          <tal:block tal:repeat="single_value selection">
+                            <option
+                              tal:attributes="value single_value;"
+                              tal:content="python:vocab.getValue(single_value)"
+                              selected="selected"
+                              i18n:translate="">
+                               option
+                            </option>
+                          </tal:block>
+                          </select>
+		    </td>
                   </tr>
                 </table>
-            </div>
-            <div style="float:left">
-              <select
-                  multiple="multiple"
-                  tal:attributes="name string:${fieldName}:list;
-                                  id string:${fieldName};
-                                  size widget/size;
-                                  onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
-  
-                  <tal:block tal:repeat="single_value selection">
-                    <option
-                      tal:attributes="value single_value;"
-                      tal:content="python:vocab.getValue(single_value)"
-                      selected="selected"
-                      i18n:translate="">
-                       option
-                    </option>
-                  </tal:block>
-                  </select>
-             </div>
-             <div style="clear:both">&nbsp;</div>
           </div>
           <metal:addable metal:use-macro="context/widgets/addable_support/macros/addable"/>
 
