@@ -159,6 +159,9 @@
 1.5.14 - unreleased
 ===================
 
+* Pass request when testing validation in test_fields.
+  [ccrownhart, jnelson, tesdal]
+
 * Use the same default messages than in Plone for label_effective_date and
   help_expiration_date msgids. There is no new strings to translate.
   See http://dev.plone.org/plone/ticket/9633
