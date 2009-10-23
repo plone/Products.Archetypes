@@ -217,7 +217,7 @@ class ProcessingTest(ATSiteTestCase):
         request.form['fieldset'] = 'default'
         dummy.REQUEST = request
         errors = {}
-        dummy.validate(errors=errors)
+        dummy.validate(REQUEST=request, errors=errors)
         self.failIf(errors, errors)
 
     def test_validation_visible_fields(self):
