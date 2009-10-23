@@ -57,7 +57,6 @@ class BaseFolderMixin(CatalogMultiplex,
         # Call skinned first cause baseobject will set new defaults on
         # those attributes anyway
         PortalFolder.__init__(self, oid, self.Title())
-        self.reindexObject()
         BaseObject.__init__(self, oid, **kwargs)
 
     def _notifyOfCopyTo(self, container, op=0):
