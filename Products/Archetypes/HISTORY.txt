@@ -159,6 +159,10 @@
 1.5.14 - unreleased
 ===================
 
+* FixedPointField required validation now counts 0 values as values.  This
+  closes http://dev.plone.org/old/plone/ticket/9414.
+  [kilobug, davisagli]
+
 * Pass request when testing validation in test_fields.
   [ccrownhart, jnelson, tesdal]
 
