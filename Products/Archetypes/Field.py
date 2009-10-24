@@ -1573,7 +1573,16 @@ class FloatField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class FixedPointField(ObjectField):
-    """A field for storing numerical data with fixed points"""
+    """A field for storing numerical data with fixed points 
+    
+    Test for fix for Plone issue #9414: '0' and '0.0' should count as values
+    when validating required fields.  (A return value of None means validation
+    passed.)
+    
+    >>> f = FixedPointField()
+    >>> f.validate_required(None, '0', [])
+    >>> f.validate_required(None, '0.0', [])
+    """
     __implements__ = ObjectField.__implements__
 
     _properties = Field._properties.copy()
@@ -1689,11 +1698,7 @@ class FixedPointField(ObjectField):
             sign = '-'
             fra = abs(fra)
         return template % (sign, front, fra)
-
-    security.declarePrivate('validate_required')
-    def validate_required(self, instance, value, errors):
-        value = sum(self._to_tuple(instance, value))
-        return ObjectField.validate_required(self, instance, value, errors)
+    
 
 class ReferenceField(ObjectField):
     """A field for creating references between objects.
