@@ -62,7 +62,7 @@
     </tal:block>
   </metal:javascript_head>
 
-  <metal:css fill-slot="css_slot">
+  <metal:css fill-slot="style_slot">
     <tal:css condition="css"
              repeat="item css">
       <style type="text/css"

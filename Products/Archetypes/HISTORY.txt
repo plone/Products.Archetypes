@@ -1,6 +1,10 @@
 1.6 - unreleased
 ================
 
+  * Replaced the css_slot with the style_slot, as the deprecated
+    css_slot is now really removed in Plone 4.
+    [maurits+maartenkling]
+
   * Sanitized the log message handling. Added a simple log module based on
     Python's logging module. The log methods in the debug module calculate
     the entire stack frame on *every* log call.

@@ -8,7 +8,7 @@
 
     <title></title>
 
-    <metal:fill_slot fill-slot="css_slot">
+    <metal:fill_slot fill-slot="style_slot">
       <link rel="stylesheet"
             type="text/css"
             media="screen"

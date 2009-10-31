@@ -39,7 +39,7 @@
     </tal:block>
   </metal:javascript_head>
 
-  <metal:css fill-slot="css_slot">
+  <metal:css fill-slot="style_slot">
     <tal:comment replace="nothing">
       Many of the following defines duplicated from the tal:defines in the
       main slot. With base_edit, edit_macros could be reused as it was defined
