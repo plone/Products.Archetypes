@@ -190,9 +190,9 @@ class ClassGenerator:
 def generateCtor(name, module):
     # self is a App.FactoryDispater, Destination() is the real folder
     ctor = """
+from zope.event import notify
+from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 def add%(name)s(self, id, **kwargs):
-    from zope.event import notify
-    from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
     obj = %(name)s(id)
     notify(ObjectCreatedEvent(obj))
     self._setObject(id, obj)
