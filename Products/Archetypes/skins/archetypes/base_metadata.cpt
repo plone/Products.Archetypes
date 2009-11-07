@@ -1,5 +1,6 @@
 <tal:block metal:define-macro="master"
            define="errors options/state/getErrors | nothing;
+                   portal context/@@plone_portal_state/portal;
                    rejection context/rejectAnonymous;
                    type_name context/getPortalTypeName|context/archetype_name;
                    fti context/getTypeInfo;
