@@ -1565,7 +1565,7 @@ class FixedPointField(ObjectField):
     _properties.update({
         'type' : 'fixedpoint',
         'precision' : 2,
-        'default' : '0.00',
+        'default' : None,
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
@@ -1587,6 +1587,7 @@ class FixedPointField(ObjectField):
         (-1, 0)
         >>> f._to_tuple(instance, '0.5')
         (0, 50)
+        >>> f._to_tuple(instance, None)
 
         Negative numbers between -1 and -0 need to be handled
         differently as there is no difference between +0 and -0.
@@ -1624,6 +1625,8 @@ class FixedPointField(ObjectField):
         """
         if not value:
             value = self.getDefault(instance)
+        if value is None:
+            return value
 
         # XXX :-(
         # Decimal Point is very english. as a first hack
