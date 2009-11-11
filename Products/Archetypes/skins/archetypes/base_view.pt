@@ -21,7 +21,7 @@
       create additional defines for each slot it fills.
     </tal:comment>
     <tal:js define="fields python:context.Schema().viewableFields(here);
-                    portal context/@@plone_portal_state/portal;
+                    portal context/portal_url/getPortalObject;
                     js python:context.getUniqueWidgetAttr(fields, 'helper_js')"
             condition="js"
             repeat="item js">
@@ -49,7 +49,7 @@
     </tal:comment>
     <tal:css define="fields python:context.Schema().viewableFields(here);
                      css python:context.getUniqueWidgetAttr(fields, 'helper_css');
-                     portal context/@@plone_portal_state/portal;"
+                     portal context/portal_url/getPortalObject;"
              condition="css"
              repeat="item css">
       <style type="text/css"
