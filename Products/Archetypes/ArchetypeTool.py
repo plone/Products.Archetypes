@@ -59,19 +59,15 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-try:
-    from Products.CMFPlone.Configuration import getCMFVersion
-except ImportError:
-    # Configuration and getCMFVersion come with Plone
-    def getCMFVersion():
-        from os.path import join
-        from App.Common import package_home
-        from Products.CMFCore import cmfcore_globals
-        path = join(package_home(cmfcore_globals),'version.txt')
-        file = open(path, 'r')
-        _version = file.read()
-        file.close()
-        return _version.strip()
+def getCMFVersion():
+    from os.path import join
+    from App.Common import package_home
+    from Products.CMFCore import cmfcore_globals
+    path = join(package_home(cmfcore_globals),'version.txt')
+    file = open(path, 'r')
+    _version = file.read()
+    file.close()
+    return _version.strip()
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
