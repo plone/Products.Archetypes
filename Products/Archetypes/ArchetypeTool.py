@@ -65,7 +65,7 @@ except ImportError:
     # Configuration and getCMFVersion come with Plone
     def getCMFVersion():
         from os.path import join
-        from Globals import package_home
+        from App.Common import package_home
         from Products.CMFCore import cmfcore_globals
         path = join(package_home(cmfcore_globals),'version.txt')
         file = open(path, 'r')
