@@ -28,8 +28,6 @@
 
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-
 from zope.interface import providedBy, implementedBy
 from zope.interface.verify import verifyClass, verifyObject
 from zope.interface.exceptions import BrokenImplementation, DoesNotImplement,\
@@ -59,12 +57,12 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.atapi import registerType
-from Products.CMFTestCase.layer import ZCMLLayer
+from Products.Archetypes.tests.layer import ZCML
 
 def className(klass):
     """ get the short class name """
     # remove <>
-    name = str(klass)[1:-1]
+    name = str(klass)
     return name.split('.')[-1].split(' ')[0]
 
 # list of tests
@@ -84,7 +82,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         setattr(MyClass, MyMethodName, lambda self: self._testStuff())
 
     """
-    layer = ZCMLLayer
+    layer = ZCML
     klass = None    # test this class
     instance = None # test this instance
     forcedImpl = () # class must implement this tuple of interfaces
@@ -147,10 +145,11 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
             for iface in self.getImplementsOfInstanceOf(self.klass):
                 self.interfaceImplementedByInstanceOf(self.klass, iface)
         if self.instance:
+            instance = self.instance('test')
             if self.forcedImpl:
-                self.doesImplementBy(self.instance, self.forcedImpl)
-            for iface in self.getImplementsOf(self.instance):
-                self.interfaceImplementedBy(self.instance, iface)
+                self.doesImplementBy(instance, self.forcedImpl)
+            for iface in self.getImplementsOf(instance):
+                self.interfaceImplementedBy(instance, iface)
 
 ###############################################################################
 ###                         testing starts here                             ###
@@ -195,20 +194,6 @@ registerType(BF, PROJECTNAME)
 class OBF(OrderedBaseFolder): pass
 registerType(OBF, PROJECTNAME)
 
-# format: (instance object, (list interface objects))
-# take care: you must provide an instance, not a class!
-def make_test_instances():
-    return [
-        # (EM(), ()), XXX See comment on ExtensibleMetadata
-        (BC('test'), ()),
-        (BF('test'), ()),
-        (OBF('test'), ()),
-        ]
-
-# @@ so inefficient
-from Products.CMFTestCase.five import safe_load_site_wrapper
-testInstances = safe_load_site_wrapper(make_test_instances)()
-
 for testClass in testClasses:
     klass, forcedImpl = testClass
     name = className(klass)
@@ -218,22 +203,21 @@ for testClass in testClasses:
         """ implementation for %s """ % name
         klass      = klass
         forcedImpl = forcedImpl
-        layer = ZCMLLayer
+        layer = ZCML
 
     # add the testing method to the class to get a nice name
     setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())
     tests.append(KlassInterfaceTest)
 
-for testInstance in testInstances:
-    instance, forcedImpl = testInstance
-    name = className(instance)
+for testInstance in (BC, BF, OBF):
+    name = className(testInstance)
     funcName = 'test%sInterface' % name
 
     class InstanceInterfaceTest(InterfaceTest):
         """ implementation for %s """ % name
-        instance   = instance
-        forcedImpl = forcedImpl
-        layer = ZCMLLayer
+        instance   = testInstance
+        forcedImpl = ()
+        layer = ZCML
 
     # add the testing method to the class to get a nice name
     setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())
