@@ -18,12 +18,10 @@ from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces import ISchema
-from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.validator import AttributeValidator
 from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
-from Products.Archetypes.ArchetypeTool import getType
 
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent

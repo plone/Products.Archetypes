@@ -342,7 +342,7 @@ Now for a BTreeFolder:
   False
 
   >>> print folder.index_html
-  None
+  <DDocument at index_html>
 
   >>> print http(r"""
   ... PUT /%s/simple_btree_folder/index_html HTTP/1.1

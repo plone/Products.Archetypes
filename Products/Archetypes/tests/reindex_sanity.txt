@@ -97,18 +97,6 @@ setting:
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_doc1 None
   ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_doc1 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 ['allowedRolesAndUsers']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 None
-  ------------------------------------------------------------
 
   >>> self.folder['new_doc1'].Title()
   ''
@@ -127,18 +115,6 @@ More complex invokeFactory call, setting title and description:
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_doc2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc2 None
-  ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_doc2 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_doc2 None
@@ -220,18 +196,6 @@ setting:
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_folder1 None
   ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_folder1 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder1 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder1 ['allowedRolesAndUsers']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder1 None
-  ------------------------------------------------------------
 
   >>> self.folder['new_folder1'].Title()
   ''
@@ -250,18 +214,6 @@ More complex invokeFactory call, setting title and description:
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_folder2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder2 None
-  ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_folder2 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_folder2 None
@@ -344,18 +296,6 @@ setting:
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_btree_folder1 None
   ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_btree_folder1 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['allowedRolesAndUsers']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 None
-  ------------------------------------------------------------
 
   >>> self.folder['new_btree_folder1'].Title()
   ''
@@ -374,18 +314,6 @@ More complex invokeFactory call, setting title and description:
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 None
-  ------------------------------------------------------------
-  Catalog:  uid_catalog
-  Indexing: Members/test_user_1_/new_btree_folder2 []
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['review_state']
-  ------------------------------------------------------------
-  Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['allowedRolesAndUsers']
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_btree_folder2 None

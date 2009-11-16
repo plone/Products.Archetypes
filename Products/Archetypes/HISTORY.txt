@@ -1,6 +1,12 @@
 1.6 - unreleased
 ================
 
+  * Modified the auto-generated type factories for compatibility with CMF 2.2.
+    The _constructInstance method of CMF FTI objects now takes care of raising
+    object events for old-style factories, so AT factories no longer raise
+    their own events.
+    [davisagli]
+
   * Restructured and restyled inandout widget to fix issue with rtl scripts.
     http://dev.plone.org/plone/ticket/5660
     [emanlove]
