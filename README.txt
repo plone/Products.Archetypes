@@ -26,22 +26,6 @@ Features
 
 * Per Type cataloging in one or more catalogs
 
-Requirements
-------------
-
-* CMF 2.1.0+
-
-* Zope 2.10.0+
-
-* statusmessages 3.0+
-
-Recommended
------------
- 
-* docutils > 0.3.3 (shipped with Zope)
-
-* Python Imgaging Library 1.1.6+
-
 Unit testing
 ------------
 
