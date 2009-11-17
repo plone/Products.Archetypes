@@ -155,8 +155,11 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
     
         # XXX now lets test if http://plone.org/collector/4487 is present
         if  "base_edit.cpt" in self.portal.portal_skins.archetypes.objectIds():
-            raise AttributeError, ("test_id_change_with_without_marker "
-                  "is expected to fail unless  http://plone.org/collector/4487 is fixed")
+            raise AttributeError("test_id_change_with_without_marker is "
+                  "expected to fail unless http://plone.org/collector/4487 is "
+                  "fixed. This might also occur with chameleon cache files "
+                  "but chameleon not installed. You can find them via: "
+                  "find . -name \"*pt.py\"")
     
         self.failUnless(auto_id in self.folder.objectIds())
         new_obj = getattr(self.folder, auto_id)
