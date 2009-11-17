@@ -4,6 +4,11 @@ Changelog
 1.6a2 - Unreleased
 ------------------
 
+- Changed the language field in ExtensibleMetadata to respect the default
+  language set on the portal_languages tool and remove incorrect "site default"
+  from the "Language neutral" term.
+  [hannosch]
+
 - Updated readme and fixed reST errors in changes.txt.
   [hannosch]
 

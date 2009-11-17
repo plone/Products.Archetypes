@@ -214,7 +214,10 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declarePrivate('defaultLanguage') 
     def defaultLanguage(self): 
-        """Retrieve the default language""" 
+        """Retrieve the default language"""
+        tool = getToolByName(self, 'portal_languages', None)
+        if tool is not None:
+            return tool.getDefaultLanguage()
         return config.LANGUAGE_DEFAULT
 
     security.declarePrivate('defaultRights')
@@ -319,7 +322,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             languages = util.getLanguageListing()
             languages.sort(key=lambda x:x[1])
             # Put language neutral at the top.
-            languages.insert(0,(u'',_(u'Language neutral (site default)')))
+            languages.insert(0,(u'',_(u'Language neutral')))
         return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################
