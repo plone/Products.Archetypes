@@ -4,6 +4,8 @@ Changelog
 1.6a2 - Unreleased
 ------------------
 
+- Updated readme and fixed reST errors in changes.txt.
+  [hannosch]
 
 1.6a1 - 2009-11-17
 ------------------
